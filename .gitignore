@@ -1,0 +1,7 @@
+.vscode
+.idea
+/target
+
+*/src/test/gen/*
+
+!*/src/test/gen/mod.rs

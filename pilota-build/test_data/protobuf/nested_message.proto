@@ -1,0 +1,11 @@
+message TT1 {
+    message T2 {
+        message TT3 {
+            optional int32 a = 1;
+        }
+
+        required TT3 t3 = 1;
+    }
+    
+    required T2 t2 = 1;
+}

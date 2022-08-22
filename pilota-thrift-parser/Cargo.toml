@@ -1,0 +1,20 @@
+[package]
+name = "pilota-thrift-parser"
+version = "0.1.0"
+edition = "2021"
+description = "Pilota thrift Parser."
+documentation = "https://docs.rs/pilota"
+readme = "README.md"
+homepage = "https://cloudwego.io/docs/pilota/"
+repository = "https://github.com/cloudwego/pilota"
+license = "MIT OR Apache-2.0"
+authors = ["Pilota Team <pilota@cloudwego.io>"]
+categories = ["encoding"]
+keywords = ["serialization", "thrift", "parser"]
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[dependencies]
+nom = "7"

@@ -1,0 +1,51 @@
+[package]
+name = "pilota-build"
+version = "0.1.1"
+edition = "2021"
+description = "Compile thrift and protobuf idl into rust code at compile-time."
+documentation = "https://docs.rs/pilota-build"
+readme = "README.md"
+homepage = "https://cloudwego.io/docs/pilota/"
+repository = "https://github.com/cloudwego/pilota"
+license = "MIT OR Apache-2.0"
+authors = ["Pilota Team <pilota@cloudwego.io>"]
+keywords = ["serialization", "thrift", "protobuf", "volo"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[dependencies]
+pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.1.0" }
+
+heck = "0.4"
+syn = "1"
+fxhash = "0.2"
+proc-macro2 = "1"
+salsa = { version = "0.17.0-pre.2" }
+scoped-tls = "1"
+quote = "1"
+lazy_static = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+phf = { version = "0.11", features = ["macros"] }
+itertools = "0.10"
+paste = "1"
+petgraph = "0.6"
+# The official rust-protobuf parser currently has some bug.
+# We will switch to the official one when https://github.com/stepancheg/rust-protobuf/pull/646 is fixed.
+protobuf-parse = { package = "protobuf-parse2", version = "4.0.0-alpha.2" }
+protobuf = { package = "protobuf2", version = "4.0.0-alpha.2" }
+
+[build-dependencies]
+itertools = "0.10"
+
+[dev-dependencies]
+async-trait = "0.1"
+pilota = { path = "../pilota" }
+tokio = { version = "1", features = ["io-util"] }
+num_enum = "0.5"
+derivative = "2"
+tempfile = "3"
+diffy = "0.2"
