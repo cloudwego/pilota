@@ -1,0 +1,3 @@
+[workspace]
+members = ["pilota", "pilota-build", "pilota-thrift-parser"]
+resolver = "2"
