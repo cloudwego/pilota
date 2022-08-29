@@ -213,6 +213,7 @@ impl ThriftBackend {
         }
     }
 
+    #[inline]
     fn field_is_box(&self, f: &Field) -> bool {
         match self.adjust(f.did) {
             Some(a) => a.boxed(),
@@ -241,7 +242,7 @@ impl ThriftBackend {
             let mut read_field = self.codegen_decode_ty(helper, &f.ty);
             let field_id = f.id as i16;
             if self.field_is_box(f) {
-                read_field = quote! {::std::boxed::Box::new(read_field) };
+                read_field = quote! {::std::boxed::Box::new(#read_field) };
             };
             let skip = helper.codegen_skip_ttype(quote! { ttype });
 

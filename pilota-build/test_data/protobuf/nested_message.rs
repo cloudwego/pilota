@@ -18,13 +18,13 @@ pub mod nested_message {
                 #[derive(PartialOrd, Hash, Eq, Ord, :: prost :: Message, Clone, PartialEq)]
                 pub struct T2 {
                     #[prost(message, tag = "1", optional)]
-                    pub t3: Option<Tt3>,
+                    pub t3: ::std::option::Option<Tt3>,
                 }
             }
             #[derive(PartialOrd, Hash, Eq, Ord, :: prost :: Message, Clone, PartialEq)]
             pub struct Tt1 {
                 #[prost(message, tag = "1", optional)]
-                pub t2: Option<T2::T2>,
+                pub t2: ::std::option::Option<T2::T2>,
             }
         }
     }

@@ -112,7 +112,7 @@ impl Plugin for BoxedPlugin {
             s.fields.iter().for_each(|f| {
                 if let ty::Path(p) = &f.ty.kind {
                     if cx.type_graph().is_nested(p.did, def_id) {
-                        cx.with_adjust(def_id, |adj| adj.set_boxed())
+                        cx.with_adjust(f.did, |adj| adj.set_boxed())
                     }
                 }
             })
