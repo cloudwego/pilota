@@ -65,12 +65,12 @@ where
 
             if let Some(adjust) = adjust {
                 if adjust.boxed() {
-                    ty = quote::quote! { Box<#ty> }
+                    ty = quote::quote! { ::std::boxed::Box<#ty> }
                 }
             }
 
             if f.is_optional() {
-                ty = quote::quote! { Option<#ty> }
+                ty = quote::quote! { ::std::option::Option<#ty> }
             }
 
             let attrs = adjust.iter().flat_map(|a| a.attrs());

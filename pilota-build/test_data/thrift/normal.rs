@@ -10,7 +10,7 @@ pub mod normal {
     pub mod normal {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
-            pub a: Option<i32>,
+            pub a: ::std::option::Option<i32>,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
@@ -114,7 +114,7 @@ pub mod normal {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct B {
-            pub a: Option<A>,
+            pub a: ::std::option::Option<A>,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for B {
