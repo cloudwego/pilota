@@ -15,7 +15,7 @@ use crate::{
         rir::{self, ItemPath, Literal},
         ty::{AdtDef, AdtKind, CodegenTy},
     },
-    symbol::{DefId, EnumRepr},
+    symbol::{DefId, EnumRepr, IdentName},
     Context,
 };
 
@@ -56,7 +56,8 @@ where
     B: CodegenBackend,
 {
     pub fn write_struct(&mut self, def_id: DefId, stream: &mut TokenStream, s: &rir::Message) {
-        let name = format_ident!("{}", &s.name.to_upper_camel_case());
+        let name = format_ident!("{}", (&**s.name).struct_ident());
+
         let fields = s.fields.iter().map(|f| {
             let name = format_ident!("{}", &f.name.to_snake_case());
             let adjust = self.adjust(f.did);
@@ -127,7 +128,7 @@ where
     }
 
     pub fn write_enum(&mut self, def_id: DefId, stream: &mut TokenStream, e: &middle::rir::Enum) {
-        let name = format_ident!("{}", &e.name.to_upper_camel_case());
+        let name = format_ident!("{}", (&**e.name).struct_ident());
 
         let mut repr = match e.repr {
             Some(EnumRepr::I32) => quote! {
@@ -141,7 +142,8 @@ where
         }
 
         let variants = e.variants.iter().map(|v| {
-            let name = format_ident!("{}", &v.name.to_upper_camel_case());
+            let name = format_ident!("{}", (&**v.name).variant_ident());
+
             let adjust = self.adjust(v.did);
             let attrs = adjust.iter().flat_map(|a| a.attrs());
             let fields = v
