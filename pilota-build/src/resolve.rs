@@ -1,6 +1,7 @@
 use std::{ptr::NonNull, sync::Arc};
 
 use fxhash::FxHashMap;
+use itertools::Itertools;
 
 use crate::{
     index::Idx,
@@ -272,15 +273,26 @@ impl Resolver {
     }
 
     fn lower_path(&self, p: &ir::Path, ns: Namespace) -> Path {
+        let mut start_index = 1;
         let mut module_id = match ns {
             Namespace::Value => &[Namespace::Value, Namespace::Ty] as &[_],
             Namespace::Ty => &[Namespace::Ty],
         }
         .iter()
-        .find_map(|ns| self.resolve_sym(*ns, p.segments[0].sym.clone()))
+        .find_map(|ns| {
+            self.resolve_sym(*ns, p.segments[0].sym.clone())
+                .or_else(|| {
+                    // hack, symbol can be "a.b.c" in thrift
+                    start_index = p.segments.len() - 1;
+                    self.resolve_sym(
+                        *ns,
+                        Symbol::from(p.segments[0..start_index].iter().map(|v| &***v).join("_")),
+                    )
+                })
+        })
         .unwrap_or_else(|| panic!("undefined ident {}", p.segments[0].sym));
 
-        p.segments[1..].iter().for_each(|ident| {
+        p.segments[start_index..].iter().for_each(|ident| {
             module_id = match module_id {
                 ModuleId::File(file_id) => {
                     let file = self.ir_files.get(&file_id).unwrap();

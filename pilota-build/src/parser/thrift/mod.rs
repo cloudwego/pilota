@@ -402,7 +402,8 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                                 .split('/')
                                 .last()
                                 .unwrap()
-                                .trim_end_matches(".thrift"),
+                                .trim_end_matches(".thrift")
+                                .replace('.', "_"),
                         ),
                         this.lower_include(i),
                     )
@@ -428,7 +429,14 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                     .as_ref()
                     .map(|p| this.lower_path(p))
                     .unwrap_or_else(|| Path {
-                        segments: Arc::from([f.path.file_stem().unwrap().to_str().unwrap().into()]),
+                        segments: Arc::from([f
+                            .path
+                            .file_stem()
+                            .unwrap()
+                            .to_str()
+                            .unwrap()
+                            .replace('.', "_")
+                            .into()]),
                     }),
                 items: f
                     .items
