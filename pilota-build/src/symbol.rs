@@ -2,7 +2,7 @@ use std::{fmt::Display, ops::Deref, sync::Arc};
 
 use heck::{ToLowerCamelCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use phf::phf_set;
-use quote::IdentFragment;
+use quote::{format_ident, IdentFragment};
 
 crate::newtype_index! {
     pub struct FileId { .. }
@@ -183,5 +183,25 @@ where
         Ident {
             sym: Symbol(t.into()),
         }
+    }
+}
+
+pub(crate) trait IdentName {
+    fn struct_ident(&self) -> syn::Ident;
+    fn variant_ident(&self) -> syn::Ident;
+}
+
+impl IdentName for &str {
+    fn struct_ident(&self) -> syn::Ident {
+        let s = self.to_upper_camel_case();
+        if s == "Self" {
+            format_ident!("Self_")
+        } else {
+            format_ident!("{}", s)
+        }
+    }
+
+    fn variant_ident(&self) -> syn::Ident {
+        self.struct_ident()
     }
 }
