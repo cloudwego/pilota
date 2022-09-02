@@ -1,0 +1,64 @@
+pub mod enum_test {
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::unused_unit,
+        clippy::needless_borrow,
+        unused_mut
+    )]
+    pub mod enum_test {
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, :: pilota :: derivative :: Derivative)]
+        #[derivative(Default)]
+        #[derive(
+            :: pilota :: num_enum :: IntoPrimitive,
+            :: pilota :: num_enum :: TryFromPrimitive,
+            Clone,
+            PartialEq,
+        )]
+        #[repr(i32)]
+        #[derive(Copy)]
+        pub enum Index {
+            #[derivative(Default)]
+            A = 1i32,
+            B = 16i32,
+        }
+        #[::async_trait::async_trait]
+        impl ::pilota::thrift::Message for Index {
+            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                &self,
+                protocol: &mut T,
+            ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                protocol.write_i32(*self as i32)?;
+                Ok(())
+            }
+            fn decode<T: ::pilota::thrift::TInputProtocol>(
+                protocol: &mut T,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
+                let value = protocol.read_i32()?;
+                Ok(Self::try_from(value).map_err(|err| {
+                    ::pilota::thrift::new_protocol_error(
+                        ::pilota::thrift::ProtocolErrorKind::InvalidData,
+                        format!("invalid enum value for Index, value: {}", value),
+                    )
+                })?)
+            }
+            async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
+                protocol: &mut ::pilota::thrift::TAsyncBinaryProtocol<C>,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
+                let value = protocol.read_i32().await?;
+                Ok(Self::try_from(value).map_err(|err| {
+                    ::pilota::thrift::new_protocol_error(
+                        ::pilota::thrift::ProtocolErrorKind::InvalidData,
+                        format!("invalid enum value for Index, value: {}", value),
+                    )
+                })?)
+            }
+        }
+        impl ::pilota::thrift::Size for Index {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
+                protocol.write_i32_len(*self as i32)
+            }
+        }
+    }
+}

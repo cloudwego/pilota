@@ -244,11 +244,11 @@ impl ThriftBackend {
             if self.field_is_box(f) {
                 read_field = quote! {::std::boxed::Box::new(#read_field) };
             };
-            let skip = helper.codegen_skip_ttype(quote! { ttype });
+            let skip = helper.codegen_skip_ttype(quote! { field_ident.field_type });
 
             quote! {
                 Some(#field_id) => {
-                    if ttype == #ttype {
+                    if field_ident.field_type == #ttype {
                         #field_ident = Some(#read_field);
                     } else {
                         #skip;
@@ -256,13 +256,12 @@ impl ThriftBackend {
                 },
             }
         });
-        let skip_ttype = helper.codegen_skip_ttype(quote! { ttype });
+        let skip_ttype = helper.codegen_skip_ttype(quote! { field_ident.field_type });
         let read_field_end = helper.codegen_read_field_end();
         quote! {
             loop {
                 let field_ident = #read_field_begin;
-                let ttype = field_ident.field_type;
-                if ttype == ::pilota::thrift::TType::Stop {
+                if field_ident.field_type == ::pilota::thrift::TType::Stop {
                     break;
                 }
                 let field_id = field_ident.id;
