@@ -1,9 +1,9 @@
-use std::str::FromStr;
+use std::{num::ParseIntError, str::FromStr};
 
 use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case},
-    character::complete::digit1,
+    character::complete::{digit1, hex_digit1},
     combinator::{map, map_res, opt, recognize},
     multi::many0,
     sequence::{delimited, preceded, tuple},
@@ -91,13 +91,17 @@ impl Parser for Constant {
 
 impl Parser for IntConstant {
     fn parse(input: &str) -> IResult<&str, IntConstant> {
-        map_res(
-            recognize(tuple((opt(alt((tag("-"), tag("+")))), digit1))),
-            |d_str| -> Result<IntConstant, std::num::ParseIntError> {
-                let d = FromStr::from_str(d_str)?;
-                Ok(IntConstant(d))
-            },
-        )(input)
+        alt((
+            preceded(tag("-"), map(IntConstant::parse, |d| IntConstant(-d.0))),
+            preceded(
+                tag("0x"),
+                map_res(hex_digit1, |d| i64::from_str_radix(d, 16).map(IntConstant)),
+            ),
+            map_res(digit1, |d| {
+                let d = FromStr::from_str(d)?;
+                Ok::<_, ParseIntError>(IntConstant(d))
+            }),
+        ))(input)
     }
 }
 
@@ -139,6 +143,7 @@ mod tests {
 
     #[test]
     fn test_int_constant() {
+        let _i = IntConstant::parse("0x").unwrap().1;
         let _i = IntConstant::parse("1.01e10").unwrap().1;
     }
     #[test]

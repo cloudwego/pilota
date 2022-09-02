@@ -373,7 +373,7 @@ dependencies = [
 
 [[package]]
 name = "pilota-build"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "async-trait",
  "derivative",
@@ -403,7 +403,7 @@ dependencies = [
 
 [[package]]
 name = "pilota-thrift-parser"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "nom",
 ]
