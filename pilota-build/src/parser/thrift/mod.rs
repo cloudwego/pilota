@@ -2,6 +2,7 @@ use std::{path::PathBuf, sync::Arc};
 
 use fxhash::FxHashMap;
 use heck::ToUpperCamelCase;
+use itertools::Itertools;
 use pilota_thrift_parser as thrift_parser;
 use pilota_thrift_parser::parser::Parser as _;
 use salsa::ParallelDatabase;
@@ -66,6 +67,7 @@ pub struct ThriftLower {
     files: FxHashMap<FileId, Arc<File>>,
     cached_files: FxHashMap<Arc<PathBuf>, FileId>,
     include_dirs: Vec<PathBuf>,
+    packages: FxHashMap<Path, Vec<Arc<PathBuf>>>,
 }
 
 impl ThriftLower {
@@ -77,6 +79,7 @@ impl ThriftLower {
             files: FxHashMap::default(),
             cached_files: FxHashMap::default(),
             include_dirs,
+            packages: Default::default(),
         }
     }
 
@@ -373,7 +376,7 @@ impl ThriftLower {
             }
         };
 
-        let ast = self.db.parse(target_path);
+        let ast = self.db.parse(target_path.canonicalize().unwrap());
 
         let file_id = self.lower(ast);
 
@@ -423,21 +426,28 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                 .map(|(name, u)| (name.into(), u.file))
                 .collect::<FxHashMap<Symbol, FileId>>();
 
+            let file_package = f
+                .package
+                .as_ref()
+                .map(|p| this.lower_path(p))
+                .unwrap_or_else(|| Path {
+                    segments: Arc::from([f
+                        .path
+                        .file_stem()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .replace('.', "_")
+                        .into()]),
+                });
+
+            this.packages
+                .entry(file_package.clone())
+                .or_default()
+                .push(f.path.clone());
+
             ir::File {
-                package: f
-                    .package
-                    .as_ref()
-                    .map(|p| this.lower_path(p))
-                    .unwrap_or_else(|| Path {
-                        segments: Arc::from([f
-                            .path
-                            .file_stem()
-                            .unwrap()
-                            .to_str()
-                            .unwrap()
-                            .replace('.', "_")
-                            .into()]),
-                    }),
+                package: file_package,
                 items: f
                     .items
                     .iter()
@@ -454,6 +464,15 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
     }
 
     fn finish(self) -> LowerResult {
+        self.packages.iter().for_each(|(k, v)| {
+            if v.len() > 1 {
+                println!(
+                    "cargo:warning={:?} has the same namespace `{}`, you may need set namespace for these file \n",
+                    v,
+                    k.segments.iter().join(".")
+                )
+            }
+        });
         LowerResult {
             files: self.files.into_values().collect::<Vec<_>>(),
         }
@@ -481,7 +500,7 @@ impl super::Parser for ThriftParser {
 
         self.files.iter().for_each(|f| {
             println!("cargo:rerun-if-changed={}", f.display());
-            lower.lower(self.db.parse(f.to_path_buf()));
+            lower.lower(self.db.parse(f.to_path_buf().canonicalize().unwrap()));
         });
 
         let result = lower.finish();
