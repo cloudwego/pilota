@@ -427,6 +427,10 @@ impl Parser for ProtobufParser {
     fn parse(self) -> super::ParseResult {
         let descriptors = self.inner.parse_and_typecheck().unwrap().file_descriptors;
 
+        descriptors.iter().for_each(|f| {
+            println!("cargo:rerun-if-changed={}", f.name());
+        });
+
         super::ParseResult {
             files: Lower::default().lower(&descriptors),
         }
