@@ -103,7 +103,11 @@ impl ThriftLower {
     }
 
     fn mk_item(&self, kind: ItemKind, tags: Arc<Tags>) -> ir::Item {
-        ir::Item { kind, tags }
+        ir::Item {
+            kind,
+            tags,
+            related_items: Default::default(),
+        }
     }
 
     fn lower_service(&mut self, service: &thrift_parser::Service) -> Vec<ir::Item> {
@@ -121,7 +125,10 @@ impl ThriftLower {
                 .map(|f| self.lower_method(service, f))
                 .collect(),
         });
-        let mut result = vec![self.mk_item(kind, Default::default())];
+        let mut service_item = self.mk_item(kind, Default::default());
+        let mut result = vec![];
+
+        let mut related_items = Vec::default();
 
         service.functions.iter().for_each(|f| {
             let exception = f
@@ -145,13 +152,14 @@ impl ThriftLower {
                 })
                 .collect::<Vec<_>>();
 
+            let name: Ident = format!(
+                "{}{}Result",
+                service.name.as_str(),
+                f.name.to_upper_camel_case()
+            )
+            .into();
             let kind = ir::ItemKind::Enum(ir::Enum {
-                name: format!(
-                    "{}{}Result",
-                    service.name.as_str(),
-                    f.name.to_upper_camel_case()
-                )
-                .into(),
+                name: name.clone(),
                 variants: std::iter::once(ir::EnumVariant {
                     id: Some(0),
                     name: "Ok".into(),
@@ -163,33 +171,40 @@ impl ThriftLower {
                 .collect(),
                 repr: None,
             });
+            related_items.push(name);
             result.push(self.mk_item(kind, Default::default()));
 
             if !exception.is_empty() {
+                let name: Ident = format!(
+                    "{}{}Exception",
+                    service.name.to_upper_camel_case().as_str(),
+                    f.name.as_str().to_upper_camel_case()
+                )
+                .into();
                 let kind = ir::ItemKind::Enum(ir::Enum {
-                    name: format!(
-                        "{}{}Exception",
-                        service.name.to_upper_camel_case().as_str(),
-                        f.name.as_str().to_upper_camel_case()
-                    )
-                    .into(),
+                    name: name.clone(),
                     variants: exception,
                     repr: None,
                 });
+                related_items.push(name);
                 result.push(self.mk_item(kind, Default::default()));
             }
+            let name: Ident = format!(
+                "{}{}Args",
+                service.name.to_upper_camel_case().as_str(),
+                f.name.to_upper_camel_case()
+            )
+            .into();
             let kind = ir::ItemKind::Message(ir::Message {
-                name: format!(
-                    "{}{}Args",
-                    service.name.to_upper_camel_case().as_str(),
-                    f.name.to_upper_camel_case()
-                )
-                .into(),
+                name: name.clone(),
                 fields: f.arguments.iter().map(|a| self.lower_field(a)).collect(),
             });
+            related_items.push(name);
             result.push(self.mk_item(kind, Default::default()));
         });
 
+        service_item.related_items = related_items;
+        result.push(service_item);
         result
     }
 
@@ -418,6 +433,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
             let includes = include_files
                 .iter()
                 .map(|(_, file)| Item {
+                    related_items: Default::default(),
                     kind: ir::ItemKind::Use(ir::Use { file: file.file }),
                     tags: Default::default(),
                 })
@@ -499,15 +515,17 @@ impl super::Parser for ThriftParser {
 
     fn parse(self) -> super::ParseResult {
         let mut lower = ThriftLower::new(self.db.snapshot(), self.include_dirs.clone());
+        let mut input_files = Vec::default();
 
         self.files.iter().for_each(|f| {
-            lower.lower(self.db.parse(f.to_path_buf().canonicalize().unwrap()));
+            input_files.push(lower.lower(self.db.parse(f.to_path_buf().canonicalize().unwrap())));
         });
 
         let result = lower.finish();
 
         super::ParseResult {
             files: result.files,
+            input_files,
         }
     }
 }

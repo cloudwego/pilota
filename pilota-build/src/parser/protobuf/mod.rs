@@ -164,6 +164,7 @@ impl Lower {
 
     fn lower_enum(&self, e: &EnumDescriptorProto) -> ir::Item {
         ir::Item {
+            related_items: Default::default(),
             tags: Default::default(),
             kind: ir::ItemKind::Enum(ir::Enum {
                 name: e.name().into(),
@@ -218,6 +219,7 @@ impl Lower {
         message.oneof_decl.iter().enumerate().for_each(|(idx, d)| {
             let fields = oneof_fields.remove(&(idx as i32)).unwrap();
             nested_items.push(Arc::new(ir::Item {
+                related_items: Default::default(),
                 tags: Arc::new(crate::tags!(OneOf)),
                 kind: ir::ItemKind::Enum(ir::Enum {
                     name: d.name().into(),
@@ -246,6 +248,7 @@ impl Lower {
             .for_each(|(_, m)| nested_items.push(Arc::new(self.lower_message(m))));
 
         let item = ir::Item {
+            related_items: Default::default(),
             tags: Default::default(),
             kind: ir::ItemKind::Message(ir::Message {
                 fields: fields
@@ -309,6 +312,7 @@ impl Lower {
             let name = item.name().to_lower_camel_case();
             nested_items.push(Arc::new(item));
             Item {
+                related_items: Default::default(),
                 tags: Default::default(),
                 kind: ir::ItemKind::Mod(ir::Mod {
                     name: Ident::new(name),
@@ -321,6 +325,7 @@ impl Lower {
     pub fn lower_service(&self, service: &ServiceDescriptorProto) -> ir::Item {
         ir::Item {
             tags: Default::default(),
+            related_items: Default::default(),
             kind: ir::ItemKind::Service(ir::Service {
                 name: service.name().into(),
                 methods: service
@@ -433,6 +438,7 @@ impl Parser for ProtobufParser {
 
         super::ParseResult {
             files: Lower::default().lower(&descriptors),
+            input_files: vec![],
         }
     }
 }

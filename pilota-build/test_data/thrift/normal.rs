@@ -46,12 +46,8 @@ pub mod normal {
                     }
                     let field_id = field_ident.id;
                     match field_id {
-                        Some(1i16) => {
-                            if field_ident.field_type == ::pilota::thrift::TType::I32 {
-                                a = Some(protocol.read_i32()?);
-                            } else {
-                                protocol.skip(field_ident.field_type)?;
-                            }
+                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
+                            a = Some(protocol.read_i32()?);
                         }
                         _ => {
                             protocol.skip(field_ident.field_type)?;
@@ -75,12 +71,8 @@ pub mod normal {
                     }
                     let field_id = field_ident.id;
                     match field_id {
-                        Some(1i16) => {
-                            if field_ident.field_type == ::pilota::thrift::TType::I32 {
-                                a = Some(protocol.read_i32().await?);
-                            } else {
-                                protocol.skip(field_ident.field_type).await?;
-                            }
+                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
+                            a = Some(protocol.read_i32().await?);
                         }
                         _ => {
                             protocol.skip(field_ident.field_type).await?;
@@ -148,12 +140,8 @@ pub mod normal {
                     }
                     let field_id = field_ident.id;
                     match field_id {
-                        Some(2i16) => {
-                            if field_ident.field_type == ::pilota::thrift::TType::Struct {
-                                a = Some(::pilota::thrift::Message::decode(protocol)?);
-                            } else {
-                                protocol.skip(field_ident.field_type)?;
-                            }
+                        Some(2i16) if field_ident.field_type == ::pilota::thrift::TType::Struct => {
+                            a = Some(::pilota::thrift::Message::decode(protocol)?);
                         }
                         _ => {
                             protocol.skip(field_ident.field_type)?;
@@ -177,12 +165,8 @@ pub mod normal {
                     }
                     let field_id = field_ident.id;
                     match field_id {
-                        Some(2i16) => {
-                            if field_ident.field_type == ::pilota::thrift::TType::Struct {
-                                a = Some(::pilota::thrift::Message::decode_async(protocol).await?);
-                            } else {
-                                protocol.skip(field_ident.field_type).await?;
-                            }
+                        Some(2i16) if field_ident.field_type == ::pilota::thrift::TType::Struct => {
+                            a = Some(::pilota::thrift::Message::decode_async(protocol).await?);
                         }
                         _ => {
                             protocol.skip(field_ident.field_type).await?;

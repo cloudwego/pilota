@@ -24,7 +24,7 @@ pub mod nested_message {
             #[derive(PartialOrd, Hash, Eq, Ord, :: prost :: Message, Clone, PartialEq)]
             pub struct Tt1 {
                 #[prost(message, tag = "1", optional)]
-                pub t2: ::std::option::Option<T2::T2>,
+                pub t2: ::std::option::Option<t2::T2>,
             }
         }
     }

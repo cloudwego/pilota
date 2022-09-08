@@ -244,15 +244,10 @@ impl ThriftBackend {
             if self.field_is_box(f) {
                 read_field = quote! {::std::boxed::Box::new(#read_field) };
             };
-            let skip = helper.codegen_skip_ttype(quote! { field_ident.field_type });
 
             quote! {
-                Some(#field_id) => {
-                    if field_ident.field_type == #ttype {
-                        #field_ident = Some(#read_field);
-                    } else {
-                        #skip;
-                    }
+                Some(#field_id) if field_ident.field_type == #ttype  => {
+                    #field_ident = Some(#read_field);
                 },
             }
         });

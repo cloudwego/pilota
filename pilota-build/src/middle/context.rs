@@ -1,4 +1,3 @@
-use core::panic;
 use std::{ops::Deref, sync::Arc};
 
 use fxhash::FxHashMap;
@@ -14,8 +13,6 @@ use crate::{
     tags::{TagId, Tags},
     Plugin,
 };
-
-type Segments = Vec<Symbol>;
 
 pub struct Context {
     pub db: salsa::Snapshot<RootDatabase>,
@@ -80,7 +77,7 @@ impl Context {
         item.symbol_name()
     }
 
-    fn related_path(&self, p1: &Segments, p2: &Segments) -> syn::Path {
+    fn related_path(&self, p1: &[Symbol], p2: &[Symbol]) -> syn::Path {
         if p1 == p2 {
             return syn::Path::from(format_ident!("{}", p2.last().unwrap()));
         }
@@ -134,32 +131,6 @@ impl Context {
 
         let other_item_path = self.item_path(b);
         self.related_path(&mod_segs, &other_item_path)
-    }
-
-    fn item_path(&self, def_id: DefId) -> Segments {
-        fn calc_item_path(cx: &Context, def_id: DefId, segs: &mut Vec<Symbol>) {
-            let node = cx.node(def_id).unwrap();
-            if let Some(parent) = node.parent {
-                calc_item_path(cx, parent, segs)
-            } else {
-                let file = cx.file(node.file_id).unwrap();
-                let package = &file.package;
-                segs.extend_from_slice(package)
-            }
-
-            let name = match node.kind {
-                NodeKind::Item(item) => item.symbol_name().to_upper_camel_case(),
-                NodeKind::Variant(v) => (*v.name).to_upper_camel_case(),
-                _ => panic!(),
-            };
-            segs.push(name);
-        }
-
-        let mut segs = Default::default();
-
-        calc_item_path(self, def_id, &mut segs);
-
-        segs
     }
 
     #[allow(clippy::single_match)]

@@ -236,6 +236,7 @@ impl Resolver {
 
     fn mk_node(&self, kind: NodeKind, tags: TagId) -> Node {
         Node {
+            related_nodes: Default::default(),
             tags,
             parent: self.parent_node,
             file_id: self.cur_file.unwrap(),
@@ -492,6 +493,7 @@ impl Resolver {
             .expect_def_id();
 
         let old_parent = self.parent_node.replace(def_id);
+        let related_items = &item.related_items;
 
         let item = Arc::new(match &item.kind {
             ir::ItemKind::Message(s) => Item::Message(self.lower_message(s)),
@@ -508,8 +510,21 @@ impl Resolver {
         let tag_id = self.tags_id_counter.inc_one();
         self.tags.insert(tag_id, tags.clone());
 
-        self.nodes
-            .insert(def_id, self.mk_node(NodeKind::Item(item), tag_id));
+        let mut node = self.mk_node(NodeKind::Item(item), tag_id);
+        node.related_nodes = related_items
+            .iter()
+            .map(|i| {
+                self.lower_path(
+                    &ir::Path {
+                        segments: Arc::from([(&*i).clone()]),
+                    },
+                    Namespace::Ty,
+                )
+                .did
+            })
+            .collect();
+
+        self.nodes.insert(def_id, node);
 
         Some(def_id)
     }

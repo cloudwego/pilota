@@ -1,7 +1,8 @@
-use std::{ops::Deref, sync::Arc};
+use std::{collections::HashMap, ops::Deref, sync::Arc};
 
-use fxhash::FxHashMap;
+use fxhash::{FxHashMap, FxHashSet};
 use heck::ToShoutySnakeCase;
+use itertools::Itertools;
 use pkg_tree::PkgNode;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -16,6 +17,7 @@ use crate::{
         ty::{AdtDef, AdtKind, CodegenTy},
     },
     symbol::{DefId, EnumRepr, IdentName},
+    ty::Visitor,
     Context,
 };
 
@@ -30,6 +32,7 @@ pub struct Codegen<B> {
     zero_copy: bool,
     cx: Arc<Context>,
     pkgs: FxHashMap<ItemPath, TokenStream>,
+    input: Vec<DefId>,
 }
 
 impl<B> Deref for Codegen<B> {
@@ -41,12 +44,13 @@ impl<B> Deref for Codegen<B> {
 }
 
 impl<B> Codegen<B> {
-    pub fn new(cx: Arc<Context>, backend: B) -> Self {
+    pub fn new(cx: Arc<Context>, backend: B, input: Vec<DefId>) -> Self {
         Codegen {
             zero_copy: false,
             cx,
             backend,
             pkgs: Default::default(),
+            input,
         }
     }
 }
@@ -365,13 +369,99 @@ where
         }
     }
 
-    pub fn write_pkgs(&mut self, pkgs: &[ItemPath]) {
-        pkgs.iter().for_each(|p| {
+    fn collect_items(&self) -> FxHashSet<DefId> {
+        struct PathCollector<'a> {
+            set: &'a mut FxHashSet<DefId>,
+            cx: &'a Context,
+        }
+
+        impl super::ty::Visitor for PathCollector<'_> {
+            fn visit_path(&mut self, path: &crate::rir::Path) {
+                collect(self.cx, path.did, self.set)
+            }
+        }
+
+        fn collect(cx: &Context, def_id: DefId, set: &mut FxHashSet<DefId>) {
+            if set.contains(&def_id) {
+                return;
+            }
+            if !matches!(&*cx.item(def_id).unwrap(), rir::Item::Mod(_)) {
+                set.insert(def_id);
+            }
+
+            let node = cx.node(def_id).unwrap();
+
+            node.related_nodes
+                .iter()
+                .for_each(|def_id| collect(cx, *def_id, set));
+
+            let item = node.expect_item();
+
+            match &*item {
+                rir::Item::Message(m) => m
+                    .fields
+                    .iter()
+                    .for_each(|f| PathCollector { cx, set }.visit(&f.ty)),
+                rir::Item::Enum(e) => e
+                    .variants
+                    .iter()
+                    .flat_map(|v| &v.fields)
+                    .for_each(|ty| PathCollector { cx, set }.visit(&ty)),
+                rir::Item::Service(s) => {
+                    s.extend.iter().for_each(|p| collect(cx, p.did, set));
+                    s.methods
+                        .iter()
+                        .flat_map(|m| m.args.iter().map(|f| &f.ty).chain(std::iter::once(&m.ret)))
+                        .for_each(|ty| PathCollector { cx, set }.visit(&ty));
+                }
+                rir::Item::NewType(n) => PathCollector { cx, set }.visit(&n.ty),
+                rir::Item::Const(c) => {
+                    PathCollector { cx, set }.visit(&c.ty);
+                }
+                rir::Item::Mod(m) => m.items.iter().for_each(|m| {
+                    let item = cx.item(*m).unwrap();
+                    if matches!(&*item, rir::Item::Mod(_) | rir::Item::Const(_)) {
+                        collect(cx, *m, set)
+                    }
+                }),
+            }
+        }
+        let mut set = FxHashSet::default();
+
+        self.input.iter().for_each(|def_id| {
+            collect(&self.cx, *def_id, &mut set);
+        });
+
+        set
+    }
+
+    fn collect_pkgs(&mut self, remove_unused: bool) -> HashMap<ItemPath, Vec<DefId>> {
+        if remove_unused {
+            let def_ids = self.collect_items();
+            def_ids
+                .into_iter()
+                .into_group_map_by(|def_id| self.cx.mod_path(*def_id))
+        } else {
+            let files = self.files();
+            let mut map: HashMap<_, Vec<DefId>> = HashMap::with_capacity(files.len());
+            for file in files.values() {
+                map.entry(file.package.clone())
+                    .or_default()
+                    .extend_from_slice(&file.items);
+            }
+
+            map
+        }
+    }
+
+    pub fn write_pkgs(&mut self, remove_unused: bool) {
+        let mods = self.collect_pkgs(remove_unused);
+
+        mods.iter().for_each(|(p, def_ids)| {
             let stream: &mut TokenStream =
                 unsafe { std::mem::transmute(self.pkgs.entry(p.clone()).or_default()) };
-            let pkg = self.pkg(p.clone()).unwrap();
 
-            for def_id in &pkg.items {
+            for def_id in def_ids.iter() {
                 self.write_item(stream, *def_id)
             }
         })

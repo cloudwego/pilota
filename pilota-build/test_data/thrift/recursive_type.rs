@@ -46,14 +46,10 @@ pub mod recursive_type {
                     }
                     let field_id = field_ident.id;
                     match field_id {
-                        Some(1i16) => {
-                            if field_ident.field_type == ::pilota::thrift::TType::Struct {
-                                a = Some(::std::boxed::Box::new(
-                                    ::pilota::thrift::Message::decode(protocol)?,
-                                ));
-                            } else {
-                                protocol.skip(field_ident.field_type)?;
-                            }
+                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Struct => {
+                            a = Some(::std::boxed::Box::new(::pilota::thrift::Message::decode(
+                                protocol,
+                            )?));
                         }
                         _ => {
                             protocol.skip(field_ident.field_type)?;
@@ -77,14 +73,10 @@ pub mod recursive_type {
                     }
                     let field_id = field_ident.id;
                     match field_id {
-                        Some(1i16) => {
-                            if field_ident.field_type == ::pilota::thrift::TType::Struct {
-                                a = Some(::std::boxed::Box::new(
-                                    ::pilota::thrift::Message::decode_async(protocol).await?,
-                                ));
-                            } else {
-                                protocol.skip(field_ident.field_type).await?;
-                            }
+                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Struct => {
+                            a = Some(::std::boxed::Box::new(
+                                ::pilota::thrift::Message::decode_async(protocol).await?,
+                            ));
                         }
                         _ => {
                             protocol.skip(field_ident.field_type).await?;

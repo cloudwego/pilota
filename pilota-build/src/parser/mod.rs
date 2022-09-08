@@ -3,7 +3,7 @@ use std::{
     sync::Arc,
 };
 
-use crate::ir::File;
+use crate::{ir::File, symbol::FileId};
 
 pub(crate) mod protobuf;
 pub(crate) mod thrift;
@@ -14,6 +14,7 @@ pub use self::protobuf::ProtobufParser;
 
 pub struct ParseResult {
     pub files: Vec<Arc<File>>,
+    pub(crate) input_files: Vec<FileId>,
 }
 
 pub trait Parser {
