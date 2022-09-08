@@ -390,6 +390,8 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
             return *file_id;
         }
 
+        println!("cargo:rerun-if-changed={}", f.path.display());
+
         let file_id = self.next_file_id.inc_one();
         self.cached_files.insert(f.path.clone(), file_id);
 
@@ -499,7 +501,6 @@ impl super::Parser for ThriftParser {
         let mut lower = ThriftLower::new(self.db.snapshot(), self.include_dirs.clone());
 
         self.files.iter().for_each(|f| {
-            println!("cargo:rerun-if-changed={}", f.display());
             lower.lower(self.db.parse(f.to_path_buf().canonicalize().unwrap()));
         });
 
