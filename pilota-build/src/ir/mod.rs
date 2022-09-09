@@ -147,6 +147,7 @@ pub enum ItemKind {
 #[derive(Clone, Debug)]
 pub struct Item {
     pub kind: ItemKind,
+    pub related_items: Vec<Ident>,
     pub tags: Arc<Tags>,
 }
 

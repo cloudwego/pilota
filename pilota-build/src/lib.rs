@@ -27,12 +27,7 @@ use codegen::protobuf::{ProstPlugin, ProtobufBackend};
 pub use codegen::{thrift::ThriftBackend, traits::CodegenBackend, Codegen};
 use db::RootDatabase;
 use fmt::fmt_file;
-use fxhash::FxHashMap;
-use middle::{
-    context::tls::CONTEXT,
-    rir::{NodeKind, Pkg},
-    type_graph::TypeGraph,
-};
+use middle::{context::tls::CONTEXT, rir::NodeKind, type_graph::TypeGraph};
 pub use middle::{rir, ty};
 use parser::{protobuf::ProtobufParser, thrift::ThriftParser, ParseResult, Parser};
 use plugin::{
@@ -77,6 +72,7 @@ pub struct Builder<MkB, P> {
     mk_backend: MkB,
     parser: P,
     plugins: Vec<Box<dyn Plugin>>,
+    remove_unused: bool,
 }
 
 impl Builder<MkThriftBackend, ThriftParser> {
@@ -89,6 +85,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
                 Box::new(ImplDefaultPlugin),
                 Box::new(EnumNumPlugin),
             ],
+            remove_unused: true,
         }
     }
 }
@@ -99,6 +96,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             mk_backend: MkProtobufBackend,
             parser: ProtobufParser::default(),
             plugins: vec![Box::new(ProstPlugin)],
+            remove_unused: false,
         }
     }
 }
@@ -119,12 +117,18 @@ impl<MkB, P> Builder<MkB, P> {
             mk_backend,
             parser: self.parser,
             plugins: self.plugins,
+            remove_unused: self.remove_unused,
         }
     }
 
     pub fn plugin<Plu: Plugin + 'static>(mut self, p: Plu) -> Self {
         self.plugins.push(Box::new(p));
 
+        self
+    }
+
+    pub fn remove_unused(mut self, flag: bool) -> Self {
+        self.remove_unused = flag;
         self
     }
 }
@@ -139,7 +143,7 @@ where
 
         let mut db = RootDatabase::default();
         self.parser.inputs(files);
-        let ParseResult { files } = self.parser.parse();
+        let ParseResult { files, input_files } = self.parser.parse();
 
         let ResolveResult { files, nodes, tags } = Resolver::default().resolve_files(&files);
         db.set_files_with_durability(Arc::new(files), Durability::HIGH);
@@ -154,26 +158,6 @@ where
         let type_graph = Arc::from(TypeGraph::from_items(items));
         db.set_type_graph_with_durability(type_graph, Durability::HIGH);
         db.set_nodes_with_durability(Arc::new(nodes), Durability::HIGH);
-
-        let mut pkgs = FxHashMap::default();
-
-        db.files().iter().for_each(|(_, f)| {
-            let pkg_path = &f.package;
-            let pkg = pkgs.entry(pkg_path.clone()).or_insert_with(|| Pkg {
-                path: pkg_path.clone(),
-                items: Default::default(),
-            });
-
-            pkg.items.extend_from_slice(&f.items);
-        });
-
-        let pkgs = Arc::from(
-            pkgs.into_iter()
-                .map(|(path, pkg)| (path, Arc::from(pkg)))
-                .collect::<FxHashMap<_, _>>(),
-        );
-
-        db.set_pkgs_with_durability(pkgs.clone(), Durability::HIGH);
 
         let mut cx = Context::new(db.snapshot());
         cx.set_tags_map(tags);
@@ -211,11 +195,24 @@ where
         ));
 
         self.plugins.into_iter().for_each(|p| cx.exec_plugin(p));
+        let mut input = Vec::with_capacity(input_files.len());
+        for file_id in input_files {
+            let file = cx.file(file_id).unwrap();
+            file.items.iter().for_each(|def_id| {
+                if matches!(&*cx.item(*def_id).unwrap(), rir::Item::Service(_)) {
+                    input.push(*def_id)
+                }
+            });
+        }
 
         let context = Arc::from(cx);
         CONTEXT.set(&context.clone(), || {
-            let mut cg = Codegen::new(context.clone(), self.mk_backend.make_backend(context));
-            cg.write_pkgs(&pkgs.keys().cloned().collect::<Vec<_>>());
+            let mut cg = Codegen::new(
+                context.clone(),
+                self.mk_backend.make_backend(context),
+                input,
+            );
+            cg.write_pkgs(self.remove_unused);
 
             let file_name = out
                 .as_ref()

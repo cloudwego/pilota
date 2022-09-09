@@ -18,6 +18,7 @@ fn diff_file(old: impl AsRef<Path>, new: impl AsRef<Path>) {
 fn test_protobuf(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     test_with_builder(source, target, |source, target| {
         crate::Builder::protobuf()
+            .remove_unused(false)
             .include_dirs(vec![source.parent().unwrap().to_path_buf()])
             .compile(&[source], target)
     });
@@ -48,7 +49,9 @@ fn test_with_builder<F: FnOnce(&Path, &Path)>(
 
 fn test_thrift(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     test_with_builder(source, target, |source, target| {
-        crate::Builder::thrift().compile(&[source], target)
+        crate::Builder::thrift()
+            .remove_unused(false)
+            .compile(&[source], target)
     });
 }
 

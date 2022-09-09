@@ -197,6 +197,16 @@ pub struct Node {
     pub kind: NodeKind,
     pub parent: Option<DefId>,
     pub tags: TagId,
+    pub related_nodes: Vec<DefId>,
+}
+
+impl Node {
+    pub(crate) fn expect_item(&self) -> &Item {
+        match &self.kind {
+            NodeKind::Item(item) => &item,
+            _ => panic!(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
