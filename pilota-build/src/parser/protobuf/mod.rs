@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{path::PathBuf, sync::Arc};
 
 use fxhash::FxHashMap;
 use heck::ToSnakeCase;
@@ -25,6 +25,7 @@ use crate::{
 #[derive(Default)]
 pub struct ProtobufParser {
     inner: protobuf_parse::Parser,
+    include_dirs: Vec<PathBuf>,
 }
 
 struct Lower {
@@ -426,6 +427,7 @@ impl Parser for ProtobufParser {
     }
 
     fn include_dirs(&mut self, dirs: Vec<std::path::PathBuf>) {
+        self.include_dirs = dirs.clone();
         self.inner.includes(dirs);
     }
 
@@ -433,7 +435,12 @@ impl Parser for ProtobufParser {
         let descriptors = self.inner.parse_and_typecheck().unwrap().file_descriptors;
 
         descriptors.iter().for_each(|f| {
-            println!("cargo:rerun-if-changed={}", f.name());
+            self.include_dirs.iter().for_each(|p| {
+                let path = p.join(f.name());
+                if path.exists() {
+                    println!("cargo:rerun-if-changed={}", path.display());
+                }
+            });
         });
 
         super::ParseResult {
