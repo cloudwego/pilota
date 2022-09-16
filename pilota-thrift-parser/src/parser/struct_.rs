@@ -1,7 +1,7 @@
 use nom::{
     bytes::complete::tag,
     combinator::{map, opt},
-    sequence::tuple,
+    sequence::{delimited, tuple},
     IResult,
 };
 
@@ -71,13 +71,15 @@ mod tests {
         let str = r#"struct MGetRequest {
             1: set<i64> Ids (go.tag = "json:\"Ids\" split:\"type=tenant\""),
             2: optional set<ExtendField> extendFields,
+
+
+            3: optional set<ExtendField>extendFields2,
         
             255: base.Base Base,
         }
         "#;
 
-        let (remain, _res) = Struct::parse(str).unwrap();
-        println!("{:?}", remain);
+        Struct::parse(str).unwrap();
     }
 
     #[test]
@@ -93,7 +95,15 @@ mod tests {
             8: string SessionDict (agw.source="header", agw.key="Tt-Agw-Loader-Session-rsp")
             9: abtest_version.VersionRsp                                AbtestVersionRsp (go.tag = 'json:\"-\"')
         }"#;
-        let (remain, _res) = Struct::parse(str).unwrap();
-        println!("{:?}", remain);
+        Struct::parse(str).unwrap();
+    }
+
+    #[test]
+    fn test_struct3() {
+        let str = r#"struct TestComment {
+            // 1
+        }
+        "#;
+        Struct::parse(str).unwrap();
     }
 }

@@ -33,7 +33,7 @@ impl Parser for Field {
                 opt(Attribute::parse),
                 opt(blank),
                 Type::parse,
-                blank,
+                opt(blank),
                 Ident::parse,
                 opt(blank),
                 opt(map(

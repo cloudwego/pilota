@@ -300,6 +300,7 @@ impl ThriftLower {
             thrift_parser::Item::Union(u) => ir::ItemKind::Enum(self.lower_union(u)),
             thrift_parser::Item::Exception(s) => ir::ItemKind::Message(self.lower_struct(s)),
             thrift_parser::Item::Service(s) => return self.lower_service(s),
+            _ => return vec![],
         };
 
         vec![self.mk_item(single, Default::default())]
@@ -412,8 +413,15 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
 
         let file = self.with_cur_file(f.clone(), |this| {
             let include_files = f
-                .includes
+                .items
                 .iter()
+                .filter_map(|item| {
+                    if let thrift_parser::Item::Include(i) = item {
+                        Some(i)
+                    } else {
+                        None
+                    }
+                })
                 .map(|i| {
                     (
                         Arc::<str>::from(

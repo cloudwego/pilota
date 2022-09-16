@@ -7,13 +7,7 @@ use nom::{
 };
 
 use super::super::{descriptor::Annotations, parser::*};
-
-#[derive(Debug, Clone)]
-pub struct Namespace {
-    pub scope: Scope,
-    pub name: Path,
-    pub annotations: Option<Annotations>,
-}
+use crate::{Namespace, Scope};
 
 impl Parser for Namespace {
     fn parse(input: &str) -> IResult<&str, Namespace> {
@@ -35,9 +29,6 @@ impl Parser for Namespace {
         )(input)
     }
 }
-
-#[derive(Debug, Clone)]
-pub struct Scope(pub String);
 
 impl Parser for Scope {
     fn parse(input: &str) -> IResult<&str, Scope> {

@@ -6,6 +6,7 @@ mod function;
 mod identifier;
 mod include;
 mod literal;
+mod namespace;
 mod service;
 mod struct_;
 mod ty;
@@ -21,6 +22,7 @@ pub use function::Function;
 pub use identifier::Ident;
 pub use include::{CppInclude, Include};
 pub use literal::Literal;
+pub use namespace::{Namespace, Scope};
 pub use service::Service;
 pub use struct_::{Exception, Struct, StructLike, Union};
 pub use ty::{CppType, Ty, Type};
@@ -44,6 +46,9 @@ where
 
 #[derive(Debug)]
 pub enum Item {
+    Include(Include),
+    CppInclude(CppInclude),
+    Namespace(Namespace),
     Typedef(Typedef),
     Constant(Constant),
     Enum(Enum),
@@ -75,8 +80,6 @@ item_from!(Service);
 pub struct File {
     pub path: Arc<PathBuf>,
     pub package: Option<Path>,
-    pub includes: Vec<Include>,
-    pub cpp_includes: Vec<CppInclude>,
     pub items: Vec<Item>,
 }
 

@@ -1,57 +1,79 @@
-use std::cell::RefCell;
-
 use nom::{
-    branch::alt,
-    combinator::{map, opt},
-    multi::many0,
+    character::complete::alpha1,
+    combinator::{eof, map, opt, peek},
+    multi::many_till,
     sequence::tuple,
     IResult,
 };
 
-use super::{
-    super::{
-        descriptor::{
-            Constant, CppInclude, Enum, Exception, File, Include, Service, Struct, Typedef, Union,
-        },
-        parser::*,
+use super::super::{
+    descriptor::{
+        Constant, CppInclude, Enum, Exception, File, Include, Service, Struct, Typedef, Union,
     },
-    namespace::Namespace,
+    parser::*,
 };
+use crate::{Item, Namespace};
+
+impl Parser for Item {
+    fn parse(input: &str) -> IResult<&str, Self> {
+        let (input, keyword) = peek(alpha1)(input)?;
+        macro_rules! unpack {
+            ($variant: ident) => {{
+                let (rest, item) = $variant::parse(input)?;
+                Ok((rest, Self::$variant(item)))
+            }};
+        }
+        match keyword {
+            "include" => unpack!(Include),
+            "cpp_include" => unpack!(CppInclude),
+            "namespace" => unpack!(Namespace),
+            "typedef" => unpack!(Typedef),
+            "const" => unpack!(Constant),
+            "enum" => unpack!(Enum),
+            "struct" => unpack!(Struct),
+            "union" => unpack!(Union),
+            "exception" => unpack!(Exception),
+            "service" => unpack!(Service),
+            _ => Err(nom::Err::Failure(nom::error::Error::new(
+                input,
+                nom::error::ErrorKind::Fail,
+            ))),
+        }
+    }
+}
 
 impl Parser for File {
     fn parse(input: &str) -> IResult<&str, File> {
         let mut t: File = Default::default();
-        let includes = &mut t.includes;
-        let cpp_includes = &mut t.cpp_includes;
-        let items = RefCell::new(&mut t.items);
 
-        let mut namespaces = Vec::new();
+        let (remain, items) = many_till(
+            map(
+                tuple((opt(blank), Item::parse, opt(blank))),
+                |(_, item, _)| item,
+            ),
+            eof,
+        )(input)?;
 
-        let (remain, _) = many0(tuple((
-            opt(blank),
-            alt((
-                map(Include::parse, |item| includes.push(item)),
-                map(CppInclude::parse, |item| cpp_includes.push(item)),
-                map(Namespace::parse, |item| namespaces.push(item)),
-                map(Typedef::parse, |item| items.borrow_mut().push(item.into())),
-                map(Constant::parse, |item| items.borrow_mut().push(item.into())),
-                map(Enum::parse, |item| items.borrow_mut().push(item.into())),
-                map(Struct::parse, |item| items.borrow_mut().push(item.into())),
-                map(Union::parse, |item| items.borrow_mut().push(item.into())),
-                map(Exception::parse, |item| {
-                    items.borrow_mut().push(item.into())
-                }),
-                map(Service::parse, |item| items.borrow_mut().push(item.into())),
-            )),
-        )))(input)?;
+        t.items = items.0;
 
-        t.package = namespaces.into_iter().find_map(|n| {
-            if n.scope.0 == "rs" {
-                Some(n.name)
-            } else {
-                None
-            }
-        });
+        t.package = t
+            .items
+            .iter()
+            .filter_map(|item| {
+                if let Item::Namespace(ns) = item {
+                    Some(ns)
+                } else {
+                    None
+                }
+            })
+            .into_iter()
+            .find_map(|n| {
+                if n.scope.0 == "rs" {
+                    Some(n.name.clone())
+                } else {
+                    None
+                }
+            });
 
         Ok((remain, t))
     }
@@ -125,7 +147,6 @@ mod tests {
             BizResponse BizMethod3(1: BizRequest req)(api.post = '/life/client/:action/:biz/other', api.baseurl = 'ib.snssdk.com', api.param = 'true', api.serializer = 'json')
         }
         "#;
-        let (_remain, res) = File::parse(body).unwrap();
-        assert_eq!(res.includes.len(), 1);
+        let (_remain, _res) = File::parse(body).unwrap();
     }
 }
