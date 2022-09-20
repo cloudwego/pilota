@@ -1,6 +1,6 @@
-use std::{fmt::Display, ops::Deref, sync::Arc};
+use std::{fmt::Display, ops::Deref};
 
-use heck::{ToLowerCamelCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
+use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use phf::phf_set;
 use quote::{format_ident, IdentFragment};
 
@@ -74,21 +74,12 @@ lazy_static::lazy_static! {
 }
 
 #[derive(Hash, PartialEq, Eq, Clone, Debug)]
-pub struct Symbol(pub Arc<str>);
+pub struct Symbol(pub smol_str::SmolStr);
 
-macro_rules! to_case {
-    ($m: ident) => {
-        pub fn $m(&self) -> Symbol {
-            Symbol(Arc::from(self.0.$m()))
-        }
-    };
-}
-
-impl Symbol {
-    to_case!(to_shouty_snake_case);
-    to_case!(to_snake_case);
-    to_case!(to_lower_camel_case);
-    to_case!(to_upper_camel_case);
+impl std::borrow::Borrow<str> for Symbol {
+    fn borrow(&self) -> &str {
+        &**self
+    }
 }
 
 impl Deref for Symbol {
@@ -101,7 +92,7 @@ impl Deref for Symbol {
 
 impl<T> From<T> for Symbol
 where
-    T: Into<Arc<str>>,
+    T: Into<smol_str::SmolStr>,
 {
     fn from(t: T) -> Self {
         Symbol(t.into())
@@ -140,21 +131,6 @@ impl Ident {
     }
 }
 
-macro_rules! ident_to_case {
-    ($m: ident) => {
-        pub fn $m(&self) -> Ident {
-            Ident { sym: self.sym.$m() }
-        }
-    };
-}
-
-impl Ident {
-    ident_to_case!(to_shouty_snake_case);
-    ident_to_case!(to_snake_case);
-    ident_to_case!(to_lower_camel_case);
-    ident_to_case!(to_upper_camel_case);
-}
-
 impl Deref for Ident {
     type Target = Symbol;
 
@@ -177,7 +153,7 @@ impl Display for Ident {
 
 impl<T> From<T> for Ident
 where
-    T: Into<Arc<str>>,
+    T: Into<smol_str::SmolStr>,
 {
     fn from(t: T) -> Self {
         Ident {
@@ -187,21 +163,90 @@ where
 }
 
 pub(crate) trait IdentName {
-    fn struct_ident(&self) -> syn::Ident;
-    fn variant_ident(&self) -> syn::Ident;
+    fn struct_ident(&self) -> smol_str::SmolStr {
+        self.upper_camel_ident()
+    }
+
+    fn enum_ident(&self) -> smol_str::SmolStr {
+        self.upper_camel_ident()
+    }
+
+    fn mod_ident(&self) -> smol_str::SmolStr {
+        self.snake_ident()
+    }
+
+    fn variant_ident(&self) -> smol_str::SmolStr {
+        self.upper_camel_ident()
+    }
+    fn fn_ident(&self) -> smol_str::SmolStr {
+        self.snake_ident()
+    }
+    fn field_ident(&self) -> smol_str::SmolStr {
+        self.snake_ident()
+    }
+    fn const_ident(&self) -> smol_str::SmolStr {
+        self.shouty_snake_case()
+    }
+
+    fn trait_ident(&self) -> smol_str::SmolStr {
+        self.upper_camel_ident()
+    }
+
+    fn newtype_ident(&self) -> smol_str::SmolStr {
+        self.upper_camel_ident()
+    }
+
+    fn upper_camel_ident(&self) -> smol_str::SmolStr;
+    fn snake_ident(&self) -> smol_str::SmolStr;
+    fn shouty_snake_case(&self) -> smol_str::SmolStr;
+
+    fn as_syn_ident(&self) -> syn::Ident;
+}
+
+fn str2ident(s: &str) -> smol_str::SmolStr {
+    if s == "Self" {
+        return smol_str::SmolStr::new_inline("Self_");
+    }
+    if KEYWORDS_SET.contains(s) {
+        smol_str::SmolStr::new(format!("{}", s))
+    } else {
+        smol_str::SmolStr::new(s)
+    }
 }
 
 impl IdentName for &str {
-    fn struct_ident(&self) -> syn::Ident {
+    fn upper_camel_ident(&self) -> smol_str::SmolStr {
         let s = self.to_upper_camel_case();
-        if s == "Self" {
-            format_ident!("Self_")
-        } else {
-            format_ident!("{}", s)
-        }
+        str2ident(&s)
     }
 
-    fn variant_ident(&self) -> syn::Ident {
-        self.struct_ident()
+    fn snake_ident(&self) -> smol_str::SmolStr {
+        str2ident(&self.to_snake_case())
+    }
+
+    fn shouty_snake_case(&self) -> smol_str::SmolStr {
+        str2ident(&self.to_shouty_snake_case())
+    }
+
+    fn as_syn_ident(&self) -> syn::Ident {
+        format_ident!("{}", self)
+    }
+}
+
+impl IdentName for smol_str::SmolStr {
+    fn upper_camel_ident(&self) -> smol_str::SmolStr {
+        (&**self).upper_camel_ident()
+    }
+
+    fn snake_ident(&self) -> smol_str::SmolStr {
+        (&**self).snake_ident()
+    }
+
+    fn shouty_snake_case(&self) -> smol_str::SmolStr {
+        (&**self).shouty_snake_case()
+    }
+
+    fn as_syn_ident(&self) -> syn::Ident {
+        format_ident!("{}", &**self)
     }
 }

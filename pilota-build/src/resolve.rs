@@ -174,12 +174,15 @@ impl Resolver {
                 .or_else(|| {
                     // fuzzy find for protobuf
                     match ns {
-                        Namespace::Value => b.value.get(&sym.to_snake_case()).and_then(|def_id| {
-                            self.def_modules[def_id].resolutions.value.get(&sym)
-                        }),
+                        Namespace::Value => {
+                            b.ty.get(&Symbol::from(format!("pilota_protobuf_mod_{}", sym)))
+                                .and_then(|def_id| {
+                                    self.def_modules[def_id].resolutions.value.get(&sym)
+                                })
+                        }
                         Namespace::Ty => b
                             .ty
-                            .get(&sym.to_snake_case())
+                            .get(&Symbol::from(format!("pilota_protobuf_mod_{}", sym)))
                             .and_then(|def_id| self.def_modules[def_id].resolutions.ty.get(&sym)),
                     }
                 })
@@ -224,7 +227,7 @@ impl Resolver {
                 ir::FieldKind::Required => FieldKind::Required,
                 ir::FieldKind::Optional => FieldKind::Optional,
             },
-            name: f.name.to_snake_case(),
+            name: f.name.clone(),
             ty: self.lower_type(&f.ty),
         });
 
@@ -302,7 +305,7 @@ impl Resolver {
                         Namespace::Value => &table.value,
                         Namespace::Ty => &table.ty,
                     };
-                    ModuleId::Node(*table.get(ident).unwrap_or_else(|| {
+                    ModuleId::Node(*table.get(&**ident).unwrap_or_else(|| {
                         panic!("can not find {} in file {:?}", ident, file.package)
                     }))
                 }
@@ -319,7 +322,7 @@ impl Resolver {
 
                             ModuleId::Node(
                                 *table
-                                    .get(ident)
+                                    .get(&**ident)
                                     .unwrap_or_else(|| panic!("can not find {}", ident)),
                             )
                         }

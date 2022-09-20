@@ -4,6 +4,7 @@ use std::{
     fmt::Debug,
     hash::Hash,
     ops::{Deref, DerefMut},
+    str::FromStr,
 };
 
 #[derive(Default, Debug)]
@@ -103,6 +104,25 @@ macro_rules! new_type {
 
 pub mod thrift {
     pub struct EntryMessage;
+}
+
+#[derive(Clone)]
+pub struct PilotaName(pub smol_str::SmolStr);
+
+pub trait Annotation: FromStr {
+    const KEY: &'static str;
+}
+
+impl FromStr for PilotaName {
+    type Err = std::convert::Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(smol_str::SmolStr::new(s)))
+    }
+}
+
+impl Annotation for PilotaName {
+    const KEY: &'static str = "pilota.name";
 }
 
 pub mod protobuf {

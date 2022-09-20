@@ -14,7 +14,7 @@ use crate::{
     middle::{
         self,
         context::tls::CUR_ITEM,
-        rir::{self, ItemPath, Literal},
+        rir::{self, Literal},
         ty::{AdtDef, AdtKind, CodegenTy},
     },
     symbol::{DefId, EnumRepr, IdentName},
@@ -32,7 +32,7 @@ pub struct Codegen<B> {
     backend: B,
     zero_copy: bool,
     cx: Arc<Context>,
-    pkgs: FxHashMap<ItemPath, TokenStream>,
+    pkgs: FxHashMap<Arc<[smol_str::SmolStr]>, TokenStream>,
     input: Vec<DefId>,
     must_gen_items: Vec<(std::path::PathBuf, Vec<String>)>,
 }
@@ -63,10 +63,10 @@ where
     B: CodegenBackend,
 {
     pub fn write_struct(&mut self, def_id: DefId, stream: &mut TokenStream, s: &rir::Message) {
-        let name = format_ident!("{}", (&**s.name).struct_ident());
+        let name = self.rust_name(def_id).as_syn_ident();
 
         let fields = s.fields.iter().map(|f| {
-            let name = format_ident!("{}", &f.name.to_snake_case());
+            let name = self.rust_name(f.did).as_syn_ident();
             let adjust = self.adjust(f.did);
             let ty = self.codegen_item_ty(f.ty.kind.clone());
             let mut ty = quote::quote! { #ty };
@@ -127,7 +127,7 @@ where
                         .iter()
                         .for_each(|def_id| self.write_item(&mut inner, *def_id));
 
-                    let name = format_ident!("{}", m.name.to_snake_case());
+                    let name = self.rust_name(def_id).as_syn_ident();
                     stream.extend(quote::quote! {
                         pub mod #name {
                             #inner
@@ -139,7 +139,7 @@ where
     }
 
     pub fn write_enum(&mut self, def_id: DefId, stream: &mut TokenStream, e: &middle::rir::Enum) {
-        let name = format_ident!("{}", (&**e.name).struct_ident());
+        let name = self.rust_name(def_id).as_syn_ident();
 
         let mut repr = match e.repr {
             Some(EnumRepr::I32) => quote! {
@@ -153,7 +153,7 @@ where
         }
 
         let variants = e.variants.iter().map(|v| {
-            let name = format_ident!("{}", (&**v.name).variant_ident());
+            let name = self.rust_name(v.did).as_syn_ident();
 
             let adjust = self.adjust(v.did);
             let attrs = adjust.iter().flat_map(|a| a.attrs());
@@ -203,7 +203,7 @@ where
         stream: &mut TokenStream,
         s: &middle::rir::Service,
     ) {
-        let name = format_ident!("{}", s.name.to_upper_camel_case());
+        let name = self.rust_name(def_id).as_syn_ident();
         let methods = self.service_methods(def_id);
 
         let methods = methods
@@ -225,7 +225,7 @@ where
         stream: &mut TokenStream,
         t: &middle::rir::NewType,
     ) {
-        let name = format_ident!("{}", &t.name.to_upper_camel_case());
+        let name = self.rust_name(def_id).as_syn_ident();
         let ty = self.codegen_item_ty(t.ty.kind.clone());
         stream.extend(quote::quote! {
             #[derive(Clone, PartialEq)]
@@ -464,7 +464,10 @@ where
         set
     }
 
-    fn collect_pkgs(&mut self, remove_unused: bool) -> HashMap<ItemPath, Vec<DefId>> {
+    fn collect_pkgs(
+        &mut self,
+        remove_unused: bool,
+    ) -> HashMap<Arc<[smol_str::SmolStr]>, Vec<DefId>> {
         if remove_unused {
             let def_ids = self.collect_items();
             def_ids
@@ -474,9 +477,11 @@ where
             let files = self.files();
             let mut map: HashMap<_, Vec<DefId>> = HashMap::with_capacity(files.len());
             for file in files.values() {
-                map.entry(file.package.clone())
-                    .or_default()
-                    .extend_from_slice(&file.items);
+                map.entry(Arc::from_iter(
+                    file.package.iter().map(|s| (&**s).mod_ident()),
+                ))
+                .or_default()
+                .extend_from_slice(&file.items);
             }
 
             map
@@ -498,12 +503,12 @@ where
 
     pub fn link(mut self, ns_name: &str) -> TokenStream {
         fn write_stream(
-            pkgs: &mut FxHashMap<ItemPath, TokenStream>,
+            pkgs: &mut FxHashMap<Arc<[smol_str::SmolStr]>, TokenStream>,
             stream: &mut TokenStream,
             nodes: &[PkgNode],
         ) {
             for node in nodes {
-                let name = format_ident!("{}", node.ident());
+                let name = node.ident().as_syn_ident();
                 let mut inner_stream = TokenStream::default();
                 if let Some(node_stream) = pkgs.remove(&node.path) {
                     inner_stream.extend(node_stream);

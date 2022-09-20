@@ -404,6 +404,7 @@ dependencies = [
  "quote",
  "salsa",
  "scoped-tls",
+ "smol_str",
  "syn",
  "tempfile",
  "tokio",
