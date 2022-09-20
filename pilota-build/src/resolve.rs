@@ -516,7 +516,7 @@ impl Resolver {
             .map(|i| {
                 self.lower_path(
                     &ir::Path {
-                        segments: Arc::from([(&*i).clone()]),
+                        segments: Arc::from([i.clone()]),
                     },
                     Namespace::Ty,
                 )
