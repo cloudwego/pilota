@@ -203,7 +203,7 @@ pub struct Node {
 impl Node {
     pub(crate) fn expect_item(&self) -> &Item {
         match &self.kind {
-            NodeKind::Item(item) => &item,
+            NodeKind::Item(item) => item,
             _ => panic!(),
         }
     }

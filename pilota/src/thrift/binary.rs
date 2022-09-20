@@ -4,7 +4,8 @@ use bytes::BytesMut;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
-    error::{new_protocol_error, Error, ProtocolErrorKind},
+    error::{Error, ProtocolErrorKind},
+    new_protocol_error,
     rw_ext::{ReadExt, WriteExt},
     TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
     TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
