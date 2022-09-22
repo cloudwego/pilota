@@ -37,7 +37,7 @@ use plugin::{
 pub use plugin::{BoxClonePlugin, ClonePlugin, Plugin};
 use resolve::{ResolveResult, Resolver};
 use salsa::{Durability, ParallelDatabase};
-pub use symbol::DefId;
+pub use symbol::{DefId, IdentName};
 use syn::parse_quote;
 
 use crate::db::RirDatabase;

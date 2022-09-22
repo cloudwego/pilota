@@ -1,7 +1,6 @@
 use nom::{
     bytes::complete::tag,
     combinator::{map, opt},
-    sequence::tuple,
     IResult,
 };
 
