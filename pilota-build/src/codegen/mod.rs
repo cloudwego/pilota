@@ -404,7 +404,7 @@ where
 
             let item = node.expect_item();
 
-            match &*item {
+            match item {
                 rir::Item::Message(m) => m
                     .fields
                     .iter()
@@ -413,13 +413,13 @@ where
                     .variants
                     .iter()
                     .flat_map(|v| &v.fields)
-                    .for_each(|ty| PathCollector { cx, set }.visit(&ty)),
+                    .for_each(|ty| PathCollector { cx, set }.visit(ty)),
                 rir::Item::Service(s) => {
                     s.extend.iter().for_each(|p| collect(cx, p.did, set));
                     s.methods
                         .iter()
                         .flat_map(|m| m.args.iter().map(|f| &f.ty).chain(std::iter::once(&m.ret)))
-                        .for_each(|ty| PathCollector { cx, set }.visit(&ty));
+                        .for_each(|ty| PathCollector { cx, set }.visit(ty));
                 }
                 rir::Item::NewType(n) => PathCollector { cx, set }.visit(&n.ty),
                 rir::Item::Const(c) => {

@@ -86,14 +86,11 @@ fn mod_path(db: &dyn RirDatabase, def_id: DefId) -> ItemPath {
             segs.extend_from_slice(package)
         }
 
-        match node.kind {
-            NodeKind::Item(item) => {
-                if matches!(&*item, rir::Item::Mod(_)) {
-                    segs.push(item.symbol_name());
-                }
+        if let NodeKind::Item(item) = node.kind {
+            if matches!(&*item, rir::Item::Mod(_)) {
+                segs.push(item.symbol_name());
             }
-            _ => {}
-        };
+        }
     }
 
     let mut segs = Default::default();
@@ -117,7 +114,7 @@ fn item_path(db: &dyn RirDatabase, def_id: DefId) -> ItemPath {
         let name = match node.kind {
             NodeKind::Item(item) => match &*item {
                 rir::Item::Const(_) => item.symbol_name().to_shouty_snake_case(),
-                rir::Item::Mod(m) => (&*m.name).clone(),
+                rir::Item::Mod(m) => (*m.name).clone(),
                 _ => item.symbol_name().to_upper_camel_case(),
             },
             NodeKind::Variant(v) => (*v.name).to_upper_camel_case(),

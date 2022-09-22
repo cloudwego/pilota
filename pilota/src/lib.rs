@@ -6,7 +6,6 @@
 pub mod thrift;
 
 // reexport
-pub use anyhow::Error as AnyhowError;
 pub use async_recursion;
 pub use async_trait;
 pub use derivative;

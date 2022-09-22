@@ -5,7 +5,6 @@ use quote::{format_ident, quote};
 
 use super::traits::CodegenBackend;
 use crate::{
-    db::RirDatabase,
     middle::{
         context::Context,
         rir::{self, Enum, Field, Message, Method, NewType, Service},
@@ -314,27 +313,8 @@ impl CodegenBackend for ThriftBackend {
     ) {
     }
 
-    fn codegen_service_method(&self, _service_def_id: DefId, m: &Method) -> TokenStream {
-        let name = format_ident!("{}", m.name.to_snake_case());
-        let ret_ty = self.codegen_item_ty(m.ret.kind.clone());
-        let args = m.args.iter().map(|a| {
-            let ty = self.codegen_item_ty(a.ty.kind.clone());
-            let ident = format_ident!("{}", a.name);
-            quote! {
-                #ident: #ty
-            }
-        });
-
-        let exception = if let Some(p) = &m.exceptions {
-            let exception = self.cur_related_item_path(p.did);
-            quote! { ::pilota::thrift::UserError<#exception> }
-        } else {
-            quote!(::pilota::AnyhowError)
-        };
-
-        quote::quote! {
-            async fn #name(&self, #(#args),*) -> ::core::result::Result<#ret_ty, #exception>;
-        }
+    fn codegen_service_method(&self, _service_def_id: DefId, _m: &Method) -> TokenStream {
+        TokenStream::default()
     }
 
     fn codegen_enum_impl(&self, def_id: DefId, stream: &mut proc_macro2::TokenStream, e: &Enum) {

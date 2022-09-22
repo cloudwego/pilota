@@ -2,7 +2,7 @@ use std::{cmp, mem, ptr};
 
 use bytes::{Buf as _, BufMut, BytesMut};
 
-use super::new_protocol_error;
+use super::{Error, ProtocolError};
 
 #[derive(thiserror::Error, Debug)]
 pub enum IOError {
@@ -10,9 +10,12 @@ pub enum IOError {
     NoRemaining(String),
 }
 
-impl From<IOError> for super::Error {
+impl From<IOError> for Error {
     fn from(e: IOError) -> Self {
-        new_protocol_error(super::ProtocolErrorKind::InvalidData, format!("{}", e))
+        Error::Protocol(ProtocolError::new(
+            super::ProtocolErrorKind::InvalidData,
+            format!("{}", e),
+        ))
     }
 }
 
