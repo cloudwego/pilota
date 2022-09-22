@@ -21,6 +21,7 @@ pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.2" }
 
 heck = "0.4"
 syn = "1"
+normpath = "0.3"
 fxhash = "0.2"
 proc-macro2 = "1"
 salsa = { version = "0.17.0-pre.2" }

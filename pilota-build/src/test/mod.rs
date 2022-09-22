@@ -18,7 +18,7 @@ fn diff_file(old: impl AsRef<Path>, new: impl AsRef<Path>) {
 fn test_protobuf(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     test_with_builder(source, target, |source, target| {
         crate::Builder::protobuf()
-            .remove_unused(false)
+            .ignore_unused(false)
             .include_dirs(vec![source.parent().unwrap().to_path_buf()])
             .compile(&[source], target)
     });
@@ -50,7 +50,7 @@ fn test_with_builder<F: FnOnce(&Path, &Path)>(
 fn test_thrift(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     test_with_builder(source, target, |source, target| {
         crate::Builder::thrift()
-            .remove_unused(false)
+            .ignore_unused(false)
             .compile(&[source], target)
     });
 }
@@ -94,5 +94,21 @@ fn test_protobuf_gen() {
                 test_protobuf(path, rs_path);
             }
         }
+    });
+}
+
+#[test]
+fn test_must_gen_items() {
+    let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("must_gen_items.thrift");
+
+    let mut out_path = file_path.clone();
+    out_path.set_extension("rs");
+
+    test_with_builder(file_path, out_path, |source, target| {
+        crate::Builder::thrift()
+            .must_gen_items([(source.into(), vec!["A"])])
+            .compile(&[source], target)
     });
 }
