@@ -446,6 +446,7 @@ impl Parser for ProtobufParser {
         super::ParseResult {
             files: Lower::default().lower(&descriptors),
             input_files: vec![],
+            file_ids_map: FxHashMap::default(),
         }
     }
 }

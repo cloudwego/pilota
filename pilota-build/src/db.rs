@@ -1,4 +1,4 @@
-use std::{fmt, sync::Arc};
+use std::{fmt, path::PathBuf, sync::Arc};
 
 use fxhash::FxHashMap;
 
@@ -38,6 +38,8 @@ pub trait RirDatabase {
     fn nodes(&self) -> Arc<FxHashMap<DefId, rir::Node>>;
     #[salsa::input]
     fn files(&self) -> Arc<FxHashMap<FileId, Arc<rir::File>>>;
+    #[salsa::input]
+    fn file_ids_map(&self) -> Arc<FxHashMap<Arc<PathBuf>, FileId>>;
     #[salsa::input]
     fn type_graph(&self) -> Arc<TypeGraph>;
 

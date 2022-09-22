@@ -8,6 +8,7 @@ use crate::{ir::File, symbol::FileId};
 pub(crate) mod protobuf;
 pub(crate) mod thrift;
 
+use fxhash::FxHashMap;
 pub use thrift::ThriftParser;
 
 pub use self::protobuf::ProtobufParser;
@@ -15,6 +16,7 @@ pub use self::protobuf::ProtobufParser;
 pub struct ParseResult {
     pub files: Vec<Arc<File>>,
     pub(crate) input_files: Vec<FileId>,
+    pub(crate) file_ids_map: FxHashMap<Arc<PathBuf>, FileId>,
 }
 
 pub trait Parser {

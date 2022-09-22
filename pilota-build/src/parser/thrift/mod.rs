@@ -3,6 +3,7 @@ use std::{path::PathBuf, sync::Arc};
 use fxhash::FxHashMap;
 use heck::ToUpperCamelCase;
 use itertools::Itertools;
+use normpath::PathExt;
 use pilota_thrift_parser as thrift_parser;
 use pilota_thrift_parser::parser::Parser as _;
 use salsa::ParallelDatabase;
@@ -52,6 +53,7 @@ impl salsa::ParallelDatabase for ThriftSourceDatabase {
 #[derive(Debug)]
 pub struct LowerResult {
     pub files: Vec<Arc<File>>,
+    pub file_ids_map: FxHashMap<Arc<PathBuf>, FileId>,
 }
 
 pub trait Lower<Ast> {
@@ -65,7 +67,7 @@ pub struct ThriftLower {
     next_file_id: FileId,
     db: salsa::Snapshot<ThriftSourceDatabase>,
     files: FxHashMap<FileId, Arc<File>>,
-    cached_files: FxHashMap<Arc<PathBuf>, FileId>,
+    file_ids_map: FxHashMap<Arc<PathBuf>, FileId>,
     include_dirs: Vec<PathBuf>,
     packages: FxHashMap<Path, Vec<Arc<PathBuf>>>,
 }
@@ -77,7 +79,7 @@ impl ThriftLower {
             next_file_id: FileId::from_u32(0),
             db,
             files: FxHashMap::default(),
-            cached_files: FxHashMap::default(),
+            file_ids_map: FxHashMap::default(),
             include_dirs,
             packages: Default::default(),
         }
@@ -392,7 +394,9 @@ impl ThriftLower {
             }
         };
 
-        let ast = self.db.parse(target_path.canonicalize().unwrap());
+        let ast = self
+            .db
+            .parse(target_path.normalize().unwrap().into_path_buf());
 
         let file_id = self.lower(ast);
 
@@ -402,14 +406,14 @@ impl ThriftLower {
 
 impl Lower<Arc<thrift_parser::File>> for ThriftLower {
     fn lower(&mut self, f: Arc<thrift_parser::File>) -> FileId {
-        if let Some(file_id) = self.cached_files.get(&f.path) {
+        if let Some(file_id) = self.file_ids_map.get(&f.path) {
             return *file_id;
         }
 
         println!("cargo:rerun-if-changed={}", f.path.display());
 
         let file_id = self.next_file_id.inc_one();
-        self.cached_files.insert(f.path.clone(), file_id);
+        self.file_ids_map.insert(f.path.clone(), file_id);
 
         let file = self.with_cur_file(f.clone(), |this| {
             let include_files = f
@@ -501,6 +505,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
         });
         LowerResult {
             files: self.files.into_values().collect::<Vec<_>>(),
+            file_ids_map: self.file_ids_map,
         }
     }
 }
@@ -526,7 +531,12 @@ impl super::Parser for ThriftParser {
         let mut input_files = Vec::default();
 
         self.files.iter().for_each(|f| {
-            input_files.push(lower.lower(self.db.parse(f.to_path_buf().canonicalize().unwrap())));
+            input_files.push(
+                lower.lower(
+                    self.db
+                        .parse(f.to_path_buf().normalize().unwrap().into_path_buf()),
+                ),
+            );
         });
 
         let result = lower.finish();
@@ -534,6 +544,7 @@ impl super::Parser for ThriftParser {
         super::ParseResult {
             files: result.files,
             input_files,
+            file_ids_map: result.file_ids_map,
         }
     }
 }

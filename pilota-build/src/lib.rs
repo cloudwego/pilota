@@ -72,7 +72,8 @@ pub struct Builder<MkB, P> {
     mk_backend: MkB,
     parser: P,
     plugins: Vec<Box<dyn Plugin>>,
-    remove_unused: bool,
+    ignore_unused: bool,
+    must_gen_items: Vec<(std::path::PathBuf, Vec<String>)>,
 }
 
 impl Builder<MkThriftBackend, ThriftParser> {
@@ -85,7 +86,8 @@ impl Builder<MkThriftBackend, ThriftParser> {
                 Box::new(ImplDefaultPlugin),
                 Box::new(EnumNumPlugin),
             ],
-            remove_unused: true,
+            must_gen_items: Vec::default(),
+            ignore_unused: true,
         }
     }
 }
@@ -96,7 +98,8 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             mk_backend: MkProtobufBackend,
             parser: ProtobufParser::default(),
             plugins: vec![Box::new(ProstPlugin)],
-            remove_unused: false,
+            must_gen_items: Vec::default(),
+            ignore_unused: false,
         }
     }
 }
@@ -117,7 +120,8 @@ impl<MkB, P> Builder<MkB, P> {
             mk_backend,
             parser: self.parser,
             plugins: self.plugins,
-            remove_unused: self.remove_unused,
+            ignore_unused: self.ignore_unused,
+            must_gen_items: self.must_gen_items,
         }
     }
 
@@ -127,8 +131,27 @@ impl<MkB, P> Builder<MkB, P> {
         self
     }
 
-    pub fn remove_unused(mut self, flag: bool) -> Self {
-        self.remove_unused = flag;
+    /**
+     * Don't generate items which are unused by the main service
+     */
+    pub fn ignore_unused(mut self, flag: bool) -> Self {
+        self.ignore_unused = flag;
+        self
+    }
+
+    /**
+     * Generate items even them are not used.
+     *
+     * This is ignored if `ignore_unused` is false
+     */
+    pub fn must_gen_items(
+        mut self,
+        item: impl IntoIterator<Item = (PathBuf, Vec<impl Into<String>>)>,
+    ) -> Self {
+        self.must_gen_items.extend(
+            item.into_iter()
+                .map(|s| (s.0, s.1.into_iter().map(|s| s.into()).collect())),
+        );
         self
     }
 }
@@ -143,7 +166,12 @@ where
 
         let mut db = RootDatabase::default();
         self.parser.inputs(files);
-        let ParseResult { files, input_files } = self.parser.parse();
+        let ParseResult {
+            files,
+            input_files,
+            file_ids_map,
+        } = self.parser.parse();
+        db.set_file_ids_map_with_durability(Arc::new(file_ids_map), Durability::HIGH);
 
         let ResolveResult { files, nodes, tags } = Resolver::default().resolve_files(&files);
         db.set_files_with_durability(Arc::new(files), Durability::HIGH);
@@ -212,7 +240,8 @@ where
                 self.mk_backend.make_backend(context),
                 input,
             );
-            cg.write_pkgs(self.remove_unused);
+            cg.must_gen_items(self.must_gen_items);
+            cg.write_pkgs(self.ignore_unused);
 
             let file_name = out
                 .as_ref()

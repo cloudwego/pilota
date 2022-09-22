@@ -1,8 +1,9 @@
-use std::{collections::HashMap, ops::Deref, sync::Arc};
+use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
 
 use fxhash::{FxHashMap, FxHashSet};
 use heck::ToShoutySnakeCase;
 use itertools::Itertools;
+use normpath::PathExt;
 use pkg_tree::PkgNode;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -33,6 +34,7 @@ pub struct Codegen<B> {
     cx: Arc<Context>,
     pkgs: FxHashMap<ItemPath, TokenStream>,
     input: Vec<DefId>,
+    must_gen_items: Vec<(std::path::PathBuf, Vec<String>)>,
 }
 
 impl<B> Deref for Codegen<B> {
@@ -51,6 +53,7 @@ impl<B> Codegen<B> {
             backend,
             pkgs: Default::default(),
             input,
+            must_gen_items: Vec::default(),
         }
     }
 }
@@ -96,6 +99,10 @@ where
         });
 
         self.backend.codegen_struct_impl(def_id, stream, s);
+    }
+
+    pub fn must_gen_items(&mut self, items: Vec<(std::path::PathBuf, Vec<String>)>) {
+        self.must_gen_items = items;
     }
 
     pub fn write_item(&mut self, stream: &mut TokenStream, def_id: DefId) {
@@ -418,15 +425,37 @@ where
                 rir::Item::Const(c) => {
                     PathCollector { cx, set }.visit(&c.ty);
                 }
-                rir::Item::Mod(m) => m.items.iter().for_each(|m| {
-                    let item = cx.item(*m).unwrap();
-                    if matches!(&*item, rir::Item::Mod(_) | rir::Item::Const(_)) {
-                        collect(cx, *m, set)
-                    }
-                }),
+                rir::Item::Mod(_) => {}
             }
         }
         let mut set = FxHashSet::default();
+
+        self.must_gen_items.iter().for_each(|s| {
+            let path = &s.0;
+            s.1.iter().for_each(|item_name| {
+                let file_id = *self
+                    .file_ids_map()
+                    .get(&PathBuf::from(path).normalize().unwrap().into_path_buf())
+                    .unwrap();
+                let def_id = self
+                    .files()
+                    .get(&file_id)
+                    .unwrap()
+                    .items
+                    .iter()
+                    .find(|def_id| &*self.item(**def_id).unwrap().symbol_name() == item_name)
+                    .cloned();
+                if let Some(def_id) = def_id {
+                    set.insert(def_id);
+                } else {
+                    println!(
+                        "cargo:warning=item `{}` of `{}` not exists",
+                        item_name,
+                        path.display(),
+                    );
+                }
+            });
+        });
 
         self.input.iter().for_each(|def_id| {
             collect(&self.cx, *def_id, &mut set);
