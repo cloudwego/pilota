@@ -1,6 +1,7 @@
 use nom::{
-    bytes::complete::tag,
-    combinator::{map, opt},
+    bytes::complete::{tag, take_while},
+    character::complete::satisfy,
+    combinator::{map, opt, recognize},
     multi::many1,
     sequence::tuple,
     IResult,
@@ -20,7 +21,10 @@ impl Parser for Annotations {
                 many1(map(
                     tuple((
                         opt(blank),
-                        Path::parse,
+                        recognize(tuple((
+                            satisfy(|c| c.is_ascii_alphabetic() || c == '_'),
+                            take_while(|c: char| c.is_ascii_alphanumeric() || c == '_' || c == '.'),
+                        ))),
                         opt(blank),
                         tag("="),
                         opt(blank),
@@ -28,7 +32,10 @@ impl Parser for Annotations {
                         opt(blank),
                         opt(list_separator),
                     )),
-                    |(_, p, _, _, _, lit, _, _)| Annotation { key: p, value: lit },
+                    |(_, p, _, _, _, lit, _, _)| Annotation {
+                        key: p.to_owned(),
+                        value: lit,
+                    },
                 )),
                 tag(")"),
             )),

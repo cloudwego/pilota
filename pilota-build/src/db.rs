@@ -8,8 +8,7 @@ use crate::{
         ty::{AdtDef, AdtKind, CodegenTy, TyKind},
         type_graph::TypeGraph,
     },
-    rir::{ItemPath, NodeKind},
-    symbol::{DefId, FileId, Symbol},
+    symbol::{DefId, FileId},
 };
 
 #[derive(Default)]
@@ -47,8 +46,6 @@ pub trait RirDatabase {
     fn file(&self, file_id: FileId) -> Option<Arc<rir::File>>;
     fn item(&self, def_id: DefId) -> Option<Arc<rir::Item>>;
     fn expect_item(&self, def_id: DefId) -> Arc<rir::Item>;
-    fn mod_path(&self, def_id: DefId) -> ItemPath;
-    fn item_path(&self, def_id: DefId) -> ItemPath;
     fn codegen_item_ty(&self, ty: TyKind) -> CodegenTy;
     fn codegen_const_ty(&self, ty: TyKind) -> CodegenTy;
     fn codegen_ty(&self, def_id: DefId) -> CodegenTy;
@@ -73,61 +70,6 @@ fn item(db: &dyn RirDatabase, def_id: DefId) -> Option<Arc<rir::Item>> {
 
 fn expect_item(db: &dyn RirDatabase, def_id: DefId) -> Arc<rir::Item> {
     db.item(def_id).unwrap()
-}
-
-fn mod_path(db: &dyn RirDatabase, def_id: DefId) -> ItemPath {
-    fn calc_item_path(db: &dyn RirDatabase, def_id: DefId, segs: &mut Vec<Symbol>) {
-        let node = db.node(def_id).unwrap();
-        if let Some(parent) = node.parent {
-            calc_item_path(db, parent, segs)
-        } else {
-            let file = db.file(node.file_id).unwrap();
-            let package = &file.package;
-            segs.extend_from_slice(package)
-        }
-
-        if let NodeKind::Item(item) = node.kind {
-            if matches!(&*item, rir::Item::Mod(_)) {
-                segs.push(item.symbol_name());
-            }
-        }
-    }
-
-    let mut segs = Default::default();
-
-    calc_item_path(db, def_id, &mut segs);
-
-    ItemPath::from(segs)
-}
-
-fn item_path(db: &dyn RirDatabase, def_id: DefId) -> ItemPath {
-    fn calc_item_path(db: &dyn RirDatabase, def_id: DefId, segs: &mut Vec<Symbol>) {
-        let node = db.node(def_id).unwrap();
-        if let Some(parent) = node.parent {
-            calc_item_path(db, parent, segs)
-        } else {
-            let file = db.file(node.file_id).unwrap();
-            let package = &file.package;
-            segs.extend_from_slice(package)
-        }
-
-        let name = match node.kind {
-            NodeKind::Item(item) => match &*item {
-                rir::Item::Const(_) => item.symbol_name().to_shouty_snake_case(),
-                rir::Item::Mod(m) => (*m.name).clone(),
-                _ => item.symbol_name().to_upper_camel_case(),
-            },
-            NodeKind::Variant(v) => (*v.name).to_upper_camel_case(),
-            _ => panic!(),
-        };
-        segs.push(name);
-    }
-
-    let mut segs = Default::default();
-
-    calc_item_path(db, def_id, &mut segs);
-
-    ItemPath::from(segs)
 }
 
 fn file(db: &dyn RirDatabase, file_id: FileId) -> Option<Arc<rir::File>> {

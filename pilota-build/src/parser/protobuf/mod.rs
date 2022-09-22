@@ -12,13 +12,13 @@ use super::Parser;
 use crate::{
     index::Idx,
     ir::{self, FieldKind, Item, Path, TyKind},
-    symbol::{EnumRepr, FileId, Ident},
+    symbol::{EnumRepr, FileId, Ident, IdentName},
     tags::{
         protobuf::{
             ClientStreaming, Fixed32, Fixed64, OneOf, Repeated, SFixed32, SFixed64, SInt32, SInt64,
             ServerStreaming,
         },
-        Tags,
+        PilotaName, Tags,
     },
 };
 
@@ -310,13 +310,15 @@ impl Lower {
         if nested_items.is_empty() {
             item
         } else {
-            let name = item.name().to_lower_camel_case();
+            let name = item.name().clone();
             nested_items.push(Arc::new(item));
+            let mut tags = Tags::default();
+            tags.insert(PilotaName(name.0.mod_ident().clone()));
             Item {
                 related_items: Default::default(),
-                tags: Default::default(),
+                tags: Arc::from(tags),
                 kind: ir::ItemKind::Mod(ir::Mod {
-                    name: Ident::new(name),
+                    name: Ident::from(format!("pilota_protobuf_mod_{}", name)),
                     items: nested_items,
                 }),
             }

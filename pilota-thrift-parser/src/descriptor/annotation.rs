@@ -1,10 +1,10 @@
 use std::ops::Deref;
 
-use super::{Literal, Path};
+use super::Literal;
 
 #[derive(Debug, Clone)]
 pub struct Annotation {
-    pub key: Path,
+    pub key: String,
     pub value: Literal,
 }
 

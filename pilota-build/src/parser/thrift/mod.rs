@@ -1,4 +1,4 @@
-use std::{path::PathBuf, sync::Arc};
+use std::{path::PathBuf, str::FromStr, sync::Arc};
 
 use fxhash::FxHashMap;
 use heck::ToUpperCamelCase;
@@ -7,13 +7,14 @@ use normpath::PathExt;
 use pilota_thrift_parser as thrift_parser;
 use pilota_thrift_parser::parser::Parser as _;
 use salsa::ParallelDatabase;
+use thrift_parser::Annotations;
 
 use crate::{
     index::Idx,
     ir,
     ir::{Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path},
     symbol::{EnumRepr, FileId, Ident, Symbol},
-    tags::Tags,
+    tags::{Annotation, Tags},
     util::error_abort,
 };
 
@@ -228,7 +229,7 @@ impl ThriftLower {
                 .collect(),
             ret: self.lower_ty(&method.result_type),
             oneway: method.oneway,
-            tags: Default::default(),
+            tags: self.extract_tags(&method.annotations).into(),
             exceptions: if method.throws.is_empty() {
                 None
             } else {
@@ -365,8 +366,28 @@ impl ThriftLower {
                 thrift_parser::Attribute::Required => FieldKind::Required,
                 _ => FieldKind::Optional,
             },
-            tags: Default::default(),
+            tags: self.extract_tags(&f.annotations).into(),
         }
+    }
+
+    fn extract_tags(&mut self, annotations: &Annotations) -> Tags {
+        let mut tags = Tags::default();
+        macro_rules! with_tags {
+            ($annotation: tt -> $($key: ty)|+) => {
+                match $annotation.key.as_str()  {
+                    $(<$key>::KEY => {
+                        tags.insert(<$key>::from_str(&$annotation.value).unwrap());
+                    }),+
+                    _ => {},
+                }
+            };
+        }
+
+        annotations
+            .iter()
+            .for_each(|annotation| with_tags!(annotation -> crate::tags::PilotaName));
+
+        tags
     }
 
     fn lower_struct(&mut self, s: &thrift_parser::StructLike) -> ir::Message {

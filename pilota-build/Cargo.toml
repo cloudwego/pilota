@@ -20,6 +20,7 @@ maintenance = { status = "actively-developed" }
 pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.2" }
 
 heck = "0.4"
+smol_str = "0.1"
 syn = "1"
 normpath = "0.3"
 fxhash = "0.2"

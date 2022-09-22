@@ -9,7 +9,7 @@ use crate::{
         context::Context,
         rir::{self, Enum, Field, Message, Method, NewType, Service},
     },
-    symbol::{DefId, EnumRepr},
+    symbol::{DefId, EnumRepr, IdentName},
     tags::thrift::EntryMessage,
 };
 
@@ -43,7 +43,7 @@ impl ThriftBackend {
         fields: &'a [Arc<rir::Field>],
     ) -> impl Iterator<Item = TokenStream> + 'a {
         fields.iter().map(|f| {
-            let field_name = format_ident!("{}", f.name);
+            let field_name = self.rust_name(f.did).as_syn_ident();
             let field_name_str = &**f.name;
             let ty = self.ttype(&f.ty);
             let field_id = f.id as i16;
@@ -79,7 +79,7 @@ impl ThriftBackend {
         fields: &'a [Arc<rir::Field>],
     ) -> impl Iterator<Item = TokenStream> + 'a {
         fields.iter().map(|f| {
-            let field_name = format_ident!("{}", f.name);
+            let field_name = self.rust_name(f.did).as_syn_ident();
             let field_name_str = &**f.name;
             let ty = self.ttype(&f.ty);
             let field_id = f.id as i16;
@@ -170,9 +170,9 @@ impl ThriftBackend {
         let mut optional_field_names = Vec::with_capacity(s.fields.len());
         s.fields.iter().for_each(|f| {
             if f.is_optional() {
-                optional_field_names.push(format_ident!("{}", f.name))
+                optional_field_names.push(self.rust_name(f.did).as_syn_ident())
             } else {
-                required_field_names.push(format_ident!("{}", f.name))
+                required_field_names.push(self.rust_name(f.did).as_syn_ident())
             }
         });
 
@@ -236,7 +236,7 @@ impl ThriftBackend {
     ) -> TokenStream {
         let read_field_begin = helper.codegen_read_field_begin();
         let match_fields = fields.iter().map(|f| {
-            let field_ident = format_ident!("{}", f.name);
+            let field_ident = self.rust_name(f.did).as_syn_ident();
             let ttype = self.ttype(&f.ty);
             let mut read_field = self.codegen_decode_ty(helper, &f.ty);
             let field_id = f.id as i16;
@@ -275,16 +275,16 @@ impl ThriftBackend {
 impl CodegenBackend for ThriftBackend {
     fn codegen_struct_impl(
         &self,
-        _def_id: DefId,
+        def_id: DefId,
         stream: &mut proc_macro2::TokenStream,
         s: &Message,
     ) {
-        let name = format_ident!("{}", s.name.to_upper_camel_case());
+        let name = self.cx.rust_name(def_id);
         let name_str = &**s.name;
         let encode_fields = self.codegen_encode_fields(&s.fields);
         let encode_fields_size = self.codegen_encode_fields_size(&s.fields);
         stream.extend(self.codegen_impl_message_with_helper(
-            &name,
+            &name.as_syn_ident(),
             quote! {
                 let struct_ident =::pilota::thrift::TStructIdentifier {
                     name: #name_str,
@@ -318,7 +318,7 @@ impl CodegenBackend for ThriftBackend {
     }
 
     fn codegen_enum_impl(&self, def_id: DefId, stream: &mut proc_macro2::TokenStream, e: &Enum) {
-        let name = format_ident!("{}", e.name.to_upper_camel_case());
+        let name = self.rust_name(def_id).as_syn_ident();
         let is_entry_message = self.node_contains_tag::<EntryMessage>(def_id);
         match e.repr {
             Some(EnumRepr::I32) => stream.extend(self.codegen_impl_message_with_helper(
@@ -347,10 +347,10 @@ impl CodegenBackend for ThriftBackend {
             )),
             None if is_entry_message => self.codegen_entry_enum(def_id, stream, e),
             None => {
-                let name = format_ident!("{}", e.name.to_upper_camel_case());
+                let name = self.rust_name(def_id).as_syn_ident();
                 let name_str = &**e.name;
                 let encode_variants = e.variants.iter().map(|v| {
-                    let variant_name = format_ident!("{}", v.name.to_upper_camel_case());
+                    let variant_name = self.rust_name(v.did).as_syn_ident();
                     let variant_name_str = &**v.name;
                     assert_eq!(v.fields.len(), 1);
                     let ty = self.ttype(&v.fields[0]);
@@ -370,7 +370,7 @@ impl CodegenBackend for ThriftBackend {
                 });
 
                 let variants_size = e.variants.iter().map(|v| {
-                    let variant_name = format_ident!("{}", v.name.to_upper_camel_case());
+                    let variant_name = self.rust_name(v.did).as_syn_ident();
                     let variant_name_str = &**v.name;
                     let ty = self.ttype(&v.fields[0]);
                     let variant_id = v.id.unwrap() as i16;
@@ -413,7 +413,7 @@ impl CodegenBackend for ThriftBackend {
                         let read_struct_end = helper.codegen_read_struct_end();
                         let skip = helper.codegen_skip_ttype(quote! { field_ident.field_type });
                         let fields = e.variants.iter().map(|v| {
-                            let variant_name = format_ident!("{}", v.name.to_upper_camel_case());
+                            let variant_name = self.cx.rust_name(v.did).as_syn_ident();
                             assert_eq!(v.fields.len(), 1);
                             let variant_id = v.id.unwrap() as i16;
                             let decode = self.codegen_decode_ty(helper, &v.fields[0]);
@@ -467,11 +467,11 @@ impl CodegenBackend for ThriftBackend {
 
     fn codegen_newtype_impl(
         &self,
-        _def_id: DefId,
+        def_id: DefId,
         stream: &mut proc_macro2::TokenStream,
         t: &NewType,
     ) {
-        let name = format_ident!("{}", t.name.to_upper_camel_case());
+        let name = self.rust_name(def_id).as_syn_ident();
         let encode = self.codegen_encode_ty(&t.ty, &format_ident!("value"));
         let encode_size = self.codegen_ty_size(&t.ty, &format_ident!("value"));
 
