@@ -208,7 +208,7 @@ fn str2ident(s: &str) -> smol_str::SmolStr {
         return smol_str::SmolStr::new_inline("Self_");
     }
     if KEYWORDS_SET.contains(s) {
-        smol_str::SmolStr::new(format!("{}", s))
+        smol_str::SmolStr::new(format!("r#{}", s))
     } else {
         smol_str::SmolStr::new(s)
     }
