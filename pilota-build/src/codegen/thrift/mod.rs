@@ -88,13 +88,11 @@ impl ThriftBackend {
             let is_optional = f.is_optional();
 
             let write = quote::quote! {
-                let field = ::pilota::thrift::TFieldIdentifier {
+                protocol.write_field_begin(&::pilota::thrift::TFieldIdentifier {
                     name: Some(#field_name_str),
                     field_type: #ty,
                     id: Some(#field_id),
-                };
-
-                protocol.write_field_begin(&field)?;
+                })?;
                 #write_field
                 protocol.write_field_end()?;
             };
