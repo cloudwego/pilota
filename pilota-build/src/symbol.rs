@@ -162,7 +162,7 @@ where
     }
 }
 
-pub(crate) trait IdentName {
+pub trait IdentName {
     fn struct_ident(&self) -> smol_str::SmolStr {
         self.upper_camel_ident()
     }
