@@ -186,13 +186,28 @@ pub trait TyTransformer {
     }
 
     #[inline]
+    fn uint32(&self) -> CodegenTy {
+        CodegenTy::UInt32
+    }
+
+    #[inline]
     fn i64(&self) -> CodegenTy {
         CodegenTy::I64
     }
 
     #[inline]
+    fn uint64(&self) -> CodegenTy {
+        CodegenTy::UInt64
+    }
+
+    #[inline]
     fn f64(&self) -> CodegenTy {
         CodegenTy::F64
+    }
+
+    #[inline]
+    fn f32(&self) -> CodegenTy {
+        CodegenTy::F32
     }
 
     #[inline]
@@ -240,9 +255,9 @@ pub trait TyTransformer {
             Set(ty) => self.set(ty),
             Map(k, v) => self.map(k, v),
             Path(path) => self.path(path),
-            UInt32 => todo!(),
-            UInt64 => todo!(),
-            F32 => todo!(),
+            UInt32 => self.uint32(),
+            UInt64 => self.uint64(),
+            F32 => self.f32(),
             TyKind::Arc(_) => todo!(),
         }
     }

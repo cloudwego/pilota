@@ -2,10 +2,19 @@ message TT1 {
     message T2 {
         message TT3 {
             optional int32 a = 1;
+            map<int32, T2> m = 2; 
         }
 
         required TT3 t3 = 1;
     }
+
+    enum Label {
+        LABEL_OPTIONAL      = 1;
+        LABEL_REQUIRED      = 2;
+        LABEL_REPEATED      = 3;
+    };
     
     required T2 t2 = 1;
+    required Label t3 = 2;
+    required T2.TT3 t4 = 4;
 }

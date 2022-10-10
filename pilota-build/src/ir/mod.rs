@@ -1,6 +1,5 @@
 use std::{fmt::Display, sync::Arc};
 
-use fxhash::FxHashMap;
 use itertools::Itertools;
 
 use crate::{
@@ -185,5 +184,5 @@ pub struct File {
     pub package: Path,
     pub items: Vec<Arc<Item>>,
     pub id: FileId,
-    pub uses: FxHashMap<Symbol, FileId>,
+    pub uses: Vec<(Path, FileId)>,
 }

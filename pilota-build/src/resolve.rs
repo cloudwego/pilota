@@ -1,7 +1,6 @@
 use std::{ptr::NonNull, sync::Arc};
 
 use fxhash::FxHashMap;
-use itertools::Itertools;
 
 use crate::{
     index::Idx,
@@ -15,28 +14,19 @@ use crate::{
         ty::{self, Ty},
     },
     rir::Mod,
-    symbol::{DefId, FileId, Symbol},
+    symbol::{DefId, FileId, Ident, Symbol},
     tags::{TagId, Tags},
 };
 
-#[derive(Default)]
 struct ModuleData {
     resolutions: SymbolTable,
+    kind: DefKind,
 }
 
 #[derive(Clone, Copy)]
 enum ModuleId {
     File(FileId),
     Node(DefId),
-}
-
-impl ModuleId {
-    pub fn expect_def_id(self) -> DefId {
-        match self {
-            ModuleId::File(_) => panic!("expect def id"),
-            ModuleId::Node(did) => did,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -69,8 +59,8 @@ impl CollectDef<'_> {
                 &mut self
                     .resolver
                     .def_modules
-                    .entry(*def_id)
-                    .or_default()
+                    .get_mut(def_id)
+                    .unwrap()
                     .resolutions
             }
         };
@@ -88,7 +78,55 @@ impl CollectDef<'_> {
             tracing::error!("{} is already defined", name);
         };
 
+        self.resolver.def_modules.insert(
+            did,
+            ModuleData {
+                resolutions: Default::default(),
+                kind: match &item.kind {
+                    ir::ItemKind::Message(_)
+                    | ir::ItemKind::Enum(_)
+                    | ir::ItemKind::Service(_)
+                    | ir::ItemKind::NewType(_) => DefKind::Type,
+                    ir::ItemKind::Const(_) => DefKind::Value,
+                    ir::ItemKind::Mod(_) => DefKind::Mod,
+                    ir::ItemKind::Use(_) => unreachable!(),
+                },
+            },
+        );
+
         did
+    }
+
+    fn def_sym(&mut self, ns: Namespace, sym: Symbol) {
+        let parent = match self.parent.unwrap() {
+            ModuleId::File(_) => panic!(),
+            ModuleId::Node(def_id) => def_id,
+        };
+
+        tracing::debug!("def {} for {:?} in {:?}", sym, parent, ns);
+
+        let table = match ns {
+            Namespace::Value => {
+                &mut self
+                    .resolver
+                    .def_modules
+                    .get_mut(&parent)
+                    .unwrap()
+                    .resolutions
+                    .value
+            }
+            Namespace::Ty => {
+                &mut self
+                    .resolver
+                    .def_modules
+                    .get_mut(&parent)
+                    .unwrap()
+                    .resolutions
+                    .ty
+            }
+        };
+        let def_id = self.resolver.did_counter.inc_one();
+        table.insert(sym, def_id);
     }
 }
 
@@ -110,6 +148,21 @@ impl ir::visit::Visitor for CollectDef<'_> {
             ir::ItemKind::Use(_) => None,
         } {
             let prev_parent = self.parent.replace(ModuleId::Node(did));
+            match &item.kind {
+                ir::ItemKind::Message(m) => m
+                    .fields
+                    .iter()
+                    .for_each(|f| self.def_sym(Namespace::Ty, (&*f.name).clone())),
+                ir::ItemKind::Enum(e) => e.variants.iter().for_each(|e| {
+                    self.def_sym(Namespace::Ty, (&*e.name).clone());
+                }),
+                ir::ItemKind::Service(s) => {
+                    s.methods
+                        .iter()
+                        .for_each(|m| self.def_sym(Namespace::Ty, (&*m.name).clone()));
+                }
+                _ => {}
+            }
             ir::visit::walk_item(self, item);
             self.parent = prev_parent;
         }
@@ -127,7 +180,6 @@ pub struct Resolver {
     pub(crate) file_sym_map: FxHashMap<FileId, SymbolTable>,
     def_modules: FxHashMap<DefId, ModuleData>,
     blocks: Vec<NonNull<SymbolTable>>,
-
     parent_node: Option<DefId>,
     nodes: FxHashMap<DefId, Node>,
     tags_id_counter: TagId,
@@ -160,39 +212,84 @@ pub struct ResolveResult {
 }
 
 impl Resolver {
-    fn resolve_sym(&self, ns: Namespace, sym: Symbol) -> Option<ModuleId> {
-        let def_id = self
-            .blocks
-            .iter()
-            .rev()
-            .find_map(|b| {
-                let b = unsafe { b.as_ref() };
-                match ns {
-                    Namespace::Value => b.value.get(&sym),
-                    Namespace::Ty => b.ty.get(&sym),
-                }
-                .or_else(|| {
-                    // fuzzy find for protobuf
-                    match ns {
-                        Namespace::Value => {
-                            b.ty.get(&Symbol::from(format!("pilota_protobuf_mod_{}", sym)))
-                                .and_then(|def_id| {
-                                    self.def_modules[def_id].resolutions.value.get(&sym)
-                                })
-                        }
-                        Namespace::Ty => b
-                            .ty
-                            .get(&Symbol::from(format!("pilota_protobuf_mod_{}", sym)))
-                            .and_then(|def_id| self.def_modules[def_id].resolutions.ty.get(&sym)),
-                    }
-                })
-            })
-            .copied();
+    fn resolve_path<'a>(&self, ns: Namespace, path: &'a ir::Path) -> (&'a [Ident], DefId) {
+        let segs = &path.segments;
+        let cur_file = self.ir_files.get(self.cur_file.as_ref().unwrap()).unwrap();
+        {
+            let segs = if let Some(segs) = segs.strip_prefix(&*cur_file.package.segments) {
+                segs
+            } else {
+                &*segs
+            };
+            let sym = segs.first().unwrap();
 
-        def_id.map(ModuleId::Node).or_else(|| {
-            let cur_file = self.ir_files.get(self.cur_file.as_ref().unwrap()).unwrap();
-            cur_file.uses.get(&sym).map(|id| ModuleId::File(*id))
-        })
+            let def_id = self.blocks.iter().rev().find_map(|b| {
+                let b = unsafe { b.as_ref() };
+                let target = match ns {
+                    Namespace::Value => b.value.get(&**sym).or_else(|| b.ty.get(&**sym)),
+                    Namespace::Ty => b.ty.get(&**sym),
+                }
+                .copied();
+                if let Some(target) = target {
+                    if segs.len() > 1 {
+                        let resolutions = &self.def_modules[&target].resolutions;
+                        let sym = &*segs[1];
+                        if !resolutions.ty.contains_key(sym) && !resolutions.value.contains_key(sym)
+                        {
+                            return None;
+                        }
+                    }
+                }
+                target
+            });
+
+            if let Some(def_id) = def_id {
+                return (&segs[1..], def_id);
+            }
+        }
+        cur_file
+            .uses
+            .iter()
+            .find_map(|f| {
+                if let Some(rest) = path.segments.strip_prefix(&*f.0.segments) {
+                    let file = &self.file_sym_map[&f.1];
+                    let table = match ns {
+                        Namespace::Value => &file.value,
+                        Namespace::Ty => &file.ty,
+                    };
+
+                    if let Some(def_id) = table.get(&**rest[0]) {
+                        Some((&rest[1..], *def_id))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| {
+                panic!(
+                    "can not find path {} in file {}, {:?}",
+                    path, cur_file.package, cur_file.uses,
+                )
+            })
+    }
+
+    fn get_def_id(&self, ns: Namespace, sym: &Symbol) -> DefId {
+        if let Some(parent) = self.parent_node {
+            *match ns {
+                Namespace::Value => self.def_modules[&parent].resolutions.value.get(sym),
+                Namespace::Ty => self.def_modules[&parent].resolutions.ty.get(sym),
+            }
+            .unwrap()
+        } else {
+            let cur_file = &self.file_sym_map[&self.cur_file.unwrap()];
+            *match ns {
+                Namespace::Value => cur_file.value.get(sym),
+                Namespace::Ty => cur_file.ty.get(sym),
+            }
+            .unwrap()
+        }
     }
 
     pub fn resolve_files(mut self, files: &[Arc<ir::File>]) -> ResolveResult {
@@ -217,7 +314,7 @@ impl Resolver {
     #[tracing::instrument(level = "debug", skip_all, fields(name = &**f.name))]
     fn lower_field(&mut self, f: &ir::Field) -> Arc<Field> {
         tracing::info!("lower filed {}, ty: {:?}", f.name, f.ty.kind);
-        let did = self.did_counter.inc_one();
+        let did = self.get_def_id(Namespace::Ty, &*f.name);
         let tag_id = self.tags_id_counter.inc_one();
         self.tags.insert(tag_id, f.tags.clone());
         let f = Arc::from(Field {
@@ -265,9 +362,9 @@ impl Resolver {
                 ty::Map(Arc::from(self.lower_type(k)), Arc::from(self.lower_type(v)))
             }
             ir::TyKind::Path(p) => ty::Path(self.lower_path(p, Namespace::Ty)),
-            ir::TyKind::UInt64 => todo!(),
-            ir::TyKind::UInt32 => todo!(),
-            ir::TyKind::F32 => todo!(),
+            ir::TyKind::UInt64 => ty::UInt64,
+            ir::TyKind::UInt32 => ty::UInt32,
+            ir::TyKind::F32 => ty::F32,
         };
         let tags_id = self.tags_id_counter.inc_one();
 
@@ -277,71 +374,40 @@ impl Resolver {
     }
 
     fn lower_path(&self, p: &ir::Path, ns: Namespace) -> Path {
-        let mut start_index = 1;
-        let mut module_id = match ns {
-            Namespace::Value => &[Namespace::Value, Namespace::Ty] as &[_],
-            Namespace::Ty => &[Namespace::Ty],
-        }
-        .iter()
-        .find_map(|ns| {
-            self.resolve_sym(*ns, p.segments[0].sym.clone())
-                .or_else(|| {
-                    // hack, symbol can be "a.b.c" in thrift
-                    start_index = p.segments.len() - 1;
-                    self.resolve_sym(
-                        *ns,
-                        Symbol::from(p.segments[0..start_index].iter().map(|v| &***v).join("_")),
-                    )
-                })
-        })
-        .unwrap_or_else(|| panic!("undefined ident {}", p.segments[0].sym));
+        let (rest, mut def_id) = self.resolve_path(ns, p);
 
-        p.segments[start_index..].iter().for_each(|ident| {
-            module_id = match module_id {
-                ModuleId::File(file_id) => {
-                    let file = self.ir_files.get(&file_id).unwrap();
-                    let table = self.file_sym_map.get(&file_id).unwrap();
-                    let table = match ns {
-                        Namespace::Value => &table.value,
-                        Namespace::Ty => &table.ty,
-                    };
-                    ModuleId::Node(*table.get(&**ident).unwrap_or_else(|| {
-                        panic!("can not find {} in file {:?}", ident, file.package)
-                    }))
-                }
-                ModuleId::Node(def_id) => match &self.nodes[&def_id].kind {
-                    NodeKind::Item(item) => match &**item {
-                        Item::Enum(e) => ModuleId::Node(
-                            e.variants.iter().find(|v| &v.name == ident).unwrap().did,
-                        ),
-                        Item::Mod(_) => {
-                            let table = match ns {
-                                Namespace::Value => &self.def_modules[&def_id].resolutions.value,
-                                Namespace::Ty => &self.def_modules[&def_id].resolutions.ty,
-                            };
-
-                            ModuleId::Node(
-                                *table
-                                    .get(&**ident)
-                                    .unwrap_or_else(|| panic!("can not find {}", ident)),
-                            )
-                        }
-                        _ => panic!("invalid item"),
-                    },
-                    _ => panic!("invalid node"),
-                },
+        rest.iter().for_each(|ident| {
+            def_id = *match ns {
+                Namespace::Value => self.def_modules[&def_id]
+                    .resolutions
+                    .value
+                    .get(&**ident)
+                    .or_else(|| self.def_modules[&def_id].resolutions.ty.get(&**ident)),
+                Namespace::Ty => self.def_modules[&def_id].resolutions.ty.get(&**ident),
             }
+            .unwrap_or_else(|| panic!("can not find {} in {:?}", ident, def_id));
         });
 
-        let (kind, did) = match module_id {
-            ModuleId::File(_) => panic!(""),
-            ModuleId::Node(def_id) => match ns {
-                Namespace::Value => (DefKind::Value, def_id),
-                Namespace::Ty => (DefKind::Type, def_id),
-            },
-        };
+        let kind = self.def_modules.get(&def_id).map(|d| d.kind);
 
-        Path { kind, did }
+        if kind == Some(DefKind::Mod) {
+            def_id = *self
+                .def_modules
+                .get(&def_id)
+                .unwrap()
+                .resolutions
+                .ty
+                .get(&**(p.segments.last().unwrap()))
+                .unwrap();
+        }
+
+        Path {
+            kind: match ns {
+                Namespace::Value => DefKind::Value,
+                Namespace::Ty => DefKind::Type,
+            },
+            did: def_id,
+        }
     }
 
     #[tracing::instrument(level = "debug", skip(self, s), fields(name = &**s.name))]
@@ -360,7 +426,7 @@ impl Resolver {
                     .iter()
                     .map(|v| {
                         let tag_id = self.tags_id_counter.inc_one();
-                        let did = self.did_counter.inc_one();
+                        let did = self.get_def_id(Namespace::Ty, &v.name);
                         if !v.tags.is_empty() {
                             self.tags.insert(tag_id, v.tags.clone());
                         }
@@ -388,7 +454,7 @@ impl Resolver {
                 .methods
                 .iter()
                 .map(|m| {
-                    let def_id = self.did_counter.inc_one();
+                    let def_id = self.get_def_id(Namespace::Ty, &m.name);
                     let tags_id = self.tags_id_counter.inc_one();
                     self.tags.insert(tags_id, m.tags.clone());
                     let method = Arc::from(Method {
@@ -484,16 +550,13 @@ impl Resolver {
         let name = item.name();
         let tags = &item.tags;
 
-        let def_id = self
-            .resolve_sym(
-                match &item.kind {
-                    ir::ItemKind::Const(_) => Namespace::Value,
-                    _ => Namespace::Ty,
-                },
-                name.clone(),
-            )
-            .unwrap_or_else(|| panic!("can not find {}", name))
-            .expect_def_id();
+        let def_id = self.get_def_id(
+            match &item.kind {
+                ir::ItemKind::Const(_) => Namespace::Value,
+                _ => Namespace::Ty,
+            },
+            &name,
+        );
 
         let old_parent = self.parent_node.replace(def_id);
         let related_items = &item.related_items;

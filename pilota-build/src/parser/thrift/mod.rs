@@ -13,7 +13,7 @@ use crate::{
     index::Idx,
     ir,
     ir::{Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path},
-    symbol::{EnumRepr, FileId, Ident, Symbol},
+    symbol::{EnumRepr, FileId, Ident},
     tags::{Annotation, Tags},
     util::error_abort,
 };
@@ -449,15 +449,15 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                 })
                 .map(|i| {
                     (
-                        Arc::<str>::from(
-                            i.path
-                                .0
-                                .split('/')
-                                .last()
-                                .unwrap()
-                                .trim_end_matches(".thrift")
-                                .replace('.', "_"),
-                        ),
+                        i.path
+                            .0
+                            .split('/')
+                            .last()
+                            .unwrap()
+                            .trim_end_matches(".thrift")
+                            .split('.')
+                            .map(|s| Ident::from(s))
+                            .collect_vec(),
                         this.lower_include(i),
                     )
                 })
@@ -474,8 +474,15 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
 
             let uses = include_files
                 .into_iter()
-                .map(|(name, u)| (name.into(), u.file))
-                .collect::<FxHashMap<Symbol, FileId>>();
+                .map(|(name, u)| {
+                    (
+                        Path {
+                            segments: name.into(),
+                        },
+                        u.file,
+                    )
+                })
+                .collect::<Vec<(_, FileId)>>();
 
             let file_package = f
                 .package
