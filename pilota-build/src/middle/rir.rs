@@ -144,10 +144,11 @@ impl Item {
     }
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Copy)]
 pub enum DefKind {
     Type,
     Value,
+    Mod,
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]

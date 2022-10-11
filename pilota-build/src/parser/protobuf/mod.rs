@@ -1,7 +1,6 @@
-use std::{path::PathBuf, sync::Arc};
+use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
 use fxhash::FxHashMap;
-use heck::ToSnakeCase;
 use itertools::Itertools;
 use protobuf::descriptor::{
     field_descriptor_proto::{Label, Type},
@@ -46,15 +45,8 @@ impl Default for Lower {
 
 impl Lower {
     fn str2path(&self, s: &str) -> ir::Path {
-        let segs = s.split('.').collect::<Vec<_>>();
         ir::Path {
-            segments: Arc::from_iter(
-                segs[0..segs.len() - 1]
-                    .iter()
-                    .map(|s| s.to_snake_case())
-                    .chain(std::iter::once(segs[segs.len() - 1].to_string()))
-                    .map(Ident::from),
-            ),
+            segments: Arc::from_iter(s.split('.').map(Ident::from)),
         }
     }
 
@@ -90,20 +82,11 @@ impl Lower {
             }
 
             assert_eq!(".", &name[..1]);
-            let cur_pkg = self.cur_package.as_deref().unwrap_or("");
-            if name[1..].starts_with(cur_pkg) {
-                return ir::Ty {
-                    kind: ir::TyKind::Path(ir::Path {
-                        segments: Arc::from_iter([Ident::from(name.split('.').last().unwrap())]),
-                    }),
-                    tags: Default::default(),
-                };
-            } else {
-                return ir::Ty {
-                    kind: ir::TyKind::Path(self.str2path(&name[1..])),
-                    tags: Default::default(),
-                };
-            }
+
+            return ir::Ty {
+                kind: ir::TyKind::Path(self.str2path(&name[1..])),
+                tags: Default::default(),
+            };
         }
 
         if let Some(ty) = type_ {
@@ -185,11 +168,23 @@ impl Lower {
         }
     }
 
-    fn lower_message(&self, message: &DescriptorProto) -> ir::Item {
+    fn lower_message(
+        &self,
+        message: &DescriptorProto,
+        parent_messages: &mut Vec<String>,
+    ) -> ir::Item {
         let fq_message_name = format!(
-            "{}{}.{}",
+            "{}{}.{}{}",
             if self.cur_package.is_none() { "" } else { "." },
             self.cur_package.as_deref().unwrap_or(""),
+            {
+                let mut s = String::new();
+                parent_messages.iter().for_each(|m| {
+                    s.push_str(m);
+                    s.push_str(".")
+                });
+                s
+            },
             message.name()
         );
 
@@ -243,10 +238,19 @@ impl Lower {
             }));
         });
 
+        parent_messages.push(message.name().into());
+
         nested_messages
             .iter()
             .filter(|(_, m)| !m.options.has_map_entry())
-            .for_each(|(_, m)| nested_items.push(Arc::new(self.lower_message(m))));
+            .for_each(|(_, m)| nested_items.push(Arc::new(self.lower_message(m, parent_messages))));
+
+        parent_messages.pop();
+
+        message
+            .enum_type
+            .iter()
+            .for_each(|e| nested_items.push(Arc::new(self.lower_enum(e))));
 
         let item = ir::Item {
             related_items: Default::default(),
@@ -318,7 +322,7 @@ impl Lower {
                 related_items: Default::default(),
                 tags: Arc::from(tags),
                 kind: ir::ItemKind::Mod(ir::Mod {
-                    name: Ident::from(format!("pilota_protobuf_mod_{}", name)),
+                    name: Ident { sym: name },
                     items: nested_items,
                 }),
             }
@@ -369,9 +373,11 @@ impl Lower {
         &mut self,
         files: &[protobuf::descriptor::FileDescriptorProto],
     ) -> Vec<Arc<ir::File>> {
+        let mut file_map = HashMap::with_capacity(files.len());
         files.iter().for_each(|f| {
             self.files
                 .insert(f.name().to_string(), self.next_file_id.inc_one());
+            file_map.insert(f.name(), f);
         });
 
         files
@@ -381,28 +387,23 @@ impl Lower {
 
                 let file_id = *self.files.get(f.name()).unwrap();
 
-                let package = self.str2path(
-                    &f.package
-                        .clone()
-                        .unwrap_or_else(|| f.name().trim_end_matches(".proto").to_snake_case()),
-                );
+                let package = self.str2path(&f.package());
 
                 let enums = f.enum_type.iter().map(|e| self.lower_enum(e));
-                let messages = f.message_type.iter().map(|m| self.lower_message(m));
+                let messages = f
+                    .message_type
+                    .iter()
+                    .map(|m| self.lower_message(m, &mut Vec::new()));
                 let services = f.service.iter().map(|s| self.lower_service(s));
 
                 let f = Arc::from(ir::File {
-                    package,
+                    package: package.clone(),
                     uses: f
                         .dependency
                         .iter()
                         .map(|d| {
                             (
-                                d.trim_end_matches(".proto")
-                                    .split('/')
-                                    .last()
-                                    .unwrap()
-                                    .into(),
+                                self.str2path(file_map.get(&**d).unwrap().package()),
                                 *self.files.get(d).unwrap(),
                             )
                         })

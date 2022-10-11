@@ -508,14 +508,19 @@ where
             nodes: &[PkgNode],
         ) {
             for node in nodes {
-                let name = node.ident().as_syn_ident();
                 let mut inner_stream = TokenStream::default();
                 if let Some(node_stream) = pkgs.remove(&node.path) {
                     inner_stream.extend(node_stream);
                 }
 
                 write_stream(pkgs, &mut inner_stream, &node.children);
+                let name = node.ident();
+                if name.is_empty() {
+                    stream.extend(inner_stream);
+                    return;
+                }
 
+                let name = name.as_syn_ident();
                 stream.extend(quote! {
                     pub mod #name {
                         #inner_stream
