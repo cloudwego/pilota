@@ -141,9 +141,7 @@ impl ThriftBackend {
                 ) -> ::std::result::Result<Self,::pilota::thrift::Error> {
                     #decode_async
                 }
-            }
 
-            impl ::pilota::thrift::Size for #name {
                 fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
                     #size
                 }

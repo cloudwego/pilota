@@ -83,8 +83,6 @@ pub mod normal {
                 let data = Self { a };
                 Ok(data)
             }
-        }
-        impl ::pilota::thrift::Size for A {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
                     + if let Some(value) = self.a.as_ref() {
@@ -176,8 +174,6 @@ pub mod normal {
                 let data = Self { a };
                 Ok(data)
             }
-        }
-        impl ::pilota::thrift::Size for B {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "b" })
                     + if let Some(value) = self.a.as_ref() {
@@ -185,7 +181,7 @@ pub mod normal {
                             name: Some("a"),
                             field_type: ::pilota::thrift::TType::Struct,
                             id: Some(2i16),
-                        }) + ::pilota::thrift::Size::size(value, protocol)
+                        }) + ::pilota::thrift::Message::size(value, protocol)
                             + protocol.write_field_end_len()
                     } else {
                         0

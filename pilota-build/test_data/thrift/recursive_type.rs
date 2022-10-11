@@ -87,8 +87,6 @@ pub mod recursive_type {
                 let data = Self { a };
                 Ok(data)
             }
-        }
-        impl ::pilota::thrift::Size for A {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
                     + if let Some(value) = self.a.as_ref() {
@@ -96,7 +94,7 @@ pub mod recursive_type {
                             name: Some("a"),
                             field_type: ::pilota::thrift::TType::Struct,
                             id: Some(1i16),
-                        }) + ::pilota::thrift::Size::size(value, protocol)
+                        }) + ::pilota::thrift::Message::size(value, protocol)
                             + protocol.write_field_end_len()
                     } else {
                         0

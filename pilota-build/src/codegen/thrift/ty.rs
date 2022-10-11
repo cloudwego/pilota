@@ -194,7 +194,7 @@ impl ThriftBackend {
                     }
                 }
             }
-            ty::Path(_) => quote! { ::pilota::thrift::Size::size(#ident, protocol) },
+            ty::Path(_) => quote! { ::pilota::thrift::Message::size(#ident, protocol) },
             _ => unimplemented!(),
         }
     }

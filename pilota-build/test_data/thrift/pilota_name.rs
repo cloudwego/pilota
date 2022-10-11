@@ -143,8 +143,6 @@ pub mod pilota_name {
                 let data = Self { id, hello };
                 Ok(data)
             }
-        }
-        impl ::pilota::thrift::Size for Test {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
                 protocol
                     .write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Test" })

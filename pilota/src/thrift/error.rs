@@ -6,7 +6,7 @@ use std::{
 use tokio::io::AsyncRead;
 
 use super::{
-    binary::TAsyncBinaryProtocol, Message, Size, TInputProtocol, TLengthProtocol, TOutputProtocol,
+    binary::TAsyncBinaryProtocol, Message, TInputProtocol, TLengthProtocol, TOutputProtocol,
 };
 
 #[derive(Debug)]
@@ -273,9 +273,7 @@ impl Message for DummyError {
     {
         panic!()
     }
-}
 
-impl Size for DummyError {
     fn size<T: TLengthProtocol>(&self, _protocol: &T) -> usize {
         panic!()
     }
