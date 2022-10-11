@@ -83,8 +83,6 @@ pub mod must_gen_items {
                 let data = Self { a };
                 Ok(data)
             }
-        }
-        impl ::pilota::thrift::Size for A {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
                     + if let Some(value) = self.a.as_ref() {

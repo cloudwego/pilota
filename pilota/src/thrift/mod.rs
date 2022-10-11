@@ -2,7 +2,7 @@ pub mod binary;
 pub mod error;
 pub mod rw_ext;
 
-use std::{ops::Deref, sync::Arc};
+use std::ops::Deref;
 
 use bytes::{Buf, BufMut};
 pub use error::*;
@@ -25,6 +25,8 @@ pub trait Message: Sized + Send {
     async fn decode_async<R>(protocol: &mut TAsyncBinaryProtocol<R>) -> Result<Self, Error>
     where
         R: AsyncRead + Unpin + Send;
+
+    fn size<T: TLengthProtocol>(&self, protocol: &T) -> usize;
 }
 
 #[async_trait::async_trait]
@@ -42,6 +44,10 @@ impl<M: Message> Message for Box<M> {
         R: AsyncRead + Unpin + Send,
     {
         Ok(Box::new(M::decode_async(protocol).await?))
+    }
+
+    fn size<T: TLengthProtocol>(&self, protocol: &T) -> usize {
+        self.deref().size(protocol)
     }
 }
 
@@ -492,24 +498,5 @@ impl TMapIdentifier {
             value_type: value_type.into(),
             size,
         }
-    }
-}
-
-pub trait Size {
-    fn size<T: TLengthProtocol>(&self, protocol: &T) -> usize;
-}
-
-impl<M: Size> Size for Box<M> {
-    fn size<T: TLengthProtocol>(&self, protocol: &T) -> usize {
-        self.deref().size(protocol)
-    }
-}
-
-impl<Message> Size for Arc<Message>
-where
-    Message: Size + Sync,
-{
-    fn size<T: TLengthProtocol>(&self, protocol: &T) -> usize {
-        (**self).size(protocol)
     }
 }

@@ -54,8 +54,6 @@ pub mod self_kw {
                     )
                 })?)
             }
-        }
-        impl ::pilota::thrift::Size for Index {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
                 protocol.write_i32_len(*self as i32)
             }
@@ -156,8 +154,6 @@ pub mod self_kw {
                 let data = Self { r#type };
                 Ok(data)
             }
-        }
-        impl ::pilota::thrift::Size for A {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
                     + {
