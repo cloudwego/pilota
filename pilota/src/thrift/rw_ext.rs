@@ -1,4 +1,4 @@
-use std::{cmp, mem, ptr};
+use std::mem;
 
 use bytes::{Buf as _, BufMut, BytesMut};
 
@@ -86,7 +86,6 @@ macro_rules! assert_remaining {
 }
 
 pub trait WriteExt {
-    fn write<T: bytes::Buf>(&mut self, src: T) -> Result<(), IOError>;
     fn write_slice(&mut self, src: &[u8]) -> Result<(), IOError>;
     fn write_u8(&mut self, n: u8) -> Result<(), IOError>;
     fn write_i8(&mut self, n: i8) -> Result<(), IOError>;
@@ -130,31 +129,6 @@ pub trait WriteExt {
 }
 
 impl WriteExt for BytesMut {
-    #[inline]
-    fn write<T: bytes::Buf>(&mut self, mut src: T) -> Result<(), IOError>
-    where
-        Self: Sized,
-    {
-        while src.has_remaining() {
-            let l;
-
-            unsafe {
-                let s = src.chunk();
-                let d = self.chunk_mut();
-                l = cmp::min(s.len(), d.len());
-
-                ptr::copy_nonoverlapping(s.as_ptr(), d.as_mut_ptr() as *mut u8, l);
-            }
-
-            src.advance(l);
-            unsafe {
-                self.advance_mut(l);
-            }
-        }
-
-        Ok(())
-    }
-
     #[inline]
     fn write_slice(&mut self, src: &[u8]) -> Result<(), IOError> {
         self.put_slice(src);

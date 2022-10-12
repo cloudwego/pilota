@@ -149,183 +149,175 @@ impl<T> TLengthProtocol for TBinaryProtocol<T> {
     }
 }
 
-macro_rules! impl_output_bytes_mut {
-    ($t: ty) => {
-        impl TOutputProtocol for TBinaryProtocol<$t> {
-            type Buf = BytesMut;
+impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
+    type Buf = BytesMut;
 
-            #[inline]
-            fn write_message_begin(
-                &mut self,
-                identifier: &TMessageIdentifier,
-            ) -> Result<(), Error> {
-                let msg_type_u8: u8 = identifier.message_type.into();
-                let version = (VERSION_1 | msg_type_u8 as u32) as i32;
-                self.write_i32(version as i32)?;
-                self.write_string(&identifier.name)?;
-                self.write_i32(identifier.sequence_number)?;
-                Ok(())
-            }
+    #[inline]
+    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), Error> {
+        let msg_type_u8: u8 = identifier.message_type.into();
+        let version = (VERSION_1 | msg_type_u8 as u32) as i32;
+        self.write_i32(version as i32)?;
+        self.write_string(&identifier.name)?;
+        self.write_i32(identifier.sequence_number)?;
+        Ok(())
+    }
 
-            #[inline]
-            fn write_message_end(&mut self) -> Result<(), Error> {
-                Ok(())
-            }
+    #[inline]
+    fn write_message_end(&mut self) -> Result<(), Error> {
+        Ok(())
+    }
 
-            #[inline]
-            fn write_struct_begin(&mut self, _: &TStructIdentifier) -> Result<(), Error> {
-                Ok(())
-            }
+    #[inline]
+    fn write_struct_begin(&mut self, _: &TStructIdentifier) -> Result<(), Error> {
+        Ok(())
+    }
 
-            #[inline]
-            fn write_struct_end(&mut self) -> Result<(), Error> {
-                Ok(())
-            }
+    #[inline]
+    fn write_struct_end(&mut self) -> Result<(), Error> {
+        Ok(())
+    }
 
-            fn write_field_begin(&mut self, identifier: &TFieldIdentifier) -> Result<(), Error> {
-                if identifier.field_type != TType::Stop {
-                    if identifier.id.is_some() {
-                        let mut data: [u8; 3] = [0; 3];
-                        data[0] = identifier.field_type.into();
-                        let id = identifier.id.unwrap().to_be_bytes();
-                        data[1] = id[0];
-                        data[2] = id[1];
-                        self.trans.write_slice(&data)?;
-                    } else {
-                        return Err(new_protocol_error(
-                            ProtocolErrorKind::Unknown,
-                            format!(
-                                "cannot write identifier {:?} without sequence number",
-                                &identifier
-                            ),
-                        ));
-                    }
-                } else {
-                    self.write_byte(identifier.field_type.into())?;
-                }
-                Ok(())
+    #[inline]
+    fn write_field_begin(&mut self, identifier: &TFieldIdentifier) -> Result<(), Error> {
+        if identifier.field_type != TType::Stop {
+            if let Some(id) = identifier.id {
+                let mut data: [u8; 3] = [0; 3];
+                data[0] = identifier.field_type.into();
+                let id = id.to_be_bytes();
+                data[1] = id[0];
+                data[2] = id[1];
+                self.trans.write_slice(&data)?;
+            } else {
+                return Err(new_protocol_error(
+                    ProtocolErrorKind::Unknown,
+                    format!(
+                        "cannot write identifier {:?} without sequence number",
+                        &identifier
+                    ),
+                ));
             }
-
-            #[inline]
-            fn write_field_end(&mut self) -> Result<(), Error> {
-                Ok(())
-            }
-
-            #[inline]
-            fn write_field_stop(&mut self) -> Result<(), Error> {
-                self.write_byte(TType::Stop.into())
-            }
-
-            #[inline]
-            fn write_bool(&mut self, b: bool) -> Result<(), Error> {
-                if b {
-                    self.write_i8(1)
-                } else {
-                    self.write_i8(0)
-                }
-            }
-
-            #[inline]
-            fn write_bytes(&mut self, b: &[u8]) -> Result<(), Error> {
-                self.write_i32(b.len() as i32)?;
-                self.trans.write_slice(b)?;
-                Ok(())
-            }
-
-            #[inline]
-            fn write_byte(&mut self, b: u8) -> Result<(), Error> {
-                self.trans.write_u8(b)?;
-                Ok(())
-            }
-
-            #[inline]
-            fn write_i8(&mut self, i: i8) -> Result<(), Error> {
-                self.trans.write_i8(i)?;
-                Ok(())
-            }
-
-            #[inline]
-            fn write_i16(&mut self, i: i16) -> Result<(), Error> {
-                self.trans.write_i16(i)?;
-                Ok(())
-            }
-
-            #[inline]
-            fn write_i32(&mut self, i: i32) -> Result<(), Error> {
-                self.trans.write_i32(i)?;
-                Ok(())
-            }
-
-            #[inline]
-            fn write_i64(&mut self, i: i64) -> Result<(), Error> {
-                self.trans.write_i64(i)?;
-                Ok(())
-            }
-
-            #[inline]
-            fn write_double(&mut self, d: f64) -> Result<(), Error> {
-                self.trans.write_f64(d)?;
-                Ok(())
-            }
-
-            #[inline]
-            fn write_string(&mut self, s: &str) -> Result<(), Error> {
-                self.write_bytes(s.as_bytes())
-            }
-
-            #[inline]
-            fn write_list_begin(&mut self, identifier: &TListIdentifier) -> Result<(), Error> {
-                self.write_byte(identifier.element_type.into())?;
-                self.write_i32(identifier.size as i32)
-            }
-
-            #[inline]
-            fn write_list_end(&mut self) -> Result<(), Error> {
-                Ok(())
-            }
-
-            #[inline]
-            fn write_set_begin(&mut self, identifier: &TSetIdentifier) -> Result<(), Error> {
-                self.write_byte(identifier.element_type.into())?;
-                self.write_i32(identifier.size as i32)
-            }
-
-            #[inline]
-            fn write_set_end(&mut self) -> Result<(), Error> {
-                Ok(())
-            }
-
-            #[inline]
-            fn write_map_begin(&mut self, identifier: &TMapIdentifier) -> Result<(), Error> {
-                let key_type = identifier.key_type;
-                self.write_byte(key_type.into())?;
-                let val_type = identifier.value_type;
-                self.write_byte(val_type.into())?;
-                self.write_i32(identifier.size as i32)
-            }
-
-            #[inline]
-            fn write_map_end(&mut self) -> Result<(), Error> {
-                Ok(())
-            }
-
-            #[inline]
-            fn flush(&mut self) -> Result<(), Error> {
-                Ok(())
-            }
-
-            fn reserve(&mut self, size: usize) {
-                self.trans.reserve(size)
-            }
-
-            fn buf_mut(&mut self) -> &mut BytesMut {
-                self.trans
-            }
+        } else {
+            self.write_byte(identifier.field_type.into())?;
         }
-    };
-}
+        Ok(())
+    }
 
-impl_output_bytes_mut!(&mut BytesMut);
+    #[inline]
+    fn write_field_end(&mut self) -> Result<(), Error> {
+        Ok(())
+    }
+
+    #[inline]
+    fn write_field_stop(&mut self) -> Result<(), Error> {
+        self.write_byte(TType::Stop.into())
+    }
+
+    #[inline]
+    fn write_bool(&mut self, b: bool) -> Result<(), Error> {
+        if b {
+            self.write_i8(1)
+        } else {
+            self.write_i8(0)
+        }
+    }
+
+    #[inline]
+    fn write_bytes(&mut self, b: &[u8]) -> Result<(), Error> {
+        self.write_i32(b.len() as i32)?;
+        self.trans.write_slice(b)?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_byte(&mut self, b: u8) -> Result<(), Error> {
+        self.trans.write_u8(b)?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_i8(&mut self, i: i8) -> Result<(), Error> {
+        self.trans.write_i8(i)?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_i16(&mut self, i: i16) -> Result<(), Error> {
+        self.trans.write_i16(i)?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_i32(&mut self, i: i32) -> Result<(), Error> {
+        self.trans.write_i32(i)?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_i64(&mut self, i: i64) -> Result<(), Error> {
+        self.trans.write_i64(i)?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_double(&mut self, d: f64) -> Result<(), Error> {
+        self.trans.write_f64(d)?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_string(&mut self, s: &str) -> Result<(), Error> {
+        self.write_bytes(s.as_bytes())
+    }
+
+    #[inline]
+    fn write_list_begin(&mut self, identifier: &TListIdentifier) -> Result<(), Error> {
+        self.write_byte(identifier.element_type.into())?;
+        self.write_i32(identifier.size as i32)
+    }
+
+    #[inline]
+    fn write_list_end(&mut self) -> Result<(), Error> {
+        Ok(())
+    }
+
+    #[inline]
+    fn write_set_begin(&mut self, identifier: &TSetIdentifier) -> Result<(), Error> {
+        self.write_byte(identifier.element_type.into())?;
+        self.write_i32(identifier.size as i32)
+    }
+
+    #[inline]
+    fn write_set_end(&mut self) -> Result<(), Error> {
+        Ok(())
+    }
+
+    #[inline]
+    fn write_map_begin(&mut self, identifier: &TMapIdentifier) -> Result<(), Error> {
+        let key_type = identifier.key_type;
+        self.write_byte(key_type.into())?;
+        let val_type = identifier.value_type;
+        self.write_byte(val_type.into())?;
+        self.write_i32(identifier.size as i32)
+    }
+
+    #[inline]
+    fn write_map_end(&mut self) -> Result<(), Error> {
+        Ok(())
+    }
+
+    #[inline]
+    fn flush(&mut self) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn reserve(&mut self, size: usize) {
+        self.trans.reserve(size)
+    }
+
+    fn buf_mut(&mut self) -> &mut BytesMut {
+        self.trans
+    }
+}
 
 pub struct TAsyncBinaryProtocol<R> {
     reader: R,
