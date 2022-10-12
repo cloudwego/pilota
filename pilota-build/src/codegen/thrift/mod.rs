@@ -332,10 +332,11 @@ impl CodegenBackend for ThriftBackend {
                     let read_i32 = helper.codegen_read_i32();
                     let err_msg_tmpl = format!("invalid enum value for {}, value: {{}}", name);
                     quote! {
-                        Ok(Self::try_from(#read_i32).map_err(|err|
+                        let value = #read_i32;
+                        Ok(Self::try_from(value).map_err(|err|
                             ::pilota::thrift::new_protocol_error(
                                 ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                                format!(#err_msg_tmpl,  value)
+                                format!(#err_msg_tmpl, value)
                             ))?)
                     }
                 },
