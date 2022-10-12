@@ -35,7 +35,8 @@ pub mod enum_test {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
-                Ok(Self::try_from(protocol.read_i32()?).map_err(|err| {
+                let value = protocol.read_i32()?;
+                Ok(Self::try_from(value).map_err(|err| {
                     ::pilota::thrift::new_protocol_error(
                         ::pilota::thrift::ProtocolErrorKind::InvalidData,
                         format!("invalid enum value for Index, value: {}", value),
@@ -45,7 +46,8 @@ pub mod enum_test {
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
                 protocol: &mut ::pilota::thrift::TAsyncBinaryProtocol<C>,
             ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
-                Ok(Self::try_from(protocol.read_i32().await?).map_err(|err| {
+                let value = protocol.read_i32().await?;
+                Ok(Self::try_from(value).map_err(|err| {
                     ::pilota::thrift::new_protocol_error(
                         ::pilota::thrift::ProtocolErrorKind::InvalidData,
                         format!("invalid enum value for Index, value: {}", value),
