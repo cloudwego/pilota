@@ -17,6 +17,7 @@ use crate::{
         rir::{self, Literal},
         ty::{AdtDef, AdtKind, CodegenTy},
     },
+    rir::{Item, Node, NodeKind},
     symbol::{DefId, EnumRepr, IdentName},
     ty::Visitor,
     Context,
@@ -459,6 +460,14 @@ where
 
         self.input.iter().for_each(|def_id| {
             collect(&self.cx, *def_id, &mut set);
+        });
+
+        self.nodes().iter().for_each(|(def_id, node)| {
+            if let NodeKind::Item(item) = &node.kind {
+                if let Item::Const(_) = &**item {
+                    collect(&self.cx, *def_id, &mut set);
+                }
+            }
         });
 
         set
