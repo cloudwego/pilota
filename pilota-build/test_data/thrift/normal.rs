@@ -21,11 +21,7 @@ pub mod normal {
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
                 protocol.write_struct_begin(&struct_ident)?;
                 if let Some(value) = self.a.as_ref() {
-                    protocol.write_field_begin(&::pilota::thrift::TFieldIdentifier {
-                        name: Some("a"),
-                        field_type: ::pilota::thrift::TType::I32,
-                        id: Some(1i16),
-                    })?;
+                    protocol.write_field_begin(::pilota::thrift::TType::I32, 1i16)?;
                     protocol.write_i32(*value)?;
                     protocol.write_field_end()?;
                 };
@@ -112,11 +108,7 @@ pub mod normal {
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "b" };
                 protocol.write_struct_begin(&struct_ident)?;
                 if let Some(value) = self.a.as_ref() {
-                    protocol.write_field_begin(&::pilota::thrift::TFieldIdentifier {
-                        name: Some("a"),
-                        field_type: ::pilota::thrift::TType::Struct,
-                        id: Some(2i16),
-                    })?;
+                    protocol.write_field_begin(::pilota::thrift::TType::Struct, 2i16)?;
                     ::pilota::thrift::Message::encode(value, protocol)?;
                     protocol.write_field_end()?;
                 };

@@ -229,7 +229,7 @@ pub trait TOutputProtocol: TLengthProtocol {
     /// Write the end of a Thrift struct.
     fn write_struct_end(&mut self) -> Result<(), Error>;
     /// Write the beginning of a Thrift field.
-    fn write_field_begin(&mut self, identifier: &TFieldIdentifier) -> Result<(), Error>;
+    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), Error>;
     /// Write the end of a Thrift field.
     fn write_field_end(&mut self) -> Result<(), Error>;
     /// Write a STOP field indicating that all the fields in a struct have been
@@ -308,6 +308,7 @@ pub enum TType {
 }
 
 impl From<TType> for u8 {
+    #[inline]
     fn from(ttype: TType) -> Self {
         ttype as u8
     }

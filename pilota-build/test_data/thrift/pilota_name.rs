@@ -23,21 +23,13 @@ pub mod pilota_name {
                 protocol.write_struct_begin(&struct_ident)?;
                 {
                     let value = &self.id;
-                    protocol.write_field_begin(&::pilota::thrift::TFieldIdentifier {
-                        name: Some("ID"),
-                        field_type: ::pilota::thrift::TType::String,
-                        id: Some(1i16),
-                    })?;
+                    protocol.write_field_begin(::pilota::thrift::TType::String, 1i16)?;
                     protocol.write_string(value)?;
                     protocol.write_field_end()?;
                 }
                 {
                     let value = &self.hello;
-                    protocol.write_field_begin(&::pilota::thrift::TFieldIdentifier {
-                        name: Some("Id"),
-                        field_type: ::pilota::thrift::TType::String,
-                        id: Some(2i16),
-                    })?;
+                    protocol.write_field_begin(::pilota::thrift::TType::String, 2i16)?;
                     protocol.write_string(value)?;
                     protocol.write_field_end()?;
                 }

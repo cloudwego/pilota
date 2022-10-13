@@ -80,7 +80,6 @@ impl ThriftBackend {
     ) -> impl Iterator<Item = TokenStream> + 'a {
         fields.iter().map(|f| {
             let field_name = self.rust_name(f.did).as_syn_ident();
-            let field_name_str = &**f.name;
             let ty = self.ttype(&f.ty);
             let field_id = f.id as i16;
             let write_field = self.codegen_encode_ty(&f.ty, &format_ident!("value"));
@@ -88,11 +87,7 @@ impl ThriftBackend {
             let is_optional = f.is_optional();
 
             let write = quote::quote! {
-                protocol.write_field_begin(&::pilota::thrift::TFieldIdentifier {
-                    name: Some(#field_name_str),
-                    field_type: #ty,
-                    id: Some(#field_id),
-                })?;
+                protocol.write_field_begin(#ty, #field_id)?;
                 #write_field
                 protocol.write_field_end()?;
             };
@@ -347,18 +342,13 @@ impl CodegenBackend for ThriftBackend {
                 let name_str = &**e.name;
                 let encode_variants = e.variants.iter().map(|v| {
                     let variant_name = self.rust_name(v.did).as_syn_ident();
-                    let variant_name_str = &**v.name;
                     assert_eq!(v.fields.len(), 1);
                     let ty = self.ttype(&v.fields[0]);
                     let variant_id = v.id.unwrap() as i16;
                     let encode = self.codegen_encode_ty(&v.fields[0], &format_ident!("value"));
                     quote! {
                         #name::#variant_name(ref value) => {
-                            protocol.write_field_begin(&::pilota::thrift::TFieldIdentifier {
-                                name: Some(#variant_name_str),
-                                field_type: #ty,
-                                id: Some(#variant_id),
-                            })?;
+                            protocol.write_field_begin(#ty, #variant_id)?;
                             #encode
                             protocol.write_field_end()?;
                         },

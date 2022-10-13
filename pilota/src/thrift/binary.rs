@@ -178,27 +178,13 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_field_begin(&mut self, identifier: &TFieldIdentifier) -> Result<(), Error> {
-        if identifier.field_type != TType::Stop {
-            if let Some(id) = identifier.id {
-                let mut data: [u8; 3] = [0; 3];
-                data[0] = identifier.field_type.into();
-                let id = id.to_be_bytes();
-                data[1] = id[0];
-                data[2] = id[1];
-                self.trans.write_slice(&data)?;
-            } else {
-                return Err(new_protocol_error(
-                    ProtocolErrorKind::Unknown,
-                    format!(
-                        "cannot write identifier {:?} without sequence number",
-                        &identifier
-                    ),
-                ));
-            }
-        } else {
-            self.write_byte(identifier.field_type.into())?;
-        }
+    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), Error> {
+        let mut data: [u8; 3] = [0; 3];
+        data[0] = field_type as u8;
+        let id = id.to_be_bytes();
+        data[1] = id[0];
+        data[2] = id[1];
+        self.trans.write_slice(&data)?;
         Ok(())
     }
 
@@ -209,7 +195,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
 
     #[inline]
     fn write_field_stop(&mut self) -> Result<(), Error> {
-        self.write_byte(TType::Stop.into())
+        self.write_byte(TType::Stop as u8)
     }
 
     #[inline]
