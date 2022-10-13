@@ -72,11 +72,7 @@ pub mod self_kw {
                 protocol.write_struct_begin(&struct_ident)?;
                 {
                     let value = &self.r#type;
-                    protocol.write_field_begin(&::pilota::thrift::TFieldIdentifier {
-                        name: Some("type"),
-                        field_type: ::pilota::thrift::TType::String,
-                        id: Some(1i16),
-                    })?;
+                    protocol.write_field_begin(::pilota::thrift::TType::String, 1i16)?;
                     protocol.write_string(value)?;
                     protocol.write_field_end()?;
                 }
