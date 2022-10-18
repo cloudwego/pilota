@@ -17,7 +17,7 @@ use crate::{
         rir::{self, Literal},
         ty::{AdtDef, AdtKind, CodegenTy},
     },
-    rir::{Item, Node, NodeKind},
+    rir::{Item, NodeKind},
     symbol::{DefId, EnumRepr, IdentName},
     ty::Visitor,
     Context,
