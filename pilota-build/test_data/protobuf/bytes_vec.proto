@@ -1,0 +1,3 @@
+message A {
+    optional bytes a = 1;
+}

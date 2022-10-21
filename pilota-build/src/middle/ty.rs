@@ -12,6 +12,7 @@ pub enum TyKind {
     Void,
     U8,
     Bool,
+    BytesVec,
     Bytes,
     I8,
     I16,
@@ -62,6 +63,7 @@ pub enum CodegenTy {
     UInt64,
     F32,
     F64,
+    Bytes,
     LazyStaticRef(Arc<CodegenTy>),
     StaticRef(Arc<CodegenTy>),
     Vec(Arc<CodegenTy>),
@@ -130,6 +132,7 @@ impl ToTokens for CodegenTy {
                 tokens.extend(quote!( ::alloc::sync::Arc<#ty> ))
             }
             CodegenTy::LazyStaticRef(ty) => ty.to_tokens(tokens),
+            CodegenTy::Bytes => tokens.extend(quote! { ::bytes::Bytes }),
         }
     }
 }
@@ -142,6 +145,11 @@ impl TyKind {
     pub(crate) fn to_codegen_const_ty(&self) -> CodegenTy {
         ConstTyTransformer.codegen_item_ty(self)
     }
+}
+
+pub enum BytesRepr {
+    Vec,
+    Bytes,
 }
 
 pub trait TyTransformer {
@@ -167,7 +175,12 @@ pub trait TyTransformer {
 
     #[inline]
     fn bytes(&self) -> CodegenTy {
-        CodegenTy::Vec(Arc::from(CodegenTy::U8))
+        CodegenTy::Bytes
+    }
+
+    #[inline]
+    fn bytes_vec(&self) -> CodegenTy {
+        CodegenTy::Vec(Arc::new(CodegenTy::U8))
     }
 
     #[inline]
@@ -245,6 +258,7 @@ pub trait TyTransformer {
             Void => self.void(),
             U8 => self.u8(),
             Bool => self.bool(),
+            BytesVec => self.bytes_vec(),
             Bytes => self.bytes(),
             I8 => self.i8(),
             I16 => self.i16(),

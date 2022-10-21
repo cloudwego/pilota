@@ -14,7 +14,8 @@ use crate::{
     ir,
     ir::{Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path},
     symbol::{EnumRepr, FileId, Ident},
-    tags::{Annotation, Tags},
+    tags::{Annotation, RustType, Tags},
+    ty::BytesRepr,
     util::error_abort,
 };
 
@@ -331,6 +332,26 @@ impl ThriftLower {
         Ident::from(s.0.clone())
     }
 
+    fn lower_ty_with_tags(&mut self, ty: &thrift_parser::Ty, tags: &Tags) -> ir::Ty {
+        let rust_type = tags.get::<RustType>();
+        println!("{:?}", rust_type);
+        if let Some(rust_type) = rust_type {
+            match &ty {
+                thrift_parser::Ty::Binary if rust_type == "bytes" => {
+                    let mut tags = Tags::default();
+                    tags.insert(BytesRepr::Bytes);
+                    return ir::Ty {
+                        tags: tags.into(),
+                        kind: ir::TyKind::Bytes,
+                    };
+                }
+                _ => {}
+            }
+        }
+
+        self.lower_ty(ty)
+    }
+
     fn lower_ty(&mut self, ty: &thrift_parser::Ty) -> ir::Ty {
         let kind = match &ty {
             thrift_parser::Ty::String => ir::TyKind::String,
@@ -358,15 +379,16 @@ impl ThriftLower {
     }
 
     fn lower_field(&mut self, f: &thrift_parser::Field) -> ir::Field {
+        let tags = self.extract_tags(&f.annotations);
         ir::Field {
             name: self.lower_ident(&f.name),
             id: f.id,
-            ty: self.lower_ty(&f.ty),
+            ty: self.lower_ty_with_tags(&f.ty, &tags),
             kind: match f.attribute {
                 thrift_parser::Attribute::Required => FieldKind::Required,
                 _ => FieldKind::Optional,
             },
-            tags: self.extract_tags(&f.annotations).into(),
+            tags: tags.into(),
         }
     }
 
@@ -383,9 +405,9 @@ impl ThriftLower {
             };
         }
 
-        annotations
-            .iter()
-            .for_each(|annotation| with_tags!(annotation -> crate::tags::PilotaName));
+        annotations.iter().for_each(
+            |annotation| with_tags!(annotation -> crate::tags::PilotaName | crate::tags::RustType),
+        );
 
         tags
     }

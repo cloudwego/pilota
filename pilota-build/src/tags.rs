@@ -125,7 +125,38 @@ impl Annotation for PilotaName {
     const KEY: &'static str = "pilota.name";
 }
 
+#[derive(Debug)]
+pub struct RustType(pub smol_str::SmolStr);
+
+impl PartialEq<str> for RustType {
+    fn eq(&self, other: &str) -> bool {
+        &self.0 == other
+    }
+}
+
+impl FromStr for RustType {
+    type Err = std::convert::Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(smol_str::SmolStr::new(s)))
+    }
+}
+
+impl Annotation for RustType {
+    const KEY: &'static str = "pilota.rust_type";
+}
+
 pub mod protobuf {
+
+    #[derive(Copy, Clone, PartialEq, Eq)]
+    pub enum ProstType {
+        SInt32,
+        SInt64,
+        Fixed32,
+        Fixed64,
+        SFixed32,
+        SFixed64,
+    }
 
     new_type! {
         #[derive(Debug)]
@@ -135,14 +166,5 @@ pub mod protobuf {
 
         pub struct ClientStreaming;
         pub struct ServerStreaming;
-
-        pub struct SInt32;
-        pub struct SInt64;
-
-        pub struct Fixed32;
-        pub struct Fixed64;
-
-        pub struct SFixed32;
-        pub struct SFixed64;
     }
 }
