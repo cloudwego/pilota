@@ -9,7 +9,7 @@ use crate::{
     db::RirDatabase,
     middle::ty::{self, Ty},
     rir::{self, Field, FieldKind},
-    tags::protobuf::{Fixed32, Fixed64, OneOf, SFixed32, SFixed64, SInt32, SInt64},
+    tags::protobuf::{OneOf, ProstType},
     CodegenBackend, Context,
 };
 
@@ -34,22 +34,26 @@ pub struct ProstPlugin;
 
 impl ProstPlugin {
     fn mk_ty_attr(&self, cx: &Context, ty: &Ty) -> TokenStream {
+        if let Some(prost_type) = cx
+            .tags(ty.tags_id)
+            .as_ref()
+            .and_then(|tags| tags.get::<ProstType>())
+        {
+            return match prost_type {
+                ProstType::SInt32 => quote!(sint32),
+                ProstType::SInt64 => quote!(sint64),
+                ProstType::Fixed32 => quote!(fixed32),
+                ProstType::Fixed64 => quote!(fixed64),
+                ProstType::SFixed32 => quote!(sfixed32),
+                ProstType::SFixed64 => quote!(sfixed64),
+            };
+        }
         match &ty.kind {
             ty::String => quote!(string),
             ty::Bool => quote!(bool),
-            ty::Bytes => quote!(bytes),
-            ty::I32 if cx.contains_tag::<SInt32>(ty.tags_id) => quote!(sint32),
-            ty::I64 if cx.contains_tag::<SInt64>(ty.tags_id) => quote!(sint64),
-
-            ty::I32 if cx.contains_tag::<SFixed32>(ty.tags_id) => quote!(sfixed32),
-            ty::I64 if cx.contains_tag::<SFixed64>(ty.tags_id) => quote!(sfixed64),
-
+            ty::BytesVec | ty::Bytes => quote!(bytes),
             ty::I32 => quote!(int32),
             ty::I64 => quote!(int64),
-
-            ty::UInt32 if cx.contains_tag::<Fixed32>(ty.tags_id) => quote!(fixed32),
-            ty::UInt64 if cx.contains_tag::<Fixed64>(ty.tags_id) => quote!(fixed64),
-
             ty::UInt32 => quote!(uint32),
             ty::UInt64 => quote!(uint64),
             ty::F32 => quote!(float),

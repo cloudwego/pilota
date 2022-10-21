@@ -13,10 +13,7 @@ use crate::{
     ir::{self, FieldKind, Item, Path, TyKind},
     symbol::{EnumRepr, FileId, Ident, IdentName},
     tags::{
-        protobuf::{
-            ClientStreaming, Fixed32, Fixed64, OneOf, Repeated, SFixed32, SFixed64, SInt32, SInt64,
-            ServerStreaming,
-        },
+        protobuf::{ClientStreaming, OneOf, ProstType, Repeated, ServerStreaming},
         PilotaName, Tags,
     },
 };
@@ -100,11 +97,11 @@ impl Lower {
                 }
                 protobuf::descriptor::field_descriptor_proto::Type::TYPE_INT32 => ir::TyKind::I32,
                 protobuf::descriptor::field_descriptor_proto::Type::TYPE_FIXED64 => {
-                    tags.insert(Fixed64);
+                    tags.insert(ProstType::Fixed64);
                     ir::TyKind::UInt64
                 }
                 protobuf::descriptor::field_descriptor_proto::Type::TYPE_FIXED32 => {
-                    tags.insert(Fixed32);
+                    tags.insert(ProstType::Fixed32);
                     ir::TyKind::UInt32
                 }
                 protobuf::descriptor::field_descriptor_proto::Type::TYPE_BOOL => ir::TyKind::Bool,
@@ -117,19 +114,19 @@ impl Lower {
                     ir::TyKind::UInt32
                 }
                 protobuf::descriptor::field_descriptor_proto::Type::TYPE_SFIXED32 => {
-                    tags.insert(SFixed32);
+                    tags.insert(ProstType::SFixed32);
                     ir::TyKind::I32
                 }
                 protobuf::descriptor::field_descriptor_proto::Type::TYPE_SFIXED64 => {
-                    tags.insert(SFixed64);
+                    tags.insert(ProstType::SFixed64);
                     ir::TyKind::I64
                 }
                 protobuf::descriptor::field_descriptor_proto::Type::TYPE_SINT32 => {
-                    tags.insert(SInt32);
+                    tags.insert(ProstType::SInt32);
                     ir::TyKind::I32
                 }
                 protobuf::descriptor::field_descriptor_proto::Type::TYPE_SINT64 => {
-                    tags.insert(SInt64);
+                    tags.insert(ProstType::SInt64);
                     ir::TyKind::I64
                 }
 
