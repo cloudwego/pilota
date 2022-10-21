@@ -214,7 +214,7 @@ where
                     ty::Vec(ty) => ty,
                     _ => ty,
                 };
-                if matches!(ty.kind, ty::Map(_, _) | ty::Set(_) | ty::F64) {
+                if matches!(ty.kind, ty::Map(_, _) | ty::Set(_) | ty::F64 | ty::F32) {
                     PredicateResult::No
                 } else {
                     PredicateResult::GoOn
