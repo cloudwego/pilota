@@ -334,7 +334,6 @@ impl ThriftLower {
 
     fn lower_ty_with_tags(&mut self, ty: &thrift_parser::Ty, tags: &Tags) -> ir::Ty {
         let rust_type = tags.get::<RustType>();
-        println!("{:?}", rust_type);
         if let Some(rust_type) = rust_type {
             match &ty {
                 thrift_parser::Ty::Binary if rust_type == "bytes" => {
