@@ -16,7 +16,6 @@ use crate::{
     rir::Mod,
     symbol::{DefId, FileId, Ident, Symbol},
     tags::{TagId, Tags},
-    ty::BytesRepr,
 };
 
 struct ModuleData {
@@ -351,16 +350,7 @@ impl Resolver {
             ir::TyKind::Void => ty::Void,
             ir::TyKind::U8 => ty::U8,
             ir::TyKind::Bool => ty::Bool,
-            ir::TyKind::Bytes
-                if ty
-                    .tags
-                    .get::<BytesRepr>()
-                    .map(|repr| matches!(repr, BytesRepr::Bytes))
-                    == Some(true) =>
-            {
-                ty::Bytes
-            }
-            ir::TyKind::Bytes => ty::BytesVec,
+            ir::TyKind::Bytes => ty::Bytes,
             ir::TyKind::I8 => ty::I8,
             ir::TyKind::I16 => ty::I16,
             ir::TyKind::I32 => ty::I32,

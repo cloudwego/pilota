@@ -10,6 +10,6 @@ pub mod bytes_vec {
     #[derive(PartialOrd, Hash, Eq, Ord, :: prost :: Message, Clone, PartialEq)]
     pub struct A {
         #[prost(bytes, tag = "1")]
-        pub a: ::std::vec::Vec<u8>,
+        pub a: ::bytes::Bytes,
     }
 }

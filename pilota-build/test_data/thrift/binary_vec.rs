@@ -10,7 +10,7 @@ pub mod binary_vec {
     pub mod binary_vec {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
-            pub bytes: ::std::vec::Vec<u8>,
+            pub bytes: ::bytes::Bytes,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
@@ -43,7 +43,7 @@ pub mod binary_vec {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::String => {
-                            bytes = Some(protocol.read_bytes()?);
+                            bytes = Some(::bytes::Bytes::from(protocol.read_bytes()?));
                         }
                         _ => {
                             protocol.skip(field_ident.field_type)?;
@@ -78,7 +78,7 @@ pub mod binary_vec {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::String => {
-                            bytes = Some(protocol.read_bytes().await?);
+                            bytes = Some(::bytes::Bytes::from(protocol.read_bytes().await?));
                         }
                         _ => {
                             protocol.skip(field_ident.field_type).await?;
