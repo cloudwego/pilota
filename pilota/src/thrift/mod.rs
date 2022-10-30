@@ -10,8 +10,7 @@ pub use error::*;
 use faststr::FastStr;
 use tokio::io::AsyncRead;
 
-pub use self::binary::TAsyncBinaryProtocol;
-pub use self::compact::TAsyncCompactProtocol;
+pub use self::{binary::TAsyncBinaryProtocol, compact::TAsyncCompactProtocol};
 
 const MAXIMUM_SKIP_DEPTH: i8 = 64;
 const ZERO_COPY_THRESHOLD: usize = 4 * 1024; // 4KB

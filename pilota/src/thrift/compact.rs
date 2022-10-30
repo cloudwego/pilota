@@ -1,4 +1,4 @@
-use bytes::{BytesMut};
+use bytes::BytesMut;
 use integer_encoding::{VarInt, VarIntAsyncReader, VarIntReader, VarIntWriter};
 use tokio::io::{AsyncRead, AsyncReadExt};
 
@@ -6,28 +6,27 @@ use super::{
     error::{Error, ProtocolErrorKind},
     new_protocol_error,
     rw_ext::{ReadExt, WriteExt},
-    TLengthProtocol, TMessageIdentifier, TStructIdentifier,
-    TFieldIdentifier, TListIdentifier, TSetIdentifier,
-    TOutputProtocol, TMapIdentifier,
-    MAXIMUM_SKIP_DEPTH, TType, TMessageType, TInputProtocol,
+    TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
+    TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
+    MAXIMUM_SKIP_DEPTH,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u8)]
 pub enum TCompactType {
-    Stop          = 0x00,
-    BooleanTrue   = 0x01,
-    BooleanFalse  = 0x02,
-    Byte          = 0x03,
-    I16           = 0x04,
-    I32           = 0x05,
-    I64           = 0x06,
-    Double        = 0x07,
-    Binary        = 0x08,
-    List          = 0x09,
-    Set           = 0x0A,
-    Map           = 0x0B,
-    Struct        = 0x0C,
+    Stop = 0x00,
+    BooleanTrue = 0x01,
+    BooleanFalse = 0x02,
+    Byte = 0x03,
+    I16 = 0x04,
+    I32 = 0x05,
+    I64 = 0x06,
+    Double = 0x07,
+    Binary = 0x08,
+    List = 0x09,
+    Set = 0x0A,
+    Map = 0x0B,
+    Struct = 0x0C,
 }
 
 impl TryFrom<u8> for TCompactType {
@@ -48,7 +47,10 @@ impl TryFrom<u8> for TCompactType {
             0x0A => Ok(TCompactType::Set),
             0x0B => Ok(TCompactType::Map),
             0x0C => Ok(TCompactType::Struct),
-            _ => Err(new_protocol_error(ProtocolErrorKind::InvalidData, format!("invalid compact type {:?}", value))),
+            _ => Err(new_protocol_error(
+                ProtocolErrorKind::InvalidData,
+                format!("invalid compact type {:?}", value),
+            )),
         }
     }
 }
@@ -60,17 +62,20 @@ impl TryFrom<TType> for TCompactType {
         match value {
             TType::Stop => Ok(Self::Stop),
             TType::Bool => Ok(Self::BooleanTrue),
-            TType::I08  => Ok(Self::Byte),
-            TType::I16  => Ok(Self::I16),
-            TType::I32  => Ok(Self::I32),
-            TType::I64  => Ok(Self::I64),
+            TType::I08 => Ok(Self::Byte),
+            TType::I16 => Ok(Self::I16),
+            TType::I32 => Ok(Self::I32),
+            TType::I64 => Ok(Self::I64),
             TType::Double => Ok(Self::Double),
             TType::String => Ok(Self::Binary),
-            TType::List   => Ok(Self::List),
-            TType::Set    => Ok(Self::Set),
-            TType::Map    => Ok(Self::Map),
+            TType::List => Ok(Self::List),
+            TType::Set => Ok(Self::Set),
+            TType::Map => Ok(Self::Map),
             TType::Struct => Ok(Self::Struct),
-            _ => Err(new_protocol_error(ProtocolErrorKind::InvalidData, format!("invalid ttype {:?}", value)))
+            _ => Err(new_protocol_error(
+                ProtocolErrorKind::InvalidData,
+                format!("invalid ttype {:?}", value),
+            )),
         }
     }
 }
@@ -93,7 +98,8 @@ impl TryFrom<TCompactType> for TType {
             TCompactType::Set => Ok(TType::Set),
             TCompactType::Map => Ok(TType::Map),
             TCompactType::Struct => Ok(TType::Struct),
-            // _ => Err(new_protocol_error(ProtocolErrorKind::InvalidData, format!("invalid tcompacttype {:?}", value)))
+            // _ => Err(new_protocol_error(ProtocolErrorKind::InvalidData, format!("invalid
+            // tcompacttype {:?}", value)))
         }
     }
 }
@@ -108,20 +114,26 @@ static COMPACT_TYPE_SHIFT_AMOUNT: u8 = 5;
 #[inline]
 fn tcompact_get_ttype(ct: TCompactType) -> Result<TType, Error> {
     Ok(ct.try_into().map_err(|_| {
-        new_protocol_error(ProtocolErrorKind::InvalidData, format!("don't know what type: {:?}", ct))
+        new_protocol_error(
+            ProtocolErrorKind::InvalidData,
+            format!("don't know what type: {:?}", ct),
+        )
     })?)
 }
 
 #[inline]
 fn tcompact_get_compact(tt: TType) -> Result<TCompactType, Error> {
     Ok(tt.try_into().map_err(|_| {
-        new_protocol_error(ProtocolErrorKind::InvalidData, format!("invalid ttype {:?}", tt))
+        new_protocol_error(
+            ProtocolErrorKind::InvalidData,
+            format!("invalid ttype {:?}", tt),
+        )
     })?)
 }
 
 pub struct TCompactOutputProtocol<T> {
     pub(crate) trans: T,
-    
+
     // Identifier of the last field serialized for a struct.
     last_write_field_id: i16,
     // Stack of the last written field ids (new entry added each time a nested struct is written).
@@ -133,11 +145,11 @@ pub struct TCompactOutputProtocol<T> {
 
 impl<T> TCompactOutputProtocol<T> {
     pub fn new(trans: T) -> Self {
-        Self { 
-            trans, 
+        Self {
+            trans,
             write_field_id_stack: Vec::with_capacity(24),
-            last_write_field_id: 0,    
-            pending_write_bool_field_identifier: None,        
+            last_write_field_id: 0,
+            pending_write_bool_field_identifier: None,
         }
     }
 }
@@ -181,7 +193,11 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     #[inline]
     fn write_bytes_len(&self, b: &[u8]) -> usize {
         let sz = VarInt::required_space::<u32>(b.len() as u32);
-        if b.len() > 0 { sz + b.len() } else { sz }
+        if b.len() > 0 {
+            sz + b.len()
+        } else {
+            sz
+        }
     }
     #[inline]
     fn write_byte_len(&self, b: u8) -> usize {
@@ -271,10 +287,10 @@ impl TCompactOutputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_collection_begin(&mut self, element_type: TType, size: usize) -> Result<(), Error> {        
+    fn write_collection_begin(&mut self, element_type: TType, size: usize) -> Result<(), Error> {
         if size <= 14 {
             self.write_byte(
-                ((size as i32) << 4) as u8 | (tcompact_get_compact(element_type)? as u8)
+                ((size as i32) << 4) as u8 | (tcompact_get_compact(element_type)? as u8),
             )?;
         } else {
             self.write_byte(0xF0 | (tcompact_get_compact(element_type)? as u8))?;
@@ -292,8 +308,8 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         let mtype = identifier.message_type as u8;
         self.trans.write_slice(&[
             COMPACT_PROTOCOL_ID,
-            (COMPACT_VERSION & COMPACT_VERSION_MASK) 
-                | ((mtype << COMPACT_TYPE_SHIFT_AMOUNT) & COMPACT_TYPE_MASK)
+            (COMPACT_VERSION & COMPACT_VERSION_MASK)
+                | ((mtype << COMPACT_TYPE_SHIFT_AMOUNT) & COMPACT_TYPE_MASK),
         ])?;
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(identifier.sequence_number as u32)?;
@@ -315,8 +331,9 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     fn write_struct_end(&mut self) -> Result<(), Error> {
         if self.write_field_id_stack.len() <= 0 {
             return Err(new_protocol_error(
-                ProtocolErrorKind::InvalidData, 
-                "WriteStructEnd called without matching WriteStructBegin"));
+                ProtocolErrorKind::InvalidData,
+                "WriteStructEnd called without matching WriteStructBegin",
+            ));
         }
 
         self.last_write_field_id = self.write_field_id_stack.pop().unwrap();
@@ -334,12 +351,14 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
                         id
                     )
                 }
-                self.pending_write_bool_field_identifier = Some(TFieldIdentifier { name: None, field_type: field_type, id: Some(id) });
+                self.pending_write_bool_field_identifier = Some(TFieldIdentifier {
+                    name: None,
+                    field_type: field_type,
+                    id: Some(id),
+                });
                 Ok(())
             }
-            _ => {
-                self.write_field_header(field_type as u8, id)
-            }
+            _ => self.write_field_header(field_type as u8, id),
         }
     }
     #[inline]
@@ -376,7 +395,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         let size = b.len() as u32;
         self.write_varint(size)?;
         if size == 0 {
-            return Ok(())
+            return Ok(());
         }
         self.trans.write_slice(b)?;
         Ok(())
@@ -415,7 +434,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     fn write_string(&mut self, s: &str) -> Result<(), Error> {
         self.write_bytes(s.as_bytes())
     }
-    
+
     #[inline]
     fn write_list_begin(&mut self, identifier: &TListIdentifier) -> Result<(), Error> {
         self.write_collection_begin(identifier.element_type, identifier.size)?;
@@ -445,8 +464,8 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
             // cast i32 as u32 so that varint writing won't use zigzag encoding
             self.write_varint(identifier.size as u32)?;
             self.write_byte(
-                (tcompact_get_compact(identifier.key_type.into())? as u8) << 4 |
-                    (tcompact_get_compact(identifier.value_type.into())?) as u8
+                (tcompact_get_compact(identifier.key_type.into())? as u8) << 4
+                    | (tcompact_get_compact(identifier.value_type.into())?) as u8,
             )?
         }
         Ok(())
@@ -468,7 +487,6 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     fn buf_mut(&mut self) -> &mut Self::Buf {
         self.trans
     }
-
 }
 
 pub struct TAsyncCompactProtocol<R> {
@@ -476,15 +494,15 @@ pub struct TAsyncCompactProtocol<R> {
 
     last_read_field_id: i16,
     read_field_id_stack: Vec<i16>,
-    pending_read_bool_value: Option<bool>
+    pending_read_bool_value: Option<bool>,
 }
 
 impl<R> TAsyncCompactProtocol<R>
 where
-    R: AsyncRead + Unpin + Send + VarIntAsyncReader
+    R: AsyncRead + Unpin + Send + VarIntAsyncReader,
 {
     pub fn new(reader: R) -> TAsyncCompactProtocol<R> {
-        Self { 
+        Self {
             reader,
             last_read_field_id: 0,
             read_field_id_stack: Vec::new(),
@@ -496,11 +514,11 @@ where
         let compact_id = self.read_byte().await?;
         if compact_id != COMPACT_PROTOCOL_ID {
             return Err(new_protocol_error(
-                ProtocolErrorKind::BadVersion, 
-            format!("invalid compact protocol header {:?}", compact_id),
+                ProtocolErrorKind::BadVersion,
+                format!("invalid compact protocol header {:?}", compact_id),
             ));
         }
-        
+
         let type_and_byte = self.read_byte().await?;
         let version = type_and_byte & COMPACT_VERSION_MASK;
         if version != COMPACT_VERSION {
@@ -514,7 +532,7 @@ where
         let type_id = type_and_byte >> 5;
         let message_type = TMessageType::try_from(type_id).map_err(|_| {
             new_protocol_error(
-                ProtocolErrorKind::InvalidData, 
+                ProtocolErrorKind::InvalidData,
                 format!("invalid message type {}", type_id),
             )
         })?;
@@ -524,9 +542,10 @@ where
         let name = self.read_string().await?;
 
         Ok(TMessageIdentifier::new(
-            smol_str::SmolStr::new(name), 
+            smol_str::SmolStr::new(name),
             message_type,
-            sequence_number))
+            sequence_number,
+        ))
     }
 
     #[inline]
@@ -562,11 +581,13 @@ where
                 self.pending_read_bool_value = Some(false);
                 Ok(TType::Bool)
             }
-            ttu8 => TType::try_from(ttu8)
+            ttu8 => TType::try_from(ttu8),
         }?;
         match field_type {
             TType::Stop => Ok(TFieldIdentifier::new::<Option<&'static str>, i16>(
-                None, TType::Stop, 0,
+                None,
+                TType::Stop,
+                0,
             )),
             _ => {
                 if field_delta != 0 {
@@ -575,7 +596,9 @@ where
                     self.last_read_field_id = self.read_i16().await?;
                 }
                 Ok(TFieldIdentifier::new::<Option<&'static str>, i16>(
-                    None, field_type, self.last_read_field_id,
+                    None,
+                    field_type,
+                    self.last_read_field_id,
                 ))
             }
         }
@@ -584,7 +607,7 @@ where
     #[inline]
     pub async fn read_field_end(&mut self) -> Result<(), Error> {
         Ok(())
-    }    
+    }
 
     #[inline]
     pub async fn read_bool(&mut self) -> Result<bool, Error> {
@@ -659,9 +682,12 @@ where
     }
 
     // #[inline]
-    pub async fn read_list_begin(&mut self)  -> Result<TListIdentifier, Error> {
+    pub async fn read_list_begin(&mut self) -> Result<TListIdentifier, Error> {
         let (element_type, element_count) = self.read_collection_begin().await?;
-        Ok(TListIdentifier { element_type: element_type, size: element_count })
+        Ok(TListIdentifier {
+            element_type: element_type,
+            size: element_count,
+        })
     }
     #[inline]
     pub async fn read_list_end(&mut self) -> Result<(), Error> {
@@ -671,7 +697,10 @@ where
     // #[inline]
     pub async fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error> {
         let (element_type, element_count) = self.read_collection_begin().await?;
-        Ok(TSetIdentifier { element_type: element_type, size: element_count })
+        Ok(TSetIdentifier {
+            element_type: element_type,
+            size: element_count,
+        })
     }
     #[inline]
     pub async fn read_set_end(&mut self) -> Result<(), Error> {
@@ -681,17 +710,20 @@ where
     pub async fn read_map_begin(&mut self) -> Result<TMapIdentifier, Error> {
         let element_count = self.reader.read_varint_async::<u32>().await? as i32;
         if element_count == 0 {
-            Ok(TMapIdentifier::new(
-                TType::Stop, TType::Stop, 0))
+            Ok(TMapIdentifier::new(TType::Stop, TType::Stop, 0))
         } else {
             let type_header = self.read_byte().await?;
             let key_type = tcompact_get_ttype(((type_header & 0xF0) >> 4).try_into()?)?;
             let val_type = tcompact_get_ttype((type_header & 0x0F).try_into()?)?;
 
-            Ok(TMapIdentifier::new(key_type, val_type, element_count as usize))
+            Ok(TMapIdentifier::new(
+                key_type,
+                val_type,
+                element_count as usize,
+            ))
         }
     }
-    
+
     #[inline]
     pub async fn read_map_end(&mut self) -> Result<(), Error> {
         Ok(())
@@ -766,25 +798,22 @@ where
             )),
         }
     }
-
 }
-
 
 pub struct TCompactInputProtocol<T> {
     pub(crate) trans: T,
 
-     // Identifier of the last field deserialized for a struct.
-     last_read_field_id: i16,
-     // Stack of the last read field ids (a new entry is added each time a nested struct is read).
-     read_field_id_stack: Vec<i16>,
-     // Boolean value for a field.
-     // Saved because boolean fields and their value are encoded in a single byte,
-     // and reading the field only occurs after the field id is read.
-     pending_read_bool_value: Option<bool>,
+    // Identifier of the last field deserialized for a struct.
+    last_read_field_id: i16,
+    // Stack of the last read field ids (a new entry is added each time a nested struct is read).
+    read_field_id_stack: Vec<i16>,
+    // Boolean value for a field.
+    // Saved because boolean fields and their value are encoded in a single byte,
+    // and reading the field only occurs after the field id is read.
+    pending_read_bool_value: Option<bool>,
 }
 
 impl TCompactInputProtocol<&mut BytesMut> {
-    
     #[inline]
     fn read_collection_begin(&mut self) -> Result<(TType, usize), Error> {
         let header = self.read_byte()?;
@@ -833,16 +862,17 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         // writing side wrote signed sequence number as u32 to avoid zigzag encoding
         let sequence_number = self.reader.read_varint_async::<u32>()? as i32;
         let name = self.read_string()?;
-        
+
         Ok(TMessageIdentifier::new(
-            smol_str::SmolStr::new(name), 
+            smol_str::SmolStr::new(name),
             message_type,
-            sequence_number))
+            sequence_number,
+        ))
     }
 
     #[inline]
     fn read_message_end(&mut self) -> Result<(), Error> {
-        Ok(())    
+        Ok(())
     }
 
     #[inline]
@@ -851,7 +881,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         self.last_read_field_id = 0;
         Ok(None)
     }
-    
+
     #[inline]
     fn read_struct_end(&mut self) -> Result<(), Error> {
         Ok(())
@@ -863,21 +893,23 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         // - the type
         // - the field id delta and the type
         let field_type = self.read_byte()?;
-        let field_delta = (field_type &0xF0) >> 4;
+        let field_delta = (field_type & 0xF0) >> 4;
         let field_type = match field_type & 0x0F {
-            0x01 => { 
+            0x01 => {
                 self.pending_read_bool_value = Some(true);
                 Ok(TType::Bool)
             }
             0x02 => {
                 self.pending_read_bool_value = Some(false);
-                Ok(TType::Bool)    
+                Ok(TType::Bool)
             }
-            ttu8 => TType::try_from(ttu8)
+            ttu8 => TType::try_from(ttu8),
         }?;
         match field_type {
             TType::Stop => Ok(TFieldIdentifier::new::<Option<&'static str>, i16>(
-                None, TType::Stop, 0,
+                None,
+                TType::Stop,
+                0,
             )),
             _ => {
                 if field_delta != 0 {
@@ -886,7 +918,9 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
                     self.last_read_field_id = self.read_i16()?;
                 }
                 Ok(TFieldIdentifier::new::<Option<&'static str>, i16>(
-                    None, field_type, self.last_read_field_id,
+                    None,
+                    field_type,
+                    self.last_read_field_id,
                 ))
             }
         }
@@ -949,7 +983,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     fn read_i64(&mut self) -> Result<i64, Error> {
         Ok(VarIntReader::read_varint::<i64>(&mut self)?)
     }
-    
+
     #[inline]
     fn read_double(&mut self) -> Result<f64, Error> {
         Ok(self.trans.read_f32_le()?)
@@ -958,7 +992,10 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     // #[inline]
     fn read_list_begin(&mut self) -> Result<TListIdentifier, Error> {
         let (element_type, element_count) = self.read_collection_begin()?;
-        Ok(TListIdentifier { element_type: element_type, size: element_count })
+        Ok(TListIdentifier {
+            element_type: element_type,
+            size: element_count,
+        })
     }
     #[inline]
     fn read_list_end(&mut self) -> Result<(), Error> {
@@ -968,7 +1005,10 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     // #[inline]
     fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error> {
         let (element_type, element_count) = self.read_collection_begin()?;
-        Ok(TSetIdentifier { element_type: element_type, size: element_count })
+        Ok(TSetIdentifier {
+            element_type: element_type,
+            size: element_count,
+        })
     }
     #[inline]
     fn read_set_end(&mut self) -> Result<(), Error> {
@@ -979,14 +1019,17 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     fn read_map_begin(&mut self) -> Result<TMapIdentifier, Error> {
         let element_count = VarIntReader::read_varint::<u32>(&mut self)? as i32;
         if element_count == 0 {
-            Ok(TMapIdentifier::new(
-                TType::Stop, TType::Stop, 0))
+            Ok(TMapIdentifier::new(TType::Stop, TType::Stop, 0))
         } else {
             let type_header = self.read_byte()?;
             let key_type = tcompact_get_ttype(((type_header & 0xF0) >> 4).try_into()?)?;
             let val_type = tcompact_get_ttype((type_header & 0x0F.try_into()?))?;
 
-            Ok(TMapIdentifier::new(key_type, val_type, element_count as usize))
+            Ok(TMapIdentifier::new(
+                key_type,
+                val_type,
+                element_count as usize,
+            ))
         }
     }
 
@@ -998,5 +1041,4 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     fn buf_mut(&mut self) -> &mut Self::Buf {
         self.trans
     }
-
 }
