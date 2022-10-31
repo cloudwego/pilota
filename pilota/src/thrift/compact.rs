@@ -376,14 +376,14 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         match self.pending_write_bool_field_identifier.take() {
             Some(pending) => {
                 let field_id = pending.id.expect("bool field should have a field id");
-                let field_type_as_u8: u8 = if b { 0x01 } else { 0x02 };
+                let field_type_as_u8: u8 = if b { TCompactType::BooleanTrue } else { TCompactType::BooleanFalse };
                 self.write_field_header(field_type_as_u8, field_id)
             }
             None => {
                 if b {
-                    self.write_byte(0x01)
+                    self.write_byte(TCompactType::BooleanTrue)
                 } else {
-                    self.write_byte(0x02)
+                    self.write_byte(TCompactType::BooleanFalse)
                 }
             }
         }
@@ -573,11 +573,11 @@ where
         let field_type = self.read_byte().await?;
         let field_delta = (field_type & 0xF0) >> 4;
         let field_type = match field_type & 0x0F {
-            0x01 => {
+            TCompactType::BooleanTrue => {
                 self.pending_read_bool_value = Some(true);
                 Ok(TType::Bool)
             }
-            0x02 => {
+            TCompactType::BooleanFalse => {
                 self.pending_read_bool_value = Some(false);
                 Ok(TType::Bool)
             }
@@ -616,8 +616,8 @@ where
             None => {
                 let b = self.read_byte().await?;
                 match b {
-                    0x01 => Ok(true),
-                    0x02 => Ok(false),
+                    TCompactType::BooleanTrue => Ok(true),
+                    TCompactType::BooleanFalse => Ok(false),
                     unkn => Err(new_protocol_error(
                         ProtocolErrorKind::InvalidData,
                         format!("cannot convert {} into bool", unkn),
@@ -895,11 +895,11 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         let field_type = self.read_byte()?;
         let field_delta = (field_type & 0xF0) >> 4;
         let field_type = match field_type & 0x0F {
-            0x01 => {
+            TCompactType::BooleanTrue => {
                 self.pending_read_bool_value = Some(true);
                 Ok(TType::Bool)
             }
-            0x02 => {
+            TCompactType::BooleanFalse => {
                 self.pending_read_bool_value = Some(false);
                 Ok(TType::Bool)
             }
@@ -938,8 +938,8 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
             None => {
                 let b = self.read_byte()?;
                 match b {
-                    0x01 => Ok(true),
-                    0x02 => Ok(false),
+                    TCompactType::BooleanTrue => Ok(true),
+                    TCompactType::BooleanFalse => Ok(false),
                     unkn => Err(new_protocol_error(
                         ProtocolErrorKind::InvalidData,
                         format!("cannot convert {} into bool", unkn),
