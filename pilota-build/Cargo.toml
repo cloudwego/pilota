@@ -47,7 +47,6 @@ itertools = "0.10"
 async-trait = "0.1"
 pilota = { path = "../pilota" }
 tokio = { version = "1", features = ["io-util"] }
-num_enum = "0.5"
 derivative = "2"
 tempfile = "3"
-diffy = "0.2"
+diffy = "0.3"

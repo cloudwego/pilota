@@ -1,14 +1,16 @@
 use std::{collections::HashSet, ops::DerefMut, sync::Arc};
 
 use fxhash::FxHashMap;
+use itertools::Itertools;
+use quote::quote;
 use syn::{parse_quote, Attribute};
 
 use crate::{
     db::RirDatabase,
     rir::{Field, Item},
-    symbol::DefId,
+    symbol::{DefId, EnumRepr},
     ty::{self, Ty, Visitor},
-    Context,
+    Context, IdentName,
 };
 
 mod serde;
@@ -318,11 +320,61 @@ pub struct EnumNumPlugin;
 impl Plugin for EnumNumPlugin {
     fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
         match &*item {
-            Item::Enum(e) if e.repr.is_some() =>  {
+            Item::Enum(e) if e.repr.is_some() => {
+                let name_str = &*cx.rust_name(def_id);
+                let name = name_str.as_syn_ident();
+                let num_ty = match e.repr {
+                    Some(EnumRepr::I32) => quote!(i32),
+                    None => return,
+                };
+                let variants = e
+                    .variants
+                    .iter()
+                    .map(|v| {
+                        let variant_name_str = cx.rust_name(v.did);
+                        let variant_name = variant_name_str.as_syn_ident();
+                        let num_name = (&*variant_name_str.to_uppercase()).as_syn_ident();
+                        quote!(
+                            #num_name => Ok(#name::#variant_name),
+                        )
+                    })
+                    .collect_vec();
+
+                let nums = e
+                    .variants
+                    .iter()
+                    .map(|v| {
+                        let variant_name_str = cx.rust_name(v.did);
+                        let variant_name = variant_name_str.as_syn_ident();
+                        let num_name = (&*variant_name_str.to_uppercase()).as_syn_ident();
+                        quote!(const #num_name: #num_ty = #name::#variant_name as #num_ty;)
+                    })
+                    .collect_vec();
+
                 cx.with_adjust(def_id, |adj| {
-                    adj.add_attrs(&[parse_quote!(#[derive(:: pilota :: num_enum :: IntoPrimitive, :: pilota :: num_enum :: TryFromPrimitive)])])
-                })
-            },
+                    adj.add_impl(quote! {
+                        impl Into<#num_ty> for #name {
+                            fn into(self) -> #num_ty {
+                                self as _
+                            }
+                        }
+
+                        impl TryFrom<#num_ty> for #name {
+                            type Error = ::pilota::EnumConvertError<#num_ty>;
+
+                            fn try_from(v: i32) -> Result<Self, Self::Error> {
+                                #(#nums)*
+                                match v {
+                                    #(
+                                        #variants
+                                    )*
+                                    _ => Err(::pilota::EnumConvertError::InvalidNum(v, #name_str)),
+                                }
+                            }
+                        }
+                    })
+                });
+            }
             _ => {}
         }
         walk_item(self, cx, def_id, item)

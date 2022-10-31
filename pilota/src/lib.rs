@@ -10,6 +10,11 @@ pub use async_recursion;
 pub use async_trait;
 pub use derivative;
 pub use lazy_static;
-pub use num_enum;
 pub use thiserror::Error as ThisError;
 pub use tokio::io::AsyncRead;
+
+#[derive(thiserror::Error, Debug)]
+pub enum EnumConvertError<Num> {
+    #[error("invalid value `{0}` for enum `{1}`")]
+    InvalidNum(Num, &'static str),
+}
