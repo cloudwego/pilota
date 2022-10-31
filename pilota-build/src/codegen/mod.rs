@@ -112,6 +112,11 @@ where
             let adjust = self.adjust(def_id);
             let attrs = adjust.iter().flat_map(|a| a.attrs());
 
+            let impls = adjust.iter().flat_map(|a| &a.impls);
+            stream.extend(quote::quote!(
+                #(#impls)*
+            ));
+
             stream.extend(quote::quote! {
                 #(#attrs)*
             });

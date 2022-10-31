@@ -8,14 +8,26 @@ pub mod self_kw {
         unused_mut
     )]
     pub mod self_kw {
+        impl Into<i32> for Index {
+            fn into(self) -> i32 {
+                self as _
+            }
+        }
+        impl TryFrom<i32> for Index {
+            type Error = ::pilota::EnumConvertError<i32>;
+            fn try_from(v: i32) -> Result<Self, Self::Error> {
+                const A: i32 = Index::A as i32;
+                const SELF_: i32 = Index::Self_ as i32;
+                match v {
+                    A => Ok(Index::A),
+                    SELF_ => Ok(Index::Self_),
+                    _ => Err(::pilota::EnumConvertError::InvalidNum(v, "Index")),
+                }
+            }
+        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, :: pilota :: derivative :: Derivative)]
         #[derivative(Default)]
-        #[derive(
-            :: pilota :: num_enum :: IntoPrimitive,
-            :: pilota :: num_enum :: TryFromPrimitive,
-            Clone,
-            PartialEq,
-        )]
+        #[derive(Clone, PartialEq)]
         #[repr(i32)]
         #[derive(Copy)]
         pub enum Index {
