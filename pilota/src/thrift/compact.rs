@@ -402,9 +402,9 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
             }
             None => {
                 if b {
-                    self.write_byte(COMPACT_BOOLEAN_TRUE)
+                    self.write_byte(TCompactType::BooleanTrue as u8)
                 } else {
-                    self.write_byte(COMPACT_BOOLEAN_FALSE)
+                    self.write_byte(TCompactType::BooleanFalse as u8)
                 }
             }
         }
@@ -602,13 +602,13 @@ where
                 self.pending_read_bool_value = Some(false);
                 Ok(TType::Bool)
             }
-            ttu8 => TType::try_from(ttu8),
+            ttu8 => TType::try_from(TCompactType::try_from(ttu8)?),
         }?;
         match field_type {
-            TType::Stop => Ok(TFieldIdentifier::new::<Option<&'static str>, i16>(
+            TType::Stop => Ok(TFieldIdentifier::new::<Option<&'static str>, Option<i16>>(
                 None,
                 TType::Stop,
-                0,
+                None,
             )),
             _ => {
                 if field_delta != 0 {
@@ -635,13 +635,13 @@ where
         match self.pending_read_bool_value.take() {
             Some(b) => Ok(b),
             None => {
-                let b = self.read_byte().await?;
+                let b: TCompactType = self.read_byte().await?.try_into()?;
                 match b {
-                    COMPACT_BOOLEAN_TRUE => Ok(true),
-                    COMPACT_BOOLEAN_FALSE => Ok(false),
+                    TCompactType::BooleanTrue => Ok(true),
+                    TCompactType::BooleanFalse => Ok(false),
                     unkn => Err(new_protocol_error(
                         ProtocolErrorKind::InvalidData,
-                        format!("cannot convert {} into bool", unkn),
+                        format!("cannot convert {:?} into bool", unkn),
                     )),
                 }
             }
