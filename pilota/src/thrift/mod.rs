@@ -2,6 +2,7 @@ pub mod binary;
 pub mod compact;
 pub mod error;
 pub mod rw_ext;
+pub mod varint_ext;
 
 use std::{ops::Deref, sync::Arc};
 

@@ -28,3 +28,4 @@ derivative = "2"
 anyhow = "1"
 thiserror = "1"
 faststr = "0.1"
+integer-encoding = { version = "3.0.4", features = ["async-trait", "tokio", "tokio_async"] }

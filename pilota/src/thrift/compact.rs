@@ -1,5 +1,9 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+//
+// https://github.com/apache/thrift/blob/ec5e17714a1f9da34173749fc01eea33c7f6af62/lib/rs/src/protocol/compact.rs
+
 use bytes::BytesMut;
-use integer_encoding::{VarInt, VarIntAsyncReader, VarIntReader, VarIntWriter};
+use integer_encoding::{VarInt, VarIntAsyncReader};
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
@@ -28,6 +32,9 @@ pub enum TCompactType {
     Map = 0x0B,
     Struct = 0x0C,
 }
+
+const COMPACT_BOOLEAN_TRUE: u8 = TCompactType::BooleanTrue as u8;
+const COMPACT_BOOLEAN_FALSE: u8 = TCompactType::BooleanFalse as u8;
 
 impl TryFrom<u8> for TCompactType {
     type Error = Error;
@@ -108,7 +115,7 @@ static COMPACT_PROTOCOL_ID: u8 = 0x082;
 static COMPACT_VERSION: u8 = 1;
 static COMPACT_VERSION_MASK: u8 = 0x1f;
 static COMPACT_TYPE_MASK: u8 = 0x0E0;
-static COMPACT_TYPE_BITS: u8 = 0x07;
+// static COMPACT_TYPE_BITS: u8 = 0x07;
 static COMPACT_TYPE_SHIFT_AMOUNT: u8 = 5;
 
 #[inline]
@@ -157,7 +164,7 @@ impl<T> TCompactOutputProtocol<T> {
 impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     #[inline]
     fn write_message_begin_len(&self, ident: &TMessageIdentifier) -> usize {
-        2 + VarInt::required_space::<u32>(ident.sequence_number)
+        2 + VarInt::required_space(ident.sequence_number as u32)
     }
     #[inline]
     fn write_message_end_len(&self) -> usize {
@@ -192,7 +199,7 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     }
     #[inline]
     fn write_bytes_len(&self, b: &[u8]) -> usize {
-        let sz = VarInt::required_space::<u32>(b.len() as u32);
+        let sz = VarInt::required_space(b.len() as u32);
         if b.len() > 0 {
             sz + b.len()
         } else {
@@ -200,7 +207,7 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
         }
     }
     #[inline]
-    fn write_byte_len(&self, b: u8) -> usize {
+    fn write_byte_len(&self, _b: u8) -> usize {
         1
     }
     #[inline]
@@ -226,7 +233,7 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
 
     #[inline]
     fn write_string_len(&self, s: &str) -> usize {
-        self.write_bytes_len(s)
+        self.write_bytes_len(s.as_bytes())
     }
 
     #[inline]
@@ -234,7 +241,7 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
         if ident.size <= 14 {
             1
         } else {
-            1 + VarInt::required_space::<u32>(ident.size as u32)
+            1 + VarInt::required_space(ident.size as u32)
         }
     }
     #[inline]
@@ -244,7 +251,11 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
 
     #[inline]
     fn write_set_begin_len(&self, ident: &TSetIdentifier) -> usize {
-        self.write_list_begin_len(ident)
+        if ident.size <= 14 {
+            1
+        } else {
+            1 + VarInt::required_space(ident.size as u32)
+        }
     }
     #[inline]
     fn write_set_end_len(&self) -> usize {
@@ -256,7 +267,7 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
         if ident.size == 0 {
             1
         } else {
-            1 + VarInt::required_space::<u32>(ident.size as u32)
+            1 + VarInt::required_space(ident.size as u32)
         }
     }
     #[inline]
@@ -267,14 +278,7 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
 
 impl TCompactOutputProtocol<&mut BytesMut> {
     #[inline]
-    fn write_varint<I: VarInt>(&mut self, value: I) -> Result<(), Error> {
-        VarIntWriter::write_varint::<I>(&mut self, value)?;
-        Ok(())
-    }
-
-    // TODO(ii64): constraint for `field_type` ?
-    #[inline]
-    fn write_field_header(&mut self, field_type: u8, id: i16) -> Result<(), Error> {
+    fn write_field_header(&mut self, field_type: TCompactType, id: i16) -> Result<(), Error> {
         let field_delta = id - self.last_write_field_id;
         if field_delta > 0 && field_delta < 15 {
             self.write_byte(((field_delta as u8) << 4) | (field_type as u8))?;
@@ -294,9 +298,15 @@ impl TCompactOutputProtocol<&mut BytesMut> {
             )?;
         } else {
             self.write_byte(0xF0 | (tcompact_get_compact(element_type)? as u8))?;
-            self.write_varint(size as u32)?;
+            self.trans.write_varint(size as u32)?;
         }
         Ok(())
+    }
+
+    fn assert_no_pending_bool_write(&self) {
+        if let Some(ref f) = self.pending_write_bool_field_identifier {
+            panic!("pending bool field {:?} not written", f);
+        }
     }
 }
 
@@ -312,12 +322,13 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
                 | ((mtype << COMPACT_TYPE_SHIFT_AMOUNT) & COMPACT_TYPE_MASK),
         ])?;
         // cast i32 as u32 so that varint writing won't use zigzag encoding
-        self.write_varint(identifier.sequence_number as u32)?;
+        self.trans.write_varint(identifier.sequence_number as u32)?;
         self.write_string(&identifier.name)?;
         Ok(())
     }
     #[inline]
     fn write_message_end(&mut self) -> Result<(), Error> {
+        self.assert_no_pending_bool_write();
         Ok(())
     }
 
@@ -329,6 +340,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     }
     #[inline]
     fn write_struct_end(&mut self) -> Result<(), Error> {
+        self.assert_no_pending_bool_write();
         if self.write_field_id_stack.len() <= 0 {
             return Err(new_protocol_error(
                 ProtocolErrorKind::InvalidData,
@@ -358,15 +370,20 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
                 });
                 Ok(())
             }
-            _ => self.write_field_header(field_type as u8, id),
+            _ => {
+                let tc_field_type = TCompactType::try_from(field_type)?;
+                self.write_field_header(tc_field_type, id)
+            }
         }
     }
     #[inline]
     fn write_field_end(&mut self) -> Result<(), Error> {
+        self.assert_no_pending_bool_write();
         Ok(())
     }
     #[inline]
     fn write_field_stop(&mut self) -> Result<(), Error> {
+        self.assert_no_pending_bool_write();
         self.write_byte(TType::Stop as u8)?;
         Ok(())
     }
@@ -376,14 +393,18 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         match self.pending_write_bool_field_identifier.take() {
             Some(pending) => {
                 let field_id = pending.id.expect("bool field should have a field id");
-                let field_type_as_u8: u8 = if b { TCompactType::BooleanTrue } else { TCompactType::BooleanFalse };
-                self.write_field_header(field_type_as_u8, field_id)
+                let tc_field_type = if b {
+                    TCompactType::BooleanTrue
+                } else {
+                    TCompactType::BooleanFalse
+                };
+                self.write_field_header(tc_field_type, field_id)
             }
             None => {
                 if b {
-                    self.write_byte(TCompactType::BooleanTrue)
+                    self.write_byte(COMPACT_BOOLEAN_TRUE)
                 } else {
-                    self.write_byte(TCompactType::BooleanFalse)
+                    self.write_byte(COMPACT_BOOLEAN_FALSE)
                 }
             }
         }
@@ -393,7 +414,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         let size = b.len() as u32;
-        self.write_varint(size)?;
+        self.trans.write_varint(size)?;
         if size == 0 {
             return Ok(());
         }
@@ -412,17 +433,17 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     }
     #[inline]
     fn write_i16(&mut self, i: i16) -> Result<(), Error> {
-        self.write_varint(i)?;
+        self.trans.write_varint(i)?;
         Ok(())
     }
     #[inline]
     fn write_i32(&mut self, i: i32) -> Result<(), Error> {
-        self.write_varint(i)?;
+        self.trans.write_varint(i)?;
         Ok(())
     }
     #[inline]
     fn write_i64(&mut self, i: i64) -> Result<(), Error> {
-        self.write_varint(i)?;
+        self.trans.write_varint(i)?;
         Ok(())
     }
     #[inline]
@@ -462,7 +483,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         } else {
             // element count is strictly positive as per the spec, so
             // cast i32 as u32 so that varint writing won't use zigzag encoding
-            self.write_varint(identifier.size as u32)?;
+            self.trans.write_varint(identifier.size as u32)?;
             self.write_byte(
                 (tcompact_get_compact(identifier.key_type.into())? as u8) << 4
                     | (tcompact_get_compact(identifier.value_type.into())?) as u8,
@@ -572,12 +593,12 @@ where
         // - the field id delta and the type
         let field_type = self.read_byte().await?;
         let field_delta = (field_type & 0xF0) >> 4;
-        let field_type = match field_type & 0x0F {
-            TCompactType::BooleanTrue => {
+        let field_type = match (field_type & 0x0F) as u8 {
+            COMPACT_BOOLEAN_TRUE => {
                 self.pending_read_bool_value = Some(true);
                 Ok(TType::Bool)
             }
-            TCompactType::BooleanFalse => {
+            COMPACT_BOOLEAN_FALSE => {
                 self.pending_read_bool_value = Some(false);
                 Ok(TType::Bool)
             }
@@ -616,8 +637,8 @@ where
             None => {
                 let b = self.read_byte().await?;
                 match b {
-                    TCompactType::BooleanTrue => Ok(true),
-                    TCompactType::BooleanFalse => Ok(false),
+                    COMPACT_BOOLEAN_TRUE => Ok(true),
+                    COMPACT_BOOLEAN_FALSE => Ok(false),
                     unkn => Err(new_protocol_error(
                         ProtocolErrorKind::InvalidData,
                         format!("cannot convert {} into bool", unkn),
@@ -813,6 +834,17 @@ pub struct TCompactInputProtocol<T> {
     pending_read_bool_value: Option<bool>,
 }
 
+impl<T> TCompactInputProtocol<T> {
+    pub fn new(trans: T) -> Self {
+        Self {
+            trans,
+            last_read_field_id: 0,
+            read_field_id_stack: Vec::with_capacity(24),
+            pending_read_bool_value: None,
+        }
+    }
+}
+
 impl TCompactInputProtocol<&mut BytesMut> {
     #[inline]
     fn read_collection_begin(&mut self) -> Result<(TType, usize), Error> {
@@ -823,7 +855,7 @@ impl TCompactInputProtocol<&mut BytesMut> {
         let element_count = if possible_element_count != 15 {
             possible_element_count as i32
         } else {
-            VarIntReader::read_varint::<u32>(&mut self)? as i32
+            self.trans.read_varint::<u32>()? as i32
         };
         Ok((element_type, element_count as usize))
     }
@@ -860,7 +892,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         })?;
 
         // writing side wrote signed sequence number as u32 to avoid zigzag encoding
-        let sequence_number = self.reader.read_varint_async::<u32>()? as i32;
+        let sequence_number = self.trans.read_varint::<u32>()? as i32;
         let name = self.read_string()?;
 
         Ok(TMessageIdentifier::new(
@@ -895,21 +927,21 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         let field_type = self.read_byte()?;
         let field_delta = (field_type & 0xF0) >> 4;
         let field_type = match field_type & 0x0F {
-            TCompactType::BooleanTrue => {
+            COMPACT_BOOLEAN_TRUE => {
                 self.pending_read_bool_value = Some(true);
                 Ok(TType::Bool)
             }
-            TCompactType::BooleanFalse => {
+            COMPACT_BOOLEAN_FALSE => {
                 self.pending_read_bool_value = Some(false);
                 Ok(TType::Bool)
             }
-            ttu8 => TType::try_from(ttu8),
+            ttu8 => TType::try_from(TCompactType::try_from(ttu8)?),
         }?;
         match field_type {
-            TType::Stop => Ok(TFieldIdentifier::new::<Option<&'static str>, i16>(
+            TType::Stop => Ok(TFieldIdentifier::new::<Option<&'static str>, Option<i16>>(
                 None,
                 TType::Stop,
-                0,
+                None,
             )),
             _ => {
                 if field_delta != 0 {
@@ -936,13 +968,13 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         match self.pending_read_bool_value.take() {
             Some(b) => Ok(b),
             None => {
-                let b = self.read_byte()?;
+                let b: TCompactType = self.read_byte()?.try_into()?;
                 match b {
                     TCompactType::BooleanTrue => Ok(true),
                     TCompactType::BooleanFalse => Ok(false),
                     unkn => Err(new_protocol_error(
                         ProtocolErrorKind::InvalidData,
-                        format!("cannot convert {} into bool", unkn),
+                        format!("cannot convert {:?} into bool", unkn),
                     )),
                 }
             }
@@ -951,9 +983,10 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
 
     #[inline]
     fn read_bytes(&mut self) -> Result<Vec<u8>, Error> {
-        let size = VarIntReader::read_varint::<u32>(&mut self)?;
+        let size = self.trans.read_varint::<u32>()?;
         let mut buf = vec![0u8; size as usize];
-        self.trans.read
+        self.trans.read_to_slice(&mut buf)?;
+        Ok(buf)
     }
 
     #[inline]
@@ -973,20 +1006,20 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     }
     #[inline]
     fn read_i16(&mut self) -> Result<i16, Error> {
-        Ok(VarIntReader::read_varint::<i16>(&mut self)?)
+        Ok(self.trans.read_varint::<i16>()?)
     }
     #[inline]
     fn read_i32(&mut self) -> Result<i32, Error> {
-        Ok(VarIntReader::read_varint::<i32>(&mut self)?)
+        Ok(self.trans.read_varint::<i32>()?)
     }
     #[inline]
     fn read_i64(&mut self) -> Result<i64, Error> {
-        Ok(VarIntReader::read_varint::<i64>(&mut self)?)
+        Ok(self.trans.read_varint::<i64>()?)
     }
 
     #[inline]
     fn read_double(&mut self) -> Result<f64, Error> {
-        Ok(self.trans.read_f32_le()?)
+        Ok(self.trans.read_f64_le()?)
     }
 
     // #[inline]
@@ -1017,13 +1050,13 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
 
     // #[inline]
     fn read_map_begin(&mut self) -> Result<TMapIdentifier, Error> {
-        let element_count = VarIntReader::read_varint::<u32>(&mut self)? as i32;
+        let element_count = self.trans.read_varint::<u32>()? as i32;
         if element_count == 0 {
             Ok(TMapIdentifier::new(TType::Stop, TType::Stop, 0))
         } else {
             let type_header = self.read_byte()?;
             let key_type = tcompact_get_ttype(((type_header & 0xF0) >> 4).try_into()?)?;
-            let val_type = tcompact_get_ttype((type_header & 0x0F.try_into()?))?;
+            let val_type = tcompact_get_ttype((type_header & 0x0F).try_into()?)?;
 
             Ok(TMapIdentifier::new(
                 key_type,
