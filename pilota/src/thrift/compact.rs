@@ -3084,7 +3084,7 @@ mod tests {
 
     #[test]
     fn must_write_field_end() {
-        let mut trans = BytesMut::new();
+        let trans = BytesMut::new();
         assert_no_write(trans, |o| o.write_field_end());
     }
 

@@ -1,8 +1,6 @@
 use std::{io::Error, mem::size_of};
 
-use integer_encoding::{VarInt, VarIntReader};
-
-use super::{rw_ext::IOError, ProtocolError};
+use integer_encoding::{VarInt};
 
 /// Most-significant byte, == 0x80
 pub const MSB: u8 = 0b1000_0000;
