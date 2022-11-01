@@ -1,7 +1,7 @@
 use std::mem;
 
 use bytes::{Buf as _, BufMut, BytesMut};
-use integer_encoding::{VarInt};
+use integer_encoding::VarInt;
 
 use super::{varint_ext::VarIntProcessor, Error, ProtocolError};
 
