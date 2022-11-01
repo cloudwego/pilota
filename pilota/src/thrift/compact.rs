@@ -166,38 +166,59 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     #[inline]
     fn write_message_begin_len(&self, ident: &TMessageIdentifier) -> usize {
         2 + VarInt::required_space(ident.sequence_number as u32)
+            + self.write_string_len(ident.name.as_str())
     }
     #[inline]
     fn write_message_end_len(&self) -> usize {
-        0
+        // todo(ii64): need mutable self
+        todo!()
     }
 
     #[inline]
     fn write_struct_begin_len(&self, _ident: &TStructIdentifier) -> usize {
-        0
+        // todo(ii64): need mutable self
+        todo!()
     }
     #[inline]
     fn write_struct_end_len(&self) -> usize {
-        0
+        // todo(ii64): need mutable self
+        todo!()
     }
 
     #[inline]
     fn write_field_begin_len(&self, _ident: &TFieldIdentifier) -> usize {
+        // todo(ii64): need mutable self
         todo!()
     }
     #[inline]
     fn write_field_end_len(&self) -> usize {
-        0
+        // todo(ii64): need mutable self
+        todo!()
     }
     #[inline]
     fn write_field_stop_len(&self) -> usize {
-        1
+        // todo(ii64): need mutable self
+        todo!()
     }
 
     #[inline]
     fn write_bool_len(&self, _b: bool) -> usize {
+        // todo(ii64): need mutable self
         todo!()
+        // match self.pending_write_bool_field_identifier.take() {
+        //     Some(pending) => {
+        //         let _field_id = pending.id.expect("bool field should have a
+        // field id");         let _tc_field_type = if b {
+        //             TCompactType::BooleanTrue
+        //         } else { TCompactType::BooleanFalse };
+        //         // todo: continue
+        //     }
+        //     None => self.write_byte_len(if b {
+        //         TCompactType::BooleanTrue as u8
+        //     } else { TCompactType::BooleanFalse as u8}),
+        // }
     }
+
     #[inline]
     fn write_bytes_len(&self, b: &[u8]) -> usize {
         let sz = VarInt::required_space(b.len() as u32);
@@ -238,11 +259,16 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     }
 
     #[inline]
-    fn write_list_begin_len(&self, ident: &TListIdentifier) -> usize {
-        if ident.size <= 14 {
-            1
+    fn write_list_begin_len(&self, identifier: &TListIdentifier) -> usize {
+        if identifier.size <= 14 {
+            self.write_byte_len(
+                ((identifier.size as i32) << 4) as u8
+                    | (tcompact_get_compact(identifier.element_type).unwrap() as u8),
+            )
         } else {
-            1 + VarInt::required_space(ident.size as u32)
+            self.write_byte_len(
+                0xF0 | (tcompact_get_compact(identifier.element_type).unwrap() as u8),
+            ) + VarInt::required_space(identifier.size as u32)
         }
     }
     #[inline]
@@ -251,11 +277,16 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     }
 
     #[inline]
-    fn write_set_begin_len(&self, ident: &TSetIdentifier) -> usize {
-        if ident.size <= 14 {
-            1
+    fn write_set_begin_len(&self, identifier: &TSetIdentifier) -> usize {
+        if identifier.size <= 14 {
+            self.write_byte_len(
+                ((identifier.size as i32) << 4) as u8
+                    | (tcompact_get_compact(identifier.element_type).unwrap() as u8),
+            )
         } else {
-            1 + VarInt::required_space(ident.size as u32)
+            self.write_byte_len(
+                0xF0 | (tcompact_get_compact(identifier.element_type).unwrap() as u8),
+            ) + VarInt::required_space(identifier.size as u32)
         }
     }
     #[inline]
@@ -264,11 +295,15 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     }
 
     #[inline]
-    fn write_map_begin_len(&self, ident: &TMapIdentifier) -> usize {
-        if ident.size == 0 {
-            1
+    fn write_map_begin_len(&self, identifier: &TMapIdentifier) -> usize {
+        if identifier.size == 0 {
+            self.write_byte_len(TType::Stop as u8)
         } else {
-            1 + VarInt::required_space(ident.size as u32)
+            VarInt::required_space(identifier.size as u32)
+                + self.write_byte_len(
+                    (tcompact_get_compact(identifier.key_type).unwrap() as u8) << 4
+                        | (tcompact_get_compact(identifier.value_type).unwrap()) as u8,
+                )
         }
     }
     #[inline]
@@ -1107,8 +1142,8 @@ mod tests {
 
     use super::{TCompactInputProtocol, TCompactOutputProtocol};
     use crate::thrift::{
-        Error, TFieldIdentifier, TInputProtocol, TMessageIdentifier, TMessageType, TOutputProtocol,
-        TStructIdentifier, TType,
+        Error, TFieldIdentifier, TInputProtocol, TLengthProtocol, TMessageIdentifier, TMessageType,
+        TOutputProtocol, TStructIdentifier, TType, TListIdentifier, TSetIdentifier, TMapIdentifier,
     };
 
     #[cfg(test)]
@@ -1131,6 +1166,91 @@ mod tests {
     }
     fn test_output_prot<'a>(trans: &'a mut BytesMut) -> TCompactOutputProt<'a> {
         TCompactOutputProt::new(trans)
+    }
+
+    #[test]
+    fn must_have_same_length_written() {
+        let mut trans = BytesMut::new();
+        let mut o_prot = test_output_prot(&mut trans);
+        macro_rules! mteq {
+            ($o:expr, $exp:expr) => {
+                assert_eq!($exp, $o.trans.len());
+                $o.trans.clear();
+            };
+        }
+
+        let identifier = &TMessageIdentifier::new("foo".into(), TMessageType::Call, 1);
+        o_prot.write_message_begin(identifier).unwrap();
+        let exp = o_prot.write_message_begin_len(identifier);
+        mteq!(o_prot, exp);
+
+        // todo: write_message_end
+        // o_prot.write_message_end().unwrap();
+        // let exp = o_prot.write_message_end_len();
+        // mteq!(o_prot, exp);
+
+        // todo: write_struct_end
+        // todo: write_field_{begin,end,stop}
+        // todo: write_bool
+
+        o_prot.write_byte(0xff).unwrap();
+        mteq!(o_prot, o_prot.write_byte_len(0xff));
+        o_prot.write_i8(-1).unwrap();
+        mteq!(o_prot, o_prot.write_i8_len(-1));
+
+        o_prot.write_i16(-1).unwrap();
+        mteq!(o_prot, o_prot.write_i16_len(-1));
+
+        o_prot.write_i32(-1).unwrap();
+        mteq!(o_prot, o_prot.write_i32_len(-1));
+
+        o_prot.write_i64(-1).unwrap();
+        mteq!(o_prot, o_prot.write_i64_len(-1));
+
+        o_prot.write_double(13.37f64).unwrap();
+        mteq!(o_prot, o_prot.write_double_len(13.37f64));
+
+        let identifier = &0xf00baau64.to_le_bytes();
+        o_prot.write_bytes(identifier).unwrap();
+        mteq!(o_prot, o_prot.write_bytes_len(identifier));
+
+        let identifier = "foobar";
+        o_prot.write_string(identifier).unwrap();
+        mteq!(o_prot, o_prot.write_string_len(identifier));
+
+
+        let mut identifier = TListIdentifier::new(TType::I16, 0);
+        o_prot.write_list_begin(&mut identifier).unwrap();
+        mteq!(o_prot, o_prot.write_list_begin_len(&mut identifier));
+        o_prot.write_list_end().unwrap();
+        mteq!(o_prot, o_prot.write_list_end_len());
+        identifier.size = 1;
+        o_prot.write_list_begin(&mut identifier).unwrap();
+        mteq!(o_prot, o_prot.write_list_begin_len(&mut identifier));
+        o_prot.write_list_end().unwrap();
+        mteq!(o_prot, o_prot.write_list_end_len());
+
+        let mut identifier = TSetIdentifier::new(TType::I16, 0);
+        o_prot.write_set_begin(&mut identifier).unwrap();
+        mteq!(o_prot, o_prot.write_set_begin_len(&mut identifier));
+        o_prot.write_set_end().unwrap();
+        mteq!(o_prot, o_prot.write_set_end_len());
+        identifier.size = 1;
+        o_prot.write_set_begin(&mut identifier).unwrap();
+        mteq!(o_prot, o_prot.write_set_begin_len(&mut identifier));
+        o_prot.write_set_end().unwrap();
+        mteq!(o_prot, o_prot.write_set_end_len());
+
+        let mut identifier = TMapIdentifier::new(TType::String, TType::I64, 0);
+        o_prot.write_map_begin(&mut identifier).unwrap();
+        mteq!(o_prot, o_prot.write_map_begin_len(&mut identifier));
+        o_prot.write_map_end().unwrap();
+        mteq!(o_prot, o_prot.write_map_end_len());
+        identifier.size = 1;
+        o_prot.write_map_begin(&mut identifier).unwrap();
+        mteq!(o_prot, o_prot.write_map_begin_len(&mut identifier));
+        o_prot.write_map_end().unwrap();
+        mteq!(o_prot, o_prot.write_map_end_len());
     }
 
     #[test]
