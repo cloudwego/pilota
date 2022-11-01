@@ -1,9 +1,7 @@
 use std::mem;
 
 use bytes::{Buf as _, BufMut, BytesMut};
-use integer_encoding::VarInt;
-
-use super::{varint_ext::VarIntProcessor, Error, ProtocolError};
+use super::{Error, ProtocolError};
 
 #[derive(thiserror::Error, Debug)]
 pub enum IOError {
@@ -87,7 +85,6 @@ macro_rules! assert_remaining {
 }
 
 pub trait WriteExt {
-    fn write_varint<VI: VarInt>(&mut self, n: VI) -> Result<(), IOError>;
     fn write_slice(&mut self, src: &[u8]) -> Result<(), IOError>;
     fn write_u8(&mut self, n: u8) -> Result<(), IOError>;
     fn write_i8(&mut self, n: i8) -> Result<(), IOError>;
@@ -131,12 +128,6 @@ pub trait WriteExt {
 }
 
 impl WriteExt for BytesMut {
-    #[inline]
-    fn write_varint<VI: VarInt>(&mut self, n: VI) -> Result<(), IOError> {
-        let mut buf = [0u8; 10];
-        let size = n.encode_var(&mut buf);
-        self.write_slice(&buf[0..size])
-    }
 
     #[inline]
     fn write_slice(&mut self, src: &[u8]) -> Result<(), IOError> {
@@ -273,7 +264,6 @@ impl WriteExt for BytesMut {
 }
 
 pub trait ReadExt {
-    fn read_varint<VI: VarInt>(&mut self) -> Result<VI, IOError>;
     fn read_to_bytes(&mut self, size: usize) -> Result<bytes::Bytes, IOError>;
     fn read_to_string(&mut self, len: usize) -> Result<String, IOError>;
 
@@ -336,18 +326,6 @@ impl<B> ReadExt for B
 where
     B: bytes::Buf,
 {
-    #[inline]
-    fn read_varint<VI: VarInt>(&mut self) -> Result<VI, IOError> {
-        let mut p = VarIntProcessor::new::<VI>();
-        while !p.finished() {
-            let read = self.read_u8()?;
-            p.push(read)
-                .map_err(|e| IOError::NoRemaining(format!("{e}")))?;
-        }
-        p.decode()
-            .ok_or_else(|| IOError::NoRemaining("can't decode varint".to_owned()))
-    }
-
     #[inline]
     fn read_to_bytes(&mut self, len: usize) -> Result<bytes::Bytes, IOError> {
         assert_remaining!(len <= self.remaining(), "`len` greater than remaining");

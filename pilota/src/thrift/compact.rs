@@ -12,7 +12,7 @@ use super::{
     rw_ext::{ReadExt, WriteExt},
     TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
     TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    MAXIMUM_SKIP_DEPTH,
+    MAXIMUM_SKIP_DEPTH, varint_ext::VarIntProcessor,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -277,6 +277,15 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
 }
 
 impl TCompactOutputProtocol<&mut BytesMut> {
+
+    #[inline]
+    fn write_varint<VI: VarInt>(&mut self, n: VI) -> Result<(), Error> {
+        let mut buf = [0u8; 10];
+        let size = n.encode_var(&mut buf);
+        self.trans.write_slice(&buf[0..size])?;
+        Ok(())
+    }
+
     #[inline]
     fn write_field_header(&mut self, field_type: TCompactType, id: i16) -> Result<(), Error> {
         let field_delta = id - self.last_write_field_id;
@@ -298,7 +307,7 @@ impl TCompactOutputProtocol<&mut BytesMut> {
             )?;
         } else {
             self.write_byte(0xF0 | (tcompact_get_compact(element_type)? as u8))?;
-            self.trans.write_varint(size as u32)?;
+            self.write_varint(size as u32)?;
         }
         Ok(())
     }
@@ -322,7 +331,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
                 | ((mtype << COMPACT_TYPE_SHIFT_AMOUNT) & COMPACT_TYPE_MASK),
         ])?;
         // cast i32 as u32 so that varint writing won't use zigzag encoding
-        self.trans.write_varint(identifier.sequence_number as u32)?;
+        self.write_varint(identifier.sequence_number as u32)?;
         self.write_string(&identifier.name)?;
         Ok(())
     }
@@ -414,7 +423,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         let size = b.len() as u32;
-        self.trans.write_varint(size)?;
+        self.write_varint(size)?;
         if size == 0 {
             return Ok(());
         }
@@ -433,17 +442,17 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     }
     #[inline]
     fn write_i16(&mut self, i: i16) -> Result<(), Error> {
-        self.trans.write_varint(i)?;
+        self.write_varint(i)?;
         Ok(())
     }
     #[inline]
     fn write_i32(&mut self, i: i32) -> Result<(), Error> {
-        self.trans.write_varint(i)?;
+        self.write_varint(i)?;
         Ok(())
     }
     #[inline]
     fn write_i64(&mut self, i: i64) -> Result<(), Error> {
-        self.trans.write_varint(i)?;
+        self.write_varint(i)?;
         Ok(())
     }
     #[inline]
@@ -483,7 +492,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         } else {
             // element count is strictly positive as per the spec, so
             // cast i32 as u32 so that varint writing won't use zigzag encoding
-            self.trans.write_varint(identifier.size as u32)?;
+            self.write_varint(identifier.size as u32)?;
             self.write_byte(
                 (tcompact_get_compact(identifier.key_type.into())? as u8) << 4
                     | (tcompact_get_compact(identifier.value_type.into())?) as u8,
@@ -846,6 +855,18 @@ impl<T> TCompactInputProtocol<T> {
 }
 
 impl TCompactInputProtocol<&mut BytesMut> {
+
+    #[inline]
+    fn read_varint<VI: VarInt>(&mut self) -> Result<VI, Error> {
+        let mut p = VarIntProcessor::new::<VI>();
+        while !p.finished() {
+            let read = self.trans.read_u8()?;
+            p.push(read)?;
+        }
+        p.decode().ok_or_else(|| new_protocol_error(
+            ProtocolErrorKind::InvalidData, "can't decode varint"))
+    }
+
     #[inline]
     fn read_collection_begin(&mut self) -> Result<(TType, usize), Error> {
         let header = self.read_byte()?;
@@ -855,7 +876,7 @@ impl TCompactInputProtocol<&mut BytesMut> {
         let element_count = if possible_element_count != 15 {
             possible_element_count as i32
         } else {
-            self.trans.read_varint::<u32>()? as i32
+            self.read_varint::<u32>()? as i32
         };
         Ok((element_type, element_count as usize))
     }
@@ -892,7 +913,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         })?;
 
         // writing side wrote signed sequence number as u32 to avoid zigzag encoding
-        let sequence_number = self.trans.read_varint::<u32>()? as i32;
+        let sequence_number = self.read_varint::<u32>()? as i32;
         let name = self.read_string()?;
 
         Ok(TMessageIdentifier::new(
@@ -983,7 +1004,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
 
     #[inline]
     fn read_bytes(&mut self) -> Result<Vec<u8>, Error> {
-        let size = self.trans.read_varint::<u32>()?;
+        let size = self.read_varint::<u32>()?;
         let mut buf = vec![0u8; size as usize];
         self.trans.read_to_slice(&mut buf)?;
         Ok(buf)
@@ -1006,15 +1027,15 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     }
     #[inline]
     fn read_i16(&mut self) -> Result<i16, Error> {
-        Ok(self.trans.read_varint::<i16>()?)
+        Ok(self.read_varint::<i16>()?)
     }
     #[inline]
     fn read_i32(&mut self) -> Result<i32, Error> {
-        Ok(self.trans.read_varint::<i32>()?)
+        Ok(self.read_varint::<i32>()?)
     }
     #[inline]
     fn read_i64(&mut self) -> Result<i64, Error> {
-        Ok(self.trans.read_varint::<i64>()?)
+        Ok(self.read_varint::<i64>()?)
     }
 
     #[inline]
@@ -1050,7 +1071,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
 
     // #[inline]
     fn read_map_begin(&mut self) -> Result<TMapIdentifier, Error> {
-        let element_count = self.trans.read_varint::<u32>()? as i32;
+        let element_count = self.read_varint::<u32>()? as i32;
         if element_count == 0 {
             Ok(TMapIdentifier::new(TType::Stop, TType::Stop, 0))
         } else {
