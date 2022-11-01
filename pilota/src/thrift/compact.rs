@@ -10,9 +10,10 @@ use super::{
     error::{Error, ProtocolErrorKind},
     new_protocol_error,
     rw_ext::{ReadExt, WriteExt},
+    varint_ext::VarIntProcessor,
     TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
     TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    MAXIMUM_SKIP_DEPTH, varint_ext::VarIntProcessor,
+    MAXIMUM_SKIP_DEPTH,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -277,7 +278,6 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
 }
 
 impl TCompactOutputProtocol<&mut BytesMut> {
-
     #[inline]
     fn write_varint<VI: VarInt>(&mut self, n: VI) -> Result<(), Error> {
         let mut buf = [0u8; 10];
@@ -855,7 +855,6 @@ impl<T> TCompactInputProtocol<T> {
 }
 
 impl TCompactInputProtocol<&mut BytesMut> {
-
     #[inline]
     fn read_varint<VI: VarInt>(&mut self) -> Result<VI, Error> {
         let mut p = VarIntProcessor::new::<VI>();
@@ -863,8 +862,9 @@ impl TCompactInputProtocol<&mut BytesMut> {
             let read = self.trans.read_u8()?;
             p.push(read)?;
         }
-        p.decode().ok_or_else(|| new_protocol_error(
-            ProtocolErrorKind::InvalidData, "can't decode varint"))
+        p.decode().ok_or_else(|| {
+            new_protocol_error(ProtocolErrorKind::InvalidData, "can't decode varint")
+        })
     }
 
     #[inline]

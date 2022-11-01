@@ -1,6 +1,7 @@
 use std::mem;
 
 use bytes::{Buf as _, BufMut, BytesMut};
+
 use super::{Error, ProtocolError};
 
 #[derive(thiserror::Error, Debug)]
@@ -128,7 +129,6 @@ pub trait WriteExt {
 }
 
 impl WriteExt for BytesMut {
-
     #[inline]
     fn write_slice(&mut self, src: &[u8]) -> Result<(), IOError> {
         self.put_slice(src);
