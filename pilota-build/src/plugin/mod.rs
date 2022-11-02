@@ -362,7 +362,7 @@ impl Plugin for EnumNumPlugin {
                         impl ::std::convert::TryFrom<#num_ty> for #name {
                             type Error = ::pilota::EnumConvertError<#num_ty>;
 
-                            fn try_from(v: i32) -> Result<Self, Self::Error> {
+                            fn try_from(v: i32) -> Result<Self, ::pilota::EnumConvertError<#num_ty>> {
                                 #(#nums)*
                                 match v {
                                     #(

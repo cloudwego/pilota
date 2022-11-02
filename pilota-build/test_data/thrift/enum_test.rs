@@ -15,7 +15,7 @@ pub mod enum_test {
         }
         impl ::std::convert::TryFrom<i32> for Index {
             type Error = ::pilota::EnumConvertError<i32>;
-            fn try_from(v: i32) -> Result<Self, Self::Error> {
+            fn try_from(v: i32) -> Result<Self, ::pilota::EnumConvertError<i32>> {
                 const A: i32 = Index::A as i32;
                 const B: i32 = Index::B as i32;
                 match v {

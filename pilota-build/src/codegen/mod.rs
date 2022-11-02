@@ -263,7 +263,9 @@ where
     pub fn write_const(&mut self, did: DefId, stream: &mut TokenStream, c: &middle::rir::Const) {
         let ty = self.codegen_ty(did);
 
-        stream.extend(self.def_lit(&c.name, &c.lit, &ty))
+        let name = self.rust_name(did);
+
+        stream.extend(self.def_lit(&*name, &c.lit, &ty))
     }
 
     fn ident_into_ty(
@@ -355,7 +357,7 @@ where
             (Literal::Map(_), CodegenTy::StaticRef(map)) => match &**map {
                 CodegenTy::Map(_, _) => {
                     let lazy_map =
-                        self.def_lit("inner_map", lit, &CodegenTy::LazyStaticRef(map.clone()));
+                        self.def_lit("INNER_MAP", lit, &CodegenTy::LazyStaticRef(map.clone()));
                     let stream = quote::quote! {
                         {
                             #lazy_map
