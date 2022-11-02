@@ -8,12 +8,12 @@ pub mod const_val {
         unused_mut
     )]
     pub mod const_val {
-        impl Into<i32> for Index {
-            fn into(self) -> i32 {
-                self as _
+        impl ::std::convert::From<Index> for i32 {
+            fn from(e: Index) -> Self {
+                e as _
             }
         }
-        impl TryFrom<i32> for Index {
+        impl ::std::convert::TryFrom<i32> for Index {
             type Error = ::pilota::EnumConvertError<i32>;
             fn try_from(v: i32) -> Result<Self, Self::Error> {
                 const A: i32 = Index::A as i32;

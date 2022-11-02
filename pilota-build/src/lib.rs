@@ -99,7 +99,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             parser: ProtobufParser::default(),
             plugins: vec![Box::new(ProstPlugin)],
             must_gen_items: Vec::default(),
-            ignore_unused: false,
+            ignore_unused: true,
         }
     }
 }

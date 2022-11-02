@@ -353,13 +353,13 @@ impl Plugin for EnumNumPlugin {
 
                 cx.with_adjust(def_id, |adj| {
                     adj.add_impl(quote! {
-                        impl Into<#num_ty> for #name {
-                            fn into(self) -> #num_ty {
-                                self as _
+                        impl ::std::convert::From<#name> for #num_ty {
+                            fn from(e: #name) -> Self {
+                                e as _
                             }
                         }
 
-                        impl TryFrom<#num_ty> for #name {
+                        impl ::std::convert::TryFrom<#num_ty> for #name {
                             type Error = ::pilota::EnumConvertError<#num_ty>;
 
                             fn try_from(v: i32) -> Result<Self, Self::Error> {
