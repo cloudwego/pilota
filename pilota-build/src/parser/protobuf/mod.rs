@@ -1,7 +1,8 @@
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
-use fxhash::FxHashMap;
+use fxhash::{FxHashMap, FxHashSet};
 use itertools::Itertools;
+use normpath::PathExt;
 use protobuf::descriptor::{
     field_descriptor_proto::{Label, Type},
     DescriptorProto, EnumDescriptorProto, ServiceDescriptorProto,
@@ -22,6 +23,7 @@ use crate::{
 pub struct ProtobufParser {
     inner: protobuf_parse::Parser,
     include_dirs: Vec<PathBuf>,
+    input_files: FxHashSet<PathBuf>,
 }
 
 struct Lower {
@@ -423,6 +425,8 @@ impl Lower {
 
 impl Parser for ProtobufParser {
     fn input<P: AsRef<std::path::Path>>(&mut self, path: P) {
+        self.input_files
+            .insert(path.as_ref().normalize().unwrap().into_path_buf());
         self.inner.input(path);
     }
 
@@ -434,18 +438,31 @@ impl Parser for ProtobufParser {
     fn parse(self) -> super::ParseResult {
         let descriptors = self.inner.parse_and_typecheck().unwrap().file_descriptors;
 
+        let mut input_file_ids = vec![];
+
+        let mut lower = Lower::default();
+
+        let files = lower.lower(&descriptors);
+
         descriptors.iter().for_each(|f| {
             self.include_dirs.iter().for_each(|p| {
                 let path = p.join(f.name());
                 if path.exists() {
                     println!("cargo:rerun-if-changed={}", path.display());
+
+                    if self
+                        .input_files
+                        .contains(path.normalize().unwrap().as_path())
+                    {
+                        input_file_ids.push(*lower.files.get(f.name()).unwrap());
+                    }
                 }
             });
         });
 
         super::ParseResult {
-            files: Lower::default().lower(&descriptors),
-            input_files: vec![],
+            files,
+            input_files: input_file_ids,
             file_ids_map: FxHashMap::default(),
         }
     }
