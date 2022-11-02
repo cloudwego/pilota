@@ -1,6 +1,8 @@
-use std::{ops::Deref, sync::Arc};
+use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
 
-use fxhash::FxHashMap;
+use fxhash::{FxHashMap, FxHashSet};
+use itertools::Itertools;
+use normpath::PathExt;
 use proc_macro2::Span;
 use quote::format_ident;
 use syn::PathSegment;
@@ -9,10 +11,20 @@ use self::tls::with_cur_item;
 use super::{adjust::Adjust, rir::NodeKind};
 use crate::{
     db::{RirDatabase, RootDatabase},
+    rir,
     symbol::{DefId, IdentName, Symbol},
     tags::{TagId, Tags},
+    ty::Visitor,
     Plugin,
 };
+
+pub enum CollectMode {
+    All,
+    OnlyUsed {
+        must_gen_items: Vec<(std::path::PathBuf, Vec<String>)>,
+        input: Vec<DefId>,
+    },
+}
 
 pub struct Context {
     pub db: salsa::Snapshot<RootDatabase>,
@@ -222,6 +234,136 @@ impl Context {
                 _ => {}
             });
         p.on_emit(self)
+    }
+
+    pub(crate) fn collect_items(
+        &self,
+        must_gen_items: Vec<(std::path::PathBuf, Vec<String>)>,
+        input: Vec<DefId>,
+    ) -> FxHashSet<DefId> {
+        struct PathCollector<'a> {
+            set: &'a mut FxHashSet<DefId>,
+            cx: &'a Context,
+        }
+
+        impl super::ty::Visitor for PathCollector<'_> {
+            fn visit_path(&mut self, path: &crate::rir::Path) {
+                collect(self.cx, path.did, self.set)
+            }
+        }
+
+        fn collect(cx: &Context, def_id: DefId, set: &mut FxHashSet<DefId>) {
+            if set.contains(&def_id) {
+                return;
+            }
+            if !matches!(&*cx.item(def_id).unwrap(), rir::Item::Mod(_)) {
+                set.insert(def_id);
+            }
+
+            let node = cx.node(def_id).unwrap();
+
+            node.related_nodes
+                .iter()
+                .for_each(|def_id| collect(cx, *def_id, set));
+
+            let item = node.expect_item();
+
+            match item {
+                rir::Item::Message(m) => m
+                    .fields
+                    .iter()
+                    .for_each(|f| PathCollector { cx, set }.visit(&f.ty)),
+                rir::Item::Enum(e) => e
+                    .variants
+                    .iter()
+                    .flat_map(|v| &v.fields)
+                    .for_each(|ty| PathCollector { cx, set }.visit(ty)),
+                rir::Item::Service(s) => {
+                    s.extend.iter().for_each(|p| collect(cx, p.did, set));
+                    s.methods
+                        .iter()
+                        .flat_map(|m| m.args.iter().map(|f| &f.ty).chain(std::iter::once(&m.ret)))
+                        .for_each(|ty| PathCollector { cx, set }.visit(ty));
+                }
+                rir::Item::NewType(n) => PathCollector { cx, set }.visit(&n.ty),
+                rir::Item::Const(c) => {
+                    PathCollector { cx, set }.visit(&c.ty);
+                }
+                rir::Item::Mod(_) => {}
+            }
+        }
+        let mut set = FxHashSet::default();
+
+        must_gen_items.iter().for_each(|s| {
+            let path = &s.0;
+            s.1.iter().for_each(|item_name| {
+                let file_id = *self
+                    .file_ids_map()
+                    .get(&PathBuf::from(path).normalize().unwrap().into_path_buf())
+                    .unwrap();
+                let def_id = self
+                    .files()
+                    .get(&file_id)
+                    .unwrap()
+                    .items
+                    .iter()
+                    .find(|def_id| &*self.item(**def_id).unwrap().symbol_name() == item_name)
+                    .cloned();
+                if let Some(def_id) = def_id {
+                    set.insert(def_id);
+                } else {
+                    println!(
+                        "cargo:warning=item `{}` of `{}` not exists",
+                        item_name,
+                        path.display(),
+                    );
+                }
+            });
+        });
+
+        input.iter().for_each(|def_id| {
+            collect(&self, *def_id, &mut set);
+        });
+
+        self.nodes().iter().for_each(|(def_id, node)| {
+            if let NodeKind::Item(item) = &node.kind {
+                if let rir::Item::Const(_) = &**item {
+                    collect(&self, *def_id, &mut set);
+                }
+            }
+        });
+
+        set
+    }
+
+    pub(crate) fn collect_pkgs(
+        &mut self,
+        mode: CollectMode,
+    ) -> HashMap<Arc<[smol_str::SmolStr]>, Vec<DefId>> {
+        match mode {
+            CollectMode::All => {
+                let files = self.files();
+                let mut map: HashMap<_, Vec<DefId>> = HashMap::with_capacity(files.len());
+                for file in files.values() {
+                    map.entry(Arc::from_iter(
+                        file.package.iter().map(|s| (&**s).mod_ident()),
+                    ))
+                    .or_default()
+                    .extend_from_slice(&file.items);
+                }
+
+                map
+            }
+            CollectMode::OnlyUsed {
+                must_gen_items,
+                input,
+            } => {
+                let def_ids = self.collect_items(must_gen_items, input);
+                def_ids
+                    .into_iter()
+                    .into_group_map_by(|def_id| self.mod_path(*def_id))
+            }
+        }
     }
 }
 
