@@ -25,7 +25,7 @@ impl Parser for Typedef {
             |(_, _, r#type, _, alias, _, annotations)| Typedef {
                 r#type,
                 alias,
-                annotations,
+                annotations: annotations.unwrap_or_default(),
             },
         )(input)
     }

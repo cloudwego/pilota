@@ -83,7 +83,7 @@ impl Parser for Constant {
                 name,
                 r#type,
                 value,
-                annotations,
+                annotations: annotations.unwrap_or_default(),
             },
         )(input)
     }

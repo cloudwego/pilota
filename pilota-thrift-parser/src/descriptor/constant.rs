@@ -17,7 +17,7 @@ pub struct Constant {
     pub name: Ident,
     pub r#type: Type,
     pub value: ConstValue,
-    pub annotations: Option<Annotations>,
+    pub annotations: Annotations,
 }
 
 #[derive(Debug, Clone, Copy)]
