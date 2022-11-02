@@ -116,6 +116,7 @@ pub mod pilota_name {
                     + protocol.write_struct_end_len()
             }
         }
+        pub const LANG_ID: &'static str = "id";
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Test {
             pub id: ::std::string::String,
