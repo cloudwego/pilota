@@ -27,7 +27,11 @@ use codegen::protobuf::{ProstPlugin, ProtobufBackend};
 pub use codegen::{thrift::ThriftBackend, traits::CodegenBackend, Codegen};
 use db::RootDatabase;
 use fmt::fmt_file;
-use middle::{context::tls::CONTEXT, rir::NodeKind, type_graph::TypeGraph};
+use middle::{
+    context::{tls::CONTEXT, CollectMode},
+    rir::NodeKind,
+    type_graph::TypeGraph,
+};
 pub use middle::{rir, ty};
 use parser::{protobuf::ProtobufParser, thrift::ThriftParser, ParseResult, Parser};
 use plugin::{
@@ -222,7 +226,6 @@ where
             },
         ));
 
-        self.plugins.into_iter().for_each(|p| cx.exec_plugin(p));
         let mut input = Vec::with_capacity(input_files.len());
         for file_id in input_files {
             let file = cx.file(file_id).unwrap();
@@ -233,15 +236,21 @@ where
             });
         }
 
+        let mods = cx.collect_pkgs(if self.ignore_unused {
+            CollectMode::OnlyUsed {
+                must_gen_items: self.must_gen_items,
+                input,
+            }
+        } else {
+            CollectMode::All
+        });
+
+        self.plugins.into_iter().for_each(|p| cx.exec_plugin(p));
+
         let context = Arc::from(cx);
         CONTEXT.set(&context.clone(), || {
-            let mut cg = Codegen::new(
-                context.clone(),
-                self.mk_backend.make_backend(context),
-                input,
-            );
-            cg.must_gen_items(self.must_gen_items);
-            cg.write_pkgs(self.ignore_unused);
+            let mut cg = Codegen::new(context.clone(), self.mk_backend.make_backend(context));
+            cg.write_mods(mods);
 
             let file_name = out
                 .as_ref()

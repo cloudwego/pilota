@@ -1,9 +1,7 @@
-use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
+use std::{collections::HashMap, ops::Deref, sync::Arc};
 
-use fxhash::{FxHashMap, FxHashSet};
+use fxhash::FxHashMap;
 use heck::ToShoutySnakeCase;
-use itertools::Itertools;
-use normpath::PathExt;
 use pkg_tree::PkgNode;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -17,9 +15,7 @@ use crate::{
         rir::{self, Literal},
         ty::{AdtDef, AdtKind, CodegenTy},
     },
-    rir::{Item, NodeKind},
     symbol::{DefId, EnumRepr, IdentName},
-    ty::Visitor,
     Context,
 };
 
@@ -34,8 +30,6 @@ pub struct Codegen<B> {
     zero_copy: bool,
     cx: Arc<Context>,
     pkgs: FxHashMap<Arc<[smol_str::SmolStr]>, TokenStream>,
-    input: Vec<DefId>,
-    must_gen_items: Vec<(std::path::PathBuf, Vec<String>)>,
 }
 
 impl<B> Deref for Codegen<B> {
@@ -47,14 +41,12 @@ impl<B> Deref for Codegen<B> {
 }
 
 impl<B> Codegen<B> {
-    pub fn new(cx: Arc<Context>, backend: B, input: Vec<DefId>) -> Self {
+    pub fn new(cx: Arc<Context>, backend: B) -> Self {
         Codegen {
             zero_copy: false,
             cx,
             backend,
             pkgs: Default::default(),
-            input,
-            must_gen_items: Vec::default(),
         }
     }
 }
@@ -100,10 +92,6 @@ where
         });
 
         self.backend.codegen_struct_impl(def_id, stream, s);
-    }
-
-    pub fn must_gen_items(&mut self, items: Vec<(std::path::PathBuf, Vec<String>)>) {
-        self.must_gen_items = items;
     }
 
     pub fn write_item(&mut self, stream: &mut TokenStream, def_id: DefId) {
@@ -382,129 +370,7 @@ where
         }
     }
 
-    fn collect_items(&self) -> FxHashSet<DefId> {
-        struct PathCollector<'a> {
-            set: &'a mut FxHashSet<DefId>,
-            cx: &'a Context,
-        }
-
-        impl super::ty::Visitor for PathCollector<'_> {
-            fn visit_path(&mut self, path: &crate::rir::Path) {
-                collect(self.cx, path.did, self.set)
-            }
-        }
-
-        fn collect(cx: &Context, def_id: DefId, set: &mut FxHashSet<DefId>) {
-            if set.contains(&def_id) {
-                return;
-            }
-            if !matches!(&*cx.item(def_id).unwrap(), rir::Item::Mod(_)) {
-                set.insert(def_id);
-            }
-
-            let node = cx.node(def_id).unwrap();
-
-            node.related_nodes
-                .iter()
-                .for_each(|def_id| collect(cx, *def_id, set));
-
-            let item = node.expect_item();
-
-            match item {
-                rir::Item::Message(m) => m
-                    .fields
-                    .iter()
-                    .for_each(|f| PathCollector { cx, set }.visit(&f.ty)),
-                rir::Item::Enum(e) => e
-                    .variants
-                    .iter()
-                    .flat_map(|v| &v.fields)
-                    .for_each(|ty| PathCollector { cx, set }.visit(ty)),
-                rir::Item::Service(s) => {
-                    s.extend.iter().for_each(|p| collect(cx, p.did, set));
-                    s.methods
-                        .iter()
-                        .flat_map(|m| m.args.iter().map(|f| &f.ty).chain(std::iter::once(&m.ret)))
-                        .for_each(|ty| PathCollector { cx, set }.visit(ty));
-                }
-                rir::Item::NewType(n) => PathCollector { cx, set }.visit(&n.ty),
-                rir::Item::Const(c) => {
-                    PathCollector { cx, set }.visit(&c.ty);
-                }
-                rir::Item::Mod(_) => {}
-            }
-        }
-        let mut set = FxHashSet::default();
-
-        self.must_gen_items.iter().for_each(|s| {
-            let path = &s.0;
-            s.1.iter().for_each(|item_name| {
-                let file_id = *self
-                    .file_ids_map()
-                    .get(&PathBuf::from(path).normalize().unwrap().into_path_buf())
-                    .unwrap();
-                let def_id = self
-                    .files()
-                    .get(&file_id)
-                    .unwrap()
-                    .items
-                    .iter()
-                    .find(|def_id| &*self.item(**def_id).unwrap().symbol_name() == item_name)
-                    .cloned();
-                if let Some(def_id) = def_id {
-                    set.insert(def_id);
-                } else {
-                    println!(
-                        "cargo:warning=item `{}` of `{}` not exists",
-                        item_name,
-                        path.display(),
-                    );
-                }
-            });
-        });
-
-        self.input.iter().for_each(|def_id| {
-            collect(&self.cx, *def_id, &mut set);
-        });
-
-        self.nodes().iter().for_each(|(def_id, node)| {
-            if let NodeKind::Item(item) = &node.kind {
-                if let Item::Const(_) = &**item {
-                    collect(&self.cx, *def_id, &mut set);
-                }
-            }
-        });
-
-        set
-    }
-
-    fn collect_pkgs(
-        &mut self,
-        remove_unused: bool,
-    ) -> HashMap<Arc<[smol_str::SmolStr]>, Vec<DefId>> {
-        if remove_unused {
-            let def_ids = self.collect_items();
-            def_ids
-                .into_iter()
-                .into_group_map_by(|def_id| self.cx.mod_path(*def_id))
-        } else {
-            let files = self.files();
-            let mut map: HashMap<_, Vec<DefId>> = HashMap::with_capacity(files.len());
-            for file in files.values() {
-                map.entry(Arc::from_iter(
-                    file.package.iter().map(|s| (&**s).mod_ident()),
-                ))
-                .or_default()
-                .extend_from_slice(&file.items);
-            }
-
-            map
-        }
-    }
-
-    pub fn write_pkgs(&mut self, remove_unused: bool) {
-        let mods = self.collect_pkgs(remove_unused);
-
+    pub(crate) fn write_mods(&mut self, mods: HashMap<Arc<[smol_str::SmolStr]>, Vec<DefId>>) {
         mods.iter().for_each(|(p, def_ids)| {
             let stream: &mut TokenStream =
                 unsafe { std::mem::transmute(self.pkgs.entry(p.clone()).or_default()) };
