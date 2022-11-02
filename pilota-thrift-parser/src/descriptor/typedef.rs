@@ -4,5 +4,5 @@ use super::{Annotations, Ident, Type};
 pub struct Typedef {
     pub r#type: Type,
     pub alias: Ident,
-    pub annotations: Option<Annotations>,
+    pub annotations: Annotations,
 }

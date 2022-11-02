@@ -54,7 +54,7 @@ impl Parser for StructLike {
             |(name, _, _, fields, _, _, _, annotations)| StructLike {
                 name,
                 fields,
-                annotations,
+                annotations: annotations.unwrap_or_default(),
             },
         )(input)?;
         Ok((r, a))

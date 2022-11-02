@@ -307,7 +307,22 @@ impl ThriftLower {
             _ => return vec![],
         };
 
-        vec![self.mk_item(single, Default::default())]
+        let empty_annotations = Annotations::default();
+
+        let annotations = match item {
+            thrift_parser::Item::Typedef(t) => &t.annotations,
+            thrift_parser::Item::Constant(c) => &c.annotations,
+            thrift_parser::Item::Enum(e) => &e.annotations,
+            thrift_parser::Item::Struct(s) => &s.annotations,
+            thrift_parser::Item::Union(u) => &u.annotations,
+            thrift_parser::Item::Exception(e) => &e.annotations,
+            thrift_parser::Item::Service(s) => &s.annotations,
+            _ => &empty_annotations,
+        };
+
+        let tags = self.extract_tags(annotations);
+
+        vec![self.mk_item(single, tags.into())]
     }
 
     fn lower_union(&mut self, union: &thrift_parser::Union) -> Enum {

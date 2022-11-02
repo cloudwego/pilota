@@ -38,5 +38,5 @@ struct_like!(Exception);
 pub struct StructLike {
     pub name: Ident,
     pub fields: Vec<Field>,
-    pub annotations: Option<Annotations>,
+    pub annotations: Annotations,
 }
