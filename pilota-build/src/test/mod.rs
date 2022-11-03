@@ -98,7 +98,7 @@ fn test_protobuf_gen() {
 }
 
 #[test]
-fn test_must_gen_items() {
+fn test_touch() {
     let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("test_data")
         .join("must_gen_items.thrift");
@@ -108,7 +108,7 @@ fn test_must_gen_items() {
 
     test_with_builder(file_path, out_path, |source, target| {
         crate::Builder::thrift()
-            .must_gen_items([(source.into(), vec!["A"])])
+            .touch([(source.into(), vec!["A"])])
             .compile(&[source], target)
     });
 }
