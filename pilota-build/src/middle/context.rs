@@ -21,7 +21,7 @@ use crate::{
 pub enum CollectMode {
     All,
     OnlyUsed {
-        must_gen_items: Vec<(std::path::PathBuf, Vec<String>)>,
+        touches: Vec<(std::path::PathBuf, Vec<String>)>,
         input: Vec<DefId>,
     },
 }
@@ -238,7 +238,7 @@ impl Context {
 
     pub(crate) fn collect_items(
         &self,
-        must_gen_items: Vec<(std::path::PathBuf, Vec<String>)>,
+        touches: Vec<(std::path::PathBuf, Vec<String>)>,
         input: Vec<DefId>,
     ) -> FxHashSet<DefId> {
         struct PathCollector<'a> {
@@ -289,12 +289,14 @@ impl Context {
                 rir::Item::Const(c) => {
                     PathCollector { cx, set }.visit(&c.ty);
                 }
-                rir::Item::Mod(_) => {}
+                rir::Item::Mod(m) => {
+                    m.items.iter().for_each(|i| collect(cx, *i, set));
+                }
             }
         }
         let mut set = FxHashSet::default();
 
-        must_gen_items.iter().for_each(|s| {
+        touches.iter().for_each(|s| {
             let path = &s.0;
             s.1.iter().for_each(|item_name| {
                 let file_id = *self
@@ -310,7 +312,7 @@ impl Context {
                     .find(|def_id| &*self.item(**def_id).unwrap().symbol_name() == item_name)
                     .cloned();
                 if let Some(def_id) = def_id {
-                    set.insert(def_id);
+                    collect(&self, def_id, &mut set);
                 } else {
                     println!(
                         "cargo:warning=item `{}` of `{}` not exists",
@@ -354,11 +356,8 @@ impl Context {
 
                 map
             }
-            CollectMode::OnlyUsed {
-                must_gen_items,
-                input,
-            } => {
-                let def_ids = self.collect_items(must_gen_items, input);
+            CollectMode::OnlyUsed { touches, input } => {
+                let def_ids = self.collect_items(touches, input);
                 def_ids
                     .into_iter()
                     .into_group_map_by(|def_id| self.mod_path(*def_id))

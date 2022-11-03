@@ -77,7 +77,7 @@ pub struct Builder<MkB, P> {
     parser: P,
     plugins: Vec<Box<dyn Plugin>>,
     ignore_unused: bool,
-    must_gen_items: Vec<(std::path::PathBuf, Vec<String>)>,
+    touches: Vec<(std::path::PathBuf, Vec<String>)>,
 }
 
 impl Builder<MkThriftBackend, ThriftParser> {
@@ -90,7 +90,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
                 Box::new(ImplDefaultPlugin),
                 Box::new(EnumNumPlugin),
             ],
-            must_gen_items: Vec::default(),
+            touches: Vec::default(),
             ignore_unused: true,
         }
     }
@@ -102,7 +102,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             mk_backend: MkProtobufBackend,
             parser: ProtobufParser::default(),
             plugins: vec![Box::new(ProstPlugin)],
-            must_gen_items: Vec::default(),
+            touches: Vec::default(),
             ignore_unused: true,
         }
     }
@@ -125,7 +125,7 @@ impl<MkB, P> Builder<MkB, P> {
             parser: self.parser,
             plugins: self.plugins,
             ignore_unused: self.ignore_unused,
-            must_gen_items: self.must_gen_items,
+            touches: self.touches,
         }
     }
 
@@ -148,11 +148,11 @@ impl<MkB, P> Builder<MkB, P> {
      *
      * This is ignored if `ignore_unused` is false
      */
-    pub fn must_gen_items(
+    pub fn touch(
         mut self,
         item: impl IntoIterator<Item = (PathBuf, Vec<impl Into<String>>)>,
     ) -> Self {
-        self.must_gen_items.extend(
+        self.touches.extend(
             item.into_iter()
                 .map(|s| (s.0, s.1.into_iter().map(|s| s.into()).collect())),
         );
@@ -238,7 +238,7 @@ where
 
         let mods = cx.collect_pkgs(if self.ignore_unused {
             CollectMode::OnlyUsed {
-                must_gen_items: self.must_gen_items,
+                touches: self.touches,
                 input,
             }
         } else {

@@ -444,12 +444,17 @@ impl Parser for ProtobufParser {
 
         let files = lower.lower(&descriptors);
 
+        let mut file_ids = FxHashMap::default();
+
         descriptors.iter().for_each(|f| {
             self.include_dirs.iter().for_each(|p| {
                 let path = p.join(f.name());
                 if path.exists() {
                     println!("cargo:rerun-if-changed={}", path.display());
-
+                    file_ids.insert(
+                        Arc::<PathBuf>::from(path.clone()),
+                        *lower.files.get(f.name()).unwrap(),
+                    );
                     if self
                         .input_files
                         .contains(path.normalize().unwrap().as_path())
@@ -463,7 +468,7 @@ impl Parser for ProtobufParser {
         super::ParseResult {
             files,
             input_files: input_file_ids,
-            file_ids_map: FxHashMap::default(),
+            file_ids_map: file_ids,
         }
     }
 }
