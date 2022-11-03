@@ -332,6 +332,41 @@ pub(crate) trait Visitor: Sized {
     }
 }
 
+pub(crate) trait Folder: Sized {
+    fn fold_ty(&mut self, ty: &Ty) -> Ty {
+        fold_ty(self, ty)
+    }
+}
+
+pub(crate) fn fold_ty<F: Folder>(f: &mut F, ty: &Ty) -> Ty {
+    let kind = match &ty.kind {
+        String => TyKind::String,
+        Void => TyKind::Void,
+        U8 => TyKind::U8,
+        Bool => TyKind::Bool,
+        BytesVec => TyKind::BytesVec,
+        Bytes => TyKind::Bytes,
+        I8 => TyKind::I8,
+        I16 => TyKind::I16,
+        I32 => TyKind::I32,
+        I64 => TyKind::I64,
+        F64 => TyKind::F64,
+        Vec(ty) => TyKind::Vec(f.fold_ty(&ty).into()),
+        Set(ty) => TyKind::Set(f.fold_ty(&ty).into()),
+        Map(k, v) => TyKind::Map(fold_ty(f, k).into(), fold_ty(f, v).into()),
+        Path(path) => TyKind::Path(path.clone()),
+        UInt32 => TyKind::UInt32,
+        UInt64 => TyKind::UInt64,
+        F32 => TyKind::F32,
+        Arc(ty) => TyKind::Arc(f.fold_ty(&ty).into()),
+    };
+
+    Ty {
+        kind,
+        tags_id: ty.tags_id,
+    }
+}
+
 pub(crate) fn walk_ty<V: Visitor>(v: &mut V, ty: &Ty) {
     match &ty.kind {
         Vec(el) => v.visit_vec(el),
