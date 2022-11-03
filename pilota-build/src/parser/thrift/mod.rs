@@ -14,7 +14,7 @@ use crate::{
     ir,
     ir::{Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path},
     symbol::{EnumRepr, FileId, Ident},
-    tags::{Annotation, RustType, Tags},
+    tags::{Annotation, PilotaName, RustType, Tags},
     ty::BytesRepr,
     util::error_abort,
 };
@@ -156,10 +156,17 @@ impl ThriftLower {
                 })
                 .collect::<Vec<_>>();
 
+            let tags = self.extract_tags(&f.annotations);
+
+            let method_name = tags
+                .get::<PilotaName>()
+                .map(|name| &*name.0)
+                .unwrap_or_else(|| &*f.name);
+
             let name: Ident = format!(
                 "{}{}Result",
                 service.name.as_str(),
-                f.name.to_upper_camel_case()
+                method_name.to_upper_camel_case()
             )
             .into();
             let kind = ir::ItemKind::Enum(ir::Enum {
@@ -196,7 +203,7 @@ impl ThriftLower {
             let name: Ident = format!(
                 "{}{}Args",
                 service.name.to_upper_camel_case().as_str(),
-                f.name.to_upper_camel_case()
+                method_name.to_upper_camel_case()
             )
             .into();
             let kind = ir::ItemKind::Message(ir::Message {
