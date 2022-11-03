@@ -263,7 +263,7 @@ impl ThriftLower {
                     name: self.lower_ident(&v.name),
                     discr: v.value.map(|v| v.0),
                     fields: vec![],
-                    tags: Default::default(),
+                    tags: self.extract_tags(&v.annotations).into(),
                 })
                 .collect(),
             repr: Some(EnumRepr::I32),
