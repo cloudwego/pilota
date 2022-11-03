@@ -8,9 +8,11 @@ use syn::parse_quote;
 use crate::{
     db::RirDatabase,
     middle::ty::{self, Ty},
-    rir::{self, Field, FieldKind},
+    rir::{self, Field, FieldKind, Path},
+    symbol::EnumRepr,
     tags::protobuf::{OneOf, ProstType},
-    CodegenBackend, Context,
+    ty::{fold_ty, Folder},
+    CodegenBackend, Context, DefId,
 };
 
 pub struct ProtobufBackend {
@@ -33,7 +35,7 @@ impl CodegenBackend for ProtobufBackend {}
 pub struct ProstPlugin;
 
 impl ProstPlugin {
-    fn mk_ty_attr(&self, cx: &Context, ty: &Ty) -> TokenStream {
+    fn mk_ty_attr(&self, cx: &Context, ty: &Ty, cur_def_id: DefId) -> TokenStream {
         if let Some(prost_type) = cx
             .tags(ty.tags_id)
             .as_ref()
@@ -59,21 +61,52 @@ impl ProstPlugin {
             ty::F32 => quote!(float),
             ty::F64 => quote!(double),
             ty::Vec(ty) => {
-                let el = self.mk_ty_attr(cx, ty);
+                let el = self.mk_ty_attr(cx, ty, cur_def_id);
                 quote!(#el, repeated)
             }
             ty::Map(k, v) => {
-                let key = self.mk_ty_attr(cx, k);
-                let val = self.mk_ty_attr(cx, v);
+                let key = self.mk_ty_attr(cx, k, cur_def_id);
+                let val = self.mk_ty_attr(cx, v, cur_def_id);
                 let ty = quote!(#key, #val).to_string();
                 quote!(map = #ty)
             }
-            ty::Path(_) => quote!(message),
-            ty::Arc(ty) => self.mk_ty_attr(cx, ty),
+            ty::Path(rir::Path { did, .. }) => {
+                if let rir::Item::Enum(_) = &*cx.item(*did).unwrap() {
+                    let path = cx
+                        .related_item_path(cur_def_id, *did)
+                        .to_token_stream()
+                        .to_string();
+                    quote!(enumeration = #path)
+                } else {
+                    quote!(message)
+                }
+            }
+            ty::Arc(ty) => self.mk_ty_attr(cx, ty, cur_def_id),
             ty::Set(_) | ty::Void | ty::U8 | ty::I16 | ty::I8 => {
                 unreachable!()
             }
         }
+    }
+}
+
+struct ReplaceEnum<'cx> {
+    cx: &'cx Context,
+}
+
+impl Folder for ReplaceEnum<'_> {
+    fn fold_ty(&mut self, ty: &Ty) -> Ty {
+        if let ty::TyKind::Path(Path { did, .. }) = ty.kind {
+            if let rir::Item::Enum(e) = &*self.cx.item(did).unwrap() {
+                if e.repr == Some(EnumRepr::I32) {
+                    return Ty {
+                        kind: ty::TyKind::I32,
+                        tags_id: ty.tags_id,
+                    };
+                }
+            }
+        }
+
+        fold_ty(self, ty)
     }
 }
 
@@ -88,7 +121,7 @@ impl crate::Plugin for ProstPlugin {
                     adj.add_attrs(&[parse_quote!(#[derive(::prost::Oneof)])])
                 });
                 e.variants.iter().for_each(|v| {
-                    let ty = self.mk_ty_attr(cx, &v.fields[0]);
+                    let ty = self.mk_ty_attr(cx, &v.fields[0], def_id);
                     let tag = v.id.unwrap().to_string();
                     cx.with_adjust(v.did, |adj| {
                         adj.add_attrs(&[parse_quote!(#[prost(#ty, tag = #tag)])])
@@ -121,8 +154,8 @@ impl crate::Plugin for ProstPlugin {
             _ => None,
         });
 
-        let attrs = if let Some(target_enum) = target_enum {
-            if one_of {
+        let attrs = match target_enum {
+            Some(target_enum) if one_of => {
                 let path = cx
                     .related_item_path(item_def_id, target_def_id.unwrap())
                     .to_token_stream()
@@ -130,28 +163,19 @@ impl crate::Plugin for ProstPlugin {
 
                 let tags = target_enum.variants.iter().map(|v| v.id.unwrap()).join(",");
                 quote!(oneof = #path, tags = #tags)
-            } else {
-                let path = cx
-                    .related_item_path(item_def_id, target_def_id.unwrap())
-                    .to_token_stream()
-                    .to_string();
-                let tag = format!("{}", f.id);
-
-                // hack
-                unsafe { (Arc::as_ptr(&f) as *mut Field).as_mut().unwrap() }.ty = Ty {
-                    tags_id: f.ty.tags_id,
-                    kind: ty::I32,
-                };
-
-                quote!(enumeration = #path, tag = #tag)
             }
-        } else {
-            let optional = matches!(f.kind, FieldKind::Optional)
-                .then(|| quote! {optional})
-                .into_iter();
-            let ty = self.mk_ty_attr(cx, &f.ty);
-            let tag = format!("{}", f.id);
-            quote!(#ty, tag = #tag #(, #optional)*)
+            _ => {
+                let optional = matches!(f.kind, FieldKind::Optional)
+                    .then(|| quote! {optional})
+                    .into_iter();
+                let ty = self.mk_ty_attr(cx, &f.ty, item_def_id);
+                let tag = format!("{}", f.id);
+                quote!(#ty, tag = #tag #(, #optional)*)
+            }
+        };
+
+        unsafe {
+            (Arc::as_ptr(&f) as *mut Field).as_mut().unwrap().ty = ReplaceEnum { cx }.fold_ty(&f.ty)
         };
 
         cx.with_adjust(def_id, |adj| {
