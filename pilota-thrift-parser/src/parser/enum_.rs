@@ -28,8 +28,7 @@ impl Parser for EnumValue {
             |(name, _, value, _, annotations, _, _)| EnumValue {
                 name,
                 value,
-                annotations,
-                inner_type: None,
+                annotations: annotations.unwrap_or_default(),
             },
         )(input)
     }

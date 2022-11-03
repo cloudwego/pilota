@@ -4,8 +4,7 @@ pub use super::{Annotations, Ident, IntConstant};
 pub struct EnumValue {
     pub name: Ident,
     pub value: Option<IntConstant>,
-    pub inner_type: Option<Ident>,
-    pub annotations: Option<Annotations>,
+    pub annotations: Annotations,
 }
 
 #[derive(Debug)]

@@ -333,9 +333,8 @@ impl Plugin for EnumNumPlugin {
                     .map(|v| {
                         let variant_name_str = cx.rust_name(v.did);
                         let variant_name = variant_name_str.as_syn_ident();
-                        let num_name = (&*variant_name_str.to_uppercase()).as_syn_ident();
                         quote!(
-                            #num_name => Ok(#name::#variant_name),
+                            #variant_name => Ok(#name::#variant_name),
                         )
                     })
                     .collect_vec();
@@ -346,8 +345,7 @@ impl Plugin for EnumNumPlugin {
                     .map(|v| {
                         let variant_name_str = cx.rust_name(v.did);
                         let variant_name = variant_name_str.as_syn_ident();
-                        let num_name = (&*variant_name_str.to_uppercase()).as_syn_ident();
-                        quote!(const #num_name: #num_ty = #name::#variant_name as #num_ty;)
+                        quote!(const #variant_name: #num_ty = #name::#variant_name as #num_ty;)
                     })
                     .collect_vec();
 
@@ -362,6 +360,7 @@ impl Plugin for EnumNumPlugin {
                         impl ::std::convert::TryFrom<#num_ty> for #name {
                             type Error = ::pilota::EnumConvertError<#num_ty>;
 
+                            #[allow(non_upper_case_globals)]
                             fn try_from(v: i32) -> Result<Self, ::pilota::EnumConvertError<#num_ty>> {
                                 #(#nums)*
                                 match v {
