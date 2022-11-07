@@ -3,6 +3,7 @@ use std::{ptr::NonNull, sync::Arc};
 use fxhash::FxHashMap;
 
 use crate::{
+    errors,
     index::Idx,
     ir,
     ir::visit::Visitor,
@@ -75,7 +76,9 @@ impl CollectDef<'_> {
         }
         .is_some()
         {
-            tracing::error!("{} is already defined", name);
+            self.resolver
+                .errors
+                .emit_error(format!("duplicate definition of `{}`", name));
         };
 
         self.resolver.def_modules.insert(
@@ -186,6 +189,7 @@ pub struct Resolver {
     tags: FxHashMap<TagId, Arc<Tags>>,
     cur_file: Option<FileId>,
     ir_files: FxHashMap<FileId, Arc<ir::File>>,
+    errors: errors::Handler,
 }
 
 impl Default for Resolver {
@@ -199,6 +203,7 @@ impl Default for Resolver {
             file_sym_map: Default::default(),
             nodes: Default::default(),
             ir_files: Default::default(),
+            errors: Default::default(),
             cur_file: None,
             parent_node: None,
         }
@@ -303,6 +308,8 @@ impl Resolver {
             .iter()
             .map(|f| (f.id, Arc::from(self.lower_file(f))))
             .collect::<FxHashMap<_, _>>();
+
+        self.errors.abort_if_errors();
 
         ResolveResult {
             tags: self.tags,
@@ -421,28 +428,27 @@ impl Resolver {
     fn lower_enum(&mut self, e: &ir::Enum) -> Enum {
         Enum {
             name: e.name.clone(),
-            variants: {
-                e.variants
-                    .iter()
-                    .map(|v| {
-                        let tag_id = self.tags_id_counter.inc_one();
-                        let did = self.get_def_id(Namespace::Ty, &v.name);
-                        if !v.tags.is_empty() {
-                            self.tags.insert(tag_id, v.tags.clone());
-                        }
-                        let e = Arc::from(EnumVariant {
-                            id: v.id,
-                            did,
-                            name: v.name.clone(),
-                            discr: v.discr,
-                            fields: v.fields.iter().map(|p| self.lower_type(p)).collect(),
-                        });
-                        self.nodes
-                            .insert(did, self.mk_node(NodeKind::Variant(e.clone()), tag_id));
-                        e
-                    })
-                    .collect()
-            },
+            variants: e
+                .variants
+                .iter()
+                .map(|v| {
+                    let tag_id = self.tags_id_counter.inc_one();
+                    let did = self.get_def_id(Namespace::Ty, &v.name);
+                    if !v.tags.is_empty() {
+                        self.tags.insert(tag_id, v.tags.clone());
+                    }
+                    let e = Arc::from(EnumVariant {
+                        id: v.id,
+                        did,
+                        name: v.name.clone(),
+                        discr: v.discr,
+                        fields: v.fields.iter().map(|p| self.lower_type(p)).collect(),
+                    });
+                    self.nodes
+                        .insert(did, self.mk_node(NodeKind::Variant(e.clone()), tag_id));
+                    e
+                })
+                .collect(),
             repr: e.repr,
         }
     }
