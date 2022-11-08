@@ -129,7 +129,7 @@ impl ToTokens for CodegenTy {
             }),
             CodegenTy::Arc(ty) => {
                 let ty = &**ty;
-                tokens.extend(quote!( ::alloc::sync::Arc<#ty> ))
+                tokens.extend(quote!( ::std::sync::Arc<#ty> ))
             }
             CodegenTy::LazyStaticRef(ty) => ty.to_tokens(tokens),
             CodegenTy::Bytes => tokens.extend(quote! { ::bytes::Bytes }),

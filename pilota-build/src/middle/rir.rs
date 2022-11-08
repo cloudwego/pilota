@@ -21,6 +21,7 @@ pub struct Arg {
     pub ty: Ty,
     pub name: Ident,
     pub id: i32,
+    pub tags_id: TagId,
 }
 
 #[derive(Clone, Debug)]
@@ -72,6 +73,7 @@ pub struct Field {
     pub id: i32,
     pub ty: Ty,
     pub kind: FieldKind,
+    pub tags_id: TagId,
 }
 
 impl Field {

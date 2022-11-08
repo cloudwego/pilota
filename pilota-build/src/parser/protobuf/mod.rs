@@ -356,6 +356,7 @@ impl Lower {
                                     m.input_type.as_deref(),
                                     &Default::default(),
                                 ),
+                                tags: Arc::new(Tags::default()),
                             }],
                             oneway: false,
                             ret: self.lower_ty(None, m.output_type.as_deref(), &Default::default()),
