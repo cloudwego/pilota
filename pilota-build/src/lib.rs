@@ -5,6 +5,7 @@
 
 pub mod codegen;
 pub mod db;
+pub(crate) mod errors;
 mod fmt;
 mod index;
 mod ir;
