@@ -16,7 +16,7 @@ use crate::{
         ty::{AdtDef, AdtKind, CodegenTy},
     },
     symbol::{DefId, EnumRepr, IdentName},
-    tags::RustType,
+    tags::RustWrapperArc,
     Context,
 };
 
@@ -76,8 +76,10 @@ where
                 ty = quote::quote! { ::std::option::Option<#ty> }
             }
 
-            if let Some(rust_type) = tags.as_ref().and_then(|tags| tags.get::<RustType>()) {
-                if rust_type == "Arc" && s.name.to_string().contains("ArgsSend") {
+            if let Some(rust_wrapper_arc) =
+                tags.as_ref().and_then(|tags| tags.get::<RustWrapperArc>())
+            {
+                if rust_wrapper_arc == "true" && s.name.to_string().contains("ArgsSend") {
                     ty = quote::quote! { ::std::sync::Arc<#ty> }
                 }
             }

@@ -146,6 +146,27 @@ impl Annotation for RustType {
     const KEY: &'static str = "pilota.rust_type";
 }
 
+#[derive(Debug)]
+pub struct RustWrapperArc(pub smol_str::SmolStr);
+
+impl PartialEq<str> for RustWrapperArc {
+    fn eq(&self, other: &str) -> bool {
+        &self.0 == other
+    }
+}
+
+impl FromStr for RustWrapperArc {
+    type Err = std::convert::Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(smol_str::SmolStr::new(s)))
+    }
+}
+
+impl Annotation for RustWrapperArc {
+    const KEY: &'static str = "pilota.rust_wrapper_arc";
+}
+
 pub mod protobuf {
 
     #[derive(Copy, Clone, PartialEq, Eq)]

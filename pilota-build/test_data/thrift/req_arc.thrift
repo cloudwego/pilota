@@ -3,5 +3,5 @@ struct TEST {
 }
 
 service TestService {
-    string test(1: TEST req(pilota.rust_type = "Arc"));
+    string test(1: TEST req(pilota.rust_wrapper_arc = "true"));
 }
