@@ -322,8 +322,8 @@ impl Resolver {
     fn lower_field(&mut self, f: &ir::Field) -> Arc<Field> {
         tracing::info!("lower filed {}, ty: {:?}", f.name, f.ty.kind);
         let did = self.get_def_id(Namespace::Ty, &*f.name);
-        let tag_id = self.tags_id_counter.inc_one();
-        self.tags.insert(tag_id, f.tags.clone());
+        let tags_id = self.tags_id_counter.inc_one();
+        self.tags.insert(tags_id, f.tags.clone());
         let f = Arc::from(Field {
             did,
             id: f.id,
@@ -333,10 +333,11 @@ impl Resolver {
             },
             name: f.name.clone(),
             ty: self.lower_type(&f.ty),
+            tags_id,
         });
 
         self.nodes
-            .insert(did, self.mk_node(NodeKind::Field(f.clone()), tag_id));
+            .insert(did, self.mk_node(NodeKind::Field(f.clone()), tags_id));
 
         f
     }
@@ -432,10 +433,10 @@ impl Resolver {
                 .variants
                 .iter()
                 .map(|v| {
-                    let tag_id = self.tags_id_counter.inc_one();
+                    let tags_id = self.tags_id_counter.inc_one();
                     let did = self.get_def_id(Namespace::Ty, &v.name);
                     if !v.tags.is_empty() {
-                        self.tags.insert(tag_id, v.tags.clone());
+                        self.tags.insert(tags_id, v.tags.clone());
                     }
                     let e = Arc::from(EnumVariant {
                         id: v.id,
@@ -445,7 +446,7 @@ impl Resolver {
                         fields: v.fields.iter().map(|p| self.lower_type(p)).collect(),
                     });
                     self.nodes
-                        .insert(did, self.mk_node(NodeKind::Variant(e.clone()), tag_id));
+                        .insert(did, self.mk_node(NodeKind::Variant(e.clone()), tags_id));
                     e
                 })
                 .collect(),
@@ -470,10 +471,15 @@ impl Resolver {
                         args: m
                             .args
                             .iter()
-                            .map(|a| Arg {
-                                ty: self.lower_type(&a.ty),
-                                name: a.name.clone(),
-                                id: a.id,
+                            .map(|a| {
+                                let tags_id = self.tags_id_counter.inc_one();
+                                self.tags.insert(tags_id, a.tags.clone());
+                                Arg {
+                                    ty: self.lower_type(&a.ty),
+                                    name: a.name.clone(),
+                                    id: a.id,
+                                    tags_id,
+                                }
                             })
                             .collect(),
                         ret: self.lower_type(&m.ret),
@@ -579,10 +585,10 @@ impl Resolver {
 
         self.parent_node = old_parent;
 
-        let tag_id = self.tags_id_counter.inc_one();
-        self.tags.insert(tag_id, tags.clone());
+        let tags_id = self.tags_id_counter.inc_one();
+        self.tags.insert(tags_id, tags.clone());
 
-        let mut node = self.mk_node(NodeKind::Item(item), tag_id);
+        let mut node = self.mk_node(NodeKind::Item(item), tags_id);
         node.related_nodes = related_items
             .iter()
             .map(|i| {

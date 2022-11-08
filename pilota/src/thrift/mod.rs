@@ -2,7 +2,7 @@ pub mod binary;
 pub mod error;
 pub mod rw_ext;
 
-use std::ops::Deref;
+use std::{ops::Deref, sync::Arc};
 
 use bytes::{Buf, BufMut};
 pub use error::*;
@@ -44,6 +44,28 @@ impl<M: Message> Message for Box<M> {
         R: AsyncRead + Unpin + Send,
     {
         Ok(Box::new(M::decode_async(protocol).await?))
+    }
+
+    fn size<T: TLengthProtocol>(&self, protocol: &T) -> usize {
+        self.deref().size(protocol)
+    }
+}
+
+#[async_trait::async_trait]
+impl<M: Message + Send + Sync> Message for Arc<M> {
+    fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), Error> {
+        self.deref().encode(protocol)
+    }
+
+    fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, Error> {
+        Ok(Arc::new(M::decode(protocol)?))
+    }
+
+    async fn decode_async<R>(protocol: &mut TAsyncBinaryProtocol<R>) -> Result<Self, Error>
+    where
+        R: AsyncRead + Unpin + Send,
+    {
+        Ok(Arc::new(M::decode_async(protocol).await?))
     }
 
     fn size<T: TLengthProtocol>(&self, protocol: &T) -> usize {

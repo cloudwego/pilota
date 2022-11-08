@@ -51,6 +51,7 @@ pub struct Arg {
     pub ty: Ty,
     pub name: Ident,
     pub id: i32,
+    pub tags: Arc<Tags>,
 }
 
 #[derive(Clone, Debug)]

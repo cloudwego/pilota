@@ -70,8 +70,8 @@ impl Context {
     }
 
     pub fn node_tags(&self, def_id: DefId) -> Option<Arc<Tags>> {
-        let tag_id = self.node(def_id).unwrap().tags;
-        self.tags(tag_id)
+        let tags_id = self.node(def_id).unwrap().tags;
+        self.tags(tags_id)
     }
 
     pub fn contains_tag<T: 'static>(&self, tags_id: TagId) -> bool {

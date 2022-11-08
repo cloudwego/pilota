@@ -200,8 +200,22 @@ impl ThriftLower {
                 related_items.push(name);
                 result.push(self.mk_item(kind, Default::default()));
             }
+
             let name: Ident = format!(
-                "{}{}Args",
+                "{}{}ArgsSend",
+                service.name.to_upper_camel_case().as_str(),
+                method_name.to_upper_camel_case()
+            )
+            .into();
+            let kind = ir::ItemKind::Message(ir::Message {
+                name: name.clone(),
+                fields: f.arguments.iter().map(|a| self.lower_field(a)).collect(),
+            });
+            related_items.push(name);
+            result.push(self.mk_item(kind, Default::default()));
+
+            let name: Ident = format!(
+                "{}{}ArgsRecv",
                 service.name.to_upper_camel_case().as_str(),
                 method_name.to_upper_camel_case()
             )
@@ -233,6 +247,7 @@ impl ThriftLower {
                     ty: self.lower_ty(&a.ty),
                     id: a.id,
                     name: self.lower_ident(&a.name),
+                    tags: Arc::new(self.extract_tags(&a.annotations)),
                 })
                 .collect(),
             ret: self.lower_ty(&method.result_type),
