@@ -453,7 +453,7 @@ impl Parser for ProtobufParser {
                 if path.exists() {
                     println!("cargo:rerun-if-changed={}", path.display());
                     file_ids.insert(
-                        Arc::<PathBuf>::from(path.clone()),
+                        Arc::from(path.normalize().unwrap().into_path_buf()),
                         *lower.files.get(f.name()).unwrap(),
                     );
                     if self
