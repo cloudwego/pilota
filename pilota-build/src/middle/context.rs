@@ -142,19 +142,18 @@ impl Context {
     }
 
     pub fn item_path(&self, def_id: DefId) -> Arc<[smol_str::SmolStr]> {
-        fn calc_item_path(db: &Context, def_id: DefId, segs: &mut Vec<smol_str::SmolStr>) {
-            let node = db.node(def_id).unwrap();
+        fn calc_item_path(cx: &Context, def_id: DefId, segs: &mut Vec<smol_str::SmolStr>) {
+            let node = cx.node(def_id).unwrap();
 
             match node.kind {
                 NodeKind::Item(_) => {}
-                _ => calc_item_path(db, node.parent.unwrap(), segs),
+                _ => calc_item_path(cx, node.parent.unwrap(), segs),
             }
 
             let name = match node.kind {
                 NodeKind::Item(item) => match &*item {
-                    crate::rir::Item::Const(_) => (&*item.symbol_name()).const_ident(),
                     crate::rir::Item::Mod(_) => return,
-                    _ => (&*item.symbol_name()).upper_camel_ident(),
+                    _ => cx.rust_name(def_id),
                 },
                 NodeKind::Variant(v) => (&**v.name).variant_ident(),
                 _ => panic!(),
@@ -164,7 +163,7 @@ impl Context {
 
         let mut segs = Vec::from(&*self.mod_path(def_id));
 
-        calc_item_path(&self, def_id, &mut segs);
+        calc_item_path(self, def_id, &mut segs);
 
         Arc::from(segs)
     }
