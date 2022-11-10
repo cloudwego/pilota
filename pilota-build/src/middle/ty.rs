@@ -67,6 +67,7 @@ pub enum CodegenTy {
     LazyStaticRef(Arc<CodegenTy>),
     StaticRef(Arc<CodegenTy>),
     Vec(Arc<CodegenTy>),
+    Array(Arc<CodegenTy>),
     Set(Arc<CodegenTy>),
     Map(Arc<CodegenTy>, Arc<CodegenTy>),
     Adt(AdtDef),
@@ -113,6 +114,10 @@ impl ToTokens for CodegenTy {
             CodegenTy::Vec(ty) => {
                 let ty = &**ty;
                 tokens.extend(quote! { ::std::vec::Vec<#ty> })
+            }
+            CodegenTy::Array(ty) => {
+                let ty = &**ty;
+                tokens.extend(quote! { [#ty] })
             }
             CodegenTy::Set(ty) => {
                 let ty = &**ty;
@@ -291,9 +296,7 @@ impl TyTransformer for ConstTyTransformer {
 
     #[inline]
     fn vec(&self, ty: &Ty) -> CodegenTy {
-        CodegenTy::StaticRef(Arc::from(CodegenTy::Vec(Arc::from(
-            self.codegen_item_ty(&ty.kind),
-        ))))
+        CodegenTy::Array(Arc::from(self.codegen_item_ty(&ty.kind)))
     }
 
     #[inline]

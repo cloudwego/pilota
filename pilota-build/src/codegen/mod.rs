@@ -363,7 +363,6 @@ where
                 let stream = self.lit_into_ty(l, inner_ty);
                 quote! { #ident(#stream) }
             }
-            // Literal::List(_) => todo!(),
             (Literal::Map(_), CodegenTy::StaticRef(map)) => match &**map {
                 CodegenTy::Map(_, _) => {
                     let lazy_map =
@@ -378,6 +377,10 @@ where
                 }
                 _ => panic!("invalid map type {:?}", map),
             },
+            (Literal::List(els), CodegenTy::Array(inner)) => {
+                let stream = els.iter().map(|el| self.lit_into_ty(el, inner));
+                quote! { [#(#stream),*] }
+            }
             _ => panic!("unexpected literal {:?} with ty {:?}", lit, ty),
         }
     }
