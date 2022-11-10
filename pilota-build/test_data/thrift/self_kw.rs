@@ -20,9 +20,11 @@ pub mod self_kw {
                 const A: i32 = Index::A as i32;
                 const Self_: i32 = Index::Self_ as i32;
                 match v {
-                    A => Ok(Index::A),
-                    Self_ => Ok(Index::Self_),
-                    _ => Err(::pilota::EnumConvertError::InvalidNum(v, "Index")),
+                    A => ::std::result::Result::Ok(Index::A),
+                    Self_ => ::std::result::Result::Ok(Index::Self_),
+                    _ => ::std::result::Result::Err(::pilota::EnumConvertError::InvalidNum(
+                        v, "Index",
+                    )),
                 }
             }
         }

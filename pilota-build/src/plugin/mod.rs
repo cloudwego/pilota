@@ -334,7 +334,7 @@ impl Plugin for EnumNumPlugin {
                         let variant_name_str = cx.rust_name(v.did);
                         let variant_name = variant_name_str.as_syn_ident();
                         quote!(
-                            #variant_name => Ok(#name::#variant_name),
+                            #variant_name => ::std::result::Result::Ok(#name::#variant_name),
                         )
                     })
                     .collect_vec();
@@ -367,7 +367,7 @@ impl Plugin for EnumNumPlugin {
                                     #(
                                         #variants
                                     )*
-                                    _ => Err(::pilota::EnumConvertError::InvalidNum(v, #name_str)),
+                                    _ => ::std::result::Result::Err(::pilota::EnumConvertError::InvalidNum(v, #name_str)),
                                 }
                             }
                         }
