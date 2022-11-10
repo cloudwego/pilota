@@ -20,9 +20,11 @@ pub mod const_val {
                 const A: i32 = Index::A as i32;
                 const B: i32 = Index::B as i32;
                 match v {
-                    A => Ok(Index::A),
-                    B => Ok(Index::B),
-                    _ => Err(::pilota::EnumConvertError::InvalidNum(v, "Index")),
+                    A => ::std::result::Result::Ok(Index::A),
+                    B => ::std::result::Result::Ok(Index::B),
+                    _ => ::std::result::Result::Err(::pilota::EnumConvertError::InvalidNum(
+                        v, "Index",
+                    )),
                 }
             }
         }

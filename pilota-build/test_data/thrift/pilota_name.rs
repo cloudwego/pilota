@@ -281,9 +281,11 @@ pub mod pilota_name {
                 const AA: i32 = Index::AA as i32;
                 const B: i32 = Index::B as i32;
                 match v {
-                    AA => Ok(Index::AA),
-                    B => Ok(Index::B),
-                    _ => Err(::pilota::EnumConvertError::InvalidNum(v, "Index")),
+                    AA => ::std::result::Result::Ok(Index::AA),
+                    B => ::std::result::Result::Ok(Index::B),
+                    _ => ::std::result::Result::Err(::pilota::EnumConvertError::InvalidNum(
+                        v, "Index",
+                    )),
                 }
             }
         }
