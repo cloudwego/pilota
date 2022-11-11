@@ -252,9 +252,13 @@ where
         self.backend.codegen_newtype_impl(def_id, stream, t);
     }
 
-    fn def_lit(&mut self, name: &str, lit: &Literal, ty: &CodegenTy) -> TokenStream {
+    fn def_lit(&mut self, name: &str, lit: &Literal, ty: &mut CodegenTy) -> TokenStream {
         let should_lazy_static = ty.should_lazy_static();
         let name = format_ident!("{}", name.to_shouty_snake_case());
+        match (lit, &mut *ty) {
+            (Literal::List(lit), CodegenTy::Array(_, size)) => *size = lit.len(),
+            _ => {}
+        }
         if should_lazy_static {
             let lit = self.lit_as_rvalue(lit, ty);
             quote::quote! {
@@ -271,11 +275,11 @@ where
     }
 
     pub fn write_const(&mut self, did: DefId, stream: &mut TokenStream, c: &middle::rir::Const) {
-        let ty = self.codegen_ty(did);
+        let mut ty = self.codegen_ty(did);
 
         let name = self.rust_name(did);
 
-        stream.extend(self.def_lit(&*name, &c.lit, &ty))
+        stream.extend(self.def_lit(&*name, &c.lit, &mut ty))
     }
 
     fn ident_into_ty(
@@ -366,7 +370,7 @@ where
             (Literal::Map(_), CodegenTy::StaticRef(map)) => match &**map {
                 CodegenTy::Map(_, _) => {
                     let lazy_map =
-                        self.def_lit("INNER_MAP", lit, &CodegenTy::LazyStaticRef(map.clone()));
+                        self.def_lit("INNER_MAP", lit, &mut CodegenTy::LazyStaticRef(map.clone()));
                     let stream = quote::quote! {
                         {
                             #lazy_map
@@ -377,7 +381,7 @@ where
                 }
                 _ => panic!("invalid map type {:?}", map),
             },
-            (Literal::List(els), CodegenTy::Array(inner)) => {
+            (Literal::List(els), CodegenTy::Array(inner, _)) => {
                 let stream = els.iter().map(|el| self.lit_into_ty(el, inner));
                 quote! { [#(#stream),*] }
             }
