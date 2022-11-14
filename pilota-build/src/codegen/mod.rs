@@ -79,7 +79,7 @@ where
             if let Some(rust_wrapper_arc) =
                 tags.as_ref().and_then(|tags| tags.get::<RustWrapperArc>())
             {
-                if rust_wrapper_arc == "true" && s.name.to_string().contains("ArgsSend") {
+                if rust_wrapper_arc == "true" {
                     ty = quote::quote! { ::std::sync::Arc<#ty> }
                 }
             }

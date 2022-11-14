@@ -32,6 +32,10 @@ impl TypeMap {
     pub fn contains<T: 'static>(&self) -> bool {
         self.0.contains_key(&TypeId::of::<T>())
     }
+
+    pub fn remove<T: 'static>(&mut self) {
+        self.0.remove(&TypeId::of::<T>());
+    }
 }
 
 crate::newtype_index!(pub struct TagId { .. });

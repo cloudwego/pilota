@@ -14,7 +14,7 @@ use crate::{
     ir,
     ir::{Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path},
     symbol::{EnumRepr, FileId, Ident},
-    tags::{Annotation, PilotaName, RustType, Tags},
+    tags::{Annotation, PilotaName, RustType, RustWrapperArc, Tags},
     ty::BytesRepr,
     util::error_abort,
 };
@@ -222,7 +222,15 @@ impl ThriftLower {
             .into();
             let kind = ir::ItemKind::Message(ir::Message {
                 name: name.clone(),
-                fields: f.arguments.iter().map(|a| self.lower_field(a)).collect(),
+                fields: f
+                    .arguments
+                    .iter()
+                    .map(|a| {
+                        let mut tags = self.extract_tags(&a.annotations);
+                        tags.remove::<RustWrapperArc>();
+                        self.lower_field_with_tags(a, tags)
+                    })
+                    .collect(),
             });
             related_items.push(name);
             result.push(self.mk_item(kind, Default::default()));
@@ -416,6 +424,10 @@ impl ThriftLower {
 
     fn lower_field(&mut self, f: &thrift_parser::Field) -> ir::Field {
         let tags = self.extract_tags(&f.annotations);
+        self.lower_field_with_tags(f, tags)
+    }
+
+    fn lower_field_with_tags(&mut self, f: &thrift_parser::Field, tags: Tags) -> ir::Field {
         ir::Field {
             name: self.lower_ident(&f.name),
             id: f.id,
