@@ -1,4 +1,4 @@
-pub mod req_arc {
+pub mod wrapper_arc {
     #![allow(
         unused_variables,
         dead_code,
@@ -7,10 +7,10 @@ pub mod req_arc {
         clippy::needless_borrow,
         unused_mut
     )]
-    pub mod req_arc {
+    pub mod wrapper_arc {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Test {
-            pub id: ::std::string::String,
+            pub id: ::std::sync::Arc<::std::string::String>,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Test {
