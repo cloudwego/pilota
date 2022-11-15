@@ -127,7 +127,7 @@ pub mod self_kw {
                         ),
                     ));
                 };
-                let data = Self { r#type };
+                let data = Self { r#type: r#type };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -162,7 +162,7 @@ pub mod self_kw {
                         ),
                     ));
                 };
-                let data = Self { r#type };
+                let data = Self { r#type: r#type };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {

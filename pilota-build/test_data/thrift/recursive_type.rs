@@ -53,7 +53,7 @@ pub mod recursive_type {
                     protocol.read_field_end()?;
                 }
                 protocol.read_struct_end()?;
-                let data = Self { a };
+                let data = Self { a: a };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -80,7 +80,7 @@ pub mod recursive_type {
                     protocol.read_field_end().await?;
                 }
                 protocol.read_struct_end().await?;
-                let data = Self { a };
+                let data = Self { a: a };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {

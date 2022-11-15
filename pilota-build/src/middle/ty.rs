@@ -152,11 +152,6 @@ impl TyKind {
     }
 }
 
-pub enum BytesRepr {
-    Vec,
-    Bytes,
-}
-
 pub trait TyTransformer {
     #[inline]
     fn string(&self) -> CodegenTy {
