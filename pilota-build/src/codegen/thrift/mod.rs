@@ -10,7 +10,7 @@ use crate::{
         rir::{self, Enum, Field, Message, Method, NewType, Service},
     },
     symbol::{DefId, EnumRepr, IdentName},
-    tags::thrift::EntryMessage,
+    tags::{thrift::EntryMessage, RustWrapperArc},
 };
 
 mod ty;
@@ -157,33 +157,49 @@ impl ThriftBackend {
     }
 
     fn codegen_decode(&self, helper: &DecodeHelper, s: &rir::Message) -> TokenStream {
-        let mut required_field_names = Vec::with_capacity(s.fields.len());
-        let mut optional_field_names = Vec::with_capacity(s.fields.len());
+        let mut required_field_variables = Vec::with_capacity(s.fields.len());
+        let mut optional_field_variables = Vec::with_capacity(s.fields.len());
+        let mut required_field_values = Vec::with_capacity(s.fields.len());
+        let mut optional_field_values = Vec::with_capacity(s.fields.len());
         s.fields.iter().for_each(|f| {
+            let field_variable = self.rust_name(f.did).as_syn_ident();
+            let mut field_value = quote! { #field_variable };
+            if let Some(rust_wrapper_arc) = self
+                .cx
+                .tags(f.tags_id)
+                .as_ref()
+                .and_then(|tags| tags.get::<RustWrapperArc>())
+            {
+                if rust_wrapper_arc == "true" {
+                    field_value = quote! { #field_value.into() };
+                }
+            }
             if f.is_optional() {
-                optional_field_names.push(self.rust_name(f.did).as_syn_ident())
+                optional_field_variables.push(field_variable);
+                optional_field_values.push(field_value);
             } else {
-                required_field_names.push(self.rust_name(f.did).as_syn_ident())
+                required_field_variables.push(field_variable);
+                required_field_values.push(field_value);
             }
         });
 
         let read_struct_begin = helper.codegen_read_struct_begin();
         let read_struct_end = helper.codegen_read_struct_end();
         let read_fields = self.codegen_decode_fields(helper, &s.fields);
-        let required_errs = required_field_names
+        let required_errs = required_field_variables
             .iter()
             .map(|i| format!("field {} is required", i));
 
         quote! {
-            #(let mut #required_field_names = None;)*
-            #(let mut #optional_field_names = None;)*
+            #(let mut #required_field_variables = None;)*
+            #(let mut #optional_field_variables = None;)*
 
             #read_struct_begin;
             #read_fields;
             #read_struct_end;
 
-            #(let #required_field_names = if let Some(#required_field_names) = #required_field_names {
-                #required_field_names
+            #(let #required_field_variables = if let Some(#required_field_variables) = #required_field_variables {
+                #required_field_variables
             } else {
                 return Err(
                     ::pilota::thrift::Error::Protocol(
@@ -196,8 +212,8 @@ impl ThriftBackend {
             };)*
 
             let data = Self {
-                #(#optional_field_names,)*
-                #(#required_field_names,)*
+                #(#optional_field_variables: #optional_field_values,)*
+                #(#required_field_variables: #required_field_values,)*
             };
             Ok(data)
         }

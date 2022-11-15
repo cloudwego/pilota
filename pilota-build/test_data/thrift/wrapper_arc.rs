@@ -62,7 +62,7 @@ pub mod wrapper_arc {
                         ),
                     ));
                 };
-                let data = Self { id };
+                let data = Self { id: id.into() };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -97,7 +97,7 @@ pub mod wrapper_arc {
                         ),
                     ));
                 };
-                let data = Self { id };
+                let data = Self { id: id.into() };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
@@ -292,7 +292,7 @@ pub mod wrapper_arc {
                         ),
                     ));
                 };
-                let data = Self { req };
+                let data = Self { req: req.into() };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -327,7 +327,7 @@ pub mod wrapper_arc {
                         ),
                     ));
                 };
-                let data = Self { req };
+                let data = Self { req: req.into() };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
@@ -401,7 +401,7 @@ pub mod wrapper_arc {
                         ),
                     ));
                 };
-                let data = Self { req };
+                let data = Self { req: req };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -436,7 +436,7 @@ pub mod wrapper_arc {
                         ),
                     ));
                 };
-                let data = Self { req };
+                let data = Self { req: req };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
