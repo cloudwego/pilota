@@ -20,12 +20,12 @@ use crate::{
 
 #[salsa::query_group(SourceDatabaseStorage)]
 trait SourceDatabase {
-    fn file_text(&self, path: PathBuf) -> Arc<String>;
+    fn file_text(&self, path: PathBuf) -> Arc<str>;
     fn parse(&self, path: PathBuf) -> Arc<thrift_parser::File>;
 }
 
-fn file_text(_db: &dyn SourceDatabase, path: PathBuf) -> Arc<String> {
-    Arc::new(unsafe { String::from_utf8_unchecked(std::fs::read(path).unwrap()) })
+fn file_text(_db: &dyn SourceDatabase, path: PathBuf) -> Arc<str> {
+    Arc::from(unsafe { String::from_utf8_unchecked(std::fs::read(path).unwrap()) })
 }
 
 fn parse(db: &dyn SourceDatabase, path: PathBuf) -> Arc<thrift_parser::File> {
