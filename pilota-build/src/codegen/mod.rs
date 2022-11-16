@@ -233,7 +233,7 @@ where
         let ty = self.codegen_item_ty(t.ty.kind.clone());
         stream.extend(quote::quote! {
             #[derive(Clone, PartialEq)]
-            pub struct #name(#ty);
+            pub struct #name(pub #ty);
 
             impl ::std::ops::Deref for #name {
                 type Target = #ty;

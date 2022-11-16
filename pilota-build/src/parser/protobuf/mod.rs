@@ -87,62 +87,55 @@ impl Lower {
                 tags: Default::default(),
             };
         }
+        let Some(ty) = type_ else {
+            panic!()
+        };
 
-        if let Some(ty) = type_ {
-            let mut tags = Tags::default();
-            let kind = match ty.enum_value().unwrap() {
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_DOUBLE => ir::TyKind::F64,
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_FLOAT => ir::TyKind::F32,
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_INT64 => ir::TyKind::I64,
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_UINT64 => {
-                    ir::TyKind::UInt64
-                }
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_INT32 => ir::TyKind::I32,
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_FIXED64 => {
-                    tags.insert(ProstType::Fixed64);
-                    ir::TyKind::UInt64
-                }
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_FIXED32 => {
-                    tags.insert(ProstType::Fixed32);
-                    ir::TyKind::UInt32
-                }
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_BOOL => ir::TyKind::Bool,
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_STRING => {
-                    ir::TyKind::String
-                }
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_GROUP => todo!(),
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_BYTES => ir::TyKind::Bytes,
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_UINT32 => {
-                    ir::TyKind::UInt32
-                }
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_SFIXED32 => {
-                    tags.insert(ProstType::SFixed32);
-                    ir::TyKind::I32
-                }
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_SFIXED64 => {
-                    tags.insert(ProstType::SFixed64);
-                    ir::TyKind::I64
-                }
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_SINT32 => {
-                    tags.insert(ProstType::SInt32);
-                    ir::TyKind::I32
-                }
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_SINT64 => {
-                    tags.insert(ProstType::SInt64);
-                    ir::TyKind::I64
-                }
+        let mut tags = Tags::default();
+        let kind = match ty.enum_value().unwrap() {
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_DOUBLE => ir::TyKind::F64,
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_FLOAT => ir::TyKind::F32,
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_INT64 => ir::TyKind::I64,
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_UINT64 => ir::TyKind::UInt64,
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_INT32 => ir::TyKind::I32,
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_FIXED64 => {
+                tags.insert(ProstType::Fixed64);
+                ir::TyKind::UInt64
+            }
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_FIXED32 => {
+                tags.insert(ProstType::Fixed32);
+                ir::TyKind::UInt32
+            }
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_BOOL => ir::TyKind::Bool,
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_STRING => ir::TyKind::String,
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_GROUP => todo!(),
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_BYTES => ir::TyKind::Bytes,
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_UINT32 => ir::TyKind::UInt32,
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_SFIXED32 => {
+                tags.insert(ProstType::SFixed32);
+                ir::TyKind::I32
+            }
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_SFIXED64 => {
+                tags.insert(ProstType::SFixed64);
+                ir::TyKind::I64
+            }
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_SINT32 => {
+                tags.insert(ProstType::SInt32);
+                ir::TyKind::I32
+            }
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_SINT64 => {
+                tags.insert(ProstType::SInt64);
+                ir::TyKind::I64
+            }
 
-                protobuf::descriptor::field_descriptor_proto::Type::TYPE_MESSAGE
-                | protobuf::descriptor::field_descriptor_proto::Type::TYPE_ENUM => unreachable!(),
-            };
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_MESSAGE
+            | protobuf::descriptor::field_descriptor_proto::Type::TYPE_ENUM => unreachable!(),
+        };
 
-            return ir::Ty {
-                kind,
-                tags: Arc::new(tags),
-            };
+        ir::Ty {
+            kind,
+            tags: Arc::new(tags),
         }
-
-        panic!()
     }
 
     fn lower_enum(&self, e: &EnumDescriptorProto) -> ir::Item {
