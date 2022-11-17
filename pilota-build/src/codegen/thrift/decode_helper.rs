@@ -38,6 +38,7 @@ impl DecodeHelper {
     protocol_method!(read_i64);
     protocol_method!(read_double);
     protocol_method!(read_bytes);
+    protocol_method!(read_bytes_vec);
     protocol_method!(read_byte);
     protocol_method!(read_string);
     protocol_method!(read_list_begin);

@@ -22,8 +22,8 @@ pub mod binary_vec {
                 protocol.write_struct_begin(&struct_ident)?;
                 {
                     let value = &self.bytes;
-                    protocol.write_field_begin(::pilota::thrift::TType::String, 1i16)?;
-                    protocol.write_bytes(&value)?;
+                    protocol.write_field_begin(::pilota::thrift::TType::Binary, 1i16)?;
+                    protocol.write_bytes(value.clone())?;
                     protocol.write_field_end()?;
                 }
                 protocol.write_field_stop()?;
@@ -42,8 +42,8 @@ pub mod binary_vec {
                     }
                     let field_id = field_ident.id;
                     match field_id {
-                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::String => {
-                            bytes = Some(::bytes::Bytes::from(protocol.read_bytes()?));
+                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
+                            bytes = Some(protocol.read_bytes()?);
                         }
                         _ => {
                             protocol.skip(field_ident.field_type)?;
@@ -77,8 +77,8 @@ pub mod binary_vec {
                     }
                     let field_id = field_ident.id;
                     match field_id {
-                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::String => {
-                            bytes = Some(::bytes::Bytes::from(protocol.read_bytes().await?));
+                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
+                            bytes = Some(protocol.read_bytes().await?);
                         }
                         _ => {
                             protocol.skip(field_ident.field_type).await?;
@@ -106,7 +106,7 @@ pub mod binary_vec {
                         let value = &self.bytes;
                         protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
                             name: Some("bytes"),
-                            field_type: ::pilota::thrift::TType::String,
+                            field_type: ::pilota::thrift::TType::Binary,
                             id: Some(1i16),
                         }) + protocol.write_bytes_len(value)
                             + protocol.write_field_end_len()
