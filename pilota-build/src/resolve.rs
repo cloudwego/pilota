@@ -304,6 +304,8 @@ impl Resolver {
             self.ir_files.insert(f.id, f.clone());
         });
 
+        self.errors.abort_if_errors();
+
         let files = files
             .iter()
             .map(|f| (f.id, Arc::from(self.lower_file(f))))
