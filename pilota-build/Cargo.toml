@@ -17,7 +17,7 @@ keywords = ["serialization", "thrift", "protobuf", "volo"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.3" }
+pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.4" }
 
 heck = "0.4"
 smol_str = "0.1"
