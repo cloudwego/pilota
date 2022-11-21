@@ -10,11 +10,11 @@ use crate::{
 impl ThriftBackend {
     pub(crate) fn ttype(&self, ty: &Ty) -> TokenStream {
         match &ty.kind {
-            ty::String => quote! {::pilota::thrift::TType::String},
+            ty::String => quote! {::pilota::thrift::TType::Binary},
             ty::Void => quote! {::pilota::thrift::TType::Void},
             ty::U8 => quote! {::pilota::thrift::TType::I08},
             ty::Bool => quote! {::pilota::thrift::TType::Bool},
-            ty::BytesVec | ty::Bytes => quote! {::pilota::thrift::TType::String},
+            ty::BytesVec | ty::Bytes => quote! {::pilota::thrift::TType::Binary},
             ty::I8 => quote! {::pilota::thrift::TType::I08},
             ty::I16 => quote! { ::pilota::thrift::TType::I16 },
             ty::I32 => quote! { ::pilota::thrift::TType::I32 },
@@ -49,7 +49,8 @@ impl ThriftBackend {
             },
             ty::U8 => quote! { protocol.write_byte(*#ident)?; },
             ty::Bool => quote! { protocol.write_bool(*#ident)?; },
-            ty::BytesVec | ty::Bytes => quote! { protocol.write_bytes(&#ident)?;},
+            ty::BytesVec => quote! { protocol.write_bytes_vec(&#ident)?;},
+            ty::Bytes => quote! { protocol.write_bytes(#ident.clone())?;},
             ty::I8 => quote! { protocol.write_i8(*#ident)?; },
             ty::I16 => quote! { protocol.write_i16(*#ident)?; },
             ty::I32 => quote! { protocol.write_i32(*#ident)?; },
@@ -123,7 +124,8 @@ impl ThriftBackend {
                 quote! { protocol.write_byte_len(*#ident) }
             }
             ty::Bool => quote! { protocol.write_bool_len(*#ident) },
-            ty::BytesVec | ty::Bytes => quote! { protocol.write_bytes_len(#ident)},
+            ty::BytesVec => quote! { protocol.write_bytes_vec_len(#ident)},
+            ty::Bytes => quote! { protocol.write_bytes_len(#ident)},
             ty::I8 => quote! { protocol.write_i8_len(*#ident) },
             ty::I16 => quote! { protocol.write_i16_len(*#ident) },
             ty::I32 => quote! { protocol.write_i32_len(*#ident) },
@@ -213,13 +215,8 @@ impl ThriftBackend {
             }
             ty::U8 => helper.codegen_read_byte(),
             ty::Bool => helper.codegen_read_bool(),
-            ty::BytesVec => helper.codegen_read_bytes(),
-            ty::Bytes => {
-                let read_bytes = helper.codegen_read_bytes();
-                quote!(
-                    ::bytes::Bytes::from(#read_bytes)
-                )
-            }
+            ty::BytesVec => helper.codegen_read_bytes_vec(),
+            ty::Bytes => helper.codegen_read_bytes(),
             ty::I8 => helper.codegen_read_i8(),
             ty::I16 => helper.codegen_read_i16(),
             ty::I32 => helper.codegen_read_i32(),

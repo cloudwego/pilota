@@ -22,7 +22,7 @@ pub mod wrapper_arc {
                 protocol.write_struct_begin(&struct_ident)?;
                 {
                     let value = &self.id;
-                    protocol.write_field_begin(::pilota::thrift::TType::String, 1i16)?;
+                    protocol.write_field_begin(::pilota::thrift::TType::Binary, 1i16)?;
                     protocol.write_string(value)?;
                     protocol.write_field_end()?;
                 }
@@ -42,7 +42,7 @@ pub mod wrapper_arc {
                     }
                     let field_id = field_ident.id;
                     match field_id {
-                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::String => {
+                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
                             id = Some(protocol.read_string()?);
                         }
                         _ => {
@@ -77,7 +77,7 @@ pub mod wrapper_arc {
                     }
                     let field_id = field_ident.id;
                     match field_id {
-                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::String => {
+                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
                             id = Some(protocol.read_string().await?);
                         }
                         _ => {
@@ -107,7 +107,7 @@ pub mod wrapper_arc {
                         let value = &self.id;
                         protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
                             name: Some("ID"),
-                            field_type: ::pilota::thrift::TType::String,
+                            field_type: ::pilota::thrift::TType::Binary,
                             id: Some(1i16),
                         }) + protocol.write_string_len(&value)
                             + protocol.write_field_end_len()
@@ -134,7 +134,7 @@ pub mod wrapper_arc {
                 })?;
                 match self {
                     TestServiceTestResult::Ok(ref value) => {
-                        protocol.write_field_begin(::pilota::thrift::TType::String, 0i16)?;
+                        protocol.write_field_begin(::pilota::thrift::TType::Binary, 0i16)?;
                         protocol.write_string(value)?;
                         protocol.write_field_end()?;
                     }
@@ -227,7 +227,7 @@ pub mod wrapper_arc {
                     TestServiceTestResult::Ok(ref value) => {
                         protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
                             name: Some("Ok"),
-                            field_type: ::pilota::thrift::TType::String,
+                            field_type: ::pilota::thrift::TType::Binary,
                             id: Some(0i16),
                         }) + protocol.write_string_len(&value)
                             + protocol.write_field_end_len()

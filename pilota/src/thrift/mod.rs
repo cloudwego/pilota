@@ -4,13 +4,14 @@ pub mod rw_ext;
 
 use std::{ops::Deref, sync::Arc};
 
-use bytes::{Buf, BufMut};
+use bytes::{Buf, BufMut, Bytes};
 pub use error::*;
 use tokio::io::AsyncRead;
 
 pub use self::binary::TAsyncBinaryProtocol;
 
 const MAXIMUM_SKIP_DEPTH: i8 = 64;
+const ZERO_COPY_THRESHOLD: usize = 4 * 1024; // 4KB
 
 lazy_static::lazy_static! {
     pub static ref VOID_IDENT: TStructIdentifier = TStructIdentifier { name: "void" };
@@ -89,8 +90,10 @@ pub trait TInputProtocol {
     fn read_field_end(&mut self) -> Result<(), Error>;
     /// Read a bool.
     fn read_bool(&mut self) -> Result<bool, Error>;
-    /// Read a fixed-length byte array.
-    fn read_bytes(&mut self) -> Result<Vec<u8>, Error>;
+    /// Read a binary.
+    fn read_bytes(&mut self) -> Result<Bytes, Error>;
+    /// Read a uuid.
+    fn read_uuid(&mut self) -> Result<[u8; 16], Error>;
     /// Read a word.
     fn read_i8(&mut self) -> Result<i8, Error>;
     /// Read a 16-bit signed integer.
@@ -102,7 +105,6 @@ pub trait TInputProtocol {
     /// Read a 64-bit float.
     fn read_double(&mut self) -> Result<f64, Error>;
     /// Read a fixed-length string (not null terminated).
-
     fn read_string(&mut self) -> Result<String, Error>;
     /// Read the beginning of a list.
     fn read_list_begin(&mut self) -> Result<TListIdentifier, Error>;
@@ -132,12 +134,13 @@ pub trait TInputProtocol {
 
         match field_type {
             TType::Bool => self.read_bool().map(|_| ()),
-            TType::I08 => self.read_i8().map(|_| ()),
+            TType::I8 => self.read_i8().map(|_| ()),
             TType::I16 => self.read_i16().map(|_| ()),
             TType::I32 => self.read_i32().map(|_| ()),
             TType::I64 => self.read_i64().map(|_| ()),
             TType::Double => self.read_double().map(|_| ()),
-            TType::String => self.read_string().map(|_| ()),
+            TType::Binary => self.read_bytes().map(|_| ()),
+            TType::Uuid => self.read_uuid().map(|_| ()),
             TType::Struct => {
                 self.read_struct_begin()?;
                 loop {
@@ -188,6 +191,9 @@ pub trait TInputProtocol {
     /// This method should **never** be used in generated code.
     fn read_byte(&mut self) -> Result<u8, Error>;
 
+    /// Read a Vec<u8>.
+    fn read_bytes_vec(&mut self) -> Result<Vec<u8>, Error>;
+
     fn buf_mut(&mut self) -> &mut Self::Buf;
 }
 
@@ -212,7 +218,11 @@ pub trait TLengthProtocol {
 
     fn write_bytes_len(&self, b: &[u8]) -> usize;
 
+    fn write_bytes_vec_len(&self, b: &[u8]) -> usize;
+
     fn write_byte_len(&self, b: u8) -> usize;
+
+    fn write_uuid_len(&self, u: [u8; 16]) -> usize;
 
     fn write_i8_len(&self, i: i8) -> usize;
 
@@ -239,8 +249,8 @@ pub trait TLengthProtocol {
     fn write_map_end_len(&self) -> usize;
 }
 
-pub trait TOutputProtocol: TLengthProtocol {
-    type Buf: BufMut;
+pub trait TOutputProtocol {
+    type BufMut: BufMut;
 
     /// Write the beginning of a Thrift message.
     fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), Error>;
@@ -260,8 +270,12 @@ pub trait TOutputProtocol: TLengthProtocol {
     /// Write a bool.
     fn write_bool(&mut self, b: bool) -> Result<(), Error>;
     /// Write a fixed-length byte array.
-    fn write_bytes(&mut self, b: &[u8]) -> Result<(), Error>;
-
+    fn write_bytes(&mut self, b: Bytes) -> Result<(), Error>;
+    /// Write a uuid.
+    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), Error>;
+    /// Write a Vec<u8>.
+    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), Error>;
+    /// Write a byte.
     fn write_byte(&mut self, b: u8) -> Result<(), Error>;
     /// Write an 8-bit signed integer.
     fn write_i8(&mut self, i: i8) -> Result<(), Error>;
@@ -292,7 +306,7 @@ pub trait TOutputProtocol: TLengthProtocol {
 
     fn reserve(&mut self, size: usize);
 
-    fn buf_mut(&mut self) -> &mut Self::Buf;
+    fn buf_mut(&mut self) -> &mut Self::BufMut;
 }
 
 // Thrift struct identifier.
@@ -315,18 +329,17 @@ pub enum TType {
     Stop = 0,
     Void = 1,
     Bool = 2,
-    I08 = 3,
+    I8 = 3,
     Double = 4,
     I16 = 6,
     I32 = 8,
     I64 = 10,
-    String = 11,
+    Binary = 11,
     Struct = 12,
     Map = 13,
     Set = 14,
     List = 15,
-    Utf8 = 16,
-    Utf16 = 17,
+    Uuid = 16,
 }
 
 impl From<TType> for u8 {
@@ -345,18 +358,17 @@ impl TryFrom<u8> for TType {
             0 => Ok(TType::Stop),
             1 => Ok(TType::Void),
             2 => Ok(TType::Bool),
-            3 => Ok(TType::I08),
+            3 => Ok(TType::I8),
             4 => Ok(TType::Double),
             6 => Ok(TType::I16),
             8 => Ok(TType::I32),
             10 => Ok(TType::I64),
-            11 => Ok(TType::String),
+            11 => Ok(TType::Binary),
             12 => Ok(TType::Struct),
             13 => Ok(TType::Map),
             14 => Ok(TType::Set),
             15 => Ok(TType::List),
-            16 => Ok(TType::Utf8),
-            17 => Ok(TType::Utf16),
+            16 => Ok(TType::Uuid),
             _ => Err(new_protocol_error(
                 ProtocolErrorKind::InvalidData,
                 format!("invalid ttype {}", value),

@@ -255,9 +255,8 @@ where
     fn def_lit(&mut self, name: &str, lit: &Literal, ty: &mut CodegenTy) -> TokenStream {
         let should_lazy_static = ty.should_lazy_static();
         let name = format_ident!("{}", name.to_shouty_snake_case());
-        match (lit, &mut *ty) {
-            (Literal::List(lit), CodegenTy::Array(_, size)) => *size = lit.len(),
-            _ => {}
+        if let (Literal::List(lit), CodegenTy::Array(_, size)) = (lit, &mut *ty) {
+            *size = lit.len()
         }
         if should_lazy_static {
             let lit = self.lit_as_rvalue(lit, ty);
@@ -279,7 +278,7 @@ where
 
         let name = self.rust_name(did);
 
-        stream.extend(self.def_lit(&*name, &c.lit, &mut ty))
+        stream.extend(self.def_lit(&name, &c.lit, &mut ty))
     }
 
     fn ident_into_ty(
@@ -349,7 +348,7 @@ where
                 quote! { #i }
             }
             (Literal::Int(i), CodegenTy::I64) => {
-                let i = *i as i64;
+                let i = *i;
                 quote! { #i }
             }
             (Literal::Float(f), CodegenTy::F64) => {
