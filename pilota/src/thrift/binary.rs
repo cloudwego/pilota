@@ -877,9 +877,7 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     #[inline]
     fn read_bytes(&mut self) -> Result<Bytes, Error> {
         let len = self.trans.read_i32()?;
-        // first, drop the previous bytes
-        self.trans.advance(self.trans.len());
-        // then, split and freeze it
+        // split and freeze it
         Ok(self.trans.split_to(len as usize).freeze())
     }
 
