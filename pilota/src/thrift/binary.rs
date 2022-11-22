@@ -85,7 +85,8 @@ impl<T> TLengthProtocol for TBinaryProtocol<T> {
 
     #[inline]
     fn write_bytes_len(&self, b: &[u8]) -> usize {
-        // FIXME: this will calc the wrong size if T is not LinkedBytes and zero copy is enabled
+        // FIXME: this will calc the wrong size if T is not LinkedBytes and zero copy is
+        // enabled
         if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
             self.write_i32_len(0)
         } else {
