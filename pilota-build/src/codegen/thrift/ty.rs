@@ -12,10 +12,10 @@ impl ThriftBackend {
         match &ty.kind {
             ty::String => quote! {::pilota::thrift::TType::Binary},
             ty::Void => quote! {::pilota::thrift::TType::Void},
-            ty::U8 => quote! {::pilota::thrift::TType::I08},
+            ty::U8 => quote! {::pilota::thrift::TType::I8},
             ty::Bool => quote! {::pilota::thrift::TType::Bool},
             ty::BytesVec | ty::Bytes => quote! {::pilota::thrift::TType::Binary},
-            ty::I8 => quote! {::pilota::thrift::TType::I08},
+            ty::I8 => quote! {::pilota::thrift::TType::I8},
             ty::I16 => quote! { ::pilota::thrift::TType::I16 },
             ty::I32 => quote! { ::pilota::thrift::TType::I32 },
             ty::I64 => quote! { ::pilota::thrift::TType::I64 },
