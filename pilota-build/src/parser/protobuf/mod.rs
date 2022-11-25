@@ -204,30 +204,46 @@ impl Lower {
 
         let mut nested_items: Vec<_> = Default::default();
 
+        let mut extra_fields = Vec::default();
+
         message.oneof_decl.iter().enumerate().for_each(|(idx, d)| {
-            let fields = oneof_fields.remove(&(idx as i32)).unwrap();
-            nested_items.push(Arc::new(ir::Item {
-                related_items: Default::default(),
-                tags: Arc::new(crate::tags!(OneOf)),
-                kind: ir::ItemKind::Enum(ir::Enum {
+            if let Some(fields) = oneof_fields.remove(&(idx as i32)) {
+                nested_items.push(Arc::new(ir::Item {
+                    related_items: Default::default(),
+                    tags: Arc::new(crate::tags!(OneOf)),
+                    kind: ir::ItemKind::Enum(ir::Enum {
+                        name: d.name().into(),
+                        repr: None,
+                        variants: fields
+                            .iter()
+                            .map(|f| ir::EnumVariant {
+                                discr: None,
+                                id: f.number,
+                                name: f.name().into(),
+                                fields: vec![self.lower_ty(
+                                    f.type_,
+                                    f.type_name.as_deref(),
+                                    &nested_messages,
+                                )],
+                                tags: Default::default(),
+                            })
+                            .collect_vec(),
+                    }),
+                }));
+
+                extra_fields.push(ir::Field {
                     name: d.name().into(),
-                    repr: None,
-                    variants: fields
-                        .iter()
-                        .map(|f| ir::EnumVariant {
-                            discr: None,
-                            id: f.number,
-                            name: f.name().into(),
-                            fields: vec![self.lower_ty(
-                                f.type_,
-                                f.type_name.as_deref(),
-                                &nested_messages,
-                            )],
-                            tags: Default::default(),
-                        })
-                        .collect_vec(),
-                }),
-            }));
+                    id: -1,
+                    ty: ir::Ty {
+                        kind: ir::TyKind::Path(Path {
+                            segments: Arc::from([d.name().into()]),
+                        }),
+                        tags: Default::default(),
+                    },
+                    tags: Arc::new(crate::tags!(OneOf)),
+                    kind: ir::FieldKind::Optional,
+                });
+            }
         });
 
         parent_messages.push(message.name().into());
@@ -286,18 +302,7 @@ impl Lower {
                             },
                         }
                     })
-                    .chain(message.oneof_decl.iter().map(|d| ir::Field {
-                        name: d.name().into(),
-                        id: -1,
-                        ty: ir::Ty {
-                            kind: ir::TyKind::Path(Path {
-                                segments: Arc::from([d.name().into()]),
-                            }),
-                            tags: Default::default(),
-                        },
-                        tags: Arc::new(crate::tags!(OneOf)),
-                        kind: ir::FieldKind::Optional,
-                    }))
+                    .chain(extra_fields)
                     .collect(),
                 name: message.name().into(),
             }),
