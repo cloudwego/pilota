@@ -1193,7 +1193,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
 mod tests {
     use std::io::Read;
 
-    use bytes::{Buf, BufMut, BytesMut};
+    use bytes::{Buf, BufMut, BytesMut, Bytes};
     type TCompactInputProt<'a> = TCompactInputProtocol<&'a mut BytesMut>;
     type TCompactOutputProt<'a> = TCompactOutputProtocol<&'a mut BytesMut>;
 
@@ -1268,9 +1268,9 @@ mod tests {
         o_prot.write_double(13.37f64).unwrap();
         mteq!(o_prot, o_prot.write_double_len(13.37f64));
 
-        let identifier = &0xf00baau64.to_le_bytes();
-        o_prot.write_bytes(identifier).unwrap();
-        mteq!(o_prot, o_prot.write_bytes_len(identifier));
+        let identifier = 0xf00baau64.to_le_bytes().to_vec();
+        o_prot.write_bytes(Bytes::from(identifier.clone())).unwrap();
+        mteq!(o_prot, o_prot.write_bytes_len(&identifier[..]));
 
         let identifier = "foobar";
         o_prot.write_string(identifier).unwrap();
@@ -1298,7 +1298,7 @@ mod tests {
         o_prot.write_set_end().unwrap();
         mteq!(o_prot, o_prot.write_set_end_len());
 
-        let mut identifier = TMapIdentifier::new(TType::String, TType::I64, 0);
+        let mut identifier = TMapIdentifier::new(TType::Binary, TType::I64, 0);
         o_prot.write_map_begin(&mut identifier).unwrap();
         mteq!(o_prot, o_prot.write_map_begin_len(&mut identifier));
         o_prot.write_map_end().unwrap();
@@ -1814,7 +1814,7 @@ mod tests {
         // since they're small the field ids will be encoded as deltas
 
         // since this is the first field (and it's zero) it gets the full varint write
-        assert_success!(o_prot.write_field_begin(TType::I08, 0));
+        assert_success!(o_prot.write_field_begin(TType::I8, 0));
         assert_success!(o_prot.write_field_end());
 
         // since this delta > 0 and < 15 it can be encoded as a delta
@@ -1855,7 +1855,7 @@ mod tests {
         // since they're small the field ids will be encoded as deltas
 
         // since this is the first field (and it's zero) it gets the full varint write
-        let field_ident_1 = TFieldIdentifier::new("foo", TType::I08, 0);
+        let field_ident_1 = TFieldIdentifier::new("foo", TType::I8, 0);
         assert_success!(
             o_prot.write_field_begin(field_ident_1.field_type, field_ident_1.id.unwrap())
         );
@@ -1947,7 +1947,7 @@ mod tests {
         assert_success!(o_prot.write_field_end());
 
         // since this delta > 0 and < 15 it can be encoded as a delta
-        assert_success!(o_prot.write_field_begin(TType::String, 6));
+        assert_success!(o_prot.write_field_begin(TType::Binary, 6));
         assert_success!(o_prot.write_field_end());
 
         // now, finish the struct off
@@ -1991,7 +1991,7 @@ mod tests {
         assert_success!(o_prot.write_field_end());
 
         // since this delta > 0 and < 15 it can be encoded as a delta
-        let field_ident_3 = TFieldIdentifier::new("foo", TType::String, 6);
+        let field_ident_3 = TFieldIdentifier::new("foo", TType::Binary, 6);
         assert_success!(
             o_prot.write_field_begin(field_ident_3.field_type, field_ident_3.id.unwrap())
         );
@@ -2369,7 +2369,7 @@ mod tests {
 
         // contained struct
         // since the delta is > 0 and < 15 it gets a delta write
-        assert_success!(o_prot.write_field_begin(TType::I08, 7));
+        assert_success!(o_prot.write_field_begin(TType::I8, 7));
         assert_success!(o_prot.write_field_end());
 
         // contained struct
@@ -2432,7 +2432,7 @@ mod tests {
 
         // contained struct
         // since the delta is > 0 and < 15 it gets a delta write
-        let field_ident_3 = TFieldIdentifier::new("foo", TType::I08, 7);
+        let field_ident_3 = TFieldIdentifier::new("foo", TType::I8, 7);
         assert_success!(
             o_prot.write_field_begin(field_ident_3.field_type, field_ident_3.id.unwrap())
         );
@@ -2558,7 +2558,7 @@ mod tests {
 
         // contained struct
         // since the delta is > 0 and < 15 it gets a delta write
-        assert_success!(o_prot.write_field_begin(TType::I08, 27));
+        assert_success!(o_prot.write_field_begin(TType::I8, 27));
         assert_success!(o_prot.write_field_end());
 
         // end contained struct
@@ -2624,7 +2624,7 @@ mod tests {
 
         // contained struct
         // since the delta is > 0 and < 15 it gets a delta write
-        let field_ident_4 = TFieldIdentifier::new("foo", TType::I08, 27);
+        let field_ident_4 = TFieldIdentifier::new("foo", TType::I8, 27);
         assert_success!(
             o_prot.write_field_begin(field_ident_4.field_type, field_ident_4.id.unwrap())
         );
@@ -2729,7 +2729,7 @@ mod tests {
 
         // containing struct
         // since this delta > 15 it gets a full write
-        assert_success!(o_prot.write_field_begin(TType::String, 21));
+        assert_success!(o_prot.write_field_begin(TType::Binary, 21));
         assert_success!(o_prot.write_field_end());
 
         // start contained struct
@@ -2742,7 +2742,7 @@ mod tests {
 
         // contained struct
         // since the delta is > 0 and < 15 it gets a delta write
-        assert_success!(o_prot.write_field_begin(TType::I08, 10));
+        assert_success!(o_prot.write_field_begin(TType::I8, 10));
         assert_success!(o_prot.write_field_end());
 
         // end contained struct
@@ -2786,7 +2786,7 @@ mod tests {
 
         // containing struct
         // since this delta > 15 it gets a full write
-        let field_ident_2 = TFieldIdentifier::new("foo", TType::String, 21);
+        let field_ident_2 = TFieldIdentifier::new("foo", TType::Binary, 21);
         assert_success!(
             o_prot.write_field_begin(field_ident_2.field_type, field_ident_2.id.unwrap())
         );
@@ -2805,7 +2805,7 @@ mod tests {
 
         // contained struct
         // since the delta is > 0 and < 15 it gets a delta write
-        let field_ident_4 = TFieldIdentifier::new("foo", TType::I08, 10);
+        let field_ident_4 = TFieldIdentifier::new("foo", TType::I8, 10);
         assert_success!(
             o_prot.write_field_begin(field_ident_4.field_type, field_ident_4.id.unwrap())
         );
@@ -2910,7 +2910,7 @@ mod tests {
 
         // containing struct
         // since this delta > 15 it gets a full write
-        assert_success!(o_prot.write_field_begin(TType::String, 21));
+        assert_success!(o_prot.write_field_begin(TType::Binary, 21));
         assert_success!(o_prot.write_field_end());
 
         // start contained struct
@@ -2923,7 +2923,7 @@ mod tests {
 
         // contained struct
         // since the delta is > 0 and < 15 it gets a delta write
-        assert_success!(o_prot.write_field_begin(TType::I08, 27));
+        assert_success!(o_prot.write_field_begin(TType::I8, 27));
         assert_success!(o_prot.write_field_end());
 
         // end contained struct
@@ -2971,7 +2971,7 @@ mod tests {
 
         // containing struct
         // since this delta > 15 it gets a full write
-        let field_ident_2 = TFieldIdentifier::new("foo", TType::String, 21);
+        let field_ident_2 = TFieldIdentifier::new("foo", TType::Binary, 21);
         assert_success!(
             o_prot.write_field_begin(field_ident_2.field_type, field_ident_2.id.unwrap())
         );
@@ -2990,7 +2990,7 @@ mod tests {
 
         // contained struct
         // since the delta is > 0 and < 15 it gets a delta write
-        let field_ident_4 = TFieldIdentifier::new("foo", TType::I08, 27);
+        let field_ident_4 = TFieldIdentifier::new("foo", TType::I8, 27);
         assert_success!(
             o_prot.write_field_begin(field_ident_4.field_type, field_ident_4.id.unwrap())
         );
