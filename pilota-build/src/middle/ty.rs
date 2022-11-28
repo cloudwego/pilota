@@ -137,7 +137,7 @@ impl ToTokens for CodegenTy {
                 tokens.extend(quote!( ::std::sync::Arc<#ty> ))
             }
             CodegenTy::LazyStaticRef(ty) => ty.to_tokens(tokens),
-            CodegenTy::Bytes => tokens.extend(quote! { ::bytes::Bytes }),
+            CodegenTy::Bytes => tokens.extend(quote! { ::pilota::Bytes }),
         }
     }
 }
@@ -150,6 +150,11 @@ impl TyKind {
     pub(crate) fn to_codegen_const_ty(&self) -> CodegenTy {
         ConstTyTransformer.codegen_item_ty(self)
     }
+}
+
+pub enum StringRepr {
+    String,
+    Bytes,
 }
 
 pub trait TyTransformer {

@@ -1,12 +1,5 @@
 pub mod must_gen_items {
-    #![allow(
-        unused_variables,
-        dead_code,
-        missing_docs,
-        clippy::unused_unit,
-        clippy::needless_borrow,
-        unused_mut
-    )]
+    #![allow(warnings, clippy::all)]
     pub mod must_gen_items {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {

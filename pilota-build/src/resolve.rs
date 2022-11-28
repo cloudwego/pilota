@@ -17,6 +17,7 @@ use crate::{
     rir::Mod,
     symbol::{DefId, FileId, Ident, Symbol},
     tags::{TagId, Tags},
+    ty::StringRepr,
 };
 
 struct ModuleData {
@@ -356,6 +357,15 @@ impl Resolver {
 
     fn lower_type(&mut self, ty: &ir::Ty) -> Ty {
         let kind = match &ty.kind {
+            ir::TyKind::String
+                if ty
+                    .tags
+                    .get::<StringRepr>()
+                    .map(|repr| matches!(repr, StringRepr::Bytes))
+                    .unwrap_or(false) =>
+            {
+                ty::Bytes
+            }
             ir::TyKind::String => ty::String,
             ir::TyKind::Void => ty::Void,
             ir::TyKind::U8 => ty::U8,

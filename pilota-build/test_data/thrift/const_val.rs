@@ -1,12 +1,5 @@
 pub mod const_val {
-    #![allow(
-        unused_variables,
-        dead_code,
-        missing_docs,
-        clippy::unused_unit,
-        clippy::needless_borrow,
-        unused_mut
-    )]
+    #![allow(warnings, clippy::all)]
     pub mod const_val {
         impl ::std::convert::From<Index> for i32 {
             fn from(e: Index) -> Self {
