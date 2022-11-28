@@ -435,7 +435,7 @@ where
 
         quote! {
             pub mod #ns_name {
-                #![allow(unused_variables, dead_code, missing_docs, clippy::unused_unit, clippy::needless_borrow, unused_mut)]
+                #![allow(warnings, clippy::all)]
                 #stream
             }
         }

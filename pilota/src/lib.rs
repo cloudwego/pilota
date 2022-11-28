@@ -8,6 +8,7 @@ pub mod thrift;
 // reexport
 pub use async_recursion;
 pub use async_trait;
+pub use bytes::Bytes;
 pub use derivative;
 pub use lazy_static;
 pub use thiserror::Error as ThisError;

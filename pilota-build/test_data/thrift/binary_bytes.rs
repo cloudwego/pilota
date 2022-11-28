@@ -1,16 +1,9 @@
 pub mod binary_bytes {
-    #![allow(
-        unused_variables,
-        dead_code,
-        missing_docs,
-        clippy::unused_unit,
-        clippy::needless_borrow,
-        unused_mut
-    )]
+    #![allow(warnings, clippy::all)]
     pub mod binary_bytes {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
-            pub bytes: ::bytes::Bytes,
+            pub bytes: ::pilota::Bytes,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
