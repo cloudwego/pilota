@@ -203,33 +203,33 @@ pub trait IdentName {
     fn as_syn_ident(&self) -> syn::Ident;
 }
 
-fn str2ident(s: &str) -> smol_str::SmolStr {
+fn str2ident(s: &str) -> syn::Ident {
     if s == "Self" {
-        return smol_str::SmolStr::new_inline("Self_");
+        return format_ident!("Self_");
     }
     if KEYWORDS_SET.contains(s) {
-        smol_str::SmolStr::new(format!("r#{}", s))
+        format_ident!("r#{}", s)
     } else {
-        smol_str::SmolStr::new(s)
+        format_ident!("{}", s)
     }
 }
 
 impl IdentName for &str {
     fn upper_camel_ident(&self) -> smol_str::SmolStr {
         let s = self.to_upper_camel_case();
-        str2ident(&s)
+        s.into()
     }
 
     fn snake_ident(&self) -> smol_str::SmolStr {
-        str2ident(&self.to_snake_case())
+        self.to_snake_case().into()
     }
 
     fn shouty_snake_case(&self) -> smol_str::SmolStr {
-        str2ident(&self.to_shouty_snake_case())
+        self.to_shouty_snake_case().into()
     }
 
     fn as_syn_ident(&self) -> syn::Ident {
-        format_ident!("{}", self)
+        str2ident(self)
     }
 }
 
@@ -247,6 +247,6 @@ impl IdentName for smol_str::SmolStr {
     }
 
     fn as_syn_ident(&self) -> syn::Ident {
-        format_ident!("{}", &**self)
+        str2ident(self)
     }
 }
