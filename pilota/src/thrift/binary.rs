@@ -1,7 +1,9 @@
-use std::convert::TryInto;
+use std::{convert::TryInto, str};
 
 use bytes::{Bytes, BytesMut};
+use lazy_static::__Deref;
 use linkedbytes::LinkedBytes;
+use smol_str::SmolStr;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
@@ -135,6 +137,17 @@ impl<T> TLengthProtocol for TBinaryProtocol<T> {
     }
 
     #[inline]
+    fn write_smolstr_len(&self, s: &SmolStr) -> usize {
+        // FIXME: this will calc the wrong size if T is not LinkedBytes and zero copy is
+        // enabled
+        if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
+            self.write_i32_len(0)
+        } else {
+            self.write_i32_len(0) + s.len()
+        }
+    }
+
+    #[inline]
     fn write_list_begin_len(&self, _identifier: &TListIdentifier) -> usize {
         self.write_byte_len(0) + self.write_i32_len(0)
     }
@@ -166,7 +179,7 @@ impl<T> TLengthProtocol for TBinaryProtocol<T> {
 
     #[inline]
     fn write_bytes_vec_len(&self, b: &[u8]) -> usize {
-        self.write_bytes_len(b)
+        self.write_i32_len(0) + b.len()
     }
 }
 
@@ -279,6 +292,13 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
 
     #[inline]
     fn write_string(&mut self, s: &str) -> Result<(), Error> {
+        self.write_i32(s.len() as i32)?;
+        self.trans.write_slice(s.as_bytes())?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_smolstr(&mut self, s: SmolStr) -> Result<(), Error> {
         self.write_i32(s.len() as i32)?;
         self.trans.write_slice(s.as_bytes())?;
         Ok(())
@@ -462,6 +482,17 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
+    fn write_smolstr(&mut self, s: SmolStr) -> Result<(), Error> {
+        self.write_i32(s.len() as i32)?;
+        if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
+            self.trans.insert_smolstr(s);
+            return Ok(());
+        }
+        self.trans.bytes_mut().write_slice(s.as_bytes())?;
+        Ok(())
+    }
+
+    #[inline]
     fn write_list_begin(&mut self, identifier: &TListIdentifier) -> Result<(), Error> {
         self.write_byte(identifier.element_type.into())?;
         self.write_i32(identifier.size as i32)
@@ -558,14 +589,10 @@ where
             ));
         }
 
-        let name = self.read_string().await?;
+        let name = self.read_smolstr().await?;
 
         let sequence_number = self.read_i32().await?;
-        Ok(TMessageIdentifier::new(
-            smol_str::SmolStr::new(name),
-            message_type,
-            sequence_number,
-        ))
+        Ok(TMessageIdentifier::new(name, message_type, sequence_number))
     }
 
     #[inline]
@@ -580,6 +607,11 @@ where
         let mut v = vec![0; len];
         self.reader.read_exact(&mut v).await?;
         Ok(unsafe { String::from_utf8_unchecked(v) })
+    }
+
+    #[inline]
+    pub async fn read_smolstr(&mut self) -> Result<smol_str::SmolStr, Error> {
+        self.read_string().await.map(smol_str::SmolStr::new)
     }
 
     #[inline]
@@ -631,11 +663,7 @@ where
 
     #[inline]
     pub async fn read_bytes(&mut self) -> Result<Bytes, Error> {
-        let len = self.reader.read_i32().await? as usize;
-        // FIXME: use maybe_uninit?
-        let mut v = vec![0; len];
-        self.reader.read_exact(&mut v).await?;
-        Ok(Bytes::from(v))
+        self.read_bytes_vec().await.map(Bytes::from)
     }
 
     #[inline]
@@ -817,14 +845,10 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
             ));
         }
 
-        let name = self.read_string()?;
+        let name = self.read_smolstr()?;
 
         let sequence_number = self.read_i32()?;
-        Ok(TMessageIdentifier::new(
-            smol_str::SmolStr::new(name),
-            message_type,
-            sequence_number,
-        ))
+        Ok(TMessageIdentifier::new(name, message_type, sequence_number))
     }
 
     #[inline]
@@ -920,6 +944,13 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
+    fn read_smolstr(&mut self) -> Result<SmolStr, Error> {
+        let len = self.trans.read_i32()?;
+        let bytes = self.trans.split_to(len as usize);
+        unsafe { Ok(SmolStr::new(str::from_utf8_unchecked(bytes.deref()))) }
+    }
+
+    #[inline]
     fn read_list_begin(&mut self) -> Result<TListIdentifier, Error> {
         let element_type: TType = self.read_byte().and_then(field_type_from_u8)?;
         let size = self.read_i32()?;
@@ -967,12 +998,8 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    #[allow(clippy::uninit_vec)]
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, Error> {
         let len = self.trans.read_i32()? as usize;
-        let mut vec = Vec::with_capacity(len);
-        unsafe { vec.set_len(len) }
-        self.trans.read_to_slice(vec.as_mut_slice())?;
-        Ok(vec)
+        Ok(self.trans.split_to(len).into())
     }
 }

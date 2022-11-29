@@ -380,16 +380,17 @@ impl ThriftLower {
     fn lower_ty_with_tags(&mut self, ty: &thrift_parser::Ty, tags: &Tags) -> ir::Ty {
         let rust_type = tags.get::<RustType>();
         if let Some(rust_type) = rust_type {
-            match &ty {
-                thrift_parser::Ty::String if rust_type == "bytes" => {
-                    let mut tags = Tags::default();
+            if let thrift_parser::Ty::String = &ty {
+                let mut tags = Tags::default();
+                if rust_type == "bytes" {
                     tags.insert(StringRepr::Bytes);
-                    return ir::Ty {
-                        tags: tags.into(),
-                        kind: ir::TyKind::Bytes,
-                    };
+                } else if rust_type == "string" {
+                    tags.insert(StringRepr::String)
                 }
-                _ => {}
+                return ir::Ty {
+                    tags: tags.into(),
+                    kind: ir::TyKind::String,
+                };
             }
         }
         self.lower_ty(ty)

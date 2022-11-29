@@ -1,4 +1,4 @@
-pub mod bytes_vec {
+pub mod bytes {
     #![allow(warnings, clippy::all)]
     #[derive(PartialOrd, Hash, Eq, Ord, :: prost :: Message, Clone, PartialEq)]
     pub struct A {
