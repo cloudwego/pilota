@@ -224,7 +224,7 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     #[inline]
     fn write_bytes_len(&self, b: &[u8]) -> usize {
         let sz = VarInt::required_space(b.len() as u32);
-        if b.len() > 0 {
+        if !b.is_empty() {
             sz + b.len()
         } else {
             sz
@@ -398,14 +398,10 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     #[inline]
     fn write_struct_end(&mut self) -> Result<(), Error> {
         self.assert_no_pending_bool_write();
-        if self.write_field_id_stack.len() <= 0 {
-            return Err(new_protocol_error(
-                ProtocolErrorKind::InvalidData,
-                "WriteStructEnd called without matching WriteStructBegin",
-            ));
-        }
-
-        self.last_write_field_id = self.write_field_id_stack.pop().unwrap();
+        self.last_write_field_id = self.write_field_id_stack.pop().ok_or(new_protocol_error(
+            ProtocolErrorKind::InvalidData,
+            "WriteStructEnd called without matching WriteStructBegin",
+        ))?;
         Ok(())
     }
 
@@ -422,7 +418,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
                 }
                 self.pending_write_bool_field_identifier = Some(TFieldIdentifier {
                     name: None,
-                    field_type: field_type,
+                    field_type,
                     id: Some(id),
                 });
                 Ok(())
@@ -558,7 +554,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
             self.write_varint(identifier.size as u32)?;
             self.write_byte(
                 (tcompact_get_compact(identifier.key_type.into())? as u8) << 4
-                    | (tcompact_get_compact(identifier.value_type.into())?) as u8,
+                    | (tcompact_get_compact(identifier.value_type)?) as u8,
             )?
         }
         Ok(())
@@ -590,7 +586,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         if size == 0 {
             return Ok(());
         }
-        self.trans.write_slice(&b)?;
+        self.trans.write_slice(b)?;
         Ok(())
     }
 }
@@ -791,7 +787,7 @@ where
     pub async fn read_list_begin(&mut self) -> Result<TListIdentifier, Error> {
         let (element_type, element_count) = self.read_collection_begin().await?;
         Ok(TListIdentifier {
-            element_type: element_type,
+            element_type,
             size: element_count,
         })
     }
@@ -804,7 +800,7 @@ where
     pub async fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error> {
         let (element_type, element_count) = self.read_collection_begin().await?;
         Ok(TSetIdentifier {
-            element_type: element_type,
+            element_type,
             size: element_count,
         })
     }
@@ -1128,7 +1124,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     fn read_list_begin(&mut self) -> Result<TListIdentifier, Error> {
         let (element_type, element_count) = self.read_collection_begin()?;
         Ok(TListIdentifier {
-            element_type: element_type,
+            element_type,
             size: element_count,
         })
     }
@@ -1141,7 +1137,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error> {
         let (element_type, element_count) = self.read_collection_begin()?;
         Ok(TSetIdentifier {
-            element_type: element_type,
+            element_type,
             size: element_count,
         })
     }
@@ -1192,7 +1188,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
 mod tests {
     use std::io::Read;
 
-    use bytes::{Buf, BufMut, BytesMut, Bytes};
+    use bytes::{Buf, BufMut, Bytes, BytesMut};
     type TCompactInputProt<'a> = TCompactInputProtocol<&'a mut BytesMut>;
     type TCompactOutputProt<'a> = TCompactOutputProtocol<&'a mut BytesMut>;
 
