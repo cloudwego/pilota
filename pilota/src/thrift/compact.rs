@@ -115,12 +115,11 @@ impl TryFrom<TCompactType> for TType {
     }
 }
 
-static COMPACT_PROTOCOL_ID: u8 = 0x082;
-static COMPACT_VERSION: u8 = 1;
-static COMPACT_VERSION_MASK: u8 = 0x1f;
-static COMPACT_TYPE_MASK: u8 = 0x0E0;
-// static COMPACT_TYPE_BITS: u8 = 0x07;
-static COMPACT_TYPE_SHIFT_AMOUNT: u8 = 5;
+const COMPACT_PROTOCOL_ID: u8 = 0x082;
+const COMPACT_VERSION: u8 = 1;
+const COMPACT_VERSION_MASK: u8 = 0x1f;
+const COMPACT_TYPE_MASK: u8 = 0x0E0;
+const COMPACT_TYPE_SHIFT_AMOUNT: u8 = 5;
 
 #[inline]
 fn tcompact_get_ttype(ct: TCompactType) -> Result<TType, Error> {
