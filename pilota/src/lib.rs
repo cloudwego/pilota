@@ -11,6 +11,7 @@ pub use async_trait;
 pub use bytes::Bytes;
 pub use derivative;
 pub use lazy_static;
+pub use smol_str::SmolStr;
 pub use thiserror::Error as ThisError;
 pub use tokio::io::AsyncRead;
 

@@ -9,6 +9,7 @@ use crate::{db::RirDatabase, symbol::DefId, tags::TagId};
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum TyKind {
     String,
+    SmolStr,
     Void,
     U8,
     Bool,
@@ -51,6 +52,7 @@ pub enum AdtKind {
 #[derive(Hash, PartialEq, Eq, Clone, Debug)]
 pub enum CodegenTy {
     String,
+    SmolStr,
     Str, // static str,
     Void,
     U8,
@@ -78,6 +80,7 @@ impl CodegenTy {
     pub fn should_lazy_static(&self) -> bool {
         match self {
             CodegenTy::String
+            | CodegenTy::SmolStr
             | CodegenTy::LazyStaticRef(_)
             | CodegenTy::StaticRef(_)
             | CodegenTy::Vec(_)
@@ -95,6 +98,7 @@ impl ToTokens for CodegenTy {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         match self {
             CodegenTy::String => tokens.extend(quote! { ::std::string::String }),
+            CodegenTy::SmolStr => tokens.extend(quote! { ::pilota::SmolStr }),
             CodegenTy::Str => tokens.extend(quote! { &'static str }),
             CodegenTy::Void => tokens.extend(quote! { () }),
             CodegenTy::U8 => tokens.extend(quote! { u8 }),
@@ -153,6 +157,7 @@ impl TyKind {
 }
 
 pub enum StringRepr {
+    SmolStr,
     String,
     Bytes,
 }
@@ -161,6 +166,11 @@ pub trait TyTransformer {
     #[inline]
     fn string(&self) -> CodegenTy {
         CodegenTy::String
+    }
+
+    #[inline]
+    fn smol_str(&self) -> CodegenTy {
+        CodegenTy::SmolStr
     }
 
     #[inline]
@@ -260,6 +270,7 @@ pub trait TyTransformer {
     fn codegen_item_ty(&self, ty: &TyKind) -> CodegenTy {
         match &ty {
             String => self.string(),
+            SmolStr => self.smol_str(),
             Void => self.void(),
             U8 => self.u8(),
             Bool => self.bool(),
@@ -291,6 +302,11 @@ pub(crate) struct ConstTyTransformer;
 impl TyTransformer for ConstTyTransformer {
     #[inline]
     fn string(&self) -> CodegenTy {
+        CodegenTy::Str
+    }
+
+    #[inline]
+    fn smol_str(&self) -> CodegenTy {
         CodegenTy::Str
     }
 
@@ -343,7 +359,7 @@ pub(crate) trait Folder: Sized {
 
 pub(crate) fn fold_ty<F: Folder>(f: &mut F, ty: &Ty) -> Ty {
     let kind = match &ty.kind {
-        String => TyKind::String,
+        String | SmolStr => TyKind::String,
         Void => TyKind::Void,
         U8 => TyKind::U8,
         Bool => TyKind::Bool,

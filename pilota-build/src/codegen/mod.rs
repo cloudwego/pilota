@@ -339,6 +339,10 @@ where
                 let s = &**s;
                 quote! { #s.to_string() }
             }
+            (Literal::String(s), CodegenTy::SmolStr) => {
+                let s = &**s;
+                quote! { ::pilota::SmolStr::new(#s) }
+            }
             (Literal::Int(i), CodegenTy::I16) => {
                 let i = *i as i16;
                 quote! { #i }

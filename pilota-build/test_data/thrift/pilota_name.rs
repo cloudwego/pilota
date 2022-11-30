@@ -3,7 +3,7 @@ pub mod pilota_name {
     pub mod pilota_name {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Test2 {
-            pub id: ::std::string::String,
+            pub id: ::pilota::SmolStr,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Test2 {
@@ -16,7 +16,7 @@ pub mod pilota_name {
                 {
                     let value = &self.id;
                     protocol.write_field_begin(::pilota::thrift::TType::Binary, 1i16)?;
-                    protocol.write_string(value)?;
+                    protocol.write_smolstr(value.clone())?;
                     protocol.write_field_end()?;
                 }
                 protocol.write_field_stop()?;
@@ -36,7 +36,7 @@ pub mod pilota_name {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            id = Some(protocol.read_string()?);
+                            id = Some(protocol.read_smolstr()?);
                         }
                         _ => {
                             protocol.skip(field_ident.field_type)?;
@@ -71,7 +71,7 @@ pub mod pilota_name {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            id = Some(protocol.read_string().await?);
+                            id = Some(protocol.read_smolstr().await?);
                         }
                         _ => {
                             protocol.skip(field_ident.field_type).await?;
@@ -102,7 +102,7 @@ pub mod pilota_name {
                             name: Some("ID"),
                             field_type: ::pilota::thrift::TType::Binary,
                             id: Some(1i16),
-                        }) + protocol.write_string_len(&value)
+                        }) + protocol.write_smolstr_len(value)
                             + protocol.write_field_end_len()
                     }
                     + protocol.write_field_stop_len()
@@ -112,8 +112,8 @@ pub mod pilota_name {
         pub const LANG_ID: &'static str = "id";
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Test1 {
-            pub id: ::std::string::String,
-            pub hello: ::std::string::String,
+            pub id: ::pilota::SmolStr,
+            pub hello: ::pilota::SmolStr,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Test1 {
@@ -126,13 +126,13 @@ pub mod pilota_name {
                 {
                     let value = &self.id;
                     protocol.write_field_begin(::pilota::thrift::TType::Binary, 1i16)?;
-                    protocol.write_string(value)?;
+                    protocol.write_smolstr(value.clone())?;
                     protocol.write_field_end()?;
                 }
                 {
                     let value = &self.hello;
                     protocol.write_field_begin(::pilota::thrift::TType::Binary, 2i16)?;
-                    protocol.write_string(value)?;
+                    protocol.write_smolstr(value.clone())?;
                     protocol.write_field_end()?;
                 }
                 protocol.write_field_stop()?;
@@ -153,10 +153,10 @@ pub mod pilota_name {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            id = Some(protocol.read_string()?);
+                            id = Some(protocol.read_smolstr()?);
                         }
                         Some(2i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            hello = Some(protocol.read_string()?);
+                            hello = Some(protocol.read_smolstr()?);
                         }
                         _ => {
                             protocol.skip(field_ident.field_type)?;
@@ -205,10 +205,10 @@ pub mod pilota_name {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            id = Some(protocol.read_string().await?);
+                            id = Some(protocol.read_smolstr().await?);
                         }
                         Some(2i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            hello = Some(protocol.read_string().await?);
+                            hello = Some(protocol.read_smolstr().await?);
                         }
                         _ => {
                             protocol.skip(field_ident.field_type).await?;
@@ -252,7 +252,7 @@ pub mod pilota_name {
                             name: Some("ID"),
                             field_type: ::pilota::thrift::TType::Binary,
                             id: Some(1i16),
-                        }) + protocol.write_string_len(&value)
+                        }) + protocol.write_smolstr_len(value)
                             + protocol.write_field_end_len()
                     }
                     + {
@@ -261,7 +261,7 @@ pub mod pilota_name {
                             name: Some("Id"),
                             field_type: ::pilota::thrift::TType::Binary,
                             id: Some(2i16),
-                        }) + protocol.write_string_len(&value)
+                        }) + protocol.write_smolstr_len(value)
                             + protocol.write_field_end_len()
                     }
                     + protocol.write_field_stop_len()

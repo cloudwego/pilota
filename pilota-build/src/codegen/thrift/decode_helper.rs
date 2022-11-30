@@ -41,6 +41,7 @@ impl DecodeHelper {
     protocol_method!(read_bytes_vec);
     protocol_method!(read_byte);
     protocol_method!(read_string);
+    protocol_method!(read_smolstr);
     protocol_method!(read_list_begin);
     protocol_method!(read_list_end);
     protocol_method!(read_set_begin);

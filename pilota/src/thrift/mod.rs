@@ -6,6 +6,7 @@ use std::{ops::Deref, sync::Arc};
 
 use bytes::{Buf, BufMut, Bytes};
 pub use error::*;
+use smol_str::SmolStr;
 use tokio::io::AsyncRead;
 
 pub use self::binary::TAsyncBinaryProtocol;
@@ -106,6 +107,8 @@ pub trait TInputProtocol {
     fn read_double(&mut self) -> Result<f64, Error>;
     /// Read a fixed-length string (not null terminated).
     fn read_string(&mut self) -> Result<String, Error>;
+    /// Read a smolstr.
+    fn read_smolstr(&mut self) -> Result<SmolStr, Error>;
     /// Read the beginning of a list.
     fn read_list_begin(&mut self) -> Result<TListIdentifier, Error>;
     /// Read the end of a list.
@@ -236,6 +239,8 @@ pub trait TLengthProtocol {
 
     fn write_string_len(&self, s: &str) -> usize;
 
+    fn write_smolstr_len(&self, s: &SmolStr) -> usize;
+
     fn write_list_begin_len(&self, identifier: &TListIdentifier) -> usize;
 
     fn write_list_end_len(&self) -> usize;
@@ -289,6 +294,8 @@ pub trait TOutputProtocol {
     fn write_double(&mut self, d: f64) -> Result<(), Error>;
     /// Write a fixed-length string.
     fn write_string(&mut self, s: &str) -> Result<(), Error>;
+    /// Write a fixed-length smolstr.
+    fn write_smolstr(&mut self, s: SmolStr) -> Result<(), Error>;
     /// Write the beginning of a list.
     fn write_list_begin(&mut self, identifier: &TListIdentifier) -> Result<(), Error>;
     /// Write the end of a list.

@@ -17,6 +17,7 @@ use crate::{
         protobuf::{ClientStreaming, OneOf, ProstType, Repeated, ServerStreaming},
         PilotaName, Tags,
     },
+    ty::StringRepr,
 };
 
 #[derive(Default)]
@@ -107,7 +108,10 @@ impl Lower {
                 ir::TyKind::UInt32
             }
             protobuf::descriptor::field_descriptor_proto::Type::TYPE_BOOL => ir::TyKind::Bool,
-            protobuf::descriptor::field_descriptor_proto::Type::TYPE_STRING => ir::TyKind::String,
+            protobuf::descriptor::field_descriptor_proto::Type::TYPE_STRING => {
+                tags.insert(StringRepr::String);
+                ir::TyKind::String
+            }
             protobuf::descriptor::field_descriptor_proto::Type::TYPE_GROUP => todo!(),
             protobuf::descriptor::field_descriptor_proto::Type::TYPE_BYTES => ir::TyKind::Bytes,
             protobuf::descriptor::field_descriptor_proto::Type::TYPE_UINT32 => ir::TyKind::UInt32,

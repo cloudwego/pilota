@@ -336,11 +336,10 @@ where
     }
 
     #[inline]
-    #[allow(clippy::uninit_vec)]
     fn read_to_string(&mut self, len: usize) -> Result<String, IOError> {
         assert_remaining!(len <= self.remaining(), "`len` greater than remaining");
-        let mut vec = Vec::with_capacity(len);
-        unsafe { vec.set_len(len) }
+        // FIXME: use maybe_uninit?
+        let mut vec = vec![0; len];
         self.read_to_slice(vec.as_mut_slice())?;
         unsafe { Ok(String::from_utf8_unchecked(vec)) }
     }

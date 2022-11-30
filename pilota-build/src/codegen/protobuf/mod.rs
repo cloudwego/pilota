@@ -51,7 +51,7 @@ impl ProstPlugin {
             };
         }
         match &ty.kind {
-            ty::String => quote!(string),
+            ty::String | ty::SmolStr => quote!(string),
             ty::Bool => quote!(bool),
             ty::BytesVec | ty::Bytes => quote!(bytes),
             ty::I32 => quote!(int32),
