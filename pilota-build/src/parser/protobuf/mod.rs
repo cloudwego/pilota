@@ -284,10 +284,11 @@ impl Lower {
                             }
                         }
 
-                        let optional = !is_map && {
-                            f.proto3_optional()
-                                || (!repeated && matches!(f.type_(), Type::TYPE_MESSAGE))
-                        };
+                        let optional = !is_map
+                            && ({
+                                f.proto3_optional()
+                                    || (!repeated && matches!(f.type_(), Type::TYPE_MESSAGE))
+                            } || f.label() == Label::LABEL_OPTIONAL);
 
                         let mut tags = Tags::default();
                         if repeated {
