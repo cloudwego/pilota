@@ -203,55 +203,61 @@ pub trait TInputProtocol {
 pub trait TLengthProtocol {
     // size
 
-    fn write_message_begin_len(&self, identifier: &TMessageIdentifier) -> usize;
+    fn write_message_begin_len(&mut self, identifier: &TMessageIdentifier) -> usize;
 
-    fn write_message_end_len(&self) -> usize;
+    fn write_message_end_len(&mut self) -> usize;
 
-    fn write_struct_begin_len(&self, identifier: &TStructIdentifier) -> usize;
+    fn write_struct_begin_len(&mut self, identifier: &TStructIdentifier) -> usize;
 
-    fn write_struct_end_len(&self) -> usize;
+    fn write_struct_end_len(&mut self) -> usize;
 
-    fn write_field_begin_len(&self, identifier: &TFieldIdentifier) -> usize;
+    fn write_field_begin_len(&mut self, identifier: &TFieldIdentifier) -> usize;
 
-    fn write_field_end_len(&self) -> usize;
+    fn write_field_end_len(&mut self) -> usize;
 
-    fn write_field_stop_len(&self) -> usize;
+    fn write_field_stop_len(&mut self) -> usize;
 
-    fn write_bool_len(&self, b: bool) -> usize;
+    fn write_bool_len(&mut self, b: bool) -> usize;
 
-    fn write_bytes_len(&self, b: &[u8]) -> usize;
+    fn write_bytes_len(&mut self, b: &[u8]) -> usize;
 
-    fn write_bytes_vec_len(&self, b: &[u8]) -> usize;
+    fn write_bytes_vec_len(&mut self, b: &[u8]) -> usize;
 
-    fn write_byte_len(&self, b: u8) -> usize;
+    fn write_byte_len(&mut self, b: u8) -> usize;
 
-    fn write_uuid_len(&self, u: [u8; 16]) -> usize;
+    fn write_uuid_len(&mut self, u: [u8; 16]) -> usize;
 
-    fn write_i8_len(&self, i: i8) -> usize;
+    fn write_i8_len(&mut self, i: i8) -> usize;
 
-    fn write_i16_len(&self, i: i16) -> usize;
+    fn write_i16_len(&mut self, i: i16) -> usize;
 
-    fn write_i32_len(&self, i: i32) -> usize;
+    fn write_i32_len(&mut self, i: i32) -> usize;
 
-    fn write_i64_len(&self, i: i64) -> usize;
+    fn write_i64_len(&mut self, i: i64) -> usize;
 
-    fn write_double_len(&self, d: f64) -> usize;
+    fn write_double_len(&mut self, d: f64) -> usize;
 
-    fn write_string_len(&self, s: &str) -> usize;
+    fn write_string_len(&mut self, s: &str) -> usize;
 
-    fn write_smolstr_len(&self, s: &SmolStr) -> usize;
+    fn write_smolstr_len(&mut self, s: &SmolStr) -> usize;
 
-    fn write_list_begin_len(&self, identifier: &TListIdentifier) -> usize;
+    fn write_list_begin_len(&mut self, identifier: &TListIdentifier) -> usize;
 
-    fn write_list_end_len(&self) -> usize;
+    fn write_list_end_len(&mut self) -> usize;
 
-    fn write_set_begin_len(&self, identifier: &TSetIdentifier) -> usize;
+    fn write_set_begin_len(&mut self, identifier: &TSetIdentifier) -> usize;
 
-    fn write_set_end_len(&self) -> usize;
+    fn write_set_end_len(&mut self) -> usize;
 
-    fn write_map_begin_len(&self, identifier: &TMapIdentifier) -> usize;
+    fn write_map_begin_len(&mut self, identifier: &TMapIdentifier) -> usize;
 
-    fn write_map_end_len(&self) -> usize;
+    fn write_map_end_len(&mut self) -> usize;
+
+    /// The zero copy length used to calculate the recommended malloc length.
+    fn zero_copy_len(&mut self) -> usize;
+
+    /// Resets the zero copy length counter.
+    fn reset(&mut self);
 }
 
 pub trait TOutputProtocol {

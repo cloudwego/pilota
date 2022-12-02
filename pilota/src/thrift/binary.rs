@@ -20,7 +20,9 @@ static VERSION_MASK: u32 = 0xffff0000;
 
 pub struct TBinaryProtocol<T> {
     pub(crate) trans: T,
+
     zero_copy: bool,
+    zero_copy_len: usize,
 }
 
 impl<T> TBinaryProtocol<T> {
@@ -28,7 +30,11 @@ impl<T> TBinaryProtocol<T> {
     /// [`LinkedBytes`] for output.
     #[inline]
     pub fn new(trans: T, zero_copy: bool) -> Self {
-        Self { trans, zero_copy }
+        Self {
+            trans,
+            zero_copy,
+            zero_copy_len: 0,
+        }
     }
 }
 
@@ -46,140 +52,144 @@ fn field_type_from_u8(ttype: u8) -> Result<TType, Error> {
 
 impl<T> TLengthProtocol for TBinaryProtocol<T> {
     #[inline]
-    fn write_message_begin_len(&self, identifier: &TMessageIdentifier) -> usize {
+    fn write_message_begin_len(&mut self, identifier: &TMessageIdentifier) -> usize {
         self.write_i32_len(0) + self.write_string_len(&identifier.name) + self.write_i32_len(0)
     }
 
     #[inline]
-    fn write_message_end_len(&self) -> usize {
+    fn write_message_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_struct_begin_len(&self, _identifier: &TStructIdentifier) -> usize {
+    fn write_struct_begin_len(&mut self, _identifier: &TStructIdentifier) -> usize {
         0
     }
 
     #[inline]
-    fn write_struct_end_len(&self) -> usize {
+    fn write_struct_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_field_begin_len(&self, _identifier: &TFieldIdentifier) -> usize {
+    fn write_field_begin_len(&mut self, _identifier: &TFieldIdentifier) -> usize {
         self.write_byte_len(0) + self.write_i16_len(0)
     }
 
     #[inline]
-    fn write_field_end_len(&self) -> usize {
+    fn write_field_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_field_stop_len(&self) -> usize {
+    fn write_field_stop_len(&mut self) -> usize {
         self.write_byte_len(0)
     }
 
     #[inline]
-    fn write_bool_len(&self, _b: bool) -> usize {
+    fn write_bool_len(&mut self, _b: bool) -> usize {
         self.write_i8_len(0)
     }
 
     #[inline]
-    fn write_bytes_len(&self, b: &[u8]) -> usize {
-        // FIXME: this will calc the wrong size if T is not LinkedBytes and zero copy is
-        // enabled
+    fn write_bytes_len(&mut self, b: &[u8]) -> usize {
         if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
-            self.write_i32_len(0)
-        } else {
-            self.write_i32_len(0) + b.len()
+            self.zero_copy_len += b.len();
         }
+        self.write_i32_len(0) + b.len()
     }
 
     #[inline]
-    fn write_byte_len(&self, _b: u8) -> usize {
+    fn write_byte_len(&mut self, _b: u8) -> usize {
         1
     }
 
     #[inline]
-    fn write_uuid_len(&self, _u: [u8; 16]) -> usize {
+    fn write_uuid_len(&mut self, _u: [u8; 16]) -> usize {
         16
     }
 
     #[inline]
-    fn write_i8_len(&self, _i: i8) -> usize {
+    fn write_i8_len(&mut self, _i: i8) -> usize {
         1
     }
 
     #[inline]
-    fn write_i16_len(&self, _i: i16) -> usize {
+    fn write_i16_len(&mut self, _i: i16) -> usize {
         2
     }
 
     #[inline]
-    fn write_i32_len(&self, _i: i32) -> usize {
+    fn write_i32_len(&mut self, _i: i32) -> usize {
         4
     }
 
     #[inline]
-    fn write_i64_len(&self, _i: i64) -> usize {
+    fn write_i64_len(&mut self, _i: i64) -> usize {
         8
     }
 
     #[inline]
-    fn write_double_len(&self, _d: f64) -> usize {
+    fn write_double_len(&mut self, _d: f64) -> usize {
         8
     }
 
     #[inline]
-    fn write_string_len(&self, s: &str) -> usize {
+    fn write_string_len(&mut self, s: &str) -> usize {
         self.write_i32_len(0) + s.len()
     }
 
     #[inline]
-    fn write_smolstr_len(&self, s: &SmolStr) -> usize {
-        // FIXME: this will calc the wrong size if T is not LinkedBytes and zero copy is
-        // enabled
+    fn write_smolstr_len(&mut self, s: &SmolStr) -> usize {
         if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
-            self.write_i32_len(0)
-        } else {
-            self.write_i32_len(0) + s.len()
+            self.zero_copy_len += s.len();
         }
+        self.write_i32_len(0) + s.len()
     }
 
     #[inline]
-    fn write_list_begin_len(&self, _identifier: &TListIdentifier) -> usize {
+    fn write_list_begin_len(&mut self, _identifier: &TListIdentifier) -> usize {
         self.write_byte_len(0) + self.write_i32_len(0)
     }
 
     #[inline]
-    fn write_list_end_len(&self) -> usize {
+    fn write_list_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_set_begin_len(&self, _identifier: &TSetIdentifier) -> usize {
+    fn write_set_begin_len(&mut self, _identifier: &TSetIdentifier) -> usize {
         self.write_byte_len(0) + self.write_i32_len(0)
     }
 
     #[inline]
-    fn write_set_end_len(&self) -> usize {
+    fn write_set_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_map_begin_len(&self, _identifier: &TMapIdentifier) -> usize {
+    fn write_map_begin_len(&mut self, _identifier: &TMapIdentifier) -> usize {
         self.write_byte_len(0) + self.write_byte_len(0) + self.write_i32_len(0)
     }
 
     #[inline]
-    fn write_map_end_len(&self) -> usize {
+    fn write_map_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_bytes_vec_len(&self, b: &[u8]) -> usize {
+    fn write_bytes_vec_len(&mut self, b: &[u8]) -> usize {
         self.write_i32_len(0) + b.len()
+    }
+
+    #[inline]
+    fn zero_copy_len(&mut self) -> usize {
+        self.zero_copy_len
+    }
+
+    #[inline]
+    fn reset(&mut self) {
+        self.zero_copy_len = 0;
     }
 }
 
