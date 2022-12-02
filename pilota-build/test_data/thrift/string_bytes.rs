@@ -171,7 +171,7 @@ pub mod string_bytes {
                 };
                 Ok(data)
             }
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
                     + {
                         let value = &self.smol;

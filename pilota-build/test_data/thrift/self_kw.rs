@@ -62,7 +62,7 @@ pub mod self_kw {
                     )
                 })?)
             }
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 protocol.write_i32_len(*self as i32)
             }
         }
@@ -158,7 +158,7 @@ pub mod self_kw {
                 let data = Self { r#type: r#type };
                 Ok(data)
             }
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
                     + {
                         let value = &self.r#type;

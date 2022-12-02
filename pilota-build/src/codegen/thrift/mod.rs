@@ -137,7 +137,7 @@ impl ThriftBackend {
                     #decode_async
                 }
 
-                fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
+                fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                     #size
                 }
             }

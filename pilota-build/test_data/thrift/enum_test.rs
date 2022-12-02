@@ -62,7 +62,7 @@ pub mod enum_test {
                     )
                 })?)
             }
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 protocol.write_i32_len(*self as i32)
             }
         }

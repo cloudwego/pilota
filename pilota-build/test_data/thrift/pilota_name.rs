@@ -93,7 +93,7 @@ pub mod pilota_name {
                 let data = Self { id: id };
                 Ok(data)
             }
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 protocol
                     .write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "TEST" })
                     + {
@@ -243,7 +243,7 @@ pub mod pilota_name {
                 };
                 Ok(data)
             }
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 protocol
                     .write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Test" })
                     + {
@@ -329,7 +329,7 @@ pub mod pilota_name {
                     )
                 })?)
             }
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 protocol.write_i32_len(*self as i32)
             }
         }
@@ -440,7 +440,7 @@ pub mod pilota_name {
                     ))
                 }
             }
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestResult",
                 }) + match self {
@@ -550,7 +550,7 @@ pub mod pilota_name {
                 let data = Self { req: req };
                 Ok(data)
             }
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestArgsSend",
                 }) + {
@@ -659,7 +659,7 @@ pub mod pilota_name {
                 let data = Self { req: req };
                 Ok(data)
             }
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestArgsRecv",
                 }) + {
