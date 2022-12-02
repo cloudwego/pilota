@@ -274,7 +274,7 @@ impl Message for DummyError {
         panic!()
     }
 
-    fn size<T: TLengthProtocol>(&self, _protocol: &T) -> usize {
+    fn size<T: TLengthProtocol>(&self, _protocol: &mut T) -> usize {
         panic!()
     }
 }

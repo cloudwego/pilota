@@ -28,7 +28,7 @@ pub trait Message: Sized + Send {
     where
         R: AsyncRead + Unpin + Send;
 
-    fn size<T: TLengthProtocol>(&self, protocol: &T) -> usize;
+    fn size<T: TLengthProtocol>(&self, protocol: &mut T) -> usize;
 }
 
 #[async_trait::async_trait]
@@ -48,7 +48,7 @@ impl<M: Message> Message for Box<M> {
         Ok(Box::new(M::decode_async(protocol).await?))
     }
 
-    fn size<T: TLengthProtocol>(&self, protocol: &T) -> usize {
+    fn size<T: TLengthProtocol>(&self, protocol: &mut T) -> usize {
         self.deref().size(protocol)
     }
 }
@@ -70,7 +70,7 @@ impl<M: Message + Send + Sync> Message for Arc<M> {
         Ok(Arc::new(M::decode_async(protocol).await?))
     }
 
-    fn size<T: TLengthProtocol>(&self, protocol: &T) -> usize {
+    fn size<T: TLengthProtocol>(&self, protocol: &mut T) -> usize {
         self.deref().size(protocol)
     }
 }
