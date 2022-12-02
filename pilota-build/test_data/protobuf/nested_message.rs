@@ -4,8 +4,8 @@ pub mod nested_message {
         pub mod t2 {
             #[derive(:: prost :: Message, Clone, PartialEq)]
             pub struct Tt3 {
-                #[prost(int32, tag = "1")]
-                pub a: i32,
+                #[prost(int32, tag = "1", optional)]
+                pub a: ::std::option::Option<i32>,
                 #[prost(map = "int32 , message", tag = "2")]
                 pub m: ::std::collections::HashMap<i32, T2>,
             }
