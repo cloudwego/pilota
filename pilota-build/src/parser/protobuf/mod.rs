@@ -285,6 +285,7 @@ impl Lower {
                         }
 
                         let optional = !is_map
+                            && f.type_() != Type::TYPE_BYTES
                             && ({
                                 f.proto3_optional()
                                     || (!repeated && matches!(f.type_(), Type::TYPE_MESSAGE))
