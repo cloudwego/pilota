@@ -4,5 +4,7 @@ pub mod string {
     pub struct A {
         #[prost(string, tag = "1", optional)]
         pub a: ::std::option::Option<::std::string::String>,
+        #[prost(string, tag = "2")]
+        pub b: ::std::string::String,
     }
 }
