@@ -27,10 +27,17 @@ pub struct ProtobufParser {
     input_files: FxHashSet<PathBuf>,
 }
 
+#[derive(PartialEq, Eq)]
+pub enum Syntax {
+    Proto2,
+    Proto3,
+}
+
 struct Lower {
     next_file_id: FileId,
     files: FxHashMap<String, FileId>,
     cur_package: Option<String>,
+    cur_syntax: Option<Syntax>,
 }
 
 impl Default for Lower {
@@ -39,6 +46,7 @@ impl Default for Lower {
             next_file_id: FileId::from_u32(0),
             files: Default::default(),
             cur_package: None,
+            cur_syntax: None,
         }
     }
 }
@@ -289,7 +297,8 @@ impl Lower {
                             && ({
                                 f.proto3_optional()
                                     || (!repeated && matches!(f.type_(), Type::TYPE_MESSAGE))
-                            } || f.label() == Label::LABEL_OPTIONAL);
+                            } || (f.label() == Label::LABEL_OPTIONAL
+                                && self.cur_syntax == Some(Syntax::Proto2)));
 
                         let mut tags = Tags::default();
                         if repeated {
@@ -388,6 +397,10 @@ impl Lower {
             .iter()
             .map(|f| {
                 self.cur_package = f.package.clone();
+                self.cur_syntax = Some(match f.syntax() {
+                    "proto2" => Syntax::Proto2,
+                    _ => Syntax::Proto3,
+                });
 
                 let file_id = *self.files.get(f.name()).unwrap();
 
