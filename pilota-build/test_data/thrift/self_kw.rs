@@ -68,7 +68,7 @@ pub mod self_kw {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
-            pub r#type: ::pilota::SmolStr,
+            pub r#type: ::pilota::FastStr,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
@@ -81,7 +81,7 @@ pub mod self_kw {
                 {
                     let value = &self.r#type;
                     protocol.write_field_begin(::pilota::thrift::TType::Binary, 1i16)?;
-                    protocol.write_smolstr(value.clone())?;
+                    protocol.write_faststr(value.clone())?;
                     protocol.write_field_end()?;
                 }
                 protocol.write_field_stop()?;
@@ -101,7 +101,7 @@ pub mod self_kw {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            r#type = Some(protocol.read_smolstr()?);
+                            r#type = Some(protocol.read_faststr()?);
                         }
                         _ => {
                             protocol.skip(field_ident.field_type)?;
@@ -136,7 +136,7 @@ pub mod self_kw {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            r#type = Some(protocol.read_smolstr().await?);
+                            r#type = Some(protocol.read_faststr().await?);
                         }
                         _ => {
                             protocol.skip(field_ident.field_type).await?;
@@ -166,7 +166,7 @@ pub mod self_kw {
                             name: Some("type"),
                             field_type: ::pilota::thrift::TType::Binary,
                             id: Some(1i16),
-                        }) + protocol.write_smolstr_len(value)
+                        }) + protocol.write_faststr_len(value)
                             + protocol.write_field_end_len()
                     }
                     + protocol.write_field_stop_len()

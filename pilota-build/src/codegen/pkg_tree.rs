@@ -1,14 +1,15 @@
 use std::sync::Arc;
 
+use faststr::FastStr;
 use itertools::Itertools;
 
 #[derive(Debug)]
 pub struct PkgNode {
-    pub path: Arc<[smol_str::SmolStr]>,
+    pub path: Arc<[FastStr]>,
     pub children: Arc<[PkgNode]>,
 }
 
-fn from_pkgs(base_path: &[smol_str::SmolStr], pkgs: &[Arc<[smol_str::SmolStr]>]) -> Arc<[PkgNode]> {
+fn from_pkgs(base_path: &[FastStr], pkgs: &[Arc<[FastStr]>]) -> Arc<[PkgNode]> {
     let groups = pkgs.iter().into_group_map_by(|p| p.first().unwrap());
 
     Arc::from_iter(groups.into_iter().map(|(k, v)| {
@@ -33,11 +34,11 @@ fn from_pkgs(base_path: &[smol_str::SmolStr], pkgs: &[Arc<[smol_str::SmolStr]>])
 }
 
 impl PkgNode {
-    pub fn from_pkgs(pkgs: &[Arc<[smol_str::SmolStr]>]) -> Arc<[PkgNode]> {
+    pub fn from_pkgs(pkgs: &[Arc<[FastStr]>]) -> Arc<[PkgNode]> {
         from_pkgs(&[], pkgs)
     }
 
-    pub fn ident(&self) -> smol_str::SmolStr {
+    pub fn ident(&self) -> FastStr {
         self.path.last().unwrap().clone()
     }
 }

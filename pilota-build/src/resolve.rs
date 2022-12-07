@@ -357,17 +357,16 @@ impl Resolver {
 
     fn lower_type(&mut self, ty: &ir::Ty) -> Ty {
         let kind = match &ty.kind {
-            ir::TyKind::String => {
-                if let Some(repr) = ty.tags.get::<StringRepr>() {
-                    match repr {
-                        StringRepr::String => ty::String,
-                        StringRepr::Bytes => ty::Bytes,
-                        StringRepr::SmolStr => ty::SmolStr,
-                    }
-                } else {
-                    ty::SmolStr
-                }
+            ir::TyKind::String
+                if ty
+                    .tags
+                    .get::<StringRepr>()
+                    .map(|repr| matches!(repr, StringRepr::String))
+                    .unwrap_or(false) =>
+            {
+                ty::String
             }
+            ir::TyKind::String => ty::FastStr,
             ir::TyKind::Void => ty::Void,
             ir::TyKind::U8 => ty::U8,
             ir::TyKind::Bool => ty::Bool,

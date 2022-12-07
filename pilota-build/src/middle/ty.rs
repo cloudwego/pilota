@@ -9,7 +9,7 @@ use crate::{db::RirDatabase, symbol::DefId, tags::TagId};
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum TyKind {
     String,
-    SmolStr,
+    FastStr,
     Void,
     U8,
     Bool,
@@ -51,9 +51,9 @@ pub enum AdtKind {
 
 #[derive(Hash, PartialEq, Eq, Clone, Debug)]
 pub enum CodegenTy {
-    String,
-    SmolStr,
-    Str, // static str,
+    FastStr,
+    String, // for protobuf
+    Str,    // static str
     Void,
     U8,
     Bool,
@@ -80,7 +80,7 @@ impl CodegenTy {
     pub fn should_lazy_static(&self) -> bool {
         match self {
             CodegenTy::String
-            | CodegenTy::SmolStr
+            | CodegenTy::FastStr
             | CodegenTy::LazyStaticRef(_)
             | CodegenTy::StaticRef(_)
             | CodegenTy::Vec(_)
@@ -98,7 +98,7 @@ impl ToTokens for CodegenTy {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         match self {
             CodegenTy::String => tokens.extend(quote! { ::std::string::String }),
-            CodegenTy::SmolStr => tokens.extend(quote! { ::pilota::SmolStr }),
+            CodegenTy::FastStr => tokens.extend(quote! { ::pilota::FastStr }),
             CodegenTy::Str => tokens.extend(quote! { &'static str }),
             CodegenTy::Void => tokens.extend(quote! { () }),
             CodegenTy::U8 => tokens.extend(quote! { u8 }),
@@ -156,12 +156,6 @@ impl TyKind {
     }
 }
 
-pub enum StringRepr {
-    SmolStr,
-    String,
-    Bytes,
-}
-
 pub trait TyTransformer {
     #[inline]
     fn string(&self) -> CodegenTy {
@@ -169,8 +163,8 @@ pub trait TyTransformer {
     }
 
     #[inline]
-    fn smol_str(&self) -> CodegenTy {
-        CodegenTy::SmolStr
+    fn faststr(&self) -> CodegenTy {
+        CodegenTy::FastStr
     }
 
     #[inline]
@@ -270,7 +264,7 @@ pub trait TyTransformer {
     fn codegen_item_ty(&self, ty: &TyKind) -> CodegenTy {
         match &ty {
             String => self.string(),
-            SmolStr => self.smol_str(),
+            FastStr => self.faststr(),
             Void => self.void(),
             U8 => self.u8(),
             Bool => self.bool(),
@@ -293,6 +287,11 @@ pub trait TyTransformer {
     }
 }
 
+pub enum StringRepr {
+    FastStr,
+    String,
+}
+
 pub(crate) struct DefaultTyTransformer;
 
 impl TyTransformer for DefaultTyTransformer {}
@@ -306,7 +305,7 @@ impl TyTransformer for ConstTyTransformer {
     }
 
     #[inline]
-    fn smol_str(&self) -> CodegenTy {
+    fn faststr(&self) -> CodegenTy {
         CodegenTy::Str
     }
 
@@ -359,7 +358,7 @@ pub(crate) trait Folder: Sized {
 
 pub(crate) fn fold_ty<F: Folder>(f: &mut F, ty: &Ty) -> Ty {
     let kind = match &ty.kind {
-        String | SmolStr => TyKind::String,
+        String | FastStr => TyKind::String,
         Void => TyKind::Void,
         U8 => TyKind::U8,
         Bool => TyKind::Bool,
@@ -370,14 +369,14 @@ pub(crate) fn fold_ty<F: Folder>(f: &mut F, ty: &Ty) -> Ty {
         I32 => TyKind::I32,
         I64 => TyKind::I64,
         F64 => TyKind::F64,
-        Vec(ty) => TyKind::Vec(f.fold_ty(&ty).into()),
-        Set(ty) => TyKind::Set(f.fold_ty(&ty).into()),
+        Vec(ty) => TyKind::Vec(f.fold_ty(ty).into()),
+        Set(ty) => TyKind::Set(f.fold_ty(ty).into()),
         Map(k, v) => TyKind::Map(fold_ty(f, k).into(), fold_ty(f, v).into()),
         Path(path) => TyKind::Path(path.clone()),
         UInt32 => TyKind::UInt32,
         UInt64 => TyKind::UInt64,
         F32 => TyKind::F32,
-        Arc(ty) => TyKind::Arc(f.fold_ty(&ty).into()),
+        Arc(ty) => TyKind::Arc(f.fold_ty(ty).into()),
     };
 
     Ty {

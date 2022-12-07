@@ -1,9 +1,9 @@
 use std::{convert::TryInto, str};
 
 use bytes::{Bytes, BytesMut};
+use faststr::FastStr;
 use lazy_static::__Deref;
 use linkedbytes::LinkedBytes;
-use smol_str::SmolStr;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
@@ -12,7 +12,7 @@ use super::{
     rw_ext::{ReadExt, WriteExt},
     TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
     TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    MAXIMUM_SKIP_DEPTH, ZERO_COPY_THRESHOLD,
+    INLINE_CAP, MAXIMUM_SKIP_DEPTH, ZERO_COPY_THRESHOLD,
 };
 
 static VERSION_1: u32 = 0x80010000;
@@ -53,7 +53,7 @@ fn field_type_from_u8(ttype: u8) -> Result<TType, Error> {
 impl<T> TLengthProtocol for TBinaryProtocol<T> {
     #[inline]
     fn write_message_begin_len(&mut self, identifier: &TMessageIdentifier) -> usize {
-        self.write_i32_len(0) + self.write_string_len(&identifier.name) + self.write_i32_len(0)
+        self.write_i32_len(0) + self.write_faststr_len(&identifier.name) + self.write_i32_len(0)
     }
 
     #[inline]
@@ -134,13 +134,12 @@ impl<T> TLengthProtocol for TBinaryProtocol<T> {
         8
     }
 
-    #[inline]
     fn write_string_len(&mut self, s: &str) -> usize {
         self.write_i32_len(0) + s.len()
     }
 
     #[inline]
-    fn write_smolstr_len(&mut self, s: &SmolStr) -> usize {
+    fn write_faststr_len(&mut self, s: &FastStr) -> usize {
         if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
             self.zero_copy_len += s.len();
         }
@@ -201,7 +200,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
         let msg_type_u8: u8 = identifier.message_type.into();
         let version = (VERSION_1 | msg_type_u8 as u32) as i32;
         self.write_i32(version)?;
-        self.write_string(&identifier.name)?;
+        self.write_faststr(identifier.name.clone())?;
         self.write_i32(identifier.sequence_number)?;
         Ok(())
     }
@@ -308,9 +307,9 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_smolstr(&mut self, s: SmolStr) -> Result<(), Error> {
+    fn write_faststr(&mut self, s: FastStr) -> Result<(), Error> {
         self.write_i32(s.len() as i32)?;
-        self.trans.write_slice(s.as_bytes())?;
+        self.trans.write_slice(s.as_ref())?;
         Ok(())
     }
 
@@ -381,7 +380,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
         let msg_type_u8: u8 = identifier.message_type.into();
         let version = (VERSION_1 | msg_type_u8 as u32) as i32;
         self.write_i32(version)?;
-        self.write_string(&identifier.name)?;
+        self.write_faststr(identifier.name.clone())?;
         self.write_i32(identifier.sequence_number)?;
         Ok(())
     }
@@ -490,15 +489,14 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
         self.trans.bytes_mut().write_slice(s.as_bytes())?;
         Ok(())
     }
-
     #[inline]
-    fn write_smolstr(&mut self, s: SmolStr) -> Result<(), Error> {
+    fn write_faststr(&mut self, s: FastStr) -> Result<(), Error> {
         self.write_i32(s.len() as i32)?;
         if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
-            self.trans.insert_smolstr(s);
+            self.trans.insert_faststr(s);
             return Ok(());
         }
-        self.trans.bytes_mut().write_slice(s.as_bytes())?;
+        self.trans.bytes_mut().write_slice(s.as_ref())?;
         Ok(())
     }
 
@@ -599,7 +597,7 @@ where
             ));
         }
 
-        let name = self.read_smolstr().await?;
+        let name = self.read_faststr().await?;
 
         let sequence_number = self.read_i32().await?;
         Ok(TMessageIdentifier::new(name, message_type, sequence_number))
@@ -620,8 +618,8 @@ where
     }
 
     #[inline]
-    pub async fn read_smolstr(&mut self) -> Result<smol_str::SmolStr, Error> {
-        self.read_string().await.map(smol_str::SmolStr::new)
+    pub async fn read_faststr(&mut self) -> Result<FastStr, Error> {
+        self.read_string().await.map(FastStr::from_string)
     }
 
     #[inline]
@@ -855,7 +853,7 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
             ));
         }
 
-        let name = self.read_smolstr()?;
+        let name = self.read_faststr()?;
 
         let sequence_number = self.read_i32()?;
         Ok(TMessageIdentifier::new(name, message_type, sequence_number))
@@ -954,10 +952,13 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn read_smolstr(&mut self) -> Result<SmolStr, Error> {
-        let len = self.trans.read_i32()?;
-        let bytes = self.trans.split_to(len as usize);
-        unsafe { Ok(SmolStr::new(str::from_utf8_unchecked(bytes.deref()))) }
+    fn read_faststr(&mut self) -> Result<FastStr, Error> {
+        let len = self.trans.read_i32()? as usize;
+        let bytes = self.trans.split_to(len);
+        if len > INLINE_CAP {
+            unsafe { return Ok(FastStr::from_bytes_mut_unchecked(bytes)) };
+        }
+        unsafe { Ok(FastStr::new_inline(str::from_utf8_unchecked(bytes.deref()))) }
     }
 
     #[inline]

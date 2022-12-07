@@ -7,6 +7,8 @@ use std::{
     str::FromStr,
 };
 
+use faststr::FastStr;
+
 #[derive(Default, Debug)]
 pub struct TypeMap(HashMap<TypeId, Box<dyn Any + Sync + Send>>);
 
@@ -111,7 +113,7 @@ pub mod thrift {
 }
 
 #[derive(Clone)]
-pub struct PilotaName(pub smol_str::SmolStr);
+pub struct PilotaName(pub FastStr);
 
 pub trait Annotation: FromStr {
     const KEY: &'static str;
@@ -121,7 +123,7 @@ impl FromStr for PilotaName {
     type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(smol_str::SmolStr::new(s)))
+        Ok(Self(FastStr::new(s)))
     }
 }
 
@@ -130,11 +132,11 @@ impl Annotation for PilotaName {
 }
 
 #[derive(Debug)]
-pub struct RustType(pub smol_str::SmolStr);
+pub struct RustType(pub FastStr);
 
 impl PartialEq<str> for RustType {
     fn eq(&self, other: &str) -> bool {
-        &self.0 == other
+        self.0 == other
     }
 }
 
@@ -142,7 +144,7 @@ impl FromStr for RustType {
     type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(smol_str::SmolStr::new(s)))
+        Ok(Self(FastStr::new(s)))
     }
 }
 
@@ -151,11 +153,11 @@ impl Annotation for RustType {
 }
 
 #[derive(Debug)]
-pub struct RustWrapperArc(pub smol_str::SmolStr);
+pub struct RustWrapperArc(pub FastStr);
 
 impl PartialEq<str> for RustWrapperArc {
     fn eq(&self, other: &str) -> bool {
-        &self.0 == other
+        self.0 == other
     }
 }
 
@@ -163,7 +165,7 @@ impl FromStr for RustWrapperArc {
     type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(smol_str::SmolStr::new(s)))
+        Ok(Self(FastStr::new(s)))
     }
 }
 

@@ -1,5 +1,6 @@
 use std::{fmt::Display, ops::Deref};
 
+use faststr::FastStr;
 use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use phf::phf_set;
 use quote::{format_ident, IdentFragment};
@@ -74,7 +75,7 @@ lazy_static::lazy_static! {
 }
 
 #[derive(Hash, PartialEq, Eq, Clone, Debug)]
-pub struct Symbol(pub smol_str::SmolStr);
+pub struct Symbol(pub FastStr);
 
 impl std::borrow::Borrow<str> for Symbol {
     fn borrow(&self) -> &str {
@@ -92,7 +93,7 @@ impl Deref for Symbol {
 
 impl<T> From<T> for Symbol
 where
-    T: Into<smol_str::SmolStr>,
+    T: Into<FastStr>,
 {
     fn from(t: T) -> Self {
         Symbol(t.into())
@@ -153,7 +154,7 @@ impl Display for Ident {
 
 impl<T> From<T> for Ident
 where
-    T: Into<smol_str::SmolStr>,
+    T: Into<FastStr>,
 {
     fn from(t: T) -> Self {
         Ident {
@@ -163,42 +164,42 @@ where
 }
 
 pub trait IdentName {
-    fn struct_ident(&self) -> smol_str::SmolStr {
+    fn struct_ident(&self) -> FastStr {
         self.upper_camel_ident()
     }
 
-    fn enum_ident(&self) -> smol_str::SmolStr {
+    fn enum_ident(&self) -> FastStr {
         self.upper_camel_ident()
     }
 
-    fn mod_ident(&self) -> smol_str::SmolStr {
+    fn mod_ident(&self) -> FastStr {
         self.snake_ident()
     }
 
-    fn variant_ident(&self) -> smol_str::SmolStr {
+    fn variant_ident(&self) -> FastStr {
         self.upper_camel_ident()
     }
-    fn fn_ident(&self) -> smol_str::SmolStr {
+    fn fn_ident(&self) -> FastStr {
         self.snake_ident()
     }
-    fn field_ident(&self) -> smol_str::SmolStr {
+    fn field_ident(&self) -> FastStr {
         self.snake_ident()
     }
-    fn const_ident(&self) -> smol_str::SmolStr {
+    fn const_ident(&self) -> FastStr {
         self.shouty_snake_case()
     }
 
-    fn trait_ident(&self) -> smol_str::SmolStr {
+    fn trait_ident(&self) -> FastStr {
         self.upper_camel_ident()
     }
 
-    fn newtype_ident(&self) -> smol_str::SmolStr {
+    fn newtype_ident(&self) -> FastStr {
         self.upper_camel_ident()
     }
 
-    fn upper_camel_ident(&self) -> smol_str::SmolStr;
-    fn snake_ident(&self) -> smol_str::SmolStr;
-    fn shouty_snake_case(&self) -> smol_str::SmolStr;
+    fn upper_camel_ident(&self) -> FastStr;
+    fn snake_ident(&self) -> FastStr;
+    fn shouty_snake_case(&self) -> FastStr;
 
     fn as_syn_ident(&self) -> syn::Ident;
 }
@@ -215,16 +216,16 @@ fn str2ident(s: &str) -> syn::Ident {
 }
 
 impl IdentName for &str {
-    fn upper_camel_ident(&self) -> smol_str::SmolStr {
+    fn upper_camel_ident(&self) -> FastStr {
         let s = self.to_upper_camel_case();
         s.into()
     }
 
-    fn snake_ident(&self) -> smol_str::SmolStr {
+    fn snake_ident(&self) -> FastStr {
         self.to_snake_case().into()
     }
 
-    fn shouty_snake_case(&self) -> smol_str::SmolStr {
+    fn shouty_snake_case(&self) -> FastStr {
         self.to_shouty_snake_case().into()
     }
 
@@ -233,16 +234,16 @@ impl IdentName for &str {
     }
 }
 
-impl IdentName for smol_str::SmolStr {
-    fn upper_camel_ident(&self) -> smol_str::SmolStr {
+impl IdentName for FastStr {
+    fn upper_camel_ident(&self) -> FastStr {
         (&**self).upper_camel_ident()
     }
 
-    fn snake_ident(&self) -> smol_str::SmolStr {
+    fn snake_ident(&self) -> FastStr {
         (&**self).snake_ident()
     }
 
-    fn shouty_snake_case(&self) -> smol_str::SmolStr {
+    fn shouty_snake_case(&self) -> FastStr {
         (&**self).shouty_snake_case()
     }
 

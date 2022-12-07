@@ -1,5 +1,6 @@
 use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
 
+use faststr::FastStr;
 use fxhash::{FxHashMap, FxHashSet};
 use itertools::Itertools;
 use normpath::PathExt;
@@ -91,7 +92,7 @@ impl Context {
         item.symbol_name()
     }
 
-    pub fn rust_name(&self, def_id: DefId) -> smol_str::SmolStr {
+    pub fn rust_name(&self, def_id: DefId) -> FastStr {
         let node = self.node(def_id).unwrap();
 
         if let Some(name) = self
@@ -116,8 +117,8 @@ impl Context {
         }
     }
 
-    pub fn mod_path(&self, def_id: DefId) -> Arc<[smol_str::SmolStr]> {
-        fn calc_item_path(cx: &Context, def_id: DefId, segs: &mut Vec<smol_str::SmolStr>) {
+    pub fn mod_path(&self, def_id: DefId) -> Arc<[FastStr]> {
+        fn calc_item_path(cx: &Context, def_id: DefId, segs: &mut Vec<FastStr>) {
             let node = cx.node(def_id).unwrap();
             if let Some(parent) = node.parent {
                 calc_item_path(cx, parent, segs)
@@ -141,8 +142,8 @@ impl Context {
         Arc::from(segs)
     }
 
-    pub fn item_path(&self, def_id: DefId) -> Arc<[smol_str::SmolStr]> {
-        fn calc_item_path(cx: &Context, def_id: DefId, segs: &mut Vec<smol_str::SmolStr>) {
+    pub fn item_path(&self, def_id: DefId) -> Arc<[FastStr]> {
+        fn calc_item_path(cx: &Context, def_id: DefId, segs: &mut Vec<FastStr>) {
             let node = cx.node(def_id).unwrap();
 
             match node.kind {
@@ -168,7 +169,7 @@ impl Context {
         Arc::from(segs)
     }
 
-    fn related_path(&self, p1: &[smol_str::SmolStr], p2: &[smol_str::SmolStr]) -> syn::Path {
+    fn related_path(&self, p1: &[FastStr], p2: &[FastStr]) -> syn::Path {
         if p1 == p2 {
             return syn::Path::from(format_ident!("{}", p2.last().unwrap().as_syn_ident()));
         }
@@ -180,7 +181,7 @@ impl Context {
 
         enum Kind {
             Super,
-            Ident(smol_str::SmolStr),
+            Ident(FastStr),
         }
         let path = (0..p1.len() - i)
             .map(|_| Kind::Super)
@@ -311,7 +312,7 @@ impl Context {
                     .find(|def_id| &*self.item(**def_id).unwrap().symbol_name() == item_name)
                     .cloned();
                 if let Some(def_id) = def_id {
-                    collect(&self, def_id, &mut set);
+                    collect(self, def_id, &mut set);
                 } else {
                     println!(
                         "cargo:warning=item `{}` of `{}` not exists",
@@ -323,13 +324,13 @@ impl Context {
         });
 
         input.iter().for_each(|def_id| {
-            collect(&self, *def_id, &mut set);
+            collect(self, *def_id, &mut set);
         });
 
         self.nodes().iter().for_each(|(def_id, node)| {
             if let NodeKind::Item(item) = &node.kind {
                 if let rir::Item::Const(_) = &**item {
-                    collect(&self, *def_id, &mut set);
+                    collect(self, *def_id, &mut set);
                 }
             }
         });
@@ -340,7 +341,7 @@ impl Context {
     pub(crate) fn collect_pkgs(
         &mut self,
         mode: CollectMode,
-    ) -> HashMap<Arc<[smol_str::SmolStr]>, Vec<DefId>> {
+    ) -> HashMap<Arc<[FastStr]>, Vec<DefId>> {
         match mode {
             CollectMode::All => {
                 let files = self.files();
