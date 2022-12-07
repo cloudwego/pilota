@@ -20,7 +20,6 @@ maintenance = { status = "actively-developed" }
 pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.4" }
 
 heck = "0.4"
-smol_str = "0.1"
 syn = "1"
 normpath = "0.3"
 fxhash = "0.2"
@@ -39,6 +38,7 @@ petgraph = "0.6"
 # We will switch to the official one when https://github.com/stepancheg/rust-protobuf/pull/646 is fixed.
 protobuf-parse = { package = "protobuf-parse2", version = "4.0.0-alpha.2" }
 protobuf = { package = "protobuf2", version = "4.0.0-alpha.2" }
+faststr = "0.1"
 
 [build-dependencies]
 itertools = "0.10"

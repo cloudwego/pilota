@@ -1,5 +1,6 @@
 use std::{collections::HashMap, ops::Deref, sync::Arc};
 
+use faststr::FastStr;
 use fxhash::FxHashMap;
 use heck::ToShoutySnakeCase;
 use pkg_tree::PkgNode;
@@ -30,7 +31,7 @@ pub struct Codegen<B> {
     backend: B,
     zero_copy: bool,
     cx: Arc<Context>,
-    pkgs: FxHashMap<Arc<[smol_str::SmolStr]>, TokenStream>,
+    pkgs: FxHashMap<Arc<[FastStr]>, TokenStream>,
 }
 
 impl<B> Deref for Codegen<B> {
@@ -339,9 +340,9 @@ where
                 let s = &**s;
                 quote! { #s.to_string() }
             }
-            (Literal::String(s), CodegenTy::SmolStr) => {
+            (Literal::String(s), CodegenTy::FastStr) => {
                 let s = &**s;
-                quote! { ::pilota::SmolStr::new(#s) }
+                quote! { ::pilota::FastStr::new(#s) }
             }
             (Literal::Int(i), CodegenTy::I16) => {
                 let i = *i as i16;
@@ -392,7 +393,7 @@ where
         }
     }
 
-    pub(crate) fn write_mods(&mut self, mods: HashMap<Arc<[smol_str::SmolStr]>, Vec<DefId>>) {
+    pub(crate) fn write_mods(&mut self, mods: HashMap<Arc<[FastStr]>, Vec<DefId>>) {
         mods.iter().for_each(|(p, def_ids)| {
             let stream: &mut TokenStream =
                 unsafe { std::mem::transmute(self.pkgs.entry(p.clone()).or_default()) };
@@ -405,7 +406,7 @@ where
 
     pub fn link(mut self, ns_name: &str) -> TokenStream {
         fn write_stream(
-            pkgs: &mut FxHashMap<Arc<[smol_str::SmolStr]>, TokenStream>,
+            pkgs: &mut FxHashMap<Arc<[FastStr]>, TokenStream>,
             stream: &mut TokenStream,
             nodes: &[PkgNode],
         ) {

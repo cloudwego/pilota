@@ -382,9 +382,7 @@ impl ThriftLower {
         if let Some(rust_type) = rust_type {
             if let thrift_parser::Ty::String = &ty {
                 let mut tags = Tags::default();
-                if rust_type == "bytes" {
-                    tags.insert(StringRepr::Bytes);
-                } else if rust_type == "string" {
+                if rust_type == "string" {
                     tags.insert(StringRepr::String)
                 }
                 return ir::Ty {
@@ -526,7 +524,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                             .unwrap()
                             .trim_end_matches(".thrift")
                             .split('.')
-                            .map(|s| Ident::from(s))
+                            .map(Ident::from)
                             .collect_vec(),
                         this.lower_include(i),
                     )

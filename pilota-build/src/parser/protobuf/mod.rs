@@ -185,7 +185,7 @@ impl Lower {
                 let mut s = String::new();
                 parent_messages.iter().for_each(|m| {
                     s.push_str(m);
-                    s.push_str(".")
+                    s.push('.')
                 });
                 s
             },
@@ -326,10 +326,10 @@ impl Lower {
         if nested_items.is_empty() {
             item
         } else {
-            let name = item.name().clone();
+            let name = item.name();
             nested_items.push(Arc::new(item));
             let mut tags = Tags::default();
-            tags.insert(PilotaName(name.0.mod_ident().clone()));
+            tags.insert(PilotaName(name.0.mod_ident()));
             Item {
                 related_items: Default::default(),
                 tags: Arc::from(tags),
@@ -404,7 +404,7 @@ impl Lower {
 
                 let file_id = *self.files.get(f.name()).unwrap();
 
-                let package = self.str2path(&f.package());
+                let package = self.str2path(f.package());
 
                 let enums = f.enum_type.iter().map(|e| self.lower_enum(e));
                 let messages = f
@@ -414,7 +414,7 @@ impl Lower {
                 let services = f.service.iter().map(|s| self.lower_service(s));
 
                 let f = Arc::from(ir::File {
-                    package: package.clone(),
+                    package,
                     uses: f
                         .dependency
                         .iter()

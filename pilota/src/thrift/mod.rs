@@ -6,13 +6,14 @@ use std::{ops::Deref, sync::Arc};
 
 use bytes::{Buf, BufMut, Bytes};
 pub use error::*;
-use smol_str::SmolStr;
+use faststr::FastStr;
 use tokio::io::AsyncRead;
 
 pub use self::binary::TAsyncBinaryProtocol;
 
 const MAXIMUM_SKIP_DEPTH: i8 = 64;
 const ZERO_COPY_THRESHOLD: usize = 4 * 1024; // 4KB
+const INLINE_CAP: usize = 22;
 
 lazy_static::lazy_static! {
     pub static ref VOID_IDENT: TStructIdentifier = TStructIdentifier { name: "void" };
@@ -107,8 +108,8 @@ pub trait TInputProtocol {
     fn read_double(&mut self) -> Result<f64, Error>;
     /// Read a fixed-length string (not null terminated).
     fn read_string(&mut self) -> Result<String, Error>;
-    /// Read a smolstr.
-    fn read_smolstr(&mut self) -> Result<SmolStr, Error>;
+    /// Read a faststr.
+    fn read_faststr(&mut self) -> Result<FastStr, Error>;
     /// Read the beginning of a list.
     fn read_list_begin(&mut self) -> Result<TListIdentifier, Error>;
     /// Read the end of a list.
@@ -239,7 +240,7 @@ pub trait TLengthProtocol {
 
     fn write_string_len(&mut self, s: &str) -> usize;
 
-    fn write_smolstr_len(&mut self, s: &SmolStr) -> usize;
+    fn write_faststr_len(&mut self, s: &FastStr) -> usize;
 
     fn write_list_begin_len(&mut self, identifier: &TListIdentifier) -> usize;
 
@@ -300,8 +301,8 @@ pub trait TOutputProtocol {
     fn write_double(&mut self, d: f64) -> Result<(), Error>;
     /// Write a fixed-length string.
     fn write_string(&mut self, s: &str) -> Result<(), Error>;
-    /// Write a fixed-length smolstr.
-    fn write_smolstr(&mut self, s: SmolStr) -> Result<(), Error>;
+    /// Write a fixed-length faststr.
+    fn write_faststr(&mut self, s: FastStr) -> Result<(), Error>;
     /// Write the beginning of a list.
     fn write_list_begin(&mut self, identifier: &TListIdentifier) -> Result<(), Error>;
     /// Write the end of a list.
@@ -432,7 +433,7 @@ impl From<TMessageType> for u8 {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TMessageIdentifier {
     /// Service call the message is associated with.
-    pub name: smol_str::SmolStr,
+    pub name: FastStr,
     /// Message type.
     pub message_type: TMessageType,
     /// Ordered sequence number identifying the message.
@@ -443,7 +444,7 @@ impl TMessageIdentifier {
     /// Create a `TMessageIdentifier` for a Thrift service-call named `name`
     /// with message type `message_type` and sequence number `sequence_number`.
     pub fn new(
-        name: smol_str::SmolStr,
+        name: FastStr,
         message_type: TMessageType,
         sequence_number: i32,
     ) -> TMessageIdentifier {

@@ -1,10 +1,9 @@
-pub mod string_bytes {
+pub mod string {
     #![allow(warnings, clippy::all)]
-    pub mod string_bytes {
+    pub mod string {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
-            pub smol: ::pilota::SmolStr,
-            pub bytes: ::pilota::Bytes,
+            pub faststr: ::pilota::FastStr,
             pub string: ::std::string::String,
         }
         #[::async_trait::async_trait]
@@ -16,21 +15,15 @@ pub mod string_bytes {
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
                 protocol.write_struct_begin(&struct_ident)?;
                 {
-                    let value = &self.smol;
+                    let value = &self.faststr;
                     protocol.write_field_begin(::pilota::thrift::TType::Binary, 1i16)?;
-                    protocol.write_smolstr(value.clone())?;
-                    protocol.write_field_end()?;
-                }
-                {
-                    let value = &self.bytes;
-                    protocol.write_field_begin(::pilota::thrift::TType::Binary, 2i16)?;
-                    protocol.write_bytes(value.clone())?;
+                    protocol.write_faststr(value.clone())?;
                     protocol.write_field_end()?;
                 }
                 {
                     let value = &self.string;
-                    protocol.write_field_begin(::pilota::thrift::TType::Binary, 3i16)?;
-                    protocol.write_string(value)?;
+                    protocol.write_field_begin(::pilota::thrift::TType::Binary, 2i16)?;
+                    protocol.write_string(&value)?;
                     protocol.write_field_end()?;
                 }
                 protocol.write_field_stop()?;
@@ -40,8 +33,7 @@ pub mod string_bytes {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
-                let mut smol = None;
-                let mut bytes = None;
+                let mut faststr = None;
                 let mut string = None;
                 protocol.read_struct_begin()?;
                 loop {
@@ -52,12 +44,9 @@ pub mod string_bytes {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            smol = Some(protocol.read_smolstr()?);
+                            faststr = Some(protocol.read_faststr()?);
                         }
                         Some(2i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            bytes = Some(protocol.read_bytes()?);
-                        }
-                        Some(3i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
                             string = Some(protocol.read_string()?);
                         }
                         _ => {
@@ -67,23 +56,13 @@ pub mod string_bytes {
                     protocol.read_field_end()?;
                 }
                 protocol.read_struct_end()?;
-                let smol = if let Some(smol) = smol {
-                    smol
+                let faststr = if let Some(faststr) = faststr {
+                    faststr
                 } else {
                     return Err(::pilota::thrift::Error::Protocol(
                         ::pilota::thrift::ProtocolError::new(
                             ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field smol is required".to_string(),
-                        ),
-                    ));
-                };
-                let bytes = if let Some(bytes) = bytes {
-                    bytes
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field bytes is required".to_string(),
+                            "field faststr is required".to_string(),
                         ),
                     ));
                 };
@@ -98,8 +77,7 @@ pub mod string_bytes {
                     ));
                 };
                 let data = Self {
-                    smol: smol,
-                    bytes: bytes,
+                    faststr: faststr,
                     string: string,
                 };
                 Ok(data)
@@ -107,8 +85,7 @@ pub mod string_bytes {
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
                 protocol: &mut ::pilota::thrift::TAsyncBinaryProtocol<C>,
             ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
-                let mut smol = None;
-                let mut bytes = None;
+                let mut faststr = None;
                 let mut string = None;
                 protocol.read_struct_begin().await?;
                 loop {
@@ -119,12 +96,9 @@ pub mod string_bytes {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            smol = Some(protocol.read_smolstr().await?);
+                            faststr = Some(protocol.read_faststr().await?);
                         }
                         Some(2i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            bytes = Some(protocol.read_bytes().await?);
-                        }
-                        Some(3i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
                             string = Some(protocol.read_string().await?);
                         }
                         _ => {
@@ -134,23 +108,13 @@ pub mod string_bytes {
                     protocol.read_field_end().await?;
                 }
                 protocol.read_struct_end().await?;
-                let smol = if let Some(smol) = smol {
-                    smol
+                let faststr = if let Some(faststr) = faststr {
+                    faststr
                 } else {
                     return Err(::pilota::thrift::Error::Protocol(
                         ::pilota::thrift::ProtocolError::new(
                             ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field smol is required".to_string(),
-                        ),
-                    ));
-                };
-                let bytes = if let Some(bytes) = bytes {
-                    bytes
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field bytes is required".to_string(),
+                            "field faststr is required".to_string(),
                         ),
                     ));
                 };
@@ -165,8 +129,7 @@ pub mod string_bytes {
                     ));
                 };
                 let data = Self {
-                    smol: smol,
-                    bytes: bytes,
+                    faststr: faststr,
                     string: string,
                 };
                 Ok(data)
@@ -174,21 +137,12 @@ pub mod string_bytes {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
                     + {
-                        let value = &self.smol;
+                        let value = &self.faststr;
                         protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("smol"),
+                            name: Some("faststr"),
                             field_type: ::pilota::thrift::TType::Binary,
                             id: Some(1i16),
-                        }) + protocol.write_smolstr_len(value)
-                            + protocol.write_field_end_len()
-                    }
-                    + {
-                        let value = &self.bytes;
-                        protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("bytes"),
-                            field_type: ::pilota::thrift::TType::Binary,
-                            id: Some(2i16),
-                        }) + protocol.write_bytes_len(value)
+                        }) + protocol.write_faststr_len(value)
                             + protocol.write_field_end_len()
                     }
                     + {
@@ -196,7 +150,7 @@ pub mod string_bytes {
                         protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
                             name: Some("string"),
                             field_type: ::pilota::thrift::TType::Binary,
-                            id: Some(3i16),
+                            id: Some(2i16),
                         }) + protocol.write_string_len(&value)
                             + protocol.write_field_end_len()
                     }

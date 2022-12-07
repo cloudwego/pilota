@@ -10,7 +10,7 @@ use crate::{
 impl ThriftBackend {
     pub(crate) fn ttype(&self, ty: &Ty) -> TokenStream {
         match &ty.kind {
-            ty::String | ty::SmolStr => quote! {::pilota::thrift::TType::Binary},
+            ty::String | ty::FastStr => quote! {::pilota::thrift::TType::Binary},
             ty::Void => quote! {::pilota::thrift::TType::Void},
             ty::U8 => quote! {::pilota::thrift::TType::I8},
             ty::Bool => quote! {::pilota::thrift::TType::Bool},
@@ -42,8 +42,8 @@ impl ThriftBackend {
 
     pub(crate) fn codegen_encode_ty(&self, ty: &Ty, ident: &Ident) -> TokenStream {
         match &ty.kind {
-            ty::String => quote! { protocol.write_string(#ident)?; },
-            ty::SmolStr => quote! { protocol.write_smolstr(#ident.clone())?; },
+            ty::String => quote! { protocol.write_string(&#ident)?; },
+            ty::FastStr => quote! { protocol.write_faststr(#ident.clone())?; },
             ty::Void => quote! {
                 protocol.write_struct_begin(&*::pilota::thrift::VOID_IDENT)?;
                 protocol.write_struct_end()?;
@@ -118,7 +118,7 @@ impl ThriftBackend {
     pub(crate) fn codegen_ty_size(&self, ty: &Ty, ident: &Ident) -> TokenStream {
         match &ty.kind {
             ty::String => quote! { protocol.write_string_len(&#ident) },
-            ty::SmolStr => quote! { protocol.write_smolstr_len(#ident) },
+            ty::FastStr => quote! { protocol.write_faststr_len(#ident) },
             ty::Void => {
                 quote! { protocol.write_struct_begin_len(&*::pilota::thrift::VOID_IDENT) +  protocol.write_struct_end_len() }
             }
@@ -206,7 +206,7 @@ impl ThriftBackend {
     pub(crate) fn codegen_decode_ty(&self, helper: &DecodeHelper, ty: &Ty) -> TokenStream {
         match &ty.kind {
             ty::String => helper.codegen_read_string(),
-            ty::SmolStr => helper.codegen_read_smolstr(),
+            ty::FastStr => helper.codegen_read_faststr(),
             ty::Void => {
                 let read_struct_begin = helper.codegen_read_struct_begin();
                 let read_struct_end = helper.codegen_read_struct_end();
