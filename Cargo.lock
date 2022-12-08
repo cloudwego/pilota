@@ -106,11 +106,12 @@ dependencies = [
 
 [[package]]
 name = "faststr"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c30e8b7deaa08b8ce5efe5d91bf00eee3d20e5e327a1cac209d4f9b2f39f503f"
+checksum = "9cd7a705f88e4665d7a72a763debf1a263d4143c5cefae8e8efceb98d49afe69"
 dependencies = [
  "bytes",
+ "serde",
 ]
 
 [[package]]
@@ -587,6 +588,12 @@ name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
+
+[[package]]
+name = "serde"
+version = "1.0.149"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "256b9932320c590e707b94576e3cc1f7c9024d0ee6612dfbcf1cb106cbe8e055"
 
 [[package]]
 name = "sharded-slab"

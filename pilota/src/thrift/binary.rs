@@ -954,9 +954,9 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     #[inline]
     fn read_faststr(&mut self) -> Result<FastStr, Error> {
         let len = self.trans.read_i32()? as usize;
-        let bytes = self.trans.split_to(len);
+        let bytes = self.trans.split_to(len).freeze();
         if len > INLINE_CAP {
-            unsafe { return Ok(FastStr::from_bytes_mut_unchecked(bytes)) };
+            unsafe { return Ok(FastStr::from_bytes_unchecked(bytes)) };
         }
         unsafe { Ok(FastStr::new_inline(str::from_utf8_unchecked(bytes.deref()))) }
     }
