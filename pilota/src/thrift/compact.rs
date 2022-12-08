@@ -184,6 +184,19 @@ impl<T> TCompactOutputProtocol<T> {
     }
 }
 
+macro_rules! write_field_header_len {
+    ($self:expr, $ax:expr, $field_type:expr, $id:expr) => {
+        let field_delta = $id - $self.last_write_field_id;
+        if field_delta > 0 && field_delta < 15 {
+            $ax += $self.write_byte_len(0);
+        } else {
+            $ax += $self.write_byte_len($field_type as u8);
+            $ax += $self.write_i16_len($id);
+        }
+        $self.last_write_field_id = $id;
+    };
+}
+
 impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     #[inline]
     fn write_message_begin_len(&mut self, ident: &TMessageIdentifier) -> usize {
@@ -192,53 +205,94 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     }
     #[inline]
     fn write_message_end_len(&mut self) -> usize {
-        // todo(ii64): need mutable self
-        todo!()
+        self.assert_no_pending_bool_write();
+        0
     }
 
     #[inline]
     fn write_struct_begin_len(&mut self, _ident: &TStructIdentifier) -> usize {
-        // todo(ii64): need mutable self
-        todo!()
+        self.write_field_id_stack.push(self.last_write_field_id);
+        self.last_write_field_id = 0;
+        0
     }
     #[inline]
     fn write_struct_end_len(&mut self) -> usize {
-        // todo(ii64): need mutable self
-        todo!()
+        self.assert_no_pending_bool_write();
+        self.last_write_field_id = self
+            .write_field_id_stack
+            .pop()
+            .ok_or_else(|| {
+                new_protocol_error(
+                    ProtocolErrorKind::InvalidData,
+                    "WriteStructEndLen called without matching WriteStructBeginLen",
+                )
+            })
+            .unwrap();
+        0
     }
 
     #[inline]
-    fn write_field_begin_len(&mut self, _ident: &TFieldIdentifier) -> usize {
-        // todo(ii64): need mutable self
-        todo!()
+    fn write_field_begin_len(&mut self, identifier: &TFieldIdentifier) -> usize {
+        match identifier.field_type {
+            TType::Bool => {
+                if self.pending_write_bool_field_identifier.is_some() {
+                    panic!(
+                        "should not have a pending bool while writing another bool with id: \
+                        {:?}",
+                        identifier.id,
+                    )
+                }
+                self.pending_write_bool_field_identifier = Some(TFieldIdentifier {
+                    name: None,
+                    field_type: identifier.field_type,
+                    id: identifier.id,
+                });
+                0
+            }
+            _ => {
+                let tc_field_type = TCompactType::try_from(identifier.field_type).unwrap(); // this should never happen
+                let mut ax = 0;
+                write_field_header_len!(
+                    self,
+                    ax,
+                    tc_field_type,
+                    identifier.id.expect("expecting a field id")
+                );
+                ax
+            }
+        }
     }
     #[inline]
     fn write_field_end_len(&mut self) -> usize {
-        // todo(ii64): need mutable self
-        todo!()
+        self.assert_no_pending_bool_write();
+        0
     }
     #[inline]
     fn write_field_stop_len(&mut self) -> usize {
-        // todo(ii64): need mutable self
-        todo!()
+        self.assert_no_pending_bool_write();
+        self.write_byte_len(TType::Stop as u8)
     }
 
     #[inline]
-    fn write_bool_len(&mut self, _b: bool) -> usize {
-        // todo(ii64): need mutable self
-        todo!()
-        // match self.pending_write_bool_field_identifier.take() {
-        //     Some(pending) => {
-        //         let _field_id = pending.id.expect("bool field should have a
-        // field id");         let _tc_field_type = if b {
-        //             TCompactType::BooleanTrue
-        //         } else { TCompactType::BooleanFalse };
-        //         // todo: continue
-        //     }
-        //     None => self.write_byte_len(if b {
-        //         TCompactType::BooleanTrue as u8
-        //     } else { TCompactType::BooleanFalse as u8}),
-        // }
+    fn write_bool_len(&mut self, b: bool) -> usize {
+        match self.pending_write_bool_field_identifier.take() {
+            Some(pending) => {
+                let field_id = pending.id.expect("bool field should have a field id");
+                let tc_field_type = if b {
+                    TCompactType::BooleanTrue
+                } else {
+                    TCompactType::BooleanFalse
+                };
+                let mut ax = 0;
+                write_field_header_len!(self, ax, tc_field_type, field_id);
+                ax
+            }
+            None => self.write_byte_len(if b {
+                TCompactType::BooleanTrue as u8
+            } else {
+                TCompactType::BooleanFalse as u8
+            }),
+        }
     }
 
     #[inline]
@@ -428,10 +482,12 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     #[inline]
     fn write_struct_end(&mut self) -> Result<(), Error> {
         self.assert_no_pending_bool_write();
-        self.last_write_field_id = self.write_field_id_stack.pop().ok_or_else(|| new_protocol_error(
-            ProtocolErrorKind::InvalidData,
-            "WriteStructEnd called without matching WriteStructBegin",
-        ))?;
+        self.last_write_field_id = self.write_field_id_stack.pop().ok_or_else(|| {
+            new_protocol_error(
+                ProtocolErrorKind::InvalidData,
+                "WriteStructEnd called without matching WriteStructBegin",
+            )
+        })?;
         Ok(())
     }
 
@@ -688,10 +744,12 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
     #[inline]
     fn write_struct_end(&mut self) -> Result<(), Error> {
         self.assert_no_pending_bool_write();
-        self.last_write_field_id = self.write_field_id_stack.pop().ok_or_else(|| new_protocol_error(
-            ProtocolErrorKind::InvalidData,
-            "WriteStructEnd called without matching WriteStructBegin",
-        ))?;
+        self.last_write_field_id = self.write_field_id_stack.pop().ok_or_else(|| {
+            new_protocol_error(
+                ProtocolErrorKind::InvalidData,
+                "WriteStructEnd called without matching WriteStructBegin",
+            )
+        })?;
         Ok(())
     }
 
