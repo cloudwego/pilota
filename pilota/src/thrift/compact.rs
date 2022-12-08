@@ -8,6 +8,7 @@ use bytes::{Bytes, BytesMut};
 use faststr::FastStr;
 use integer_encoding::{VarInt, VarIntAsyncReader};
 use lazy_static::__Deref;
+use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
@@ -17,7 +18,7 @@ use super::{
     varint_ext::VarIntProcessor,
     TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
     TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    MAXIMUM_SKIP_DEPTH, INLINE_CAP, ZERO_COPY_THRESHOLD,
+    INLINE_CAP, MAXIMUM_SKIP_DEPTH, ZERO_COPY_THRESHOLD,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -427,7 +428,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     #[inline]
     fn write_struct_end(&mut self) -> Result<(), Error> {
         self.assert_no_pending_bool_write();
-        self.last_write_field_id = self.write_field_id_stack.pop().ok_or(new_protocol_error(
+        self.last_write_field_id = self.write_field_id_stack.pop().ok_or_else(|| new_protocol_error(
             ProtocolErrorKind::InvalidData,
             "WriteStructEnd called without matching WriteStructBegin",
         ))?;
@@ -536,7 +537,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         self.trans.write_f64(d)?;
         Ok(())
     }
-    
+
     #[inline]
     fn write_string(&mut self, s: &str) -> Result<(), Error> {
         // length is strictly positive as per the spec, so
@@ -620,6 +621,280 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     }
 }
 
+impl TCompactOutputProtocol<&mut LinkedBytes> {
+    #[inline]
+    fn write_varint<VI: VarInt>(&mut self, n: VI) -> Result<(), Error> {
+        let mut buf = [0u8; 10];
+        let size = n.encode_var(&mut buf);
+        self.trans.bytes_mut().write_slice(&buf[0..size])?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_field_header(&mut self, field_type: TCompactType, id: i16) -> Result<(), Error> {
+        let field_delta = id - self.last_write_field_id;
+        if field_delta > 0 && field_delta < 15 {
+            self.write_byte(((field_delta as u8) << 4) | (field_type as u8))?;
+        } else {
+            self.write_byte(field_type as u8)?;
+            self.write_i16(id)?;
+        }
+        self.last_write_field_id = id;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_collection_begin(&mut self, element_type: TType, size: usize) -> Result<(), Error> {
+        if size <= 14 {
+            self.write_byte(
+                ((size as i32) << 4) as u8 | (tcompact_get_compact(element_type)? as u8),
+            )?;
+        } else {
+            self.write_byte(0xF0 | (tcompact_get_compact(element_type)? as u8))?;
+            self.write_varint(size as u32)?;
+        }
+        Ok(())
+    }
+
+    fn assert_no_pending_bool_write(&self) {
+        if let Some(ref f) = self.pending_write_bool_field_identifier {
+            panic!("pending bool field {:?} not written", f);
+        }
+    }
+}
+
+impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
+    type BufMut = LinkedBytes;
+
+    #[inline]
+    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), Error> {
+        let mtype = identifier.message_type as u8;
+        self.trans.bytes_mut().write_slice(&[
+            COMPACT_PROTOCOL_ID,
+            (COMPACT_VERSION & COMPACT_VERSION_MASK)
+                | ((mtype << COMPACT_TYPE_SHIFT_AMOUNT) & COMPACT_TYPE_MASK),
+        ])?;
+        // cast i32 as u32 so that varint writing won't use zigzag encoding
+        self.write_varint(identifier.sequence_number as u32)?;
+        self.write_faststr(identifier.name.clone())?;
+        Ok(())
+    }
+    #[inline]
+    fn write_message_end(&mut self) -> Result<(), Error> {
+        self.assert_no_pending_bool_write();
+        Ok(())
+    }
+
+    #[inline]
+    fn write_struct_begin(&mut self, _identifier: &TStructIdentifier) -> Result<(), Error> {
+        self.write_field_id_stack.push(self.last_write_field_id);
+        self.last_write_field_id = 0;
+        Ok(())
+    }
+    #[inline]
+    fn write_struct_end(&mut self) -> Result<(), Error> {
+        self.assert_no_pending_bool_write();
+        self.last_write_field_id = self.write_field_id_stack.pop().ok_or_else(|| new_protocol_error(
+            ProtocolErrorKind::InvalidData,
+            "WriteStructEnd called without matching WriteStructBegin",
+        ))?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), Error> {
+        match field_type {
+            TType::Bool => {
+                if self.pending_write_bool_field_identifier.is_some() {
+                    panic!(
+                        "should not have a pending bool while writing another bool with id: \
+                        {:?}",
+                        id
+                    )
+                }
+                self.pending_write_bool_field_identifier = Some(TFieldIdentifier {
+                    name: None,
+                    field_type,
+                    id: Some(id),
+                });
+                Ok(())
+            }
+            _ => {
+                let tc_field_type = TCompactType::try_from(field_type)?;
+                self.write_field_header(tc_field_type, id)
+            }
+        }
+    }
+    #[inline]
+    fn write_field_end(&mut self) -> Result<(), Error> {
+        self.assert_no_pending_bool_write();
+        Ok(())
+    }
+    #[inline]
+    fn write_field_stop(&mut self) -> Result<(), Error> {
+        self.assert_no_pending_bool_write();
+        self.write_byte(TType::Stop as u8)?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_bool(&mut self, b: bool) -> Result<(), Error> {
+        match self.pending_write_bool_field_identifier.take() {
+            Some(pending) => {
+                let field_id = pending.id.expect("bool field should have a field id");
+                let tc_field_type = if b {
+                    TCompactType::BooleanTrue
+                } else {
+                    TCompactType::BooleanFalse
+                };
+                self.write_field_header(tc_field_type, field_id)
+            }
+            None => {
+                if b {
+                    self.write_byte(TCompactType::BooleanTrue as u8)
+                } else {
+                    self.write_byte(TCompactType::BooleanFalse as u8)
+                }
+            }
+        }
+    }
+    #[inline]
+    fn write_bytes(&mut self, b: Bytes) -> Result<(), Error> {
+        // length is strictly positive as per the spec, so
+        // cast i32 as u32 so that varint writing won't use zigzag encoding
+        self.write_varint(b.len() as u32)?;
+        if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
+            self.trans.insert(b);
+            return Ok(());
+        }
+        self.trans.bytes_mut().write_slice(&b)?;
+        Ok(())
+    }
+    #[inline]
+    fn write_byte(&mut self, b: u8) -> Result<(), Error> {
+        self.trans.bytes_mut().write_u8(b)?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), Error> {
+        self.trans.bytes_mut().write_slice(&u)?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_i8(&mut self, i: i8) -> Result<(), Error> {
+        self.trans.bytes_mut().write_i8(i)?;
+        Ok(())
+    }
+    #[inline]
+    fn write_i16(&mut self, i: i16) -> Result<(), Error> {
+        self.write_varint(i)?;
+        Ok(())
+    }
+    #[inline]
+    fn write_i32(&mut self, i: i32) -> Result<(), Error> {
+        self.write_varint(i)?;
+        Ok(())
+    }
+    #[inline]
+    fn write_i64(&mut self, i: i64) -> Result<(), Error> {
+        self.write_varint(i)?;
+        Ok(())
+    }
+    #[inline]
+    fn write_double(&mut self, d: f64) -> Result<(), Error> {
+        self.trans.bytes_mut().write_f64(d)?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_string(&mut self, s: &str) -> Result<(), Error> {
+        // length is strictly positive as per the spec, so
+        // cast i32 as u32 so that varint writing won't use zigzag encoding
+        self.write_varint(s.len() as u32)?;
+        self.trans.bytes_mut().write_slice(s.as_bytes())?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_faststr(&mut self, s: FastStr) -> Result<(), Error> {
+        // length is strictly positive as per the spec, so
+        // cast i32 as u32 so that varint writing won't use zigzag encoding
+        self.write_varint(s.len() as u32)?;
+        if self.zero_copy && s.len() <= ZERO_COPY_THRESHOLD {
+            self.trans.insert_faststr(s);
+            return Ok(());
+        }
+        self.trans.bytes_mut().write_slice(s.as_ref())?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_list_begin(&mut self, identifier: &TListIdentifier) -> Result<(), Error> {
+        self.write_collection_begin(identifier.element_type, identifier.size)?;
+        Ok(())
+    }
+    #[inline]
+    fn write_list_end(&mut self) -> Result<(), Error> {
+        Ok(())
+    }
+
+    #[inline]
+    fn write_set_begin(&mut self, identifier: &TSetIdentifier) -> Result<(), Error> {
+        self.write_collection_begin(identifier.element_type, identifier.size)?;
+        Ok(())
+    }
+    #[inline]
+    fn write_set_end(&mut self) -> Result<(), Error> {
+        Ok(())
+    }
+
+    #[inline]
+    fn write_map_begin(&mut self, identifier: &TMapIdentifier) -> Result<(), Error> {
+        if identifier.size == 0 {
+            self.write_byte(TType::Stop as u8)?;
+        } else {
+            // element count is strictly positive as per the spec, so
+            // cast i32 as u32 so that varint writing won't use zigzag encoding
+            self.write_varint(identifier.size as u32)?;
+            self.write_byte(
+                (tcompact_get_compact(identifier.key_type.into())? as u8) << 4
+                    | (tcompact_get_compact(identifier.value_type)?) as u8,
+            )?
+        }
+        Ok(())
+    }
+    #[inline]
+    fn write_map_end(&mut self) -> Result<(), Error> {
+        Ok(())
+    }
+
+    #[inline]
+    fn flush(&mut self) -> Result<(), Error> {
+        Ok(())
+    }
+
+    #[inline]
+    fn reserve(&mut self, size: usize) {
+        self.trans.reserve(size)
+    }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::BufMut {
+        self.trans
+    }
+
+    #[inline]
+    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), Error> {
+        // length is strictly positive as per the spec, so
+        // cast i32 as u32 so that varint writing won't use zigzag encoding
+        self.write_varint(b.len() as u32)?;
+        self.trans.bytes_mut().write_slice(b)?;
+        Ok(())
+    }
+}
+
 pub struct TAsyncCompactProtocol<R> {
     reader: R,
 
@@ -672,11 +947,7 @@ where
         let sequence_number = self.reader.read_varint_async::<u32>().await? as i32;
         let name = self.read_faststr().await?;
 
-        Ok(TMessageIdentifier::new(
-            name,
-            message_type,
-            sequence_number,
-        ))
+        Ok(TMessageIdentifier::new(name, message_type, sequence_number))
     }
 
     #[inline]
@@ -764,7 +1035,7 @@ where
     }
 
     #[inline]
-    pub async fn read_bytes_vec(&mut  self) -> Result<Vec<u8>, Error> {
+    pub async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, Error> {
         let size = self.reader.read_varint_async::<u32>().await? as usize;
         // FIXME: use maybe_uninit?
         let mut v = vec![0; size];
@@ -1035,11 +1306,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         let sequence_number = self.read_varint::<u32>()? as i32;
         let name = self.read_faststr()?;
 
-        Ok(TMessageIdentifier::new(
-            name,
-            message_type,
-            sequence_number,
-        ))
+        Ok(TMessageIdentifier::new(name, message_type, sequence_number))
     }
 
     #[inline]
@@ -1233,7 +1500,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     #[inline]
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, Error> {
         let size = self.read_varint::<u32>()? as usize;
-        
+
         Ok(self.trans.split_to(size).into())
     }
 }
@@ -1243,8 +1510,7 @@ mod tests {
     use std::io::Read;
 
     use bytes::{Buf, BufMut, Bytes, BytesMut};
-    type TCompactInputProt<'a> = TCompactInputProtocol<&'a mut BytesMut>;
-    type TCompactOutputProt<'a> = TCompactOutputProtocol<&'a mut BytesMut>;
+    use linkedbytes::LinkedBytes;
 
     use super::{TCompactInputProtocol, TCompactOutputProtocol};
     use crate::thrift::{
@@ -1268,17 +1534,32 @@ mod tests {
         }};
     }
 
-    fn test_input_prot<'a>(trans: &'a mut BytesMut) -> TCompactInputProt<'a> {
-        TCompactInputProt::new(trans)
+    fn test_input_prot_bytesmut<'a>(
+        trans: &'a mut BytesMut,
+    ) -> TCompactInputProtocol<&'a mut BytesMut> {
+        TCompactInputProtocol::new(trans)
     }
-    fn test_output_prot<'a>(trans: &'a mut BytesMut) -> TCompactOutputProt<'a> {
-        TCompactOutputProt::new(trans, false)
+    fn test_output_prot_bytesmut<'a>(
+        trans: &'a mut BytesMut,
+    ) -> TCompactOutputProtocol<&'a mut BytesMut> {
+        TCompactOutputProtocol::new(trans, false)
+    }
+
+    fn test_input_prot_linkedbytes<'a>(
+        trans: &'a mut LinkedBytes,
+    ) -> TCompactInputProtocol<&'a mut LinkedBytes> {
+        TCompactInputProtocol::new(trans)
+    }
+    fn test_output_prot_linkedbytes<'a>(
+        trans: &'a mut LinkedBytes,
+    ) -> TCompactOutputProtocol<&'a mut LinkedBytes> {
+        TCompactOutputProtocol::new(trans, false)
     }
 
     #[test]
     fn must_have_same_length_written() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
         macro_rules! mteq {
             ($o:expr, $exp:expr) => {
                 assert_eq!($exp, $o.trans.len());
@@ -1362,7 +1643,7 @@ mod tests {
     #[test]
     fn must_write_message_begin_largest_maximum_positive_sequence_number() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         assert_success!(o_prot.write_message_begin(&TMessageIdentifier::new(
             "bar".into(),
@@ -1391,7 +1672,7 @@ mod tests {
     #[test]
     fn must_read_message_begin_largest_maximum_positive_sequence_number() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         #[rustfmt::skip]
         let source_bytes: [u8; 11] = [
@@ -1419,7 +1700,7 @@ mod tests {
     #[test]
     fn must_write_message_begin_positive_sequence_number_0() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         assert_success!(o_prot.write_message_begin(&TMessageIdentifier::new(
             "foo".into(),
@@ -1445,7 +1726,7 @@ mod tests {
     #[test]
     fn must_read_message_begin_positive_sequence_number_0() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         #[rustfmt::skip]
         let source_bytes: [u8; 8] = [
@@ -1470,7 +1751,7 @@ mod tests {
     #[test]
     fn must_write_message_begin_positive_sequence_number_1() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         assert_success!(o_prot.write_message_begin(&TMessageIdentifier::new(
             "bar".into(),
@@ -1497,7 +1778,7 @@ mod tests {
     #[test]
     fn must_read_message_begin_positive_sequence_number_1() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         #[rustfmt::skip]
         let source_bytes: [u8; 9] = [
@@ -1523,7 +1804,7 @@ mod tests {
     #[test]
     fn must_write_message_begin_zero_sequence_number() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         assert_success!(o_prot.write_message_begin(&TMessageIdentifier::new(
             "bar".into(),
@@ -1548,7 +1829,7 @@ mod tests {
     #[test]
     fn must_read_message_begin_zero_sequence_number() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         #[rustfmt::skip]
         let source_bytes: [u8; 7] = [
@@ -1572,7 +1853,7 @@ mod tests {
     #[test]
     fn must_write_message_begin_largest_minimum_negative_sequence_number() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         assert_success!(o_prot.write_message_begin(&TMessageIdentifier::new(
             "bar".into(),
@@ -1603,7 +1884,7 @@ mod tests {
     #[test]
     fn must_read_message_begin_largest_minimum_negative_sequence_number() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // two's complement notation of i32::MIN =
         // 1000_0000_0000_0000_0000_0000_0000_0000
@@ -1633,7 +1914,7 @@ mod tests {
     #[test]
     fn must_write_message_begin_negative_sequence_number_0() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         assert_success!(o_prot.write_message_begin(&TMessageIdentifier::new(
             "foo".into(),
@@ -1663,7 +1944,7 @@ mod tests {
     #[test]
     fn must_read_message_begin_negative_sequence_number_0() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // signed two's complement of -431 = 1111_1111_1111_1111_1111_1110_0101_0001
         #[rustfmt::skip]
@@ -1692,7 +1973,7 @@ mod tests {
     #[test]
     fn must_write_message_begin_negative_sequence_number_1() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         assert_success!(o_prot.write_message_begin(&TMessageIdentifier::new(
             "foo".into(),
@@ -1723,7 +2004,7 @@ mod tests {
     #[test]
     fn must_read_message_begin_negative_sequence_number_1() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // signed two's complement of -73184125 =
         // 1111_1011_1010_0011_0100_1100_1000_0011
@@ -1753,7 +2034,7 @@ mod tests {
     #[test]
     fn must_write_message_begin_negative_sequence_number_2() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         assert_success!(o_prot.write_message_begin(&TMessageIdentifier::new(
             "foo".into(),
@@ -1784,7 +2065,7 @@ mod tests {
     #[test]
     fn must_read_message_begin_negative_sequence_number_2() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // signed two's complement of -1073741823 =
         // 1100_0000_0000_0000_0000_0000_0000_0001
@@ -1816,7 +2097,7 @@ mod tests {
         // See https://issues.apache.org/jira/browse/THRIFT-5131
         for i in 0..64 {
             let mut trans = BytesMut::new();
-            let mut o_prot = test_output_prot(&mut trans);
+            let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
             let val: i64 = ((1u64 << i) - 1) as i64;
             o_prot.write_field_begin(TType::I64, 1).unwrap();
@@ -1824,7 +2105,7 @@ mod tests {
             o_prot.write_field_end().unwrap();
             o_prot.flush().unwrap();
             // println!("trans {:?}", trans);
-            let mut i_prot = test_input_prot(&mut trans);
+            let mut i_prot = test_input_prot_bytesmut(&mut trans);
             i_prot.read_field_begin().unwrap();
             assert_eq!(val, i_prot.read_i64().unwrap());
         }
@@ -1834,11 +2115,11 @@ mod tests {
     fn must_round_trip_message_begin() {
         let mut trans = BytesMut::new();
 
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
         let ident = TMessageIdentifier::new("service_call".into(), TMessageType::Call, 1_283_948);
         assert_success!(o_prot.write_message_begin(&ident));
 
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
         let res = assert_success!(i_prot.read_message_begin());
         assert_eq!(&res, &ident);
     }
@@ -1854,7 +2135,7 @@ mod tests {
     #[test]
     fn must_write_struct_with_delta_fields() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // no bytes should be written however
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -1895,7 +2176,7 @@ mod tests {
         // let (mut i_prot, mut o_prot) = test_objects();
 
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // no bytes should be written however
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -1928,7 +2209,7 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // read the struct back
         assert_success!(i_prot.read_struct_begin());
@@ -1979,7 +2260,7 @@ mod tests {
     #[test]
     fn must_write_struct_with_non_zero_initial_field_and_delta_fields() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // no bytes should be written however
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -2017,7 +2298,7 @@ mod tests {
     #[test]
     fn must_round_trip_struct_with_non_zero_initial_field_and_delta_fields() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // no bytes should be written however
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -2050,7 +2331,7 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // read the struct back
         assert_success!(i_prot.read_struct_begin());
@@ -2101,7 +2382,7 @@ mod tests {
     #[test]
     fn must_write_struct_with_long_fields() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // no bytes should be written however
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -2142,7 +2423,7 @@ mod tests {
     #[test]
     fn must_round_trip_struct_with_long_fields() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // no bytes should be written however
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -2174,7 +2455,7 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // read the struct back
         assert_success!(i_prot.read_struct_begin());
@@ -2225,7 +2506,7 @@ mod tests {
     #[test]
     fn must_write_struct_with_mix_of_long_and_delta_fields() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // no bytes should be written however
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -2277,7 +2558,7 @@ mod tests {
     #[test]
     fn must_round_trip_struct_with_mix_of_long_and_delta_fields() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // no bytes should be written however
         let struct_ident = TStructIdentifier::new("foo");
@@ -2324,7 +2605,7 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // read the struct back
         assert_success!(i_prot.read_struct_begin());
@@ -2398,7 +2679,7 @@ mod tests {
         // first field of the the contained struct is a delta
 
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // start containing struct
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -2455,7 +2736,7 @@ mod tests {
         // first field of the the contained struct is a delta
 
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // start containing struct
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -2503,7 +2784,7 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // read containing struct back
         assert_success!(i_prot.read_struct_begin());
@@ -2582,7 +2863,7 @@ mod tests {
         // first field of the the contained struct is a full write
 
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // start containing struct
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -2639,7 +2920,7 @@ mod tests {
         // first field of the the contained struct is a full write
 
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // start containing struct
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -2687,7 +2968,7 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // read containing struct back
         assert_success!(i_prot.read_struct_begin());
@@ -2766,7 +3047,7 @@ mod tests {
         // first field of the the contained struct is a delta write
 
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // start containing struct
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -2820,7 +3101,7 @@ mod tests {
     #[test]
     fn must_round_trip_nested_structs_2() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // start containing struct
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -2868,7 +3149,7 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // read containing struct back
         assert_success!(i_prot.read_struct_begin());
@@ -2947,7 +3228,7 @@ mod tests {
         // first field of the the contained struct is a full write
 
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // start containing struct
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -3005,7 +3286,7 @@ mod tests {
         // first field of the the contained struct is a full write
 
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // start containing struct
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -3053,7 +3334,7 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // read containing struct back
         assert_success!(i_prot.read_struct_begin());
@@ -3129,7 +3410,7 @@ mod tests {
     #[test]
     fn must_write_bool_field() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // no bytes should be written however
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
@@ -3178,7 +3459,7 @@ mod tests {
     #[test]
     fn must_round_trip_bool_field() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         // no bytes should be written however
         let struct_ident = TStructIdentifier::new("foo");
@@ -3222,7 +3503,7 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot(&mut trans);
+        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // read the struct back
         assert_success!(i_prot.read_struct_begin());
@@ -3292,7 +3573,7 @@ mod tests {
     #[should_panic]
     fn must_fail_if_write_field_end_without_writing_bool_value() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
         assert_success!(o_prot.write_field_begin(TType::Bool, 1));
@@ -3303,7 +3584,7 @@ mod tests {
     #[should_panic]
     fn must_fail_if_write_stop_field_without_writing_bool_value() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
         assert_success!(o_prot.write_field_begin(TType::Bool, 1));
@@ -3314,7 +3595,7 @@ mod tests {
     #[should_panic]
     fn must_fail_if_write_struct_end_without_writing_bool_value() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
 
         assert_success!(o_prot.write_struct_begin(&TStructIdentifier::new("foo")));
         assert_success!(o_prot.write_field_begin(TType::Bool, 1));
@@ -3325,7 +3606,7 @@ mod tests {
     #[should_panic]
     fn must_fail_if_write_struct_end_without_any_fields() {
         let mut trans = BytesMut::new();
-        let mut o_prot = test_output_prot(&mut trans);
+        let mut o_prot = test_output_prot_bytesmut(&mut trans);
         o_prot.write_struct_end().unwrap();
     }
 

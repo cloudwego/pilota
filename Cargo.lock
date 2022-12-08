@@ -391,6 +391,7 @@ dependencies = [
  "bytes",
  "derivative",
  "faststr",
+ "integer-encoding",
  "lazy_static",
  "linkedbytes",
  "thiserror",
