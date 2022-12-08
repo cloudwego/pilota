@@ -2,8 +2,12 @@
 //
 // https://github.com/apache/thrift/blob/ec5e17714a1f9da34173749fc01eea33c7f6af62/lib/rs/src/protocol/compact.rs
 
+use std::str;
+
 use bytes::{Bytes, BytesMut};
+use faststr::FastStr;
 use integer_encoding::{VarInt, VarIntAsyncReader};
+use lazy_static::__Deref;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
@@ -13,7 +17,7 @@ use super::{
     varint_ext::VarIntProcessor,
     TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
     TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    MAXIMUM_SKIP_DEPTH,
+    MAXIMUM_SKIP_DEPTH, INLINE_CAP, ZERO_COPY_THRESHOLD,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -151,60 +155,69 @@ pub struct TCompactOutputProtocol<T> {
     // Field identifier of the boolean field to be written.
     // Saved because boolean fields and their value are encoded in a single byte
     pending_write_bool_field_identifier: Option<TFieldIdentifier>,
+
+    zero_copy: bool,
+    zero_copy_len: usize,
 }
 
 impl<T> TCompactOutputProtocol<T> {
-    pub fn new(trans: T) -> Self {
+    // `zero_copy` only takes effect when `T` is [`BytesMut`] for input and
+    // [`LinkedBytes`] for output.
+    #[inline]
+    pub fn new(trans: T, zero_copy: bool) -> Self {
         Self {
             trans,
             write_field_id_stack: Vec::with_capacity(24),
             last_write_field_id: 0,
             pending_write_bool_field_identifier: None,
+
+            zero_copy,
+            zero_copy_len: 0,
         }
     }
 }
 
 impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     #[inline]
-    fn write_message_begin_len(&self, ident: &TMessageIdentifier) -> usize {
+    fn write_message_begin_len(&mut self, ident: &TMessageIdentifier) -> usize {
         2 + VarInt::required_space(ident.sequence_number as u32)
-            + self.write_string_len(ident.name.as_str())
+            + self.write_faststr_len(&ident.name)
     }
     #[inline]
-    fn write_message_end_len(&self) -> usize {
+    fn write_message_end_len(&mut self) -> usize {
         // todo(ii64): need mutable self
         todo!()
     }
 
     #[inline]
-    fn write_struct_begin_len(&self, _ident: &TStructIdentifier) -> usize {
+    fn write_struct_begin_len(&mut self, _ident: &TStructIdentifier) -> usize {
         // todo(ii64): need mutable self
         todo!()
     }
     #[inline]
-    fn write_struct_end_len(&self) -> usize {
-        // todo(ii64): need mutable self
-        todo!()
-    }
-
-    #[inline]
-    fn write_field_begin_len(&self, _ident: &TFieldIdentifier) -> usize {
-        // todo(ii64): need mutable self
-        todo!()
-    }
-    #[inline]
-    fn write_field_end_len(&self) -> usize {
-        // todo(ii64): need mutable self
-        todo!()
-    }
-    #[inline]
-    fn write_field_stop_len(&self) -> usize {
+    fn write_struct_end_len(&mut self) -> usize {
         // todo(ii64): need mutable self
         todo!()
     }
 
     #[inline]
-    fn write_bool_len(&self, _b: bool) -> usize {
+    fn write_field_begin_len(&mut self, _ident: &TFieldIdentifier) -> usize {
+        // todo(ii64): need mutable self
+        todo!()
+    }
+    #[inline]
+    fn write_field_end_len(&mut self) -> usize {
+        // todo(ii64): need mutable self
+        todo!()
+    }
+    #[inline]
+    fn write_field_stop_len(&mut self) -> usize {
+        // todo(ii64): need mutable self
+        todo!()
+    }
+
+    #[inline]
+    fn write_bool_len(&mut self, _b: bool) -> usize {
         // todo(ii64): need mutable self
         todo!()
         // match self.pending_write_bool_field_identifier.take() {
@@ -222,52 +235,58 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     }
 
     #[inline]
-    fn write_bytes_len(&self, b: &[u8]) -> usize {
-        let sz = VarInt::required_space(b.len() as u32);
-        if !b.is_empty() {
-            sz + b.len()
-        } else {
-            sz
+    fn write_bytes_len(&mut self, b: &[u8]) -> usize {
+        if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
+            self.zero_copy_len += b.len();
         }
+        VarInt::required_space(b.len() as u32) + b.len()
     }
     #[inline]
-    fn write_byte_len(&self, _b: u8) -> usize {
+    fn write_byte_len(&mut self, _b: u8) -> usize {
         1
     }
 
     #[inline]
-    fn write_uuid_len(&self, _u: [u8; 16]) -> usize {
+    fn write_uuid_len(&mut self, _u: [u8; 16]) -> usize {
         16
     }
 
     #[inline]
-    fn write_i8_len(&self, _i: i8) -> usize {
+    fn write_i8_len(&mut self, _i: i8) -> usize {
         1
     }
     #[inline]
-    fn write_i16_len(&self, i: i16) -> usize {
+    fn write_i16_len(&mut self, i: i16) -> usize {
         VarInt::required_space(i)
     }
     #[inline]
-    fn write_i32_len(&self, i: i32) -> usize {
+    fn write_i32_len(&mut self, i: i32) -> usize {
         VarInt::required_space(i)
     }
     #[inline]
-    fn write_i64_len(&self, i: i64) -> usize {
+    fn write_i64_len(&mut self, i: i64) -> usize {
         VarInt::required_space(i)
     }
     #[inline]
-    fn write_double_len(&self, d: f64) -> usize {
+    fn write_double_len(&mut self, d: f64) -> usize {
         d.to_le_bytes().len()
     }
 
     #[inline]
-    fn write_string_len(&self, s: &str) -> usize {
-        self.write_bytes_len(s.as_bytes())
+    fn write_string_len(&mut self, s: &str) -> usize {
+        VarInt::required_space(s.len() as u32) + s.len()
     }
 
     #[inline]
-    fn write_list_begin_len(&self, identifier: &TListIdentifier) -> usize {
+    fn write_faststr_len(&mut self, s: &FastStr) -> usize {
+        if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
+            self.zero_copy_len += s.len();
+        }
+        VarInt::required_space(s.len() as u32) + s.len()
+    }
+
+    #[inline]
+    fn write_list_begin_len(&mut self, identifier: &TListIdentifier) -> usize {
         if identifier.size <= 14 {
             self.write_byte_len(
                 ((identifier.size as i32) << 4) as u8
@@ -280,12 +299,12 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
         }
     }
     #[inline]
-    fn write_list_end_len(&self) -> usize {
+    fn write_list_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_set_begin_len(&self, identifier: &TSetIdentifier) -> usize {
+    fn write_set_begin_len(&mut self, identifier: &TSetIdentifier) -> usize {
         if identifier.size <= 14 {
             self.write_byte_len(
                 ((identifier.size as i32) << 4) as u8
@@ -298,12 +317,12 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
         }
     }
     #[inline]
-    fn write_set_end_len(&self) -> usize {
+    fn write_set_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_map_begin_len(&self, identifier: &TMapIdentifier) -> usize {
+    fn write_map_begin_len(&mut self, identifier: &TMapIdentifier) -> usize {
         if identifier.size == 0 {
             self.write_byte_len(TType::Stop as u8)
         } else {
@@ -315,13 +334,23 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
         }
     }
     #[inline]
-    fn write_map_end_len(&self) -> usize {
+    fn write_map_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_bytes_vec_len(&self, b: &[u8]) -> usize {
+    fn write_bytes_vec_len(&mut self, b: &[u8]) -> usize {
         self.write_bytes_len(b)
+    }
+
+    #[inline]
+    fn zero_copy_len(&mut self) -> usize {
+        self.zero_copy_len
+    }
+
+    #[inline]
+    fn reset(&mut self) {
+        self.zero_copy_len = 0;
     }
 }
 
@@ -380,7 +409,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         ])?;
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(identifier.sequence_number as u32)?;
-        self.write_string(&identifier.name)?;
+        self.write_faststr(identifier.name.clone())?;
         Ok(())
     }
     #[inline]
@@ -466,11 +495,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     fn write_bytes(&mut self, b: Bytes) -> Result<(), Error> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
-        let size = b.len() as u32;
-        self.write_varint(size)?;
-        if size == 0 {
-            return Ok(());
-        }
+        self.write_varint(b.len() as u32)?;
         self.trans.write_slice(&b)?;
         Ok(())
     }
@@ -511,16 +536,22 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         self.trans.write_f64(d)?;
         Ok(())
     }
+    
     #[inline]
     fn write_string(&mut self, s: &str) -> Result<(), Error> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
-        let size = s.len() as u32;
-        self.write_varint(size)?;
-        if size == 0 {
-            return Ok(());
-        }
+        self.write_varint(s.len() as u32)?;
         self.trans.write_slice(s.as_bytes())?;
+        Ok(())
+    }
+
+    #[inline]
+    fn write_faststr(&mut self, s: FastStr) -> Result<(), Error> {
+        // length is strictly positive as per the spec, so
+        // cast i32 as u32 so that varint writing won't use zigzag encoding
+        self.write_varint(s.len() as u32)?;
+        self.trans.write_slice(s.as_ref())?;
         Ok(())
     }
 
@@ -569,10 +600,12 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         Ok(())
     }
 
+    #[inline]
     fn reserve(&mut self, size: usize) {
         self.trans.reserve(size)
     }
 
+    #[inline]
     fn buf_mut(&mut self) -> &mut Self::BufMut {
         self.trans
     }
@@ -581,11 +614,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), Error> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
-        let size = b.len() as u32;
-        self.write_varint(size)?;
-        if size == 0 {
-            return Ok(());
-        }
+        self.write_varint(b.len() as u32)?;
         self.trans.write_slice(b)?;
         Ok(())
     }
@@ -601,7 +630,7 @@ pub struct TAsyncCompactProtocol<R> {
 
 impl<R> TAsyncCompactProtocol<R>
 where
-    R: AsyncRead + Unpin + Send + VarIntAsyncReader,
+    R: AsyncRead + Unpin + Send,
 {
     pub fn new(reader: R) -> TAsyncCompactProtocol<R> {
         Self {
@@ -641,10 +670,10 @@ where
 
         // writing side wrote signed sequence number as u32 to avoid zigzag encoding
         let sequence_number = self.reader.read_varint_async::<u32>().await? as i32;
-        let name = self.read_string().await?;
+        let name = self.read_faststr().await?;
 
         Ok(TMessageIdentifier::new(
-            smol_str::SmolStr::new(name),
+            name,
             message_type,
             sequence_number,
         ))
@@ -730,17 +759,35 @@ where
     }
 
     #[inline]
-    pub async fn read_bytes(&mut self) -> Result<Vec<u8>, Error> {
-        let size = self.reader.read_varint_async::<u32>().await?;
-        let mut buf = vec![0u8; size as usize];
-        self.reader.read_exact(&mut buf).await?;
-        Ok(buf)
+    pub async fn read_bytes(&mut self) -> Result<Bytes, Error> {
+        self.read_bytes_vec().await.map(Bytes::from)
+    }
+
+    #[inline]
+    pub async fn read_bytes_vec(&mut  self) -> Result<Vec<u8>, Error> {
+        let size = self.reader.read_varint_async::<u32>().await? as usize;
+        // FIXME: use maybe_uninit?
+        let mut v = vec![0; size];
+        self.reader.read_exact(&mut v).await?;
+        Ok(v)
+    }
+
+    #[inline]
+    pub async fn read_uuid(&mut self) -> Result<[u8; 16], Error> {
+        let mut uuid = [0; 16];
+        self.reader.read_exact(&mut uuid).await?;
+        Ok(uuid)
     }
 
     #[inline]
     pub async fn read_string(&mut self) -> Result<String, Error> {
-        let v = self.read_bytes().await?;
+        let v = self.read_bytes_vec().await?;
         Ok(unsafe { String::from_utf8_unchecked(v) })
+    }
+
+    #[inline]
+    pub async fn read_faststr(&mut self) -> Result<FastStr, Error> {
+        self.read_string().await.map(FastStr::from_string)
     }
 
     #[inline]
@@ -986,10 +1033,10 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
 
         // writing side wrote signed sequence number as u32 to avoid zigzag encoding
         let sequence_number = self.read_varint::<u32>()? as i32;
-        let name = self.read_string()?;
+        let name = self.read_faststr()?;
 
         Ok(TMessageIdentifier::new(
-            smol_str::SmolStr::new(name),
+            name,
             message_type,
             sequence_number,
         ))
@@ -1094,6 +1141,16 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     }
 
     #[inline]
+    fn read_faststr(&mut self) -> Result<FastStr, Error> {
+        let size = self.read_varint::<u32>()? as usize;
+        let bytes = self.trans.split_to(size);
+        if size > INLINE_CAP {
+            unsafe { return Ok(FastStr::from_bytes_mut_unchecked(bytes)) }
+        }
+        unsafe { Ok(FastStr::new_inline(str::from_utf8_unchecked(bytes.deref()))) }
+    }
+
+    #[inline]
     fn read_byte(&mut self) -> Result<u8, Error> {
         Ok(self.trans.read_u8()?)
     }
@@ -1120,7 +1177,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         Ok(self.trans.read_f64_le()?)
     }
 
-    // #[inline]
+    #[inline]
     fn read_list_begin(&mut self) -> Result<TListIdentifier, Error> {
         let (element_type, element_count) = self.read_collection_begin()?;
         Ok(TListIdentifier {
@@ -1133,7 +1190,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         Ok(())
     }
 
-    // #[inline]
+    #[inline]
     fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error> {
         let (element_type, element_count) = self.read_collection_begin()?;
         Ok(TSetIdentifier {
@@ -1174,13 +1231,10 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    #[allow(clippy::uninit_vec)]
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, Error> {
         let size = self.read_varint::<u32>()? as usize;
-        let mut vec = Vec::with_capacity(size);
-        unsafe { vec.set_len(size) }
-        self.trans.read_to_slice(vec.as_mut_slice())?;
-        Ok(vec)
+        
+        Ok(self.trans.split_to(size).into())
     }
 }
 
@@ -1218,7 +1272,7 @@ mod tests {
         TCompactInputProt::new(trans)
     }
     fn test_output_prot<'a>(trans: &'a mut BytesMut) -> TCompactOutputProt<'a> {
-        TCompactOutputProt::new(trans)
+        TCompactOutputProt::new(trans, false)
     }
 
     #[test]
@@ -1268,8 +1322,8 @@ mod tests {
         mteq!(o_prot, o_prot.write_bytes_len(&identifier[..]));
 
         let identifier = "foobar";
-        o_prot.write_string(identifier).unwrap();
-        mteq!(o_prot, o_prot.write_string_len(identifier));
+        o_prot.write_faststr(identifier.clone().into()).unwrap();
+        mteq!(o_prot, o_prot.write_faststr_len(&identifier.into()));
 
         let mut identifier = TListIdentifier::new(TType::I16, 0);
         o_prot.write_list_begin(&mut identifier).unwrap();
@@ -3286,7 +3340,7 @@ mod tests {
         B: bytes::Buf,
         F: FnMut(&mut TCompactOutputProtocol<&mut B>) -> Result<(), Error>,
     {
-        let mut o_prot = TCompactOutputProtocol::new(&mut trans);
+        let mut o_prot = TCompactOutputProtocol::new(&mut trans, false);
         assert!(write_fn(&mut o_prot).is_ok());
 
         let mut out = Vec::new();
