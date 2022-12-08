@@ -176,6 +176,12 @@ impl<T> TCompactOutputProtocol<T> {
             zero_copy_len: 0,
         }
     }
+
+    fn assert_no_pending_bool_write(&self) {
+        if let Some(ref f) = self.pending_write_bool_field_identifier {
+            panic!("pending bool field {:?} not written", f);
+        }
+    }
 }
 
 impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
@@ -388,12 +394,6 @@ impl TCompactOutputProtocol<&mut BytesMut> {
             self.write_varint(size as u32)?;
         }
         Ok(())
-    }
-
-    fn assert_no_pending_bool_write(&self) {
-        if let Some(ref f) = self.pending_write_bool_field_identifier {
-            panic!("pending bool field {:?} not written", f);
-        }
     }
 }
 
@@ -654,12 +654,6 @@ impl TCompactOutputProtocol<&mut LinkedBytes> {
             self.write_varint(size as u32)?;
         }
         Ok(())
-    }
-
-    fn assert_no_pending_bool_write(&self) {
-        if let Some(ref f) = self.pending_write_bool_field_identifier {
-            panic!("pending bool field {:?} not written", f);
-        }
     }
 }
 
