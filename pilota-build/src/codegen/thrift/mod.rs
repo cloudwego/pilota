@@ -10,7 +10,7 @@ use crate::{
         rir::{self, Enum, Field, Message, Method, NewType, Service},
     },
     symbol::{DefId, EnumRepr, IdentName},
-    tags::{thrift::EntryMessage, RustWrapperArc},
+    tags::thrift::EntryMessage,
 };
 
 mod ty;
@@ -163,17 +163,8 @@ impl ThriftBackend {
         let mut optional_field_values = Vec::with_capacity(s.fields.len());
         s.fields.iter().for_each(|f| {
             let field_variable = self.rust_name(f.did).as_syn_ident();
-            let mut field_value = quote! { #field_variable };
-            if let Some(rust_wrapper_arc) = self
-                .cx
-                .tags(f.tags_id)
-                .as_ref()
-                .and_then(|tags| tags.get::<RustWrapperArc>())
-            {
-                if rust_wrapper_arc == "true" {
-                    field_value = quote! { #field_value.into() };
-                }
-            }
+            let field_value = quote! { #field_variable };
+
             if f.is_optional() {
                 optional_field_variables.push(field_variable);
                 optional_field_values.push(field_value);

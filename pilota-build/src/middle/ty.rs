@@ -233,6 +233,11 @@ pub trait TyTransformer {
     }
 
     #[inline]
+    fn arc(&self, ty: &Ty) -> CodegenTy {
+        CodegenTy::Arc(Arc::from(self.codegen_item_ty(&ty.kind)))
+    }
+
+    #[inline]
     fn vec(&self, ty: &Ty) -> CodegenTy {
         CodegenTy::Vec(Arc::from(self.codegen_item_ty(&ty.kind)))
     }
@@ -282,7 +287,7 @@ pub trait TyTransformer {
             UInt32 => self.uint32(),
             UInt64 => self.uint64(),
             F32 => self.f32(),
-            TyKind::Arc(_) => todo!(),
+            Arc(ty) => self.arc(ty),
         }
     }
 }

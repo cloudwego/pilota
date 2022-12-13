@@ -17,7 +17,6 @@ use crate::{
         ty::{AdtDef, AdtKind, CodegenTy},
     },
     symbol::{DefId, EnumRepr, IdentName},
-    tags::RustWrapperArc,
     Context,
 };
 
@@ -64,7 +63,6 @@ where
             let name = self.rust_name(f.did).as_syn_ident();
             let adjust = self.adjust(f.did);
             let ty = self.codegen_item_ty(f.ty.kind.clone());
-            let tags = self.cx.tags(f.tags_id);
             let mut ty = quote::quote! { #ty };
 
             if let Some(adjust) = adjust {
@@ -75,14 +73,6 @@ where
 
             if f.is_optional() {
                 ty = quote::quote! { ::std::option::Option<#ty> }
-            }
-
-            if let Some(rust_wrapper_arc) =
-                tags.as_ref().and_then(|tags| tags.get::<RustWrapperArc>())
-            {
-                if rust_wrapper_arc == "true" {
-                    ty = quote::quote! { ::std::sync::Arc<#ty> }
-                }
             }
 
             let attrs = adjust.iter().flat_map(|a| a.attrs());

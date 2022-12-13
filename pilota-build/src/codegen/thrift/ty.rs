@@ -36,6 +36,7 @@ impl ThriftBackend {
                     _ => panic!("unsupported type {:?}", item),
                 }
             }
+            ty::Arc(ty) => self.ttype(ty),
             _ => unimplemented!(),
         }
     }
@@ -111,6 +112,7 @@ impl ThriftBackend {
                 }
             }
             ty::Path(_) => quote! { ::pilota::thrift::Message::encode(#ident, protocol)?; },
+            ty::Arc(ty) => self.codegen_encode_ty(ty, ident),
             _ => unimplemented!(),
         }
     }
@@ -199,6 +201,7 @@ impl ThriftBackend {
                 }
             }
             ty::Path(_) => quote! { ::pilota::thrift::Message::size(#ident, protocol) },
+            ty::Arc(ty) => self.codegen_ty_size(ty, ident),
             _ => unimplemented!(),
         }
     }
@@ -278,6 +281,10 @@ impl ThriftBackend {
                 }
             }
             ty::Path(_) => helper.codegen_item_decode(),
+            ty::Arc(ty) => {
+                let inner = self.codegen_decode_ty(helper, ty);
+                quote! { Arc::new(#inner) }
+            }
             _ => unimplemented!(),
         }
     }
