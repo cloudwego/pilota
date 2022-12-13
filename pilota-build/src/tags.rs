@@ -153,19 +153,13 @@ impl Annotation for RustType {
 }
 
 #[derive(Debug)]
-pub struct RustWrapperArc(pub FastStr);
-
-impl PartialEq<str> for RustWrapperArc {
-    fn eq(&self, other: &str) -> bool {
-        self.0 == other
-    }
-}
+pub struct RustWrapperArc(pub bool);
 
 impl FromStr for RustWrapperArc {
     type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(FastStr::new(s)))
+        Ok(Self(s == "true"))
     }
 }
 

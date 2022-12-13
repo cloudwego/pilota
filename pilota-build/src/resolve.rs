@@ -16,8 +16,8 @@ use crate::{
     },
     rir::Mod,
     symbol::{DefId, FileId, Ident, Symbol},
-    tags::{TagId, Tags},
-    ty::StringRepr,
+    tags::{RustWrapperArc, TagId, Tags},
+    ty::{Folder, StringRepr, TyKind},
 };
 
 struct ModuleData {
@@ -321,12 +321,40 @@ impl Resolver {
         }
     }
 
+    fn modify_ty_by_tags(&mut self, ty: Ty, tags: &Tags) -> Ty {
+        if let Some(RustWrapperArc(true)) = tags.get::<RustWrapperArc>() {
+            struct ArcFolder<'a>(&'a mut Resolver);
+            impl Folder for ArcFolder<'_> {
+                fn fold_ty(&mut self, ty: &Ty) -> Ty {
+                    let kind = match &ty.kind {
+                        TyKind::Vec(inner) => TyKind::Vec(Arc::new(self.fold_ty(inner.as_ref()))),
+                        TyKind::Set(inner) => TyKind::Set(Arc::new(self.fold_ty(inner.as_ref()))),
+                        TyKind::Map(k, v) => {
+                            TyKind::Map(k.clone(), Arc::new(self.fold_ty(v.as_ref())))
+                        }
+                        _ => TyKind::Arc(Arc::new(ty.clone())),
+                    };
+                    Ty {
+                        kind,
+                        tags_id: self.0.tags_id_counter.inc_one(),
+                    }
+                }
+            }
+            ArcFolder(self).fold_ty(&ty)
+        } else {
+            ty
+        }
+    }
+
     #[tracing::instrument(level = "debug", skip_all, fields(name = &**f.name))]
     fn lower_field(&mut self, f: &ir::Field) -> Arc<Field> {
         tracing::info!("lower filed {}, ty: {:?}", f.name, f.ty.kind);
         let did = self.get_def_id(Namespace::Ty, &*f.name);
         let tags_id = self.tags_id_counter.inc_one();
         self.tags.insert(tags_id, f.tags.clone());
+        let ty = self.lower_type(&f.ty);
+        let ty = self.modify_ty_by_tags(ty, &f.tags);
+
         let f = Arc::from(Field {
             did,
             id: f.id,
@@ -335,7 +363,7 @@ impl Resolver {
                 ir::FieldKind::Optional => FieldKind::Optional,
             },
             name: f.name.clone(),
-            ty: self.lower_type(&f.ty),
+            ty: ty,
             tags_id,
         });
 
