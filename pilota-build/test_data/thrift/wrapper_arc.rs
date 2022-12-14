@@ -86,7 +86,7 @@ pub mod wrapper_arc {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            id = Some(Arc::new(protocol.read_faststr()?));
+                            id = Some(::std::sync::Arc::new(protocol.read_faststr()?));
                         }
                         Some(2i16) if field_ident.field_type == ::pilota::thrift::TType::List => {
                             name2 = Some({
@@ -97,7 +97,7 @@ pub mod wrapper_arc {
                                         let list_ident = protocol.read_list_begin()?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
-                                            val.push(Arc::new(protocol.read_i32()?));
+                                            val.push(::std::sync::Arc::new(protocol.read_i32()?));
                                         }
                                         protocol.read_list_end()?;
                                         val
@@ -118,7 +118,7 @@ pub mod wrapper_arc {
                                         let list_ident = protocol.read_list_begin()?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
-                                            val.push(Arc::new(protocol.read_i32()?));
+                                            val.push(::std::sync::Arc::new(protocol.read_i32()?));
                                         }
                                         protocol.read_list_end()?;
                                         val
@@ -188,7 +188,7 @@ pub mod wrapper_arc {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            id = Some(Arc::new(protocol.read_faststr().await?));
+                            id = Some(::std::sync::Arc::new(protocol.read_faststr().await?));
                         }
                         Some(2i16) if field_ident.field_type == ::pilota::thrift::TType::List => {
                             name2 = Some({
@@ -199,7 +199,9 @@ pub mod wrapper_arc {
                                         let list_ident = protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
-                                            val.push(Arc::new(protocol.read_i32().await?));
+                                            val.push(::std::sync::Arc::new(
+                                                protocol.read_i32().await?,
+                                            ));
                                         }
                                         protocol.read_list_end().await?;
                                         val
@@ -220,7 +222,9 @@ pub mod wrapper_arc {
                                         let list_ident = protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
-                                            val.push(Arc::new(protocol.read_i32().await?));
+                                            val.push(::std::sync::Arc::new(
+                                                protocol.read_i32().await?,
+                                            ));
                                         }
                                         protocol.read_list_end().await?;
                                         val
@@ -522,7 +526,9 @@ pub mod wrapper_arc {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Struct => {
-                            req = Some(Arc::new(::pilota::thrift::Message::decode(protocol)?));
+                            req = Some(::std::sync::Arc::new(::pilota::thrift::Message::decode(
+                                protocol,
+                            )?));
                         }
                         _ => {
                             protocol.skip(field_ident.field_type)?;
@@ -557,7 +563,7 @@ pub mod wrapper_arc {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Struct => {
-                            req = Some(Arc::new(
+                            req = Some(::std::sync::Arc::new(
                                 ::pilota::thrift::Message::decode_async(protocol).await?,
                             ));
                         }

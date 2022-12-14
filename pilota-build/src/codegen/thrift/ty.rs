@@ -283,7 +283,7 @@ impl ThriftBackend {
             ty::Path(_) => helper.codegen_item_decode(),
             ty::Arc(ty) => {
                 let inner = self.codegen_decode_ty(helper, ty);
-                quote! { Arc::new(#inner) }
+                quote! { ::std::sync::Arc::new(#inner) }
             }
             _ => unimplemented!(),
         }
