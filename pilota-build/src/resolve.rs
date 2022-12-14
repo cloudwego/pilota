@@ -332,7 +332,10 @@ impl Resolver {
                         TyKind::Map(k, v) => {
                             TyKind::Map(k.clone(), Arc::new(self.fold_ty(v.as_ref())))
                         }
-                        _ => TyKind::Arc(Arc::new(ty.clone())),
+                        TyKind::Path(_) | TyKind::String | TyKind::BytesVec => {
+                            TyKind::Arc(Arc::new(ty.clone()))
+                        }
+                        _ => panic!("ty: `{:?}` is unnecessary to be wrapped by Arc", ty),
                     };
                     Ty {
                         kind,
