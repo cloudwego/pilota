@@ -82,27 +82,20 @@ mod tests {
     }
 
     #[test]
-    fn test_struct2() {
-        let str = r#"struct AgwCommonParam {
-            1: agw_common_param.Session                                 Session
-            2: agw_common_param.UnifyArgs                               UnifyArgs
-            3: agw_common_param.CommonArgs                              CommonArgs
-            4: string RealIP   (agw.source="header", agw.key = 'X-REAL-IP')
-            5: string Protocol (agw.source="header", agw.key = 'X-Forwarded-Protocol')
-            6: string UserAgent (agw.source="header", agw.key = 'User-Agent')
-            7: string Forwarded (agw.source="header", agw.key = 'X-Forwarded-For')
-            8: string SessionDict (agw.source="header", agw.key="Tt-Agw-Loader-Session-rsp")
-            9: abtest_version.VersionRsp                                AbtestVersionRsp (go.tag = 'json:\"-\"')
-        }"#;
-        Struct::parse(str).unwrap();
-    }
-
-    #[test]
     fn test_struct3() {
         let str = r#"struct TestComment {
             // 1
         }
         "#;
+        Struct::parse(str).unwrap();
+    }
+
+    #[test]
+    fn test_tag() {
+        let str = r#"struct ImMsgContent {
+            1: string user_id (go.tag = 'json:\"user_id,omitempty\"'),
+            2: string __files (go.tag = 'json:\"__files,omitempty\"'),
+        }"#;
         Struct::parse(str).unwrap();
     }
 }
