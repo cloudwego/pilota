@@ -1,11 +1,73 @@
 pub mod wrapper_arc {
     #![allow(warnings, clippy::all)]
     pub mod wrapper_arc {
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        pub struct A {}
+        #[::async_trait::async_trait]
+        impl ::pilota::thrift::Message for A {
+            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                &self,
+                protocol: &mut T,
+            ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
+                protocol.write_struct_begin(&struct_ident)?;
+                protocol.write_field_stop()?;
+                protocol.write_struct_end()?;
+                Ok(())
+            }
+            fn decode<T: ::pilota::thrift::TInputProtocol>(
+                protocol: &mut T,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
+                protocol.read_struct_begin()?;
+                loop {
+                    let field_ident = protocol.read_field_begin()?;
+                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                        break;
+                    }
+                    let field_id = field_ident.id;
+                    match field_id {
+                        _ => {
+                            protocol.skip(field_ident.field_type)?;
+                        }
+                    }
+                    protocol.read_field_end()?;
+                }
+                protocol.read_struct_end()?;
+                let data = Self {};
+                Ok(data)
+            }
+            async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
+                protocol: &mut ::pilota::thrift::TAsyncBinaryProtocol<C>,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
+                protocol.read_struct_begin().await?;
+                loop {
+                    let field_ident = protocol.read_field_begin().await?;
+                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                        break;
+                    }
+                    let field_id = field_ident.id;
+                    match field_id {
+                        _ => {
+                            protocol.skip(field_ident.field_type).await?;
+                        }
+                    }
+                    protocol.read_field_end().await?;
+                }
+                protocol.read_struct_end().await?;
+                let data = Self {};
+                Ok(data)
+            }
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
+                    + protocol.write_field_stop_len()
+                    + protocol.write_struct_end_len()
+            }
+        }
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct Test {
-            pub id: ::std::sync::Arc<::pilota::FastStr>,
-            pub name2: ::std::vec::Vec<::std::vec::Vec<::std::sync::Arc<i32>>>,
-            pub name3: ::std::collections::HashMap<i32, ::std::vec::Vec<::std::sync::Arc<i32>>>,
+            pub id: ::pilota::FastStr,
+            pub name2: ::std::vec::Vec<::std::vec::Vec<::std::sync::Arc<A>>>,
+            pub name3: ::std::collections::HashMap<i32, ::std::vec::Vec<::std::sync::Arc<A>>>,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Test {
@@ -31,12 +93,12 @@ pub mod wrapper_arc {
                     protocol.write_list_begin(&list_ident)?;
                     for val in value {
                         let list_ident = ::pilota::thrift::TListIdentifier {
-                            element_type: ::pilota::thrift::TType::I32,
+                            element_type: ::pilota::thrift::TType::Struct,
                             size: val.len(),
                         };
                         protocol.write_list_begin(&list_ident)?;
                         for val in val {
-                            protocol.write_i32(*val)?;
+                            ::pilota::thrift::Message::encode(val, protocol)?;
                         }
                         protocol.write_list_end()?;
                     }
@@ -55,12 +117,12 @@ pub mod wrapper_arc {
                     for (key, val) in value.iter() {
                         protocol.write_i32(*key)?;
                         let list_ident = ::pilota::thrift::TListIdentifier {
-                            element_type: ::pilota::thrift::TType::I32,
+                            element_type: ::pilota::thrift::TType::Struct,
                             size: val.len(),
                         };
                         protocol.write_list_begin(&list_ident)?;
                         for val in val {
-                            protocol.write_i32(*val)?;
+                            ::pilota::thrift::Message::encode(val, protocol)?;
                         }
                         protocol.write_list_end()?;
                     }
@@ -86,7 +148,7 @@ pub mod wrapper_arc {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            id = Some(::std::sync::Arc::new(protocol.read_faststr()?));
+                            id = Some(protocol.read_faststr()?);
                         }
                         Some(2i16) if field_ident.field_type == ::pilota::thrift::TType::List => {
                             name2 = Some({
@@ -97,7 +159,9 @@ pub mod wrapper_arc {
                                         let list_ident = protocol.read_list_begin()?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
-                                            val.push(::std::sync::Arc::new(protocol.read_i32()?));
+                                            val.push(::std::sync::Arc::new(
+                                                ::pilota::thrift::Message::decode(protocol)?,
+                                            ));
                                         }
                                         protocol.read_list_end()?;
                                         val
@@ -118,7 +182,9 @@ pub mod wrapper_arc {
                                         let list_ident = protocol.read_list_begin()?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
-                                            val.push(::std::sync::Arc::new(protocol.read_i32()?));
+                                            val.push(::std::sync::Arc::new(
+                                                ::pilota::thrift::Message::decode(protocol)?,
+                                            ));
                                         }
                                         protocol.read_list_end()?;
                                         val
@@ -188,7 +254,7 @@ pub mod wrapper_arc {
                     let field_id = field_ident.id;
                     match field_id {
                         Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            id = Some(::std::sync::Arc::new(protocol.read_faststr().await?));
+                            id = Some(protocol.read_faststr().await?);
                         }
                         Some(2i16) if field_ident.field_type == ::pilota::thrift::TType::List => {
                             name2 = Some({
@@ -200,7 +266,8 @@ pub mod wrapper_arc {
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push(::std::sync::Arc::new(
-                                                protocol.read_i32().await?,
+                                                ::pilota::thrift::Message::decode_async(protocol)
+                                                    .await?,
                                             ));
                                         }
                                         protocol.read_list_end().await?;
@@ -223,7 +290,8 @@ pub mod wrapper_arc {
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push(::std::sync::Arc::new(
-                                                protocol.read_i32().await?,
+                                                ::pilota::thrift::Message::decode_async(protocol)
+                                                    .await?,
                                             ));
                                         }
                                         protocol.read_list_end().await?;
@@ -308,14 +376,16 @@ pub mod wrapper_arc {
                                     for el in value {
                                         size += {
                                             let list_ident = ::pilota::thrift::TListIdentifier {
-                                                element_type: ::pilota::thrift::TType::I32,
+                                                element_type: ::pilota::thrift::TType::Struct,
                                                 size: el.len(),
                                             };
                                             protocol.write_list_begin_len(&list_ident)
                                                 + {
                                                     let mut size = 0;
                                                     for el in el {
-                                                        size += protocol.write_i32_len(*el);
+                                                        size += ::pilota::thrift::Message::size(
+                                                            el, protocol,
+                                                        );
                                                     }
                                                     size
                                                 }
@@ -346,14 +416,16 @@ pub mod wrapper_arc {
                                         size += protocol.write_i32_len(*key);
                                         size += {
                                             let list_ident = ::pilota::thrift::TListIdentifier {
-                                                element_type: ::pilota::thrift::TType::I32,
+                                                element_type: ::pilota::thrift::TType::Struct,
                                                 size: val.len(),
                                             };
                                             protocol.write_list_begin_len(&list_ident)
                                                 + {
                                                     let mut size = 0;
                                                     for el in val {
-                                                        size += protocol.write_i32_len(*el);
+                                                        size += ::pilota::thrift::Message::size(
+                                                            el, protocol,
+                                                        );
                                                     }
                                                     size
                                                 }
