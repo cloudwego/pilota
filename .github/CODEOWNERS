@@ -1,3 +1,3 @@
 # For more information, please refer to https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
-*   @cloudwego/pilota-reviewer @cloudwego/pilota-approver @cloudwego/pilota-maintainer
+*   @cloudwego/pilota-reviewers @cloudwego/pilota-approvers @cloudwego/pilota-maintainers
