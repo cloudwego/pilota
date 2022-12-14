@@ -1,7 +1,7 @@
 use nom::{
     bytes::complete::take_while,
     character::complete::{char as cchar, satisfy},
-    combinator::{opt, recognize},
+    combinator::recognize,
     sequence::tuple,
     IResult,
 };
@@ -15,7 +15,7 @@ impl Parser for Ident {
     fn parse(input: &str) -> IResult<&str, Ident> {
         map(
             recognize(tuple((
-                opt(cchar('_')),
+                many0(cchar('_')),
                 satisfy(|c| c.is_ascii_alphabetic()),
                 take_while(|c: char| c.is_ascii_alphanumeric() || c == '_'),
             ))),
