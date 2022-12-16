@@ -296,17 +296,19 @@ impl Plugin for ImplDefaultPlugin {
                 adj.add_attrs(&[parse_quote!(#[derive(Default)])])
             }),
             Item::Enum(e) => {
-                cx.with_adjust(def_id, |adj| {
-                    adj.add_attrs(&[
-                        parse_quote!(#[derive(::pilota::derivative::Derivative)]),
-                        parse_quote!(#[derivative(Default)]),
-                    ]);
-                });
+                if !e.variants.is_empty() {
+                    cx.with_adjust(def_id, |adj| {
+                        adj.add_attrs(&[
+                            parse_quote!(#[derive(::pilota::derivative::Derivative)]),
+                            parse_quote!(#[derivative(Default)]),
+                        ]);
+                    });
 
-                if let Some(v) = e.variants.first() {
-                    cx.with_adjust(v.did, |adj| {
-                        adj.add_attrs(&[parse_quote!(#[derivative(Default)])]);
-                    })
+                    if let Some(v) = e.variants.first() {
+                        cx.with_adjust(v.did, |adj| {
+                            adj.add_attrs(&[parse_quote!(#[derivative(Default)])]);
+                        })
+                    }
                 }
             }
             _ => {}

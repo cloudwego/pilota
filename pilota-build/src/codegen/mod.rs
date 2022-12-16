@@ -136,11 +136,15 @@ where
     pub fn write_enum(&mut self, def_id: DefId, stream: &mut TokenStream, e: &middle::rir::Enum) {
         let name = self.rust_name(def_id).as_syn_ident();
 
-        let mut repr = match e.repr {
-            Some(EnumRepr::I32) => quote! {
-               #[repr(i32)]
-            },
-            None => quote! {},
+        let mut repr = if e.variants.is_empty() {
+            quote! {}
+        } else {
+            match e.repr {
+                Some(EnumRepr::I32) => quote! {
+                   #[repr(i32)]
+                },
+                None => quote! {},
+            }
         };
 
         if e.repr.is_some() {
