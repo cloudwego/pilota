@@ -44,7 +44,7 @@ pub mod normal {
                     protocol.read_field_end()?;
                 }
                 protocol.read_struct_end()?;
-                let data = Self { a: a };
+                let data = Self { a };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -69,7 +69,7 @@ pub mod normal {
                     protocol.read_field_end().await?;
                 }
                 protocol.read_struct_end().await?;
-                let data = Self { a: a };
+                let data = Self { a };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
@@ -131,7 +131,7 @@ pub mod normal {
                     protocol.read_field_end()?;
                 }
                 protocol.read_struct_end()?;
-                let data = Self { a: a };
+                let data = Self { a };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -156,7 +156,7 @@ pub mod normal {
                     protocol.read_field_end().await?;
                 }
                 protocol.read_struct_end().await?;
-                let data = Self { a: a };
+                let data = Self { a };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {

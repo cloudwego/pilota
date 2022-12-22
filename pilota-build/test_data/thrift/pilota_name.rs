@@ -55,7 +55,7 @@ pub mod pilota_name {
                         ),
                     ));
                 };
-                let data = Self { id: id };
+                let data = Self { id };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -90,7 +90,7 @@ pub mod pilota_name {
                         ),
                     ));
                 };
-                let data = Self { id: id };
+                let data = Self { id };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
@@ -185,10 +185,7 @@ pub mod pilota_name {
                         ),
                     ));
                 };
-                let data = Self {
-                    id: id,
-                    hello: hello,
-                };
+                let data = Self { id, hello };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -237,10 +234,7 @@ pub mod pilota_name {
                         ),
                     ));
                 };
-                let data = Self {
-                    id: id,
-                    hello: hello,
-                };
+                let data = Self { id, hello };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
@@ -512,7 +506,7 @@ pub mod pilota_name {
                         ),
                     ));
                 };
-                let data = Self { req: req };
+                let data = Self { req };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -547,7 +541,7 @@ pub mod pilota_name {
                         ),
                     ));
                 };
-                let data = Self { req: req };
+                let data = Self { req };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
@@ -621,7 +615,7 @@ pub mod pilota_name {
                         ),
                     ));
                 };
-                let data = Self { req: req };
+                let data = Self { req };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -656,7 +650,7 @@ pub mod pilota_name {
                         ),
                     ));
                 };
-                let data = Self { req: req };
+                let data = Self { req };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {

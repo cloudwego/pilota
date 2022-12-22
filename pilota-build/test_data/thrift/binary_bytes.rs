@@ -55,7 +55,7 @@ pub mod binary_bytes {
                         ),
                     ));
                 };
-                let data = Self { bytes: bytes };
+                let data = Self { bytes };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -90,7 +90,7 @@ pub mod binary_bytes {
                         ),
                     ));
                 };
-                let data = Self { bytes: bytes };
+                let data = Self { bytes };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {

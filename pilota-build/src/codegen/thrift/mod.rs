@@ -157,40 +157,35 @@ impl ThriftBackend {
     }
 
     fn codegen_decode(&self, helper: &DecodeHelper, s: &rir::Message) -> TokenStream {
-        let mut required_field_variables = Vec::with_capacity(s.fields.len());
-        let mut optional_field_variables = Vec::with_capacity(s.fields.len());
-        let mut required_field_values = Vec::with_capacity(s.fields.len());
-        let mut optional_field_values = Vec::with_capacity(s.fields.len());
+        let mut required_field_names = Vec::with_capacity(s.fields.len());
+        let mut optional_field_names = Vec::with_capacity(s.fields.len());
         s.fields.iter().for_each(|f| {
-            let field_variable = self.rust_name(f.did).as_syn_ident();
-            let field_value = quote! { #field_variable };
+            let field_name = self.rust_name(f.did).as_syn_ident();
 
             if f.is_optional() {
-                optional_field_variables.push(field_variable);
-                optional_field_values.push(field_value);
+                optional_field_names.push(field_name);
             } else {
-                required_field_variables.push(field_variable);
-                required_field_values.push(field_value);
+                required_field_names.push(field_name);
             }
         });
 
         let read_struct_begin = helper.codegen_read_struct_begin();
         let read_struct_end = helper.codegen_read_struct_end();
         let read_fields = self.codegen_decode_fields(helper, &s.fields);
-        let required_errs = required_field_variables
+        let required_errs = required_field_names
             .iter()
             .map(|i| format!("field {} is required", i));
 
         quote! {
-            #(let mut #required_field_variables = None;)*
-            #(let mut #optional_field_variables = None;)*
+            #(let mut #required_field_names = None;)*
+            #(let mut #optional_field_names = None;)*
 
             #read_struct_begin;
             #read_fields;
             #read_struct_end;
 
-            #(let #required_field_variables = if let Some(#required_field_variables) = #required_field_variables {
-                #required_field_variables
+            #(let #required_field_names = if let Some(#required_field_names) = #required_field_names {
+                #required_field_names
             } else {
                 return Err(
                     ::pilota::thrift::Error::Protocol(
@@ -203,8 +198,8 @@ impl ThriftBackend {
             };)*
 
             let data = Self {
-                #(#optional_field_variables: #optional_field_values,)*
-                #(#required_field_variables: #required_field_values,)*
+                #(#optional_field_names,)*
+                #(#required_field_names,)*
             };
             Ok(data)
         }
