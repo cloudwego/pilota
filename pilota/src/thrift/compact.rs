@@ -114,8 +114,6 @@ impl TryFrom<TCompactType> for TType {
             TCompactType::Map => Ok(TType::Map),
             TCompactType::Struct => Ok(TType::Struct),
             TCompactType::Uuid => Ok(TType::Uuid),
-            // _ => Err(new_protocol_error(ProtocolErrorKind::InvalidData, format!("invalid
-            // tcompacttype {:?}", value)))
         }
     }
 }
