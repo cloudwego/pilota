@@ -76,10 +76,7 @@ pub mod string {
                         ),
                     ));
                 };
-                let data = Self {
-                    faststr: faststr,
-                    string: string,
-                };
+                let data = Self { faststr, string };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -128,10 +125,7 @@ pub mod string {
                         ),
                     ));
                 };
-                let data = Self {
-                    faststr: faststr,
-                    string: string,
-                };
+                let data = Self { faststr, string };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {

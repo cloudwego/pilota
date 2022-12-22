@@ -232,11 +232,7 @@ pub mod wrapper_arc {
                         ),
                     ));
                 };
-                let data = Self {
-                    id: id,
-                    name2: name2,
-                    name3: name3,
-                };
+                let data = Self { id, name2, name3 };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -340,11 +336,7 @@ pub mod wrapper_arc {
                         ),
                     ));
                 };
-                let data = Self {
-                    id: id,
-                    name2: name2,
-                    name3: name3,
-                };
+                let data = Self { id, name2, name3 };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
@@ -619,7 +611,7 @@ pub mod wrapper_arc {
                         ),
                     ));
                 };
-                let data = Self { req: req };
+                let data = Self { req };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -656,7 +648,7 @@ pub mod wrapper_arc {
                         ),
                     ));
                 };
-                let data = Self { req: req };
+                let data = Self { req };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
@@ -730,7 +722,7 @@ pub mod wrapper_arc {
                         ),
                     ));
                 };
-                let data = Self { req: req };
+                let data = Self { req };
                 Ok(data)
             }
             async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
@@ -765,7 +757,7 @@ pub mod wrapper_arc {
                         ),
                     ));
                 };
-                let data = Self { req: req };
+                let data = Self { req };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
