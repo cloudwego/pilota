@@ -167,6 +167,21 @@ impl Annotation for RustWrapperArc {
     const KEY: &'static str = "pilota.rust_wrapper_arc";
 }
 
+#[derive(Clone)]
+pub struct SerdeAttribute(pub FastStr);
+
+impl FromStr for SerdeAttribute {
+    type Err = std::convert::Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(FastStr::new(s)))
+    }
+}
+
+impl Annotation for SerdeAttribute {
+    const KEY: &'static str = "pilota.serde_attribute";
+}
+
 pub mod protobuf {
 
     #[derive(Copy, Clone, PartialEq, Eq)]

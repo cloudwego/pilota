@@ -7,7 +7,7 @@ use syn::{parse_quote, Attribute};
 
 use crate::{
     db::RirDatabase,
-    rir::{Field, Item},
+    rir::{EnumVariant, Field, Item},
     symbol::{DefId, EnumRepr},
     ty::{self, Ty, Visitor},
     Context, IdentName,
@@ -23,7 +23,11 @@ pub trait Plugin {
     }
 
     fn on_field(&mut self, cx: &mut Context, def_id: DefId, f: Arc<Field>) {
-        walk_filed(self, cx, def_id, f)
+        walk_field(self, cx, def_id, f)
+    }
+
+    fn on_variant(&mut self, cx: &mut Context, def_id: DefId, variant: Arc<EnumVariant>) {
+        walk_variant(self, cx, def_id, variant)
     }
 
     fn on_emit(&mut self, _cx: &mut Context) {}
@@ -56,6 +60,10 @@ impl Plugin for BoxClonePlugin {
         self.0.on_field(cx, def_id, f)
     }
 
+    fn on_variant(&mut self, cx: &mut Context, def_id: DefId, variant: Arc<EnumVariant>) {
+        self.0.on_variant(cx, def_id, variant)
+    }
+
     fn on_emit(&mut self, cx: &mut Context) {
         self.0.on_emit(cx)
     }
@@ -82,6 +90,10 @@ where
         (*self).on_field(cx, def_id, f)
     }
 
+    fn on_variant(&mut self, cx: &mut Context, def_id: DefId, variant: Arc<EnumVariant>) {
+        (*self).on_variant(cx, def_id, variant)
+    }
+
     fn on_emit(&mut self, cx: &mut Context) {
         (*self).on_emit(cx)
     }
@@ -94,15 +106,27 @@ pub fn walk_item<P: Plugin + ?Sized>(p: &mut P, cx: &mut Context, _def_id: DefId
             .fields
             .iter()
             .for_each(|f| p.on_field(cx, f.did, f.clone())),
+        Item::Enum(e) => e
+            .variants
+            .iter()
+            .for_each(|v| p.on_variant(cx, v.did, v.clone())),
         _ => {}
     }
 }
 
-pub fn walk_filed<P: Plugin + ?Sized>(
+pub fn walk_field<P: Plugin + ?Sized>(
     _p: &mut P,
     _cx: &mut Context,
     _def_id: DefId,
     _field: Arc<Field>,
+) {
+}
+
+pub fn walk_variant<P: Plugin + ?Sized>(
+    _p: &mut P,
+    _cx: &mut Context,
+    _def_id: DefId,
+    _variant: Arc<EnumVariant>,
 ) {
 }
 
