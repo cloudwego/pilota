@@ -51,8 +51,8 @@ pub mod enum_test {
                     )
                 })?)
             }
-            async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
-                protocol: &mut ::pilota::thrift::TAsyncBinaryProtocol<C>,
+            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
                 let value = protocol.read_i32().await?;
                 Ok(Self::try_from(value).map_err(|err| {

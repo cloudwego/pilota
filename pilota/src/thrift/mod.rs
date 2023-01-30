@@ -27,9 +27,7 @@ pub trait Message: Sized + Send {
 
     fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, Error>;
 
-    async fn decode_async<R>(protocol: &mut TAsyncBinaryProtocol<R>) -> Result<Self, Error>
-    where
-        R: AsyncRead + Unpin + Send;
+    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, Error>;
 
     fn size<T: TLengthProtocol>(&self, protocol: &mut T) -> usize;
 }
@@ -44,10 +42,7 @@ impl<M: Message> Message for Box<M> {
         Ok(Box::new(M::decode(protocol)?))
     }
 
-    async fn decode_async<R>(protocol: &mut TAsyncBinaryProtocol<R>) -> Result<Self, Error>
-    where
-        R: AsyncRead + Unpin + Send,
-    {
+    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, Error> {
         Ok(Box::new(M::decode_async(protocol).await?))
     }
 
@@ -66,10 +61,7 @@ impl<M: Message + Send + Sync> Message for Arc<M> {
         Ok(Arc::new(M::decode(protocol)?))
     }
 
-    async fn decode_async<R>(protocol: &mut TAsyncBinaryProtocol<R>) -> Result<Self, Error>
-    where
-        R: AsyncRead + Unpin + Send,
-    {
+    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, Error> {
         Ok(Arc::new(M::decode_async(protocol).await?))
     }
 
@@ -327,7 +319,7 @@ pub trait TOutputProtocol {
 
 
 #[async_trait::async_trait]
-pub trait TAsyncInputProtocol {
+pub trait TAsyncInputProtocol: Send {
     
     /// Read the beginning of a Thrift message.
     async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, Error>;
@@ -472,9 +464,6 @@ pub trait TAsyncInputProtocol {
     }
 
 }
-
-// pub trait TAsyncOutputProtocol {
-// }
 
 // Thrift struct identifier.
 #[derive(Clone, Debug, Eq, PartialEq)]

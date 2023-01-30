@@ -79,8 +79,8 @@ pub mod string {
                 let data = Self { faststr, string };
                 Ok(data)
             }
-            async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
-                protocol: &mut ::pilota::thrift::TAsyncBinaryProtocol<C>,
+            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
                 let mut faststr = None;
                 let mut string = None;

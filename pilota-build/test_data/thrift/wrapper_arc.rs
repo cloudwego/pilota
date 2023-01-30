@@ -36,8 +36,8 @@ pub mod wrapper_arc {
                 let data = Self {};
                 Ok(data)
             }
-            async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
-                protocol: &mut ::pilota::thrift::TAsyncBinaryProtocol<C>,
+            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
                 protocol.read_struct_begin().await?;
                 loop {
@@ -235,8 +235,8 @@ pub mod wrapper_arc {
                 let data = Self { id, name2, name3 };
                 Ok(data)
             }
-            async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
-                protocol: &mut ::pilota::thrift::TAsyncBinaryProtocol<C>,
+            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
                 let mut id = None;
                 let mut name2 = None;
@@ -498,8 +498,8 @@ pub mod wrapper_arc {
                     ))
                 }
             }
-            async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
-                protocol: &mut ::pilota::thrift::TAsyncBinaryProtocol<C>,
+            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
@@ -614,8 +614,8 @@ pub mod wrapper_arc {
                 let data = Self { req };
                 Ok(data)
             }
-            async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
-                protocol: &mut ::pilota::thrift::TAsyncBinaryProtocol<C>,
+            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
                 let mut req = None;
                 protocol.read_struct_begin().await?;
@@ -725,8 +725,8 @@ pub mod wrapper_arc {
                 let data = Self { req };
                 Ok(data)
             }
-            async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
-                protocol: &mut ::pilota::thrift::TAsyncBinaryProtocol<C>,
+            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
                 let mut req = None;
                 protocol.read_struct_begin().await?;

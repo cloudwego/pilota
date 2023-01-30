@@ -131,8 +131,8 @@ impl ThriftBackend {
                     #decode
                 }
 
-                async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
-                    protocol: &mut::pilota::thrift::TAsyncBinaryProtocol<C>,
+                async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                    protocol: &mut T,
                 ) -> ::std::result::Result<Self,::pilota::thrift::Error> {
                     #decode_async
                 }
