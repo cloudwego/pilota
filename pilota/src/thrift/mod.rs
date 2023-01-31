@@ -9,7 +9,6 @@ use std::{ops::Deref, sync::Arc};
 use bytes::{Buf, BufMut, Bytes};
 pub use error::*;
 use faststr::FastStr;
-use tokio::io::AsyncRead;
 
 pub use self::{binary::TAsyncBinaryProtocol, compact::TAsyncCompactProtocol};
 

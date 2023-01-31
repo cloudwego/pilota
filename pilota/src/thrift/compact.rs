@@ -18,7 +18,7 @@ use super::{
     varint_ext::VarIntProcessor,
     TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
     TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    INLINE_CAP, MAXIMUM_SKIP_DEPTH, ZERO_COPY_THRESHOLD, TAsyncInputProtocol,
+    INLINE_CAP, ZERO_COPY_THRESHOLD, TAsyncInputProtocol,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -126,22 +126,22 @@ const COMPACT_TYPE_SHIFT_AMOUNT: u8 = 5;
 
 #[inline]
 fn tcompact_get_ttype(ct: TCompactType) -> Result<TType, Error> {
-    Ok(ct.try_into().map_err(|_| {
+    ct.try_into().map_err(|_| {
         new_protocol_error(
             ProtocolErrorKind::InvalidData,
             format!("don't know what type: {:?}", ct),
         )
-    })?)
+    })
 }
 
 #[inline]
 fn tcompact_get_compact(tt: TType) -> Result<TCompactType, Error> {
-    Ok(tt.try_into().map_err(|_| {
+    tt.try_into().map_err(|_| {
         new_protocol_error(
             ProtocolErrorKind::InvalidData,
             format!("invalid ttype {:?}", tt),
         )
-    })?)
+    })
 }
 
 pub struct TCompactOutputProtocol<T> {
@@ -639,7 +639,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
             // cast i32 as u32 so that varint writing won't use zigzag encoding
             self.write_varint(identifier.size as u32)?;
             self.write_byte(
-                (tcompact_get_compact(identifier.key_type.into())? as u8) << 4
+                (tcompact_get_compact(identifier.key_type)? as u8) << 4
                     | (tcompact_get_compact(identifier.value_type)?) as u8,
             )?
         }
@@ -909,7 +909,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
             // cast i32 as u32 so that varint writing won't use zigzag encoding
             self.write_varint(identifier.size as u32)?;
             self.write_byte(
-                (tcompact_get_compact(identifier.key_type.into())? as u8) << 4
+                (tcompact_get_compact(identifier.key_type)? as u8) << 4
                     | (tcompact_get_compact(identifier.value_type)?) as u8,
             )?
         }
@@ -1017,7 +1017,7 @@ where
         // - the field id delta and the type
         let field_type = self.read_byte().await?;
         let field_delta = (field_type & 0xF0) >> 4;
-        let field_type = match (field_type & 0x0F) as u8 {
+        let field_type = match field_type & 0x0F {
             COMPACT_BOOLEAN_TRUE => {
                 self.pending_read_bool_value = Some(true);
                 Ok(TType::Bool)
@@ -1437,15 +1437,15 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     }
     #[inline]
     fn read_i16(&mut self) -> Result<i16, Error> {
-        Ok(self.read_varint::<i16>()?)
+        self.read_varint::<i16>()
     }
     #[inline]
     fn read_i32(&mut self) -> Result<i32, Error> {
-        Ok(self.read_varint::<i32>()?)
+        self.read_varint::<i32>()
     }
     #[inline]
     fn read_i64(&mut self) -> Result<i64, Error> {
-        Ok(self.read_varint::<i64>()?)
+        self.read_varint::<i64>()
     }
 
     #[inline]

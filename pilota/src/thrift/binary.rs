@@ -12,7 +12,7 @@ use super::{
     rw_ext::{ReadExt, WriteExt},
     TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
     TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    INLINE_CAP, MAXIMUM_SKIP_DEPTH, ZERO_COPY_THRESHOLD, TAsyncInputProtocol,
+    INLINE_CAP, ZERO_COPY_THRESHOLD, TAsyncInputProtocol,
 };
 
 static VERSION_1: u32 = 0x80010000;

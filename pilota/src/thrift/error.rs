@@ -3,10 +3,8 @@ use std::{
     io, string,
 };
 
-use tokio::io::AsyncRead;
-
 use super::{
-    binary::TAsyncBinaryProtocol, Message, TInputProtocol, TLengthProtocol, TOutputProtocol, TAsyncInputProtocol,
+    Message, TInputProtocol, TLengthProtocol, TOutputProtocol, TAsyncInputProtocol,
 };
 
 #[derive(Debug)]
