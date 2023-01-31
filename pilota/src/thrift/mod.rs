@@ -316,10 +316,8 @@ pub trait TOutputProtocol {
     fn buf_mut(&mut self) -> &mut Self::BufMut;
 }
 
-
 #[async_trait::async_trait]
 pub trait TAsyncInputProtocol: Send {
-    
     /// Read the beginning of a Thrift message.
     async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, Error>;
 
@@ -355,7 +353,7 @@ pub trait TAsyncInputProtocol: Send {
 
     /// Read a string, return `FastStr`
     async fn read_faststr(&mut self) -> Result<FastStr, Error>;
-    
+
     /// Read a byte.
     async fn read_byte(&mut self) -> Result<u8, Error>;
 
@@ -376,7 +374,7 @@ pub trait TAsyncInputProtocol: Send {
 
     /// Read the beginning of a list.
     async fn read_list_begin(&mut self) -> Result<TListIdentifier, Error>;
-    
+
     /// Read the end of a list.
     async fn read_list_end(&mut self) -> Result<(), Error>;
 
@@ -388,7 +386,7 @@ pub trait TAsyncInputProtocol: Send {
 
     /// Read the beginning of a map.
     async fn read_map_begin(&mut self) -> Result<TMapIdentifier, Error>;
-    
+
     /// Read the end of a map.
     async fn read_map_end(&mut self) -> Result<(), Error>;
 
@@ -461,7 +459,6 @@ pub trait TAsyncInputProtocol: Send {
             )),
         }
     }
-
 }
 
 // Thrift struct identifier.

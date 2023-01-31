@@ -3,9 +3,7 @@ use std::{
     io, string,
 };
 
-use super::{
-    Message, TInputProtocol, TLengthProtocol, TOutputProtocol, TAsyncInputProtocol,
-};
+use super::{Message, TAsyncInputProtocol, TInputProtocol, TLengthProtocol, TOutputProtocol};
 
 #[derive(Debug)]
 pub enum Error {

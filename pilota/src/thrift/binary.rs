@@ -10,9 +10,9 @@ use super::{
     error::{Error, ProtocolErrorKind},
     new_protocol_error,
     rw_ext::{ReadExt, WriteExt},
-    TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
-    TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    INLINE_CAP, ZERO_COPY_THRESHOLD, TAsyncInputProtocol,
+    TAsyncInputProtocol, TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier,
+    TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier,
+    TStructIdentifier, TType, INLINE_CAP, ZERO_COPY_THRESHOLD,
 };
 
 static VERSION_1: u32 = 0x80010000;
@@ -696,7 +696,7 @@ where
     async fn read_i16(&mut self) -> Result<i16, Error> {
         Ok(self.reader.read_i16().await?)
     }
-    
+
     #[inline]
     async fn read_i32(&mut self) -> Result<i32, Error> {
         Ok(self.reader.read_i32().await?)
@@ -748,18 +748,15 @@ where
     async fn read_map_end(&mut self) -> Result<(), Error> {
         Ok(())
     }
-
 }
 
 impl<R> TAsyncBinaryProtocol<R>
 where
     R: AsyncRead + Unpin + Send,
 {
-    
     pub fn new(reader: R) -> Self {
         Self { reader }
     }
-
 }
 
 impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {

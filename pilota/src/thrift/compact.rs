@@ -6,7 +6,7 @@ use std::str;
 
 use bytes::{Bytes, BytesMut};
 use faststr::FastStr;
-use integer_encoding::{VarInt};
+use integer_encoding::VarInt;
 use lazy_static::__Deref;
 use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -16,9 +16,9 @@ use super::{
     new_protocol_error,
     rw_ext::{ReadExt, WriteExt},
     varint_ext::VarIntProcessor,
-    TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
-    TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    INLINE_CAP, ZERO_COPY_THRESHOLD, TAsyncInputProtocol,
+    TAsyncInputProtocol, TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier,
+    TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier,
+    TStructIdentifier, TType, INLINE_CAP, ZERO_COPY_THRESHOLD,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -958,7 +958,6 @@ impl<R> TAsyncInputProtocol for TAsyncCompactProtocol<R>
 where
     R: AsyncRead + Unpin + Send,
 {
-
     async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, Error> {
         let compact_id = self.read_byte().await?;
         if compact_id != COMPACT_PROTOCOL_ID {
@@ -1113,7 +1112,7 @@ where
     async fn read_i8(&mut self) -> Result<i8, Error> {
         Ok(self.reader.read_i8().await?)
     }
-    
+
     #[inline]
     async fn read_i16(&mut self) -> Result<i16, Error> {
         Ok(self.read_varint_async::<i16>().await?)
@@ -1128,7 +1127,7 @@ where
     async fn read_i64(&mut self) -> Result<i64, Error> {
         Ok(self.read_varint_async::<i64>().await?)
     }
-    
+
     #[inline]
     async fn read_double(&mut self) -> Result<f64, Error> {
         Ok(self.reader.read_f64_le().await?)
@@ -1142,12 +1141,11 @@ where
             size: element_count,
         })
     }
-    
+
     #[inline]
     async fn read_list_end(&mut self) -> Result<(), Error> {
         Ok(())
     }
-
 
     #[inline]
     async fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error> {
@@ -1185,7 +1183,6 @@ where
     async fn read_map_end(&mut self) -> Result<(), Error> {
         Ok(())
     }
-
 }
 
 impl<R> TAsyncCompactProtocol<R>
@@ -1225,8 +1222,7 @@ where
         p.decode().ok_or_else(|| {
             new_protocol_error(ProtocolErrorKind::InvalidData, "can't decode varint")
         })
-    }    
-
+    }
 }
 
 pub struct TCompactInputProtocol<T> {
@@ -1612,11 +1608,7 @@ mod tests {
         mteq!(o_prot, o_prot.write_bytes_len(&identifier[..]));
 
         let identifier = "foobar";
-        o_prot.write_faststr(
-            identifier
-                .clone()
-                .into()
-        ).unwrap();
+        o_prot.write_faststr(identifier.clone().into()).unwrap();
         mteq!(o_prot, o_prot.write_faststr_len(&identifier.into()));
 
         let mut identifier = TListIdentifier::new(TType::I16, 0);
