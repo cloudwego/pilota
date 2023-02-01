@@ -26,14 +26,14 @@ mod test;
 
 use codegen::protobuf::ProtobufBackend;
 pub use codegen::{thrift::ThriftBackend, traits::CodegenBackend, Codegen};
-use db::RootDatabase;
+use db::{RirDatabase, RootDatabase};
 use fmt::fmt_file;
+pub use middle::{context::Context, rir, ty};
 use middle::{
     context::{tls::CONTEXT, CollectMode},
     rir::NodeKind,
     type_graph::TypeGraph,
 };
-pub use middle::{rir, ty};
 use parser::{protobuf::ProtobufParser, thrift::ThriftParser, ParseResult, Parser};
 use plugin::{
     AutoDerivePlugin, BoxedPlugin, EnumNumPlugin, ImplDefaultPlugin, PredicateResult,
@@ -44,9 +44,7 @@ use resolve::{ResolveResult, Resolver};
 use salsa::{Durability, ParallelDatabase};
 pub use symbol::{DefId, IdentName};
 use syn::parse_quote;
-
-use crate::db::RirDatabase;
-pub use crate::middle::context::Context;
+pub use tags::TagId;
 
 pub trait MakeBackend: Sized {
     type Target: CodegenBackend;

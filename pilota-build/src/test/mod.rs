@@ -4,6 +4,8 @@ use std::path::Path;
 
 use tempfile::tempdir;
 
+use crate::plugin::SerdePlugin;
+
 fn diff_file(old: impl AsRef<Path>, new: impl AsRef<Path>) {
     let old_content = unsafe { String::from_utf8_unchecked(std::fs::read(old).unwrap()) };
 
@@ -55,6 +57,24 @@ fn test_thrift(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     });
 }
 
+fn test_plugin_thrift(source: impl AsRef<Path>, target: impl AsRef<Path>) {
+    test_with_builder(source, target, |source, target| {
+        crate::Builder::thrift()
+            .ignore_unused(false)
+            .plugin(SerdePlugin)
+            .compile(&[source], target)
+    });
+}
+
+fn test_plugin_proto(source: impl AsRef<Path>, target: impl AsRef<Path>) {
+    test_with_builder(source, target, |source, target| {
+        crate::Builder::protobuf()
+            .ignore_unused(false)
+            .plugin(SerdePlugin)
+            .compile(&[source], target)
+    });
+}
+
 #[test]
 fn test_thrift_gen() {
     let test_data_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -92,6 +112,31 @@ fn test_protobuf_gen() {
                 let mut rs_path = path.clone();
                 rs_path.set_extension("rs");
                 test_protobuf(path, rs_path);
+            }
+        }
+    });
+}
+
+#[test]
+fn test_plugin_gen() {
+    let test_data_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("plugin");
+
+    test_data_dir.read_dir().unwrap().for_each(|f| {
+        let f = f.unwrap();
+
+        let path = f.path();
+
+        if let Some(ext) = path.extension() {
+            if ext == "thrift" {
+                let mut rs_path = path.clone();
+                rs_path.set_extension("rs");
+                test_plugin_thrift(path, rs_path);
+            } else if ext == "proto" {
+                let mut rs_path = path.clone();
+                rs_path.set_extension("rs");
+                test_plugin_proto(path, rs_path);
             }
         }
     });
