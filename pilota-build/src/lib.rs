@@ -24,8 +24,9 @@ use std::{
 pub mod plugin;
 mod test;
 
-use codegen::protobuf::ProtobufBackend;
-pub use codegen::{thrift::ThriftBackend, traits::CodegenBackend, Codegen};
+pub use codegen::{
+    protobuf::ProtobufBackend, thrift::ThriftBackend, traits::CodegenBackend, Codegen,
+};
 use db::{RirDatabase, RootDatabase};
 use fmt::fmt_file;
 pub use middle::{context::Context, rir, ty};
