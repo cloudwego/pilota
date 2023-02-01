@@ -19,7 +19,7 @@ pub struct ProtobufBackend {
 }
 
 impl ProtobufBackend {
-    pub(crate) fn new(cx: Arc<Context>) -> Self {
+    pub fn new(cx: Arc<Context>) -> Self {
         ProtobufBackend {
             cx,
             _zero_copy: false,
