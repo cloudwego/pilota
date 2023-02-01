@@ -3,11 +3,7 @@ use std::{
     io, string,
 };
 
-use tokio::io::AsyncRead;
-
-use super::{
-    binary::TAsyncBinaryProtocol, Message, TInputProtocol, TLengthProtocol, TOutputProtocol,
-};
+use super::{Message, TAsyncInputProtocol, TInputProtocol, TLengthProtocol, TOutputProtocol};
 
 #[derive(Debug)]
 pub enum Error {
@@ -267,10 +263,7 @@ impl Message for DummyError {
         panic!()
     }
 
-    async fn decode_async<R>(_protocol: &mut TAsyncBinaryProtocol<R>) -> Result<Self, Error>
-    where
-        R: AsyncRead + Unpin + Send,
-    {
+    async fn decode_async<T: TAsyncInputProtocol>(_protocol: &mut T) -> Result<Self, Error> {
         panic!()
     }
 

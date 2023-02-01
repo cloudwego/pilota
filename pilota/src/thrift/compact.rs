@@ -6,7 +6,7 @@ use std::str;
 
 use bytes::{Bytes, BytesMut};
 use faststr::FastStr;
-use integer_encoding::{VarInt, VarIntAsyncReader};
+use integer_encoding::VarInt;
 use lazy_static::__Deref;
 use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -16,9 +16,9 @@ use super::{
     new_protocol_error,
     rw_ext::{ReadExt, WriteExt},
     varint_ext::VarIntProcessor,
-    TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
-    TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    INLINE_CAP, MAXIMUM_SKIP_DEPTH, ZERO_COPY_THRESHOLD,
+    TAsyncInputProtocol, TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier,
+    TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier,
+    TStructIdentifier, TType, INLINE_CAP, ZERO_COPY_THRESHOLD,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -126,22 +126,22 @@ const COMPACT_TYPE_SHIFT_AMOUNT: u8 = 5;
 
 #[inline]
 fn tcompact_get_ttype(ct: TCompactType) -> Result<TType, Error> {
-    Ok(ct.try_into().map_err(|_| {
+    ct.try_into().map_err(|_| {
         new_protocol_error(
             ProtocolErrorKind::InvalidData,
             format!("don't know what type: {:?}", ct),
         )
-    })?)
+    })
 }
 
 #[inline]
 fn tcompact_get_compact(tt: TType) -> Result<TCompactType, Error> {
-    Ok(tt.try_into().map_err(|_| {
+    tt.try_into().map_err(|_| {
         new_protocol_error(
             ProtocolErrorKind::InvalidData,
             format!("invalid ttype {:?}", tt),
         )
-    })?)
+    })
 }
 
 pub struct TCompactOutputProtocol<T> {
@@ -639,7 +639,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
             // cast i32 as u32 so that varint writing won't use zigzag encoding
             self.write_varint(identifier.size as u32)?;
             self.write_byte(
-                (tcompact_get_compact(identifier.key_type.into())? as u8) << 4
+                (tcompact_get_compact(identifier.key_type)? as u8) << 4
                     | (tcompact_get_compact(identifier.value_type)?) as u8,
             )?
         }
@@ -909,7 +909,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
             // cast i32 as u32 so that varint writing won't use zigzag encoding
             self.write_varint(identifier.size as u32)?;
             self.write_byte(
-                (tcompact_get_compact(identifier.key_type.into())? as u8) << 4
+                (tcompact_get_compact(identifier.key_type)? as u8) << 4
                     | (tcompact_get_compact(identifier.value_type)?) as u8,
             )?
         }
@@ -953,20 +953,12 @@ pub struct TAsyncCompactProtocol<R> {
     pending_read_bool_value: Option<bool>,
 }
 
-impl<R> TAsyncCompactProtocol<R>
+#[async_trait::async_trait]
+impl<R> TAsyncInputProtocol for TAsyncCompactProtocol<R>
 where
     R: AsyncRead + Unpin + Send,
 {
-    pub fn new(reader: R) -> TAsyncCompactProtocol<R> {
-        Self {
-            reader,
-            last_read_field_id: 0,
-            read_field_id_stack: Vec::new(),
-            pending_read_bool_value: None,
-        }
-    }
-
-    pub async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, Error> {
+    async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, Error> {
         let compact_id = self.read_byte().await?;
         if compact_id != COMPACT_PROTOCOL_ID {
             return Err(new_protocol_error(
@@ -994,37 +986,37 @@ where
         })?;
 
         // writing side wrote signed sequence number as u32 to avoid zigzag encoding
-        let sequence_number = self.reader.read_varint_async::<u32>().await? as i32;
+        let sequence_number = self.read_varint_async::<u32>().await? as i32;
         let name = self.read_faststr().await?;
 
         Ok(TMessageIdentifier::new(name, message_type, sequence_number))
     }
 
     #[inline]
-    pub async fn read_message_end(&mut self) -> Result<(), Error> {
+    async fn read_message_end(&mut self) -> Result<(), Error> {
         Ok(())
     }
 
     #[inline]
-    pub async fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, Error> {
+    async fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, Error> {
         self.read_field_id_stack.push(self.last_read_field_id);
         self.last_read_field_id = 0;
         Ok(None)
     }
 
     #[inline]
-    pub async fn read_struct_end(&mut self) -> Result<(), Error> {
+    async fn read_struct_end(&mut self) -> Result<(), Error> {
         Ok(())
     }
 
     // #[inline]
-    pub async fn read_field_begin(&mut self) -> Result<TFieldIdentifier, Error> {
+    async fn read_field_begin(&mut self) -> Result<TFieldIdentifier, Error> {
         // we can read at least one byte, which is:
         // - the type
         // - the field id delta and the type
         let field_type = self.read_byte().await?;
         let field_delta = (field_type & 0xF0) >> 4;
-        let field_type = match (field_type & 0x0F) as u8 {
+        let field_type = match field_type & 0x0F {
             COMPACT_BOOLEAN_TRUE => {
                 self.pending_read_bool_value = Some(true);
                 Ok(TType::Bool)
@@ -1057,12 +1049,12 @@ where
     }
 
     #[inline]
-    pub async fn read_field_end(&mut self) -> Result<(), Error> {
+    async fn read_field_end(&mut self) -> Result<(), Error> {
         Ok(())
     }
 
     #[inline]
-    pub async fn read_bool(&mut self) -> Result<bool, Error> {
+    async fn read_bool(&mut self) -> Result<bool, Error> {
         match self.pending_read_bool_value.take() {
             Some(b) => Ok(b),
             None => {
@@ -1080,13 +1072,13 @@ where
     }
 
     #[inline]
-    pub async fn read_bytes(&mut self) -> Result<Bytes, Error> {
+    async fn read_bytes(&mut self) -> Result<Bytes, Error> {
         self.read_bytes_vec().await.map(Bytes::from)
     }
 
     #[inline]
-    pub async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, Error> {
-        let size = self.reader.read_varint_async::<u32>().await? as usize;
+    async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, Error> {
+        let size = self.read_varint_async::<u32>().await? as usize;
         // FIXME: use maybe_uninit?
         let mut v = vec![0; size];
         self.reader.read_exact(&mut v).await?;
@@ -1094,91 +1086,84 @@ where
     }
 
     #[inline]
-    pub async fn read_uuid(&mut self) -> Result<[u8; 16], Error> {
+    async fn read_uuid(&mut self) -> Result<[u8; 16], Error> {
         let mut uuid = [0; 16];
         self.reader.read_exact(&mut uuid).await?;
         Ok(uuid)
     }
 
     #[inline]
-    pub async fn read_string(&mut self) -> Result<String, Error> {
+    async fn read_string(&mut self) -> Result<String, Error> {
         let v = self.read_bytes_vec().await?;
         Ok(unsafe { String::from_utf8_unchecked(v) })
     }
 
     #[inline]
-    pub async fn read_faststr(&mut self) -> Result<FastStr, Error> {
+    async fn read_faststr(&mut self) -> Result<FastStr, Error> {
         self.read_string().await.map(FastStr::from_string)
     }
 
     #[inline]
-    pub async fn read_byte(&mut self) -> Result<u8, Error> {
+    async fn read_byte(&mut self) -> Result<u8, Error> {
         Ok(self.reader.read_u8().await?)
     }
 
     #[inline]
-    pub async fn read_i8(&mut self) -> Result<i8, Error> {
+    async fn read_i8(&mut self) -> Result<i8, Error> {
         Ok(self.reader.read_i8().await?)
     }
+
     #[inline]
-    pub async fn read_i16(&mut self) -> Result<i16, Error> {
-        Ok(self.reader.read_varint_async::<i16>().await?)
+    async fn read_i16(&mut self) -> Result<i16, Error> {
+        Ok(self.read_varint_async::<i16>().await?)
     }
+
     #[inline]
-    pub async fn read_i32(&mut self) -> Result<i32, Error> {
-        Ok(self.reader.read_varint_async::<i32>().await?)
+    async fn read_i32(&mut self) -> Result<i32, Error> {
+        Ok(self.read_varint_async::<i32>().await?)
     }
+
     #[inline]
-    pub async fn read_i64(&mut self) -> Result<i64, Error> {
-        Ok(self.reader.read_varint_async::<i64>().await?)
+    async fn read_i64(&mut self) -> Result<i64, Error> {
+        Ok(self.read_varint_async::<i64>().await?)
     }
+
     #[inline]
-    pub async fn read_double(&mut self) -> Result<f64, Error> {
+    async fn read_double(&mut self) -> Result<f64, Error> {
         Ok(self.reader.read_f64_le().await?)
     }
 
     #[inline]
-    async fn read_collection_begin(&mut self) -> Result<(TType, usize), Error> {
-        let header = self.read_byte().await?;
-        let element_type = tcompact_get_ttype((header & 0x0F).try_into()?)?;
-
-        let possible_element_count = (header & 0xF0) >> 4;
-        let element_count = if possible_element_count != 15 {
-            possible_element_count as i32
-        } else {
-            self.reader.read_varint_async::<u32>().await? as i32
-        };
-        Ok((element_type, element_count as usize))
-    }
-
-    // #[inline]
-    pub async fn read_list_begin(&mut self) -> Result<TListIdentifier, Error> {
+    async fn read_list_begin(&mut self) -> Result<TListIdentifier, Error> {
         let (element_type, element_count) = self.read_collection_begin().await?;
         Ok(TListIdentifier {
             element_type,
             size: element_count,
         })
     }
+
     #[inline]
-    pub async fn read_list_end(&mut self) -> Result<(), Error> {
+    async fn read_list_end(&mut self) -> Result<(), Error> {
         Ok(())
     }
 
-    // #[inline]
-    pub async fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error> {
+    #[inline]
+    async fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error> {
         let (element_type, element_count) = self.read_collection_begin().await?;
         Ok(TSetIdentifier {
             element_type,
             size: element_count,
         })
     }
+
     #[inline]
-    pub async fn read_set_end(&mut self) -> Result<(), Error> {
+    async fn read_set_end(&mut self) -> Result<(), Error> {
         Ok(())
     }
 
-    pub async fn read_map_begin(&mut self) -> Result<TMapIdentifier, Error> {
-        let element_count = self.reader.read_varint_async::<u32>().await? as i32;
+    #[inline]
+    async fn read_map_begin(&mut self) -> Result<TMapIdentifier, Error> {
+        let element_count = self.read_varint_async::<u32>().await? as i32;
         if element_count == 0 {
             Ok(TMapIdentifier::new(TType::Stop, TType::Stop, 0))
         } else {
@@ -1195,78 +1180,48 @@ where
     }
 
     #[inline]
-    pub async fn read_map_end(&mut self) -> Result<(), Error> {
+    async fn read_map_end(&mut self) -> Result<(), Error> {
         Ok(())
     }
+}
 
-    /// Skip a field with type `field_type` recursively until the default
-    /// maximum skip depth is reached.
-    #[inline]
-    pub async fn skip(&mut self, field_type: TType) -> Result<(), Error> {
-        self.skip_till_depth(field_type, MAXIMUM_SKIP_DEPTH).await
+impl<R> TAsyncCompactProtocol<R>
+where
+    R: AsyncRead + Unpin + Send,
+{
+    pub fn new(reader: R) -> TAsyncCompactProtocol<R> {
+        Self {
+            reader,
+            last_read_field_id: 0,
+            read_field_id_stack: Vec::new(),
+            pending_read_bool_value: None,
+        }
     }
 
-    #[async_recursion::async_recursion]
-    /// Skip a field with type `field_type` recursively up to `depth` levels.
-    async fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<(), Error> {
-        if depth == 0 {
-            return Err(new_protocol_error(
-                ProtocolErrorKind::DepthLimit,
-                format!("cannot parse past {:?}", field_type),
-            ));
-        }
+    #[inline]
+    async fn read_collection_begin(&mut self) -> Result<(TType, usize), Error> {
+        let header = self.read_byte().await?;
+        let element_type = tcompact_get_ttype((header & 0x0F).try_into()?)?;
 
-        match field_type {
-            TType::Bool => self.read_bool().await.map(|_| ()),
-            TType::I8 => self.read_i8().await.map(|_| ()),
-            TType::I16 => self.read_i16().await.map(|_| ()),
-            TType::I32 => self.read_i32().await.map(|_| ()),
-            TType::I64 => self.read_i64().await.map(|_| ()),
-            TType::Double => self.read_double().await.map(|_| ()),
-            TType::Binary => self.read_string().await.map(|_| ()),
-            TType::Struct => {
-                self.read_struct_begin().await?;
-                loop {
-                    let field_ident = self.read_field_begin().await?;
-                    if field_ident.field_type == TType::Stop {
-                        break;
-                    }
-                    self.skip_till_depth(field_ident.field_type, depth - 1)
-                        .await?;
-                }
-                self.read_struct_end().await
-            }
-            TType::List => {
-                let list_ident = self.read_list_begin().await?;
-                for _ in 0..list_ident.size {
-                    self.skip_till_depth(list_ident.element_type, depth - 1)
-                        .await?;
-                }
-                self.read_list_end().await
-            }
-            TType::Set => {
-                let set_ident = self.read_set_begin().await?;
-                for _ in 0..set_ident.size {
-                    self.skip_till_depth(set_ident.element_type, depth - 1)
-                        .await?;
-                }
-                self.read_set_end().await
-            }
-            TType::Map => {
-                let map_ident = self.read_map_begin().await?;
-                for _ in 0..map_ident.size {
-                    let key_type = map_ident.key_type;
-                    let val_type = map_ident.value_type;
-                    self.skip_till_depth(key_type, depth - 1).await?;
-                    self.skip_till_depth(val_type, depth - 1).await?;
-                }
-                self.read_map_end().await
-            }
-            u => Err(new_protocol_error(
-                ProtocolErrorKind::DepthLimit,
-                format!("cannot skip field type {:?}", &u),
-            )),
+        let possible_element_count = (header & 0xF0) >> 4;
+        let element_count = if possible_element_count != 15 {
+            possible_element_count as i32
+        } else {
+            self.read_varint_async::<u32>().await? as i32
+        };
+        Ok((element_type, element_count as usize))
+    }
+
+    #[inline]
+    async fn read_varint_async<VI: VarInt>(&mut self) -> Result<VI, Error> {
+        let mut p = VarIntProcessor::new::<VI>();
+        while !p.finished() {
+            let read = self.reader.read_u8().await?;
+            p.push(read)?;
         }
+        p.decode().ok_or_else(|| {
+            new_protocol_error(ProtocolErrorKind::InvalidData, "can't decode varint")
+        })
     }
 }
 
@@ -1478,15 +1433,15 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     }
     #[inline]
     fn read_i16(&mut self) -> Result<i16, Error> {
-        Ok(self.read_varint::<i16>()?)
+        self.read_varint::<i16>()
     }
     #[inline]
     fn read_i32(&mut self) -> Result<i32, Error> {
-        Ok(self.read_varint::<i32>()?)
+        self.read_varint::<i32>()
     }
     #[inline]
     fn read_i64(&mut self) -> Result<i64, Error> {
-        Ok(self.read_varint::<i64>()?)
+        self.read_varint::<i64>()
     }
 
     #[inline]

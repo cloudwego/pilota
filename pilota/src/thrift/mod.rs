@@ -9,7 +9,6 @@ use std::{ops::Deref, sync::Arc};
 use bytes::{Buf, BufMut, Bytes};
 pub use error::*;
 use faststr::FastStr;
-use tokio::io::AsyncRead;
 
 pub use self::{binary::TAsyncBinaryProtocol, compact::TAsyncCompactProtocol};
 
@@ -27,9 +26,7 @@ pub trait Message: Sized + Send {
 
     fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, Error>;
 
-    async fn decode_async<R>(protocol: &mut TAsyncBinaryProtocol<R>) -> Result<Self, Error>
-    where
-        R: AsyncRead + Unpin + Send;
+    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, Error>;
 
     fn size<T: TLengthProtocol>(&self, protocol: &mut T) -> usize;
 }
@@ -44,10 +41,7 @@ impl<M: Message> Message for Box<M> {
         Ok(Box::new(M::decode(protocol)?))
     }
 
-    async fn decode_async<R>(protocol: &mut TAsyncBinaryProtocol<R>) -> Result<Self, Error>
-    where
-        R: AsyncRead + Unpin + Send,
-    {
+    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, Error> {
         Ok(Box::new(M::decode_async(protocol).await?))
     }
 
@@ -66,10 +60,7 @@ impl<M: Message + Send + Sync> Message for Arc<M> {
         Ok(Arc::new(M::decode(protocol)?))
     }
 
-    async fn decode_async<R>(protocol: &mut TAsyncBinaryProtocol<R>) -> Result<Self, Error>
-    where
-        R: AsyncRead + Unpin + Send,
-    {
+    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, Error> {
         Ok(Arc::new(M::decode_async(protocol).await?))
     }
 
@@ -323,6 +314,151 @@ pub trait TOutputProtocol {
     fn reserve(&mut self, size: usize);
 
     fn buf_mut(&mut self) -> &mut Self::BufMut;
+}
+
+#[async_trait::async_trait]
+pub trait TAsyncInputProtocol: Send {
+    /// Read the beginning of a Thrift message.
+    async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, Error>;
+
+    /// Read the end of a Thrift message.
+    async fn read_message_end(&mut self) -> Result<(), Error>;
+
+    /// Read the beginning of a Thrift struct.   
+    async fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, Error>;
+
+    /// Read the end of a Thrift struct.
+    async fn read_struct_end(&mut self) -> Result<(), Error>;
+
+    /// Read the beginning of a Thrift struct field.
+    async fn read_field_begin(&mut self) -> Result<TFieldIdentifier, Error>;
+
+    /// Read the end of a Thrift struct field.
+    async fn read_field_end(&mut self) -> Result<(), Error>;
+
+    /// Read a bool.
+    async fn read_bool(&mut self) -> Result<bool, Error>;
+
+    /// Read a binary.
+    async fn read_bytes(&mut self) -> Result<Bytes, Error>;
+
+    /// Read a binary, return `Vec<u8>`
+    async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, Error>;
+
+    /// Read a uuid.
+    async fn read_uuid(&mut self) -> Result<[u8; 16], Error>;
+
+    /// Read a string.
+    async fn read_string(&mut self) -> Result<String, Error>;
+
+    /// Read a string, return `FastStr`
+    async fn read_faststr(&mut self) -> Result<FastStr, Error>;
+
+    /// Read a byte.
+    async fn read_byte(&mut self) -> Result<u8, Error>;
+
+    /// Read a word.
+    async fn read_i8(&mut self) -> Result<i8, Error>;
+
+    /// Read a 16-bit signed integer.
+    async fn read_i16(&mut self) -> Result<i16, Error>;
+
+    /// Read a 32-bit signed integer.
+    async fn read_i32(&mut self) -> Result<i32, Error>;
+
+    /// Read a 64-bit signed integer.
+    async fn read_i64(&mut self) -> Result<i64, Error>;
+
+    /// Read a 64-bit float.
+    async fn read_double(&mut self) -> Result<f64, Error>;
+
+    /// Read the beginning of a list.
+    async fn read_list_begin(&mut self) -> Result<TListIdentifier, Error>;
+
+    /// Read the end of a list.
+    async fn read_list_end(&mut self) -> Result<(), Error>;
+
+    /// Read the beginning of a set.
+    async fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error>;
+
+    /// Read the end of a set.
+    async fn read_set_end(&mut self) -> Result<(), Error>;
+
+    /// Read the beginning of a map.
+    async fn read_map_begin(&mut self) -> Result<TMapIdentifier, Error>;
+
+    /// Read the end of a map.
+    async fn read_map_end(&mut self) -> Result<(), Error>;
+
+    /// Skip a field with type `field_type` recursively until the default
+    /// maximum skip depth is reached.
+    #[inline]
+    async fn skip(&mut self, field_type: TType) -> Result<(), Error> {
+        self.skip_till_depth(field_type, MAXIMUM_SKIP_DEPTH).await
+    }
+
+    // conflict with async_trait macro on trait: #[async_recursion::async_recursion]
+    /// Skip a field with type `field_type` recursively up to `depth` levels.
+    async fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<(), Error> {
+        if depth == 0 {
+            return Err(new_protocol_error(
+                ProtocolErrorKind::DepthLimit,
+                format!("cannot parse past {:?}", field_type),
+            ));
+        }
+
+        match field_type {
+            TType::Bool => self.read_bool().await.map(|_| ()),
+            TType::I8 => self.read_i8().await.map(|_| ()),
+            TType::I16 => self.read_i16().await.map(|_| ()),
+            TType::I32 => self.read_i32().await.map(|_| ()),
+            TType::I64 => self.read_i64().await.map(|_| ()),
+            TType::Double => self.read_double().await.map(|_| ()),
+            TType::Binary => self.read_string().await.map(|_| ()),
+            TType::Struct => {
+                self.read_struct_begin().await?;
+                loop {
+                    let field_ident = self.read_field_begin().await?;
+                    if field_ident.field_type == TType::Stop {
+                        break;
+                    }
+                    self.skip_till_depth(field_ident.field_type, depth - 1)
+                        .await?;
+                }
+                self.read_struct_end().await
+            }
+            TType::List => {
+                let list_ident = self.read_list_begin().await?;
+                for _ in 0..list_ident.size {
+                    self.skip_till_depth(list_ident.element_type, depth - 1)
+                        .await?;
+                }
+                self.read_list_end().await
+            }
+            TType::Set => {
+                let set_ident = self.read_set_begin().await?;
+                for _ in 0..set_ident.size {
+                    self.skip_till_depth(set_ident.element_type, depth - 1)
+                        .await?;
+                }
+                self.read_set_end().await
+            }
+            TType::Map => {
+                let map_ident = self.read_map_begin().await?;
+                for _ in 0..map_ident.size {
+                    let key_type = map_ident.key_type;
+                    let val_type = map_ident.value_type;
+                    self.skip_till_depth(key_type, depth - 1).await?;
+                    self.skip_till_depth(val_type, depth - 1).await?;
+                }
+                self.read_map_end().await
+            }
+            u => Err(new_protocol_error(
+                ProtocolErrorKind::DepthLimit,
+                format!("cannot skip field type {:?}", &u),
+            )),
+        }
+    }
 }
 
 // Thrift struct identifier.

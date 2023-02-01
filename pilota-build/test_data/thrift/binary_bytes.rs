@@ -58,8 +58,8 @@ pub mod binary_bytes {
                 let data = Self { bytes };
                 Ok(data)
             }
-            async fn decode_async<C: ::tokio::io::AsyncRead + Unpin + Send>(
-                protocol: &mut ::pilota::thrift::TAsyncBinaryProtocol<C>,
+            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
                 let mut bytes = None;
                 protocol.read_struct_begin().await?;
