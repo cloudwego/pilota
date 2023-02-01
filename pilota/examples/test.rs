@@ -1,20 +1,28 @@
-pub mod bytes {
+fn main() {}
+
+pub mod string {
     #![allow(warnings, clippy::all)]
     #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
     pub struct A {
-        pub a: ::pilota::Bytes,
+        pub a: ::std::option::Option<::pilota::FastStr>,
+        pub b: ::pilota::FastStr,
     }
     impl ::pilota::prost::Message for A {
         #[inline]
         fn encoded_len(&self) -> usize {
-            0 + ::pilota::prost::encoding::bytes::encoded_len(1u32, &self.a)
+            0 + self.a.as_ref().map_or(0, |value| {
+                ::pilota::prost::encoding::string::encoded_len(1u32, value)
+            }) + ::pilota::prost::encoding::string::encoded_len(2u32, &self.b)
         }
         #[allow(unused_variables)]
         fn encode_raw<B>(&self, buf: &mut B)
         where
             B: ::pilota::prost::bytes::BufMut,
         {
-            ::pilota::prost::encoding::bytes::encode(1u32, &self.a, buf);
+            if let Some(_pilota_inner_value) = self.a.as_ref() {
+                ::pilota::prost::encoding::string::encode(1u32, _pilota_inner_value, buf);
+            }
+            ::pilota::prost::encoding::string::encode(2u32, &self.b, buf);
         }
         #[allow(unused_variables)]
         fn merge_field<B>(
@@ -31,14 +39,27 @@ pub mod bytes {
             match tag {
                 1u32 => {
                     let mut _inner_pilota_value = &mut self.a;
-                    ::pilota::prost::encoding::bytes::merge(
+                    ::pilota::prost::encoding::string::merge(
+                        wire_type,
+                        _inner_pilota_value.get_or_insert_with(::core::default::Default::default),
+                        buf,
+                        ctx,
+                    )
+                    .map_err(|mut error| {
+                        error.push(STRUCT_NAME, stringify!(a));
+                        error
+                    })
+                }
+                2u32 => {
+                    let mut _inner_pilota_value = &mut self.b;
+                    ::pilota::prost::encoding::string::merge(
                         wire_type,
                         _inner_pilota_value,
                         buf,
                         ctx,
                     )
                     .map_err(|mut error| {
-                        error.push(STRUCT_NAME, stringify!(a));
+                        error.push(STRUCT_NAME, stringify!(b));
                         error
                     })
                 }
