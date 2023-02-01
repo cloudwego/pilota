@@ -363,7 +363,8 @@ pub(crate) trait Folder: Sized {
 
 pub(crate) fn fold_ty<F: Folder>(f: &mut F, ty: &Ty) -> Ty {
     let kind = match &ty.kind {
-        String | FastStr => TyKind::String,
+        String => TyKind::String,
+        FastStr => TyKind::FastStr,
         Void => TyKind::Void,
         U8 => TyKind::U8,
         Bool => TyKind::Bool,

@@ -24,7 +24,7 @@ use std::{
 pub mod plugin;
 mod test;
 
-use codegen::protobuf::{ProstPlugin, ProtobufBackend};
+use codegen::protobuf::ProtobufBackend;
 pub use codegen::{thrift::ThriftBackend, traits::CodegenBackend, Codegen};
 use db::RootDatabase;
 use fmt::fmt_file;
@@ -102,7 +102,11 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
         Builder {
             mk_backend: MkProtobufBackend,
             parser: ProtobufParser::default(),
-            plugins: vec![Box::new(ProstPlugin)],
+            plugins: vec![
+                Box::new(WithAttrsPlugin(vec![parse_quote!(#[derive(Debug)])])),
+                Box::new(ImplDefaultPlugin),
+                Box::new(EnumNumPlugin),
+            ],
             touches: Vec::default(),
             ignore_unused: true,
         }
