@@ -423,7 +423,25 @@ dependencies = [
 ]
 
 [[package]]
-name = "pilo-build"
+name = "pilota"
+version = "0.4.0"
+dependencies = [
+ "anyhow",
+ "async-recursion",
+ "async-trait",
+ "bytes",
+ "derivative",
+ "faststr",
+ "integer-encoding",
+ "lazy_static",
+ "linkedbytes",
+ "proptest",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "pilota-build"
 version = "0.4.0"
 dependencies = [
  "async-trait",
@@ -451,24 +469,6 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
-]
-
-[[package]]
-name = "pilota"
-version = "0.4.0"
-dependencies = [
- "anyhow",
- "async-recursion",
- "async-trait",
- "bytes",
- "derivative",
- "faststr",
- "integer-encoding",
- "lazy_static",
- "linkedbytes",
- "proptest",
- "thiserror",
- "tokio",
 ]
 
 [[package]]
