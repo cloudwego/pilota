@@ -66,15 +66,15 @@ impl ProtobufBackend {
             Category::Message => {
                 if let ty::TyKind::Vec(_) = ty.kind {
                     quote!(
-                        ::prost::encoding::message::encoded_len_repeated(#tag, &#ident)
+                        ::pilota::prost::encoding::message::encoded_len_repeated(#tag, &#ident)
                     )
                 } else {
                     match kind {
                         FieldKind::Required => quote!(
-                            ::prost::encoding::message::encoded_len(#tag, &#ident)
+                            ::pilota::prost::encoding::message::encoded_len(#tag, &#ident)
                         ),
                         FieldKind::Optional => quote!(
-                            #ident.as_ref().map_or(0, |msg| ::prost::encoding::message::encoded_len(#tag, msg))
+                            #ident.as_ref().map_or(0, |msg| ::pilota::prost::encoding::message::encoded_len(#tag, msg))
                         ),
                     }
                 }
@@ -94,10 +94,22 @@ impl ProtobufBackend {
                     quote!(::pilota::prost::encoding::#value_module::encoded_len);
 
                 quote!(
-                    ::pilota::prost::encoding::map::encoded_len(#key_encoded_len_fn, #value_encoded_len_fn, #tag, #ident)
+                    ::pilota::prost::encoding::hash_map::encoded_len(#key_encoded_len_fn, #value_encoded_len_fn, #tag, &#ident)
                 )
             }
         }
+    }
+
+    fn is_plain_enum(&self, def_id: DefId) -> bool {
+        let node = self.cx.node(def_id).unwrap();
+        if let NodeKind::Item(item) = node.kind {
+            if let Item::Enum(_) = &*item {
+                if !self.cx.contains_tag::<OneOf>(node.tags) {
+                    return true;
+                }
+            }
+        }
+        false
     }
 
     fn ty_category(&self, ty: &Ty) -> Category {
@@ -105,18 +117,6 @@ impl ProtobufBackend {
         if let ty::TyKind::Vec(inner) = &ty.kind {
             ty = &*inner;
         }
-
-        let is_plain_enum = |def_id: DefId| -> bool {
-            let node = self.cx.node(def_id).unwrap();
-            if let NodeKind::Item(item) = node.kind {
-                if let Item::Enum(_) = &*item {
-                    if !self.cx.contains_tag::<OneOf>(node.tags) {
-                        return true;
-                    }
-                }
-            }
-            false
-        };
 
         match &ty.kind {
             ty::TyKind::String
@@ -134,12 +134,16 @@ impl ProtobufBackend {
             | ty::TyKind::BytesVec
             | ty::TyKind::Bytes => Category::Scalar,
             ty::TyKind::Map(..) => Category::Map,
-            ty::TyKind::Path(path) if is_plain_enum(path.did) => Category::Scalar,
+            ty::TyKind::Path(path) if self.is_plain_enum(path.did) => Category::Scalar,
             _ => Category::Message,
         }
     }
 
     fn ty_module(&self, ty: &ty::Ty) -> Ident {
+        let mut ty = ty;
+        if let ty::TyKind::Vec(inner) = &ty.kind {
+            ty = &*inner;
+        }
         let prost_type = self
             .cx
             .tags(ty.tags_id)
@@ -161,6 +165,7 @@ impl ProtobufBackend {
                 ty::TyKind::UInt64 => "uint64",
                 ty::TyKind::F32 => "float",
                 ty::TyKind::F64 => "double",
+                ty::TyKind::Path(ref path) if self.is_plain_enum(path.did) => "int32",
                 ty::TyKind::Path(_) => "message",
                 _ => unreachable!("{:?}", ty.kind),
             },
@@ -228,8 +233,13 @@ impl ProtobufBackend {
                 let key_encode_fn = quote!(::pilota::prost::encoding::#key_module::encode);
                 let value_encode_fn = quote!(::pilota::prost::encoding::#value_module::encode);
 
+                let key_encoded_len_fn =
+                    quote!(::pilota::prost::encoding::#key_module::encoded_len);
+                let value_encoded_len_fn =
+                    quote!(::pilota::prost::encoding::#value_module::encoded_len);
+
                 quote!(
-                    ::pilota::prost::encoding::hash_map::encode(#key_encode_fn, #value_encode_fn, #tag, #ident, buf)
+                    ::pilota::prost::encoding::hash_map::encode(#key_encode_fn, #key_encoded_len_fn, #value_encode_fn, #value_encoded_len_fn, #tag, &#ident, buf)
                 )
             }
         }

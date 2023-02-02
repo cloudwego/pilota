@@ -14,6 +14,15 @@ pub struct DecodeError {
     inner: Box<Inner>,
 }
 
+impl<T> From<T> for DecodeError
+where
+    T: std::error::Error,
+{
+    fn from(value: T) -> Self {
+        DecodeError::new(value.to_string())
+    }
+}
+
 #[derive(Clone, PartialEq, Eq)]
 struct Inner {
     /// A 'best effort' root cause description.

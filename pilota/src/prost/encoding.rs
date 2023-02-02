@@ -573,7 +573,129 @@ macro_rules! varint {
 varint!(bool, bool,
         to_uint64(value) u64::from(*value),
         from_uint64(value) value != 0);
-varint!(i32, int32);
+// varint!(i32, int32);
+
+pub mod int32 {
+
+    use crate::prost::encoding::*;
+
+    pub fn encode<B, T: Into<i32> + Copy>(tag: u32, value: &T, buf: &mut B)
+    where
+        B: BufMut,
+    {
+        let value: i32 = (*value).into();
+        encode_key(tag, WireType::Varint, buf);
+        encode_varint(value as u64, buf);
+    }
+
+    pub fn merge<B, T: TryFrom<i32>>(
+        wire_type: WireType,
+        value: &mut T,
+        buf: &mut B,
+        _ctx: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        T::Error: Into<DecodeError>,
+        B: Buf,
+    {
+        *value = inner_merge(wire_type, buf, _ctx)?;
+        Ok(())
+    }
+
+    pub fn inner_merge<B, T: TryFrom<i32>>(
+        wire_type: WireType,
+        buf: &mut B,
+        _ctx: DecodeContext,
+    ) -> Result<T, DecodeError>
+    where
+        T::Error: Into<DecodeError>,
+        B: Buf,
+    {
+        check_wire_type(WireType::Varint, wire_type)?;
+        let from_value = decode_varint(buf)?;
+        Ok(T::try_from(from_value as i32).map_err(|err| err.into())?)
+    }
+
+    pub fn encode_repeated<B, T: Into<i32> + Copy>(tag: u32, values: &[T], buf: &mut B)
+    where
+        B: ::bytes::BufMut,
+    {
+        for value in values {
+            encode(tag, value, buf);
+        }
+    }
+
+    pub fn encode_packed<B>(tag: u32, values: &[i32], buf: &mut B)
+    where
+        B: BufMut,
+    {
+        if values.is_empty() {
+            return;
+        }
+
+        encode_key(tag, WireType::LengthDelimited, buf);
+        let len: usize = values
+            .iter()
+            .map(|value| encoded_len_varint(*value as u64))
+            .sum();
+        encode_varint(len as u64, buf);
+
+        for value in values {
+            encode_varint(*value as u64, buf);
+        }
+    }
+
+    pub fn merge_repeated<B, T: TryFrom<i32>>(
+        wire_type: crate::prost::encoding::WireType,
+        values: &mut Vec<T>,
+        buf: &mut B,
+        ctx: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        T::Error: Into<crate::prost::DecodeError>,
+        B: ::bytes::Buf,
+    {
+        if wire_type == WireType::LengthDelimited {
+            // Packed.
+            merge_loop(values, buf, ctx, |values, buf, ctx| {
+                values.push(inner_merge(WireType::Varint, buf, ctx)?);
+                Ok(())
+            })
+        } else {
+            // Unpacked.
+            check_wire_type(WireType::Varint, wire_type)?;
+            values.push(inner_merge(wire_type, buf, ctx)?);
+            Ok(())
+        }
+    }
+
+    #[inline]
+    pub fn encoded_len<T: Into<i32> + Copy>(tag: u32, value: &T) -> usize {
+        key_len(tag) + encoded_len_varint((*value).into() as u64)
+    }
+
+    #[inline]
+    pub fn encoded_len_repeated(tag: u32, values: &[i32]) -> usize {
+        key_len(tag) * values.len()
+            + values
+                .iter()
+                .map(|value| encoded_len_varint(*value as u64))
+                .sum::<usize>()
+    }
+
+    #[inline]
+    pub fn encoded_len_packed(tag: u32, values: &[i32]) -> usize {
+        if values.is_empty() {
+            0
+        } else {
+            let len = values
+                .iter()
+                .map(|value| encoded_len_varint(*value as u64))
+                .sum::<usize>();
+            key_len(tag) + encoded_len_varint(len as u64) + len
+        }
+    }
+}
 varint!(i64, int64);
 varint!(u32, uint32);
 varint!(u64, uint64);
@@ -790,12 +912,15 @@ macro_rules! length_delimited {
 }
 
 pub mod string {
+    use std::borrow::Borrow;
+
     use super::*;
 
-    pub fn encode<B>(tag: u32, value: &str, buf: &mut B)
+    pub fn encode<B, T: Borrow<str>>(tag: u32, value: &T, buf: &mut B)
     where
         B: BufMut,
     {
+        let value = value.borrow();
         encode_key(tag, WireType::LengthDelimited, buf);
         encode_varint(value.len() as u64, buf);
         buf.put_slice(value.as_bytes());
@@ -852,12 +977,12 @@ pub mod string {
         }
     }
 
-    pub fn encode_repeated<B, T: AsRef<str>>(tag: u32, values: &[T], buf: &mut B)
+    pub fn encode_repeated<B, T: Borrow<str>>(tag: u32, values: &[T], buf: &mut B)
     where
         B: ::bytes::BufMut,
     {
         for value in values {
-            encode(tag, value.as_ref(), buf);
+            encode(tag, value, buf);
         }
     }
 
@@ -878,17 +1003,18 @@ pub mod string {
     }
 
     #[inline]
-    pub fn encoded_len(tag: u32, value: &str) -> usize {
+    pub fn encoded_len<T: Borrow<str>>(tag: u32, value: &T) -> usize {
+        let value = value.borrow();
         key_len(tag) + encoded_len_varint(value.len() as u64) + value.len()
     }
 
     #[inline]
-    pub fn encoded_len_repeated<T: AsRef<str>>(tag: u32, values: &[T]) -> usize {
+    pub fn encoded_len_repeated<T: Borrow<str>>(tag: u32, values: &[T]) -> usize {
         key_len(tag) * values.len()
             + values
                 .iter()
                 .map(|value| {
-                    let value = value.as_ref();
+                    let value = value.borrow();
                     encoded_len_varint(value.len() as u64) + value.len()
                 })
                 .sum::<usize>()
@@ -907,7 +1033,7 @@ pub mod string {
             #[test]
             fn check(value: String, tag in MIN_TAG..=MAX_TAG) {
                 super::test::check_type(value, tag, WireType::LengthDelimited,
-                                        encode, merge, encoded_len)?;
+                                        encode, merge, encoded_len::<String>)?;
             }
             #[test]
             fn check_repeated(value: Vec<String>, tag in MIN_TAG..=MAX_TAG) {
@@ -1469,7 +1595,6 @@ macro_rules! map {
     };
 }
 
-#[cfg(feature = "std")]
 pub mod hash_map {
     use std::collections::HashMap;
     map!(HashMap);
