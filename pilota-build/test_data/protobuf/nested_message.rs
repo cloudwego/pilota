@@ -35,7 +35,7 @@ pub mod nested_message {
                         2u32,
                         &self.m,
                         buf,
-                    )
+                    );
                 }
                 #[allow(unused_variables)]
                 fn merge_field<B>(
