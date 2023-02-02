@@ -12,11 +12,11 @@ pub mod nested_message {
                 fn encoded_len(&self) -> usize {
                     0 + self.a.as_ref().map_or(0, |value| {
                         ::pilota::prost::encoding::int32::encoded_len(1u32, value)
-                    }) + ::pilota::prost::encoding::map::encoded_len(
+                    }) + ::pilota::prost::encoding::hash_map::encoded_len(
                         ::pilota::prost::encoding::int32::encoded_len,
                         ::pilota::prost::encoding::message::encoded_len,
                         2u32,
-                        self.m,
+                        &self.m,
                     )
                 }
                 #[allow(unused_variables)]
@@ -29,9 +29,11 @@ pub mod nested_message {
                     }
                     ::pilota::prost::encoding::hash_map::encode(
                         ::pilota::prost::encoding::int32::encode,
+                        ::pilota::prost::encoding::int32::encoded_len,
                         ::pilota::prost::encoding::message::encode,
+                        ::pilota::prost::encoding::message::encoded_len,
                         2u32,
-                        self.m,
+                        &self.m,
                         buf,
                     )
                 }
@@ -87,10 +89,9 @@ pub mod nested_message {
             impl ::pilota::prost::Message for T2 {
                 #[inline]
                 fn encoded_len(&self) -> usize {
-                    0 + self
-                        .t3
-                        .as_ref()
-                        .map_or(0, |msg| ::prost::encoding::message::encoded_len(1u32, msg))
+                    0 + self.t3.as_ref().map_or(0, |msg| {
+                        ::pilota::prost::encoding::message::encoded_len(1u32, msg)
+                    })
                 }
                 #[allow(unused_variables)]
                 fn encode_raw<B>(&self, buf: &mut B)
@@ -175,15 +176,12 @@ pub mod nested_message {
         impl ::pilota::prost::Message for Tt1 {
             #[inline]
             fn encoded_len(&self) -> usize {
-                0 + self
-                    .t2
-                    .as_ref()
-                    .map_or(0, |msg| ::prost::encoding::message::encoded_len(1u32, msg))
-                    + ::pilota::prost::encoding::message::encoded_len(2u32, &self.t3)
-                    + self
-                        .t4
-                        .as_ref()
-                        .map_or(0, |msg| ::prost::encoding::message::encoded_len(4u32, msg))
+                0 + self.t2.as_ref().map_or(0, |msg| {
+                    ::pilota::prost::encoding::message::encoded_len(1u32, msg)
+                }) + ::pilota::prost::encoding::int32::encoded_len(2u32, &self.t3)
+                    + self.t4.as_ref().map_or(0, |msg| {
+                        ::pilota::prost::encoding::message::encoded_len(4u32, msg)
+                    })
             }
             #[allow(unused_variables)]
             fn encode_raw<B>(&self, buf: &mut B)
@@ -193,7 +191,7 @@ pub mod nested_message {
                 if let Some(_pilota_inner_value) = self.t2.as_ref() {
                     ::pilota::prost::encoding::message::encode(1u32, _pilota_inner_value, buf);
                 }
-                ::pilota::prost::encoding::message::encode(2u32, &self.t3, buf);
+                ::pilota::prost::encoding::int32::encode(2u32, &self.t3, buf);
                 if let Some(_pilota_inner_value) = self.t4.as_ref() {
                     ::pilota::prost::encoding::message::encode(4u32, _pilota_inner_value, buf);
                 }
@@ -227,7 +225,7 @@ pub mod nested_message {
                     }
                     2u32 => {
                         let mut _inner_pilota_value = &mut self.t3;
-                        ::pilota::prost::encoding::message::merge(
+                        ::pilota::prost::encoding::int32::merge(
                             wire_type,
                             _inner_pilota_value,
                             buf,
