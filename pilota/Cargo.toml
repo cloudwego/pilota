@@ -23,11 +23,11 @@ async-trait = "0.1"
 async-recursion = "1"
 tokio = { version = "1", features = ["io-util"] }
 lazy_static = "1"
-linkedbytes = { version = "0.1", features = ["faststr"] }
+linkedbytes = "0.1"
 derivative = "2"
 anyhow = "1"
 thiserror = "1"
-faststr = "0.1"
+faststr = "0.2"
 integer-encoding = { version = "3", features = ["async-trait", "tokio", "tokio_async"] }
 proptest = "1"
 

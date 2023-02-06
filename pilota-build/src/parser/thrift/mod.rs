@@ -1,5 +1,6 @@
 use std::{path::PathBuf, str::FromStr, sync::Arc};
 
+use faststr::FastStr;
 use fxhash::FxHashMap;
 use heck::ToUpperCamelCase;
 use itertools::Itertools;
@@ -524,6 +525,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                             .unwrap()
                             .trim_end_matches(".thrift")
                             .split('.')
+                            .map(FastStr::new)
                             .map(Ident::from)
                             .collect_vec(),
                         this.lower_include(i),

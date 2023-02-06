@@ -1,5 +1,6 @@
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
+use faststr::FastStr;
 use fxhash::{FxHashMap, FxHashSet};
 use itertools::Itertools;
 use normpath::PathExt;
@@ -53,7 +54,7 @@ impl Default for Lower {
 impl Lower {
     fn str2path(&self, s: &str) -> ir::Path {
         ir::Path {
-            segments: Arc::from_iter(s.split('.').map(Ident::from)),
+            segments: Arc::from_iter(s.split('.').map(FastStr::new).map(Ident::from)),
         }
     }
 
@@ -151,13 +152,13 @@ impl Lower {
             related_items: Default::default(),
             tags: Default::default(),
             kind: ir::ItemKind::Enum(ir::Enum {
-                name: e.name().into(),
+                name: FastStr::new(e.name()).into(),
                 variants: e
                     .value
                     .iter()
                     .map(|v| ir::EnumVariant {
                         id: v.number,
-                        name: v.name().into(),
+                        name: FastStr::new(v.name()).into(),
                         discr: v.number.map(|v| v as i64),
                         tags: Default::default(),
                         fields: Default::default(),
@@ -220,14 +221,14 @@ impl Lower {
                     related_items: Default::default(),
                     tags: Arc::new(crate::tags!(OneOf)),
                     kind: ir::ItemKind::Enum(ir::Enum {
-                        name: d.name().into(),
+                        name: FastStr::new(d.name()).into(),
                         repr: None,
                         variants: fields
                             .iter()
                             .map(|f| ir::EnumVariant {
                                 discr: None,
                                 id: f.number,
-                                name: f.name().into(),
+                                name: FastStr::new(f.name()).into(),
                                 fields: vec![self.lower_ty(
                                     f.type_,
                                     f.type_name.as_deref(),
@@ -240,11 +241,11 @@ impl Lower {
                 }));
 
                 extra_fields.push(ir::Field {
-                    name: d.name().into(),
+                    name: FastStr::new(d.name()).into(),
                     id: -1,
                     ty: ir::Ty {
                         kind: ir::TyKind::Path(Path {
-                            segments: Arc::from([d.name().into()]),
+                            segments: Arc::from([FastStr::new(d.name()).into()]),
                         }),
                         tags: Default::default(),
                     },
@@ -303,7 +304,7 @@ impl Lower {
 
                         ir::Field {
                             id: f.number(),
-                            name: f.name().into(),
+                            name: FastStr::new(f.name()).into(),
                             ty,
                             tags: Arc::new(tags),
                             kind: if optional {
@@ -315,7 +316,7 @@ impl Lower {
                     })
                     .chain(extra_fields)
                     .collect(),
-                name: message.name().into(),
+                name: FastStr::new(message.name()).into(),
             }),
         };
 
@@ -342,7 +343,7 @@ impl Lower {
             tags: Default::default(),
             related_items: Default::default(),
             kind: ir::ItemKind::Service(ir::Service {
-                name: service.name().into(),
+                name: FastStr::new(service.name()).into(),
                 methods: service
                     .method
                     .iter()
@@ -355,7 +356,7 @@ impl Lower {
                             tags.insert(ServerStreaming);
                         }
                         ir::Method {
-                            name: m.name().into(),
+                            name: FastStr::new(m.name()).into(),
                             tags: Arc::new(tags),
                             args: vec![ir::Arg {
                                 name: "req".into(),
