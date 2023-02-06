@@ -1608,7 +1608,7 @@ mod tests {
         mteq!(o_prot, o_prot.write_bytes_len(&identifier[..]));
 
         let identifier = "foobar";
-        o_prot.write_faststr(identifier.clone().into()).unwrap();
+        o_prot.write_faststr(identifier.into()).unwrap();
         mteq!(o_prot, o_prot.write_faststr_len(&identifier.into()));
 
         let mut identifier = TListIdentifier::new(TType::I16, 0);
