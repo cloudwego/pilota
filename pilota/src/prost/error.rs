@@ -3,6 +3,7 @@ extern crate alloc;
 
 use alloc::{borrow::Cow, boxed::Box, vec::Vec};
 use core::fmt;
+use std::convert::Infallible;
 
 /// A Protobuf message decoding error.
 ///
@@ -12,15 +13,6 @@ use core::fmt;
 #[derive(Clone, PartialEq, Eq)]
 pub struct DecodeError {
     inner: Box<Inner>,
-}
-
-impl<T> From<T> for DecodeError
-where
-    T: std::error::Error,
-{
-    fn from(value: T) -> Self {
-        DecodeError::new(value.to_string())
-    }
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -76,10 +68,14 @@ impl fmt::Display for DecodeError {
     }
 }
 
-#[cfg(feature = "std")]
 impl std::error::Error for DecodeError {}
 
-#[cfg(feature = "std")]
+impl From<Infallible> for DecodeError {
+    fn from(_value: Infallible) -> Self {
+        unreachable!()
+    }
+}
+
 impl From<DecodeError> for std::io::Error {
     fn from(error: DecodeError) -> std::io::Error {
         std::io::Error::new(std::io::ErrorKind::InvalidData, error)
@@ -128,10 +124,8 @@ impl fmt::Display for EncodeError {
     }
 }
 
-#[cfg(feature = "std")]
 impl std::error::Error for EncodeError {}
 
-#[cfg(feature = "std")]
 impl From<EncodeError> for std::io::Error {
     fn from(error: EncodeError) -> std::io::Error {
         std::io::Error::new(std::io::ErrorKind::InvalidInput, error)
