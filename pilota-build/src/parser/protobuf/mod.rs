@@ -37,7 +37,7 @@ struct Lower {
     next_file_id: FileId,
     files: FxHashMap<String, FileId>,
     cur_package: Option<String>,
-    cur_syntax: Option<Syntax>,
+    cur_syntax: Syntax,
 }
 
 impl Default for Lower {
@@ -46,7 +46,7 @@ impl Default for Lower {
             next_file_id: FileId::from_u32(0),
             files: Default::default(),
             cur_package: None,
-            cur_syntax: None,
+            cur_syntax: Syntax::Proto3,
         }
     }
 }
@@ -289,13 +289,19 @@ impl Lower {
                             }
                         }
 
-                        let optional = !is_map
-                            && f.type_() != Type::TYPE_BYTES
-                            && ({
-                                f.proto3_optional()
-                                    || (!repeated && matches!(f.type_(), Type::TYPE_MESSAGE))
-                            } || (f.label() == Label::LABEL_OPTIONAL
-                                && self.cur_syntax == Some(Syntax::Proto2)));
+                        let optional = (|| {
+                            if is_map {
+                                return false;
+                            }
+
+                            match self.cur_syntax {
+                                Syntax::Proto3 => {
+                                    f.proto3_optional()
+                                        || (!repeated && matches!(f.type_(), Type::TYPE_MESSAGE))
+                                }
+                                Syntax::Proto2 => f.label() == Label::LABEL_OPTIONAL,
+                            }
+                        })();
 
                         let mut tags = Tags::default();
                         if repeated {
@@ -394,10 +400,10 @@ impl Lower {
             .iter()
             .map(|f| {
                 self.cur_package = f.package.clone();
-                self.cur_syntax = Some(match f.syntax() {
-                    "proto2" => Syntax::Proto2,
-                    _ => Syntax::Proto3,
-                });
+                self.cur_syntax = match f.syntax() {
+                    "proto3" => Syntax::Proto3,
+                    _ => Syntax::Proto2,
+                };
 
                 let file_id = *self.files.get(f.name()).unwrap();
 

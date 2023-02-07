@@ -2,19 +2,23 @@ pub mod bytes {
     #![allow(warnings, clippy::all)]
     #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
     pub struct A {
-        pub a: ::pilota::Bytes,
+        pub a: ::std::option::Option<::pilota::Bytes>,
     }
     impl ::pilota::prost::Message for A {
         #[inline]
         fn encoded_len(&self) -> usize {
-            0 + ::pilota::prost::encoding::bytes::encoded_len(1u32, &self.a)
+            0 + self.a.as_ref().map_or(0, |value| {
+                ::pilota::prost::encoding::bytes::encoded_len(1u32, value)
+            })
         }
         #[allow(unused_variables)]
         fn encode_raw<B>(&self, buf: &mut B)
         where
             B: ::pilota::prost::bytes::BufMut,
         {
-            ::pilota::prost::encoding::bytes::encode(1u32, &self.a, buf);
+            if let Some(_pilota_inner_value) = self.a.as_ref() {
+                ::pilota::prost::encoding::bytes::encode(1u32, _pilota_inner_value, buf);
+            }
         }
         #[allow(unused_variables)]
         fn merge_field<B>(
@@ -33,7 +37,7 @@ pub mod bytes {
                     let mut _inner_pilota_value = &mut self.a;
                     ::pilota::prost::encoding::bytes::merge(
                         wire_type,
-                        _inner_pilota_value,
+                        _inner_pilota_value.get_or_insert_with(::core::default::Default::default),
                         buf,
                         ctx,
                     )

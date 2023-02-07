@@ -84,23 +84,19 @@ pub mod nested_message {
             }
             #[derive(Debug, Default, Clone, PartialEq)]
             pub struct T2 {
-                pub t3: ::std::option::Option<Tt3>,
+                pub t3: Tt3,
             }
             impl ::pilota::prost::Message for T2 {
                 #[inline]
                 fn encoded_len(&self) -> usize {
-                    0 + self.t3.as_ref().map_or(0, |msg| {
-                        ::pilota::prost::encoding::message::encoded_len(1u32, msg)
-                    })
+                    0 + ::pilota::prost::encoding::message::encoded_len(1u32, &self.t3)
                 }
                 #[allow(unused_variables)]
                 fn encode_raw<B>(&self, buf: &mut B)
                 where
                     B: ::pilota::prost::bytes::BufMut,
                 {
-                    if let Some(_pilota_inner_value) = self.t3.as_ref() {
-                        ::pilota::prost::encoding::message::encode(1u32, _pilota_inner_value, buf);
-                    }
+                    ::pilota::prost::encoding::message::encode(1u32, &self.t3, buf);
                 }
                 #[allow(unused_variables)]
                 fn merge_field<B>(
@@ -119,8 +115,7 @@ pub mod nested_message {
                             let mut _inner_pilota_value = &mut self.t3;
                             ::pilota::prost::encoding::message::merge(
                                 wire_type,
-                                _inner_pilota_value
-                                    .get_or_insert_with(::core::default::Default::default),
+                                _inner_pilota_value,
                                 buf,
                                 ctx,
                             )
@@ -169,32 +164,25 @@ pub mod nested_message {
         }
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct Tt1 {
-            pub t2: ::std::option::Option<t2::T2>,
+            pub t2: t2::T2,
             pub t3: Label,
-            pub t4: ::std::option::Option<t2::Tt3>,
+            pub t4: t2::Tt3,
         }
         impl ::pilota::prost::Message for Tt1 {
             #[inline]
             fn encoded_len(&self) -> usize {
-                0 + self.t2.as_ref().map_or(0, |msg| {
-                    ::pilota::prost::encoding::message::encoded_len(1u32, msg)
-                }) + ::pilota::prost::encoding::int32::encoded_len(2u32, &self.t3)
-                    + self.t4.as_ref().map_or(0, |msg| {
-                        ::pilota::prost::encoding::message::encoded_len(4u32, msg)
-                    })
+                0 + ::pilota::prost::encoding::message::encoded_len(1u32, &self.t2)
+                    + ::pilota::prost::encoding::int32::encoded_len(2u32, &self.t3)
+                    + ::pilota::prost::encoding::message::encoded_len(4u32, &self.t4)
             }
             #[allow(unused_variables)]
             fn encode_raw<B>(&self, buf: &mut B)
             where
                 B: ::pilota::prost::bytes::BufMut,
             {
-                if let Some(_pilota_inner_value) = self.t2.as_ref() {
-                    ::pilota::prost::encoding::message::encode(1u32, _pilota_inner_value, buf);
-                }
+                ::pilota::prost::encoding::message::encode(1u32, &self.t2, buf);
                 ::pilota::prost::encoding::int32::encode(2u32, &self.t3, buf);
-                if let Some(_pilota_inner_value) = self.t4.as_ref() {
-                    ::pilota::prost::encoding::message::encode(4u32, _pilota_inner_value, buf);
-                }
+                ::pilota::prost::encoding::message::encode(4u32, &self.t4, buf);
             }
             #[allow(unused_variables)]
             fn merge_field<B>(
@@ -213,8 +201,7 @@ pub mod nested_message {
                         let mut _inner_pilota_value = &mut self.t2;
                         ::pilota::prost::encoding::message::merge(
                             wire_type,
-                            _inner_pilota_value
-                                .get_or_insert_with(::core::default::Default::default),
+                            _inner_pilota_value,
                             buf,
                             ctx,
                         )
@@ -240,8 +227,7 @@ pub mod nested_message {
                         let mut _inner_pilota_value = &mut self.t4;
                         ::pilota::prost::encoding::message::merge(
                             wire_type,
-                            _inner_pilota_value
-                                .get_or_insert_with(::core::default::Default::default),
+                            _inner_pilota_value,
                             buf,
                             ctx,
                         )
