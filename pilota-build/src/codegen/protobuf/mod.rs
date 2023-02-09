@@ -418,7 +418,7 @@ impl CodegenBackend for ProtobufBackend {
                 FieldKind::Required,
             );
             let variant_name = self.cx.rust_name(variant.did).as_syn_ident();
-            quote!(#name::#variant_name(ref value) => #encode)
+            quote!(#name::#variant_name(ref value) => { #encode })
         });
 
         let merge = e.variants.iter().map(|variant| {
@@ -443,22 +443,22 @@ impl CodegenBackend for ProtobufBackend {
 
         stream.extend(quote! {
             impl ::pilota::prost::Message for #name {
-                pub fn encode<B>(&self, buf: &mut B) where B: ::prost::bytes::BufMut {
+                fn encode<B>(&self, buf: &mut B) where B: ::prost::bytes::BufMut {
                     match *self {
-                        #(#encode,)*
+                        #(#encode)*
                     }
                 }
 
                 /// Returns the encoded length of the message without a length delimiter.
                 #[inline]
-                pub fn encoded_len(&self) -> usize {
+                fn encoded_len(&self) -> usize {
                     match *self {
                         #(#encoded_len,)*
                     }
                 }
 
-                 /// Decodes an instance of the message from a buffer, and merges it into self.
-                pub fn merge<B>(
+                /// Decodes an instance of the message from a buffer, and merges it into self.
+                fn merge<B>(
                     field: &mut ::core::option::Option<#name>,
                     tag: u32,
                     wire_type: ::prost::encoding::WireType,
