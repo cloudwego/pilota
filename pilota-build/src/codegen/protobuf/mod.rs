@@ -401,50 +401,49 @@ impl CodegenBackend for ProtobufBackend {
 
         let encoded_len = e.variants.iter().map(|variant| {
             let encoded_len = self.codegen_encoded_len(
-                quote! {value},
+                quote! {*value},
                 variant.fields.first().unwrap(),
                 variant.id.unwrap() as u32,
                 FieldKind::Required,
             );
             let variant_name = self.cx.rust_name(variant.did).as_syn_ident();
-            quote!(#name::#variant_name(ref value) => #encoded_len)
+            quote!(#name::#variant_name(value) => #encoded_len)
         });
 
         let encode = e.variants.iter().map(|variant| {
             let encode = self.codegen_encode(
-                quote! {value},
+                quote! {*value},
                 variant.fields.first().unwrap(),
                 variant.id.unwrap() as u32,
                 FieldKind::Required,
             );
             let variant_name = self.cx.rust_name(variant.did).as_syn_ident();
-            quote!(#name::#variant_name(ref value) => { #encode })
+            quote!(#name::#variant_name(value) => { #encode })
         });
 
         let merge = e.variants.iter().map(|variant| {
             let tag = variant.id.unwrap() as u32;
             let variant_name = self.cx.rust_name(variant.did).as_syn_ident();
-            let merge = self.codegen_merge_field(quote!{value}, variant.fields.first().unwrap(), FieldKind::Required);
+            let merge = self.codegen_merge_field(
+                quote! {value},
+                variant.fields.first().unwrap(),
+                FieldKind::Required,
+            );
             quote! {
                 #tag => {
-                    match field {
-                        ::core::option::Option::Some(#name::#variant_name(ref mut value)) => {
-                            #merge
-                        },
-                        _ => {
-                            let mut owned_value = ::core::default::Default::default();
-                            let value = &mut owned_value;
-                            #merge.map(|_| *field = ::core::option::Option::Some(#name::#variant_name(owned_value)))
-                        },
-                    }
+                    let mut owned_value = ::core::default::Default::default();
+                    let value = &mut owned_value;
+                    #merge?;
+                    *self = #name::#variant_name(owned_value);
+                    Ok(())
                 }
             }
         });
 
         stream.extend(quote! {
             impl ::pilota::prost::Message for #name {
-                fn encode<B>(&self, buf: &mut B) where B: ::prost::bytes::BufMut {
-                    match *self {
+                fn encode_raw<B>(&self, buf: &mut B) where B: ::pilota::prost::bytes::BufMut {
+                    match self {
                         #(#encode)*
                     }
                 }
@@ -452,20 +451,20 @@ impl CodegenBackend for ProtobufBackend {
                 /// Returns the encoded length of the message without a length delimiter.
                 #[inline]
                 fn encoded_len(&self) -> usize {
-                    match *self {
+                    match self {
                         #(#encoded_len,)*
                     }
                 }
 
                 /// Decodes an instance of the message from a buffer, and merges it into self.
-                fn merge<B>(
-                    field: &mut ::core::option::Option<#name>,
+                fn merge_field<B>(
+                    &mut self,
                     tag: u32,
-                    wire_type: ::prost::encoding::WireType,
+                    wire_type: ::pilota::prost::encoding::WireType,
                     buf: &mut B,
-                    ctx: ::prost::encoding::DecodeContext,
-                ) -> ::core::result::Result<(), ::prost::DecodeError>
-                where B: ::prost::bytes::Buf {
+                    ctx: ::pilota::prost::encoding::DecodeContext,
+                ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
+                where B: ::pilota::prost::bytes::Buf {
                     match tag {
                         #(#merge,)*
                         _ => unreachable!(concat!("invalid ", stringify!(#name), " tag: {}"), tag),
