@@ -1,7 +1,7 @@
 use std::{ops::Deref, sync::Arc};
 
 use proc_macro2::{Ident, TokenStream};
-use quote::{format_ident, quote};
+use quote::quote;
 
 use super::traits::CodegenBackend;
 use crate::{
@@ -44,32 +44,20 @@ impl ThriftBackend {
     ) -> impl Iterator<Item = TokenStream> + 'a {
         fields.iter().map(|f| {
             let field_name = self.rust_name(f.did).as_syn_ident();
-            let field_name_str = &**f.name;
-            let ty = self.ttype(&f.ty);
-            let field_id = f.id as i16;
-            let write_field = self.codegen_ty_size(&f.ty, &format_ident!("value"));
-
             let is_optional = f.is_optional();
-
-            let write = quote::quote! {
-                protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                    name: Some(#field_name_str),
-                    field_type: #ty,
-                    id: Some(#field_id),
-                }) + #write_field + protocol.write_field_end_len()
+            let field_id = f.id as i16;
+            let write_field = if is_optional {
+                self.codegen_field_size(&f.ty, field_id, &quote! { value })
+            } else {
+                self.codegen_field_size(&f.ty, field_id, &quote! { &self.#field_name })
             };
 
             if is_optional {
                 quote! {
-                    if let Some(value) = self.#field_name.as_ref() {
-                        #write
-                    } else { 0 }
+                    self.#field_name.as_ref().map_or(0, |value| #write_field)
                 }
             } else {
-                quote! {{
-                    let value = &self.#field_name;
-                    #write
-                }}
+                quote! { #write_field }
             }
         })
     }
@@ -80,29 +68,24 @@ impl ThriftBackend {
     ) -> impl Iterator<Item = TokenStream> + 'a {
         fields.iter().map(|f| {
             let field_name = self.rust_name(f.did).as_syn_ident();
-            let ty = self.ttype(&f.ty);
             let field_id = f.id as i16;
-            let write_field = self.codegen_encode_ty(&f.ty, &format_ident!("value"));
-
             let is_optional = f.is_optional();
-
-            let write = quote::quote! {
-                protocol.write_field_begin(#ty, #field_id)?;
-                #write_field
-                protocol.write_field_end()?;
+            let write_field = if is_optional {
+                self.codegen_encode_field(field_id, &f.ty, &quote!(value))
+            } else {
+                self.codegen_encode_field(field_id, &f.ty, &quote!(&self.#field_name))
             };
 
             if is_optional {
                 quote! {
                     if let Some(value) = self.#field_name.as_ref() {
-                        #write
+                        #write_field
                     };
                 }
             } else {
-                quote! {{
-                    let value = &self.#field_name;
-                    #write
-                }}
+                quote! {
+                    #write_field
+                }
             }
         })
     }
@@ -122,6 +105,7 @@ impl ThriftBackend {
                     &self,
                     protocol: &mut T,
                 ) -> ::std::result::Result<(),::pilota::thrift::Error> {
+                    use ::pilota::thrift::TOutputProtocolExt;
                     #encode
                 }
 
@@ -138,6 +122,7 @@ impl ThriftBackend {
                 }
 
                 fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                    use ::pilota::thrift::TLengthProtocolExt;
                     #size
                 }
             }
@@ -184,9 +169,7 @@ impl ThriftBackend {
             #read_fields;
             #read_struct_end;
 
-            #(let #required_field_names = if let Some(#required_field_names) = #required_field_names {
-                #required_field_names
-            } else {
+            #(let Some(#required_field_names) = #required_field_names else {
                 return Err(
                     ::pilota::thrift::Error::Protocol(
                         ::pilota::thrift::ProtocolError::new(
@@ -345,31 +328,23 @@ impl CodegenBackend for ThriftBackend {
                 let encode_variants = e.variants.iter().map(|v| {
                     let variant_name = self.rust_name(v.did).as_syn_ident();
                     assert_eq!(v.fields.len(), 1);
-                    let ty = self.ttype(&v.fields[0]);
                     let variant_id = v.id.unwrap() as i16;
-                    let encode = self.codegen_encode_ty(&v.fields[0], &format_ident!("value"));
+                    let encode =
+                        self.codegen_encode_field(variant_id, &v.fields[0], &quote!(value));
                     quote! {
                         #name::#variant_name(ref value) => {
-                            protocol.write_field_begin(#ty, #variant_id)?;
                             #encode
-                            protocol.write_field_end()?;
                         },
                     }
                 });
 
                 let variants_size = e.variants.iter().map(|v| {
                     let variant_name = self.rust_name(v.did).as_syn_ident();
-                    let variant_name_str = &**v.name;
-                    let ty = self.ttype(&v.fields[0]);
                     let variant_id = v.id.unwrap() as i16;
-                    let size = self.codegen_ty_size(&v.fields[0], &format_ident!("value"));
+                    let size = self.codegen_field_size(&v.fields[0], variant_id, &quote! { value });
                     quote! {
                         #name::#variant_name(ref value) => {
-                            protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                                name: Some(#variant_name_str),
-                                field_type: #ty,
-                                id: Some(#variant_id),
-                            }) + #size + protocol.write_field_end_len()
+                            #size
                         },
                     }
                 });
@@ -460,21 +435,17 @@ impl CodegenBackend for ThriftBackend {
         t: &NewType,
     ) {
         let name = self.rust_name(def_id).as_syn_ident();
-        let encode = self.codegen_encode_ty(&t.ty, &format_ident!("value"));
-        let encode_size = self.codegen_ty_size(&t.ty, &format_ident!("value"));
+        let encode = self.codegen_encode_ty(&t.ty, &quote!(&**self));
+        let encode_size = self.codegen_ty_size(&t.ty, &quote! { &**self });
 
         stream.extend(self.codegen_impl_message_with_helper(
             &name,
             quote! {
-                let value = &**self;
                 #encode
                 Ok(())
             },
             quote! {
-                {
-                    let value = &**self;
-                    #encode_size
-                }
+                #encode_size
             },
             |helper| {
                 let decode = self.codegen_decode_ty(helper, &t.ty);

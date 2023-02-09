@@ -72,7 +72,7 @@ impl<T> TLengthProtocol for TBinaryProtocol<T> {
     }
 
     #[inline]
-    fn write_field_begin_len(&mut self, _identifier: &TFieldIdentifier) -> usize {
+    fn write_field_begin_len(&mut self, _field_type: TType, _id: Option<i16>) -> usize {
         self.write_byte_len(0) + self.write_i16_len(0)
     }
 
@@ -147,7 +147,7 @@ impl<T> TLengthProtocol for TBinaryProtocol<T> {
     }
 
     #[inline]
-    fn write_list_begin_len(&mut self, _identifier: &TListIdentifier) -> usize {
+    fn write_list_begin_len(&mut self, _identifier: TListIdentifier) -> usize {
         self.write_byte_len(0) + self.write_i32_len(0)
     }
 
@@ -157,7 +157,7 @@ impl<T> TLengthProtocol for TBinaryProtocol<T> {
     }
 
     #[inline]
-    fn write_set_begin_len(&mut self, _identifier: &TSetIdentifier) -> usize {
+    fn write_set_begin_len(&mut self, _identifier: TSetIdentifier) -> usize {
         self.write_byte_len(0) + self.write_i32_len(0)
     }
 
@@ -167,7 +167,7 @@ impl<T> TLengthProtocol for TBinaryProtocol<T> {
     }
 
     #[inline]
-    fn write_map_begin_len(&mut self, _identifier: &TMapIdentifier) -> usize {
+    fn write_map_begin_len(&mut self, _identifier: TMapIdentifier) -> usize {
         self.write_byte_len(0) + self.write_byte_len(0) + self.write_i32_len(0)
     }
 
@@ -314,7 +314,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_list_begin(&mut self, identifier: &TListIdentifier) -> Result<(), Error> {
+    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), Error> {
         self.write_byte(identifier.element_type.into())?;
         self.write_i32(identifier.size as i32)
     }
@@ -325,7 +325,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_set_begin(&mut self, identifier: &TSetIdentifier) -> Result<(), Error> {
+    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), Error> {
         self.write_byte(identifier.element_type.into())?;
         self.write_i32(identifier.size as i32)
     }
@@ -336,7 +336,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_map_begin(&mut self, identifier: &TMapIdentifier) -> Result<(), Error> {
+    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), Error> {
         let key_type = identifier.key_type;
         self.write_byte(key_type.into())?;
         let val_type = identifier.value_type;
@@ -501,7 +501,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_list_begin(&mut self, identifier: &TListIdentifier) -> Result<(), Error> {
+    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), Error> {
         self.write_byte(identifier.element_type.into())?;
         self.write_i32(identifier.size as i32)
     }
@@ -512,7 +512,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_set_begin(&mut self, identifier: &TSetIdentifier) -> Result<(), Error> {
+    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), Error> {
         self.write_byte(identifier.element_type.into())?;
         self.write_i32(identifier.size as i32)
     }
@@ -523,7 +523,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_map_begin(&mut self, identifier: &TMapIdentifier) -> Result<(), Error> {
+    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), Error> {
         let key_type = identifier.key_type;
         self.write_byte(key_type.into())?;
         let val_type = identifier.value_type;
