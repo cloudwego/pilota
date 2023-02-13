@@ -70,5 +70,6 @@ pub mod const_val {
         }
         ::pilota::lazy_static::lazy_static! { pub static ref TEST_MAP : :: std :: collections :: HashMap < Index , & 'static str > = { let mut map = :: std :: collections :: HashMap :: with_capacity (2usize) ; map . insert (Index :: A , "hello") ; map . insert (Index :: B , "world") ; map } ; }
         pub const TEST_LIST: [&'static str; 2usize] = ["hello", "world"];
+        ::pilota::lazy_static::lazy_static! { pub static ref TEST_MAP_LIST : :: std :: collections :: HashMap < i32 , :: std :: vec :: Vec < & 'static str > > = { let mut map = :: std :: collections :: HashMap :: with_capacity (1usize) ; map . insert (1i32 , :: std :: vec ! ["hello"]) ; map } ; }
     }
 }
