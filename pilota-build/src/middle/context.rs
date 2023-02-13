@@ -114,6 +114,7 @@ impl Context {
             NodeKind::Variant(v) => (&**v.name).variant_ident(),
             NodeKind::Field(f) => (&**f.name).field_ident(),
             NodeKind::Method(m) => (&**m.name).fn_ident(),
+            NodeKind::Arg(a) => (&**a.name).field_ident(),
         }
     }
 
