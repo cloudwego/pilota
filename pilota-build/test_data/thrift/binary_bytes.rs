@@ -11,14 +11,10 @@ pub mod binary_bytes {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
                 protocol.write_struct_begin(&struct_ident)?;
-                {
-                    let value = &self.bytes;
-                    protocol.write_field_begin(::pilota::thrift::TType::Binary, 1i16)?;
-                    protocol.write_bytes(value.clone())?;
-                    protocol.write_field_end()?;
-                }
+                protocol.write_bytes_field(1i16, (&self.bytes).clone())?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -45,16 +41,7 @@ pub mod binary_bytes {
                     protocol.read_field_end()?;
                 }
                 protocol.read_struct_end()?;
-                let bytes = if let Some(bytes) = bytes {
-                    bytes
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field bytes is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (bytes) = bytes else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field bytes is required" . to_string ()))) } ;
                 let data = Self { bytes };
                 Ok(data)
             }
@@ -80,30 +67,14 @@ pub mod binary_bytes {
                     protocol.read_field_end().await?;
                 }
                 protocol.read_struct_end().await?;
-                let bytes = if let Some(bytes) = bytes {
-                    bytes
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field bytes is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (bytes) = bytes else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field bytes is required" . to_string ()))) } ;
                 let data = Self { bytes };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + {
-                        let value = &self.bytes;
-                        protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("bytes"),
-                            field_type: ::pilota::thrift::TType::Binary,
-                            id: Some(1i16),
-                        }) + protocol.write_bytes_len(value)
-                            + protocol.write_field_end_len()
-                    }
+                    + protocol.write_bytes_field_len(Some(1i16), &self.bytes)
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }

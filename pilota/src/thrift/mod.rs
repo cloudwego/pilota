@@ -4,7 +4,11 @@ pub mod error;
 pub mod rw_ext;
 pub mod varint_ext;
 
-use std::{ops::Deref, sync::Arc};
+use std::{
+    collections::{HashMap, HashSet},
+    ops::Deref,
+    sync::Arc,
+};
 
 use bytes::{Buf, BufMut, Bytes};
 pub use error::*;
@@ -194,6 +198,143 @@ pub trait TInputProtocol {
     fn buf_mut(&mut self) -> &mut Self::Buf;
 }
 
+macro_rules! write_field_len {
+    ($ttype:ty, $name:ident($($k:ident: $t:ty),*)) => {
+        paste::paste! {
+            #[inline]
+            fn [<write_ $name _field_len>](&mut self, id: Option<i16>, $($k: $t),*) -> usize {
+                self.write_field_begin_len($ttype, id) + self.[<write_ $name _len>]($($k),*) + self.write_field_end_len()
+            }
+        }
+    };
+}
+
+pub trait TLengthProtocolExt: TLengthProtocol + Sized {
+    write_field_len!(TType::Bool, bool(b: bool));
+    write_field_len!(TType::I8, i8(i: i8));
+    write_field_len!(TType::I16, i16(i: i16));
+    write_field_len!(TType::I32, i32(i: i32));
+    write_field_len!(TType::I64, i64(i: i64));
+    write_field_len!(TType::Double, double(d: f64));
+    write_field_len!(TType::Binary, bytes(b: &[u8]));
+    write_field_len!(TType::Binary, bytes_vec(b: &[u8]));
+    write_field_len!(TType::Uuid, uuid(u: [u8; 16]));
+    write_field_len!(TType::Binary, string(s: &str));
+    write_field_len!(TType::Binary, faststr(s: &FastStr));
+    write_field_len!(TType::Void, void());
+
+    #[inline]
+    fn write_list_field_len<T, F>(
+        &mut self,
+        id: Option<i16>,
+        el_ttype: TType,
+        els: &[T],
+        el_len: F,
+    ) -> usize
+    where
+        F: Fn(&mut Self, &T) -> usize,
+    {
+        self.write_field_begin_len(TType::List, id)
+            + self.write_list_len(el_ttype, els, el_len)
+            + self.write_field_end_len()
+    }
+
+    #[inline]
+    fn write_list_len<T, F>(&mut self, el_ttype: TType, els: &[T], len: F) -> usize
+    where
+        F: Fn(&mut Self, &T) -> usize,
+    {
+        self.write_list_begin_len(TListIdentifier {
+            element_type: el_ttype,
+            size: els.len(),
+        }) + els.iter().map(|el| len(self, el)).sum::<usize>()
+            + self.write_list_end_len()
+    }
+
+    #[inline]
+    fn write_set_field_len<T, F>(
+        &mut self,
+        id: Option<i16>,
+        el_ttype: TType,
+        els: &HashSet<T>,
+        el_len: F,
+    ) -> usize
+    where
+        F: Fn(&mut Self, &T) -> usize,
+    {
+        self.write_field_begin_len(TType::Set, id)
+            + self.write_set_len(el_ttype, els, el_len)
+            + self.write_field_end_len()
+    }
+
+    #[inline]
+    fn write_set_len<T, F>(&mut self, el_ttype: TType, els: &HashSet<T>, el_len: F) -> usize
+    where
+        F: Fn(&mut Self, &T) -> usize,
+    {
+        self.write_set_begin_len(TSetIdentifier {
+            element_type: el_ttype,
+            size: els.len(),
+        }) + els.iter().map(|el| el_len(self, el)).sum::<usize>()
+            + self.write_set_end_len()
+    }
+
+    #[inline]
+    fn write_message_len<M: Message>(&mut self, id: Option<i16>, m: &M) -> usize {
+        self.write_field_begin_len(TType::Struct, id) + m.size(self) + self.write_field_end_len()
+    }
+
+    #[inline]
+    fn write_map_field_len<K, V, FK, FV>(
+        &mut self,
+        id: Option<i16>,
+        key_ttype: TType,
+        val_ttype: TType,
+        els: &HashMap<K, V>,
+        key_len: FK,
+        val_len: FV,
+    ) -> usize
+    where
+        FK: Fn(&mut Self, &K) -> usize,
+        FV: Fn(&mut Self, &V) -> usize,
+    {
+        self.write_field_begin_len(TType::Map, id)
+            + self.write_map_len(key_ttype, val_ttype, els, key_len, val_len)
+            + self.write_field_end_len()
+    }
+
+    #[inline]
+    fn write_map_len<K, V, FK, FV>(
+        &mut self,
+        key_ttype: TType,
+        val_ttype: TType,
+        els: &HashMap<K, V>,
+        key_len: FK,
+        val_len: FV,
+    ) -> usize
+    where
+        FK: Fn(&mut Self, &K) -> usize,
+        FV: Fn(&mut Self, &V) -> usize,
+    {
+        self.write_map_begin_len(TMapIdentifier {
+            key_type: key_ttype,
+            value_type: val_ttype,
+            size: els.len(),
+        }) + els
+            .iter()
+            .map(|(k, v)| key_len(self, k) + val_len(self, v))
+            .sum::<usize>()
+            + self.write_map_end_len()
+    }
+
+    #[inline]
+    fn write_void_len(&mut self) -> usize {
+        self.write_struct_begin_len(&*crate::thrift::VOID_IDENT) + self.write_struct_end_len()
+    }
+}
+
+impl<T> TLengthProtocolExt for T where T: TLengthProtocol {}
+
 pub trait TLengthProtocol {
     // size
 
@@ -205,7 +346,7 @@ pub trait TLengthProtocol {
 
     fn write_struct_end_len(&mut self) -> usize;
 
-    fn write_field_begin_len(&mut self, identifier: &TFieldIdentifier) -> usize;
+    fn write_field_begin_len(&mut self, field_type: TType, id: Option<i16>) -> usize;
 
     fn write_field_end_len(&mut self) -> usize;
 
@@ -235,15 +376,15 @@ pub trait TLengthProtocol {
 
     fn write_faststr_len(&mut self, s: &FastStr) -> usize;
 
-    fn write_list_begin_len(&mut self, identifier: &TListIdentifier) -> usize;
+    fn write_list_begin_len(&mut self, identifier: TListIdentifier) -> usize;
 
     fn write_list_end_len(&mut self) -> usize;
 
-    fn write_set_begin_len(&mut self, identifier: &TSetIdentifier) -> usize;
+    fn write_set_begin_len(&mut self, identifier: TSetIdentifier) -> usize;
 
     fn write_set_end_len(&mut self) -> usize;
 
-    fn write_map_begin_len(&mut self, identifier: &TMapIdentifier) -> usize;
+    fn write_map_begin_len(&mut self, identifier: TMapIdentifier) -> usize;
 
     fn write_map_end_len(&mut self) -> usize;
 
@@ -253,6 +394,156 @@ pub trait TLengthProtocol {
     /// Resets the zero copy length counter.
     fn reset(&mut self);
 }
+
+macro_rules! write_field {
+    ($ttype:ty, $name:ident($($k:ident: $t:ty),*)) => {
+        paste::paste! {
+            #[inline]
+            fn [<write_ $name _field>](&mut self, id: i16, $($k: $t),*) -> Result<(), Error> {
+                self.write_field_begin($ttype, id)?;
+                self.[<write_ $name>]($($k),*)?;
+                self.write_field_end()?;
+                Ok(())
+            }
+        }
+    };
+}
+
+pub trait TOutputProtocolExt: TOutputProtocol + Sized {
+    write_field!(TType::Bool, bool(b: bool));
+    write_field!(TType::I8, i8(i: i8));
+    write_field!(TType::I16, i16(i: i16));
+    write_field!(TType::I32, i32(i: i32));
+    write_field!(TType::I64, i64(i: i64));
+    write_field!(TType::Double, double(d: f64));
+    write_field!(TType::Binary, bytes(b: Bytes));
+    write_field!(TType::Binary, bytes_vec(b: &[u8]));
+    write_field!(TType::Uuid, uuid(u: [u8; 16]));
+    write_field!(TType::Binary, string(s: &str));
+    write_field!(TType::Binary, faststr(s: FastStr));
+    write_field!(TType::Void, void());
+
+    #[inline]
+    fn write_list_field<T, F>(
+        &mut self,
+        id: i16,
+        el_ttype: TType,
+        els: &[T],
+        encode: F,
+    ) -> Result<(), Error>
+    where
+        F: Fn(&mut Self, &T) -> Result<(), Error>,
+    {
+        self.write_field_begin(TType::List, id)?;
+        self.write_list(el_ttype, els, encode)?;
+        self.write_field_end()
+    }
+
+    #[inline]
+    fn write_list<T, F>(&mut self, el_ttype: TType, els: &[T], encode: F) -> Result<(), Error>
+    where
+        F: Fn(&mut Self, &T) -> Result<(), Error>,
+    {
+        self.write_list_begin(TListIdentifier {
+            element_type: el_ttype,
+            size: els.len(),
+        })?;
+        for el in els {
+            encode(self, el)?
+        }
+        self.write_list_end()
+    }
+
+    #[inline]
+    fn write_set_field<T, F>(
+        &mut self,
+        id: i16,
+        el_ttype: TType,
+        els: &HashSet<T>,
+        encode: F,
+    ) -> Result<(), Error>
+    where
+        F: Fn(&mut Self, &T) -> Result<(), Error>,
+    {
+        self.write_field_begin(TType::Set, id)?;
+        self.write_set(el_ttype, els, encode)?;
+        self.write_field_end()
+    }
+
+    #[inline]
+    fn write_set<T, F>(&mut self, el_ttype: TType, els: &HashSet<T>, encode: F) -> Result<(), Error>
+    where
+        F: Fn(&mut Self, &T) -> Result<(), Error>,
+    {
+        self.write_set_begin(TSetIdentifier {
+            element_type: el_ttype,
+            size: els.len(),
+        })?;
+        for el in els {
+            encode(self, el)?
+        }
+        self.write_set_end()
+    }
+
+    #[inline]
+    fn write_message<M: Message>(&mut self, id: i16, m: &M) -> Result<(), Error> {
+        self.write_field_begin(TType::Struct, id)?;
+        m.encode(self)?;
+        self.write_field_end()
+    }
+
+    #[inline]
+    fn write_map_field<K, V, FK, FV>(
+        &mut self,
+        id: i16,
+        key_ttype: TType,
+        val_ttype: TType,
+        els: &HashMap<K, V>,
+        key_encode: FK,
+        val_encode: FV,
+    ) -> Result<(), Error>
+    where
+        FK: Fn(&mut Self, &K) -> Result<(), Error>,
+        FV: Fn(&mut Self, &V) -> Result<(), Error>,
+    {
+        self.write_field_begin(TType::Map, id)?;
+        self.write_map(key_ttype, val_ttype, els, key_encode, val_encode)?;
+        self.write_field_end()
+    }
+
+    #[inline]
+    fn write_map<K, V, FK, FV>(
+        &mut self,
+        key_ttype: TType,
+        val_ttype: TType,
+        els: &HashMap<K, V>,
+        key_encode: FK,
+        val_encode: FV,
+    ) -> Result<(), Error>
+    where
+        FK: Fn(&mut Self, &K) -> Result<(), Error>,
+        FV: Fn(&mut Self, &V) -> Result<(), Error>,
+    {
+        self.write_map_begin(TMapIdentifier {
+            key_type: key_ttype,
+            value_type: val_ttype,
+            size: els.len(),
+        })?;
+        for (k, v) in els {
+            key_encode(self, k)?;
+            val_encode(self, v)?;
+        }
+        self.write_map_end()
+    }
+
+    #[inline]
+    fn write_void(&mut self) -> Result<(), Error> {
+        self.write_struct_begin(&*crate::thrift::VOID_IDENT)?;
+        self.write_struct_end()
+    }
+}
+
+impl<T> TOutputProtocolExt for T where T: TOutputProtocol {}
 
 pub trait TOutputProtocol {
     type BufMut: BufMut;
@@ -297,15 +588,15 @@ pub trait TOutputProtocol {
     /// Write a fixed-length faststr.
     fn write_faststr(&mut self, s: FastStr) -> Result<(), Error>;
     /// Write the beginning of a list.
-    fn write_list_begin(&mut self, identifier: &TListIdentifier) -> Result<(), Error>;
+    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), Error>;
     /// Write the end of a list.
     fn write_list_end(&mut self) -> Result<(), Error>;
     /// Write the beginning of a set.
-    fn write_set_begin(&mut self, identifier: &TSetIdentifier) -> Result<(), Error>;
+    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), Error>;
     /// Write the end of a set.
     fn write_set_end(&mut self) -> Result<(), Error>;
     /// Write the beginning of a map.
-    fn write_map_begin(&mut self, identifier: &TMapIdentifier) -> Result<(), Error>;
+    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), Error>;
     /// Write the end of a map.
     fn write_map_end(&mut self) -> Result<(), Error>;
     /// Flush buffered bytes to the underlying transport.
@@ -593,7 +884,7 @@ impl TMessageIdentifier {
         }
     }
 }
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Copy)]
 pub struct TListIdentifier {
     /// Type of the elements in the list.
     pub element_type: TType,
@@ -610,7 +901,7 @@ impl TListIdentifier {
 }
 
 /// Thrift set identifier.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Copy)]
 pub struct TSetIdentifier {
     /// Type of the elements in the set.
     pub element_type: TType,
@@ -662,7 +953,7 @@ impl TFieldIdentifier {
 }
 
 /// Thrift map identifier.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Copy)]
 pub struct TMapIdentifier {
     /// Map key type.
     pub key_type: TType,

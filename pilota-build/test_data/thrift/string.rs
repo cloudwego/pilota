@@ -12,20 +12,11 @@ pub mod string {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
                 protocol.write_struct_begin(&struct_ident)?;
-                {
-                    let value = &self.faststr;
-                    protocol.write_field_begin(::pilota::thrift::TType::Binary, 1i16)?;
-                    protocol.write_faststr(value.clone())?;
-                    protocol.write_field_end()?;
-                }
-                {
-                    let value = &self.string;
-                    protocol.write_field_begin(::pilota::thrift::TType::Binary, 2i16)?;
-                    protocol.write_string(&value)?;
-                    protocol.write_field_end()?;
-                }
+                protocol.write_faststr_field(1i16, (&self.faststr).clone())?;
+                protocol.write_string_field(2i16, &&self.string)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -56,26 +47,8 @@ pub mod string {
                     protocol.read_field_end()?;
                 }
                 protocol.read_struct_end()?;
-                let faststr = if let Some(faststr) = faststr {
-                    faststr
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field faststr is required".to_string(),
-                        ),
-                    ));
-                };
-                let string = if let Some(string) = string {
-                    string
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field string is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (faststr) = faststr else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field faststr is required" . to_string ()))) } ;
+                let Some (string) = string else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field string is required" . to_string ()))) } ;
                 let data = Self { faststr, string };
                 Ok(data)
             }
@@ -105,49 +78,16 @@ pub mod string {
                     protocol.read_field_end().await?;
                 }
                 protocol.read_struct_end().await?;
-                let faststr = if let Some(faststr) = faststr {
-                    faststr
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field faststr is required".to_string(),
-                        ),
-                    ));
-                };
-                let string = if let Some(string) = string {
-                    string
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field string is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (faststr) = faststr else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field faststr is required" . to_string ()))) } ;
+                let Some (string) = string else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field string is required" . to_string ()))) } ;
                 let data = Self { faststr, string };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + {
-                        let value = &self.faststr;
-                        protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("faststr"),
-                            field_type: ::pilota::thrift::TType::Binary,
-                            id: Some(1i16),
-                        }) + protocol.write_faststr_len(value)
-                            + protocol.write_field_end_len()
-                    }
-                    + {
-                        let value = &self.string;
-                        protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("string"),
-                            field_type: ::pilota::thrift::TType::Binary,
-                            id: Some(2i16),
-                        }) + protocol.write_string_len(&value)
-                            + protocol.write_field_end_len()
-                    }
+                    + protocol.write_faststr_field_len(Some(1i16), &self.faststr)
+                    + protocol.write_string_field_len(Some(2i16), &&self.string)
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }

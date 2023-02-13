@@ -9,6 +9,7 @@ pub mod wrapper_arc {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
                 protocol.write_struct_begin(&struct_ident)?;
                 protocol.write_field_stop()?;
@@ -58,6 +59,7 @@ pub mod wrapper_arc {
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
@@ -75,60 +77,47 @@ pub mod wrapper_arc {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "TEST" };
                 protocol.write_struct_begin(&struct_ident)?;
-                {
-                    let value = &self.id;
-                    protocol.write_field_begin(::pilota::thrift::TType::Binary, 1i16)?;
-                    protocol.write_faststr(value.clone())?;
-                    protocol.write_field_end()?;
-                }
-                {
-                    let value = &self.name2;
-                    protocol.write_field_begin(::pilota::thrift::TType::List, 2i16)?;
-                    let list_ident = ::pilota::thrift::TListIdentifier {
-                        element_type: ::pilota::thrift::TType::List,
-                        size: value.len(),
-                    };
-                    protocol.write_list_begin(&list_ident)?;
-                    for val in value {
-                        let list_ident = ::pilota::thrift::TListIdentifier {
-                            element_type: ::pilota::thrift::TType::Struct,
-                            size: val.len(),
-                        };
-                        protocol.write_list_begin(&list_ident)?;
-                        for val in val {
-                            ::pilota::thrift::Message::encode(val, protocol)?;
-                        }
-                        protocol.write_list_end()?;
-                    }
-                    protocol.write_list_end()?;
-                    protocol.write_field_end()?;
-                }
-                {
-                    let value = &self.name3;
-                    protocol.write_field_begin(::pilota::thrift::TType::Map, 3i16)?;
-                    let map_ident = ::pilota::thrift::TMapIdentifier {
-                        key_type: ::pilota::thrift::TType::I32,
-                        value_type: ::pilota::thrift::TType::List,
-                        size: value.len(),
-                    };
-                    protocol.write_map_begin(&map_ident)?;
-                    for (key, val) in value.iter() {
+                protocol.write_faststr_field(1i16, (&self.id).clone())?;
+                protocol.write_list_field(
+                    2i16,
+                    ::pilota::thrift::TType::List,
+                    &&self.name2,
+                    |protocol, val| {
+                        protocol.write_list(
+                            ::pilota::thrift::TType::Struct,
+                            &val,
+                            |protocol, val| {
+                                ::pilota::thrift::Message::encode(val, protocol)?;
+                                Ok(())
+                            },
+                        )?;
+                        Ok(())
+                    },
+                )?;
+                protocol.write_map_field(
+                    3i16,
+                    ::pilota::thrift::TType::I32,
+                    ::pilota::thrift::TType::List,
+                    &&self.name3,
+                    |protocol, key| {
                         protocol.write_i32(*key)?;
-                        let list_ident = ::pilota::thrift::TListIdentifier {
-                            element_type: ::pilota::thrift::TType::Struct,
-                            size: val.len(),
-                        };
-                        protocol.write_list_begin(&list_ident)?;
-                        for val in val {
-                            ::pilota::thrift::Message::encode(val, protocol)?;
-                        }
-                        protocol.write_list_end()?;
-                    }
-                    protocol.write_map_end()?;
-                    protocol.write_field_end()?;
-                }
+                        Ok(())
+                    },
+                    |protocol, val| {
+                        protocol.write_list(
+                            ::pilota::thrift::TType::Struct,
+                            &val,
+                            |protocol, val| {
+                                ::pilota::thrift::Message::encode(val, protocol)?;
+                                Ok(())
+                            },
+                        )?;
+                        Ok(())
+                    },
+                )?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -202,36 +191,9 @@ pub mod wrapper_arc {
                     protocol.read_field_end()?;
                 }
                 protocol.read_struct_end()?;
-                let id = if let Some(id) = id {
-                    id
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field id is required".to_string(),
-                        ),
-                    ));
-                };
-                let name2 = if let Some(name2) = name2 {
-                    name2
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field name2 is required".to_string(),
-                        ),
-                    ));
-                };
-                let name3 = if let Some(name3) = name3 {
-                    name3
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field name3 is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (id) = id else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field id is required" . to_string ()))) } ;
+                let Some (name2) = name2 else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field name2 is required" . to_string ()))) } ;
+                let Some (name3) = name3 else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field name3 is required" . to_string ()))) } ;
                 let data = Self { id, name2, name3 };
                 Ok(data)
             }
@@ -306,129 +268,43 @@ pub mod wrapper_arc {
                     protocol.read_field_end().await?;
                 }
                 protocol.read_struct_end().await?;
-                let id = if let Some(id) = id {
-                    id
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field id is required".to_string(),
-                        ),
-                    ));
-                };
-                let name2 = if let Some(name2) = name2 {
-                    name2
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field name2 is required".to_string(),
-                        ),
-                    ));
-                };
-                let name3 = if let Some(name3) = name3 {
-                    name3
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field name3 is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (id) = id else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field id is required" . to_string ()))) } ;
+                let Some (name2) = name2 else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field name2 is required" . to_string ()))) } ;
+                let Some (name3) = name3 else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field name3 is required" . to_string ()))) } ;
                 let data = Self { id, name2, name3 };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol
                     .write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "TEST" })
-                    + {
-                        let value = &self.id;
-                        protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("ID"),
-                            field_type: ::pilota::thrift::TType::Binary,
-                            id: Some(1i16),
-                        }) + protocol.write_faststr_len(value)
-                            + protocol.write_field_end_len()
-                    }
-                    + {
-                        let value = &self.name2;
-                        protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("Name2"),
-                            field_type: ::pilota::thrift::TType::List,
-                            id: Some(2i16),
-                        }) + {
-                            let list_ident = ::pilota::thrift::TListIdentifier {
-                                element_type: ::pilota::thrift::TType::List,
-                                size: value.len(),
-                            };
-                            protocol.write_list_begin_len(&list_ident)
-                                + {
-                                    let mut size = 0;
-                                    for el in value {
-                                        size += {
-                                            let list_ident = ::pilota::thrift::TListIdentifier {
-                                                element_type: ::pilota::thrift::TType::Struct,
-                                                size: el.len(),
-                                            };
-                                            protocol.write_list_begin_len(&list_ident)
-                                                + {
-                                                    let mut size = 0;
-                                                    for el in el {
-                                                        size += ::pilota::thrift::Message::size(
-                                                            el, protocol,
-                                                        );
-                                                    }
-                                                    size
-                                                }
-                                                + protocol.write_list_end_len()
-                                        };
-                                    }
-                                    size
-                                }
-                                + protocol.write_list_end_len()
-                        } + protocol.write_field_end_len()
-                    }
-                    + {
-                        let value = &self.name3;
-                        protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("Name3"),
-                            field_type: ::pilota::thrift::TType::Map,
-                            id: Some(3i16),
-                        }) + {
-                            let map_id = ::pilota::thrift::TMapIdentifier {
-                                key_type: ::pilota::thrift::TType::I32,
-                                value_type: ::pilota::thrift::TType::List,
-                                size: value.len(),
-                            };
-                            protocol.write_map_begin_len(&map_id)
-                                + {
-                                    let mut size = 0;
-                                    for (key, val) in value {
-                                        size += protocol.write_i32_len(*key);
-                                        size += {
-                                            let list_ident = ::pilota::thrift::TListIdentifier {
-                                                element_type: ::pilota::thrift::TType::Struct,
-                                                size: val.len(),
-                                            };
-                                            protocol.write_list_begin_len(&list_ident)
-                                                + {
-                                                    let mut size = 0;
-                                                    for el in val {
-                                                        size += ::pilota::thrift::Message::size(
-                                                            el, protocol,
-                                                        );
-                                                    }
-                                                    size
-                                                }
-                                                + protocol.write_list_end_len()
-                                        };
-                                    }
-                                    size
-                                }
-                                + protocol.write_map_end_len()
-                        } + protocol.write_field_end_len()
-                    }
+                    + protocol.write_faststr_field_len(Some(1i16), &self.id)
+                    + protocol.write_list_field_len(
+                        Some(2i16),
+                        ::pilota::thrift::TType::List,
+                        &self.name2,
+                        |protocol, el| {
+                            protocol.write_list_len(
+                                ::pilota::thrift::TType::Struct,
+                                el,
+                                |protocol, el| ::pilota::thrift::Message::size(el, protocol),
+                            )
+                        },
+                    )
+                    + protocol.write_map_field_len(
+                        Some(3i16),
+                        ::pilota::thrift::TType::I32,
+                        ::pilota::thrift::TType::List,
+                        &self.name3,
+                        |protocol, key| protocol.write_i32_len(*key),
+                        |protocol, val| {
+                            protocol.write_list_len(
+                                ::pilota::thrift::TType::Struct,
+                                val,
+                                |protocol, el| ::pilota::thrift::Message::size(el, protocol),
+                            )
+                        },
+                    )
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }
@@ -446,14 +322,13 @@ pub mod wrapper_arc {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestResult",
                 })?;
                 match self {
                     TestServiceTestResult::Ok(ref value) => {
-                        protocol.write_field_begin(::pilota::thrift::TType::Binary, 0i16)?;
-                        protocol.write_faststr(value.clone())?;
-                        protocol.write_field_end()?;
+                        protocol.write_faststr_field(0i16, (value).clone())?;
                     }
                 }
                 protocol.write_field_stop()?;
@@ -538,16 +413,12 @@ pub mod wrapper_arc {
                 }
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestResult",
                 }) + match self {
                     TestServiceTestResult::Ok(ref value) => {
-                        protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("Ok"),
-                            field_type: ::pilota::thrift::TType::Binary,
-                            id: Some(0i16),
-                        }) + protocol.write_faststr_len(value)
-                            + protocol.write_field_end_len()
+                        protocol.write_faststr_field_len(Some(0i16), value)
                     }
                 } + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
@@ -563,16 +434,12 @@ pub mod wrapper_arc {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestArgsSend",
                 };
                 protocol.write_struct_begin(&struct_ident)?;
-                {
-                    let value = &self.req;
-                    protocol.write_field_begin(::pilota::thrift::TType::Struct, 1i16)?;
-                    ::pilota::thrift::Message::encode(value, protocol)?;
-                    protocol.write_field_end()?;
-                }
+                protocol.write_message(1i16, &self.req)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -601,16 +468,7 @@ pub mod wrapper_arc {
                     protocol.read_field_end()?;
                 }
                 protocol.read_struct_end()?;
-                let req = if let Some(req) = req {
-                    req
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field req is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (req) = req else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field req is required" . to_string ()))) } ;
                 let data = Self { req };
                 Ok(data)
             }
@@ -638,31 +496,16 @@ pub mod wrapper_arc {
                     protocol.read_field_end().await?;
                 }
                 protocol.read_struct_end().await?;
-                let req = if let Some(req) = req {
-                    req
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field req is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (req) = req else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field req is required" . to_string ()))) } ;
                 let data = Self { req };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestArgsSend",
-                }) + {
-                    let value = &self.req;
-                    protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                        name: Some("req"),
-                        field_type: ::pilota::thrift::TType::Struct,
-                        id: Some(1i16),
-                    }) + ::pilota::thrift::Message::size(value, protocol)
-                        + protocol.write_field_end_len()
-                } + protocol.write_field_stop_len()
+                }) + ::pilota::thrift::Message::size(&self.req, protocol)
+                    + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }
         }
@@ -676,16 +519,12 @@ pub mod wrapper_arc {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestArgsRecv",
                 };
                 protocol.write_struct_begin(&struct_ident)?;
-                {
-                    let value = &self.req;
-                    protocol.write_field_begin(::pilota::thrift::TType::Struct, 1i16)?;
-                    ::pilota::thrift::Message::encode(value, protocol)?;
-                    protocol.write_field_end()?;
-                }
+                protocol.write_message(1i16, &self.req)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -712,16 +551,7 @@ pub mod wrapper_arc {
                     protocol.read_field_end()?;
                 }
                 protocol.read_struct_end()?;
-                let req = if let Some(req) = req {
-                    req
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field req is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (req) = req else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field req is required" . to_string ()))) } ;
                 let data = Self { req };
                 Ok(data)
             }
@@ -747,31 +577,16 @@ pub mod wrapper_arc {
                     protocol.read_field_end().await?;
                 }
                 protocol.read_struct_end().await?;
-                let req = if let Some(req) = req {
-                    req
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field req is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (req) = req else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field req is required" . to_string ()))) } ;
                 let data = Self { req };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestArgsRecv",
-                }) + {
-                    let value = &self.req;
-                    protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                        name: Some("req"),
-                        field_type: ::pilota::thrift::TType::Struct,
-                        id: Some(1i16),
-                    }) + ::pilota::thrift::Message::size(value, protocol)
-                        + protocol.write_field_end_len()
-                } + protocol.write_field_stop_len()
+                }) + ::pilota::thrift::Message::size(&self.req, protocol)
+                    + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }
         }

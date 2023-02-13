@@ -1,5 +1,5 @@
-use proc_macro2::{Ident, TokenStream};
-use quote::{format_ident, quote};
+use proc_macro2::TokenStream;
+use quote::quote;
 
 use super::{decode_helper::DecodeHelper, ThriftBackend};
 use crate::{
@@ -41,10 +41,10 @@ impl ThriftBackend {
         }
     }
 
-    pub(crate) fn codegen_encode_ty(&self, ty: &Ty, ident: &Ident) -> TokenStream {
+    pub(crate) fn codegen_encode_ty(&self, ty: &Ty, ident: &TokenStream) -> TokenStream {
         match &ty.kind {
-            ty::String => quote! { protocol.write_string(&#ident)?; },
-            ty::FastStr => quote! { protocol.write_faststr(#ident.clone())?; },
+            ty::String => quote! { protocol.write_string(#ident)?; },
+            ty::FastStr => quote! { protocol.write_faststr((#ident).clone())?; },
             ty::Void => quote! {
                 protocol.write_struct_begin(&*::pilota::thrift::VOID_IDENT)?;
                 protocol.write_struct_end()?;
@@ -60,55 +60,39 @@ impl ThriftBackend {
             ty::F64 => quote! { protocol.write_double(*#ident)?; },
             ty::Vec(ty) => {
                 let el_ttype = self.ttype(ty);
-                let write_el = self.codegen_encode_ty(ty, &format_ident!("val"));
+                let write_el = self.codegen_encode_ty(ty, &quote!(val));
 
                 quote! {
-                    let list_ident =::pilota::thrift::TListIdentifier{
-                        element_type: #el_ttype,
-                        size: #ident.len(),
-                    };
-                    protocol.write_list_begin(&list_ident)?;
-                    for val in #ident {
+                    protocol.write_list(#el_ttype, &#ident, |protocol, val| {
                         #write_el
-                    }
-                    protocol.write_list_end()?;
+                        Ok(())
+                    })?;
                 }
             }
             ty::Set(ty) => {
-                let write_el = self.codegen_encode_ty(ty, &format_ident!("val"));
+                let write_el = self.codegen_encode_ty(ty, &quote!(val));
                 let el_ttype = self.ttype(ty);
 
                 quote! {
-                    let list_ident =::pilota::thrift::TSetIdentifier{
-                        element_type: #el_ttype,
-                        size: #ident.len(),
-                    };
-                    protocol.write_set_begin(&list_ident)?;
-                    for val in #ident {
+                    protocol.write_set(#el_ttype, &#ident, |protocol, val| {
                         #write_el
-                    }
-                    protocol.write_set_end()?;
+                        Ok(())
+                    })?;
                 }
             }
             ty::Map(k, v) => {
                 let key_ttype = self.ttype(k);
                 let val_ttype = self.ttype(v);
-                let write_key = self.codegen_encode_ty(k, &format_ident!("key"));
-                let write_val = self.codegen_encode_ty(v, &format_ident!("val"));
+                let write_key = self.codegen_encode_ty(k, &quote!(key));
+                let write_val = self.codegen_encode_ty(v, &quote!(val));
                 quote! {
-                    let map_ident = ::pilota::thrift::TMapIdentifier{
-                        key_type: #key_ttype,
-                        value_type: #val_ttype,
-                        size: #ident.len(),
-                    };
-
-                    protocol.write_map_begin(&map_ident)?;
-                    for (key, val) in #ident.iter() {
+                    protocol.write_map(#key_ttype, #val_ttype, &#ident, |protocol, key| {
                         #write_key
+                        Ok(())
+                    }, |protocol, val| {
                         #write_val
-                    }
-
-                    protocol.write_map_end()?;
+                        Ok(())
+                    })?;
                 }
             }
             ty::Path(_) => quote! { ::pilota::thrift::Message::encode(#ident, protocol)?; },
@@ -117,12 +101,76 @@ impl ThriftBackend {
         }
     }
 
-    pub(crate) fn codegen_ty_size(&self, ty: &Ty, ident: &Ident) -> TokenStream {
+    pub(crate) fn codegen_encode_field(
+        &self,
+        id: i16,
+        ty: &Ty,
+        ident: &TokenStream,
+    ) -> TokenStream {
+        match &ty.kind {
+            ty::String => quote! { protocol.write_string_field(#id, &#ident)?; },
+            ty::FastStr => quote! { protocol.write_faststr_field(#id, (#ident).clone())?; },
+            ty::Void => quote! {
+                protocol.write_void_field(#id)?;
+            },
+            ty::U8 => quote! { protocol.write_byte_field(#id, *#ident)?; },
+            ty::Bool => quote! { protocol.write_bool_field(#id, *#ident)?; },
+            ty::BytesVec => quote! { protocol.write_bytes_vec_field(#id, &#ident)?;},
+            ty::Bytes => quote! { protocol.write_bytes_field(#id, (#ident).clone())?;},
+            ty::I8 => quote! { protocol.write_i8_field(#id, *#ident)?; },
+            ty::I16 => quote! { protocol.write_i16_field(#id, *#ident)?; },
+            ty::I32 => quote! { protocol.write_i32_field(#id, *#ident)?; },
+            ty::I64 => quote! { protocol.write_i64_field(#id, *#ident)?; },
+            ty::F64 => quote! { protocol.write_double_field(#id, *#ident)?; },
+            ty::Vec(ty) => {
+                let el_ttype = self.ttype(ty);
+                let write_el = self.codegen_encode_ty(ty, &quote!(val));
+
+                quote! {
+                    protocol.write_list_field(#id, #el_ttype, &#ident, |protocol, val| {
+                        #write_el
+                        Ok(())
+                    })?;
+                }
+            }
+            ty::Set(ty) => {
+                let write_el = self.codegen_encode_ty(ty, &quote!(val));
+                let el_ttype = self.ttype(ty);
+
+                quote! {
+                    protocol.write_set_field(#id, #el_ttype, &#ident, |protocol, val| {
+                        #write_el
+                        Ok(())
+                    })?;
+                }
+            }
+            ty::Map(k, v) => {
+                let key_ttype = self.ttype(k);
+                let val_ttype = self.ttype(v);
+                let write_key = self.codegen_encode_ty(k, &quote!(key));
+                let write_val = self.codegen_encode_ty(v, &quote!(val));
+                quote! {
+                    protocol.write_map_field(#id, #key_ttype, #val_ttype, &#ident, |protocol, key| {
+                        #write_key
+                        Ok(())
+                    }, |protocol, val| {
+                        #write_val
+                        Ok(())
+                    })?;
+                }
+            }
+            ty::Path(_) => quote! { protocol.write_message(#id, #ident)?; },
+            ty::Arc(ty) => self.codegen_encode_field(id, ty, ident),
+            _ => unimplemented!(),
+        }
+    }
+
+    pub(crate) fn codegen_ty_size(&self, ty: &Ty, ident: &TokenStream) -> TokenStream {
         match &ty.kind {
             ty::String => quote! { protocol.write_string_len(&#ident) },
             ty::FastStr => quote! { protocol.write_faststr_len(#ident) },
             ty::Void => {
-                quote! { protocol.write_struct_begin_len(&*::pilota::thrift::VOID_IDENT) +  protocol.write_struct_end_len() }
+                quote! { protocol.write_void_len() }
             }
             ty::U8 => {
                 quote! { protocol.write_byte_len(*#ident) }
@@ -136,72 +184,91 @@ impl ThriftBackend {
             ty::I64 => quote! { protocol.write_i64_len(*#ident) },
             ty::F64 => quote! { protocol.write_double_len(*#ident) },
             ty::Vec(el) => {
-                let add_el = self.codegen_ty_size(el, &format_ident!("el"));
+                let add_el = self.codegen_ty_size(el, &quote!(el));
                 let el_ttype = self.ttype(el);
                 quote! {
-                    {
-                        let list_ident = ::pilota::thrift::TListIdentifier{
-                            element_type: #el_ttype,
-                            size: #ident.len(),
-                        };
-
-                        protocol.write_list_begin_len(&list_ident) + {
-                            let mut size = 0;
-                            for el in #ident {
-                                size += #add_el;
-                            }
-                            size
-                        } + protocol.write_list_end_len()
-                    }
+                    protocol.write_list_len(#el_ttype, #ident, |protocol, el| {
+                        #add_el
+                    })
                 }
             }
             ty::Set(el) => {
-                let add_el = self.codegen_ty_size(el, &format_ident!("el"));
+                let add_el = self.codegen_ty_size(el, &quote!(el));
                 let el_ttype = self.ttype(el);
                 quote! {
-                    {
-                        let set_id = ::pilota::thrift::TSetIdentifier{
-                            element_type: #el_ttype,
-                            size: #ident.len(),
-                        };
-
-                        protocol.write_set_begin_len(&set_id) + {
-                            let mut size = 0;
-                            for el in #ident {
-                                size += #add_el;
-                            }
-                            size
-                        } + protocol.write_set_end_len()
-                    }
+                    protocol.write_set_len(#el_ttype, #ident, |protocol, el| {
+                        #add_el
+                    })
                 }
             }
             ty::Map(k, v) => {
-                let add_key = self.codegen_ty_size(k, &format_ident!("key"));
-                let add_val = self.codegen_ty_size(v, &format_ident!("val"));
+                let add_key = self.codegen_ty_size(k, &quote!(key));
+                let add_val = self.codegen_ty_size(v, &quote!(val));
                 let k_ttype = self.ttype(k);
                 let v_ttype = self.ttype(v);
 
                 quote! {
-                    {
-                        let map_id = ::pilota::thrift::TMapIdentifier {
-                            key_type: #k_ttype,
-                            value_type: #v_ttype,
-                            size: #ident.len(),
-                        };
-
-                        protocol.write_map_begin_len(&map_id) + {
-                            let mut size = 0;
-                            for (key, val) in #ident {
-                                size += #add_key;
-                                size += #add_val;
-                            }
-                            size
-                        } + protocol.write_map_end_len()
-                    }
+                    protocol.write_map_len(#k_ttype, #v_ttype, #ident, |protocol, key| {
+                        #add_key
+                    }, |protocol, val| {
+                        #add_val
+                    })
                 }
             }
             ty::Path(_) => quote! { ::pilota::thrift::Message::size(#ident, protocol) },
             ty::Arc(ty) => self.codegen_ty_size(ty, ident),
+            _ => unimplemented!(),
+        }
+    }
+
+    pub(crate) fn codegen_field_size(&self, ty: &Ty, id: i16, ident: &TokenStream) -> TokenStream {
+        match &ty.kind {
+            ty::String => quote! { protocol.write_string_field_len(Some(#id), &#ident) },
+            ty::FastStr => quote! { protocol.write_faststr_field_len(Some(#id), #ident) },
+            ty::Void => {
+                quote! { protocol.write_void_field_len(Some(#id)) }
+            }
+            ty::U8 => {
+                quote! { protocol.write_byte_field_len(Some(#id), *#ident) }
+            }
+            ty::Bool => quote! { protocol.write_bool_field_len(Some(#id), *#ident) },
+            ty::BytesVec => quote! { protocol.write_bytes_vec_field_len(Some(#id), #ident)},
+            ty::Bytes => quote! { protocol.write_bytes_field_len(Some(#id), #ident)},
+            ty::I8 => quote! { protocol.write_i8_field_len(Some(#id), *#ident) },
+            ty::I16 => quote! { protocol.write_i16_field_len(Some(#id), *#ident) },
+            ty::I32 => quote! { protocol.write_i32_field_len(Some(#id), *#ident) },
+            ty::I64 => quote! { protocol.write_i64_field_len(Some(#id), *#ident) },
+            ty::F64 => quote! { protocol.write_double_field_len(Some(#id), *#ident) },
+            ty::Vec(el) => {
+                let add_el = self.codegen_ty_size(el, &quote! { el });
+                let el_ttype = self.ttype(el);
+                quote! {
+                    protocol.write_list_field_len(Some(#id), #el_ttype, #ident, |protocol, el| {
+                        #add_el
+                    })
+                }
+            }
+            ty::Set(el) => {
+                let add_el = self.codegen_ty_size(el, &quote! { el });
+                let el_ttype = self.ttype(el);
+                quote! {
+                    protocol.write_set_field_len(Some(#id), #el_ttype, #ident, |protocol, el| {
+                        #add_el
+                    })
+                }
+            }
+            ty::Map(k, v) => {
+                let add_key = self.codegen_ty_size(k, &quote! { key });
+                let add_val = self.codegen_ty_size(v, &quote! { val });
+                let k_ttype = self.ttype(k);
+                let v_ttype = self.ttype(v);
+
+                quote! {
+                    protocol.write_map_field_len(Some(#id), #k_ttype, #v_ttype, #ident, |protocol, key| { #add_key }, |protocol, val| { #add_val })
+                }
+            }
+            ty::Path(_) => quote! { ::pilota::thrift::Message::size(#ident, protocol) },
+            ty::Arc(ty) => self.codegen_field_size(ty, id, ident),
             _ => unimplemented!(),
         }
     }

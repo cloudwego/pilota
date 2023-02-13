@@ -442,6 +442,7 @@ dependencies = [
  "integer-encoding",
  "lazy_static",
  "linkedbytes",
+ "paste",
  "proptest",
  "thiserror",
  "tokio",

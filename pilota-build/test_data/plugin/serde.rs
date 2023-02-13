@@ -24,20 +24,11 @@ pub mod serde {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
                 protocol.write_struct_begin(&struct_ident)?;
-                {
-                    let value = &self.a;
-                    protocol.write_field_begin(::pilota::thrift::TType::Binary, 1i16)?;
-                    protocol.write_faststr(value.clone())?;
-                    protocol.write_field_end()?;
-                }
-                {
-                    let value = &self.b;
-                    protocol.write_field_begin(::pilota::thrift::TType::I32, 2i16)?;
-                    protocol.write_i32(*value)?;
-                    protocol.write_field_end()?;
-                }
+                protocol.write_faststr_field(1i16, (&self.a).clone())?;
+                protocol.write_i32_field(2i16, *&self.b)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -68,26 +59,8 @@ pub mod serde {
                     protocol.read_field_end()?;
                 }
                 protocol.read_struct_end()?;
-                let a = if let Some(a) = a {
-                    a
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field a is required".to_string(),
-                        ),
-                    ));
-                };
-                let b = if let Some(b) = b {
-                    b
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field b is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (a) = a else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field a is required" . to_string ()))) } ;
+                let Some (b) = b else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field b is required" . to_string ()))) } ;
                 let data = Self { a, b };
                 Ok(data)
             }
@@ -117,49 +90,16 @@ pub mod serde {
                     protocol.read_field_end().await?;
                 }
                 protocol.read_struct_end().await?;
-                let a = if let Some(a) = a {
-                    a
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field a is required".to_string(),
-                        ),
-                    ));
-                };
-                let b = if let Some(b) = b {
-                    b
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field b is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (a) = a else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field a is required" . to_string ()))) } ;
+                let Some (b) = b else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field b is required" . to_string ()))) } ;
                 let data = Self { a, b };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + {
-                        let value = &self.a;
-                        protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("a"),
-                            field_type: ::pilota::thrift::TType::Binary,
-                            id: Some(1i16),
-                        }) + protocol.write_faststr_len(value)
-                            + protocol.write_field_end_len()
-                    }
-                    + {
-                        let value = &self.b;
-                        protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("b"),
-                            field_type: ::pilota::thrift::TType::I32,
-                            id: Some(2i16),
-                        }) + protocol.write_i32_len(*value)
-                            + protocol.write_field_end_len()
-                    }
+                    + protocol.write_faststr_field_len(Some(1i16), &self.a)
+                    + protocol.write_i32_field_len(Some(2i16), *&self.b)
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }
@@ -194,8 +134,8 @@ pub mod serde {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
-                let value = &**self;
-                protocol.write_i32(*value)?;
+                use ::pilota::thrift::TOutputProtocolExt;
+                protocol.write_i32(*&**self)?;
                 Ok(())
             }
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -209,10 +149,8 @@ pub mod serde {
                 Ok(B(protocol.read_i32().await?))
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
-                {
-                    let value = &**self;
-                    protocol.write_i32_len(*value)
-                }
+                use ::pilota::thrift::TLengthProtocolExt;
+                protocol.write_i32_len(*&**self)
             }
         }
         impl ::std::convert::From<C> for i32 {
@@ -252,6 +190,7 @@ pub mod serde {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 protocol.write_i32(*self as i32)?;
                 Ok(())
             }
@@ -278,6 +217,7 @@ pub mod serde {
                 })?)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_i32_len(*self as i32)
             }
         }
