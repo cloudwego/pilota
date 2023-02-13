@@ -5,6 +5,8 @@ use alloc::{borrow::Cow, boxed::Box, vec::Vec};
 use core::fmt;
 use std::convert::Infallible;
 
+use crate::EnumConvertError;
+
 /// A Protobuf message decoding error.
 ///
 /// `DecodeError` indicates that the input buffer does not contain a valid
@@ -46,6 +48,12 @@ impl DecodeError {
     #[doc(hidden)]
     pub fn push(&mut self, message: &'static str, field: &'static str) {
         self.inner.stack.push((message, field));
+    }
+}
+
+impl<T: std::fmt::Display> From<EnumConvertError<T>> for DecodeError {
+    fn from(value: EnumConvertError<T>) -> Self {
+        Self::new(value.to_string())
     }
 }
 
