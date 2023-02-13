@@ -383,6 +383,10 @@ where
                 let stream = els.iter().map(|el| self.lit_into_ty(el, inner));
                 quote! { [#(#stream),*] }
             }
+            (Literal::List(els), CodegenTy::Vec(inner)) => {
+                let stream = els.iter().map(|el| self.lit_into_ty(el, inner));
+                quote! { ::std::vec![#(#stream),*] }
+            }
             _ => panic!("unexpected literal {:?} with ty {:?}", lit, ty),
         }
     }

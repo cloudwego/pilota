@@ -303,6 +303,17 @@ impl TyTransformer for DefaultTyTransformer {}
 
 pub(crate) struct ConstTyTransformer;
 
+impl ConstTyTransformer {
+    #[inline]
+    fn dyn_codegen_item_ty(&self, kind: &TyKind) -> CodegenTy {
+        let mut ty = self.codegen_item_ty(&kind);
+        if let CodegenTy::Array(_inner, _) = ty {
+            ty = CodegenTy::Vec(_inner);
+        }
+        ty
+    }
+}
+
 impl TyTransformer for ConstTyTransformer {
     #[inline]
     fn string(&self) -> CodegenTy {
@@ -322,14 +333,14 @@ impl TyTransformer for ConstTyTransformer {
     #[inline]
     fn set(&self, ty: &Ty) -> CodegenTy {
         CodegenTy::StaticRef(Arc::from(CodegenTy::Set(Arc::from(
-            self.codegen_item_ty(&ty.kind),
+            self.dyn_codegen_item_ty(&ty.kind),
         ))))
     }
 
     #[inline]
     fn map(&self, key: &Ty, value: &Ty) -> CodegenTy {
-        let key = self.codegen_item_ty(&key.kind);
-        let value = self.codegen_item_ty(&value.kind);
+        let key = self.dyn_codegen_item_ty(&key.kind);
+        let value = self.dyn_codegen_item_ty(&value.kind);
         CodegenTy::StaticRef(Arc::from(CodegenTy::Map(Arc::from(key), Arc::from(value))))
     }
 }
