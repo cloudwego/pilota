@@ -221,6 +221,7 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
     write_field_len!(TType::Uuid, uuid(u: [u8; 16]));
     write_field_len!(TType::Binary, string(s: &str));
     write_field_len!(TType::Binary, faststr(s: &FastStr));
+    write_field_len!(TType::I8, byte(b: u8));
     write_field_len!(TType::Void, void());
 
     #[inline]
@@ -422,6 +423,7 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
     write_field!(TType::Binary, string(s: &str));
     write_field!(TType::Binary, faststr(s: FastStr));
     write_field!(TType::Void, void());
+    write_field!(TType::I8, byte(b: u8));
 
     #[inline]
     fn write_list_field<T, F>(
