@@ -37,6 +37,7 @@ pub mod self_kw {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 protocol.write_i32(*self as i32)?;
                 Ok(())
             }
@@ -63,6 +64,7 @@ pub mod self_kw {
                 })?)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_i32_len(*self as i32)
             }
         }
@@ -76,14 +78,10 @@ pub mod self_kw {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
                 protocol.write_struct_begin(&struct_ident)?;
-                {
-                    let value = &self.r#type;
-                    protocol.write_field_begin(::pilota::thrift::TType::Binary, 1i16)?;
-                    protocol.write_faststr(value.clone())?;
-                    protocol.write_field_end()?;
-                }
+                protocol.write_faststr_field(1i16, (&self.r#type).clone())?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -110,16 +108,7 @@ pub mod self_kw {
                     protocol.read_field_end()?;
                 }
                 protocol.read_struct_end()?;
-                let r#type = if let Some(r#type) = r#type {
-                    r#type
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field r#type is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (r#type) = r#type else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field r#type is required" . to_string ()))) } ;
                 let data = Self { r#type };
                 Ok(data)
             }
@@ -145,30 +134,14 @@ pub mod self_kw {
                     protocol.read_field_end().await?;
                 }
                 protocol.read_struct_end().await?;
-                let r#type = if let Some(r#type) = r#type {
-                    r#type
-                } else {
-                    return Err(::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                            "field r#type is required".to_string(),
-                        ),
-                    ));
-                };
+                let Some (r#type) = r#type else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field r#type is required" . to_string ()))) } ;
                 let data = Self { r#type };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + {
-                        let value = &self.r#type;
-                        protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("type"),
-                            field_type: ::pilota::thrift::TType::Binary,
-                            id: Some(1i16),
-                        }) + protocol.write_faststr_len(value)
-                            + protocol.write_field_end_len()
-                    }
+                    + protocol.write_faststr_field_len(Some(1i16), &self.r#type)
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }

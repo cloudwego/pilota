@@ -37,6 +37,7 @@ pub mod enum_test {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 protocol.write_i32(*self as i32)?;
                 Ok(())
             }
@@ -63,6 +64,7 @@ pub mod enum_test {
                 })?)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_i32_len(*self as i32)
             }
         }

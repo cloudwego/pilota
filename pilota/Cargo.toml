@@ -18,6 +18,7 @@ keywords = ["serialization", "thrift", "protobuf"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
+paste = "1"
 bytes = "1"
 async-trait = "0.1"
 async-recursion = "1"

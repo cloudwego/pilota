@@ -11,12 +11,11 @@ pub mod must_gen_items {
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+                use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
                 protocol.write_struct_begin(&struct_ident)?;
                 if let Some(value) = self.a.as_ref() {
-                    protocol.write_field_begin(::pilota::thrift::TType::I32, 1i16)?;
-                    protocol.write_i32(*value)?;
-                    protocol.write_field_end()?;
+                    protocol.write_i32_field(1i16, *value)?;
                 };
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
@@ -73,17 +72,12 @@ pub mod must_gen_items {
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + if let Some(value) = self.a.as_ref() {
-                        protocol.write_field_begin_len(&::pilota::thrift::TFieldIdentifier {
-                            name: Some("a"),
-                            field_type: ::pilota::thrift::TType::I32,
-                            id: Some(1i16),
-                        }) + protocol.write_i32_len(*value)
-                            + protocol.write_field_end_len()
-                    } else {
-                        0
-                    }
+                    + self
+                        .a
+                        .as_ref()
+                        .map_or(0, |value| protocol.write_i32_field_len(Some(1i16), *value))
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }
