@@ -517,12 +517,19 @@ impl Resolver {
                             .map(|a| {
                                 let tags_id = self.tags_id_counter.inc_one();
                                 self.tags.insert(tags_id, a.tags.clone());
-                                Arg {
+                                let def_id = self.did_counter.inc_one();
+                                let arg = Arc::new(Arg {
+                                    def_id,
                                     ty: self.lower_type(&a.ty),
                                     name: a.name.clone(),
                                     id: a.id,
                                     tags_id,
-                                }
+                                });
+                                self.nodes.insert(
+                                    def_id,
+                                    self.mk_node(NodeKind::Arg(arg.clone()), tags_id),
+                                );
+                                arg
                             })
                             .collect(),
                         ret: self.lower_type(&m.ret),

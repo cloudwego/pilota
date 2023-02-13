@@ -113,6 +113,7 @@ fn codegen_ty(db: &dyn RirDatabase, did: DefId) -> CodegenTy {
         }),
         rir::NodeKind::Field(_) => todo!(),
         rir::NodeKind::Method(_) => todo!(),
+        rir::NodeKind::Arg(_) => todo!(),
     }
 }
 

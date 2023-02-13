@@ -19,6 +19,7 @@ pub enum Literal {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Arg {
     pub ty: Ty,
+    pub def_id: DefId,
     pub name: Ident,
     pub id: i32,
     pub tags_id: TagId,
@@ -39,7 +40,7 @@ pub enum MethodSource {
 pub struct Method {
     pub def_id: DefId,
     pub name: Ident,
-    pub args: Vec<Arg>,
+    pub args: Vec<Arc<Arg>>,
     pub ret: Ty,
     pub oneway: bool,
     pub exceptions: Option<Path>,
@@ -192,6 +193,7 @@ pub enum NodeKind {
     Variant(Arc<EnumVariant>),
     Field(Arc<Field>),
     Method(Arc<Method>),
+    Arg(Arc<Arg>),
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
