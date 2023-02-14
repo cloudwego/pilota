@@ -96,7 +96,7 @@ pub mod normal {
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "b" };
                 protocol.write_struct_begin(&struct_ident)?;
                 if let Some(value) = self.a.as_ref() {
-                    protocol.write_message(2i16, value)?;
+                    protocol.write_struct_field(2i16, value)?;
                 };
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
@@ -155,10 +155,9 @@ pub mod normal {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "b" })
-                    + self
-                        .a
-                        .as_ref()
-                        .map_or(0, |value| ::pilota::thrift::Message::size(value, protocol))
+                    + self.a.as_ref().map_or(0, |value| {
+                        protocol.write_struct_field_len(Some(2i16), value)
+                    })
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }

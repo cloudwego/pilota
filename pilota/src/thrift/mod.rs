@@ -332,6 +332,18 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
     fn write_void_len(&mut self) -> usize {
         self.write_struct_begin_len(&*crate::thrift::VOID_IDENT) + self.write_struct_end_len()
     }
+
+    #[inline]
+    fn write_struct_field_len<M: Message>(&mut self, id: Option<i16>, m: &M) -> usize {
+        self.write_field_begin_len(TType::Struct, id)
+            + self.write_struct_len(m)
+            + self.write_field_end_len()
+    }
+
+    #[inline]
+    fn write_struct_len<M: Message>(&mut self, m: &M) -> usize {
+        m.size(self)
+    }
 }
 
 impl<T> TLengthProtocolExt for T where T: TLengthProtocol {}
@@ -488,10 +500,15 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
     }
 
     #[inline]
-    fn write_message<M: Message>(&mut self, id: i16, m: &M) -> Result<(), Error> {
+    fn write_struct_field<M: Message>(&mut self, id: i16, m: &M) -> Result<(), Error> {
         self.write_field_begin(TType::Struct, id)?;
-        m.encode(self)?;
+        self.write_struct(m)?;
         self.write_field_end()
+    }
+
+    #[inline]
+    fn write_struct<M: Message>(&mut self, m: &M) -> Result<(), Error> {
+        m.encode(self)
     }
 
     #[inline]

@@ -5,6 +5,8 @@ use super::{decode_helper::DecodeHelper, ThriftBackend};
 use crate::{
     db::RirDatabase,
     middle::{rir, ty, ty::Ty},
+    symbol::EnumRepr,
+    DefId,
 };
 
 impl ThriftBackend {
@@ -95,10 +97,20 @@ impl ThriftBackend {
                     })?;
                 }
             }
-            ty::Path(_) => quote! { ::pilota::thrift::Message::encode(#ident, protocol)?; },
+            ty::Path(_) => quote! { protocol.write_struct(#ident)?; },
             ty::Arc(ty) => self.codegen_encode_ty(ty, ident),
             _ => unimplemented!(),
         }
+    }
+
+    fn is_i32_enum(&self, def_id: DefId) -> bool {
+        let item = self.expect_item(def_id);
+        match &*item {
+            rir::Item::Enum(e) if e.repr == Some(EnumRepr::I32) => return true,
+            _ => {}
+        }
+
+        return false;
     }
 
     pub(crate) fn codegen_encode_field(
@@ -159,7 +171,10 @@ impl ThriftBackend {
                     })?;
                 }
             }
-            ty::Path(_) => quote! { protocol.write_message(#id, #ident)?; },
+            ty::Path(p) if self.is_i32_enum(p.did) => {
+                quote! { protocol.write_i32_field(#id, (*#ident).into())?; }
+            }
+            ty::Path(_) => quote! { protocol.write_struct_field(#id, #ident)?; },
             ty::Arc(ty) => self.codegen_encode_field(id, ty, ident),
             _ => unimplemented!(),
         }
@@ -215,7 +230,7 @@ impl ThriftBackend {
                     })
                 }
             }
-            ty::Path(_) => quote! { ::pilota::thrift::Message::size(#ident, protocol) },
+            ty::Path(_) => quote! { protocol.write_struct_len(#ident) },
             ty::Arc(ty) => self.codegen_ty_size(ty, ident),
             _ => unimplemented!(),
         }
@@ -267,7 +282,10 @@ impl ThriftBackend {
                     protocol.write_map_field_len(Some(#id), #k_ttype, #v_ttype, #ident, |protocol, key| { #add_key }, |protocol, val| { #add_val })
                 }
             }
-            ty::Path(_) => quote! { ::pilota::thrift::Message::size(#ident, protocol) },
+            ty::Path(p) if self.is_i32_enum(p.did) => {
+                quote! { protocol.write_i32_field_len(Some(#id), (*#ident).into()) }
+            }
+            ty::Path(_) => quote! { protocol.write_struct_field_len(Some(#id), #ident) },
             ty::Arc(ty) => self.codegen_field_size(ty, id, ident),
             _ => unimplemented!(),
         }

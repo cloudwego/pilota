@@ -90,7 +90,7 @@ pub mod wrapper_arc {
                             ::pilota::thrift::TType::Struct,
                             &val,
                             |protocol, val| {
-                                ::pilota::thrift::Message::encode(val, protocol)?;
+                                protocol.write_struct(val)?;
                                 Ok(())
                             },
                         )?;
@@ -111,7 +111,7 @@ pub mod wrapper_arc {
                             ::pilota::thrift::TType::Struct,
                             &val,
                             |protocol, val| {
-                                ::pilota::thrift::Message::encode(val, protocol)?;
+                                protocol.write_struct(val)?;
                                 Ok(())
                             },
                         )?;
@@ -287,7 +287,7 @@ pub mod wrapper_arc {
                             protocol.write_list_len(
                                 ::pilota::thrift::TType::Struct,
                                 el,
-                                |protocol, el| ::pilota::thrift::Message::size(el, protocol),
+                                |protocol, el| protocol.write_struct_len(el),
                             )
                         },
                     )
@@ -301,7 +301,7 @@ pub mod wrapper_arc {
                             protocol.write_list_len(
                                 ::pilota::thrift::TType::Struct,
                                 val,
-                                |protocol, el| ::pilota::thrift::Message::size(el, protocol),
+                                |protocol, el| protocol.write_struct_len(el),
                             )
                         },
                     )
@@ -439,7 +439,7 @@ pub mod wrapper_arc {
                     name: "TestServiceTestArgsSend",
                 };
                 protocol.write_struct_begin(&struct_ident)?;
-                protocol.write_message(1i16, &self.req)?;
+                protocol.write_struct_field(1i16, &self.req)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -504,7 +504,7 @@ pub mod wrapper_arc {
                 use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestArgsSend",
-                }) + ::pilota::thrift::Message::size(&self.req, protocol)
+                }) + protocol.write_struct_field_len(Some(1i16), &self.req)
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }
@@ -524,7 +524,7 @@ pub mod wrapper_arc {
                     name: "TestServiceTestArgsRecv",
                 };
                 protocol.write_struct_begin(&struct_ident)?;
-                protocol.write_message(1i16, &self.req)?;
+                protocol.write_struct_field(1i16, &self.req)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -585,7 +585,7 @@ pub mod wrapper_arc {
                 use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestArgsRecv",
-                }) + ::pilota::thrift::Message::size(&self.req, protocol)
+                }) + protocol.write_struct_field_len(Some(1i16), &self.req)
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }
