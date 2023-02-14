@@ -259,7 +259,7 @@ pub mod pilota_name {
                 })?;
                 match self {
                     TestServiceTestResult::Ok(ref value) => {
-                        protocol.write_message(0i16, value)?;
+                        protocol.write_struct_field(0i16, value)?;
                     }
                 }
                 protocol.write_field_stop()?;
@@ -352,7 +352,7 @@ pub mod pilota_name {
                     name: "TestServiceTestResult",
                 }) + match self {
                     TestServiceTestResult::Ok(ref value) => {
-                        ::pilota::thrift::Message::size(value, protocol)
+                        protocol.write_struct_field_len(Some(0i16), value)
                     }
                 } + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
@@ -373,7 +373,7 @@ pub mod pilota_name {
                     name: "TestServiceTestArgsSend",
                 };
                 protocol.write_struct_begin(&struct_ident)?;
-                protocol.write_message(1i16, &self.req)?;
+                protocol.write_struct_field(1i16, &self.req)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -434,7 +434,7 @@ pub mod pilota_name {
                 use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestArgsSend",
-                }) + ::pilota::thrift::Message::size(&self.req, protocol)
+                }) + protocol.write_struct_field_len(Some(1i16), &self.req)
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }
@@ -454,7 +454,7 @@ pub mod pilota_name {
                     name: "TestServiceTestArgsRecv",
                 };
                 protocol.write_struct_begin(&struct_ident)?;
-                protocol.write_message(1i16, &self.req)?;
+                protocol.write_struct_field(1i16, &self.req)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -515,7 +515,7 @@ pub mod pilota_name {
                 use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestArgsRecv",
-                }) + ::pilota::thrift::Message::size(&self.req, protocol)
+                }) + protocol.write_struct_field_len(Some(1i16), &self.req)
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }
