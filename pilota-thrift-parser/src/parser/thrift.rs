@@ -1,6 +1,7 @@
 use nom::{
-    character::complete::alpha1,
-    combinator::{eof, map, opt, peek},
+    bytes::complete::take_while,
+    character::complete::satisfy,
+    combinator::{eof, map, opt, peek, recognize},
     multi::many_till,
     sequence::tuple,
     IResult,
@@ -16,7 +17,10 @@ use crate::{Item, Namespace};
 
 impl Parser for Item {
     fn parse(input: &str) -> IResult<&str, Self> {
-        let (input, keyword) = peek(alpha1)(input)?;
+        let (input, keyword) = peek(recognize(tuple((
+            satisfy(|c| c.is_ascii_alphabetic()),
+            take_while(|c: char| c.is_ascii_alphanumeric() || c == '_'),
+        ))))(input)?;
         macro_rules! unpack {
             ($variant: ident) => {{
                 let (rest, item) = $variant::parse(input)?;
