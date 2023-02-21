@@ -135,7 +135,7 @@ pub mod serde {
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
                 use ::pilota::thrift::TOutputProtocolExt;
-                protocol.write_i32(*&**self)?;
+                protocol.write_i32(*(&**self))?;
                 Ok(())
             }
             fn decode<T: ::pilota::thrift::TInputProtocol>(

@@ -435,7 +435,7 @@ impl CodegenBackend for ThriftBackend {
         t: &NewType,
     ) {
         let name = self.rust_name(def_id).as_syn_ident();
-        let encode = self.codegen_encode_ty(&t.ty, &quote!(&**self));
+        let encode = self.codegen_encode_ty(&t.ty, &quote!((&**self)));
         let encode_size = self.codegen_ty_size(&t.ty, &quote! { &**self });
 
         stream.extend(self.codegen_impl_message_with_helper(
