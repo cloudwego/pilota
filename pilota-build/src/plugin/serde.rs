@@ -22,7 +22,7 @@ impl crate::Plugin for SerdePlugin {
             crate::rir::Item::Message(_)
             | crate::rir::Item::Enum(_)
             | crate::rir::Item::NewType(_) => cx.with_adjust(def_id, |adj| {
-                adj.add_attrs(&[parse_quote!(#[derive(::serde::Serialize, ::serde::Deserialize)])]);
+                adj.add_attrs(&[parse_quote!(#[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize)])]);
                 if let Some(attribute) = attribute {
                     let attr = attribute.0.to_string().replace('\\', "");
                     let tokens = proc_macro2::TokenStream::from_str(&attr).unwrap();

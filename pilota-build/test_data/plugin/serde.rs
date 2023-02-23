@@ -8,8 +8,8 @@ pub mod serde {
             Ord,
             Debug,
             Default,
-            :: serde :: Serialize,
-            :: serde :: Deserialize,
+            :: pilota :: serde :: Serialize,
+            :: pilota :: serde :: Deserialize,
         )]
         #[serde(rename_all = "camelCase")]
         #[derive(Clone, PartialEq)]
@@ -111,8 +111,8 @@ pub mod serde {
             Ord,
             Debug,
             Default,
-            :: serde :: Serialize,
-            :: serde :: Deserialize,
+            :: pilota :: serde :: Serialize,
+            :: pilota :: serde :: Deserialize,
         )]
         #[serde(rename = "BB")]
         #[derive(Clone, PartialEq)]
@@ -173,7 +173,7 @@ pub mod serde {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, :: pilota :: derivative :: Derivative)]
         #[derivative(Default)]
-        #[derive(:: serde :: Serialize, :: serde :: Deserialize)]
+        #[derive(:: pilota :: serde :: Serialize, :: pilota :: serde :: Deserialize)]
         #[serde(untagged)]
         #[derive(Clone, PartialEq)]
         #[repr(i32)]
