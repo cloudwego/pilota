@@ -17,7 +17,7 @@ use crate::{
     rir::Mod,
     symbol::{DefId, FileId, Ident, Symbol},
     tags::{RustWrapperArc, TagId, Tags},
-    ty::{Folder, StringRepr, TyKind},
+    ty::{BytesRepr, Folder, StringRepr, TyKind},
 };
 
 struct ModuleData {
@@ -401,6 +401,15 @@ impl Resolver {
             ir::TyKind::Void => ty::Void,
             ir::TyKind::U8 => ty::U8,
             ir::TyKind::Bool => ty::Bool,
+            ir::TyKind::Bytes
+                if ty
+                    .tags
+                    .get::<BytesRepr>()
+                    .map(|repr| matches!(repr, BytesRepr::Vec))
+                    .unwrap_or(false) =>
+            {
+                ty::BytesVec
+            }
             ir::TyKind::Bytes => ty::Bytes,
             ir::TyKind::I8 => ty::I8,
             ir::TyKind::I16 => ty::I16,

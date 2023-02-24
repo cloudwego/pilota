@@ -297,6 +297,11 @@ pub enum StringRepr {
     String,
 }
 
+pub enum BytesRepr {
+    Vec,
+    Bytes,
+}
+
 pub(crate) struct DefaultTyTransformer;
 
 impl TyTransformer for DefaultTyTransformer {}

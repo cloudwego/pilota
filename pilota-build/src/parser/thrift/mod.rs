@@ -16,7 +16,7 @@ use crate::{
     ir::{Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path},
     symbol::{EnumRepr, FileId, Ident},
     tags::{Annotation, PilotaName, RustType, RustWrapperArc, Tags},
-    ty::StringRepr,
+    ty::{BytesRepr, StringRepr},
     util::error_abort,
 };
 
@@ -381,15 +381,26 @@ impl ThriftLower {
     fn lower_ty_with_tags(&mut self, ty: &thrift_parser::Ty, tags: &Tags) -> ir::Ty {
         let rust_type = tags.get::<RustType>();
         if let Some(rust_type) = rust_type {
-            if let thrift_parser::Ty::String = &ty {
-                let mut tags = Tags::default();
-                if rust_type == "string" {
-                    tags.insert(StringRepr::String)
+            let mut tags = Tags::default();
+            match &ty {
+                thrift_parser::Ty::String if rust_type == "string" => {
+                    tags.insert(StringRepr::String);
+
+                    return ir::Ty {
+                        tags: tags.into(),
+                        kind: ir::TyKind::String,
+                    };
                 }
-                return ir::Ty {
-                    tags: tags.into(),
-                    kind: ir::TyKind::String,
-                };
+                thrift_parser::Ty::Binary => {
+                    if rust_type == "vec" {
+                        tags.insert(BytesRepr::Vec);
+                        return ir::Ty {
+                            tags: tags.into(),
+                            kind: ir::TyKind::Bytes,
+                        };
+                    }
+                }
+                _ => {}
             }
         }
         self.lower_ty(ty)
