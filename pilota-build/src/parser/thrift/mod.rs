@@ -642,8 +642,12 @@ impl super::Parser for ThriftParser {
         self.files.iter().for_each(|f| {
             input_files.push(
                 lower.lower(
-                    self.db
-                        .parse(f.to_path_buf().normalize().unwrap().into_path_buf()),
+                    self.db.parse(
+                        f.to_path_buf()
+                            .normalize()
+                            .expect(&format!("normalize path failed: {}", f.display()))
+                            .into_path_buf(),
+                    ),
                 ),
             );
         });
