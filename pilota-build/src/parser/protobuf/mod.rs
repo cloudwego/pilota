@@ -446,8 +446,12 @@ impl Lower {
 
 impl Parser for ProtobufParser {
     fn input<P: AsRef<std::path::Path>>(&mut self, path: P) {
-        self.input_files
-            .insert(path.as_ref().normalize().unwrap().into_path_buf());
+        let p = path.as_ref();
+        self.input_files.insert(
+            p.normalize()
+                .expect(&format!("normalize path failed: {}", p.display()))
+                .into_path_buf(),
+        );
         self.inner.input(path);
     }
 
