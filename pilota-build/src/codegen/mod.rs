@@ -416,12 +416,12 @@ where
 
                 write_stream(pkgs, &mut inner_stream, &node.children);
                 let name = node.ident();
-                if name.is_empty() {
+                if name.clone().unwrap_or_default() == "" {
                     stream.extend(inner_stream);
                     return;
                 }
 
-                let name = name.as_syn_ident();
+                let name = name.unwrap().as_syn_ident();
                 stream.extend(quote! {
                     pub mod #name {
                         #inner_stream

@@ -10,7 +10,10 @@ pub struct PkgNode {
 }
 
 fn from_pkgs(base_path: &[FastStr], pkgs: &[Arc<[FastStr]>]) -> Arc<[PkgNode]> {
-    let groups = pkgs.iter().into_group_map_by(|p| p.first().unwrap());
+    let groups = pkgs
+        .iter()
+        .filter(|p| p.first().is_some())
+        .into_group_map_by(|p| p.first().unwrap());
 
     Arc::from_iter(groups.into_iter().map(|(k, v)| {
         let path = base_path
@@ -38,7 +41,7 @@ impl PkgNode {
         from_pkgs(&[], pkgs)
     }
 
-    pub fn ident(&self) -> FastStr {
-        self.path.last().unwrap().clone()
+    pub fn ident(&self) -> Option<FastStr> {
+        self.path.last().cloned()
     }
 }
