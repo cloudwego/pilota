@@ -430,7 +430,7 @@ where
             }
         }
         let mut stream = TokenStream::default();
-        let pkg_node = PkgNode::from_pkgs(&self.pkgs.keys().cloned().collect::<Vec<_>>());
+        let pkg_node = PkgNode::from_pkgs(&self.pkgs.keys().map(|k| &**k).collect::<Vec<_>>());
 
         write_stream(&mut self.pkgs, &mut stream, &pkg_node);
 
