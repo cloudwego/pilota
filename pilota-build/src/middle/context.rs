@@ -126,7 +126,9 @@ impl Context {
             } else {
                 let file = cx.file(node.file_id).unwrap();
                 let package = &file.package;
-                segs.extend(package.iter().map(|s| (&*s.0).mod_ident()))
+                if package.len() != 1 || package.first().unwrap().0 != "" {
+                    segs.extend(package.iter().map(|s| (&*s.0).mod_ident()))
+                }
             }
 
             if let NodeKind::Item(item) = node.kind {
@@ -180,10 +182,12 @@ impl Context {
         }
         let mut segs = syn::punctuated::Punctuated::new();
 
+        #[derive(Debug)]
         enum Kind {
             Super,
             Ident(FastStr),
         }
+
         let path = (0..p1.len() - i)
             .map(|_| Kind::Super)
             .chain((i..p2.len()).map(|i| Kind::Ident(p2[i].clone())))
