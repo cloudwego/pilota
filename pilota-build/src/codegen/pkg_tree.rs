@@ -9,7 +9,18 @@ pub struct PkgNode {
     pub children: Arc<[PkgNode]>,
 }
 
-fn from_pkgs(base_path: &[FastStr], pkgs: &[Arc<[FastStr]>]) -> Arc<[PkgNode]> {
+fn from_pkgs(base_path: &[FastStr], pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
+    if pkgs.is_empty() {
+        return Arc::new([]);
+    }
+
+    if pkgs.iter().filter(|p| p.first().is_some()).count() == 0 {
+        return Arc::from([PkgNode {
+            path: Arc::from(base_path),
+            children: Arc::new([]),
+        }]);
+    }
+
     let groups = pkgs
         .iter()
         .filter(|p| p.first().is_some())
@@ -25,7 +36,7 @@ fn from_pkgs(base_path: &[FastStr], pkgs: &[Arc<[FastStr]>]) -> Arc<[PkgNode]> {
         let pkgs = v
             .into_iter()
             .filter(|p| p.len() > 1)
-            .map(|p| Arc::from(&p[1..]))
+            .map(|p| &p[1..])
             .collect::<Vec<_>>();
 
         let children = from_pkgs(&path, &pkgs);
@@ -37,7 +48,7 @@ fn from_pkgs(base_path: &[FastStr], pkgs: &[Arc<[FastStr]>]) -> Arc<[PkgNode]> {
 }
 
 impl PkgNode {
-    pub fn from_pkgs(pkgs: &[Arc<[FastStr]>]) -> Arc<[PkgNode]> {
+    pub fn from_pkgs(pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
         from_pkgs(&[], pkgs)
     }
 

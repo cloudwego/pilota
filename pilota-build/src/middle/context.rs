@@ -266,6 +266,7 @@ impl Context {
             }
 
             let node = cx.node(def_id).unwrap();
+            tracing::trace!("collecting {:?}", node.expect_item().symbol_name());
 
             node.related_nodes
                 .iter()
