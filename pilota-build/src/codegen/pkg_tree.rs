@@ -49,7 +49,10 @@ fn from_pkgs(base_path: &[FastStr], pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
 
 impl PkgNode {
     pub fn from_pkgs(pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
-        from_pkgs(&[], pkgs)
+        Arc::from([PkgNode {
+            path: Arc::new([]),
+            children: from_pkgs(&[], pkgs),
+        }])
     }
 
     pub fn ident(&self) -> Option<FastStr> {

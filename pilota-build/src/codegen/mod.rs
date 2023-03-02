@@ -98,6 +98,7 @@ where
     pub fn write_item(&mut self, stream: &mut TokenStream, def_id: DefId) {
         CUR_ITEM.set(&def_id, || {
             let item = self.item(def_id).unwrap();
+            tracing::trace!("write item {}", item.symbol_name());
             let adjust = self.adjust(def_id);
             let attrs = adjust.iter().flat_map(|a| a.attrs());
 
@@ -396,6 +397,9 @@ where
             let stream: &mut TokenStream =
                 unsafe { std::mem::transmute(self.pkgs.entry(p.clone()).or_default()) };
 
+            let span = tracing::span!(tracing::Level::TRACE, "write_mod", path = ?p);
+
+            let _enter = span.enter();
             for def_id in def_ids.iter() {
                 self.write_item(stream, *def_id)
             }
