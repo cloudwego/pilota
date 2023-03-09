@@ -1,7 +1,9 @@
 use std::{
-    fmt::{self, Display, Formatter},
+    fmt::{self, Debug, Display, Formatter},
     io, string,
 };
+
+use faststr::FastStr;
 
 use super::{Message, TAsyncInputProtocol, TInputProtocol, TLengthProtocol, TOutputProtocol};
 
@@ -29,32 +31,32 @@ impl From<ProtocolError> for Error {
     }
 }
 
-impl From<io::Error> for Error {
+impl From<io::Error> for TransportError {
     fn from(err: io::Error) -> Self {
         match err.kind() {
             io::ErrorKind::ConnectionReset
             | io::ErrorKind::ConnectionRefused
-            | io::ErrorKind::NotConnected => Error::Transport(TransportError {
+            | io::ErrorKind::NotConnected => TransportError {
                 kind: TransportErrorKind::NotOpen,
                 message: err.to_string(),
-            }),
-            io::ErrorKind::AlreadyExists => Error::Transport(TransportError {
+            },
+            io::ErrorKind::AlreadyExists => TransportError {
                 kind: TransportErrorKind::AlreadyOpen,
                 message: err.to_string(),
-            }),
-            io::ErrorKind::TimedOut => Error::Transport(TransportError {
+            },
+            io::ErrorKind::TimedOut => TransportError {
                 kind: TransportErrorKind::TimedOut,
                 message: err.to_string(),
-            }),
-            io::ErrorKind::UnexpectedEof => Error::Transport(TransportError {
+            },
+            io::ErrorKind::UnexpectedEof => TransportError {
                 kind: TransportErrorKind::EndOfFile,
                 message: err.to_string(),
-            }),
+            },
             _ => {
-                Error::Transport(TransportError {
+                TransportError {
                     kind: TransportErrorKind::Unknown,
                     message: err.to_string(), // FIXME: use io error's debug string
-                })
+                }
             }
         }
     }
@@ -64,7 +66,7 @@ impl From<string::FromUtf8Error> for Error {
     fn from(err: string::FromUtf8Error) -> Self {
         Error::Protocol(ProtocolError {
             kind: ProtocolErrorKind::InvalidData,
-            message: err.to_string(), // FIXME: use fmt::Error's debug string
+            message: err.to_string().into(), // FIXME: use fmt::Error's debug string
         })
     }
 }
@@ -150,7 +152,7 @@ impl TryFrom<i32> for TransportErrorKind {
             6 => Ok(TransportErrorKind::SizeLimit),
             _ => Err(Error::Protocol(ProtocolError {
                 kind: ProtocolErrorKind::Unknown,
-                message: format!("cannot convert {} to TransportErrorKind", from),
+                message: format!("cannot convert {} to TransportErrorKind", from).into(),
             })),
         }
     }
@@ -181,6 +183,38 @@ impl ProtocolError {
             kind,
             message: message.into(),
         }
+    }
+}
+
+impl From<ProtocolError> for DecodeError {
+    fn from(value: ProtocolError) -> Self {
+        let kind = match value.kind {
+            ProtocolErrorKind::InvalidData => DecodeErrorKind::InvalidData,
+            ProtocolErrorKind::NegativeSize => DecodeErrorKind::NegativeSize,
+            ProtocolErrorKind::BadVersion => DecodeErrorKind::BadVersion,
+            ProtocolErrorKind::NotImplemented => DecodeErrorKind::NotImplemented,
+            ProtocolErrorKind::DepthLimit => DecodeErrorKind::DepthLimit,
+            _ => unimplemented!(),
+        };
+        DecodeError::new(kind, value.message)
+    }
+}
+
+impl From<ProtocolError> for EncodeError {
+    fn from(value: ProtocolError) -> Self {
+        EncodeError::new(value.kind, value.message)
+    }
+}
+
+impl From<std::io::Error> for DecodeError {
+    fn from(value: std::io::Error) -> Self {
+        DecodeError::new(DecodeErrorKind::IOError(value), "")
+    }
+}
+
+impl From<std::io::Error> for EncodeError {
+    fn from(value: std::io::Error) -> Self {
+        EncodeError::new(ProtocolErrorKind::Unknown, value.to_string())
     }
 }
 
@@ -238,7 +272,7 @@ impl TryFrom<i32> for ProtocolErrorKind {
             6 => Ok(ProtocolErrorKind::DepthLimit),
             _ => Err(ProtocolError {
                 kind: ProtocolErrorKind::Unknown,
-                message: format!("cannot convert {} to ProtocolErrorKind", from),
+                message: format!("cannot convert {} to ProtocolErrorKind", from).into(),
             }),
         }
     }
@@ -246,8 +280,8 @@ impl TryFrom<i32> for ProtocolErrorKind {
 
 /// Create a new `Error` instance of type `Protocol` that wraps a
 /// `ProtocolError`.
-pub fn new_protocol_error<S: Into<String>>(kind: ProtocolErrorKind, message: S) -> Error {
-    Error::Protocol(ProtocolError::new(kind, message))
+pub fn new_protocol_error<S: Into<String>>(kind: ProtocolErrorKind, message: S) -> ProtocolError {
+    ProtocolError::new(kind, message)
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -255,19 +289,103 @@ pub struct DummyError;
 
 #[async_trait::async_trait]
 impl Message for DummyError {
-    fn encode<T: TOutputProtocol>(&self, _protocol: &mut T) -> Result<(), Error> {
+    fn encode<T: TOutputProtocol>(&self, _protocol: &mut T) -> Result<(), EncodeError> {
         panic!()
     }
 
-    fn decode<T: TInputProtocol>(_protocol: &mut T) -> Result<Self, Error> {
+    fn decode<T: TInputProtocol>(_protocol: &mut T) -> Result<Self, DecodeError> {
         panic!()
     }
 
-    async fn decode_async<T: TAsyncInputProtocol>(_protocol: &mut T) -> Result<Self, Error> {
+    async fn decode_async<T: TAsyncInputProtocol>(_protocol: &mut T) -> Result<Self, DecodeError> {
         panic!()
     }
 
     fn size<T: TLengthProtocol>(&self, _protocol: &mut T) -> usize {
         panic!()
+    }
+}
+
+#[derive(Debug)]
+pub struct DecodeError {
+    pub kind: DecodeErrorKind,
+    pub message: String,
+}
+
+impl Display for DecodeError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        writeln!(f, "DecodeError: {}", self.message)?;
+        writeln!(f, ", {}", self.kind)?;
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
+pub enum DecodeErrorKind {
+    InvalidData,
+    NegativeSize,
+    BadVersion,
+    NotImplemented,
+    DepthLimit,
+    UnknownMethod,
+    IOError(std::io::Error),
+    WithContext(Box<DecodeError>),
+}
+
+impl Display for DecodeErrorKind {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            DecodeErrorKind::IOError(e) => write!(f, "IOError: {}", e),
+            DecodeErrorKind::WithContext(e) => write!(f, " {}", e),
+            _ => Ok(()),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct EncodeError {
+    pub kind: ProtocolErrorKind,
+    pub message: FastStr,
+}
+
+impl Display for EncodeError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        writeln!(f, "EncodeError: {}", self.message)?;
+        writeln!(f, ", {}", self.message)?;
+        Ok(())
+    }
+}
+
+pub trait DecodeErrorExt {
+    fn with_msg<S: Into<String>>(self, get_msg: impl FnOnce() -> S) -> Self;
+}
+
+impl<T> DecodeErrorExt for Result<T, DecodeError> {
+    fn with_msg<S: Into<String>>(self, get_msg: impl FnOnce() -> S) -> Self {
+        match self {
+            Ok(v) => Ok(v),
+            Err(e) => Err(DecodeError {
+                kind: DecodeErrorKind::WithContext(Box::new(e)),
+                message: get_msg().into(),
+            }),
+        }
+    }
+}
+
+impl DecodeError {
+    pub fn new<S: Into<String>>(kind: DecodeErrorKind, message: S) -> DecodeError {
+        DecodeError {
+            message: message.into(),
+            kind,
+        }
+    }
+}
+
+impl EncodeError {
+    pub fn new<S: Into<FastStr>>(kind: ProtocolErrorKind, message: S) -> EncodeError {
+        EncodeError {
+            message: message.into(),
+            kind,
+        }
     }
 }

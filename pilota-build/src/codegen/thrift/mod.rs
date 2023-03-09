@@ -104,20 +104,20 @@ impl ThriftBackend {
                 fn encode<T: ::pilota::thrift::TOutputProtocol>(
                     &self,
                     protocol: &mut T,
-                ) -> ::std::result::Result<(),::pilota::thrift::Error> {
+                ) -> ::std::result::Result<(),::pilota::thrift::EncodeError> {
                     use ::pilota::thrift::TOutputProtocolExt;
                     #encode
                 }
 
                 fn decode<T: ::pilota::thrift::TInputProtocol>(
                     protocol: &mut T,
-                ) -> ::std::result::Result<Self,::pilota::thrift::Error>  {
+                ) -> ::std::result::Result<Self,::pilota::thrift::DecodeError>  {
                     #decode
                 }
 
                 async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
                     protocol: &mut T,
-                ) -> ::std::result::Result<Self,::pilota::thrift::Error> {
+                ) -> ::std::result::Result<Self,::pilota::thrift::DecodeError> {
                     #decode_async
                 }
 
@@ -161,23 +161,49 @@ impl ThriftBackend {
             .iter()
             .map(|i| format!("field {} is required", i));
 
+        let read_fields = if helper.is_async {
+            quote! {
+                async {
+                    #read_fields
+                    Ok::<_, ::pilota::thrift::DecodeError>(())
+                }.await
+            }
+        } else {
+            quote! {
+                (|| {
+                    #read_fields
+                    Ok::<_, ::pilota::thrift::DecodeError>(())
+                })()
+            }
+        };
+
         quote! {
             #(let mut #required_field_names = None;)*
             #(let mut #optional_field_names = None;)*
 
+            let mut __pilota_decoding_field_id = None;
+
             #read_struct_begin;
-            #read_fields;
+            if let Err(err) = #read_fields {
+                if let Some(field_id) = __pilota_decoding_field_id {
+                    return Err(::pilota::thrift::DecodeError::new(
+                        ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(err)),
+                        format!("decode field(#{}) failed", field_id),
+                    ));
+                } else {
+                    return Err(err)
+                }
+            };
             #read_struct_end;
+
 
             #(let Some(#required_field_names) = #required_field_names else {
                 return Err(
-                    ::pilota::thrift::Error::Protocol(
-                        ::pilota::thrift::ProtocolError::new(
-                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
-                             #required_errs.to_string()
-                         )
-                     )
-                 )
+                    ::pilota::thrift::DecodeError::new(
+                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                            #required_errs.to_string()
+                    )
+                )
             };)*
 
             let data = Self {
@@ -235,6 +261,7 @@ impl ThriftBackend {
                     break;
                 }
                 let field_id = field_ident.id;
+                __pilota_decoding_field_id = field_id;
                 match field_id {
                     #(#match_fields)*
                     _ => {
@@ -314,8 +341,8 @@ impl CodegenBackend for ThriftBackend {
                     quote! {
                         let value = #read_i32;
                         Ok(Self::try_from(value).map_err(|err|
-                            ::pilota::thrift::new_protocol_error(
-                                ::pilota::thrift::ProtocolErrorKind::InvalidData,
+                            ::pilota::thrift::DecodeError::new(
+                                ::pilota::thrift::DecodeErrorKind::InvalidData,
                                 format!(#err_msg_tmpl, value)
                             ))?)
                     }
@@ -385,8 +412,8 @@ impl CodegenBackend for ThriftBackend {
                                     if ret.is_none() {
                                         ret = Some(#name::#variant_name(#decode));
                                     } else {
-                                        return Err(::pilota::thrift::new_protocol_error(
-                                            ::pilota::thrift::ProtocolErrorKind::InvalidData,
+                                        return Err(::pilota::thrift::DecodeError::new(
+                                            ::pilota::thrift::DecodeErrorKind::InvalidData,
                                             "received multiple fields for union from remote Message"
                                         ));
                                     }
@@ -414,8 +441,8 @@ impl CodegenBackend for ThriftBackend {
                             if let Some(ret) = ret {
                                 Ok(ret)
                             } else {
-                                Err(::pilota::thrift::new_protocol_error(
-                                    ::pilota::thrift::ProtocolErrorKind::InvalidData,
+                                Err(::pilota::thrift::DecodeError::new(
+                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
                                     "received empty union from remote Message")
                                 )
                             }

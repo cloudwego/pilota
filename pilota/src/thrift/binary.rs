@@ -7,12 +7,13 @@ use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
-    error::{Error, ProtocolErrorKind},
+    error::ProtocolErrorKind,
     new_protocol_error,
     rw_ext::{ReadExt, WriteExt},
-    TAsyncInputProtocol, TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier,
-    TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier,
-    TStructIdentifier, TType, INLINE_CAP, ZERO_COPY_THRESHOLD,
+    DecodeError, DecodeErrorKind, EncodeError, ProtocolError, TAsyncInputProtocol,
+    TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
+    TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
+    INLINE_CAP, ZERO_COPY_THRESHOLD,
 };
 
 static VERSION_1: u32 = 0x80010000;
@@ -39,7 +40,7 @@ impl<T> TBinaryProtocol<T> {
 }
 
 #[inline]
-fn field_type_from_u8(ttype: u8) -> Result<TType, Error> {
+fn field_type_from_u8(ttype: u8) -> Result<TType, ProtocolError> {
     let ttype: TType = ttype.try_into().map_err(|_| {
         new_protocol_error(
             ProtocolErrorKind::InvalidData,
@@ -196,7 +197,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     type BufMut = BytesMut;
 
     #[inline]
-    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), Error> {
+    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), EncodeError> {
         let msg_type_u8: u8 = identifier.message_type.into();
         let version = (VERSION_1 | msg_type_u8 as u32) as i32;
         self.write_i32(version)?;
@@ -206,22 +207,22 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_message_end(&mut self) -> Result<(), Error> {
+    fn write_message_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_struct_begin(&mut self, _: &TStructIdentifier) -> Result<(), Error> {
+    fn write_struct_begin(&mut self, _: &TStructIdentifier) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_struct_end(&mut self) -> Result<(), Error> {
+    fn write_struct_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), Error> {
+    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), EncodeError> {
         let mut data: [u8; 3] = [0; 3];
         data[0] = field_type as u8;
         let id = id.to_be_bytes();
@@ -232,17 +233,17 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_field_end(&mut self) -> Result<(), Error> {
+    fn write_field_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_field_stop(&mut self) -> Result<(), Error> {
+    fn write_field_stop(&mut self) -> Result<(), EncodeError> {
         self.write_byte(TType::Stop as u8)
     }
 
     #[inline]
-    fn write_bool(&mut self, b: bool) -> Result<(), Error> {
+    fn write_bool(&mut self, b: bool) -> Result<(), EncodeError> {
         if b {
             self.write_i8(1)
         } else {
@@ -251,92 +252,92 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_bytes(&mut self, b: Bytes) -> Result<(), Error> {
+    fn write_bytes(&mut self, b: Bytes) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
         self.trans.write_slice(&b)?;
         Ok(())
     }
 
     #[inline]
-    fn write_byte(&mut self, b: u8) -> Result<(), Error> {
+    fn write_byte(&mut self, b: u8) -> Result<(), EncodeError> {
         self.trans.write_u8(b)?;
         Ok(())
     }
 
     #[inline]
-    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), Error> {
+    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError> {
         self.trans.write_slice(&u)?;
         Ok(())
     }
 
     #[inline]
-    fn write_i8(&mut self, i: i8) -> Result<(), Error> {
+    fn write_i8(&mut self, i: i8) -> Result<(), EncodeError> {
         self.trans.write_i8(i)?;
         Ok(())
     }
 
     #[inline]
-    fn write_i16(&mut self, i: i16) -> Result<(), Error> {
+    fn write_i16(&mut self, i: i16) -> Result<(), EncodeError> {
         self.trans.write_i16(i)?;
         Ok(())
     }
 
     #[inline]
-    fn write_i32(&mut self, i: i32) -> Result<(), Error> {
+    fn write_i32(&mut self, i: i32) -> Result<(), EncodeError> {
         self.trans.write_i32(i)?;
         Ok(())
     }
 
     #[inline]
-    fn write_i64(&mut self, i: i64) -> Result<(), Error> {
+    fn write_i64(&mut self, i: i64) -> Result<(), EncodeError> {
         self.trans.write_i64(i)?;
         Ok(())
     }
 
     #[inline]
-    fn write_double(&mut self, d: f64) -> Result<(), Error> {
+    fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
         self.trans.write_f64(d)?;
         Ok(())
     }
 
     #[inline]
-    fn write_string(&mut self, s: &str) -> Result<(), Error> {
+    fn write_string(&mut self, s: &str) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
         self.trans.write_slice(s.as_bytes())?;
         Ok(())
     }
 
     #[inline]
-    fn write_faststr(&mut self, s: FastStr) -> Result<(), Error> {
+    fn write_faststr(&mut self, s: FastStr) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
         self.trans.write_slice(s.as_ref())?;
         Ok(())
     }
 
     #[inline]
-    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), Error> {
+    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), EncodeError> {
         self.write_byte(identifier.element_type.into())?;
         self.write_i32(identifier.size as i32)
     }
 
     #[inline]
-    fn write_list_end(&mut self) -> Result<(), Error> {
+    fn write_list_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), Error> {
+    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), EncodeError> {
         self.write_byte(identifier.element_type.into())?;
         self.write_i32(identifier.size as i32)
     }
 
     #[inline]
-    fn write_set_end(&mut self) -> Result<(), Error> {
+    fn write_set_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), Error> {
+    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), EncodeError> {
         let key_type = identifier.key_type;
         self.write_byte(key_type.into())?;
         let val_type = identifier.value_type;
@@ -345,12 +346,12 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_map_end(&mut self) -> Result<(), Error> {
+    fn write_map_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn flush(&mut self) -> Result<(), Error> {
+    fn flush(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
@@ -365,7 +366,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), Error> {
+    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
         self.trans.write_slice(b)?;
         Ok(())
@@ -376,7 +377,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     type BufMut = LinkedBytes;
 
     #[inline]
-    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), Error> {
+    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), EncodeError> {
         let msg_type_u8: u8 = identifier.message_type.into();
         let version = (VERSION_1 | msg_type_u8 as u32) as i32;
         self.write_i32(version)?;
@@ -386,22 +387,22 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_message_end(&mut self) -> Result<(), Error> {
+    fn write_message_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_struct_begin(&mut self, _: &TStructIdentifier) -> Result<(), Error> {
+    fn write_struct_begin(&mut self, _: &TStructIdentifier) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_struct_end(&mut self) -> Result<(), Error> {
+    fn write_struct_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), Error> {
+    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), EncodeError> {
         let mut data: [u8; 3] = [0; 3];
         data[0] = field_type as u8;
         let id = id.to_be_bytes();
@@ -412,17 +413,17 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_field_end(&mut self) -> Result<(), Error> {
+    fn write_field_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_field_stop(&mut self) -> Result<(), Error> {
+    fn write_field_stop(&mut self) -> Result<(), EncodeError> {
         self.write_byte(TType::Stop as u8)
     }
 
     #[inline]
-    fn write_bool(&mut self, b: bool) -> Result<(), Error> {
+    fn write_bool(&mut self, b: bool) -> Result<(), EncodeError> {
         if b {
             self.write_i8(1)
         } else {
@@ -431,7 +432,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_bytes(&mut self, b: Bytes) -> Result<(), Error> {
+    fn write_bytes(&mut self, b: Bytes) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
         if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
             self.trans.insert(b);
@@ -442,55 +443,55 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_byte(&mut self, b: u8) -> Result<(), Error> {
+    fn write_byte(&mut self, b: u8) -> Result<(), EncodeError> {
         self.trans.bytes_mut().write_u8(b)?;
         Ok(())
     }
 
     #[inline]
-    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), Error> {
+    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError> {
         self.trans.bytes_mut().write_slice(&u)?;
         Ok(())
     }
 
     #[inline]
-    fn write_i8(&mut self, i: i8) -> Result<(), Error> {
+    fn write_i8(&mut self, i: i8) -> Result<(), EncodeError> {
         self.trans.bytes_mut().write_i8(i)?;
         Ok(())
     }
 
     #[inline]
-    fn write_i16(&mut self, i: i16) -> Result<(), Error> {
+    fn write_i16(&mut self, i: i16) -> Result<(), EncodeError> {
         self.trans.bytes_mut().write_i16(i)?;
         Ok(())
     }
 
     #[inline]
-    fn write_i32(&mut self, i: i32) -> Result<(), Error> {
+    fn write_i32(&mut self, i: i32) -> Result<(), EncodeError> {
         self.trans.bytes_mut().write_i32(i)?;
         Ok(())
     }
 
     #[inline]
-    fn write_i64(&mut self, i: i64) -> Result<(), Error> {
+    fn write_i64(&mut self, i: i64) -> Result<(), EncodeError> {
         self.trans.bytes_mut().write_i64(i)?;
         Ok(())
     }
 
     #[inline]
-    fn write_double(&mut self, d: f64) -> Result<(), Error> {
+    fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
         self.trans.bytes_mut().write_f64(d)?;
         Ok(())
     }
 
     #[inline]
-    fn write_string(&mut self, s: &str) -> Result<(), Error> {
+    fn write_string(&mut self, s: &str) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
         self.trans.bytes_mut().write_slice(s.as_bytes())?;
         Ok(())
     }
     #[inline]
-    fn write_faststr(&mut self, s: FastStr) -> Result<(), Error> {
+    fn write_faststr(&mut self, s: FastStr) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
         if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
             self.trans.insert_faststr(s);
@@ -501,29 +502,29 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), Error> {
+    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), EncodeError> {
         self.write_byte(identifier.element_type.into())?;
         self.write_i32(identifier.size as i32)
     }
 
     #[inline]
-    fn write_list_end(&mut self) -> Result<(), Error> {
+    fn write_list_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), Error> {
+    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), EncodeError> {
         self.write_byte(identifier.element_type.into())?;
         self.write_i32(identifier.size as i32)
     }
 
     #[inline]
-    fn write_set_end(&mut self) -> Result<(), Error> {
+    fn write_set_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), Error> {
+    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), EncodeError> {
         let key_type = identifier.key_type;
         self.write_byte(key_type.into())?;
         let val_type = identifier.value_type;
@@ -532,12 +533,12 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_map_end(&mut self) -> Result<(), Error> {
+    fn write_map_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn flush(&mut self) -> Result<(), Error> {
+    fn flush(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
@@ -552,7 +553,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), Error> {
+    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
         self.trans.bytes_mut().write_slice(b)?;
         Ok(())
@@ -569,27 +570,28 @@ where
     R: AsyncRead + Unpin + Send,
 {
     // https://github.com/apache/thrift/blob/master/doc/specs/thrift-binary-protocol.md
-    async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, Error> {
+    async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
         let size = self.reader.read_i32().await?;
         if size > 0 {
-            return Err(new_protocol_error(
-                ProtocolErrorKind::BadVersion,
+            return Err(DecodeError::new(
+                DecodeErrorKind::BadVersion,
                 "Missing version in ReadMessageBegin".to_string(),
             ));
         }
+
         let type_u8 = (size & 0xf) as u8;
 
         let message_type = TMessageType::try_from(type_u8).map_err(|_| {
-            new_protocol_error(
-                ProtocolErrorKind::InvalidData,
+            DecodeError::new(
+                DecodeErrorKind::InvalidData,
                 format!("invalid message type {}", type_u8),
             )
         })?;
 
         let version = size & (VERSION_MASK as i32);
         if version != (VERSION_1 as i32) {
-            return Err(new_protocol_error(
-                ProtocolErrorKind::BadVersion,
+            return Err(DecodeError::new(
+                DecodeErrorKind::BadVersion,
                 "Bad version in ReadMessageBegin",
             ));
         }
@@ -601,26 +603,26 @@ where
     }
 
     #[inline]
-    async fn read_message_end(&mut self) -> Result<(), Error> {
+    async fn read_message_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    async fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, Error> {
+    async fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, DecodeError> {
         Ok(None)
     }
 
     #[inline]
-    async fn read_struct_end(&mut self) -> Result<(), Error> {
+    async fn read_struct_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    async fn read_field_begin(&mut self) -> Result<TFieldIdentifier, Error> {
+    async fn read_field_begin(&mut self) -> Result<TFieldIdentifier, DecodeError> {
         let field_type_byte = self.read_byte().await?;
         let field_type = field_type_byte.try_into().map_err(|_| {
-            new_protocol_error(
-                ProtocolErrorKind::InvalidData,
+            DecodeError::new(
+                DecodeErrorKind::InvalidData,
                 format!("invalid ttype {}", field_type_byte),
             )
         })?;
@@ -634,12 +636,12 @@ where
     }
 
     #[inline]
-    async fn read_field_end(&mut self) -> Result<(), Error> {
+    async fn read_field_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    async fn read_bool(&mut self) -> Result<bool, Error> {
+    async fn read_bool(&mut self) -> Result<bool, DecodeError> {
         let b = self.read_i8().await?;
         match b {
             0 => Ok(false),
@@ -648,12 +650,12 @@ where
     }
 
     #[inline]
-    async fn read_bytes(&mut self) -> Result<Bytes, Error> {
+    async fn read_bytes(&mut self) -> Result<Bytes, DecodeError> {
         self.read_bytes_vec().await.map(Bytes::from)
     }
 
     #[inline]
-    async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, Error> {
+    async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError> {
         let len = self.reader.read_i32().await? as usize;
         // FIXME: use maybe_uninit?
         let mut v = vec![0; len];
@@ -662,14 +664,14 @@ where
     }
 
     #[inline]
-    async fn read_uuid(&mut self) -> Result<[u8; 16], Error> {
+    async fn read_uuid(&mut self) -> Result<[u8; 16], DecodeError> {
         let mut uuid = [0; 16];
         self.reader.read_exact(&mut uuid).await?;
         Ok(uuid)
     }
 
     #[inline]
-    async fn read_string(&mut self) -> Result<String, Error> {
+    async fn read_string(&mut self) -> Result<String, DecodeError> {
         let len = self.reader.read_i32().await? as usize;
         // FIXME: use maybe_uninit?
         let mut v = vec![0; len];
@@ -678,74 +680,86 @@ where
     }
 
     #[inline]
-    async fn read_faststr(&mut self) -> Result<FastStr, Error> {
+    async fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
         self.read_string().await.map(FastStr::from_string)
     }
 
     #[inline]
-    async fn read_byte(&mut self) -> Result<u8, Error> {
+    async fn read_byte(&mut self) -> Result<u8, DecodeError> {
         Ok(self.reader.read_u8().await?)
     }
 
     #[inline]
-    async fn read_i8(&mut self) -> Result<i8, Error> {
+    async fn read_i8(&mut self) -> Result<i8, DecodeError> {
         Ok(self.reader.read_i8().await?)
     }
 
     #[inline]
-    async fn read_i16(&mut self) -> Result<i16, Error> {
+    async fn read_i16(&mut self) -> Result<i16, DecodeError> {
         Ok(self.reader.read_i16().await?)
     }
 
     #[inline]
-    async fn read_i32(&mut self) -> Result<i32, Error> {
+    async fn read_i32(&mut self) -> Result<i32, DecodeError> {
         Ok(self.reader.read_i32().await?)
     }
 
     #[inline]
-    async fn read_i64(&mut self) -> Result<i64, Error> {
+    async fn read_i64(&mut self) -> Result<i64, DecodeError> {
         Ok(self.reader.read_i64().await?)
     }
 
     #[inline]
-    async fn read_double(&mut self) -> Result<f64, Error> {
+    async fn read_double(&mut self) -> Result<f64, DecodeError> {
         Ok(self.reader.read_f64().await?)
     }
 
     #[inline]
-    async fn read_list_begin(&mut self) -> Result<TListIdentifier, Error> {
-        let element_type: TType = self.read_byte().await.and_then(field_type_from_u8)?;
+    async fn read_list_begin(&mut self) -> Result<TListIdentifier, DecodeError> {
+        let element_type: TType = self
+            .read_byte()
+            .await
+            .and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32().await?;
         Ok(TListIdentifier::new(element_type, size as usize))
     }
 
     #[inline]
-    async fn read_list_end(&mut self) -> Result<(), Error> {
+    async fn read_list_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    async fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error> {
-        let element_type: TType = self.read_byte().await.and_then(field_type_from_u8)?;
+    async fn read_set_begin(&mut self) -> Result<TSetIdentifier, DecodeError> {
+        let element_type: TType = self
+            .read_byte()
+            .await
+            .and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32().await?;
         Ok(TSetIdentifier::new(element_type, size as usize))
     }
 
     #[inline]
-    async fn read_set_end(&mut self) -> Result<(), Error> {
+    async fn read_set_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    async fn read_map_begin(&mut self) -> Result<TMapIdentifier, Error> {
-        let key_type: TType = self.read_byte().await.and_then(field_type_from_u8)?;
-        let value_type: TType = self.read_byte().await.and_then(field_type_from_u8)?;
+    async fn read_map_begin(&mut self) -> Result<TMapIdentifier, DecodeError> {
+        let key_type: TType = self
+            .read_byte()
+            .await
+            .and_then(|n| Ok(field_type_from_u8(n)?))?;
+        let value_type: TType = self
+            .read_byte()
+            .await
+            .and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32().await?;
         Ok(TMapIdentifier::new(key_type, value_type, size as usize))
     }
 
     #[inline]
-    async fn read_map_end(&mut self) -> Result<(), Error> {
+    async fn read_map_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 }
@@ -762,28 +776,28 @@ where
 impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     type Buf = BytesMut;
 
-    fn read_message_begin(&mut self) -> Result<TMessageIdentifier, Error> {
+    fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
         let size = self.trans.read_i32()?;
 
         if size > 0 {
-            return Err(new_protocol_error(
-                ProtocolErrorKind::BadVersion,
+            return Err(DecodeError::new(
+                DecodeErrorKind::BadVersion,
                 "Missing version in ReadMessageBegin".to_string(),
             ));
         }
         let type_u8 = (size & 0xf) as u8;
 
         let message_type = TMessageType::try_from(type_u8).map_err(|_| {
-            new_protocol_error(
-                ProtocolErrorKind::InvalidData,
+            DecodeError::new(
+                DecodeErrorKind::InvalidData,
                 format!("invalid message type {}", type_u8),
             )
         })?;
 
         let version = size & (VERSION_MASK as i32);
         if version != (VERSION_1 as i32) {
-            return Err(new_protocol_error(
-                ProtocolErrorKind::BadVersion,
+            return Err(DecodeError::new(
+                DecodeErrorKind::BadVersion,
                 "Bad version in ReadMessageBegin",
             ));
         }
@@ -795,26 +809,26 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn read_message_end(&mut self) -> Result<(), Error> {
+    fn read_message_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, Error> {
+    fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, DecodeError> {
         Ok(None)
     }
 
     #[inline]
-    fn read_struct_end(&mut self) -> Result<(), Error> {
+    fn read_struct_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    fn read_field_begin(&mut self) -> Result<TFieldIdentifier, Error> {
+    fn read_field_begin(&mut self) -> Result<TFieldIdentifier, DecodeError> {
         let field_type_byte = self.read_byte()?;
         let field_type = field_type_byte.try_into().map_err(|_| {
-            new_protocol_error(
-                ProtocolErrorKind::InvalidData,
+            DecodeError::new(
+                DecodeErrorKind::InvalidData,
                 format!("invalid ttype {}", field_type_byte),
             )
         })?;
@@ -828,12 +842,12 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn read_field_end(&mut self) -> Result<(), Error> {
+    fn read_field_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    fn read_bool(&mut self) -> Result<bool, Error> {
+    fn read_bool(&mut self) -> Result<bool, DecodeError> {
         let b = self.read_i8()?;
         match b {
             0 => Ok(false),
@@ -842,52 +856,52 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn read_bytes(&mut self) -> Result<Bytes, Error> {
+    fn read_bytes(&mut self) -> Result<Bytes, DecodeError> {
         let len = self.trans.read_i32()?;
         // split and freeze it
         Ok(self.trans.split_to(len as usize).freeze())
     }
 
     #[inline]
-    fn read_uuid(&mut self) -> Result<[u8; 16], Error> {
+    fn read_uuid(&mut self) -> Result<[u8; 16], DecodeError> {
         let mut u = [0; 16];
         self.trans.read_to_slice(&mut u)?;
         Ok(u)
     }
 
     #[inline]
-    fn read_i8(&mut self) -> Result<i8, Error> {
+    fn read_i8(&mut self) -> Result<i8, DecodeError> {
         Ok(self.trans.read_i8()?)
     }
 
     #[inline]
-    fn read_i16(&mut self) -> Result<i16, Error> {
+    fn read_i16(&mut self) -> Result<i16, DecodeError> {
         Ok(self.trans.read_i16()?)
     }
 
     #[inline]
-    fn read_i32(&mut self) -> Result<i32, Error> {
+    fn read_i32(&mut self) -> Result<i32, DecodeError> {
         Ok(self.trans.read_i32()?)
     }
 
     #[inline]
-    fn read_i64(&mut self) -> Result<i64, Error> {
+    fn read_i64(&mut self) -> Result<i64, DecodeError> {
         Ok(self.trans.read_i64()?)
     }
 
     #[inline]
-    fn read_double(&mut self) -> Result<f64, Error> {
+    fn read_double(&mut self) -> Result<f64, DecodeError> {
         Ok(self.trans.read_f64()?)
     }
 
     #[inline]
-    fn read_string(&mut self) -> Result<String, Error> {
+    fn read_string(&mut self) -> Result<String, DecodeError> {
         let len = self.trans.read_i32()?;
         Ok(self.trans.read_to_string(len as usize)?)
     }
 
     #[inline]
-    fn read_faststr(&mut self) -> Result<FastStr, Error> {
+    fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
         let len = self.trans.read_i32()? as usize;
         let bytes = self.trans.split_to(len).freeze();
         if len > INLINE_CAP {
@@ -897,44 +911,44 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn read_list_begin(&mut self) -> Result<TListIdentifier, Error> {
-        let element_type: TType = self.read_byte().and_then(field_type_from_u8)?;
+    fn read_list_begin(&mut self) -> Result<TListIdentifier, DecodeError> {
+        let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32()?;
         Ok(TListIdentifier::new(element_type, size as usize))
     }
 
     #[inline]
-    fn read_list_end(&mut self) -> Result<(), Error> {
+    fn read_list_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error> {
-        let element_type: TType = self.read_byte().and_then(field_type_from_u8)?;
+    fn read_set_begin(&mut self) -> Result<TSetIdentifier, DecodeError> {
+        let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32()?;
         Ok(TSetIdentifier::new(element_type, size as usize))
     }
 
     #[inline]
-    fn read_set_end(&mut self) -> Result<(), Error> {
+    fn read_set_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    fn read_map_begin(&mut self) -> Result<TMapIdentifier, Error> {
-        let key_type: TType = self.read_byte().and_then(field_type_from_u8)?;
-        let value_type: TType = self.read_byte().and_then(field_type_from_u8)?;
+    fn read_map_begin(&mut self) -> Result<TMapIdentifier, DecodeError> {
+        let key_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
+        let value_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32()?;
         Ok(TMapIdentifier::new(key_type, value_type, size as usize))
     }
 
     #[inline]
-    fn read_map_end(&mut self) -> Result<(), Error> {
+    fn read_map_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    fn read_byte(&mut self) -> Result<u8, Error> {
+    fn read_byte(&mut self) -> Result<u8, DecodeError> {
         Ok(self.trans.read_u8()?)
     }
 
@@ -944,7 +958,7 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn read_bytes_vec(&mut self) -> Result<Vec<u8>, Error> {
+    fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError> {
         let len = self.trans.read_i32()? as usize;
         Ok(self.trans.split_to(len).into())
     }

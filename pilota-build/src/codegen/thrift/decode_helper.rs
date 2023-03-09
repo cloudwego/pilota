@@ -3,7 +3,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 pub struct DecodeHelper {
-    is_async: bool,
+    pub is_async: bool,
 }
 
 impl DecodeHelper {
