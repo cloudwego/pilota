@@ -675,11 +675,11 @@ pub mod int32 {
     }
 
     #[inline]
-    pub fn encoded_len_repeated(tag: u32, values: &[i32]) -> usize {
+    pub fn encoded_len_repeated<V: Into<i32> + Copy>(tag: u32, values: &[V]) -> usize {
         key_len(tag) * values.len()
             + values
                 .iter()
-                .map(|value| encoded_len_varint(*value as u64))
+                .map(|value| encoded_len_varint((*value).into() as u64))
                 .sum::<usize>()
     }
 
