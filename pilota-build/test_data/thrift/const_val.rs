@@ -36,29 +36,29 @@ pub mod const_val {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+            ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
                 use ::pilota::thrift::TOutputProtocolExt;
                 protocol.write_i32(*self as i32)?;
                 Ok(())
             }
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
+            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
                 let value = protocol.read_i32()?;
                 Ok(Self::try_from(value).map_err(|err| {
-                    ::pilota::thrift::new_protocol_error(
-                        ::pilota::thrift::ProtocolErrorKind::InvalidData,
+                    ::pilota::thrift::DecodeError::new(
+                        ::pilota::thrift::DecodeErrorKind::InvalidData,
                         format!("invalid enum value for Index, value: {}", value),
                     )
                 })?)
             }
             async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
                 protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
+            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
                 let value = protocol.read_i32().await?;
                 Ok(Self::try_from(value).map_err(|err| {
-                    ::pilota::thrift::new_protocol_error(
-                        ::pilota::thrift::ProtocolErrorKind::InvalidData,
+                    ::pilota::thrift::DecodeError::new(
+                        ::pilota::thrift::DecodeErrorKind::InvalidData,
                         format!("invalid enum value for Index, value: {}", value),
                     )
                 })?)

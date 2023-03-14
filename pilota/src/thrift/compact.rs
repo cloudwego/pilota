@@ -12,13 +12,14 @@ use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
-    error::{Error, ProtocolErrorKind},
+    error::ProtocolErrorKind,
     new_protocol_error,
     rw_ext::{ReadExt, WriteExt},
     varint_ext::VarIntProcessor,
-    TAsyncInputProtocol, TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier,
-    TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier,
-    TStructIdentifier, TType, INLINE_CAP, ZERO_COPY_THRESHOLD,
+    DecodeError, DecodeErrorKind, EncodeError, ProtocolError, TAsyncInputProtocol,
+    TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
+    TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
+    INLINE_CAP, ZERO_COPY_THRESHOLD,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -44,7 +45,7 @@ const COMPACT_BOOLEAN_TRUE: u8 = TCompactType::BooleanTrue as u8;
 const COMPACT_BOOLEAN_FALSE: u8 = TCompactType::BooleanFalse as u8;
 
 impl TryFrom<u8> for TCompactType {
-    type Error = Error;
+    type Error = ProtocolError;
     #[inline]
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
@@ -71,7 +72,7 @@ impl TryFrom<u8> for TCompactType {
 }
 
 impl TryFrom<TType> for TCompactType {
-    type Error = Error;
+    type Error = ProtocolError;
     #[inline]
     fn try_from(value: TType) -> Result<Self, Self::Error> {
         match value {
@@ -97,7 +98,7 @@ impl TryFrom<TType> for TCompactType {
 }
 
 impl TryFrom<TCompactType> for TType {
-    type Error = Error;
+    type Error = ProtocolError;
     #[inline]
     fn try_from(value: TCompactType) -> Result<Self, Self::Error> {
         match value {
@@ -125,7 +126,7 @@ const COMPACT_TYPE_MASK: u8 = 0x0E0;
 const COMPACT_TYPE_SHIFT_AMOUNT: u8 = 5;
 
 #[inline]
-fn tcompact_get_ttype(ct: TCompactType) -> Result<TType, Error> {
+fn tcompact_get_ttype(ct: TCompactType) -> Result<TType, ProtocolError> {
     ct.try_into().map_err(|_| {
         new_protocol_error(
             ProtocolErrorKind::InvalidData,
@@ -135,7 +136,7 @@ fn tcompact_get_ttype(ct: TCompactType) -> Result<TType, Error> {
 }
 
 #[inline]
-fn tcompact_get_compact(tt: TType) -> Result<TCompactType, Error> {
+fn tcompact_get_compact(tt: TType) -> Result<TCompactType, ProtocolError> {
     tt.try_into().map_err(|_| {
         new_protocol_error(
             ProtocolErrorKind::InvalidData,
@@ -220,8 +221,8 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
             .write_field_id_stack
             .pop()
             .ok_or_else(|| {
-                new_protocol_error(
-                    ProtocolErrorKind::InvalidData,
+                DecodeError::new(
+                    super::DecodeErrorKind::InvalidData,
                     "WriteStructEndLen called without matching WriteStructBeginLen",
                 )
             })
@@ -410,7 +411,7 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
 
 impl TCompactOutputProtocol<&mut BytesMut> {
     #[inline]
-    fn write_varint<VI: VarInt>(&mut self, n: VI) -> Result<(), Error> {
+    fn write_varint<VI: VarInt>(&mut self, n: VI) -> Result<(), EncodeError> {
         let mut buf = [0u8; 10];
         let size = n.encode_var(&mut buf);
         self.trans.write_slice(&buf[0..size])?;
@@ -418,7 +419,7 @@ impl TCompactOutputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_field_header(&mut self, field_type: TCompactType, id: i16) -> Result<(), Error> {
+    fn write_field_header(&mut self, field_type: TCompactType, id: i16) -> Result<(), EncodeError> {
         let field_delta = id - self.last_write_field_id;
         if field_delta > 0 && field_delta < 15 {
             self.write_byte(((field_delta as u8) << 4) | (field_type as u8))?;
@@ -431,7 +432,11 @@ impl TCompactOutputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_collection_begin(&mut self, element_type: TType, size: usize) -> Result<(), Error> {
+    fn write_collection_begin(
+        &mut self,
+        element_type: TType,
+        size: usize,
+    ) -> Result<(), EncodeError> {
         if size <= 14 {
             self.write_byte(
                 ((size as i32) << 4) as u8 | (tcompact_get_compact(element_type)? as u8),
@@ -448,7 +453,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     type BufMut = BytesMut;
 
     #[inline]
-    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), Error> {
+    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), EncodeError> {
         let mtype = identifier.message_type as u8;
         self.trans.write_slice(&[
             COMPACT_PROTOCOL_ID,
@@ -461,22 +466,22 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         Ok(())
     }
     #[inline]
-    fn write_message_end(&mut self) -> Result<(), Error> {
+    fn write_message_end(&mut self) -> Result<(), EncodeError> {
         self.assert_no_pending_bool_write();
         Ok(())
     }
 
     #[inline]
-    fn write_struct_begin(&mut self, _identifier: &TStructIdentifier) -> Result<(), Error> {
+    fn write_struct_begin(&mut self, _identifier: &TStructIdentifier) -> Result<(), EncodeError> {
         self.write_field_id_stack.push(self.last_write_field_id);
         self.last_write_field_id = 0;
         Ok(())
     }
     #[inline]
-    fn write_struct_end(&mut self) -> Result<(), Error> {
+    fn write_struct_end(&mut self) -> Result<(), EncodeError> {
         self.assert_no_pending_bool_write();
         self.last_write_field_id = self.write_field_id_stack.pop().ok_or_else(|| {
-            new_protocol_error(
+            EncodeError::new(
                 ProtocolErrorKind::InvalidData,
                 "WriteStructEnd called without matching WriteStructBegin",
             )
@@ -485,7 +490,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), Error> {
+    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), EncodeError> {
         match field_type {
             TType::Bool => {
                 if self.pending_write_bool_field_identifier.is_some() {
@@ -509,19 +514,19 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         }
     }
     #[inline]
-    fn write_field_end(&mut self) -> Result<(), Error> {
+    fn write_field_end(&mut self) -> Result<(), EncodeError> {
         self.assert_no_pending_bool_write();
         Ok(())
     }
     #[inline]
-    fn write_field_stop(&mut self) -> Result<(), Error> {
+    fn write_field_stop(&mut self) -> Result<(), EncodeError> {
         self.assert_no_pending_bool_write();
         self.write_byte(TType::Stop as u8)?;
         Ok(())
     }
 
     #[inline]
-    fn write_bool(&mut self, b: bool) -> Result<(), Error> {
+    fn write_bool(&mut self, b: bool) -> Result<(), EncodeError> {
         match self.pending_write_bool_field_identifier.take() {
             Some(pending) => {
                 let field_id = pending.id.expect("bool field should have a field id");
@@ -542,7 +547,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         }
     }
     #[inline]
-    fn write_bytes(&mut self, b: Bytes) -> Result<(), Error> {
+    fn write_bytes(&mut self, b: Bytes) -> Result<(), EncodeError> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(b.len() as u32)?;
@@ -550,45 +555,45 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         Ok(())
     }
     #[inline]
-    fn write_byte(&mut self, b: u8) -> Result<(), Error> {
+    fn write_byte(&mut self, b: u8) -> Result<(), EncodeError> {
         self.trans.write_u8(b)?;
         Ok(())
     }
 
     #[inline]
-    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), Error> {
+    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError> {
         self.trans.write_slice(&u)?;
         Ok(())
     }
 
     #[inline]
-    fn write_i8(&mut self, i: i8) -> Result<(), Error> {
+    fn write_i8(&mut self, i: i8) -> Result<(), EncodeError> {
         self.trans.write_i8(i)?;
         Ok(())
     }
     #[inline]
-    fn write_i16(&mut self, i: i16) -> Result<(), Error> {
+    fn write_i16(&mut self, i: i16) -> Result<(), EncodeError> {
         self.write_varint(i)?;
         Ok(())
     }
     #[inline]
-    fn write_i32(&mut self, i: i32) -> Result<(), Error> {
+    fn write_i32(&mut self, i: i32) -> Result<(), EncodeError> {
         self.write_varint(i)?;
         Ok(())
     }
     #[inline]
-    fn write_i64(&mut self, i: i64) -> Result<(), Error> {
+    fn write_i64(&mut self, i: i64) -> Result<(), EncodeError> {
         self.write_varint(i)?;
         Ok(())
     }
     #[inline]
-    fn write_double(&mut self, d: f64) -> Result<(), Error> {
+    fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
         self.trans.write_f64(d)?;
         Ok(())
     }
 
     #[inline]
-    fn write_string(&mut self, s: &str) -> Result<(), Error> {
+    fn write_string(&mut self, s: &str) -> Result<(), EncodeError> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(s.len() as u32)?;
@@ -597,7 +602,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_faststr(&mut self, s: FastStr) -> Result<(), Error> {
+    fn write_faststr(&mut self, s: FastStr) -> Result<(), EncodeError> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(s.len() as u32)?;
@@ -606,27 +611,27 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), Error> {
+    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), EncodeError> {
         self.write_collection_begin(identifier.element_type, identifier.size)?;
         Ok(())
     }
     #[inline]
-    fn write_list_end(&mut self) -> Result<(), Error> {
+    fn write_list_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), Error> {
+    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), EncodeError> {
         self.write_collection_begin(identifier.element_type, identifier.size)?;
         Ok(())
     }
     #[inline]
-    fn write_set_end(&mut self) -> Result<(), Error> {
+    fn write_set_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), Error> {
+    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), EncodeError> {
         if identifier.size == 0 {
             self.write_byte(TType::Stop as u8)?;
         } else {
@@ -641,12 +646,12 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         Ok(())
     }
     #[inline]
-    fn write_map_end(&mut self) -> Result<(), Error> {
+    fn write_map_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn flush(&mut self) -> Result<(), Error> {
+    fn flush(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
@@ -661,7 +666,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), Error> {
+    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(b.len() as u32)?;
@@ -672,7 +677,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
 
 impl TCompactOutputProtocol<&mut LinkedBytes> {
     #[inline]
-    fn write_varint<VI: VarInt>(&mut self, n: VI) -> Result<(), Error> {
+    fn write_varint<VI: VarInt>(&mut self, n: VI) -> Result<(), EncodeError> {
         let mut buf = [0u8; 10];
         let size = n.encode_var(&mut buf);
         self.trans.bytes_mut().write_slice(&buf[0..size])?;
@@ -680,7 +685,7 @@ impl TCompactOutputProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_field_header(&mut self, field_type: TCompactType, id: i16) -> Result<(), Error> {
+    fn write_field_header(&mut self, field_type: TCompactType, id: i16) -> Result<(), EncodeError> {
         let field_delta = id - self.last_write_field_id;
         if field_delta > 0 && field_delta < 15 {
             self.write_byte(((field_delta as u8) << 4) | (field_type as u8))?;
@@ -693,7 +698,11 @@ impl TCompactOutputProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_collection_begin(&mut self, element_type: TType, size: usize) -> Result<(), Error> {
+    fn write_collection_begin(
+        &mut self,
+        element_type: TType,
+        size: usize,
+    ) -> Result<(), EncodeError> {
         if size <= 14 {
             self.write_byte(
                 ((size as i32) << 4) as u8 | (tcompact_get_compact(element_type)? as u8),
@@ -710,7 +719,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
     type BufMut = LinkedBytes;
 
     #[inline]
-    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), Error> {
+    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), EncodeError> {
         let mtype = identifier.message_type as u8;
         self.trans.bytes_mut().write_slice(&[
             COMPACT_PROTOCOL_ID,
@@ -723,22 +732,22 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
         Ok(())
     }
     #[inline]
-    fn write_message_end(&mut self) -> Result<(), Error> {
+    fn write_message_end(&mut self) -> Result<(), EncodeError> {
         self.assert_no_pending_bool_write();
         Ok(())
     }
 
     #[inline]
-    fn write_struct_begin(&mut self, _identifier: &TStructIdentifier) -> Result<(), Error> {
+    fn write_struct_begin(&mut self, _identifier: &TStructIdentifier) -> Result<(), EncodeError> {
         self.write_field_id_stack.push(self.last_write_field_id);
         self.last_write_field_id = 0;
         Ok(())
     }
     #[inline]
-    fn write_struct_end(&mut self) -> Result<(), Error> {
+    fn write_struct_end(&mut self) -> Result<(), EncodeError> {
         self.assert_no_pending_bool_write();
         self.last_write_field_id = self.write_field_id_stack.pop().ok_or_else(|| {
-            new_protocol_error(
+            EncodeError::new(
                 ProtocolErrorKind::InvalidData,
                 "WriteStructEnd called without matching WriteStructBegin",
             )
@@ -747,7 +756,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), Error> {
+    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), EncodeError> {
         match field_type {
             TType::Bool => {
                 if self.pending_write_bool_field_identifier.is_some() {
@@ -771,19 +780,19 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
         }
     }
     #[inline]
-    fn write_field_end(&mut self) -> Result<(), Error> {
+    fn write_field_end(&mut self) -> Result<(), EncodeError> {
         self.assert_no_pending_bool_write();
         Ok(())
     }
     #[inline]
-    fn write_field_stop(&mut self) -> Result<(), Error> {
+    fn write_field_stop(&mut self) -> Result<(), EncodeError> {
         self.assert_no_pending_bool_write();
         self.write_byte(TType::Stop as u8)?;
         Ok(())
     }
 
     #[inline]
-    fn write_bool(&mut self, b: bool) -> Result<(), Error> {
+    fn write_bool(&mut self, b: bool) -> Result<(), EncodeError> {
         match self.pending_write_bool_field_identifier.take() {
             Some(pending) => {
                 let field_id = pending.id.expect("bool field should have a field id");
@@ -804,7 +813,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
         }
     }
     #[inline]
-    fn write_bytes(&mut self, b: Bytes) -> Result<(), Error> {
+    fn write_bytes(&mut self, b: Bytes) -> Result<(), EncodeError> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(b.len() as u32)?;
@@ -816,45 +825,45 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
         Ok(())
     }
     #[inline]
-    fn write_byte(&mut self, b: u8) -> Result<(), Error> {
+    fn write_byte(&mut self, b: u8) -> Result<(), EncodeError> {
         self.trans.bytes_mut().write_u8(b)?;
         Ok(())
     }
 
     #[inline]
-    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), Error> {
+    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError> {
         self.trans.bytes_mut().write_slice(&u)?;
         Ok(())
     }
 
     #[inline]
-    fn write_i8(&mut self, i: i8) -> Result<(), Error> {
+    fn write_i8(&mut self, i: i8) -> Result<(), EncodeError> {
         self.trans.bytes_mut().write_i8(i)?;
         Ok(())
     }
     #[inline]
-    fn write_i16(&mut self, i: i16) -> Result<(), Error> {
+    fn write_i16(&mut self, i: i16) -> Result<(), EncodeError> {
         self.write_varint(i)?;
         Ok(())
     }
     #[inline]
-    fn write_i32(&mut self, i: i32) -> Result<(), Error> {
+    fn write_i32(&mut self, i: i32) -> Result<(), EncodeError> {
         self.write_varint(i)?;
         Ok(())
     }
     #[inline]
-    fn write_i64(&mut self, i: i64) -> Result<(), Error> {
+    fn write_i64(&mut self, i: i64) -> Result<(), EncodeError> {
         self.write_varint(i)?;
         Ok(())
     }
     #[inline]
-    fn write_double(&mut self, d: f64) -> Result<(), Error> {
+    fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
         self.trans.bytes_mut().write_f64(d)?;
         Ok(())
     }
 
     #[inline]
-    fn write_string(&mut self, s: &str) -> Result<(), Error> {
+    fn write_string(&mut self, s: &str) -> Result<(), EncodeError> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(s.len() as u32)?;
@@ -863,7 +872,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_faststr(&mut self, s: FastStr) -> Result<(), Error> {
+    fn write_faststr(&mut self, s: FastStr) -> Result<(), EncodeError> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(s.len() as u32)?;
@@ -876,27 +885,27 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), Error> {
+    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), EncodeError> {
         self.write_collection_begin(identifier.element_type, identifier.size)?;
         Ok(())
     }
     #[inline]
-    fn write_list_end(&mut self) -> Result<(), Error> {
+    fn write_list_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), Error> {
+    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), EncodeError> {
         self.write_collection_begin(identifier.element_type, identifier.size)?;
         Ok(())
     }
     #[inline]
-    fn write_set_end(&mut self) -> Result<(), Error> {
+    fn write_set_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), Error> {
+    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), EncodeError> {
         if identifier.size == 0 {
             self.write_byte(TType::Stop as u8)?;
         } else {
@@ -911,12 +920,12 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
         Ok(())
     }
     #[inline]
-    fn write_map_end(&mut self) -> Result<(), Error> {
+    fn write_map_end(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
     #[inline]
-    fn flush(&mut self) -> Result<(), Error> {
+    fn flush(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
 
@@ -931,7 +940,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), Error> {
+    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(b.len() as u32)?;
@@ -953,11 +962,11 @@ impl<R> TAsyncInputProtocol for TAsyncCompactProtocol<R>
 where
     R: AsyncRead + Unpin + Send,
 {
-    async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, Error> {
+    async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
         let compact_id = self.read_byte().await?;
         if compact_id != COMPACT_PROTOCOL_ID {
-            return Err(new_protocol_error(
-                ProtocolErrorKind::BadVersion,
+            return Err(DecodeError::new(
+                DecodeErrorKind::BadVersion,
                 format!("invalid compact protocol header {:?}", compact_id),
             ));
         }
@@ -965,8 +974,8 @@ where
         let type_and_byte = self.read_byte().await?;
         let version = type_and_byte & COMPACT_VERSION_MASK;
         if version != COMPACT_VERSION {
-            return Err(new_protocol_error(
-                ProtocolErrorKind::BadVersion,
+            return Err(DecodeError::new(
+                DecodeErrorKind::BadVersion,
                 format!("cannot process compact protocol version {:?}", version),
             ));
         }
@@ -974,8 +983,8 @@ where
         // NOTE: unsigned right shift will pad with 0s
         let type_id = type_and_byte >> 5;
         let message_type = TMessageType::try_from(type_id).map_err(|_| {
-            new_protocol_error(
-                ProtocolErrorKind::InvalidData,
+            DecodeError::new(
+                DecodeErrorKind::InvalidData,
                 format!("invalid message type {}", type_id),
             )
         })?;
@@ -988,24 +997,24 @@ where
     }
 
     #[inline]
-    async fn read_message_end(&mut self) -> Result<(), Error> {
+    async fn read_message_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    async fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, Error> {
+    async fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, DecodeError> {
         self.read_field_id_stack.push(self.last_read_field_id);
         self.last_read_field_id = 0;
         Ok(None)
     }
 
     #[inline]
-    async fn read_struct_end(&mut self) -> Result<(), Error> {
+    async fn read_struct_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     // #[inline]
-    async fn read_field_begin(&mut self) -> Result<TFieldIdentifier, Error> {
+    async fn read_field_begin(&mut self) -> Result<TFieldIdentifier, DecodeError> {
         // we can read at least one byte, which is:
         // - the type
         // - the field id delta and the type
@@ -1044,12 +1053,12 @@ where
     }
 
     #[inline]
-    async fn read_field_end(&mut self) -> Result<(), Error> {
+    async fn read_field_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    async fn read_bool(&mut self) -> Result<bool, Error> {
+    async fn read_bool(&mut self) -> Result<bool, DecodeError> {
         match self.pending_read_bool_value.take() {
             Some(b) => Ok(b),
             None => {
@@ -1057,8 +1066,8 @@ where
                 match b {
                     TCompactType::BooleanTrue => Ok(true),
                     TCompactType::BooleanFalse => Ok(false),
-                    unkn => Err(new_protocol_error(
-                        ProtocolErrorKind::InvalidData,
+                    unkn => Err(DecodeError::new(
+                        DecodeErrorKind::InvalidData,
                         format!("cannot convert {:?} into bool", unkn),
                     )),
                 }
@@ -1067,12 +1076,12 @@ where
     }
 
     #[inline]
-    async fn read_bytes(&mut self) -> Result<Bytes, Error> {
+    async fn read_bytes(&mut self) -> Result<Bytes, DecodeError> {
         self.read_bytes_vec().await.map(Bytes::from)
     }
 
     #[inline]
-    async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, Error> {
+    async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError> {
         let size = self.read_varint_async::<u32>().await? as usize;
         // FIXME: use maybe_uninit?
         let mut v = vec![0; size];
@@ -1081,55 +1090,55 @@ where
     }
 
     #[inline]
-    async fn read_uuid(&mut self) -> Result<[u8; 16], Error> {
+    async fn read_uuid(&mut self) -> Result<[u8; 16], DecodeError> {
         let mut uuid = [0; 16];
         self.reader.read_exact(&mut uuid).await?;
         Ok(uuid)
     }
 
     #[inline]
-    async fn read_string(&mut self) -> Result<String, Error> {
+    async fn read_string(&mut self) -> Result<String, DecodeError> {
         let v = self.read_bytes_vec().await?;
         Ok(unsafe { String::from_utf8_unchecked(v) })
     }
 
     #[inline]
-    async fn read_faststr(&mut self) -> Result<FastStr, Error> {
+    async fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
         self.read_string().await.map(FastStr::from_string)
     }
 
     #[inline]
-    async fn read_byte(&mut self) -> Result<u8, Error> {
+    async fn read_byte(&mut self) -> Result<u8, DecodeError> {
         Ok(self.reader.read_u8().await?)
     }
 
     #[inline]
-    async fn read_i8(&mut self) -> Result<i8, Error> {
+    async fn read_i8(&mut self) -> Result<i8, DecodeError> {
         Ok(self.reader.read_i8().await?)
     }
 
     #[inline]
-    async fn read_i16(&mut self) -> Result<i16, Error> {
+    async fn read_i16(&mut self) -> Result<i16, DecodeError> {
         Ok(self.read_varint_async::<i16>().await?)
     }
 
     #[inline]
-    async fn read_i32(&mut self) -> Result<i32, Error> {
+    async fn read_i32(&mut self) -> Result<i32, DecodeError> {
         Ok(self.read_varint_async::<i32>().await?)
     }
 
     #[inline]
-    async fn read_i64(&mut self) -> Result<i64, Error> {
+    async fn read_i64(&mut self) -> Result<i64, DecodeError> {
         Ok(self.read_varint_async::<i64>().await?)
     }
 
     #[inline]
-    async fn read_double(&mut self) -> Result<f64, Error> {
+    async fn read_double(&mut self) -> Result<f64, DecodeError> {
         Ok(self.reader.read_f64_le().await?)
     }
 
     #[inline]
-    async fn read_list_begin(&mut self) -> Result<TListIdentifier, Error> {
+    async fn read_list_begin(&mut self) -> Result<TListIdentifier, DecodeError> {
         let (element_type, element_count) = self.read_collection_begin().await?;
         Ok(TListIdentifier {
             element_type,
@@ -1138,12 +1147,12 @@ where
     }
 
     #[inline]
-    async fn read_list_end(&mut self) -> Result<(), Error> {
+    async fn read_list_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    async fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error> {
+    async fn read_set_begin(&mut self) -> Result<TSetIdentifier, DecodeError> {
         let (element_type, element_count) = self.read_collection_begin().await?;
         Ok(TSetIdentifier {
             element_type,
@@ -1152,12 +1161,12 @@ where
     }
 
     #[inline]
-    async fn read_set_end(&mut self) -> Result<(), Error> {
+    async fn read_set_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    async fn read_map_begin(&mut self) -> Result<TMapIdentifier, Error> {
+    async fn read_map_begin(&mut self) -> Result<TMapIdentifier, DecodeError> {
         let element_count = self.read_varint_async::<u32>().await? as i32;
         if element_count == 0 {
             Ok(TMapIdentifier::new(TType::Stop, TType::Stop, 0))
@@ -1175,7 +1184,7 @@ where
     }
 
     #[inline]
-    async fn read_map_end(&mut self) -> Result<(), Error> {
+    async fn read_map_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 }
@@ -1194,7 +1203,7 @@ where
     }
 
     #[inline]
-    async fn read_collection_begin(&mut self) -> Result<(TType, usize), Error> {
+    async fn read_collection_begin(&mut self) -> Result<(TType, usize), DecodeError> {
         let header = self.read_byte().await?;
         let element_type = tcompact_get_ttype((header & 0x0F).try_into()?)?;
 
@@ -1208,15 +1217,14 @@ where
     }
 
     #[inline]
-    async fn read_varint_async<VI: VarInt>(&mut self) -> Result<VI, Error> {
+    async fn read_varint_async<VI: VarInt>(&mut self) -> Result<VI, DecodeError> {
         let mut p = VarIntProcessor::new::<VI>();
         while !p.finished() {
             let read = self.reader.read_u8().await?;
             p.push(read)?;
         }
-        p.decode().ok_or_else(|| {
-            new_protocol_error(ProtocolErrorKind::InvalidData, "can't decode varint")
-        })
+        p.decode()
+            .ok_or_else(|| DecodeError::new(DecodeErrorKind::InvalidData, "can't decode varint"))
     }
 }
 
@@ -1246,19 +1254,18 @@ impl<T> TCompactInputProtocol<T> {
 
 impl TCompactInputProtocol<&mut BytesMut> {
     #[inline]
-    fn read_varint<VI: VarInt>(&mut self) -> Result<VI, Error> {
+    fn read_varint<VI: VarInt>(&mut self) -> Result<VI, DecodeError> {
         let mut p = VarIntProcessor::new::<VI>();
         while !p.finished() {
             let read = self.trans.read_u8()?;
             p.push(read)?;
         }
-        p.decode().ok_or_else(|| {
-            new_protocol_error(ProtocolErrorKind::InvalidData, "can't decode varint")
-        })
+        p.decode()
+            .ok_or_else(|| DecodeError::new(DecodeErrorKind::InvalidData, "can't decode varint"))
     }
 
     #[inline]
-    fn read_collection_begin(&mut self) -> Result<(TType, usize), Error> {
+    fn read_collection_begin(&mut self) -> Result<(TType, usize), DecodeError> {
         let header = self.read_byte()?;
         let element_type = tcompact_get_ttype((header & 0x0F).try_into()?)?;
 
@@ -1275,11 +1282,11 @@ impl TCompactInputProtocol<&mut BytesMut> {
 impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     type Buf = BytesMut;
 
-    fn read_message_begin(&mut self) -> Result<TMessageIdentifier, Error> {
+    fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
         let compact_id = self.read_byte()?;
         if compact_id != COMPACT_PROTOCOL_ID {
-            return Err(new_protocol_error(
-                ProtocolErrorKind::InvalidData,
+            return Err(DecodeError::new(
+                DecodeErrorKind::InvalidData,
                 format!("invalid compact protocol header {:?}", compact_id),
             ));
         }
@@ -1287,8 +1294,8 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         let type_and_byte = self.read_byte()?;
         let version = type_and_byte & COMPACT_VERSION_MASK;
         if version != COMPACT_VERSION {
-            return Err(new_protocol_error(
-                ProtocolErrorKind::InvalidData,
+            return Err(DecodeError::new(
+                DecodeErrorKind::InvalidData,
                 format!("cannot process compact protocol version {:?}", version),
             ));
         }
@@ -1296,8 +1303,8 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         // NOTE: unsigned right shift will pad with 0s
         let type_id = type_and_byte >> 5;
         let message_type = TMessageType::try_from(type_id).map_err(|_| {
-            new_protocol_error(
-                ProtocolErrorKind::InvalidData,
+            DecodeError::new(
+                DecodeErrorKind::InvalidData,
                 format!("invalid message type {:?}", type_id),
             )
         })?;
@@ -1310,24 +1317,24 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn read_message_end(&mut self) -> Result<(), Error> {
+    fn read_message_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, Error> {
+    fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, DecodeError> {
         self.read_field_id_stack.push(self.last_read_field_id);
         self.last_read_field_id = 0;
         Ok(None)
     }
 
     #[inline]
-    fn read_struct_end(&mut self) -> Result<(), Error> {
+    fn read_struct_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     // #[inline]
-    fn read_field_begin(&mut self) -> Result<TFieldIdentifier, Error> {
+    fn read_field_begin(&mut self) -> Result<TFieldIdentifier, DecodeError> {
         // we can read at least one byte, which is:
         // - the type
         // - the field id delta and the type
@@ -1366,12 +1373,12 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn read_field_end(&mut self) -> Result<(), Error> {
+    fn read_field_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    fn read_bool(&mut self) -> Result<bool, Error> {
+    fn read_bool(&mut self) -> Result<bool, DecodeError> {
         match self.pending_read_bool_value.take() {
             Some(b) => Ok(b),
             None => {
@@ -1379,8 +1386,8 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
                 match b {
                     TCompactType::BooleanTrue => Ok(true),
                     TCompactType::BooleanFalse => Ok(false),
-                    unkn => Err(new_protocol_error(
-                        ProtocolErrorKind::InvalidData,
+                    unkn => Err(DecodeError::new(
+                        DecodeErrorKind::InvalidData,
                         format!("cannot convert {:?} into bool", unkn),
                     )),
                 }
@@ -1389,26 +1396,26 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn read_bytes(&mut self) -> Result<Bytes, Error> {
+    fn read_bytes(&mut self) -> Result<Bytes, DecodeError> {
         let size = self.read_varint::<u32>()?;
         Ok(self.trans.split_to(size as usize).freeze())
     }
 
     #[inline]
-    fn read_uuid(&mut self) -> Result<[u8; 16], Error> {
+    fn read_uuid(&mut self) -> Result<[u8; 16], DecodeError> {
         let mut u = [0; 16];
         self.trans.read_to_slice(&mut u)?;
         Ok(u)
     }
 
     #[inline]
-    fn read_string(&mut self) -> Result<String, Error> {
+    fn read_string(&mut self) -> Result<String, DecodeError> {
         let size = self.read_varint::<u32>()? as usize;
         Ok(self.trans.read_to_string(size)?)
     }
 
     #[inline]
-    fn read_faststr(&mut self) -> Result<FastStr, Error> {
+    fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
         let size = self.read_varint::<u32>()? as usize;
         let bytes = self.trans.split_to(size);
         if size > INLINE_CAP {
@@ -1418,34 +1425,34 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn read_byte(&mut self) -> Result<u8, Error> {
+    fn read_byte(&mut self) -> Result<u8, DecodeError> {
         Ok(self.trans.read_u8()?)
     }
 
     #[inline]
-    fn read_i8(&mut self) -> Result<i8, Error> {
+    fn read_i8(&mut self) -> Result<i8, DecodeError> {
         Ok(self.trans.read_i8()?)
     }
     #[inline]
-    fn read_i16(&mut self) -> Result<i16, Error> {
+    fn read_i16(&mut self) -> Result<i16, DecodeError> {
         self.read_varint::<i16>()
     }
     #[inline]
-    fn read_i32(&mut self) -> Result<i32, Error> {
+    fn read_i32(&mut self) -> Result<i32, DecodeError> {
         self.read_varint::<i32>()
     }
     #[inline]
-    fn read_i64(&mut self) -> Result<i64, Error> {
+    fn read_i64(&mut self) -> Result<i64, DecodeError> {
         self.read_varint::<i64>()
     }
 
     #[inline]
-    fn read_double(&mut self) -> Result<f64, Error> {
+    fn read_double(&mut self) -> Result<f64, DecodeError> {
         Ok(self.trans.read_f64_le()?)
     }
 
     #[inline]
-    fn read_list_begin(&mut self) -> Result<TListIdentifier, Error> {
+    fn read_list_begin(&mut self) -> Result<TListIdentifier, DecodeError> {
         let (element_type, element_count) = self.read_collection_begin()?;
         Ok(TListIdentifier {
             element_type,
@@ -1453,12 +1460,12 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         })
     }
     #[inline]
-    fn read_list_end(&mut self) -> Result<(), Error> {
+    fn read_list_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     #[inline]
-    fn read_set_begin(&mut self) -> Result<TSetIdentifier, Error> {
+    fn read_set_begin(&mut self) -> Result<TSetIdentifier, DecodeError> {
         let (element_type, element_count) = self.read_collection_begin()?;
         Ok(TSetIdentifier {
             element_type,
@@ -1466,12 +1473,12 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         })
     }
     #[inline]
-    fn read_set_end(&mut self) -> Result<(), Error> {
+    fn read_set_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
     // #[inline]
-    fn read_map_begin(&mut self) -> Result<TMapIdentifier, Error> {
+    fn read_map_begin(&mut self) -> Result<TMapIdentifier, DecodeError> {
         let element_count = self.read_varint::<u32>()? as i32;
         if element_count == 0 {
             Ok(TMapIdentifier::new(TType::Stop, TType::Stop, 0))
@@ -1489,7 +1496,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn read_map_end(&mut self) -> Result<(), Error> {
+    fn read_map_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
     }
 
@@ -1498,7 +1505,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn read_bytes_vec(&mut self) -> Result<Vec<u8>, Error> {
+    fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError> {
         let size = self.read_varint::<u32>()? as usize;
 
         Ok(self.trans.split_to(size).into())
@@ -1514,9 +1521,9 @@ mod tests {
 
     use super::{TCompactInputProtocol, TCompactOutputProtocol};
     use crate::thrift::{
-        Error, TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
-        TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier,
-        TType,
+        EncodeError, TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier,
+        TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier,
+        TStructIdentifier, TType,
     };
 
     #[cfg(test)]
@@ -3619,7 +3626,7 @@ mod tests {
     fn assert_no_write<B, F>(mut trans: B, mut write_fn: F)
     where
         B: bytes::Buf,
-        F: FnMut(&mut TCompactOutputProtocol<&mut B>) -> Result<(), Error>,
+        F: FnMut(&mut TCompactOutputProtocol<&mut B>) -> Result<(), EncodeError>,
     {
         let mut o_prot = TCompactOutputProtocol::new(&mut trans, false);
         assert!(write_fn(&mut o_prot).is_ok());

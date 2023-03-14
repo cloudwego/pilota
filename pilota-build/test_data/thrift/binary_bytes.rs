@@ -11,7 +11,7 @@ pub mod binary_bytes {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::Error> {
+            ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
                 use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
                 protocol.write_struct_begin(&struct_ident)?;
@@ -23,63 +23,105 @@ pub mod binary_bytes {
             }
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
+            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
                 let mut bytes = None;
                 let mut vec = None;
+                let mut __pilota_decoding_field_id = None;
                 protocol.read_struct_begin()?;
-                loop {
-                    let field_ident = protocol.read_field_begin()?;
-                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        break;
+                if let Err(err) = (|| {
+                    loop {
+                        let field_ident = protocol.read_field_begin()?;
+                        if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                            break;
+                        }
+                        let field_id = field_ident.id;
+                        __pilota_decoding_field_id = field_id;
+                        match field_id {
+                            Some(1i16)
+                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                            {
+                                bytes = Some(protocol.read_bytes()?);
+                            }
+                            Some(2i16)
+                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                            {
+                                vec = Some(protocol.read_bytes_vec()?);
+                            }
+                            _ => {
+                                protocol.skip(field_ident.field_type)?;
+                            }
+                        }
+                        protocol.read_field_end()?;
                     }
-                    let field_id = field_ident.id;
-                    match field_id {
-                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            bytes = Some(protocol.read_bytes()?);
-                        }
-                        Some(2i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            vec = Some(protocol.read_bytes_vec()?);
-                        }
-                        _ => {
-                            protocol.skip(field_ident.field_type)?;
-                        }
+                    Ok::<_, ::pilota::thrift::DecodeError>(())
+                })() {
+                    if let Some(field_id) = __pilota_decoding_field_id {
+                        return Err(::pilota::thrift::DecodeError::new(
+                            ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
+                                err,
+                            )),
+                            format!("decode field(#{}) failed", field_id),
+                        ));
+                    } else {
+                        return Err(err);
                     }
-                    protocol.read_field_end()?;
-                }
+                };
                 protocol.read_struct_end()?;
-                let Some (bytes) = bytes else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field bytes is required" . to_string ()))) } ;
-                let Some (vec) = vec else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field vec is required" . to_string ()))) } ;
+                let Some (bytes) = bytes else { return Err (:: pilota :: thrift :: DecodeError :: new (:: pilota :: thrift :: DecodeErrorKind :: InvalidData , "field bytes is required" . to_string ())) } ;
+                let Some (vec) = vec else { return Err (:: pilota :: thrift :: DecodeError :: new (:: pilota :: thrift :: DecodeErrorKind :: InvalidData , "field vec is required" . to_string ())) } ;
                 let data = Self { bytes, vec };
                 Ok(data)
             }
             async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
                 protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::Error> {
+            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
                 let mut bytes = None;
                 let mut vec = None;
+                let mut __pilota_decoding_field_id = None;
                 protocol.read_struct_begin().await?;
-                loop {
-                    let field_ident = protocol.read_field_begin().await?;
-                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        break;
+                if let Err(err) = async {
+                    loop {
+                        let field_ident = protocol.read_field_begin().await?;
+                        if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                            break;
+                        }
+                        let field_id = field_ident.id;
+                        __pilota_decoding_field_id = field_id;
+                        match field_id {
+                            Some(1i16)
+                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                            {
+                                bytes = Some(protocol.read_bytes().await?);
+                            }
+                            Some(2i16)
+                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                            {
+                                vec = Some(protocol.read_bytes_vec().await?);
+                            }
+                            _ => {
+                                protocol.skip(field_ident.field_type).await?;
+                            }
+                        }
+                        protocol.read_field_end().await?;
                     }
-                    let field_id = field_ident.id;
-                    match field_id {
-                        Some(1i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            bytes = Some(protocol.read_bytes().await?);
-                        }
-                        Some(2i16) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                            vec = Some(protocol.read_bytes_vec().await?);
-                        }
-                        _ => {
-                            protocol.skip(field_ident.field_type).await?;
-                        }
-                    }
-                    protocol.read_field_end().await?;
+                    Ok::<_, ::pilota::thrift::DecodeError>(())
                 }
+                .await
+                {
+                    if let Some(field_id) = __pilota_decoding_field_id {
+                        return Err(::pilota::thrift::DecodeError::new(
+                            ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
+                                err,
+                            )),
+                            format!("decode field(#{}) failed", field_id),
+                        ));
+                    } else {
+                        return Err(err);
+                    }
+                };
                 protocol.read_struct_end().await?;
-                let Some (bytes) = bytes else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field bytes is required" . to_string ()))) } ;
-                let Some (vec) = vec else { return Err (:: pilota :: thrift :: Error :: Protocol (:: pilota :: thrift :: ProtocolError :: new (:: pilota :: thrift :: ProtocolErrorKind :: InvalidData , "field vec is required" . to_string ()))) } ;
+                let Some (bytes) = bytes else { return Err (:: pilota :: thrift :: DecodeError :: new (:: pilota :: thrift :: DecodeErrorKind :: InvalidData , "field bytes is required" . to_string ())) } ;
+                let Some (vec) = vec else { return Err (:: pilota :: thrift :: DecodeError :: new (:: pilota :: thrift :: DecodeErrorKind :: InvalidData , "field vec is required" . to_string ())) } ;
                 let data = Self { bytes, vec };
                 Ok(data)
             }
