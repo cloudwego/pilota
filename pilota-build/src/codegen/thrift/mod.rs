@@ -177,6 +177,8 @@ impl ThriftBackend {
             }
         };
 
+        let format_msg = format!("decode struct `{}` field(#{{}}) failed", s.name);
+
         quote! {
             #(let mut #required_field_names = None;)*
             #(let mut #optional_field_names = None;)*
@@ -188,7 +190,7 @@ impl ThriftBackend {
                 if let Some(field_id) = __pilota_decoding_field_id {
                     return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(err)),
-                        format!("decode field(#{}) failed", field_id),
+                        format!(#format_msg, field_id),
                     ));
                 } else {
                     return Err(err)

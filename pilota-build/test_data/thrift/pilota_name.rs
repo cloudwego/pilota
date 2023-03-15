@@ -52,7 +52,7 @@ pub mod pilota_name {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!("decode struct `TEST` field(#{}) failed", field_id),
                         ));
                     } else {
                         return Err(err);
@@ -98,7 +98,7 @@ pub mod pilota_name {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!("decode struct `TEST` field(#{}) failed", field_id),
                         ));
                     } else {
                         return Err(err);
@@ -178,7 +178,7 @@ pub mod pilota_name {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!("decode struct `Test` field(#{}) failed", field_id),
                         ));
                     } else {
                         return Err(err);
@@ -231,7 +231,7 @@ pub mod pilota_name {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!("decode struct `Test` field(#{}) failed", field_id),
                         ));
                     } else {
                         return Err(err);
@@ -491,7 +491,10 @@ pub mod pilota_name {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!(
+                                "decode struct `TestServiceTestArgsSend` field(#{}) failed",
+                                field_id
+                            ),
                         ));
                     } else {
                         return Err(err);
@@ -538,7 +541,10 @@ pub mod pilota_name {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!(
+                                "decode struct `TestServiceTestArgsSend` field(#{}) failed",
+                                field_id
+                            ),
                         ));
                     } else {
                         return Err(err);
@@ -611,7 +617,10 @@ pub mod pilota_name {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!(
+                                "decode struct `TestServiceTestArgsRecv` field(#{}) failed",
+                                field_id
+                            ),
                         ));
                     } else {
                         return Err(err);
@@ -658,7 +667,10 @@ pub mod pilota_name {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!(
+                                "decode struct `TestServiceTestArgsRecv` field(#{}) failed",
+                                field_id
+                            ),
                         ));
                     } else {
                         return Err(err);

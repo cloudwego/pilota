@@ -314,8 +314,15 @@ pub struct DecodeError {
 
 impl Display for DecodeError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        writeln!(f, "DecodeError: {}", self.message)?;
-        writeln!(f, ", {}", self.kind)?;
+        use DecodeErrorKind::*;
+
+        write!(f, "{}", self.message)?;
+        if !matches!(
+            self.kind,
+            BadVersion | InvalidData | NegativeSize | NotImplemented | UnknownMethod
+        ) {
+            write!(f, ", caused by {}", self.kind)?;
+        }
         Ok(())
     }
 }
@@ -336,7 +343,7 @@ impl Display for DecodeErrorKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             DecodeErrorKind::IOError(e) => write!(f, "IOError: {}", e),
-            DecodeErrorKind::WithContext(e) => write!(f, " {}", e),
+            DecodeErrorKind::WithContext(e) => write!(f, "{}", e),
             _ => Ok(()),
         }
     }
