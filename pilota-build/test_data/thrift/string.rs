@@ -60,7 +60,7 @@ pub mod string {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!("decode struct `A` field(#{}) failed", field_id),
                         ));
                     } else {
                         return Err(err);
@@ -113,7 +113,7 @@ pub mod string {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!("decode struct `A` field(#{}) failed", field_id),
                         ));
                     } else {
                         return Err(err);

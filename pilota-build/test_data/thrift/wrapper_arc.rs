@@ -43,7 +43,7 @@ pub mod wrapper_arc {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!("decode struct `A` field(#{}) failed", field_id),
                         ));
                     } else {
                         return Err(err);
@@ -82,7 +82,7 @@ pub mod wrapper_arc {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!("decode struct `A` field(#{}) failed", field_id),
                         ));
                     } else {
                         return Err(err);
@@ -240,7 +240,7 @@ pub mod wrapper_arc {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!("decode struct `TEST` field(#{}) failed", field_id),
                         ));
                     } else {
                         return Err(err);
@@ -345,7 +345,7 @@ pub mod wrapper_arc {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!("decode struct `TEST` field(#{}) failed", field_id),
                         ));
                     } else {
                         return Err(err);
@@ -563,7 +563,10 @@ pub mod wrapper_arc {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!(
+                                "decode struct `TestServiceTestArgsSend` field(#{}) failed",
+                                field_id
+                            ),
                         ));
                     } else {
                         return Err(err);
@@ -611,7 +614,10 @@ pub mod wrapper_arc {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!(
+                                "decode struct `TestServiceTestArgsSend` field(#{}) failed",
+                                field_id
+                            ),
                         ));
                     } else {
                         return Err(err);
@@ -684,7 +690,10 @@ pub mod wrapper_arc {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!(
+                                "decode struct `TestServiceTestArgsRecv` field(#{}) failed",
+                                field_id
+                            ),
                         ));
                     } else {
                         return Err(err);
@@ -731,7 +740,10 @@ pub mod wrapper_arc {
                             ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
                                 err,
                             )),
-                            format!("decode field(#{}) failed", field_id),
+                            format!(
+                                "decode struct `TestServiceTestArgsRecv` field(#{}) failed",
+                                field_id
+                            ),
                         ));
                     } else {
                         return Err(err);
