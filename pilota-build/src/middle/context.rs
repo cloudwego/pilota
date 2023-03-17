@@ -28,6 +28,7 @@ pub enum CollectMode {
 }
 
 pub struct Context {
+    pub source_type: SourceType,
     pub db: salsa::Snapshot<RootDatabase>,
     adjusts: FxHashMap<DefId, Adjust>,
     tags_map: FxHashMap<TagId, Arc<Tags>>,
@@ -41,9 +42,15 @@ impl Deref for Context {
     }
 }
 
+pub enum SourceType {
+    Thrift,
+    Protobuf,
+}
+
 impl Context {
-    pub fn new(db: salsa::Snapshot<RootDatabase>) -> Context {
+    pub fn new(source_type: SourceType, db: salsa::Snapshot<RootDatabase>) -> Context {
         Context {
+            source_type,
             db,
             adjusts: Default::default(),
             tags_map: Default::default(),

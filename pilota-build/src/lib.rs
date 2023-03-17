@@ -31,7 +31,7 @@ use db::{RirDatabase, RootDatabase};
 use fmt::fmt_file;
 pub use middle::{context::Context, rir, ty};
 use middle::{
-    context::{tls::CONTEXT, CollectMode},
+    context::{tls::CONTEXT, CollectMode, SourceType},
     rir::NodeKind,
     type_graph::TypeGraph,
 };
@@ -73,6 +73,7 @@ impl MakeBackend for MkProtobufBackend {
 }
 
 pub struct Builder<MkB, P> {
+    source_type: SourceType,
     mk_backend: MkB,
     parser: P,
     plugins: Vec<Box<dyn Plugin>>,
@@ -83,6 +84,7 @@ pub struct Builder<MkB, P> {
 impl Builder<MkThriftBackend, ThriftParser> {
     pub fn thrift() -> Self {
         Builder {
+            source_type: SourceType::Thrift,
             mk_backend: MkThriftBackend,
             parser: ThriftParser::default(),
             plugins: vec![
@@ -99,6 +101,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
 impl Builder<MkProtobufBackend, ProtobufParser> {
     pub fn protobuf() -> Self {
         Builder {
+            source_type: SourceType::Protobuf,
             mk_backend: MkProtobufBackend,
             parser: ProtobufParser::default(),
             plugins: vec![
@@ -125,6 +128,7 @@ where
 impl<MkB, P> Builder<MkB, P> {
     pub fn with_backend<B: MakeBackend>(self, mk_backend: B) -> Builder<B, P> {
         Builder {
+            source_type: self.source_type,
             mk_backend,
             parser: self.parser,
             plugins: self.plugins,
@@ -195,7 +199,7 @@ where
         db.set_type_graph_with_durability(type_graph, Durability::HIGH);
         db.set_nodes_with_durability(Arc::new(nodes), Durability::HIGH);
 
-        let mut cx = Context::new(db.snapshot());
+        let mut cx = Context::new(self.source_type, db.snapshot());
         cx.set_tags_map(tags);
 
         cx.exec_plugin(BoxedPlugin);
