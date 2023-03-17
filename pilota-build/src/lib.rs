@@ -29,11 +29,14 @@ pub use codegen::{
 };
 use db::{RirDatabase, RootDatabase};
 use fmt::fmt_file;
-pub use middle::{context::Context, rir, ty};
 use middle::{
-    context::{tls::CONTEXT, CollectMode, SourceType},
+    context::{tls::CONTEXT, CollectMode},
     rir::NodeKind,
     type_graph::TypeGraph,
+};
+pub use middle::{
+    context::{Context, SourceType},
+    rir, ty,
 };
 use parser::{protobuf::ProtobufParser, thrift::ThriftParser, ParseResult, Parser};
 use plugin::{
