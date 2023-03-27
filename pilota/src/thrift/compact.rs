@@ -232,6 +232,8 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
 
     #[inline]
     fn write_field_begin_len(&mut self, field_type: TType, id: Option<i16>) -> usize {
+        // `id` is an Option<i16> following trait [`TLengthProtocol`]
+        // write_field_begin_len.
         match field_type {
             TType::Bool => {
                 if self.pending_write_bool_field_identifier.is_some() {
@@ -537,13 +539,11 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
                 };
                 self.write_field_header(tc_field_type, field_id)
             }
-            None => {
-                if b {
-                    self.write_byte(TCompactType::BooleanTrue as u8)
-                } else {
-                    self.write_byte(TCompactType::BooleanFalse as u8)
-                }
-            }
+            None => self.write_byte(if b {
+                TCompactType::BooleanTrue as u8
+            } else {
+                TCompactType::BooleanFalse as u8
+            }),
         }
     }
     #[inline]
@@ -1574,19 +1574,62 @@ mod tests {
             };
         }
 
+        // message
         let identifier = &TMessageIdentifier::new("foo".into(), TMessageType::Call, 1);
         o_prot.write_message_begin(identifier).unwrap();
         let exp = o_prot.write_message_begin_len(identifier);
         mteq!(o_prot, exp);
+        o_prot.write_message_end().unwrap();
+        let exp = o_prot.write_message_end_len();
+        mteq!(o_prot, exp);
 
-        // todo: write_message_end
-        // o_prot.write_message_end().unwrap();
-        // let exp = o_prot.write_message_end_len();
-        // mteq!(o_prot, exp);
+        // struct
+        let identifier = &TStructIdentifier::new("foo");
+        o_prot.write_struct_begin(identifier).unwrap();
+        let exp = o_prot.write_struct_begin_len(identifier);
+        mteq!(o_prot, exp);
+        o_prot.write_struct_end().unwrap();
+        let exp = o_prot.write_struct_end_len();
+        mteq!(o_prot, exp);
 
-        // todo: write_struct_end
-        // todo: write_field_{begin,end,stop}
-        // todo: write_bool
+        // === START [ field test ] ===
+        let (field_type, field_id) = (TType::I64, 0);
+        o_prot.write_field_begin(field_type, field_id).unwrap(); // first id = 0
+        mteq!(
+            o_prot,
+            o_prot.write_field_begin_len(field_type, Some(field_id))
+        );
+        o_prot.write_field_end().unwrap();
+        mteq!(o_prot, o_prot.write_field_end_len());
+
+        // trigger 3 bytes write, field ID delta > 0b1111
+        // 1 byte (field header) + 2 bytes (I16, for field ID)
+        let (field_type, field_id) = (TType::Binary, 16);
+        o_prot.write_field_begin(field_type, field_id).unwrap();
+        mteq!(
+            o_prot,
+            o_prot.write_field_begin_len(field_type, Some(field_id))
+        );
+
+        // bare write bool
+        o_prot.write_bool(false).unwrap();
+        mteq!(o_prot, o_prot.write_bool_len(false));
+        // write bool with field
+        let (field_type, field_id) = (TType::Bool, 17);
+        let mut ax = 0;
+        o_prot.write_field_begin(field_type, field_id).unwrap();
+        let _pending_bool_field_ident = o_prot.pending_write_bool_field_identifier.take();
+        ax += o_prot.write_field_begin_len(field_type, Some(field_id));
+        //
+        o_prot.write_bool(false).unwrap();
+        ax += o_prot.write_bool_len(false);
+        o_prot.write_field_end().unwrap();
+        ax += o_prot.write_field_end_len();
+        mteq!(o_prot, ax);
+
+        o_prot.write_field_stop().unwrap();
+        mteq!(o_prot, o_prot.write_field_stop_len());
+        // === END [ field test ] ===
 
         o_prot.write_byte(0xff).unwrap();
         mteq!(o_prot, o_prot.write_byte_len(0xff));
@@ -1608,6 +1651,10 @@ mod tests {
         let identifier = 0xf00baau64.to_le_bytes().to_vec();
         o_prot.write_bytes(Bytes::from(identifier.clone())).unwrap();
         mteq!(o_prot, o_prot.write_bytes_len(&identifier[..]));
+
+        let identifier = [0u8; 16];
+        o_prot.write_uuid(identifier).unwrap();
+        mteq!(o_prot, o_prot.write_uuid_len(identifier));
 
         let identifier = "foobar";
         o_prot.write_faststr(identifier.into()).unwrap();
