@@ -25,7 +25,9 @@ pub enum TyKind {
     F64,
     Vec(Arc<Ty>),
     Set(Arc<Ty>),
+    AHashSet(Arc<Ty>),
     Map(Arc<Ty>, Arc<Ty>),
+    AHashMap(Arc<Ty>, Arc<Ty>),
     Arc(Arc<Ty>),
     Path(Path),
 }
@@ -71,7 +73,9 @@ pub enum CodegenTy {
     Vec(Arc<CodegenTy>),
     Array(Arc<CodegenTy>, usize),
     Set(Arc<CodegenTy>),
+    AHashSet(Arc<CodegenTy>),
     Map(Arc<CodegenTy>, Arc<CodegenTy>),
+    AHashMap(Arc<CodegenTy>, Arc<CodegenTy>),
     Adt(AdtDef),
     Arc(Arc<CodegenTy>),
 }
@@ -127,10 +131,19 @@ impl ToTokens for CodegenTy {
                 let ty = &**ty;
                 tokens.extend(quote! { ::std::collections::HashSet<#ty> })
             }
+            CodegenTy::AHashSet(ty) => {
+                let ty = &**ty;
+                tokens.extend(quote! { ::pilota::ahash::AHashSet<#ty> })
+            }
             CodegenTy::Map(k, v) => {
                 let k = &**k;
                 let v = &**v;
                 tokens.extend(quote! { ::std::collections::HashMap<#k, #v> })
+            }
+            CodegenTy::AHashMap(k, v) => {
+                let k = &**k;
+                let v = &**v;
+                tokens.extend(quote! { ::pilota::ahash::AHashMap<#k, #v> })
             }
             CodegenTy::Adt(def) => with_cx(|cx| {
                 let path = cx.cur_related_item_path(def.did);
@@ -248,10 +261,22 @@ pub trait TyTransformer {
     }
 
     #[inline]
+    fn ahashset(&self, ty: &Ty) -> CodegenTy {
+        CodegenTy::AHashSet(Arc::from(self.codegen_item_ty(&ty.kind)))
+    }
+
+    #[inline]
     fn map(&self, key: &Ty, value: &Ty) -> CodegenTy {
         let key = self.codegen_item_ty(&key.kind);
         let value = self.codegen_item_ty(&value.kind);
         CodegenTy::Map(Arc::from(key), Arc::from(value))
+    }
+
+    #[inline]
+    fn ahashmap(&self, key: &Ty, value: &Ty) -> CodegenTy {
+        let key = self.codegen_item_ty(&key.kind);
+        let value = self.codegen_item_ty(&value.kind);
+        CodegenTy::AHashMap(Arc::from(key), Arc::from(value))
     }
 
     #[inline]
@@ -282,7 +307,9 @@ pub trait TyTransformer {
             F64 => self.f64(),
             Vec(ty) => self.vec(ty),
             Set(ty) => self.set(ty),
+            AHashSet(ty) => self.ahashset(ty),
             Map(k, v) => self.map(k, v),
+            AHashMap(k, v) => self.ahashmap(k, v),
             Path(path) => self.path(path),
             UInt32 => self.uint32(),
             UInt64 => self.uint64(),
@@ -300,6 +327,16 @@ pub enum StringRepr {
 pub enum BytesRepr {
     Vec,
     Bytes,
+}
+
+pub enum MapRepr {
+    HashMap,
+    AHashMap,
+}
+
+pub enum SetRepr {
+    HashSet,
+    AHashSet,
 }
 
 pub(crate) struct DefaultTyTransformer;
@@ -343,10 +380,27 @@ impl TyTransformer for ConstTyTransformer {
     }
 
     #[inline]
+    fn ahashset(&self, ty: &Ty) -> CodegenTy {
+        CodegenTy::StaticRef(Arc::from(CodegenTy::AHashSet(Arc::from(
+            self.dyn_codegen_item_ty(&ty.kind),
+        ))))
+    }
+
+    #[inline]
     fn map(&self, key: &Ty, value: &Ty) -> CodegenTy {
         let key = self.dyn_codegen_item_ty(&key.kind);
         let value = self.dyn_codegen_item_ty(&value.kind);
         CodegenTy::StaticRef(Arc::from(CodegenTy::Map(Arc::from(key), Arc::from(value))))
+    }
+
+    #[inline]
+    fn ahashmap(&self, key: &Ty, value: &Ty) -> CodegenTy {
+        let key = self.dyn_codegen_item_ty(&key.kind);
+        let value = self.dyn_codegen_item_ty(&value.kind);
+        CodegenTy::StaticRef(Arc::from(CodegenTy::AHashMap(
+            Arc::from(key),
+            Arc::from(value),
+        )))
     }
 }
 
@@ -393,7 +447,9 @@ pub(crate) fn fold_ty<F: Folder>(f: &mut F, ty: &Ty) -> Ty {
         F64 => TyKind::F64,
         Vec(ty) => TyKind::Vec(f.fold_ty(ty).into()),
         Set(ty) => TyKind::Set(f.fold_ty(ty).into()),
+        AHashSet(ty) => TyKind::AHashSet(f.fold_ty(ty).into()),
         Map(k, v) => TyKind::Map(fold_ty(f, k).into(), fold_ty(f, v).into()),
+        AHashMap(k, v) => TyKind::AHashMap(fold_ty(f, k).into(), fold_ty(f, v).into()),
         Path(path) => TyKind::Path(path.clone()),
         UInt32 => TyKind::UInt32,
         UInt64 => TyKind::UInt64,

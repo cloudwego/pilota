@@ -214,7 +214,10 @@ where
                     ty::Vec(ty) => ty,
                     _ => ty,
                 };
-                if matches!(ty.kind, ty::Map(_, _) | ty::Set(_)) {
+                if matches!(
+                    ty.kind,
+                    ty::Map(_, _) | ty::Set(_) | ty::AHashMap(_, _) | ty::AHashSet(_)
+                ) {
                     PredicateResult::No
                 } else {
                     PredicateResult::GoOn
@@ -229,7 +232,15 @@ where
                     ty::Vec(ty) => ty,
                     _ => ty,
                 };
-                if matches!(ty.kind, ty::Map(_, _) | ty::Set(_) | ty::F64 | ty::F32) {
+                if matches!(
+                    ty.kind,
+                    ty::Map(_, _)
+                        | ty::Set(_)
+                        | ty::AHashMap(_, _)
+                        | ty::AHashSet(_)
+                        | ty::F64
+                        | ty::F32
+                ) {
                     PredicateResult::No
                 } else {
                     PredicateResult::GoOn

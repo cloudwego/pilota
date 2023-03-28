@@ -23,8 +23,8 @@ impl ThriftBackend {
             ty::I64 => quote! { ::pilota::thrift::TType::I64 },
             ty::F64 => quote! { ::pilota::thrift::TType::Double },
             ty::Vec(_) => quote! { ::pilota::thrift::TType::List },
-            ty::Set(_) => quote! { ::pilota::thrift::TType::Set },
-            ty::Map(_, _) => quote! { ::pilota::thrift::TType::Map },
+            ty::Set(_) | ty::AHashSet(_) => quote! { ::pilota::thrift::TType::Set },
+            ty::Map(_, _) | ty::AHashMap(_, _) => quote! { ::pilota::thrift::TType::Map },
             ty::Path(path) => {
                 let item = self.expect_item(path.did);
                 match &*item {
@@ -82,6 +82,17 @@ impl ThriftBackend {
                     })?;
                 }
             }
+            ty::AHashSet(ty) => {
+                let write_el = self.codegen_encode_ty(ty, &quote!(val));
+                let el_ttype = self.ttype(ty);
+
+                quote! {
+                    protocol.write_ahashset(#el_ttype, &#ident, |protocol, val| {
+                        #write_el
+                        Ok(())
+                    })?;
+                }
+            }
             ty::Map(k, v) => {
                 let key_ttype = self.ttype(k);
                 let val_ttype = self.ttype(v);
@@ -89,6 +100,21 @@ impl ThriftBackend {
                 let write_val = self.codegen_encode_ty(v, &quote!(val));
                 quote! {
                     protocol.write_map(#key_ttype, #val_ttype, &#ident, |protocol, key| {
+                        #write_key
+                        Ok(())
+                    }, |protocol, val| {
+                        #write_val
+                        Ok(())
+                    })?;
+                }
+            }
+            ty::AHashMap(k, v) => {
+                let key_ttype = self.ttype(k);
+                let val_ttype = self.ttype(v);
+                let write_key = self.codegen_encode_ty(k, &quote!(key));
+                let write_val = self.codegen_encode_ty(v, &quote!(val));
+                quote! {
+                    protocol.write_ahashmap(#key_ttype, #val_ttype, &#ident, |protocol, key| {
                         #write_key
                         Ok(())
                     }, |protocol, val| {
@@ -156,6 +182,17 @@ impl ThriftBackend {
                     })?;
                 }
             }
+            ty::AHashSet(ty) => {
+                let write_el = self.codegen_encode_ty(ty, &quote!(val));
+                let el_ttype = self.ttype(ty);
+
+                quote! {
+                    protocol.write_ahashset_field(#id, #el_ttype, &#ident, |protocol, val| {
+                        #write_el
+                        Ok(())
+                    })?;
+                }
+            }
             ty::Map(k, v) => {
                 let key_ttype = self.ttype(k);
                 let val_ttype = self.ttype(v);
@@ -163,6 +200,21 @@ impl ThriftBackend {
                 let write_val = self.codegen_encode_ty(v, &quote!(val));
                 quote! {
                     protocol.write_map_field(#id, #key_ttype, #val_ttype, &#ident, |protocol, key| {
+                        #write_key
+                        Ok(())
+                    }, |protocol, val| {
+                        #write_val
+                        Ok(())
+                    })?;
+                }
+            }
+            ty::AHashMap(k, v) => {
+                let key_ttype = self.ttype(k);
+                let val_ttype = self.ttype(v);
+                let write_key = self.codegen_encode_ty(k, &quote!(key));
+                let write_val = self.codegen_encode_ty(v, &quote!(val));
+                quote! {
+                    protocol.write_ahashmap_field(#id, #key_ttype, #val_ttype, &#ident, |protocol, key| {
                         #write_key
                         Ok(())
                     }, |protocol, val| {
@@ -216,6 +268,15 @@ impl ThriftBackend {
                     })
                 }
             }
+            ty::AHashSet(el) => {
+                let add_el = self.codegen_ty_size(el, &quote!(el));
+                let el_ttype = self.ttype(el);
+                quote! {
+                    protocol.write_ahashset_len(#el_ttype, #ident, |protocol, el| {
+                        #add_el
+                    })
+                }
+            }
             ty::Map(k, v) => {
                 let add_key = self.codegen_ty_size(k, &quote!(key));
                 let add_val = self.codegen_ty_size(v, &quote!(val));
@@ -224,6 +285,20 @@ impl ThriftBackend {
 
                 quote! {
                     protocol.write_map_len(#k_ttype, #v_ttype, #ident, |protocol, key| {
+                        #add_key
+                    }, |protocol, val| {
+                        #add_val
+                    })
+                }
+            }
+            ty::AHashMap(k, v) => {
+                let add_key = self.codegen_ty_size(k, &quote!(key));
+                let add_val = self.codegen_ty_size(v, &quote!(val));
+                let k_ttype = self.ttype(k);
+                let v_ttype = self.ttype(v);
+
+                quote! {
+                    protocol.write_ahashmap_len(#k_ttype, #v_ttype, #ident, |protocol, key| {
                         #add_key
                     }, |protocol, val| {
                         #add_val
@@ -272,6 +347,15 @@ impl ThriftBackend {
                     })
                 }
             }
+            ty::AHashSet(el) => {
+                let add_el = self.codegen_ty_size(el, &quote! { el });
+                let el_ttype = self.ttype(el);
+                quote! {
+                    protocol.write_ahashset_field_len(Some(#id), #el_ttype, #ident, |protocol, el| {
+                        #add_el
+                    })
+                }
+            }
             ty::Map(k, v) => {
                 let add_key = self.codegen_ty_size(k, &quote! { key });
                 let add_val = self.codegen_ty_size(v, &quote! { val });
@@ -280,6 +364,16 @@ impl ThriftBackend {
 
                 quote! {
                     protocol.write_map_field_len(Some(#id), #k_ttype, #v_ttype, #ident, |protocol, key| { #add_key }, |protocol, val| { #add_val })
+                }
+            }
+            ty::AHashMap(k, v) => {
+                let add_key = self.codegen_ty_size(k, &quote! { key });
+                let add_val = self.codegen_ty_size(v, &quote! { val });
+                let k_ttype = self.ttype(k);
+                let v_ttype = self.ttype(v);
+
+                quote! {
+                    protocol.write_ahashmap_field_len(Some(#id), #k_ttype, #v_ttype, #ident, |protocol, key| { #add_key }, |protocol, val| { #add_val })
                 }
             }
             ty::Path(p) if self.is_i32_enum(p.did) => {
@@ -343,6 +437,20 @@ impl ThriftBackend {
                     val
                 }}
             }
+            ty::AHashSet(ty) => {
+                let read_set_begin = helper.codegen_read_set_begin();
+                let read_set_end = helper.codegen_read_set_end();
+                let read_el = self.codegen_decode_ty(helper, ty);
+                quote! {{
+                    let list_ident  = #read_set_begin;
+                    let mut val = ::pilota::ahash::AHashSet::with_capacity(list_ident.size);
+                    for _ in 0..list_ident.size {
+                        val.insert(#read_el);
+                    };
+                    #read_set_end;
+                    val
+                }}
+            }
             ty::Map(key_ty, val_ty) => {
                 let read_el_key = self.codegen_decode_ty(helper, key_ty);
                 let read_el_val = self.codegen_decode_ty(helper, val_ty);
@@ -354,6 +462,28 @@ impl ThriftBackend {
                     {
                         let map_ident = #read_map_begin;
                         let mut val = ::std::collections::HashMap::with_capacity(map_ident.size);
+                        for _ in 0..map_ident.size {
+                            let el_key = #read_el_key;
+                            let el_val = #read_el_val;
+
+                            val.insert(el_key, el_val);
+                        }
+                        #read_map_end;
+                        val
+                    }
+                }
+            }
+            ty::AHashMap(key_ty, val_ty) => {
+                let read_el_key = self.codegen_decode_ty(helper, key_ty);
+                let read_el_val = self.codegen_decode_ty(helper, val_ty);
+
+                let read_map_begin = helper.codegen_read_map_begin();
+                let read_map_end = helper.codegen_read_map_end();
+
+                quote! {
+                    {
+                        let map_ident = #read_map_begin;
+                        let mut val = ::pilota::ahash::AHashMap::with_capacity(map_ident.size);
                         for _ in 0..map_ident.size {
                             let el_key = #read_el_key;
                             let el_val = #read_el_val;

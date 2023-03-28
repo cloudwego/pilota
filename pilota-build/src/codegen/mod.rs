@@ -313,6 +313,26 @@ where
                     };
                     stream
                 }
+                CodegenTy::AHashMap(k_ty, v_ty) => {
+                    let k_ty = &**k_ty;
+                    let v_ty = &**v_ty;
+                    let len = m.len();
+                    let kvs = m.iter().map(|(k, v)| {
+                        let k = self.lit_into_ty(k, k_ty);
+                        let v = self.lit_into_ty(v, v_ty);
+                        quote! {
+                            map.insert(#k, #v);
+                        }
+                    });
+                    let stream = quote::quote! {
+                        {
+                            let mut map = ::pilota::ahash::AHashMap::with_capacity(#len);
+                            #(#kvs)*
+                            map
+                        }
+                    };
+                    stream
+                }
                 _ => panic!("invalid map type {:?}", map),
             },
             (Literal::Map(_), _) => panic!(),
@@ -367,7 +387,7 @@ where
                 quote! { #ident(#stream) }
             }
             (Literal::Map(_), CodegenTy::StaticRef(map)) => match &**map {
-                CodegenTy::Map(_, _) => {
+                CodegenTy::Map(_, _) | CodegenTy::AHashMap(_, _) => {
                     let lazy_map =
                         self.def_lit("INNER_MAP", lit, &mut CodegenTy::LazyStaticRef(map.clone()));
                     let stream = quote::quote! {

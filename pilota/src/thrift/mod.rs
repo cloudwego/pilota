@@ -10,6 +10,7 @@ use std::{
     sync::Arc,
 };
 
+use ahash::{AHashMap, AHashSet};
 use bytes::{Buf, BufMut, Bytes};
 pub use error::*;
 use faststr::FastStr;
@@ -269,7 +270,35 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
     }
 
     #[inline]
+    fn write_ahashset_field_len<T, F>(
+        &mut self,
+        id: Option<i16>,
+        el_ttype: TType,
+        els: &AHashSet<T>,
+        el_len: F,
+    ) -> usize
+    where
+        F: Fn(&mut Self, &T) -> usize,
+    {
+        self.write_field_begin_len(TType::Set, id)
+            + self.write_ahashset_len(el_ttype, els, el_len)
+            + self.write_field_end_len()
+    }
+
+    #[inline]
     fn write_set_len<T, F>(&mut self, el_ttype: TType, els: &HashSet<T>, el_len: F) -> usize
+    where
+        F: Fn(&mut Self, &T) -> usize,
+    {
+        self.write_set_begin_len(TSetIdentifier {
+            element_type: el_ttype,
+            size: els.len(),
+        }) + els.iter().map(|el| el_len(self, el)).sum::<usize>()
+            + self.write_set_end_len()
+    }
+
+    #[inline]
+    fn write_ahashset_len<T, F>(&mut self, el_ttype: TType, els: &AHashSet<T>, el_len: F) -> usize
     where
         F: Fn(&mut Self, &T) -> usize,
     {
@@ -305,11 +334,54 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
     }
 
     #[inline]
+    fn write_ahashmap_field_len<K, V, FK, FV>(
+        &mut self,
+        id: Option<i16>,
+        key_ttype: TType,
+        val_ttype: TType,
+        els: &AHashMap<K, V>,
+        key_len: FK,
+        val_len: FV,
+    ) -> usize
+    where
+        FK: Fn(&mut Self, &K) -> usize,
+        FV: Fn(&mut Self, &V) -> usize,
+    {
+        self.write_field_begin_len(TType::Map, id)
+            + self.write_ahashmap_len(key_ttype, val_ttype, els, key_len, val_len)
+            + self.write_field_end_len()
+    }
+
+    #[inline]
     fn write_map_len<K, V, FK, FV>(
         &mut self,
         key_ttype: TType,
         val_ttype: TType,
         els: &HashMap<K, V>,
+        key_len: FK,
+        val_len: FV,
+    ) -> usize
+    where
+        FK: Fn(&mut Self, &K) -> usize,
+        FV: Fn(&mut Self, &V) -> usize,
+    {
+        self.write_map_begin_len(TMapIdentifier {
+            key_type: key_ttype,
+            value_type: val_ttype,
+            size: els.len(),
+        }) + els
+            .iter()
+            .map(|(k, v)| key_len(self, k) + val_len(self, v))
+            .sum::<usize>()
+            + self.write_map_end_len()
+    }
+
+    #[inline]
+    fn write_ahashmap_len<K, V, FK, FV>(
+        &mut self,
+        key_ttype: TType,
+        val_ttype: TType,
+        els: &AHashMap<K, V>,
         key_len: FK,
         val_len: FV,
     ) -> usize
@@ -485,10 +557,46 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
     }
 
     #[inline]
+    fn write_ahashset_field<T, F>(
+        &mut self,
+        id: i16,
+        el_ttype: TType,
+        els: &AHashSet<T>,
+        encode: F,
+    ) -> Result<(), EncodeError>
+    where
+        F: Fn(&mut Self, &T) -> Result<(), EncodeError>,
+    {
+        self.write_field_begin(TType::Set, id)?;
+        self.write_ahashset(el_ttype, els, encode)?;
+        self.write_field_end()
+    }
+
+    #[inline]
     fn write_set<T, F>(
         &mut self,
         el_ttype: TType,
         els: &HashSet<T>,
+        encode: F,
+    ) -> Result<(), EncodeError>
+    where
+        F: Fn(&mut Self, &T) -> Result<(), EncodeError>,
+    {
+        self.write_set_begin(TSetIdentifier {
+            element_type: el_ttype,
+            size: els.len(),
+        })?;
+        for el in els {
+            encode(self, el)?
+        }
+        self.write_set_end()
+    }
+
+    #[inline]
+    fn write_ahashset<T, F>(
+        &mut self,
+        el_ttype: TType,
+        els: &AHashSet<T>,
         encode: F,
     ) -> Result<(), EncodeError>
     where
@@ -536,11 +644,55 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
     }
 
     #[inline]
+    fn write_ahashmap_field<K, V, FK, FV>(
+        &mut self,
+        id: i16,
+        key_ttype: TType,
+        val_ttype: TType,
+        els: &AHashMap<K, V>,
+        key_encode: FK,
+        val_encode: FV,
+    ) -> Result<(), EncodeError>
+    where
+        FK: Fn(&mut Self, &K) -> Result<(), EncodeError>,
+        FV: Fn(&mut Self, &V) -> Result<(), EncodeError>,
+    {
+        self.write_field_begin(TType::Map, id)?;
+        self.write_ahashmap(key_ttype, val_ttype, els, key_encode, val_encode)?;
+        self.write_field_end()
+    }
+
+    #[inline]
     fn write_map<K, V, FK, FV>(
         &mut self,
         key_ttype: TType,
         val_ttype: TType,
         els: &HashMap<K, V>,
+        key_encode: FK,
+        val_encode: FV,
+    ) -> Result<(), EncodeError>
+    where
+        FK: Fn(&mut Self, &K) -> Result<(), EncodeError>,
+        FV: Fn(&mut Self, &V) -> Result<(), EncodeError>,
+    {
+        self.write_map_begin(TMapIdentifier {
+            key_type: key_ttype,
+            value_type: val_ttype,
+            size: els.len(),
+        })?;
+        for (k, v) in els {
+            key_encode(self, k)?;
+            val_encode(self, v)?;
+        }
+        self.write_map_end()
+    }
+
+    #[inline]
+    fn write_ahashmap<K, V, FK, FV>(
+        &mut self,
+        key_ttype: TType,
+        val_ttype: TType,
+        els: &AHashMap<K, V>,
         key_encode: FK,
         val_encode: FV,
     ) -> Result<(), EncodeError>

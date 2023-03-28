@@ -17,7 +17,7 @@ use crate::{
     rir::Mod,
     symbol::{DefId, FileId, Ident, Symbol},
     tags::{RustWrapperArc, TagId, Tags},
-    ty::{BytesRepr, Folder, StringRepr, TyKind},
+    ty::{BytesRepr, Folder, MapRepr, SetRepr, StringRepr, TyKind},
 };
 
 struct ModuleData {
@@ -329,8 +329,14 @@ impl Resolver {
                     let kind = match &ty.kind {
                         TyKind::Vec(inner) => TyKind::Vec(Arc::new(self.fold_ty(inner.as_ref()))),
                         TyKind::Set(inner) => TyKind::Set(Arc::new(self.fold_ty(inner.as_ref()))),
+                        TyKind::AHashSet(inner) => {
+                            TyKind::AHashSet(Arc::new(self.fold_ty(inner.as_ref())))
+                        }
                         TyKind::Map(k, v) => {
                             TyKind::Map(k.clone(), Arc::new(self.fold_ty(v.as_ref())))
+                        }
+                        TyKind::AHashMap(k, v) => {
+                            TyKind::AHashMap(k.clone(), Arc::new(self.fold_ty(v.as_ref())))
                         }
                         TyKind::Path(_) | TyKind::String | TyKind::BytesVec => {
                             TyKind::Arc(Arc::new(ty.clone()))
@@ -417,7 +423,25 @@ impl Resolver {
             ir::TyKind::I64 => ty::I64,
             ir::TyKind::F64 => ty::F64,
             ir::TyKind::Vec(ty) => ty::Vec(Arc::from(self.lower_type(ty))),
+            ir::TyKind::Set(k)
+                if ty
+                    .tags
+                    .get::<SetRepr>()
+                    .map(|repr| matches!(repr, SetRepr::AHashSet))
+                    .unwrap_or(false) =>
+            {
+                ty::AHashSet(Arc::from(self.lower_type(k)))
+            }
             ir::TyKind::Set(ty) => ty::Set(Arc::from(self.lower_type(ty))),
+            ir::TyKind::Map(k, v)
+                if ty
+                    .tags
+                    .get::<MapRepr>()
+                    .map(|repr| matches!(repr, MapRepr::AHashMap))
+                    .unwrap_or(false) =>
+            {
+                ty::AHashMap(Arc::from(self.lower_type(k)), Arc::from(self.lower_type(v)))
+            }
             ir::TyKind::Map(k, v) => {
                 ty::Map(Arc::from(self.lower_type(k)), Arc::from(self.lower_type(v)))
             }

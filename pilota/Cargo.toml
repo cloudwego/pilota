@@ -32,4 +32,5 @@ faststr = { version = "0.2", features = ["serde"] }
 integer-encoding = { version = "3", features = ["async-trait", "tokio", "tokio_async"] }
 proptest = "1"
 serde = { version = "1", features = ["derive"] }
+ahash = "0.8"
 

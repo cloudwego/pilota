@@ -7,6 +7,7 @@ pub mod prost;
 pub mod thrift;
 
 // reexport
+pub use ahash;
 pub use async_recursion;
 pub use async_trait;
 pub use bytes::Bytes;

@@ -16,7 +16,7 @@ use crate::{
     ir::{Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path},
     symbol::{EnumRepr, FileId, Ident},
     tags::{Annotation, PilotaName, RustType, RustWrapperArc, Tags},
-    ty::{BytesRepr, StringRepr},
+    ty::{BytesRepr, MapRepr, SetRepr, StringRepr},
     util::error_abort,
 };
 
@@ -312,9 +312,10 @@ impl ThriftLower {
     }
 
     fn lower_const(&mut self, c: &thrift_parser::Constant) -> ir::Const {
+        let tags = self.extract_tags(&c.annotations);
         ir::Const {
             name: self.lower_ident(&c.name),
-            ty: self.lower_ty(&c.r#type),
+            ty: self.lower_ty_with_tags(&c.r#type, &tags),
             lit: self.lower_lit(&c.value),
         }
     }
@@ -385,7 +386,6 @@ impl ThriftLower {
             match &ty {
                 thrift_parser::Ty::String if rust_type == "string" => {
                     tags.insert(StringRepr::String);
-
                     return ir::Ty {
                         tags: tags.into(),
                         kind: ir::TyKind::String,
@@ -397,6 +397,27 @@ impl ThriftLower {
                         return ir::Ty {
                             tags: tags.into(),
                             kind: ir::TyKind::Bytes,
+                        };
+                    }
+                }
+                thrift_parser::Ty::Set { value, .. } => {
+                    if rust_type == "ahash" {
+                        tags.insert(SetRepr::AHashSet);
+                        return ir::Ty {
+                            tags: tags.into(),
+                            kind: ir::TyKind::Set(self.lower_ty(value).into()),
+                        };
+                    }
+                }
+                thrift_parser::Ty::Map { key, value, .. } => {
+                    if rust_type == "ahash" {
+                        tags.insert(MapRepr::AHashMap);
+                        return ir::Ty {
+                            tags: tags.into(),
+                            kind: ir::TyKind::Map(
+                                self.lower_ty(key).into(),
+                                self.lower_ty(value).into(),
+                            ),
                         };
                     }
                 }
