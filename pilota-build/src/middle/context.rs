@@ -32,6 +32,7 @@ pub struct Context {
     pub db: salsa::Snapshot<RootDatabase>,
     adjusts: FxHashMap<DefId, Adjust>,
     tags_map: FxHashMap<TagId, Arc<Tags>>,
+    pub(crate) change_case: bool,
 }
 
 impl Deref for Context {
@@ -54,6 +55,7 @@ impl Context {
             db,
             adjusts: Default::default(),
             tags_map: Default::default(),
+            change_case: true,
         }
     }
 
@@ -107,6 +109,10 @@ impl Context {
             .and_then(|tags| tags.get::<crate::tags::PilotaName>().cloned())
         {
             return name.0;
+        }
+
+        if !self.change_case {
+            return self.node(def_id).unwrap().name().0;
         }
 
         match self.node(def_id).unwrap().kind {

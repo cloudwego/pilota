@@ -212,6 +212,16 @@ impl Node {
             _ => panic!(),
         }
     }
+
+    pub(crate) fn name(&self) -> Symbol {
+        match &self.kind {
+            NodeKind::Item(item) => item.symbol_name(),
+            NodeKind::Variant(v) => v.name.sym.clone(),
+            NodeKind::Field(f) => f.name.sym.clone(),
+            NodeKind::Method(m) => m.name.sym.clone(),
+            NodeKind::Arg(a) => a.name.sym.clone(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
