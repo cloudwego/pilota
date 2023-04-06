@@ -3,7 +3,6 @@ use std::{fmt::Display, ops::Deref};
 use faststr::FastStr;
 use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use phf::phf_set;
-use quote::{format_ident, IdentFragment};
 
 crate::newtype_index! {
     pub struct FileId { .. }
@@ -74,7 +73,7 @@ lazy_static::lazy_static! {
     ];
 }
 
-#[derive(Hash, PartialEq, Eq, Clone, Debug)]
+#[derive(Hash, PartialEq, Eq, Clone, Debug, PartialOrd, Ord)]
 pub struct Symbol(pub FastStr);
 
 impl std::borrow::Borrow<str> for Symbol {
@@ -100,19 +99,16 @@ where
     }
 }
 
-impl IdentFragment for Symbol {
+impl std::fmt::Display for Symbol {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        if KEYWORDS_SET.contains(self) {
-            write!(f, "r#{}", self)
-        } else {
-            write!(f, "{}", self)
+        if &**self == "Self" {
+            return write!(f, "Self_");
         }
-    }
-}
-
-impl Display for Symbol {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.0.fmt(f)
+        if KEYWORDS_SET.contains(self) {
+            write!(f, "r#{}", &**self)
+        } else {
+            write!(f, "{}", &**self)
+        }
     }
 }
 
@@ -137,12 +133,6 @@ impl Deref for Ident {
 
     fn deref(&self) -> &Self::Target {
         &self.sym
-    }
-}
-
-impl IdentFragment for Ident {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        quote::IdentFragment::fmt(&self.sym, f)
     }
 }
 
@@ -200,19 +190,6 @@ pub trait IdentName {
     fn upper_camel_ident(&self) -> FastStr;
     fn snake_ident(&self) -> FastStr;
     fn shouty_snake_case(&self) -> FastStr;
-
-    fn as_syn_ident(&self) -> syn::Ident;
-}
-
-fn str2ident(s: &str) -> syn::Ident {
-    if s == "Self" {
-        return format_ident!("Self_");
-    }
-    if KEYWORDS_SET.contains(s) {
-        format_ident!("r#{}", s)
-    } else {
-        format_ident!("{}", s)
-    }
 }
 
 impl IdentName for &str {
@@ -228,10 +205,6 @@ impl IdentName for &str {
     fn shouty_snake_case(&self) -> FastStr {
         self.to_shouty_snake_case().into()
     }
-
-    fn as_syn_ident(&self) -> syn::Ident {
-        str2ident(self)
-    }
 }
 
 impl IdentName for FastStr {
@@ -245,9 +218,5 @@ impl IdentName for FastStr {
 
     fn shouty_snake_case(&self) -> FastStr {
         (&**self).shouty_snake_case()
-    }
-
-    fn as_syn_ident(&self) -> syn::Ident {
-        str2ident(self)
     }
 }

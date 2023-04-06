@@ -608,7 +608,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
         self.packages.iter().for_each(|(k, v)| {
             if v.len() > 1 {
                 println!(
-                    "cargo:warning={:?} has the same namespace `{}`, you may need set namespace for these file \n",
+                    "cargo:warning={:?} has the same namespace `{}`, you may need to set namespace for these file \n",
                     v,
                     k.segments.iter().join(".")
                 )

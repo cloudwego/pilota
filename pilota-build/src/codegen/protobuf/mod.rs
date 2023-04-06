@@ -1,5 +1,4 @@
-use std::sync::Arc;
-
+use faststr::FastStr;
 use itertools::Itertools;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
@@ -10,20 +9,17 @@ use crate::{
     rir::{self, Field, FieldKind, Item, NodeKind},
     tags::protobuf::{OneOf, ProstType},
     ty::Ty,
-    CodegenBackend, Context, DefId, IdentName,
+    CodegenBackend, Context, DefId,
 };
 
+#[derive(Clone)]
 pub struct ProtobufBackend {
-    cx: Arc<Context>,
-    _zero_copy: bool,
+    cx: Context,
 }
 
 impl ProtobufBackend {
-    pub fn new(cx: Arc<Context>) -> Self {
-        ProtobufBackend {
-            cx,
-            _zero_copy: false,
-        }
+    pub fn new(cx: Context) -> Self {
+        ProtobufBackend { cx }
     }
 }
 
@@ -34,13 +30,7 @@ pub enum Category {
 }
 
 impl ProtobufBackend {
-    fn codegen_encoded_len(
-        &self,
-        ident: TokenStream,
-        ty: &Ty,
-        id: u32,
-        kind: FieldKind,
-    ) -> TokenStream {
+    fn codegen_encoded_len(&self, ident: FastStr, ty: &Ty, id: u32, kind: FieldKind) -> FastStr {
         let category = self.ty_category(ty);
 
         let tag = id;
@@ -54,28 +44,30 @@ impl ProtobufBackend {
 
                 let module = self.ty_module(ty);
 
-                let encoded_len_fn = quote!(::pilota::prost::encoding::#module::#encoded_len_fn);
+                let encoded_len_fn =
+                    format!("::pilota::prost::encoding::{module}::{encoded_len_fn}");
 
                 match kind {
-                    FieldKind::Required => quote!(#encoded_len_fn(#tag, &#ident)),
-                    FieldKind::Optional => {
-                        quote!(#ident.as_ref().map_or(0, |value| #encoded_len_fn(#tag, value)))
-                    }
+                    FieldKind::Required => format!("{encoded_len_fn}({tag}, &{ident})").into(),
+                    FieldKind::Optional => format!(
+                        "{ident}.as_ref().map_or(0, |value| {encoded_len_fn}({tag}, value))"
+                    )
+                    .into(),
                 }
             }
             Category::Message => {
                 if let ty::TyKind::Vec(_) = ty.kind {
-                    quote!(
-                        ::pilota::prost::encoding::message::encoded_len_repeated(#tag, &#ident)
+                    format!(
+                        "::pilota::prost::encoding::message::encoded_len_repeated({tag}, &{ident})"
                     )
+                    .into()
                 } else {
                     match kind {
-                        FieldKind::Required => quote!(
-                            ::pilota::prost::encoding::message::encoded_len(#tag, &#ident)
-                        ),
-                        FieldKind::Optional => quote!(
-                            #ident.as_ref().map_or(0, |msg| ::pilota::prost::encoding::message::encoded_len(#tag, msg))
-                        ),
+                        FieldKind::Required => format!(
+                            "::pilota::prost::encoding::message::encoded_len({tag}, &{ident})"
+                        )
+                        .into(),
+                        FieldKind::Optional => format!("{ident}.as_ref().map_or(0, |msg| ::pilota::prost::encoding::message::encoded_len({tag}, msg))").into(),
                     }
                 }
             }
@@ -93,9 +85,7 @@ impl ProtobufBackend {
                 let value_encoded_len_fn =
                     quote!(::pilota::prost::encoding::#value_module::encoded_len);
 
-                quote!(
-                    ::pilota::prost::encoding::hash_map::encoded_len(#key_encoded_len_fn, #value_encoded_len_fn, #tag, &#ident)
-                )
+                format!("::pilota::prost::encoding::hash_map::encoded_len({key_encoded_len_fn}, {value_encoded_len_fn}, {tag}, &{ident})").into()
             }
         }
     }
@@ -173,7 +163,7 @@ impl ProtobufBackend {
         )
     }
 
-    fn codegen_encode(&self, ident: TokenStream, ty: &Ty, id: u32, kind: FieldKind) -> TokenStream {
+    fn codegen_encode(&self, ident: FastStr, ty: &Ty, id: u32, kind: FieldKind) -> FastStr {
         let category = self.ty_category(ty);
 
         let tag = id;
@@ -187,36 +177,37 @@ impl ProtobufBackend {
 
                 let module = self.ty_module(ty);
 
-                let encode_fn = quote!(::pilota::prost::encoding::#module::#encode_fn);
+                let encode_fn = format!("::pilota::prost::encoding::{module}::{encode_fn}");
 
                 match kind {
-                    FieldKind::Required => quote!(#encode_fn(#tag, &#ident, buf);),
+                    FieldKind::Required => format!("{encode_fn}({tag}, &{ident}, buf);").into(),
                     FieldKind::Optional => {
-                        quote! {
-                            if let Some(_pilota_inner_value) = #ident.as_ref() {
-                                ::pilota::prost::encoding::#module::encode(#tag, _pilota_inner_value, buf);
-                            }
-                        }
+                        format! {
+                            r#"if let Some(_pilota_inner_value) = {ident}.as_ref() {{
+                                ::pilota::prost::encoding::{module}::encode({tag}, _pilota_inner_value, buf);
+                            }}"#
+                        }.into()
                     }
                 }
             }
             Category::Message => {
                 if let ty::TyKind::Vec(_) = ty.kind {
-                    quote!(
-                        for msg in &#ident {
-                            ::pilota::prost::encoding::message::encode(#tag, msg, buf);
-                        }
+                    format!(
+                        r#"for msg in &{ident} {{
+                            ::pilota::prost::encoding::message::encode({tag}, msg, buf);
+                        }}"#
                     )
+                    .into()
                 } else {
                     match kind {
-                        FieldKind::Required => quote!(
-                            ::pilota::prost::encoding::message::encode(#tag, &#ident, buf);
-                        ),
-                        FieldKind::Optional => quote!(
-                            if let Some(_pilota_inner_value) = #ident.as_ref() {
-                                ::pilota::prost::encoding::message::encode(#tag, _pilota_inner_value, buf);
-                            }
-                        ),
+                        FieldKind::Required => format!(
+                            "::pilota::prost::encoding::message::encode({tag}, &{ident}, buf);"
+                        ).into(),
+                        FieldKind::Optional => format!(r#"
+                            if let Some(_pilota_inner_value) = {ident}.as_ref() {{
+                                ::pilota::prost::encoding::message::encode({tag}, _pilota_inner_value, buf);
+                            }}
+                        "#).into(),
                     }
                 }
             }
@@ -238,9 +229,7 @@ impl ProtobufBackend {
                 let value_encoded_len_fn =
                     quote!(::pilota::prost::encoding::#value_module::encoded_len);
 
-                quote!(
-                    ::pilota::prost::encoding::hash_map::encode(#key_encode_fn, #key_encoded_len_fn, #value_encode_fn, #value_encoded_len_fn, #tag, &#ident, buf);
-                )
+                format!("::pilota::prost::encoding::hash_map::encode({key_encode_fn}, {key_encoded_len_fn}, {value_encode_fn}, {value_encoded_len_fn}, {tag}, &{ident}, buf)").into()
             }
         }
     }
@@ -306,65 +295,78 @@ impl ProtobufBackend {
 }
 
 impl CodegenBackend for ProtobufBackend {
-    fn codegen_struct_impl(&self, def_id: DefId, stream: &mut TokenStream, s: &rir::Message) {
-        let name = self.cx.rust_name(def_id).as_syn_ident();
-        let encoded_len = s.fields.iter().map(|field| {
-            let field_name = self.cx.rust_name(field.did).as_syn_ident();
-            self.codegen_encoded_len(
-                quote! {self.#field_name},
-                &field.ty,
-                field.id as u32,
-                field.kind,
-            )
-        });
-        let encode = s.fields.iter().map(|field| {
-            let field_name = self.cx.rust_name(field.did).as_syn_ident();
-            self.codegen_encode(
-                quote!(self.#field_name),
-                &field.ty,
-                field.id as u32,
-                field.kind,
-            )
-        });
+    fn codegen_struct_impl(&self, def_id: DefId, stream: &mut String, s: &rir::Message) {
+        let name = self.cx.rust_name(def_id);
+        let encoded_len = s
+            .fields
+            .iter()
+            .map(|field| {
+                let field_name = self.cx.rust_name(field.did);
+                self.codegen_encoded_len(
+                    format!("self.{field_name}").into(),
+                    &field.ty,
+                    field.id as u32,
+                    field.kind,
+                )
+            })
+            .join("+");
+        let encode = s
+            .fields
+            .iter()
+            .map(|field| {
+                let field_name = self.cx.rust_name(field.did);
+                self.codegen_encode(
+                    format!("self.{field_name}").into(),
+                    &field.ty,
+                    field.id as u32,
+                    field.kind,
+                )
+            })
+            .join("");
 
-        let merge = s.fields.iter().map(|field| {
-            let field_ident = self.cx.rust_name(field.did).as_syn_ident();
-            let merge =
-                self.codegen_merge_field(quote!(_inner_pilota_value), &field.ty, field.kind);
-            let tags = self.field_tags(field).map(|tag| quote!(#tag));
-            let tags = Itertools::intersperse(tags, quote!(|));
+        let merge = s
+            .fields
+            .iter()
+            .map(|field| {
+                let field_ident = self.cx.rust_name(field.did);
+                let merge =
+                    self.codegen_merge_field(quote!(_inner_pilota_value), &field.ty, field.kind);
+                let mut tags = self.field_tags(field).map(|tag| tag.to_string());
+                let tags = tags.join("|");
 
-            quote! {
-                #(#tags)* => {
-                    let mut _inner_pilota_value = &mut self.#field_ident;
-                    #merge.map_err(|mut error| {
-                        error.push(STRUCT_NAME, stringify!(#field_ident));
+                format! {
+                    r#"
+                {tags} => {{
+                    let mut _inner_pilota_value = &mut self.{field_ident};
+                    {merge}.map_err(|mut error| {{
+                        error.push(STRUCT_NAME, stringify!({field_ident}));
                         error
-                    })
-                },
-            }
-        });
+                    }})
+                }},
+                "#
+                }
+            })
+            .join("");
 
         let struct_name = if s.fields.is_empty() {
-            quote!()
+            "".into()
         } else {
-            quote!(
-                const STRUCT_NAME: &'static str = stringify!(#name);
-            )
+            format!("const STRUCT_NAME: &'static str = stringify!({name});")
         };
 
-        stream.extend(quote!(
-            impl ::pilota::prost::Message for #name {
+        stream.push_str(&format!(
+            r#"
+            impl ::pilota::prost::Message for {name} {{
 
                 #[inline]
-                fn encoded_len(&self) -> usize {
-                    0 #(+ #encoded_len)*
-                }
+                fn encoded_len(&self) -> usize {{
+                    0 + {encoded_len}
+                }}
 
                 #[allow(unused_variables)]
-                fn encode_raw<B>(&self, buf: &mut B) where B: ::pilota::prost::bytes::BufMut {
-                    #(#encode)*
-                }
+                fn encode_raw<B>(&self, buf: &mut B) where B: ::pilota::prost::bytes::BufMut {{
+                    {encode}
+                }}
 
                 #[allow(unused_variables)]
                 fn merge_field<B>(
@@ -374,84 +376,98 @@ impl CodegenBackend for ProtobufBackend {
                     buf: &mut B,
                     ctx: ::pilota::prost::encoding::DecodeContext,
                 ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
-                where B: ::pilota::prost::bytes::Buf {
-                    #struct_name
-                    match tag {
-                        #(#merge)*
+                where B: ::pilota::prost::bytes::Buf {{
+                    {struct_name}
+                    match tag {{
+                        {merge}
                         _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
-                    }
-                }
-            }
+                    }}
+                }}
+            }}
+            "#
         ));
     }
 
-    fn codegen_newtype_impl(&self, _def_id: DefId, _stream: &mut TokenStream, _t: &rir::NewType) {
+    fn codegen_newtype_impl(&self, _def_id: DefId, _stream: &mut String, _t: &rir::NewType) {
         unreachable!()
     }
 
-    fn codegen_enum_impl(&self, def_id: DefId, stream: &mut TokenStream, e: &rir::Enum) {
+    fn codegen_enum_impl(&self, def_id: DefId, stream: &mut String, e: &rir::Enum) {
         let node = self.cx.node(def_id).unwrap();
         if !self.cx.contains_tag::<OneOf>(node.tags) {
             return;
         }
-        let name = self.cx.rust_name(def_id).as_syn_ident();
+        let name = self.cx.rust_name(def_id);
 
-        let encoded_len = e.variants.iter().map(|variant| {
-            let encoded_len = self.codegen_encoded_len(
-                quote! {*value},
-                variant.fields.first().unwrap(),
-                variant.id.unwrap() as u32,
-                FieldKind::Required,
-            );
-            let variant_name = self.cx.rust_name(variant.did).as_syn_ident();
-            quote!(#name::#variant_name(value) => #encoded_len)
-        });
+        let encoded_len = e
+            .variants
+            .iter()
+            .map(|variant| {
+                let encoded_len = self.codegen_encoded_len(
+                    "*value".into(),
+                    variant.fields.first().unwrap(),
+                    variant.id.unwrap() as u32,
+                    FieldKind::Required,
+                );
+                let variant_name = self.cx.rust_name(variant.did);
+                format!("{name}::{variant_name}(value) => {encoded_len}")
+            })
+            .join(",");
 
-        let encode = e.variants.iter().map(|variant| {
-            let encode = self.codegen_encode(
-                quote! {*value},
-                variant.fields.first().unwrap(),
-                variant.id.unwrap() as u32,
-                FieldKind::Required,
-            );
-            let variant_name = self.cx.rust_name(variant.did).as_syn_ident();
-            quote!(#name::#variant_name(value) => { #encode })
-        });
+        let encode = e
+            .variants
+            .iter()
+            .map(|variant| {
+                let encode = self.codegen_encode(
+                    "*value".into(),
+                    variant.fields.first().unwrap(),
+                    variant.id.unwrap() as u32,
+                    FieldKind::Required,
+                );
+                let variant_name = self.cx.rust_name(variant.did);
+                format!("{name}::{variant_name}(value) => {{ {encode} }}")
+            })
+            .join(",");
 
-        let merge = e.variants.iter().map(|variant| {
-            let tag = variant.id.unwrap() as u32;
-            let variant_name = self.cx.rust_name(variant.did).as_syn_ident();
-            let merge = self.codegen_merge_field(
-                quote! {value},
-                variant.fields.first().unwrap(),
-                FieldKind::Required,
-            );
-            quote! {
-                #tag => {
+        let merge = e
+            .variants
+            .iter()
+            .map(|variant| {
+                let tag = variant.id.unwrap() as u32;
+                let variant_name = self.cx.rust_name(variant.did);
+                let merge = self.codegen_merge_field(
+                    quote! {value},
+                    variant.fields.first().unwrap(),
+                    FieldKind::Required,
+                );
+                format! {
+                    r#"{tag} => {{
                     let mut owned_value = ::core::default::Default::default();
                     let value = &mut owned_value;
-                    #merge?;
-                    *self = #name::#variant_name(owned_value);
+                    {merge}?;
+                    *self = {name}::{variant_name}(owned_value);
                     Ok(())
+                }}"#
                 }
-            }
-        });
+            })
+            .join(",");
 
-        stream.extend(quote! {
-            impl ::pilota::prost::Message for #name {
-                fn encode_raw<B>(&self, buf: &mut B) where B: ::pilota::prost::bytes::BufMut {
-                    match self {
-                        #(#encode)*
-                    }
-                }
+        stream.push_str(&format! {
+            r#"
+            impl ::pilota::prost::Message for {name} {{
+                fn encode_raw<B>(&self, buf: &mut B) where B: ::pilota::prost::bytes::BufMut {{
+                    match self {{
+                        {encode}
+                    }}
+                }}
 
                 /// Returns the encoded length of the message without a length delimiter.
                 #[inline]
-                fn encoded_len(&self) -> usize {
-                    match self {
-                        #(#encoded_len,)*
-                    }
-                }
+                fn encoded_len(&self) -> usize {{
+                    match self {{
+                        {encoded_len}
+                    }}
+                }}
 
                 /// Decodes an instance of the message from a buffer, and merges it into self.
                 fn merge_field<B>(
@@ -461,13 +477,18 @@ impl CodegenBackend for ProtobufBackend {
                     buf: &mut B,
                     ctx: ::pilota::prost::encoding::DecodeContext,
                 ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
-                where B: ::pilota::prost::bytes::Buf {
-                    match tag {
-                        #(#merge,)*
-                        _ => unreachable!(concat!("invalid ", stringify!(#name), " tag: {}"), tag),
-                    }
-                }
-            }
+                where B: ::pilota::prost::bytes::Buf {{
+                    match tag {{
+                        {merge}
+                        _ => unreachable!(concat!("invalid ", "{name}", " tag: {{}}"), tag),
+                    }}
+                }}
+            }}
+            "#
         });
+    }
+
+    fn cx(&self) -> &Context {
+        &self.cx
     }
 }

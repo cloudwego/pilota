@@ -2,6 +2,7 @@
     html_logo_url = "https://github.com/cloudwego/pilota/raw/main/.github/assets/logo.png?sanitize=true"
 )]
 #![cfg_attr(not(doctest), doc = include_str!("../README.md"))]
+#![allow(clippy::mutable_key_type)]
 
 pub mod codegen;
 pub mod db;
@@ -16,11 +17,11 @@ mod symbol;
 pub mod tags;
 mod util;
 use std::{
-    io::Write,
     path::{Path, PathBuf},
     sync::Arc,
 };
 
+// mod dedup;
 pub mod plugin;
 mod test;
 
@@ -28,9 +29,8 @@ pub use codegen::{
     protobuf::ProtobufBackend, thrift::ThriftBackend, traits::CodegenBackend, Codegen,
 };
 use db::{RirDatabase, RootDatabase};
-use fmt::fmt_file;
 use middle::{
-    context::{tls::CONTEXT, CollectMode},
+    context::{tls::CONTEXT, CollectMode, ContextBuilder, Mode, WorkspaceInfo},
     rir::NodeKind,
     type_graph::TypeGraph,
 };
@@ -44,15 +44,15 @@ use plugin::{
     WithAttrsPlugin,
 };
 pub use plugin::{BoxClonePlugin, ClonePlugin, Plugin};
+use rayon::{iter::ParallelIterator, prelude::IntoParallelIterator};
 use resolve::{ResolveResult, Resolver};
-use salsa::{Durability, ParallelDatabase};
+use salsa::Durability;
 pub use symbol::{DefId, IdentName};
-use syn::parse_quote;
 pub use tags::TagId;
 
 pub trait MakeBackend: Sized {
     type Target: CodegenBackend;
-    fn make_backend(self, context: Arc<Context>) -> Self::Target;
+    fn make_backend(self, context: Context) -> Self::Target;
 }
 
 pub struct MkThriftBackend;
@@ -60,7 +60,7 @@ pub struct MkThriftBackend;
 impl MakeBackend for MkThriftBackend {
     type Target = ThriftBackend;
 
-    fn make_backend(self, context: Arc<Context>) -> Self::Target {
+    fn make_backend(self, context: Context) -> Self::Target {
         ThriftBackend::new(context)
     }
 }
@@ -70,7 +70,7 @@ pub struct MkProtobufBackend;
 impl MakeBackend for MkProtobufBackend {
     type Target = ProtobufBackend;
 
-    fn make_backend(self, context: Arc<Context>) -> Self::Target {
+    fn make_backend(self, context: Context) -> Self::Target {
         ProtobufBackend::new(context)
     }
 }
@@ -92,7 +92,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             mk_backend: MkThriftBackend,
             parser: ThriftParser::default(),
             plugins: vec![
-                Box::new(WithAttrsPlugin(vec![parse_quote!(#[derive(Debug)])])),
+                Box::new(WithAttrsPlugin(Arc::from(["#[derive(Debug)]".into()]))),
                 Box::new(ImplDefaultPlugin),
                 Box::new(EnumNumPlugin),
             ],
@@ -110,7 +110,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             mk_backend: MkProtobufBackend,
             parser: ProtobufParser::default(),
             plugins: vec![
-                Box::new(WithAttrsPlugin(vec![parse_quote!(#[derive(Debug)])])),
+                Box::new(WithAttrsPlugin(Arc::from(["#[derive(Debug)]".into()]))),
                 Box::new(ImplDefaultPlugin),
                 Box::new(EnumNumPlugin),
             ],
@@ -180,12 +180,18 @@ impl<MkB, P> Builder<MkB, P> {
     }
 }
 
+pub enum Output {
+    Workspace(PathBuf),
+    File(PathBuf),
+}
+
 impl<MkB, P> Builder<MkB, P>
 where
-    MkB: MakeBackend,
+    MkB: MakeBackend + Send,
+    MkB::Target: Send,
     P: Parser,
 {
-    pub fn compile<O: AsRef<Path>>(mut self, files: &[impl AsRef<Path>], out: O) {
+    pub fn compile(mut self, files: &[impl AsRef<Path>], out: Output) {
         let _ = tracing_subscriber::fmt::try_init();
 
         let mut db = RootDatabase::default();
@@ -198,6 +204,17 @@ where
         db.set_file_ids_map_with_durability(Arc::new(file_ids_map), Durability::HIGH);
 
         let ResolveResult { files, nodes, tags } = Resolver::default().resolve_files(&files);
+
+        // discard duplicated items
+        // let mods = nodes
+        //     .iter()
+        //     .into_group_map_by(|(_, node)|
+        // files.get(&node.file_id).unwrap().package.clone());
+
+        // for (_, m) in mods {
+        //     m.iter().unique_by(f);
+        // }
+
         db.set_files_with_durability(Arc::new(files), Durability::HIGH);
         let items = nodes.iter().filter_map(|(k, v)| {
             if let NodeKind::Item(item) = &v.kind {
@@ -210,82 +227,118 @@ where
         let type_graph = Arc::from(TypeGraph::from_items(items));
         db.set_type_graph_with_durability(type_graph, Durability::HIGH);
         db.set_nodes_with_durability(Arc::new(nodes), Durability::HIGH);
-
-        let mut cx = Context::new(self.source_type, db.snapshot());
-        cx.change_case = self.change_case;
-        cx.set_tags_map(tags);
-
-        cx.exec_plugin(BoxedPlugin);
-
-        cx.exec_plugin(AutoDerivePlugin::new(
-            vec![parse_quote!(#[derive(PartialOrd)])],
-            |ty| {
-                let ty = match &ty.kind {
-                    ty::Vec(ty) => ty,
-                    _ => ty,
-                };
-                if matches!(ty.kind, ty::Map(_, _) | ty::Set(_)) {
-                    PredicateResult::No
-                } else {
-                    PredicateResult::GoOn
-                }
-            },
-        ));
-
-        cx.exec_plugin(AutoDerivePlugin::new(
-            vec![parse_quote!(#[derive(Hash, Eq, Ord)])],
-            |ty| {
-                let ty = match &ty.kind {
-                    ty::Vec(ty) => ty,
-                    _ => ty,
-                };
-                if matches!(ty.kind, ty::Map(_, _) | ty::Set(_) | ty::F64 | ty::F32) {
-                    PredicateResult::No
-                } else {
-                    PredicateResult::GoOn
-                }
-            },
-        ));
+        db.set_tags_map_with_durability(Arc::new(tags), Durability::HIGH);
 
         let mut input = Vec::with_capacity(input_files.len());
-        for file_id in input_files {
-            let file = cx.file(file_id).unwrap();
+        for file_id in &input_files {
+            let file = db.file(*file_id).unwrap();
             file.items.iter().for_each(|def_id| {
-                if matches!(&*cx.item(*def_id).unwrap(), rir::Item::Service(_)) {
+                if matches!(&*db.item(*def_id).unwrap(), rir::Item::Service(_)) {
                     input.push(*def_id)
                 }
             });
         }
+        db.set_input_files_with_durability(Arc::new(input_files), Durability::HIGH);
 
-        let mods = cx.collect_pkgs(if self.ignore_unused {
+        let mut cx = ContextBuilder::new(
+            db,
+            match out {
+                Output::Workspace(dir) => Mode::Workspace(WorkspaceInfo {
+                    dir,
+                    location_map: Default::default(),
+                }),
+                Output::File(p) => Mode::SingleFile { file_path: p },
+            },
+            input,
+        );
+
+        cx.collect(if self.ignore_unused {
             CollectMode::OnlyUsed {
                 touches: self.touches,
-                input,
             }
         } else {
             CollectMode::All
         });
 
-        self.plugins.into_iter().for_each(|p| cx.exec_plugin(p));
+        let cx = cx.build(self.source_type, self.change_case);
 
-        let context = Arc::from(cx);
-        CONTEXT.set(&context.clone(), || {
-            let mut cg = Codegen::new(context.clone(), self.mk_backend.make_backend(context));
-            cg.write_mods(mods);
-
-            let file_name = out
-                .as_ref()
-                .file_name()
-                .and_then(|s| s.to_str())
-                .and_then(|s| s.split('.').next())
-                .unwrap();
-
-            let stream = cg.link(file_name);
-
-            let mut file = std::io::BufWriter::new(std::fs::File::create(&out).unwrap());
-            file.write_all(stream.to_string().as_bytes()).unwrap();
-            file.flush().unwrap();
-            fmt_file(out)
+        rayon::scope({
+            let cx = cx.clone();
+            move |scope| {
+                {
+                    let cx = cx.clone();
+                    scope.spawn(move |_| cx.exec_plugin(BoxedPlugin));
+                }
+                {
+                    let cx = cx.clone();
+                    scope.spawn(move |_| {
+                        cx.exec_plugin(AutoDerivePlugin::new(
+                            Arc::from(["#[derive(PartialOrd)]".into()]),
+                            |ty| {
+                                let ty = match &ty.kind {
+                                    ty::Vec(ty) => ty,
+                                    _ => ty,
+                                };
+                                if matches!(ty.kind, ty::Map(_, _) | ty::Set(_)) {
+                                    PredicateResult::No
+                                } else {
+                                    PredicateResult::GoOn
+                                }
+                            },
+                        ))
+                    });
+                }
+                {
+                    let cx = cx;
+                    cx.exec_plugin(AutoDerivePlugin::new(
+                        Arc::from(["#[derive(Hash, Eq, Ord)]".into()]),
+                        |ty| {
+                            let ty = match &ty.kind {
+                                ty::Vec(ty) => ty,
+                                _ => ty,
+                            };
+                            if matches!(ty.kind, ty::Map(_, _) | ty::Set(_) | ty::F64 | ty::F32) {
+                                PredicateResult::No
+                            } else {
+                                PredicateResult::GoOn
+                            }
+                        },
+                    ));
+                }
+            }
         });
+
+        self.plugins
+            .into_par_iter()
+            .for_each_with(cx.clone(), |cx, p| cx.exec_plugin(p));
+
+        std::thread::scope(|scope| {
+            let pool = rayon::ThreadPoolBuilder::new();
+            let pool = pool
+                .spawn_handler(|thread| {
+                    let mut builder = std::thread::Builder::new();
+                    if let Some(name) = thread.name() {
+                        builder = builder.name(name.to_string());
+                    }
+                    if let Some(size) = thread.stack_size() {
+                        builder = builder.stack_size(size);
+                    }
+
+                    let cx = cx.clone();
+                    builder.spawn_scoped(scope, move || {
+                        CONTEXT.set(&cx, || thread.run());
+                    })?;
+                    Ok(())
+                })
+                .build()?;
+
+            pool.install(move || {
+                let cg = Codegen::new(self.mk_backend.make_backend(cx));
+                cg.gen().unwrap();
+            });
+
+            Ok::<_, rayon::ThreadPoolBuildError>(())
+        })
+        .unwrap();
     }
 }

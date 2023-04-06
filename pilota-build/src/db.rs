@@ -9,6 +9,8 @@ use crate::{
         type_graph::TypeGraph,
     },
     symbol::{DefId, FileId},
+    tags::Tags,
+    TagId,
 };
 
 #[derive(Default)]
@@ -41,6 +43,10 @@ pub trait RirDatabase {
     fn file_ids_map(&self) -> Arc<FxHashMap<Arc<PathBuf>, FileId>>;
     #[salsa::input]
     fn type_graph(&self) -> Arc<TypeGraph>;
+    #[salsa::input]
+    fn tags_map(&self) -> Arc<FxHashMap<TagId, Arc<Tags>>>;
+    #[salsa::input]
+    fn input_files(&self) -> Arc<Vec<FileId>>;
 
     fn node(&self, def_id: DefId) -> Option<rir::Node>;
     fn file(&self, file_id: FileId) -> Option<Arc<rir::File>>;

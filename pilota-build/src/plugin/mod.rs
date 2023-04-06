@@ -1,9 +1,9 @@
 use std::{collections::HashSet, ops::DerefMut, sync::Arc};
 
+use faststr::FastStr;
 use fxhash::FxHashMap;
 use itertools::Itertools;
 use quote::quote;
-use syn::{parse_quote, Attribute};
 
 use crate::{
     db::RirDatabase,
@@ -11,27 +11,27 @@ use crate::{
     symbol::{DefId, EnumRepr},
     tags::EnumMode,
     ty::{self, Ty, Visitor},
-    Context, IdentName,
+    Context,
 };
 
 mod serde;
 
 pub use serde::SerdePlugin;
 
-pub trait Plugin {
-    fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
+pub trait Plugin: Sync + Send {
+    fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         walk_item(self, cx, def_id, item)
     }
 
-    fn on_field(&mut self, cx: &mut Context, def_id: DefId, f: Arc<Field>) {
+    fn on_field(&mut self, cx: &Context, def_id: DefId, f: Arc<Field>) {
         walk_field(self, cx, def_id, f)
     }
 
-    fn on_variant(&mut self, cx: &mut Context, def_id: DefId, variant: Arc<EnumVariant>) {
+    fn on_variant(&mut self, cx: &Context, def_id: DefId, variant: Arc<EnumVariant>) {
         walk_variant(self, cx, def_id, variant)
     }
 
-    fn on_emit(&mut self, _cx: &mut Context) {}
+    fn on_emit(&mut self, _cx: &Context) {}
 }
 
 pub trait ClonePlugin: Plugin {
@@ -53,19 +53,19 @@ impl Clone for BoxClonePlugin {
 }
 
 impl Plugin for BoxClonePlugin {
-    fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
+    fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         self.0.on_item(cx, def_id, item)
     }
 
-    fn on_field(&mut self, cx: &mut Context, def_id: DefId, f: Arc<Field>) {
+    fn on_field(&mut self, cx: &Context, def_id: DefId, f: Arc<Field>) {
         self.0.on_field(cx, def_id, f)
     }
 
-    fn on_variant(&mut self, cx: &mut Context, def_id: DefId, variant: Arc<EnumVariant>) {
+    fn on_variant(&mut self, cx: &Context, def_id: DefId, variant: Arc<EnumVariant>) {
         self.0.on_variant(cx, def_id, variant)
     }
 
-    fn on_emit(&mut self, cx: &mut Context) {
+    fn on_emit(&mut self, cx: &Context) {
         self.0.on_emit(cx)
     }
 }
@@ -83,25 +83,25 @@ impl<T> Plugin for &mut T
 where
     T: Plugin,
 {
-    fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
+    fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         (*self).on_item(cx, def_id, item)
     }
 
-    fn on_field(&mut self, cx: &mut Context, def_id: DefId, f: Arc<Field>) {
+    fn on_field(&mut self, cx: &Context, def_id: DefId, f: Arc<Field>) {
         (*self).on_field(cx, def_id, f)
     }
 
-    fn on_variant(&mut self, cx: &mut Context, def_id: DefId, variant: Arc<EnumVariant>) {
+    fn on_variant(&mut self, cx: &Context, def_id: DefId, variant: Arc<EnumVariant>) {
         (*self).on_variant(cx, def_id, variant)
     }
 
-    fn on_emit(&mut self, cx: &mut Context) {
+    fn on_emit(&mut self, cx: &Context) {
         (*self).on_emit(cx)
     }
 }
 
 #[allow(clippy::single_match)]
-pub fn walk_item<P: Plugin + ?Sized>(p: &mut P, cx: &mut Context, _def_id: DefId, item: Arc<Item>) {
+pub fn walk_item<P: Plugin + ?Sized>(p: &mut P, cx: &Context, _def_id: DefId, item: Arc<Item>) {
     match &*item {
         Item::Message(s) => s
             .fields
@@ -117,7 +117,7 @@ pub fn walk_item<P: Plugin + ?Sized>(p: &mut P, cx: &mut Context, _def_id: DefId
 
 pub fn walk_field<P: Plugin + ?Sized>(
     _p: &mut P,
-    _cx: &mut Context,
+    _cx: &Context,
     _def_id: DefId,
     _field: Arc<Field>,
 ) {
@@ -125,7 +125,7 @@ pub fn walk_field<P: Plugin + ?Sized>(
 
 pub fn walk_variant<P: Plugin + ?Sized>(
     _p: &mut P,
-    _cx: &mut Context,
+    _cx: &Context,
     _def_id: DefId,
     _variant: Arc<EnumVariant>,
 ) {
@@ -134,12 +134,12 @@ pub fn walk_variant<P: Plugin + ?Sized>(
 pub struct BoxedPlugin;
 
 impl Plugin for BoxedPlugin {
-    fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
+    fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         if let Item::Message(s) = &*item {
             s.fields.iter().for_each(|f| {
                 if let ty::Path(p) = &f.ty.kind {
                     if cx.type_graph().is_nested(p.did, def_id) {
-                        cx.with_adjust(f.did, |adj| adj.set_boxed())
+                        cx.with_adjust_mut(f.did, |adj| adj.set_boxed())
                     }
                 }
             })
@@ -151,14 +151,14 @@ impl Plugin for BoxedPlugin {
 pub struct AutoDerivePlugin<F> {
     can_derive: FxHashMap<DefId, CanDerive>,
     predicate: F,
-    attrs: Vec<Attribute>,
+    attrs: Arc<[FastStr]>,
 }
 
 impl<F> AutoDerivePlugin<F>
 where
     F: Fn(&Ty) -> PredicateResult,
 {
-    pub fn new(attrs: Vec<Attribute>, f: F) -> Self {
+    pub fn new(attrs: Arc<[FastStr]>, f: F) -> Self {
         Self {
             can_derive: FxHashMap::default(),
             predicate: f,
@@ -265,17 +265,17 @@ where
 
 impl<F> Plugin for AutoDerivePlugin<F>
 where
-    F: Fn(&Ty) -> PredicateResult,
+    F: Fn(&Ty) -> PredicateResult + Send + Sync,
 {
-    fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
+    fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         self.can_derive(cx, def_id, &mut HashSet::default(), &mut HashSet::default());
         walk_item(self, cx, def_id, item)
     }
 
-    fn on_emit(&mut self, cx: &mut Context) {
+    fn on_emit(&mut self, cx: &Context) {
         self.can_derive.iter().for_each(|(def_id, can_derive)| {
             if !matches!(can_derive, CanDerive::No) {
-                cx.with_adjust(*def_id, |adj| adj.add_attrs(&self.attrs));
+                cx.with_adjust_mut(*def_id, |adj| adj.add_attrs(&self.attrs));
             }
         })
     }
@@ -285,26 +285,26 @@ impl<T> Plugin for Box<T>
 where
     T: Plugin + ?Sized,
 {
-    fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
+    fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         self.deref_mut().on_item(cx, def_id, item)
     }
 
-    fn on_field(&mut self, cx: &mut Context, def_id: DefId, f: Arc<Field>) {
+    fn on_field(&mut self, cx: &Context, def_id: DefId, f: Arc<Field>) {
         self.deref_mut().on_field(cx, def_id, f)
     }
 
-    fn on_emit(&mut self, cx: &mut Context) {
+    fn on_emit(&mut self, cx: &Context) {
         self.deref_mut().on_emit(cx)
     }
 }
 
-pub struct WithAttrsPlugin(pub Vec<syn::Attribute>);
+pub struct WithAttrsPlugin(pub Arc<[FastStr]>);
 
 impl Plugin for WithAttrsPlugin {
-    fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
+    fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         match &*item {
             Item::Message(_) | Item::Enum(_) | Item::NewType(_) => {
-                cx.with_adjust(def_id, |adj| adj.add_attrs(&self.0))
+                cx.with_adjust_mut(def_id, |adj| adj.add_attrs(&self.0))
             }
             _ => {}
         }
@@ -315,62 +315,66 @@ impl Plugin for WithAttrsPlugin {
 pub struct ImplDefaultPlugin;
 
 impl Plugin for ImplDefaultPlugin {
-    fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
+    fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         match &*item {
             Item::Message(m) => {
-                let name = cx.rust_name(def_id).as_syn_ident();
+                let name = cx.rust_name(def_id);
 
                 if m.fields.iter().all(|f| cx.default_val(f).is_none()) {
-                    cx.with_adjust(def_id, |adj| {
-                        adj.add_attrs(&[parse_quote!(#[derive(Default)])])
-                    });
+                    cx.with_adjust_mut(def_id, |adj| adj.add_attrs(&["#[derive(Default)]".into()]));
                 } else {
                     let fields = m
                         .fields
                         .iter()
                         .map(|f| {
-                            let name = cx.rust_name(f.did).as_syn_ident();
+                            let name = cx.rust_name(f.did);
                             let default = cx.default_val(f).map(|v| v.0);
 
                             if let Some(default) = default {
-                                let mut val = quote! { #default };
+                                let mut val = default;
                                 if f.is_optional() {
-                                    val = quote!( Some(#val) )
+                                    val = format!("Some({val})").into()
                                 }
-                                quote! { #name: #val }
+                                format!("{name}: {val}")
                             } else {
-                                quote! { #name: Default::default() }
+                                format!("{name}: Default::default()")
                             }
                         })
-                        .collect::<Vec<_>>();
-                    cx.with_adjust(def_id, |adj| {
-                        adj.add_impl(quote! {
-                            impl Default for #name {
-                                fn default() -> Self {
-                                    #name {
-                                        #(#fields),*
-                                    }
-                                }
-                            }
-                        })
+                        .join(",\n");
+
+                    cx.with_adjust_mut(def_id, |adj| {
+                        adj.add_impl(
+                            format!(
+                                r#"
+                                impl Default for {name} {{
+                                    fn default() -> Self {{
+                                        {name} {{
+                                            {fields}
+                                        }}
+                                    }}
+                                }}
+                            "#
+                            )
+                            .into(),
+                        )
                     });
                 };
             }
-            Item::NewType(_) => cx.with_adjust(def_id, |adj| {
-                adj.add_attrs(&[parse_quote!(#[derive(Default)])])
-            }),
+            Item::NewType(_) => {
+                cx.with_adjust_mut(def_id, |adj| adj.add_attrs(&["#[derive(Default)]".into()]))
+            }
             Item::Enum(e) => {
                 if !e.variants.is_empty() {
-                    cx.with_adjust(def_id, |adj| {
+                    cx.with_adjust_mut(def_id, |adj| {
                         adj.add_attrs(&[
-                            parse_quote!(#[derive(::pilota::derivative::Derivative)]),
-                            parse_quote!(#[derivative(Default)]),
+                            "#[derive(::pilota::derivative::Derivative)]".into(),
+                            "#[derivative(Default)]".into(),
                         ]);
                     });
 
                     if let Some(v) = e.variants.first() {
-                        cx.with_adjust(v.did, |adj| {
-                            adj.add_attrs(&[parse_quote!(#[derivative(Default)])]);
+                        cx.with_adjust_mut(v.did, |adj| {
+                            adj.add_attrs(&["#[derivative(Default)]".into()]);
                         })
                     }
                 }
@@ -384,7 +388,7 @@ impl Plugin for ImplDefaultPlugin {
 pub struct EnumNumPlugin;
 
 impl Plugin for EnumNumPlugin {
-    fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
+    fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         match &*item {
             Item::Enum(e)
                 if e.repr.is_some()
@@ -397,7 +401,7 @@ impl Plugin for EnumNumPlugin {
                         == EnumMode::Enum =>
             {
                 let name_str = &*cx.rust_name(def_id);
-                let name = name_str.as_syn_ident();
+                let name = name_str;
                 let num_ty = match e.repr {
                     Some(EnumRepr::I32) => quote!(i32),
                     None => return,
@@ -407,46 +411,46 @@ impl Plugin for EnumNumPlugin {
                     .iter()
                     .map(|v| {
                         let variant_name_str = cx.rust_name(v.did);
-                        let variant_name = variant_name_str.as_syn_ident();
-                        quote!(
-                            #variant_name => ::std::result::Result::Ok(#name::#variant_name),
+                        let variant_name = variant_name_str;
+                        format!(
+                            "{variant_name} => ::std::result::Result::Ok({name}::{variant_name}), \n"
                         )
                     })
-                    .collect_vec();
+                    .join("");
 
                 let nums = e
                     .variants
                     .iter()
                     .map(|v| {
                         let variant_name_str = cx.rust_name(v.did);
-                        let variant_name = variant_name_str.as_syn_ident();
-                        quote!(const #variant_name: #num_ty = #name::#variant_name as #num_ty;)
+                        let variant_name = variant_name_str;
+                        format!(
+                            "const {variant_name}: {num_ty} = {name}::{variant_name} as {num_ty};"
+                        )
                     })
-                    .collect_vec();
+                    .join("\n");
 
-                cx.with_adjust(def_id, |adj| {
-                    adj.add_impl(quote! {
-                        impl ::std::convert::From<#name> for #num_ty {
-                            fn from(e: #name) -> Self {
+                cx.with_adjust_mut(def_id, |adj| {
+                    adj.add_impl(format!(r#"
+                        impl ::std::convert::From<{name}> for {num_ty} {{
+                            fn from(e: {name}) -> Self {{
                                 e as _
-                            }
-                        }
+                            }}
+                        }}
 
-                        impl ::std::convert::TryFrom<#num_ty> for #name {
-                            type Error = ::pilota::EnumConvertError<#num_ty>;
+                        impl ::std::convert::TryFrom<{num_ty}> for {name} {{
+                            type Error = ::pilota::EnumConvertError<{num_ty}>;
 
                             #[allow(non_upper_case_globals)]
-                            fn try_from(v: i32) -> Result<Self, ::pilota::EnumConvertError<#num_ty>> {
-                                #(#nums)*
-                                match v {
-                                    #(
-                                        #variants
-                                    )*
-                                    _ => ::std::result::Result::Err(::pilota::EnumConvertError::InvalidNum(v, #name_str)),
-                                }
-                            }
-                        }
-                    })
+                            fn try_from(v: i32) -> Result<Self, ::pilota::EnumConvertError<{num_ty}>> {{
+                                {nums}
+                                match v {{
+                                    {variants}
+                                    _ => ::std::result::Result::Err(::pilota::EnumConvertError::InvalidNum(v, "{name_str}")),
+                                }}
+                            }}
+                        }}"#).into(),
+                    )
                 });
             }
             _ => {}

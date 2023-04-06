@@ -1,9 +1,21 @@
+use std::fmt::Debug;
+
+use faststr::FastStr;
+
 #[derive(Default)]
 pub struct Adjust {
     boxed: bool,
-    attrs: Vec<syn::Attribute>,
-    pub(crate) impls: Vec<proc_macro2::TokenStream>,
-    lifetimes: Vec<syn::Lifetime>,
+    attrs: Vec<FastStr>,
+    pub(crate) impls: Vec<FastStr>,
+}
+
+impl Debug for Adjust {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Adjust")
+            .field("boxed", &self.boxed)
+            .field("impls", &self.impls)
+            .finish()
+    }
 }
 
 impl Adjust {
@@ -18,22 +30,17 @@ impl Adjust {
     }
 
     #[inline]
-    pub fn attrs(&self) -> &Vec<syn::Attribute> {
+    pub fn attrs(&self) -> &Vec<FastStr> {
         &self.attrs
     }
 
     #[inline]
-    pub fn add_attrs(&mut self, attrs: &[syn::Attribute]) {
+    pub fn add_attrs(&mut self, attrs: &[FastStr]) {
         self.attrs.extend_from_slice(attrs)
     }
 
     #[inline]
-    pub fn add_lifetime(&mut self, lifetime: syn::Lifetime) {
-        self.lifetimes.push(lifetime)
-    }
-
-    #[inline]
-    pub fn add_impl(&mut self, r#impl: proc_macro2::TokenStream) {
+    pub fn add_impl(&mut self, r#impl: FastStr) {
         self.impls.push(r#impl)
     }
 }

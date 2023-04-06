@@ -1,6 +1,7 @@
+
 pub mod optional {
     #![allow(warnings, clippy::all)]
-    #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+    #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
     pub struct SearchRequest {
         pub page_number: ::std::option::Option<i32>,
     }
@@ -8,18 +9,20 @@ pub mod optional {
         #[inline]
         fn encoded_len(&self) -> usize {
             0 + self.page_number.as_ref().map_or(0, |value| {
-                ::pilota::prost::encoding::int32::encoded_len(2u32, value)
+                ::pilota::prost::encoding::int32::encoded_len(2, value)
             })
         }
+
         #[allow(unused_variables)]
         fn encode_raw<B>(&self, buf: &mut B)
         where
             B: ::pilota::prost::bytes::BufMut,
         {
             if let Some(_pilota_inner_value) = self.page_number.as_ref() {
-                ::pilota::prost::encoding::int32::encode(2u32, _pilota_inner_value, buf);
+                ::pilota::prost::encoding::int32::encode(2, _pilota_inner_value, buf);
             }
         }
+
         #[allow(unused_variables)]
         fn merge_field<B>(
             &mut self,
@@ -33,7 +36,7 @@ pub mod optional {
         {
             const STRUCT_NAME: &'static str = stringify!(SearchRequest);
             match tag {
-                2u32 => {
+                2 => {
                     let mut _inner_pilota_value = &mut self.page_number;
                     ::pilota::prost::encoding::int32::merge(
                         wire_type,
@@ -46,6 +49,7 @@ pub mod optional {
                         error
                     })
                 }
+
                 _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
             }
         }

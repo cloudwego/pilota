@@ -1,6 +1,5 @@
+use faststr::FastStr;
 use paste::paste;
-use proc_macro2::TokenStream;
-use quote::quote;
 
 pub struct DecodeHelper {
     pub is_async: bool,
@@ -16,15 +15,11 @@ macro_rules! protocol_method {
     ($m:ident) => {
         paste! {
             #[inline]
-            pub fn [<codegen_ $m>](&self) -> TokenStream {
+            pub fn [<codegen_ $m>](&self) -> faststr::FastStr {
                 if self.is_async {
-                    quote::quote! {
-                        protocol.$m().await?
-                    }
+                    format!("protocol.{}().await?", stringify!($m)).into()
                 } else {
-                    quote::quote! {
-                        protocol.$m()?
-                    }
+                    format!("protocol.{}()?", stringify!($m)).into()
                 }
             }
         }
@@ -54,23 +49,19 @@ impl DecodeHelper {
     protocol_method!(read_field_end);
     protocol_method!(read_bool);
 
-    pub fn codegen_skip_ttype(&self, tt: TokenStream) -> TokenStream {
+    pub fn codegen_skip_ttype(&self, tt: FastStr) -> String {
         if self.is_async {
-            quote! {
-                protocol.skip(#tt).await?
-            }
+            format!("protocol.skip({tt}).await?")
         } else {
-            quote! {
-                protocol.skip(#tt)?
-            }
+            format!("protocol.skip({tt})?")
         }
     }
 
-    pub fn codegen_item_decode(&self) -> TokenStream {
+    pub fn codegen_item_decode(&self) -> FastStr {
         if self.is_async {
-            quote! { ::pilota::thrift::Message::decode_async(protocol).await? }
+            "::pilota::thrift::Message::decode_async(protocol).await?".into()
         } else {
-            quote! { ::pilota::thrift::Message::decode(protocol)? }
+            "::pilota::thrift::Message::decode(protocol)?".into()
         }
     }
 }
