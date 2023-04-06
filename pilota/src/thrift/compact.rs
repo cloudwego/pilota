@@ -2,12 +2,11 @@
 //
 // https://github.com/apache/thrift/blob/ec5e17714a1f9da34173749fc01eea33c7f6af62/lib/rs/src/protocol/compact.rs
 
-use std::str;
+use std::{ops::Deref, str};
 
 use bytes::{Bytes, BytesMut};
 use faststr::FastStr;
 use integer_encoding::VarInt;
-use lazy_static::__Deref;
 use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
@@ -1472,6 +1471,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
             size: element_count,
         })
     }
+
     #[inline]
     fn read_set_end(&mut self) -> Result<(), DecodeError> {
         Ok(())

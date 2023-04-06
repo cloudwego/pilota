@@ -82,6 +82,7 @@ pub struct Builder<MkB, P> {
     plugins: Vec<Box<dyn Plugin>>,
     ignore_unused: bool,
     touches: Vec<(std::path::PathBuf, Vec<String>)>,
+    change_case: bool,
 }
 
 impl Builder<MkThriftBackend, ThriftParser> {
@@ -97,6 +98,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             ],
             touches: Vec::default(),
             ignore_unused: true,
+            change_case: true,
         }
     }
 }
@@ -114,6 +116,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             ],
             touches: Vec::default(),
             ignore_unused: true,
+            change_case: true,
         }
     }
 }
@@ -137,12 +140,18 @@ impl<MkB, P> Builder<MkB, P> {
             plugins: self.plugins,
             ignore_unused: self.ignore_unused,
             touches: self.touches,
+            change_case: self.change_case,
         }
     }
 
     pub fn plugin<Plu: Plugin + 'static>(mut self, p: Plu) -> Self {
         self.plugins.push(Box::new(p));
 
+        self
+    }
+
+    pub fn change_case(mut self, change_case: bool) -> Self {
+        self.change_case = change_case;
         self
     }
 
@@ -203,6 +212,7 @@ where
         db.set_nodes_with_durability(Arc::new(nodes), Durability::HIGH);
 
         let mut cx = Context::new(self.source_type, db.snapshot());
+        cx.change_case = self.change_case;
         cx.set_tags_map(tags);
 
         cx.exec_plugin(BoxedPlugin);
