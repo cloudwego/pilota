@@ -316,7 +316,53 @@ pub struct ImplDefaultPlugin;
 impl Plugin for ImplDefaultPlugin {
     fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
         match &*item {
-            Item::Message(_) | Item::NewType(_) => cx.with_adjust(def_id, |adj| {
+            Item::Message(m) => {
+                let name = m.name.0.as_syn_ident();
+
+                if m.fields.iter().all(|f| f.default.is_none()) {
+                    cx.with_adjust(def_id, |adj| {
+                        adj.add_attrs(&[parse_quote!(#[derive(Default)])])
+                    });
+                } else {
+                    let fields = m
+                        .fields
+                        .iter()
+                        .map(|f| {
+                            let name = cx.rust_name(f.did).as_syn_ident();
+                            let default = f.default.as_ref().and_then(|default| match default {
+                                crate::rir::Literal::String(s) => {
+                                    let s = &**s;
+                                    Some(quote!(#s))
+                                }
+                                crate::rir::Literal::Int(i) => Some(quote! {#i}),
+                                crate::rir::Literal::Float(f) => {
+                                    let f: f64 = f.parse().unwrap();
+                                    Some(quote!(#f))
+                                }
+                                _ => None,
+                            });
+
+                            if let Some(default) = default {
+                                quote! { #name: #default.into() }
+                            } else {
+                                quote! { #name: Default::default() }
+                            }
+                        })
+                        .collect::<Vec<_>>();
+                    cx.with_adjust(def_id, |adj| {
+                        adj.add_impl(quote! {
+                            impl Default for #name {
+                                fn default() -> Self {
+                                    #name {
+                                        #(#fields),*
+                                    }
+                                }
+                            }
+                        })
+                    });
+                };
+            }
+            Item::NewType(_) => cx.with_adjust(def_id, |adj| {
                 adj.add_attrs(&[parse_quote!(#[derive(Default)])])
             }),
             Item::Enum(e) => {

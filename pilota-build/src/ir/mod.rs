@@ -97,6 +97,7 @@ pub struct Field {
     pub ty: Ty,
     pub kind: FieldKind,
     pub tags: Arc<Tags>,
+    pub default: Option<Literal>,
 }
 
 #[derive(Clone, Debug)]

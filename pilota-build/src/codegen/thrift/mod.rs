@@ -1,5 +1,6 @@
 use std::{ops::Deref, sync::Arc};
 
+use itertools::Itertools;
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 
@@ -142,22 +143,46 @@ impl ThriftBackend {
     }
 
     fn codegen_decode(&self, helper: &DecodeHelper, s: &rir::Message) -> TokenStream {
-        let mut required_field_names = Vec::with_capacity(s.fields.len());
-        let mut optional_field_names = Vec::with_capacity(s.fields.len());
-        s.fields.iter().for_each(|f| {
-            let field_name = self.rust_name(f.did).as_syn_ident();
+        let fields = s
+            .fields
+            .iter()
+            .map(|f| self.rust_name(f.did).as_syn_ident());
 
-            if f.is_optional() {
-                optional_field_names.push(field_name);
-            } else {
-                required_field_names.push(field_name);
+        let required_without_default_fields = s
+            .fields
+            .iter()
+            .filter(|f| f.default.is_none() && !f.is_optional())
+            .map(|f| self.rust_name(f.did).as_syn_ident())
+            .collect_vec();
+
+        let def_fields = s.fields.iter().map(|f| {
+            let field_name = self.rust_name(f.did).as_syn_ident();
+            let mut v = quote!(None);
+
+            if let Some(default) = f.default.as_ref().map(|d| match d {
+                rir::Literal::String(s) => {
+                    let s = &**s;
+                    Some(quote!(#s))
+                }
+                rir::Literal::Int(i) => Some(quote!(#i)),
+                rir::Literal::Float(f) => {
+                    let f: f64 = f.parse().unwrap();
+                    Some(quote!(#f))
+                }
+                _ => None,
+            }) {
+                v = quote!(Some(#default.into()));
+            };
+
+            quote! {
+                let mut #field_name = #v;
             }
         });
 
         let read_struct_begin = helper.codegen_read_struct_begin();
         let read_struct_end = helper.codegen_read_struct_end();
         let read_fields = self.codegen_decode_fields(helper, &s.fields);
-        let required_errs = required_field_names
+        let required_errs = required_without_default_fields
             .iter()
             .map(|i| format!("field {} is required", i));
 
@@ -180,8 +205,7 @@ impl ThriftBackend {
         let format_msg = format!("decode struct `{}` field(#{{}}) failed", s.name);
 
         quote! {
-            #(let mut #required_field_names = None;)*
-            #(let mut #optional_field_names = None;)*
+            #(#def_fields)*
 
             let mut __pilota_decoding_field_id = None;
 
@@ -199,7 +223,7 @@ impl ThriftBackend {
             #read_struct_end;
 
 
-            #(let Some(#required_field_names) = #required_field_names else {
+            #(let Some(#required_without_default_fields) = #required_without_default_fields else {
                 return Err(
                     ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
@@ -209,8 +233,7 @@ impl ThriftBackend {
             };)*
 
             let data = Self {
-                #(#optional_field_names,)*
-                #(#required_field_names,)*
+                #(#fields,)*
             };
             Ok(data)
         }
