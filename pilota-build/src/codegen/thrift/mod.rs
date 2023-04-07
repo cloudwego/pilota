@@ -159,18 +159,7 @@ impl ThriftBackend {
             let field_name = self.rust_name(f.did).as_syn_ident();
             let mut v = quote!(None);
 
-            if let Some(default) = f.default.as_ref().map(|d| match d {
-                rir::Literal::String(s) => {
-                    let s = &**s;
-                    Some(quote!(#s))
-                }
-                rir::Literal::Int(i) => Some(quote!(#i)),
-                rir::Literal::Float(f) => {
-                    let f: f64 = f.parse().unwrap();
-                    Some(quote!(#f))
-                }
-                _ => None,
-            }) {
+            if let Some(default) = self.cx.default_val(f) {
                 v = quote!(#default.into());
 
                 if f.is_optional() {

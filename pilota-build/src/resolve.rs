@@ -574,6 +574,7 @@ impl Resolver {
 
     fn lower_lit(&self, l: &ir::Literal) -> Literal {
         match l {
+            ir::Literal::Bool(b) => Literal::Bool(*b),
             ir::Literal::Path(p) => Literal::Path(self.lower_path(p, Namespace::Value)),
             ir::Literal::String(s) => Literal::String(s.clone()),
             ir::Literal::Int(i) => Literal::Int(*i),

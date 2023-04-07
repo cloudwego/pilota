@@ -21,6 +21,8 @@ impl Parser for ConstValue {
     fn parse(input: &str) -> IResult<&str, ConstValue> {
         alt((
             map(Literal::parse, ConstValue::String),
+            map(tag("true"), |_| ConstValue::Bool(true)),
+            map(tag("false"), |_| ConstValue::Bool(false)),
             map(Path::parse, ConstValue::Path),
             map(DoubleConstant::parse, ConstValue::Double),
             map(IntConstant::parse, ConstValue::Int),

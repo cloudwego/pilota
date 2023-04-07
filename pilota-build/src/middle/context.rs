@@ -4,15 +4,15 @@ use faststr::FastStr;
 use fxhash::{FxHashMap, FxHashSet};
 use itertools::Itertools;
 use normpath::PathExt;
-use proc_macro2::Span;
-use quote::format_ident;
+use proc_macro2::{Span, TokenStream};
+use quote::{format_ident, quote};
 use syn::PathSegment;
 
 use self::tls::with_cur_item;
 use super::{adjust::Adjust, rir::NodeKind};
 use crate::{
     db::{RirDatabase, RootDatabase},
-    rir,
+    rir::{self, Field},
     symbol::{DefId, IdentName, Symbol},
     tags::{TagId, Tags},
     ty::Visitor,
@@ -99,6 +99,22 @@ impl Context {
     pub fn symbol_name(&self, def_id: DefId) -> Symbol {
         let item = self.item(def_id).unwrap();
         item.symbol_name()
+    }
+
+    pub fn default_val(&self, f: &Field) -> Option<TokenStream> {
+        f.default.as_ref().and_then(|d| match d {
+            rir::Literal::String(s) => {
+                let s = &**s;
+                Some(quote!(#s))
+            }
+            rir::Literal::Int(i) => Some(quote!(#i)),
+            rir::Literal::Float(f) => {
+                let f: f64 = f.parse().unwrap();
+                Some(quote!(#f))
+            }
+            rir::Literal::Bool(b) => Some(quote!(#b)),
+            rir::Literal::Path(_) | rir::Literal::List(_) | rir::Literal::Map(_) => todo!(),
+        })
     }
 
     pub fn rust_name(&self, def_id: DefId) -> FastStr {

@@ -11,6 +11,7 @@ pub mod visit;
 
 #[derive(Clone, Debug)]
 pub enum Literal {
+    Bool(bool),
     Path(Path),
     String(Arc<str>),
     Int(i64),
