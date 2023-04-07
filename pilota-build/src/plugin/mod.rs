@@ -329,18 +329,7 @@ impl Plugin for ImplDefaultPlugin {
                         .iter()
                         .map(|f| {
                             let name = cx.rust_name(f.did).as_syn_ident();
-                            let default = f.default.as_ref().and_then(|default| match default {
-                                crate::rir::Literal::String(s) => {
-                                    let s = &**s;
-                                    Some(quote!(#s))
-                                }
-                                crate::rir::Literal::Int(i) => Some(quote! {#i}),
-                                crate::rir::Literal::Float(f) => {
-                                    let f: f64 = f.parse().unwrap();
-                                    Some(quote!(#f))
-                                }
-                                _ => None,
-                            });
+                            let default = cx.default_val(f);
 
                             if let Some(default) = default {
                                 quote! { #name: #default.into() }

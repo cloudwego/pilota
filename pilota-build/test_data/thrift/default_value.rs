@@ -6,6 +6,7 @@ pub mod default_value {
                 A {
                     faststr: "hello world".into(),
                     string: "test".into(),
+                    a: false.into(),
                 }
             }
         }
@@ -13,6 +14,7 @@ pub mod default_value {
         pub struct A {
             pub faststr: ::pilota::FastStr,
             pub string: ::std::string::String,
+            pub a: ::std::option::Option<bool>,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
@@ -25,6 +27,9 @@ pub mod default_value {
                 protocol.write_struct_begin(&struct_ident)?;
                 protocol.write_faststr_field(1i16, (&self.faststr).clone())?;
                 protocol.write_string_field(2i16, &&self.string)?;
+                if let Some(value) = self.a.as_ref() {
+                    protocol.write_bool_field(3i16, *value)?;
+                };
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -34,6 +39,7 @@ pub mod default_value {
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
                 let mut faststr = "hello world".into();
                 let mut string = "test".into();
+                let mut a = Some(false.into());
                 let mut __pilota_decoding_field_id = None;
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
@@ -55,6 +61,11 @@ pub mod default_value {
                             {
                                 string = protocol.read_string()?;
                             }
+                            Some(3i16)
+                                if field_ident.field_type == ::pilota::thrift::TType::Bool =>
+                            {
+                                a = Some(protocol.read_bool()?);
+                            }
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -75,7 +86,7 @@ pub mod default_value {
                     }
                 };
                 protocol.read_struct_end()?;
-                let data = Self { faststr, string };
+                let data = Self { faststr, string, a };
                 Ok(data)
             }
             async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -83,6 +94,7 @@ pub mod default_value {
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
                 let mut faststr = "hello world".into();
                 let mut string = "test".into();
+                let mut a = Some(false.into());
                 let mut __pilota_decoding_field_id = None;
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
@@ -103,6 +115,11 @@ pub mod default_value {
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 string = protocol.read_string().await?;
+                            }
+                            Some(3i16)
+                                if field_ident.field_type == ::pilota::thrift::TType::Bool =>
+                            {
+                                a = Some(protocol.read_bool().await?);
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
@@ -126,7 +143,7 @@ pub mod default_value {
                     }
                 };
                 protocol.read_struct_end().await?;
-                let data = Self { faststr, string };
+                let data = Self { faststr, string, a };
                 Ok(data)
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
@@ -134,6 +151,10 @@ pub mod default_value {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
                     + protocol.write_faststr_field_len(Some(1i16), &self.faststr)
                     + protocol.write_string_field_len(Some(2i16), &&self.string)
+                    + self
+                        .a
+                        .as_ref()
+                        .map_or(0, |value| protocol.write_bool_field_len(Some(3i16), *value))
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }

@@ -9,6 +9,7 @@ use crate::{
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Literal {
     Path(Path),
+    Bool(bool),
     String(Arc<str>),
     Int(i64),
     Float(Arc<str>),

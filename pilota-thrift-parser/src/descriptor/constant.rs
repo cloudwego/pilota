@@ -4,6 +4,7 @@ use super::{Annotations, Ident, Literal, Path, Type};
 
 #[derive(Debug, Clone)]
 pub enum ConstValue {
+    Bool(bool),
     Path(Path),
     String(Literal),
     Int(IntConstant),

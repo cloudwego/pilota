@@ -296,6 +296,7 @@ impl ThriftLower {
 
     fn lower_lit(&mut self, l: &thrift_parser::ConstValue) -> ir::Literal {
         match &l {
+            thrift_parser::ConstValue::Bool(b) => ir::Literal::Bool(*b),
             thrift_parser::ConstValue::Path(p) => ir::Literal::Path(self.lower_path(p)),
             thrift_parser::ConstValue::String(s) => ir::Literal::String(Arc::from(s.0.as_str())),
             thrift_parser::ConstValue::Int(i) => ir::Literal::Int(i.0),
