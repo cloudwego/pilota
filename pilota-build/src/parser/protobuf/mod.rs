@@ -251,6 +251,7 @@ impl Lower {
                     },
                     tags: Arc::new(crate::tags!(OneOf)),
                     kind: ir::FieldKind::Optional,
+                    default: None,
                 });
             }
         });
@@ -309,6 +310,7 @@ impl Lower {
                         }
 
                         ir::Field {
+                            default: None,
                             id: f.number(),
                             name: FastStr::new(f.name()).into(),
                             ty,

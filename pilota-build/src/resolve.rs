@@ -368,6 +368,7 @@ impl Resolver {
             name: f.name.clone(),
             ty: ty,
             tags_id,
+            default: f.default.as_ref().map(|d| self.lower_lit(d)),
         });
 
         self.nodes

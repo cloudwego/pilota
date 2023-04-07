@@ -446,6 +446,7 @@ impl ThriftLower {
                 thrift_parser::Attribute::Required => FieldKind::Required,
                 _ => FieldKind::Optional,
             },
+            default: f.default.as_ref().map(|c| self.lower_lit(c)),
             tags: tags.into(),
         }
     }

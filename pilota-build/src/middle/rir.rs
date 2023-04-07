@@ -75,6 +75,7 @@ pub struct Field {
     pub ty: Ty,
     pub kind: FieldKind,
     pub tags_id: TagId,
+    pub default: Option<Literal>,
 }
 
 impl Field {
