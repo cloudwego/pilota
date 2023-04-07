@@ -1,6 +1,6 @@
 [package]
 name = "pilota-build"
-version = "0.6.2"
+version = "0.6.3"
 edition = "2021"
 description = "Compile thrift and protobuf idl into rust code at compile-time."
 documentation = "https://docs.rs/pilota-build"
@@ -36,7 +36,7 @@ paste = "1"
 petgraph = "0.6"
 # The official rust-protobuf parser currently has some bug.
 # We will switch to the official one when https://github.com/stepancheg/rust-protobuf/pull/646 is fixed.
-protobuf-parse = { package = "protobuf-parse2", version = "4.0.0-alpha.2" }
+protobuf-parse = { package = "protobuf-parse2", version = "4.0.0-alpha.3" }
 protobuf = { package = "protobuf2", version = "4.0.0-alpha.2" }
 faststr = "0.2"
 
