@@ -171,7 +171,11 @@ impl ThriftBackend {
                 }
                 _ => None,
             }) {
-                v = quote!(Some(#default.into()));
+                v = quote!(#default.into());
+
+                if f.is_optional() {
+                    v = quote!(Some(#v))
+                }
             };
 
             quote! {
@@ -271,9 +275,13 @@ impl ThriftBackend {
                 read_field = quote! {::std::boxed::Box::new(#read_field) };
             };
 
+            if f.is_optional() || f.default.is_none() {
+                read_field = quote!(Some(#read_field))
+            }
+
             quote! {
                 Some(#field_id) if field_ident.field_type == #ttype  => {
-                    #field_ident = Some(#read_field);
+                    #field_ident = #read_field;
                 },
             }
         });

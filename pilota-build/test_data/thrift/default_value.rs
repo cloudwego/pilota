@@ -32,8 +32,8 @@ pub mod default_value {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut faststr = Some("hello world".into());
-                let mut string = Some("test".into());
+                let mut faststr = "hello world".into();
+                let mut string = "test".into();
                 let mut __pilota_decoding_field_id = None;
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
@@ -48,12 +48,12 @@ pub mod default_value {
                             Some(1i16)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                faststr = Some(protocol.read_faststr()?);
+                                faststr = protocol.read_faststr()?;
                             }
                             Some(2i16)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                string = Some(protocol.read_string()?);
+                                string = protocol.read_string()?;
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
@@ -81,8 +81,8 @@ pub mod default_value {
             async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut faststr = Some("hello world".into());
-                let mut string = Some("test".into());
+                let mut faststr = "hello world".into();
+                let mut string = "test".into();
                 let mut __pilota_decoding_field_id = None;
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
@@ -97,12 +97,12 @@ pub mod default_value {
                             Some(1i16)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                faststr = Some(protocol.read_faststr().await?);
+                                faststr = protocol.read_faststr().await?;
                             }
                             Some(2i16)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                string = Some(protocol.read_string().await?);
+                                string = protocol.read_string().await?;
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;

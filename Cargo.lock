@@ -454,7 +454,7 @@ dependencies = [
 
 [[package]]
 name = "pilota-build"
-version = "0.6.2"
+version = "0.6.3"
 dependencies = [
  "async-trait",
  "derivative",
@@ -534,9 +534,9 @@ dependencies = [
 
 [[package]]
 name = "protobuf-parse2"
-version = "4.0.0-alpha.2"
+version = "4.0.0-alpha.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "749c4a423e6de9786614d5f52021f8d406e671087c61db887afeff5b166a322f"
+checksum = "0b5df535ab890834ebe9cc42b680bf38d8fed1345fb576f60e48b42bb93aadcb"
 dependencies = [
  "anyhow",
  "indexmap",
