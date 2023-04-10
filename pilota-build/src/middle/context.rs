@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
+use std::{collections::HashMap, ops::Deref, path::PathBuf, str::FromStr, sync::Arc};
 
 use faststr::FastStr;
 use fxhash::{FxHashMap, FxHashSet};
@@ -105,15 +105,18 @@ impl Context {
         f.default.as_ref().and_then(|d| match d {
             rir::Literal::String(s) => {
                 let s = &**s;
-                Some(quote!(#s))
+                Some(quote!(#s.into()))
             }
-            rir::Literal::Int(i) => Some(quote!(#i)),
+            rir::Literal::Int(i) => Some({
+                let ts = TokenStream::from_str(&i.to_string()).unwrap();
+                quote!(#ts)
+            }),
             rir::Literal::Float(f) => {
-                let f: f64 = f.parse().unwrap();
+                let f: TokenStream = f.parse().unwrap();
                 Some(quote!(#f))
             }
             rir::Literal::Bool(b) => Some(quote!(#b)),
-            rir::Literal::Path(_) | rir::Literal::List(_) | rir::Literal::Map(_) => todo!(),
+            rir::Literal::Path(_) | rir::Literal::List(_) | rir::Literal::Map(_) => None,
         })
     }
 

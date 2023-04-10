@@ -317,9 +317,9 @@ impl Plugin for ImplDefaultPlugin {
     fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
         match &*item {
             Item::Message(m) => {
-                let name = m.name.0.as_syn_ident();
+                let name = cx.rust_name(def_id).as_syn_ident();
 
-                if m.fields.iter().all(|f| f.default.is_none()) {
+                if m.fields.iter().all(|f| cx.default_val(f).is_none()) {
                     cx.with_adjust(def_id, |adj| {
                         adj.add_attrs(&[parse_quote!(#[derive(Default)])])
                     });
@@ -332,7 +332,11 @@ impl Plugin for ImplDefaultPlugin {
                             let default = cx.default_val(f);
 
                             if let Some(default) = default {
-                                quote! { #name: #default.into() }
+                                let mut val = quote! { #default };
+                                if f.is_optional() {
+                                    val = quote!( Some(#val) )
+                                }
+                                quote! { #name: #val }
                             } else {
                                 quote! { #name: Default::default() }
                             }
