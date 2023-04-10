@@ -151,7 +151,7 @@ impl ThriftBackend {
         let required_without_default_fields = s
             .fields
             .iter()
-            .filter(|f| f.default.is_none() && !f.is_optional())
+            .filter(|f| !f.is_optional() && self.default_val(f).is_none())
             .map(|f| self.rust_name(f.did).as_syn_ident())
             .collect_vec();
 
@@ -160,7 +160,7 @@ impl ThriftBackend {
             let mut v = quote!(None);
 
             if let Some(default) = self.cx.default_val(f) {
-                v = quote!(#default.into());
+                v = quote!(#default);
 
                 if f.is_optional() {
                     v = quote!(Some(#v))
@@ -264,7 +264,7 @@ impl ThriftBackend {
                 read_field = quote! {::std::boxed::Box::new(#read_field) };
             };
 
-            if f.is_optional() || f.default.is_none() {
+            if f.is_optional() || self.cx.default_val(f).is_none() {
                 read_field = quote!(Some(#read_field))
             }
 

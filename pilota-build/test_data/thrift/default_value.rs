@@ -6,7 +6,7 @@ pub mod default_value {
                 A {
                     faststr: "hello world".into(),
                     string: "test".into(),
-                    a: false.into(),
+                    a: Some(false),
                 }
             }
         }
@@ -39,7 +39,7 @@ pub mod default_value {
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
                 let mut faststr = "hello world".into();
                 let mut string = "test".into();
-                let mut a = Some(false.into());
+                let mut a = Some(false);
                 let mut __pilota_decoding_field_id = None;
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
@@ -94,7 +94,7 @@ pub mod default_value {
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
                 let mut faststr = "hello world".into();
                 let mut string = "test".into();
-                let mut a = Some(false.into());
+                let mut a = Some(false);
                 let mut __pilota_decoding_field_id = None;
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
