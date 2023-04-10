@@ -31,7 +31,7 @@ enum ModuleId {
     Node(DefId),
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Namespace {
     Value,
     Ty,
@@ -264,7 +264,13 @@ impl Resolver {
                         Namespace::Ty => &file.ty,
                     };
 
-                    if let Some(def_id) = table.get(&**rest[0]) {
+                    if let Some(def_id) = table.get(&**rest[0]).or_else(|| {
+                        if ns == Namespace::Value {
+                            file.ty.get(&**rest[0])
+                        } else {
+                            None
+                        }
+                    }) {
                         Some((&rest[1..], *def_id))
                     } else {
                         None

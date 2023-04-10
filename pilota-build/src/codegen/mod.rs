@@ -2,7 +2,6 @@ use std::{collections::HashMap, ops::Deref, sync::Arc};
 
 use faststr::FastStr;
 use fxhash::FxHashMap;
-use heck::ToShoutySnakeCase;
 use pkg_tree::PkgNode;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -13,8 +12,7 @@ use crate::{
     middle::{
         self,
         context::tls::CUR_ITEM,
-        rir::{self, Literal},
-        ty::{AdtDef, AdtKind, CodegenTy},
+        rir::{self},
     },
     symbol::{DefId, EnumRepr, IdentName},
     Context,
@@ -248,148 +246,12 @@ where
         self.backend.codegen_newtype_impl(def_id, stream, t);
     }
 
-    fn def_lit(&mut self, name: &str, lit: &Literal, ty: &mut CodegenTy) -> TokenStream {
-        let should_lazy_static = ty.should_lazy_static();
-        let name = format_ident!("{}", name.to_shouty_snake_case());
-        if let (Literal::List(lit), CodegenTy::Array(_, size)) = (lit, &mut *ty) {
-            *size = lit.len()
-        }
-        if should_lazy_static {
-            let lit = self.lit_as_rvalue(lit, ty);
-            quote::quote! {
-                ::pilota::lazy_static::lazy_static! {
-                    pub static ref #name: #ty = #lit;
-                }
-            }
-        } else {
-            let lit = self.lit_into_ty(lit, ty);
-            quote::quote! {
-                pub const #name: #ty = #lit;
-            }
-        }
-    }
-
     pub fn write_const(&mut self, did: DefId, stream: &mut TokenStream, c: &middle::rir::Const) {
         let mut ty = self.codegen_ty(did);
 
         let name = self.rust_name(did);
 
-        stream.extend(self.def_lit(&name, &c.lit, &mut ty))
-    }
-
-    fn ident_into_ty(
-        &mut self,
-        did: DefId,
-        ident_ty: &CodegenTy,
-        target: &CodegenTy,
-    ) -> TokenStream {
-        if ident_ty == target {
-            let stream = self.cur_related_item_path(did);
-            return quote! { #stream };
-        }
-        panic!("invalid convert {:?} to {:?}", ident_ty, target)
-    }
-
-    fn lit_as_rvalue(&mut self, lit: &Literal, ty: &CodegenTy) -> TokenStream {
-        match (lit, ty) {
-            (Literal::Map(m), CodegenTy::LazyStaticRef(map)) => match &**map {
-                CodegenTy::Map(k_ty, v_ty) => {
-                    let k_ty = &**k_ty;
-                    let v_ty = &**v_ty;
-                    let len = m.len();
-                    let kvs = m.iter().map(|(k, v)| {
-                        let k = self.lit_into_ty(k, k_ty);
-                        let v = self.lit_into_ty(v, v_ty);
-                        quote! {
-                            map.insert(#k, #v);
-                        }
-                    });
-                    let stream = quote::quote! {
-                        {
-                            let mut map = ::std::collections::HashMap::with_capacity(#len);
-                            #(#kvs)*
-                            map
-                        }
-                    };
-                    stream
-                }
-                _ => panic!("invalid map type {:?}", map),
-            },
-            (Literal::Map(_), _) => panic!(),
-            _ => self.lit_into_ty(lit, ty),
-        }
-    }
-
-    fn lit_into_ty(&mut self, lit: &Literal, ty: &CodegenTy) -> TokenStream {
-        match (lit, ty) {
-            (Literal::Path(p), ty) => {
-                let ident_ty = self.codegen_ty(p.did);
-
-                self.ident_into_ty(p.did, &ident_ty, ty)
-            }
-            (Literal::String(s), CodegenTy::Str) => {
-                let s = &**s;
-                quote! { #s }
-            }
-            (Literal::String(s), CodegenTy::String) => {
-                let s = &**s;
-                quote! { #s.to_string() }
-            }
-            (Literal::String(s), CodegenTy::FastStr) => {
-                let s = &**s;
-                quote! { ::pilota::FastStr::new(#s) }
-            }
-            (Literal::Int(i), CodegenTy::I16) => {
-                let i = *i as i16;
-                quote! { #i }
-            }
-            (Literal::Int(i), CodegenTy::I32) => {
-                let i = *i as i32;
-                quote! { #i }
-            }
-            (Literal::Int(i), CodegenTy::I64) => {
-                let i = *i;
-                quote! { #i }
-            }
-            (Literal::Float(f), CodegenTy::F64) => {
-                let f = f.parse::<f64>().unwrap();
-                quote! { #f }
-            }
-            (
-                l,
-                CodegenTy::Adt(AdtDef {
-                    kind: AdtKind::NewType(inner_ty),
-                    did,
-                }),
-            ) => {
-                let ident = self.cur_related_item_path(*did);
-                let stream = self.lit_into_ty(l, inner_ty);
-                quote! { #ident(#stream) }
-            }
-            (Literal::Map(_), CodegenTy::StaticRef(map)) => match &**map {
-                CodegenTy::Map(_, _) => {
-                    let lazy_map =
-                        self.def_lit("INNER_MAP", lit, &mut CodegenTy::LazyStaticRef(map.clone()));
-                    let stream = quote::quote! {
-                        {
-                            #lazy_map
-                            &*inner_map
-                        }
-                    };
-                    stream
-                }
-                _ => panic!("invalid map type {:?}", map),
-            },
-            (Literal::List(els), CodegenTy::Array(inner, _)) => {
-                let stream = els.iter().map(|el| self.lit_into_ty(el, inner));
-                quote! { [#(#stream),*] }
-            }
-            (Literal::List(els), CodegenTy::Vec(inner)) => {
-                let stream = els.iter().map(|el| self.lit_into_ty(el, inner));
-                quote! { ::std::vec![#(#stream),*] }
-            }
-            _ => panic!("unexpected literal {:?} with ty {:?}", lit, ty),
-        }
+        stream.extend(self.cx.def_lit(&name, &c.lit, &mut ty))
     }
 
     pub(crate) fn write_mods(&mut self, mods: HashMap<Arc<[FastStr]>, Vec<DefId>>) {
