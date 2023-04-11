@@ -147,16 +147,18 @@ impl ToTokens for CodegenTy {
 }
 
 impl TyKind {
-    pub(crate) fn to_codegen_item_ty(&self) -> CodegenTy {
-        DefaultTyTransformer.codegen_item_ty(self)
+    pub(crate) fn to_codegen_item_ty(&self, db: &dyn RirDatabase) -> CodegenTy {
+        DefaultTyTransformer(db).codegen_item_ty(self)
     }
 
-    pub(crate) fn to_codegen_const_ty(&self) -> CodegenTy {
-        ConstTyTransformer.codegen_item_ty(self)
+    pub(crate) fn to_codegen_const_ty(&self, db: &dyn RirDatabase) -> CodegenTy {
+        ConstTyTransformer(db).codegen_item_ty(self)
     }
 }
 
 pub trait TyTransformer {
+    fn get_db(&self) -> &dyn RirDatabase;
+
     #[inline]
     fn string(&self) -> CodegenTy {
         CodegenTy::String
@@ -257,7 +259,8 @@ pub trait TyTransformer {
     #[inline]
     fn path(&self, path: &Path) -> CodegenTy {
         let did = path.did;
-        with_cx(|cx| cx.codegen_ty(did))
+        let db = self.get_db();
+        db.codegen_ty(did)
     }
 
     #[inline]
@@ -302,13 +305,18 @@ pub enum BytesRepr {
     Bytes,
 }
 
-pub(crate) struct DefaultTyTransformer;
+pub(crate) struct DefaultTyTransformer<'s>(&'s dyn RirDatabase);
 
-impl TyTransformer for DefaultTyTransformer {}
+impl TyTransformer for DefaultTyTransformer<'_> {
+    #[inline]
+    fn get_db(&self) -> &dyn RirDatabase {
+        self.0
+    }
+}
 
-pub(crate) struct ConstTyTransformer;
+pub(crate) struct ConstTyTransformer<'s>(&'s dyn RirDatabase);
 
-impl ConstTyTransformer {
+impl ConstTyTransformer<'_> {
     #[inline]
     fn dyn_codegen_item_ty(&self, kind: &TyKind) -> CodegenTy {
         let mut ty = self.codegen_item_ty(&kind);
@@ -319,7 +327,7 @@ impl ConstTyTransformer {
     }
 }
 
-impl TyTransformer for ConstTyTransformer {
+impl TyTransformer for ConstTyTransformer<'_> {
     #[inline]
     fn string(&self) -> CodegenTy {
         CodegenTy::Str
@@ -347,6 +355,10 @@ impl TyTransformer for ConstTyTransformer {
         let key = self.dyn_codegen_item_ty(&key.kind);
         let value = self.dyn_codegen_item_ty(&value.kind);
         CodegenTy::StaticRef(Arc::from(CodegenTy::Map(Arc::from(key), Arc::from(value))))
+    }
+
+    fn get_db(&self) -> &dyn RirDatabase {
+        self.0
     }
 }
 

@@ -69,10 +69,11 @@ pub mod default_value {
         impl Default for A {
             fn default() -> Self {
                 A {
-                    faststr: "hello world".into(),
-                    string: "test".into(),
+                    faststr: ::pilota::FastStr::new("hello world"),
+                    string: "test".to_string(),
                     a: Some(false),
-                    test_b: Default::default(),
+                    test_b: Some(B::Read),
+                    test_b2: Some(B::Write),
                 }
             }
         }
@@ -82,6 +83,7 @@ pub mod default_value {
             pub string: ::std::string::String,
             pub a: ::std::option::Option<bool>,
             pub test_b: ::std::option::Option<B>,
+            pub test_b2: ::std::option::Option<B>,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
@@ -100,6 +102,9 @@ pub mod default_value {
                 if let Some(value) = self.test_b.as_ref() {
                     protocol.write_i32_field(4i16, (*value).into())?;
                 };
+                if let Some(value) = self.test_b2.as_ref() {
+                    protocol.write_i32_field(5i16, (*value).into())?;
+                };
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -107,10 +112,11 @@ pub mod default_value {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut faststr = "hello world".into();
-                let mut string = "test".into();
+                let mut faststr = ::pilota::FastStr::new("hello world");
+                let mut string = "test".to_string();
                 let mut a = Some(false);
-                let mut test_b = None;
+                let mut test_b = Some(B::Read);
+                let mut test_b2 = Some(B::Write);
                 let mut __pilota_decoding_field_id = None;
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
@@ -142,6 +148,11 @@ pub mod default_value {
                             {
                                 test_b = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
+                            Some(5i16)
+                                if field_ident.field_type == ::pilota::thrift::TType::I32 =>
+                            {
+                                test_b2 = Some(::pilota::thrift::Message::decode(protocol)?);
+                            }
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -167,16 +178,18 @@ pub mod default_value {
                     string,
                     a,
                     test_b,
+                    test_b2,
                 };
                 Ok(data)
             }
             async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut faststr = "hello world".into();
-                let mut string = "test".into();
+                let mut faststr = ::pilota::FastStr::new("hello world");
+                let mut string = "test".to_string();
                 let mut a = Some(false);
-                let mut test_b = None;
+                let mut test_b = Some(B::Read);
+                let mut test_b2 = Some(B::Write);
                 let mut __pilota_decoding_field_id = None;
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
@@ -209,6 +222,12 @@ pub mod default_value {
                                 test_b =
                                     Some(::pilota::thrift::Message::decode_async(protocol).await?);
                             }
+                            Some(5i16)
+                                if field_ident.field_type == ::pilota::thrift::TType::I32 =>
+                            {
+                                test_b2 =
+                                    Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                            }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
                             }
@@ -236,6 +255,7 @@ pub mod default_value {
                     string,
                     a,
                     test_b,
+                    test_b2,
                 };
                 Ok(data)
             }
@@ -250,6 +270,9 @@ pub mod default_value {
                         .map_or(0, |value| protocol.write_bool_field_len(Some(3i16), *value))
                     + self.test_b.as_ref().map_or(0, |value| {
                         protocol.write_i32_field_len(Some(4i16), (*value).into())
+                    })
+                    + self.test_b2.as_ref().map_or(0, |value| {
+                        protocol.write_i32_field_len(Some(5i16), (*value).into())
                     })
                     + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()

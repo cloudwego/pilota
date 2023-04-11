@@ -76,12 +76,12 @@ fn file(db: &dyn RirDatabase, file_id: FileId) -> Option<Arc<rir::File>> {
     db.files().get(&file_id).cloned()
 }
 
-fn codegen_item_ty(_db: &dyn RirDatabase, ty: TyKind) -> CodegenTy {
-    ty.to_codegen_item_ty()
+fn codegen_item_ty(db: &dyn RirDatabase, ty: TyKind) -> CodegenTy {
+    ty.to_codegen_item_ty(db)
 }
 
-fn codegen_const_ty(_db: &dyn RirDatabase, ty: TyKind) -> CodegenTy {
-    ty.to_codegen_const_ty()
+fn codegen_const_ty(db: &dyn RirDatabase, ty: TyKind) -> CodegenTy {
+    ty.to_codegen_const_ty(db)
 }
 
 fn codegen_ty(db: &dyn RirDatabase, did: DefId) -> CodegenTy {

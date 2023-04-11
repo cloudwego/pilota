@@ -13,7 +13,7 @@ use self::tls::{with_cur_item, with_cx, CUR_ITEM};
 use super::{adjust::Adjust, rir::NodeKind};
 use crate::{
     db::{RirDatabase, RootDatabase},
-    rir::{self, Field, Literal},
+    rir::{self, Field, Item, Literal},
     symbol::{DefId, IdentName, Symbol},
     tags::{TagId, Tags},
     ty::{AdtDef, AdtKind, CodegenTy, Visitor},
@@ -103,21 +103,9 @@ impl Context {
     }
 
     pub fn default_val(&self, f: &Field) -> Option<TokenStream> {
-        f.default.as_ref().and_then(|d| match d {
-            rir::Literal::String(s) => {
-                let s = &**s;
-                Some(quote!(#s.into()))
-            }
-            rir::Literal::Int(i) => Some({
-                let ts = TokenStream::from_str(&i.to_string()).unwrap();
-                quote!(#ts)
-            }),
-            rir::Literal::Float(f) => {
-                let f: TokenStream = f.parse().unwrap();
-                Some(quote!(#f))
-            }
-            rir::Literal::Bool(b) => Some(quote!(#b)),
-            rir::Literal::Path(_) | rir::Literal::List(_) | rir::Literal::Map(_) => None,
+        f.default.as_ref().map(|d| {
+            let ty = self.codegen_item_ty(f.ty.kind.clone());
+            self.lit_as_rvalue(d, &ty)
         })
     }
 
@@ -190,6 +178,27 @@ impl Context {
                 let i = *i;
                 quote! { #i }
             }
+            (
+                Literal::Int(i),
+                CodegenTy::Adt(AdtDef {
+                    did,
+                    kind: AdtKind::Enum,
+                }),
+            ) => {
+                let item = self.item(*did).unwrap();
+                let e = match &*item {
+                    Item::Enum(e) => e,
+                    _ => panic!("invalid enum"),
+                };
+
+                e.variants.iter().find(|v| v.discr == Some(*i)).map_or_else(
+                    || panic!("invalid enum value"),
+                    |v| {
+                        let ident = self.cur_related_item_path(v.did);
+                        quote! { #ident }
+                    },
+                )
+            }
             (Literal::Float(f), CodegenTy::F64) => {
                 let f = f.parse::<f64>().unwrap();
                 quote! { #f }
@@ -226,6 +235,9 @@ impl Context {
             (Literal::List(els), CodegenTy::Vec(inner)) => {
                 let stream = els.iter().map(|el| self.lit_into_ty(el, inner));
                 quote! { ::std::vec![#(#stream),*] }
+            }
+            (Literal::Bool(b), CodegenTy::Bool) => {
+                quote! { #b }
             }
             _ => panic!("unexpected literal {:?} with ty {:?}", lit, ty),
         }
