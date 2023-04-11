@@ -8,4 +8,5 @@ struct A {
     2: required string string = "test"(pilota.rust_type = "string"),
     3: optional bool a = false,
     4: optional B test_b = B.Read,
+    5: optional B test_b2 = 2,
 }
