@@ -83,7 +83,7 @@ pub mod default_value {
                         );
                         map
                     }),
-                    test_double: Some(1),
+                    test_double: Some(1f64),
                     test_double2: Some(1.2f64),
                     alias_str: Some(::pilota::FastStr::from_static_str(A_S)),
                 }
@@ -168,7 +168,7 @@ pub mod default_value {
                     );
                     map
                 });
-                let mut test_double = Some(1);
+                let mut test_double = Some(1f64);
                 let mut test_double2 = Some(1.2f64);
                 let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
                 let mut __pilota_decoding_field_id = None;
@@ -287,7 +287,7 @@ pub mod default_value {
                     );
                     map
                 });
-                let mut test_double = Some(1);
+                let mut test_double = Some(1f64);
                 let mut test_double2 = Some(1.2f64);
                 let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
                 let mut __pilota_decoding_field_id = None;

@@ -187,12 +187,12 @@ impl Context {
                 quote! { #i }
             }
             (Literal::Int(i), CodegenTy::F32) => {
-                let s: TokenStream = i.to_string().parse().unwrap();
-                s
+                let f = (*i) as f32;
+                quote!(#f)
             }
             (Literal::Int(i), CodegenTy::F64) => {
-                let s: TokenStream = i.to_string().parse().unwrap();
-                s
+                let f = (*i) as f64;
+                quote!(#f)
             }
             (
                 Literal::Int(i),
@@ -322,7 +322,7 @@ impl Context {
             } else {
                 let file = cx.file(node.file_id).unwrap();
                 let package = &file.package;
-                if package.len() != 1 || package.first().unwrap().0 != "" {
+                if package.len() != 1 || !package.first().unwrap().0.is_empty() {
                     segs.extend(package.iter().map(|s| (&*s.0).mod_ident()))
                 }
             }
