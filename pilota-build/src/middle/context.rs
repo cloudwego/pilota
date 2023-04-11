@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::Deref, path::PathBuf, str::FromStr, sync::Arc};
+use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
 
 use faststr::FastStr;
 use fxhash::{FxHashMap, FxHashSet};
@@ -9,7 +9,7 @@ use proc_macro2::{Span, TokenStream};
 use quote::{format_ident, quote};
 use syn::PathSegment;
 
-use self::tls::{with_cur_item, with_cx, CUR_ITEM};
+use self::tls::{with_cur_item, CUR_ITEM};
 use super::{adjust::Adjust, rir::NodeKind};
 use crate::{
     db::{RirDatabase, RootDatabase},
@@ -110,31 +110,33 @@ impl Context {
     }
 
     fn lit_as_rvalue(&self, lit: &Literal, ty: &CodegenTy) -> TokenStream {
+        let mk_map = |m: &Vec<(Literal, Literal)>, k_ty: &Arc<CodegenTy>, v_ty: &Arc<CodegenTy>| {
+            let k_ty = &**k_ty;
+            let v_ty = &**v_ty;
+            let len = m.len();
+            let kvs = m.iter().map(|(k, v)| {
+                let k = self.lit_into_ty(k, k_ty);
+                let v = self.lit_into_ty(v, v_ty);
+                quote! {
+                    map.insert(#k, #v);
+                }
+            });
+            let stream = quote::quote! {
+                {
+                    let mut map = ::std::collections::HashMap::with_capacity(#len);
+                    #(#kvs)*
+                    map
+                }
+            };
+            stream
+        };
+
         match (lit, ty) {
             (Literal::Map(m), CodegenTy::LazyStaticRef(map)) => match &**map {
-                CodegenTy::Map(k_ty, v_ty) => {
-                    let k_ty = &**k_ty;
-                    let v_ty = &**v_ty;
-                    let len = m.len();
-                    let kvs = m.iter().map(|(k, v)| {
-                        let k = self.lit_into_ty(k, k_ty);
-                        let v = self.lit_into_ty(v, v_ty);
-                        quote! {
-                            map.insert(#k, #v);
-                        }
-                    });
-                    let stream = quote::quote! {
-                        {
-                            let mut map = ::std::collections::HashMap::with_capacity(#len);
-                            #(#kvs)*
-                            map
-                        }
-                    };
-                    stream
-                }
+                CodegenTy::Map(k_ty, v_ty) => mk_map(m, k_ty, v_ty),
                 _ => panic!("invalid map type {:?}", map),
             },
-            (Literal::Map(_), _) => panic!(),
+            (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => mk_map(m, k_ty, v_ty),
             _ => self.lit_into_ty(lit, ty),
         }
     }
@@ -144,7 +146,13 @@ impl Context {
             let stream = self.cur_related_item_path(did);
             return quote! { #stream };
         }
-        panic!("invalid convert {:?} to {:?}", ident_ty, target)
+        match (ident_ty, target) {
+            (CodegenTy::Str, CodegenTy::FastStr) => {
+                let stream = self.cur_related_item_path(did);
+                quote! { ::pilota::FastStr::from_static_str(#stream) }
+            }
+            _ => panic!("invalid convert {:?} to {:?}", ident_ty, target),
+        }
     }
 
     fn lit_into_ty(&self, lit: &Literal, ty: &CodegenTy) -> TokenStream {
@@ -177,6 +185,14 @@ impl Context {
             (Literal::Int(i), CodegenTy::I64) => {
                 let i = *i;
                 quote! { #i }
+            }
+            (Literal::Int(i), CodegenTy::F32) => {
+                let s: TokenStream = i.to_string().parse().unwrap();
+                s
+            }
+            (Literal::Int(i), CodegenTy::F64) => {
+                let s: TokenStream = i.to_string().parse().unwrap();
+                s
             }
             (
                 Literal::Int(i),
@@ -238,6 +254,10 @@ impl Context {
             }
             (Literal::Bool(b), CodegenTy::Bool) => {
                 quote! { #b }
+            }
+            (Literal::String(s), CodegenTy::Bytes) => {
+                let s = &**s;
+                quote! { ::bytes::Bytes::from_static(#s.as_bytes()) }
             }
             _ => panic!("unexpected literal {:?} with ty {:?}", lit, ty),
         }
