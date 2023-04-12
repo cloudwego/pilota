@@ -329,7 +329,7 @@ impl Plugin for ImplDefaultPlugin {
                         .iter()
                         .map(|f| {
                             let name = cx.rust_name(f.did).as_syn_ident();
-                            let default = cx.default_val(f);
+                            let default = cx.default_val(f).map(|v| v.0);
 
                             if let Some(default) = default {
                                 let mut val = quote! { #default };

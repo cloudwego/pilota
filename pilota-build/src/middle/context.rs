@@ -102,21 +102,21 @@ impl Context {
         item.symbol_name()
     }
 
-    pub fn default_val(&self, f: &Field) -> Option<TokenStream> {
+    pub fn default_val(&self, f: &Field) -> Option<(TokenStream, bool /* const? */)> {
         f.default.as_ref().map(|d| {
             let ty = self.codegen_item_ty(f.ty.kind.clone());
             self.lit_as_rvalue(d, &ty)
         })
     }
 
-    fn lit_as_rvalue(&self, lit: &Literal, ty: &CodegenTy) -> TokenStream {
+    fn lit_as_rvalue(&self, lit: &Literal, ty: &CodegenTy) -> (TokenStream, bool /* const? */) {
         let mk_map = |m: &Vec<(Literal, Literal)>, k_ty: &Arc<CodegenTy>, v_ty: &Arc<CodegenTy>| {
             let k_ty = &**k_ty;
             let v_ty = &**v_ty;
             let len = m.len();
             let kvs = m.iter().map(|(k, v)| {
-                let k = self.lit_into_ty(k, k_ty);
-                let v = self.lit_into_ty(v, v_ty);
+                let k = self.lit_into_ty(k, k_ty).0;
+                let v = self.lit_into_ty(v, v_ty).0;
                 quote! {
                     map.insert(#k, #v);
                 }
@@ -133,29 +133,34 @@ impl Context {
 
         match (lit, ty) {
             (Literal::Map(m), CodegenTy::LazyStaticRef(map)) => match &**map {
-                CodegenTy::Map(k_ty, v_ty) => mk_map(m, k_ty, v_ty),
+                CodegenTy::Map(k_ty, v_ty) => (mk_map(m, k_ty, v_ty), false),
                 _ => panic!("invalid map type {:?}", map),
             },
-            (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => mk_map(m, k_ty, v_ty),
+            (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => (mk_map(m, k_ty, v_ty), false),
             _ => self.lit_into_ty(lit, ty),
         }
     }
 
-    fn ident_into_ty(&self, did: DefId, ident_ty: &CodegenTy, target: &CodegenTy) -> TokenStream {
+    fn ident_into_ty(
+        &self,
+        did: DefId,
+        ident_ty: &CodegenTy,
+        target: &CodegenTy,
+    ) -> (TokenStream, bool /* const? */) {
         if ident_ty == target {
             let stream = self.cur_related_item_path(did);
-            return quote! { #stream };
+            return (quote! { #stream }, true);
         }
         match (ident_ty, target) {
             (CodegenTy::Str, CodegenTy::FastStr) => {
                 let stream = self.cur_related_item_path(did);
-                quote! { ::pilota::FastStr::from_static_str(#stream) }
+                (quote! { ::pilota::FastStr::from_static_str(#stream) }, true)
             }
             _ => panic!("invalid convert {:?} to {:?}", ident_ty, target),
         }
     }
 
-    fn lit_into_ty(&self, lit: &Literal, ty: &CodegenTy) -> TokenStream {
+    fn lit_into_ty(&self, lit: &Literal, ty: &CodegenTy) -> (TokenStream, bool /* const? */) {
         match (lit, ty) {
             (Literal::Path(p), ty) => {
                 let ident_ty = self.codegen_ty(p.did);
@@ -164,35 +169,35 @@ impl Context {
             }
             (Literal::String(s), CodegenTy::Str) => {
                 let s = &**s;
-                quote! { #s }
+                (quote! { #s }, true)
             }
             (Literal::String(s), CodegenTy::String) => {
                 let s = &**s;
-                quote! { #s.to_string() }
+                (quote! { #s.to_string() }, false)
             }
             (Literal::String(s), CodegenTy::FastStr) => {
                 let s = &**s;
-                quote! { ::pilota::FastStr::new(#s) }
+                (quote! { ::pilota::FastStr::from_static_str(#s) }, true)
             }
             (Literal::Int(i), CodegenTy::I16) => {
                 let i = *i as i16;
-                quote! { #i }
+                (quote! { #i }, true)
             }
             (Literal::Int(i), CodegenTy::I32) => {
                 let i = *i as i32;
-                quote! { #i }
+                (quote! { #i }, true)
             }
             (Literal::Int(i), CodegenTy::I64) => {
                 let i = *i;
-                quote! { #i }
+                (quote! { #i }, true)
             }
             (Literal::Int(i), CodegenTy::F32) => {
                 let f = (*i) as f32;
-                quote!(#f)
+                (quote!(#f), true)
             }
             (Literal::Int(i), CodegenTy::F64) => {
                 let f = (*i) as f64;
-                quote!(#f)
+                (quote!(#f), true)
             }
             (
                 Literal::Int(i),
@@ -207,17 +212,20 @@ impl Context {
                     _ => panic!("invalid enum"),
                 };
 
-                e.variants.iter().find(|v| v.discr == Some(*i)).map_or_else(
-                    || panic!("invalid enum value"),
-                    |v| {
-                        let ident = self.cur_related_item_path(v.did);
-                        quote! { #ident }
-                    },
+                (
+                    e.variants.iter().find(|v| v.discr == Some(*i)).map_or_else(
+                        || panic!("invalid enum value"),
+                        |v| {
+                            let ident = self.cur_related_item_path(v.did);
+                            quote! { #ident }
+                        },
+                    ),
+                    true,
                 )
             }
             (Literal::Float(f), CodegenTy::F64) => {
                 let f = f.parse::<f64>().unwrap();
-                quote! { #f }
+                (quote! { #f }, true)
             }
             (
                 l,
@@ -227,8 +235,8 @@ impl Context {
                 }),
             ) => {
                 let ident = self.cur_related_item_path(*did);
-                let stream = self.lit_into_ty(l, inner_ty);
-                quote! { #ident(#stream) }
+                let (stream, is_const) = self.lit_into_ty(l, inner_ty);
+                (quote! { #ident(#stream) }, is_const)
             }
             (Literal::Map(_), CodegenTy::StaticRef(map)) => match &**map {
                 CodegenTy::Map(_, _) => {
@@ -240,24 +248,32 @@ impl Context {
                             &*inner_map
                         }
                     };
-                    stream
+                    (stream, false)
                 }
                 _ => panic!("invalid map type {:?}", map),
             },
             (Literal::List(els), CodegenTy::Array(inner, _)) => {
-                let stream = els.iter().map(|el| self.lit_into_ty(el, inner));
-                quote! { [#(#stream),*] }
+                let stream = els
+                    .iter()
+                    .map(|el| self.lit_into_ty(el, inner))
+                    .collect::<Vec<_>>();
+                let is_const = stream.iter().all(|(_, is_const)| *is_const);
+                let stream = stream.into_iter().map(|(s, _)| s);
+
+                (quote! { [#(#stream),*] }, is_const)
             }
             (Literal::List(els), CodegenTy::Vec(inner)) => {
-                let stream = els.iter().map(|el| self.lit_into_ty(el, inner));
-                quote! { ::std::vec![#(#stream),*] }
+                let stream = els
+                    .iter()
+                    .map(|el| self.lit_into_ty(el, inner))
+                    .map(|(s, _)| s);
+
+                (quote! { ::std::vec![#(#stream),*] }, false)
             }
-            (Literal::Bool(b), CodegenTy::Bool) => {
-                quote! { #b }
-            }
+            (Literal::Bool(b), CodegenTy::Bool) => (quote! { #b }, true),
             (Literal::String(s), CodegenTy::Bytes) => {
                 let s = &**s;
-                quote! { ::bytes::Bytes::from_static(#s.as_bytes()) }
+                (quote! { ::bytes::Bytes::from_static(#s.as_bytes()) }, true)
             }
             _ => panic!("unexpected literal {:?} with ty {:?}", lit, ty),
         }
@@ -270,14 +286,14 @@ impl Context {
             *size = lit.len()
         }
         if should_lazy_static {
-            let lit = self.lit_as_rvalue(lit, ty);
+            let lit = self.lit_as_rvalue(lit, ty).0;
             quote::quote! {
                 ::pilota::lazy_static::lazy_static! {
                     pub static ref #name: #ty = #lit;
                 }
             }
         } else {
-            let lit = self.lit_into_ty(lit, ty);
+            let lit = self.lit_into_ty(lit, ty).0;
             quote::quote! {
                 pub const #name: #ty = #lit;
             }

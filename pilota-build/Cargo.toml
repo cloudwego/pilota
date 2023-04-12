@@ -50,3 +50,9 @@ tokio = { version = "1", features = ["io-util"] }
 derivative = "2"
 tempfile = "3"
 diffy = "0.3"
+criterion = { version = "0.4", features = ["html_reports"] }
+
+
+[[bench]]
+name = "codegen"
+harness = false

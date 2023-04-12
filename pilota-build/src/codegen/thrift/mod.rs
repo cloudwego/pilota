@@ -159,16 +159,41 @@ impl ThriftBackend {
             let field_name = self.rust_name(f.did).as_syn_ident();
             let mut v = quote!(None);
 
-            if let Some(default) = self.cx.default_val(f) {
-                v = quote!(#default);
+            if let Some((default, is_const)) = self.cx.default_val(f) {
+                if is_const {
+                    v = quote!(#default);
 
-                if f.is_optional() {
-                    v = quote!(Some(#v))
+                    if f.is_optional() {
+                        v = quote!(Some(#v))
+                    }
                 }
             };
 
             quote! {
                 let mut #field_name = #v;
+            }
+        });
+
+        let set_default_fields = s.fields.iter().filter_map(|f| {
+            let field_name = self.rust_name(f.did).as_syn_ident();
+            if let Some((default, is_const)) = self.cx.default_val(f) {
+                if !is_const {
+                    if f.is_optional() {
+                        Some(quote! {
+                            if #field_name.is_none() {
+                                #field_name = Some(#default);
+                            }
+                        })
+                    } else {
+                        Some(quote! {
+                            let #field_name = #field_name.unwrap_or_else(|| #default);
+                        })
+                    }
+                } else {
+                    None
+                }
+            } else {
+                None
             }
         });
 
@@ -225,6 +250,8 @@ impl ThriftBackend {
                 )
             };)*
 
+            #(#set_default_fields)*
+
             let data = Self {
                 #(#fields,)*
             };
@@ -264,7 +291,13 @@ impl ThriftBackend {
                 read_field = quote! {::std::boxed::Box::new(#read_field) };
             };
 
-            if f.is_optional() || self.cx.default_val(f).is_none() {
+            if f.is_optional() || {
+                if let Some((_, is_const)) = self.cx.default_val(f) {
+                    !is_const
+                } else {
+                    true
+                }
+            } {
                 read_field = quote!(Some(#read_field))
             }
 
