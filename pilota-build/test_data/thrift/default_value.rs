@@ -70,7 +70,7 @@ pub mod default_value {
         impl Default for A {
             fn default() -> Self {
                 A {
-                    faststr: ::pilota::FastStr::new("hello world"),
+                    faststr: ::pilota::FastStr::from_static_str("hello world"),
                     string: "test".to_string(),
                     a: Some(false),
                     test_b: Some(B::Read),
@@ -78,8 +78,8 @@ pub mod default_value {
                     map: Some({
                         let mut map = ::std::collections::HashMap::with_capacity(1usize);
                         map.insert(
-                            ::pilota::FastStr::new("hello"),
-                            ::pilota::FastStr::new("world"),
+                            ::pilota::FastStr::from_static_str("hello"),
+                            ::pilota::FastStr::from_static_str("world"),
                         );
                         map
                     }),
@@ -155,19 +155,12 @@ pub mod default_value {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut faststr = ::pilota::FastStr::new("hello world");
-                let mut string = "test".to_string();
+                let mut faststr = ::pilota::FastStr::from_static_str("hello world");
+                let mut string = None;
                 let mut a = Some(false);
                 let mut test_b = Some(B::Read);
                 let mut test_b2 = Some(B::Write);
-                let mut map = Some({
-                    let mut map = ::std::collections::HashMap::with_capacity(1usize);
-                    map.insert(
-                        ::pilota::FastStr::new("hello"),
-                        ::pilota::FastStr::new("world"),
-                    );
-                    map
-                });
+                let mut map = None;
                 let mut test_double = Some(1f64);
                 let mut test_double2 = Some(1.2f64);
                 let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
@@ -190,7 +183,7 @@ pub mod default_value {
                             Some(2i16)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                string = protocol.read_string()?;
+                                string = Some(protocol.read_string()?);
                             }
                             Some(3i16)
                                 if field_ident.field_type == ::pilota::thrift::TType::Bool =>
@@ -258,6 +251,17 @@ pub mod default_value {
                     }
                 };
                 protocol.read_struct_end()?;
+                let string = string.unwrap_or_else(|| "test".to_string());
+                if map.is_none() {
+                    map = Some({
+                        let mut map = ::std::collections::HashMap::with_capacity(1usize);
+                        map.insert(
+                            ::pilota::FastStr::from_static_str("hello"),
+                            ::pilota::FastStr::from_static_str("world"),
+                        );
+                        map
+                    });
+                }
                 let data = Self {
                     faststr,
                     string,
@@ -274,19 +278,12 @@ pub mod default_value {
             async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut faststr = ::pilota::FastStr::new("hello world");
-                let mut string = "test".to_string();
+                let mut faststr = ::pilota::FastStr::from_static_str("hello world");
+                let mut string = None;
                 let mut a = Some(false);
                 let mut test_b = Some(B::Read);
                 let mut test_b2 = Some(B::Write);
-                let mut map = Some({
-                    let mut map = ::std::collections::HashMap::with_capacity(1usize);
-                    map.insert(
-                        ::pilota::FastStr::new("hello"),
-                        ::pilota::FastStr::new("world"),
-                    );
-                    map
-                });
+                let mut map = None;
                 let mut test_double = Some(1f64);
                 let mut test_double2 = Some(1.2f64);
                 let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
@@ -309,7 +306,7 @@ pub mod default_value {
                             Some(2i16)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                string = protocol.read_string().await?;
+                                string = Some(protocol.read_string().await?);
                             }
                             Some(3i16)
                                 if field_ident.field_type == ::pilota::thrift::TType::Bool =>
@@ -381,6 +378,17 @@ pub mod default_value {
                     }
                 };
                 protocol.read_struct_end().await?;
+                let string = string.unwrap_or_else(|| "test".to_string());
+                if map.is_none() {
+                    map = Some({
+                        let mut map = ::std::collections::HashMap::with_capacity(1usize);
+                        map.insert(
+                            ::pilota::FastStr::from_static_str("hello"),
+                            ::pilota::FastStr::from_static_str("world"),
+                        );
+                        map
+                    });
+                }
                 let data = Self {
                     faststr,
                     string,
