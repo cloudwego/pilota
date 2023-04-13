@@ -70,7 +70,6 @@ impl Parser for File {
                     None
                 }
             })
-            .into_iter()
             .find_map(|n| {
                 if n.scope.0 == "rs" {
                     Some(n.name.clone())

@@ -647,7 +647,7 @@ impl super::Parser for ThriftParser {
                     self.db.parse(
                         f.to_path_buf()
                             .normalize()
-                            .expect(&format!("normalize path failed: {}", f.display()))
+                            .unwrap_or_else(|_| panic!("normalize path failed: {}", f.display()))
                             .into_path_buf(),
                     ),
                 ),

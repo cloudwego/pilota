@@ -319,7 +319,7 @@ pub(crate) struct ConstTyTransformer<'s>(&'s dyn RirDatabase);
 impl ConstTyTransformer<'_> {
     #[inline]
     fn dyn_codegen_item_ty(&self, kind: &TyKind) -> CodegenTy {
-        let mut ty = self.codegen_item_ty(&kind);
+        let mut ty = self.codegen_item_ty(kind);
         if let CodegenTy::Array(_inner, _) = ty {
             ty = CodegenTy::Vec(_inner);
         }

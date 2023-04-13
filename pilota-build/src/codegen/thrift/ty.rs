@@ -110,7 +110,7 @@ impl ThriftBackend {
             _ => {}
         }
 
-        return false;
+        false
     }
 
     pub(crate) fn codegen_encode_field(

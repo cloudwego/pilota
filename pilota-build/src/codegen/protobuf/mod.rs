@@ -52,7 +52,7 @@ impl ProtobufBackend {
                     _ => quote!(encoded_len),
                 };
 
-                let module = self.ty_module(&ty);
+                let module = self.ty_module(ty);
 
                 let encoded_len_fn = quote!(::pilota::prost::encoding::#module::#encoded_len_fn);
 
@@ -85,8 +85,8 @@ impl ProtobufBackend {
                     unreachable!();
                 };
 
-                let key_module = self.ty_module(&key_ty);
-                let value_module = self.ty_module(&value_ty);
+                let key_module = self.ty_module(key_ty);
+                let value_module = self.ty_module(value_ty);
 
                 let key_encoded_len_fn =
                     quote!(::pilota::prost::encoding::#key_module::encoded_len);
@@ -115,7 +115,7 @@ impl ProtobufBackend {
     fn ty_category(&self, ty: &Ty) -> Category {
         let mut ty = ty;
         if let ty::TyKind::Vec(inner) = &ty.kind {
-            ty = &*inner;
+            ty = inner;
         }
 
         match &ty.kind {
@@ -142,7 +142,7 @@ impl ProtobufBackend {
     fn ty_module(&self, ty: &ty::Ty) -> Ident {
         let mut ty = ty;
         if let ty::TyKind::Vec(inner) = &ty.kind {
-            ty = &*inner;
+            ty = inner;
         }
         let prost_type = self
             .cx
@@ -176,7 +176,7 @@ impl ProtobufBackend {
     fn codegen_encode(&self, ident: TokenStream, ty: &Ty, id: u32, kind: FieldKind) -> TokenStream {
         let category = self.ty_category(ty);
 
-        let tag = id as u32;
+        let tag = id;
 
         match category {
             Category::Scalar => {
@@ -185,7 +185,7 @@ impl ProtobufBackend {
                     _ => quote!(encode),
                 };
 
-                let module = self.ty_module(&ty);
+                let module = self.ty_module(ty);
 
                 let encode_fn = quote!(::pilota::prost::encoding::#module::#encode_fn);
 
@@ -227,8 +227,8 @@ impl ProtobufBackend {
                     unreachable!();
                 };
 
-                let key_module = self.ty_module(&key_ty);
-                let value_module = self.ty_module(&value_ty);
+                let key_module = self.ty_module(key_ty);
+                let value_module = self.ty_module(value_ty);
 
                 let key_encode_fn = quote!(::pilota::prost::encoding::#key_module::encode);
                 let value_encode_fn = quote!(::pilota::prost::encoding::#value_module::encode);
@@ -246,25 +246,22 @@ impl ProtobufBackend {
     }
 
     fn field_tags(&self, field: &Field) -> impl Iterator<Item = u32> {
-        match &field.ty.kind {
-            ty::TyKind::Path(path) => {
-                if let Some(node) = &self.cx.node(path.did) {
-                    if self.cx.contains_tag::<OneOf>(node.tags) {
-                        let item = self.cx.expect_item(path.did);
-                        let e = match &*item {
-                            Item::Enum(e) => e,
-                            _ => unreachable!(),
-                        };
-                        return None.into_iter().chain(
-                            e.variants
-                                .iter()
-                                .map(|v| v.id.unwrap() as u32)
-                                .collect::<Vec<_>>(),
-                        );
-                    }
+        if let ty::TyKind::Path(path) = &field.ty.kind {
+            if let Some(node) = &self.cx.node(path.did) {
+                if self.cx.contains_tag::<OneOf>(node.tags) {
+                    let item = self.cx.expect_item(path.did);
+                    let e = match &*item {
+                        Item::Enum(e) => e,
+                        _ => unreachable!(),
+                    };
+                    return None.into_iter().chain(
+                        e.variants
+                            .iter()
+                            .map(|v| v.id.unwrap() as u32)
+                            .collect::<Vec<_>>(),
+                    );
                 }
             }
-            _ => {}
         }
         Some(field.id as u32).into_iter().chain(vec![])
     }
@@ -277,7 +274,7 @@ impl ProtobufBackend {
                     _ => quote!(merge),
                 };
 
-                let module = self.ty_module(&ty);
+                let module = self.ty_module(ty);
                 let merge_fn = quote!(::pilota::prost::encoding::#module::#merge_fn);
 
                 match kind {
@@ -294,8 +291,8 @@ impl ProtobufBackend {
                     unreachable!();
                 };
 
-                let key_mod = self.ty_module(&key_ty);
-                let value_mod = self.ty_module(&value_ty);
+                let key_mod = self.ty_module(key_ty);
+                let value_mod = self.ty_module(value_ty);
 
                 let key_merge_fn = quote!(::pilota::prost::encoding::#key_mod::merge);
                 let value_merge_fn = quote!(::pilota::prost::encoding::#value_mod::merge);

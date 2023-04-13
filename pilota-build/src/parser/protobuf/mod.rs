@@ -451,7 +451,7 @@ impl Parser for ProtobufParser {
         let p = path.as_ref();
         self.input_files.insert(
             p.normalize()
-                .expect(&format!("normalize path failed: {}", p.display()))
+                .unwrap_or_else(|_| panic!("normalize path failed: {}", p.display()))
                 .into_path_buf(),
         );
         self.inner.input(path);
