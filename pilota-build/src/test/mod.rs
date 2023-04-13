@@ -35,7 +35,7 @@ fn test_with_builder<F: FnOnce(&Path, &Path)>(
         f(source.as_ref(), target.as_ref());
     } else {
         let dir = tempdir().unwrap();
-        let path = dir.path().join(&format!(
+        let path = dir.path().join(format!(
             "{}.rs",
             target
                 .as_ref()

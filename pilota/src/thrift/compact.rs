@@ -244,8 +244,8 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
                 }
                 self.pending_write_bool_field_identifier = Some(TFieldIdentifier {
                     name: None,
-                    field_type: field_type,
-                    id: id,
+                    field_type,
+                    id,
                 });
                 0
             }
@@ -1541,25 +1541,21 @@ mod tests {
         }};
     }
 
-    fn test_input_prot_bytesmut<'a>(
-        trans: &'a mut BytesMut,
-    ) -> TCompactInputProtocol<&'a mut BytesMut> {
+    fn test_input_prot_bytesmut(trans: &mut BytesMut) -> TCompactInputProtocol<&mut BytesMut> {
         TCompactInputProtocol::new(trans)
     }
-    fn test_output_prot_bytesmut<'a>(
-        trans: &'a mut BytesMut,
-    ) -> TCompactOutputProtocol<&'a mut BytesMut> {
+    fn test_output_prot_bytesmut(trans: &mut BytesMut) -> TCompactOutputProtocol<&mut BytesMut> {
         TCompactOutputProtocol::new(trans, false)
     }
 
-    fn test_input_prot_linkedbytes<'a>(
-        trans: &'a mut LinkedBytes,
-    ) -> TCompactInputProtocol<&'a mut LinkedBytes> {
+    fn test_input_prot_linkedbytes(
+        trans: &mut LinkedBytes,
+    ) -> TCompactInputProtocol<&mut LinkedBytes> {
         TCompactInputProtocol::new(trans)
     }
-    fn test_output_prot_linkedbytes<'a>(
-        trans: &'a mut LinkedBytes,
-    ) -> TCompactOutputProtocol<&'a mut LinkedBytes> {
+    fn test_output_prot_linkedbytes(
+        trans: &mut LinkedBytes,
+    ) -> TCompactOutputProtocol<&mut LinkedBytes> {
         TCompactOutputProtocol::new(trans, false)
     }
 
@@ -3571,7 +3567,7 @@ mod tests {
             }
         );
         let read_value_1 = assert_success!(i_prot.read_bool());
-        assert_eq!(read_value_1, true);
+        assert!(read_value_1);
         assert_success!(i_prot.read_field_end());
 
         let read_ident_2 = assert_success!(i_prot.read_field_begin());
@@ -3583,7 +3579,7 @@ mod tests {
             }
         );
         let read_value_2 = assert_success!(i_prot.read_bool());
-        assert_eq!(read_value_2, false);
+        assert!(!read_value_2);
         assert_success!(i_prot.read_field_end());
 
         let read_ident_3 = assert_success!(i_prot.read_field_begin());
@@ -3595,7 +3591,7 @@ mod tests {
             }
         );
         let read_value_3 = assert_success!(i_prot.read_bool());
-        assert_eq!(read_value_3, true);
+        assert!(read_value_3);
         assert_success!(i_prot.read_field_end());
 
         let read_ident_4 = assert_success!(i_prot.read_field_begin());
@@ -3607,7 +3603,7 @@ mod tests {
             }
         );
         let read_value_4 = assert_success!(i_prot.read_bool());
-        assert_eq!(read_value_4, false);
+        assert!(!read_value_4);
         assert_success!(i_prot.read_field_end());
 
         let read_ident_5 = assert_success!(i_prot.read_field_begin());

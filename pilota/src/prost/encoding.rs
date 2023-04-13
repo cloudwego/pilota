@@ -613,7 +613,7 @@ pub mod int32 {
     {
         check_wire_type(WireType::Varint, wire_type)?;
         let from_value = decode_varint(buf)?;
-        Ok(T::try_from(from_value as i32).map_err(|err| err.into())?)
+        T::try_from(from_value as i32).map_err(|err| err.into())
     }
 
     pub fn encode_repeated<B, T: Into<i32> + Copy>(tag: u32, values: &[T], buf: &mut B)

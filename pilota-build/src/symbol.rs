@@ -79,7 +79,7 @@ pub struct Symbol(pub FastStr);
 
 impl std::borrow::Borrow<str> for Symbol {
     fn borrow(&self) -> &str {
-        &**self
+        self
     }
 }
 

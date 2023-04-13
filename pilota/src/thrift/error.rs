@@ -66,7 +66,7 @@ impl From<string::FromUtf8Error> for Error {
     fn from(err: string::FromUtf8Error) -> Self {
         Error::Protocol(ProtocolError {
             kind: ProtocolErrorKind::InvalidData,
-            message: err.to_string().into(), // FIXME: use fmt::Error's debug string
+            message: err.to_string(), // FIXME: use fmt::Error's debug string
         })
     }
 }
@@ -152,7 +152,7 @@ impl TryFrom<i32> for TransportErrorKind {
             6 => Ok(TransportErrorKind::SizeLimit),
             _ => Err(Error::Protocol(ProtocolError {
                 kind: ProtocolErrorKind::Unknown,
-                message: format!("cannot convert {} to TransportErrorKind", from).into(),
+                message: format!("cannot convert {} to TransportErrorKind", from),
             })),
         }
     }
@@ -272,7 +272,7 @@ impl TryFrom<i32> for ProtocolErrorKind {
             6 => Ok(ProtocolErrorKind::DepthLimit),
             _ => Err(ProtocolError {
                 kind: ProtocolErrorKind::Unknown,
-                message: format!("cannot convert {} to ProtocolErrorKind", from).into(),
+                message: format!("cannot convert {} to ProtocolErrorKind", from),
             }),
         }
     }

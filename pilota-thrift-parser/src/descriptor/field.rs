@@ -1,16 +1,11 @@
 use super::{Annotations, ConstValue, Ident, Type};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub enum Attribute {
     Optional,
     Required,
+    #[default]
     Default,
-}
-
-impl Default for Attribute {
-    fn default() -> Self {
-        Attribute::Default
-    }
 }
 
 #[derive(Debug, Clone)]

@@ -330,7 +330,7 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
 
     #[inline]
     fn write_void_len(&mut self) -> usize {
-        self.write_struct_begin_len(&*crate::thrift::VOID_IDENT) + self.write_struct_end_len()
+        self.write_struct_begin_len(&crate::thrift::VOID_IDENT) + self.write_struct_end_len()
     }
 
     #[inline]
@@ -562,7 +562,7 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
 
     #[inline]
     fn write_void(&mut self) -> Result<(), EncodeError> {
-        self.write_struct_begin(&*crate::thrift::VOID_IDENT)?;
+        self.write_struct_begin(&crate::thrift::VOID_IDENT)?;
         self.write_struct_end()
     }
 }

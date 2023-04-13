@@ -156,14 +156,14 @@ impl ir::visit::Visitor for CollectDef<'_> {
                 ir::ItemKind::Message(m) => m
                     .fields
                     .iter()
-                    .for_each(|f| self.def_sym(Namespace::Ty, (&*f.name).clone())),
+                    .for_each(|f| self.def_sym(Namespace::Ty, (*f.name).clone())),
                 ir::ItemKind::Enum(e) => e.variants.iter().for_each(|e| {
-                    self.def_sym(Namespace::Ty, (&*e.name).clone());
+                    self.def_sym(Namespace::Ty, (*e.name).clone());
                 }),
                 ir::ItemKind::Service(s) => {
                     s.methods
                         .iter()
-                        .for_each(|m| self.def_sym(Namespace::Ty, (&*m.name).clone()));
+                        .for_each(|m| self.def_sym(Namespace::Ty, (*m.name).clone()));
                 }
                 _ => {}
             }
@@ -225,7 +225,7 @@ impl Resolver {
             let segs = if let Some(segs) = segs.strip_prefix(&*cur_file.package.segments) {
                 segs
             } else {
-                &*segs
+                segs
             };
             let sym = segs.first().unwrap();
 
@@ -264,17 +264,16 @@ impl Resolver {
                         Namespace::Ty => &file.ty,
                     };
 
-                    if let Some(def_id) = table.get(&**rest[0]).or_else(|| {
-                        if ns == Namespace::Value {
-                            file.ty.get(&**rest[0])
-                        } else {
-                            None
-                        }
-                    }) {
-                        Some((&rest[1..], *def_id))
-                    } else {
-                        None
-                    }
+                    table
+                        .get(&**rest[0])
+                        .or_else(|| {
+                            if ns == Namespace::Value {
+                                file.ty.get(&**rest[0])
+                            } else {
+                                None
+                            }
+                        })
+                        .map(|def_id| (&rest[1..], *def_id))
                 } else {
                     None
                 }
@@ -358,7 +357,7 @@ impl Resolver {
     #[tracing::instrument(level = "debug", skip_all, fields(name = &**f.name))]
     fn lower_field(&mut self, f: &ir::Field) -> Arc<Field> {
         tracing::info!("lower filed {}, ty: {:?}", f.name, f.ty.kind);
-        let did = self.get_def_id(Namespace::Ty, &*f.name);
+        let did = self.get_def_id(Namespace::Ty, &f.name);
         let tags_id = self.tags_id_counter.inc_one();
         self.tags.insert(tags_id, f.tags.clone());
         let ty = self.lower_type(&f.ty);
@@ -372,7 +371,7 @@ impl Resolver {
                 ir::FieldKind::Optional => FieldKind::Optional,
             },
             name: f.name.clone(),
-            ty: ty,
+            ty,
             tags_id,
             default: f.default.as_ref().map(|d| self.lower_lit(d)),
         });
