@@ -245,7 +245,7 @@ impl Context {
                     let stream = quote::quote! {
                         {
                             #lazy_map
-                            &*inner_map
+                            &*INNER_MAP
                         }
                     };
                     (stream, false)
