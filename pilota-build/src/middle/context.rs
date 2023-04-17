@@ -275,6 +275,63 @@ impl Context {
                 let s = &**s;
                 (quote! { ::bytes::Bytes::from_static(#s.as_bytes()) }, true)
             }
+            (
+                Literal::Map(m),
+                CodegenTy::Adt(AdtDef {
+                    did,
+                    kind: AdtKind::Struct,
+                }),
+            ) => {
+                let def = self.item(*did).unwrap();
+                let def = match &*def {
+                    Item::Message(m) => m,
+                    _ => panic!(),
+                };
+
+                let fields = def
+                    .fields
+                    .iter()
+                    .map(|f| {
+                        let v = m.iter().find_map(|(k, v)| {
+                            let k = match k {
+                                Literal::String(s) => s,
+                                _ => panic!(),
+                            };
+                            if **k == **f.name {
+                                Some(v)
+                            } else {
+                                None
+                            }
+                        });
+
+                        let name = self.rust_name(f.did).as_syn_ident();
+
+                        if let Some(v) = v {
+                            let (mut v, is_const) =
+                                self.lit_into_ty(v, &self.codegen_item_ty(f.ty.kind.clone()));
+                            if f.is_optional() {
+                                v = quote!(Some(#v))
+                            }
+                            (quote!(#name: #v), is_const)
+                        } else {
+                            (quote!(#name: Default::default()), false)
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                let is_const = fields.iter().all(|(_, is_const)| *is_const);
+                let fields = fields.into_iter().map(|f| f.0);
+
+                let name = self.rust_name(*did).as_syn_ident();
+
+                (
+                    quote! {
+                        #name {
+                            #(#fields),*
+                        }
+                    },
+                    is_const,
+                )
+            }
             _ => panic!("unexpected literal {:?} with ty {:?}", lit, ty),
         }
     }
