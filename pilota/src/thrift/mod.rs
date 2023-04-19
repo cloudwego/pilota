@@ -17,7 +17,7 @@ use faststr::FastStr;
 pub use self::{binary::TAsyncBinaryProtocol, compact::TAsyncCompactProtocol};
 
 const MAXIMUM_SKIP_DEPTH: i8 = 64;
-const ZERO_COPY_THRESHOLD: usize = 0; // Change it to 0 to test the performance. Previously it's 4KB.
+const ZERO_COPY_THRESHOLD: usize = 4 * 1024; // 4KB
 const INLINE_CAP: usize = 22;
 
 lazy_static::lazy_static! {
