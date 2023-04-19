@@ -147,7 +147,7 @@ where
         };
 
         let variants = e.variants.iter().map(|v| {
-            let name = self.rust_name(v.did).shouty_snake_case().as_syn_ident();
+            let name = self.rust_name(v.did).as_syn_ident();
 
             let discr = v.discr.unwrap();
             let discr = match e.repr {

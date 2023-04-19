@@ -665,7 +665,7 @@ dependencies = [
 
 [[package]]
 name = "pilota-build"
-version = "0.6.12"
+version = "0.6.13"
 dependencies = [
  "async-trait",
  "criterion",
