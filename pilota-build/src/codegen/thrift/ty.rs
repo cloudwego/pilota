@@ -6,6 +6,7 @@ use crate::{
     db::RirDatabase,
     middle::{rir, ty, ty::Ty},
     symbol::EnumRepr,
+    tags::EnumMode,
     DefId,
 };
 
@@ -172,7 +173,19 @@ impl ThriftBackend {
                 }
             }
             ty::Path(p) if self.is_i32_enum(p.did) => {
-                quote! { protocol.write_i32_field(#id, (*#ident).into())?; }
+                let v = match self
+                    .cx
+                    .node_tags(p.did)
+                    .unwrap()
+                    .get::<EnumMode>()
+                    .copied()
+                    .unwrap_or(EnumMode::Enum)
+                {
+                    EnumMode::NewType => quote!((#ident).inner()),
+                    EnumMode::Enum => quote!((*#ident).into()),
+                };
+
+                quote! { protocol.write_i32_field(#id, #v)?; }
             }
             ty::Path(_) => quote! { protocol.write_struct_field(#id, #ident)?; },
             ty::Arc(ty) => self.codegen_encode_field(id, ty, ident),
@@ -283,7 +296,18 @@ impl ThriftBackend {
                 }
             }
             ty::Path(p) if self.is_i32_enum(p.did) => {
-                quote! { protocol.write_i32_field_len(Some(#id), (*#ident).into()) }
+                let v = match self
+                    .cx
+                    .node_tags(p.did)
+                    .unwrap()
+                    .get::<EnumMode>()
+                    .copied()
+                    .unwrap_or(EnumMode::Enum)
+                {
+                    EnumMode::NewType => quote!((#ident).inner()),
+                    EnumMode::Enum => quote!((*#ident).into()),
+                };
+                quote! { protocol.write_i32_field_len(Some(#id), #v) }
             }
             ty::Path(_) => quote! { protocol.write_struct_field_len(Some(#id), #ident) },
             ty::Arc(ty) => self.codegen_field_size(ty, id, ident),

@@ -280,8 +280,8 @@ pub mod pilota_name {
         #[derive(Copy)]
         pub enum Index {
             #[derivative(Default)]
-            AA,
-            B,
+            AA = 0i32,
+            B = 1i32,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Index {

@@ -15,6 +15,7 @@ use crate::{
         rir::{self},
     },
     symbol::{DefId, EnumRepr, IdentName},
+    tags::EnumMode,
     Context,
 };
 
@@ -132,7 +133,66 @@ where
         })
     }
 
+    pub fn write_enum_as_new_type(
+        &mut self,
+        def_id: DefId,
+        stream: &mut TokenStream,
+        e: &middle::rir::Enum,
+    ) {
+        let name = self.rust_name(def_id).as_syn_ident();
+
+        let repr = match e.repr {
+            Some(EnumRepr::I32) => quote!(i32),
+            _ => panic!(),
+        };
+
+        let variants = e.variants.iter().map(|v| {
+            let name = self.rust_name(v.did).shouty_snake_case().as_syn_ident();
+
+            let discr = v.discr.unwrap();
+            let discr = match e.repr {
+                Some(EnumRepr::I32) => discr as i32,
+                None => panic!(),
+            };
+
+            quote::quote! {
+                pub const #name: Self = Self(#discr);
+            }
+        });
+
+        stream.extend(quote::quote! {
+            #[derive(Clone, PartialEq, Copy)]
+            #[repr(transparent)]
+            pub struct #name(#repr);
+
+            impl #name {
+                #(#variants)*
+
+                pub fn inner(&self) -> #repr {
+                    self.0
+                }
+            }
+
+            impl ::std::convert::From<#repr> for #name {
+                fn from(value: #repr) -> Self {
+                    Self(value)
+                }
+            }
+        });
+
+        self.backend.codegen_enum_impl(def_id, stream, e);
+    }
+
     pub fn write_enum(&mut self, def_id: DefId, stream: &mut TokenStream, e: &middle::rir::Enum) {
+        if self
+            .node_tags(def_id)
+            .unwrap()
+            .get::<EnumMode>()
+            .filter(|s| **s == EnumMode::NewType)
+            .is_some()
+        {
+            return self.write_enum_as_new_type(def_id, stream, e);
+        }
         let name = self.rust_name(def_id).as_syn_ident();
 
         let mut repr = if e.variants.is_empty() {

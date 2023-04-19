@@ -11,7 +11,7 @@ use crate::{
         rir::{self, Enum, Field, Message, Method, NewType, Service},
     },
     symbol::{DefId, EnumRepr, IdentName},
-    tags::thrift::EntryMessage,
+    tags::{thrift::EntryMessage, EnumMode},
 };
 
 mod ty;
@@ -378,16 +378,27 @@ impl CodegenBackend for ThriftBackend {
     fn codegen_enum_impl(&self, def_id: DefId, stream: &mut proc_macro2::TokenStream, e: &Enum) {
         let name = self.rust_name(def_id).as_syn_ident();
         let is_entry_message = self.node_contains_tag::<EntryMessage>(def_id);
+        let v = match self
+            .cx
+            .node_tags(def_id)
+            .unwrap()
+            .get::<EnumMode>()
+            .copied()
+            .unwrap_or(EnumMode::Enum)
+        {
+            EnumMode::NewType => quote! { self.inner() },
+            EnumMode::Enum => quote! { *self as i32 },
+        };
         match e.repr {
             Some(EnumRepr::I32) => stream.extend(self.codegen_impl_message_with_helper(
                 &name,
                 quote! {
-                    protocol.write_i32(*self as i32)?;
+                    protocol.write_i32(#v)?;
                     Ok(())
                 },
                 {
                     quote! {
-                            protocol.write_i32_len(*self as i32)
+                            protocol.write_i32_len(#v)
                     }
                 },
                 |helper| {

@@ -9,6 +9,7 @@ use crate::{
     db::RirDatabase,
     rir::{EnumVariant, Field, Item},
     symbol::{DefId, EnumRepr},
+    tags::EnumMode,
     ty::{self, Ty, Visitor},
     Context, IdentName,
 };
@@ -385,7 +386,16 @@ pub struct EnumNumPlugin;
 impl Plugin for EnumNumPlugin {
     fn on_item(&mut self, cx: &mut Context, def_id: DefId, item: Arc<Item>) {
         match &*item {
-            Item::Enum(e) if e.repr.is_some() => {
+            Item::Enum(e)
+                if e.repr.is_some()
+                    && cx
+                        .node_tags(def_id)
+                        .unwrap()
+                        .get::<EnumMode>()
+                        .copied()
+                        .unwrap_or(EnumMode::Enum)
+                        == EnumMode::Enum =>
+            {
                 let name_str = &*cx.rust_name(def_id);
                 let name = name_str.as_syn_ident();
                 let num_ty = match e.repr {
