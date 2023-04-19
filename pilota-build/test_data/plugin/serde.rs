@@ -223,8 +223,8 @@ pub mod serde {
         pub enum C {
             #[derivative(Default)]
             #[serde(rename = "DD")]
-            D,
-            E,
+            D = 0i32,
+            E = 1i32,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for C {

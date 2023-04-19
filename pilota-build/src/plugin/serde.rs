@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use syn::parse_quote;
 
-use crate::tags::SerdeAttribute;
+use crate::tags::{EnumMode, SerdeAttribute};
 
 #[derive(Clone, Copy)]
 pub struct SerdePlugin;
@@ -21,14 +21,24 @@ impl crate::Plugin for SerdePlugin {
         match &*item {
             crate::rir::Item::Message(_)
             | crate::rir::Item::Enum(_)
-            | crate::rir::Item::NewType(_) => cx.with_adjust(def_id, |adj| {
-                adj.add_attrs(&[parse_quote!(#[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize)])]);
-                if let Some(attribute) = attribute {
-                    let attr = attribute.0.to_string().replace('\\', "");
-                    let tokens = proc_macro2::TokenStream::from_str(&attr).unwrap();
-                    adj.add_attrs(&[parse_quote!(#tokens)]);
+            | crate::rir::Item::NewType(_) => {
+                cx.with_adjust(def_id, |adj| {
+                    adj.add_attrs(&[parse_quote!(#[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize)])]);
+                    if let Some(attribute) = attribute {
+                        let attr = attribute.0.to_string().replace('\\', "");
+                        let tokens = proc_macro2::TokenStream::from_str(&attr).unwrap();
+                        adj.add_attrs(&[parse_quote!(#tokens)]);
+                    }
+                });
+
+                if cx.node_tags(def_id).unwrap().get::<EnumMode>().copied()
+                    == Some(EnumMode::NewType)
+                {
+                    cx.with_adjust(def_id, |adj| {
+                        adj.add_attrs(&[parse_quote!(#[serde(transparent)])]);
+                    })
                 }
-            }),
+            }
             _ => {}
         };
         crate::plugin::walk_item(self, cx, def_id, item)

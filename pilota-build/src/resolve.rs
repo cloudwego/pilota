@@ -15,7 +15,7 @@ use crate::{
         ty::{self, Ty},
     },
     rir::Mod,
-    symbol::{DefId, FileId, Ident, Symbol},
+    symbol::{DefId, EnumRepr, FileId, Ident, Symbol},
     tags::{RustWrapperArc, TagId, Tags},
     ty::{BytesRepr, Folder, StringRepr, TyKind},
 };
@@ -485,6 +485,7 @@ impl Resolver {
     }
 
     fn lower_enum(&mut self, e: &ir::Enum) -> Enum {
+        let mut next_discr = 0;
         Enum {
             name: e.name.clone(),
             variants: e
@@ -496,13 +497,19 @@ impl Resolver {
                     if !v.tags.is_empty() {
                         self.tags.insert(tags_id, v.tags.clone());
                     }
+                    let discr = v.discr.unwrap_or(next_discr);
                     let e = Arc::from(EnumVariant {
                         id: v.id,
                         did,
                         name: v.name.clone(),
-                        discr: v.discr,
+                        discr: if e.repr == Some(EnumRepr::I32) {
+                            Some(discr)
+                        } else {
+                            None
+                        },
                         fields: v.fields.iter().map(|p| self.lower_type(p)).collect(),
                     });
+                    next_discr = discr + 1;
                     self.nodes
                         .insert(did, self.mk_node(NodeKind::Variant(e.clone()), tags_id));
                     e
