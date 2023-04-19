@@ -15,7 +15,7 @@ use crate::{
     db::{RirDatabase, RootDatabase},
     rir::{self, Field, Item, Literal},
     symbol::{DefId, IdentName, Symbol},
-    tags::{TagId, Tags},
+    tags::{EnumMode, TagId, Tags},
     ty::{AdtDef, AdtKind, CodegenTy, Visitor},
     Plugin,
 };
@@ -380,7 +380,22 @@ impl Context {
                 crate::rir::Item::Const(c) => (&**c.name).const_ident(),
                 crate::rir::Item::Mod(m) => (&**m.name).mod_ident(),
             },
-            NodeKind::Variant(v) => (&**v.name).variant_ident(),
+            NodeKind::Variant(v) => {
+                let parent = self.node(def_id).unwrap().parent.unwrap();
+
+                if self
+                    .node_tags(parent)
+                    .unwrap()
+                    .get::<EnumMode>()
+                    .copied()
+                    .unwrap_or(EnumMode::Enum)
+                    == EnumMode::NewType
+                {
+                    (&**v.name).shouty_snake_case()
+                } else {
+                    (&**v.name).variant_ident()
+                }
+            }
             NodeKind::Field(f) => (&**f.name).field_ident(),
             NodeKind::Method(m) => (&**m.name).fn_ident(),
             NodeKind::Arg(a) => (&**a.name).field_ident(),
@@ -428,7 +443,7 @@ impl Context {
                     crate::rir::Item::Mod(_) => return,
                     _ => cx.rust_name(def_id),
                 },
-                NodeKind::Variant(v) => (&**v.name).variant_ident(),
+                NodeKind::Variant(_) => cx.rust_name(def_id),
                 _ => panic!(),
             };
             segs.push(name);
