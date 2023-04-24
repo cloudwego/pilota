@@ -1,20 +1,28 @@
-use std::{collections::HashMap, ops::Deref, sync::Arc};
+use std::{
+    io::Write,
+    ops::Deref,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
+use dashmap::DashMap;
 use faststr::FastStr;
-use fxhash::FxHashMap;
+use itertools::Itertools;
 use pkg_tree::PkgNode;
-use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
+use rayon::prelude::IntoParallelRefIterator;
 use traits::CodegenBackend;
 
+use self::workspace::Workspace;
 use crate::{
     db::RirDatabase,
+    fmt::fmt_file,
     middle::{
         self,
-        context::tls::CUR_ITEM,
-        rir::{self},
+        context::{tls::CUR_ITEM, Mode},
+        rir,
     },
-    symbol::{DefId, EnumRepr, IdentName},
+    symbol::{DefId, EnumRepr},
     tags::EnumMode,
     Context,
 };
@@ -22,92 +30,90 @@ use crate::{
 pub(crate) mod pkg_tree;
 pub(crate) mod traits;
 
+mod workspace;
+
 pub mod protobuf;
 pub mod thrift;
 
+#[derive(Clone)]
 pub struct Codegen<B> {
     backend: B,
-    zero_copy: bool,
-    cx: Arc<Context>,
-    pkgs: FxHashMap<Arc<[FastStr]>, TokenStream>,
 }
 
-impl<B> Deref for Codegen<B> {
+impl<B> Deref for Codegen<B>
+where
+    B: CodegenBackend,
+{
     type Target = Context;
 
     fn deref(&self) -> &Self::Target {
-        &self.cx
+        self.backend.cx()
     }
 }
 
 impl<B> Codegen<B> {
-    pub fn new(cx: Arc<Context>, backend: B) -> Self {
-        Codegen {
-            zero_copy: false,
-            cx,
-            backend,
-            pkgs: Default::default(),
-        }
+    pub fn new(backend: B) -> Self {
+        Codegen { backend }
     }
 }
 
 impl<B> Codegen<B>
 where
-    B: CodegenBackend,
+    B: CodegenBackend + Send,
 {
-    pub fn write_struct(&mut self, def_id: DefId, stream: &mut TokenStream, s: &rir::Message) {
-        let name = self.rust_name(def_id).as_syn_ident();
+    pub fn write_struct(&self, def_id: DefId, stream: &mut String, s: &rir::Message) {
+        let name = self.rust_name(def_id);
 
-        let fields = s.fields.iter().map(|f| {
-            let name = self.rust_name(f.did).as_syn_ident();
-            let adjust = self.adjust(f.did);
-            let ty = self.codegen_item_ty(f.ty.kind.clone());
-            let mut ty = quote::quote! { #ty };
+        let fields = s
+            .fields
+            .iter()
+            .map(|f| {
+                let name = self.rust_name(f.did);
+                self.with_adjust(f.did, |adjust| {
+                    let ty = self.codegen_item_ty(f.ty.kind.clone());
+                    let mut ty = format!("{ty}");
 
-            if let Some(adjust) = adjust {
-                if adjust.boxed() {
-                    ty = quote::quote! { ::std::boxed::Box<#ty> }
-                }
-            }
+                    if let Some(adjust) = adjust {
+                        if adjust.boxed() {
+                            ty = format!("::std::boxed::Box<{ty}>")
+                        }
+                    }
 
-            if f.is_optional() {
-                ty = quote::quote! { ::std::option::Option<#ty> }
-            }
+                    if f.is_optional() {
+                        ty = format!("::std::option::Option<{ty}>")
+                    }
 
-            let attrs = adjust.iter().flat_map(|a| a.attrs());
+                    let attrs = adjust.iter().flat_map(|a| a.attrs()).join("");
 
-            quote::quote! {
-                #(#attrs)*
-                pub #name: #ty,
-            }
-        });
+                    format! {
+                        r#"{attrs}
+                        pub {name}: {ty},"#
+                    }
+                })
+            })
+            .join("\n");
 
-        let lifetime = self.zero_copy.then(|| quote!(<'de>)).into_iter();
-
-        stream.extend(quote::quote! {
+        stream.push_str(&format! {
+            r#"
             #[derive(Clone, PartialEq)]
-            pub struct #name #(#lifetime)* {
-                #(#fields)*
-            }
+            pub struct {name} {{
+                {fields}
+            }}"#
         });
 
         self.backend.codegen_struct_impl(def_id, stream, s);
     }
 
-    pub fn write_item(&mut self, stream: &mut TokenStream, def_id: DefId) {
+    pub fn write_item(&self, stream: &mut String, def_id: DefId) {
         CUR_ITEM.set(&def_id, || {
             let item = self.item(def_id).unwrap();
             tracing::trace!("write item {}", item.symbol_name());
-            let adjust = self.adjust(def_id);
-            let attrs = adjust.iter().flat_map(|a| a.attrs());
+            self.with_adjust(def_id, |adjust| {
+                let attrs = adjust.iter().flat_map(|a| a.attrs()).sorted().join("\n");
 
-            let impls = adjust.iter().flat_map(|a| &a.impls);
-            stream.extend(quote::quote!(
-                #(#impls)*
-            ));
-
-            stream.extend(quote::quote! {
-                #(#attrs)*
+                let impls = adjust.iter().flat_map(|a| &a.impls).sorted().join("\n");
+                stream.push_str(&impls);
+                stream.push_str(&attrs);
             });
 
             match &*item {
@@ -117,16 +123,16 @@ where
                 middle::rir::Item::NewType(t) => self.write_new_type(def_id, stream, t),
                 middle::rir::Item::Const(c) => self.write_const(def_id, stream, c),
                 middle::rir::Item::Mod(m) => {
-                    let mut inner = TokenStream::default();
+                    let mut inner = Default::default();
                     m.items
                         .iter()
                         .for_each(|def_id| self.write_item(&mut inner, *def_id));
 
-                    let name = self.rust_name(def_id).as_syn_ident();
-                    stream.extend(quote::quote! {
-                        pub mod #name {
-                            #inner
-                        }
+                    let name = self.rust_name(def_id);
+                    stream.push_str(&format! {
+                        r#"pub mod {name} {{
+                            {inner}
+                        }}"#
                     })
                 }
             };
@@ -134,56 +140,59 @@ where
     }
 
     pub fn write_enum_as_new_type(
-        &mut self,
+        &self,
         def_id: DefId,
-        stream: &mut TokenStream,
+        stream: &mut String,
         e: &middle::rir::Enum,
     ) {
-        let name = self.rust_name(def_id).as_syn_ident();
+        let name = self.rust_name(def_id);
 
         let repr = match e.repr {
             Some(EnumRepr::I32) => quote!(i32),
             _ => panic!(),
         };
 
-        let variants = e.variants.iter().map(|v| {
-            let name = self.rust_name(v.did).as_syn_ident();
+        let variants = e
+            .variants
+            .iter()
+            .map(|v| {
+                let name = self.rust_name(v.did);
 
-            let discr = v.discr.unwrap();
-            let discr = match e.repr {
-                Some(EnumRepr::I32) => discr as i32,
-                None => panic!(),
-            };
+                let discr = v.discr.unwrap();
+                let discr = match e.repr {
+                    Some(EnumRepr::I32) => discr as i32,
+                    None => panic!(),
+                };
+                format!("pub const {name}: Self = Self({discr});")
+            })
+            .join("");
 
-            quote::quote! {
-                pub const #name: Self = Self(#discr);
-            }
-        });
-
-        stream.extend(quote::quote! {
+        stream.push_str(&format! {
+            r#"
             #[derive(Clone, PartialEq, Copy)]
             #[repr(transparent)]
-            pub struct #name(#repr);
+            pub struct {name}({repr});
 
-            impl #name {
-                #(#variants)*
+            impl {name} {{
+                {variants}
 
-                pub fn inner(&self) -> #repr {
+                pub fn inner(&self) -> {repr} {{
                     self.0
-                }
-            }
+                }}
+            }}
 
-            impl ::std::convert::From<#repr> for #name {
-                fn from(value: #repr) -> Self {
+            impl ::std::convert::From<{repr}> for {name} {{
+                fn from(value: {repr}) -> Self {{
                     Self(value)
-                }
-            }
+                }}
+            }}
+            "#
         });
 
         self.backend.codegen_enum_impl(def_id, stream, e);
     }
 
-    pub fn write_enum(&mut self, def_id: DefId, stream: &mut TokenStream, e: &middle::rir::Enum) {
+    pub fn write_enum(&self, def_id: DefId, stream: &mut String, e: &middle::rir::Enum) {
         if self
             .node_tags(def_id)
             .unwrap()
@@ -193,7 +202,7 @@ where
         {
             return self.write_enum_as_new_type(def_id, stream, e);
         }
-        let name = self.rust_name(def_id).as_syn_ident();
+        let name = self.rust_name(def_id);
 
         let mut repr = if e.variants.is_empty() {
             quote! {}
@@ -210,162 +219,217 @@ where
             repr.extend(quote! { #[derive(Copy)] })
         }
 
-        let variants = e.variants.iter().map(|v| {
-            let name = self.rust_name(v.did).as_syn_ident();
+        let variants = e
+            .variants
+            .iter()
+            .map(|v| {
+                let name = self.rust_name(v.did);
 
-            let adjust = self.adjust(v.did);
-            let attrs = adjust.iter().flat_map(|a| a.attrs());
-            let fields = v
-                .fields
-                .iter()
-                .map(|ty| self.codegen_item_ty(ty.kind.clone()))
-                .collect::<Vec<_>>();
+                self.with_adjust(v.did, |adjust| {
+                    let attrs = adjust.iter().flat_map(|a| a.attrs()).join("\n");
 
-            let fields_stream = if fields.is_empty() {
-                TokenStream::default()
-            } else {
-                quote::quote! {
-                    (#(#fields),*)
-                }
-            };
+                    let fields = v
+                        .fields
+                        .iter()
+                        .map(|ty| self.codegen_item_ty(ty.kind.clone()).to_string())
+                        .join(",");
 
-            let discr = v.discr.map(|x| {
-                let x = isize::try_from(x).unwrap();
-                let x = match e.repr {
-                    Some(EnumRepr::I32) => x as i32,
-                    None => panic!(),
-                };
-                quote! { = #x }
-            });
+                    let fields_stream = if fields.is_empty() {
+                        Default::default()
+                    } else {
+                        format!("({fields})")
+                    };
 
-            quote::quote! {
-                #(#attrs)*
-                #name #fields_stream #discr,
-            }
-        });
+                    let discr = v
+                        .discr
+                        .map(|x| {
+                            let x = isize::try_from(x).unwrap();
+                            let x = match e.repr {
+                                Some(EnumRepr::I32) => x as i32,
+                                None => panic!(),
+                            };
+                            format!("={x}")
+                        })
+                        .unwrap_or_default();
 
-        stream.extend(quote::quote! {
+                    format!(
+                        r#"{attrs}
+                        {name} {fields_stream} {discr},"#
+                    )
+                })
+            })
+            .join("\n");
+
+        stream.push_str(&format! {
+            r#"
             #[derive(Clone, PartialEq)]
-            #repr
-            pub enum #name {
-                #(#variants)*
-            }
+            {repr}
+            pub enum {name} {{
+                {variants}
+            }}
+            "#
         });
 
         self.backend.codegen_enum_impl(def_id, stream, e);
     }
 
-    pub fn write_service(
-        &mut self,
-        def_id: DefId,
-        stream: &mut TokenStream,
-        s: &middle::rir::Service,
-    ) {
-        let name = self.rust_name(def_id).as_syn_ident();
+    pub fn write_service(&self, def_id: DefId, stream: &mut String, s: &middle::rir::Service) {
+        let name = self.rust_name(def_id);
         let methods = self.service_methods(def_id);
 
         let methods = methods
             .iter()
-            .map(|m| self.backend.codegen_service_method(def_id, m));
+            .map(|m| self.backend.codegen_service_method(def_id, m))
+            .join("\n");
 
-        stream.extend(quote::quote! {
+        stream.push_str(&format! {
+            r#"
             #[::async_trait::async_trait]
-            pub trait #name {
-                #(#methods)*
-            }
+            pub trait {name} {{
+                {methods}
+            }}
+            "#
         });
         self.backend.codegen_service_impl(def_id, stream, s);
     }
 
-    pub fn write_new_type(
-        &mut self,
-        def_id: DefId,
-        stream: &mut TokenStream,
-        t: &middle::rir::NewType,
-    ) {
-        let name = self.rust_name(def_id).as_syn_ident();
+    pub fn write_new_type(&self, def_id: DefId, stream: &mut String, t: &middle::rir::NewType) {
+        let name = self.rust_name(def_id);
         let ty = self.codegen_item_ty(t.ty.kind.clone());
-        stream.extend(quote::quote! {
+        stream.push_str(&format! {
+            r#"
             #[derive(Clone, PartialEq)]
-            pub struct #name(pub #ty);
+            pub struct {name}(pub {ty});
 
-            impl ::std::ops::Deref for #name {
-                type Target = #ty;
+            impl ::std::ops::Deref for {name} {{
+                type Target = {ty};
 
-                fn deref(&self) -> &Self::Target {
+                fn deref(&self) -> &Self::Target {{
                     &self.0
-                }
-            }
+                }}
+            }}
 
-            impl From<#ty> for #name {
-                fn from(v: #ty) -> Self {
+            impl From<{ty}> for {name} {{
+                fn from(v: {ty}) -> Self {{
                     Self(v)
-                }
-            }
+                }}
+            }}
+            "#
         });
         self.backend.codegen_newtype_impl(def_id, stream, t);
     }
 
-    pub fn write_const(&mut self, did: DefId, stream: &mut TokenStream, c: &middle::rir::Const) {
+    pub fn write_const(&self, did: DefId, stream: &mut String, c: &middle::rir::Const) {
         let mut ty = self.codegen_ty(did);
 
         let name = self.rust_name(did);
 
-        stream.extend(self.cx.def_lit(&name, &c.lit, &mut ty))
+        stream.push_str(&self.def_lit(&name, &c.lit, &mut ty))
     }
 
-    pub(crate) fn write_mods(&mut self, mods: HashMap<Arc<[FastStr]>, Vec<DefId>>) {
-        mods.iter().for_each(|(p, def_ids)| {
-            let stream: &mut TokenStream =
-                unsafe { std::mem::transmute(self.pkgs.entry(p.clone()).or_default()) };
+    pub fn write_workspace(self, base_dir: PathBuf) -> anyhow::Result<()> {
+        let ws = Workspace::new(base_dir, self);
+        ws.write_crates()
+    }
+
+    pub fn write_items(&self, stream: &mut String, items: &[DefId])
+    where
+        B: Send,
+    {
+        use rayon::iter::ParallelIterator;
+
+        let mods = items.iter().copied().into_group_map_by(|def_id| {
+            let path = Arc::from_iter(self.mod_path(*def_id).iter().map(|s| s.0.clone()));
+            tracing::debug!("ths path of {:?} is {:?}", def_id, path);
+            match &*self.mode {
+                Mode::Workspace(_) => Arc::from(&path[1..]), /* the first element for workspace */
+                // path is crate name
+                Mode::SingleFile { .. } => path,
+            }
+        });
+
+        let mut pkgs: DashMap<Arc<[FastStr]>, String> = Default::default();
+
+        let this = self.clone();
+
+        mods.par_iter().for_each_with(this, |this, (p, def_ids)| {
+            let mut stream = pkgs.entry(p.clone()).or_default();
 
             let span = tracing::span!(tracing::Level::TRACE, "write_mod", path = ?p);
 
             let _enter = span.enter();
             for def_id in def_ids.iter() {
-                self.write_item(stream, *def_id)
+                this.write_item(&mut stream, *def_id)
             }
-        })
-    }
+        });
 
-    pub fn link(mut self, ns_name: &str) -> TokenStream {
         fn write_stream(
-            pkgs: &mut FxHashMap<Arc<[FastStr]>, TokenStream>,
-            stream: &mut TokenStream,
+            pkgs: &mut DashMap<Arc<[FastStr]>, String>,
+            stream: &mut String,
             nodes: &[PkgNode],
         ) {
             for node in nodes {
-                let mut inner_stream = TokenStream::default();
-                if let Some(node_stream) = pkgs.remove(&node.path) {
-                    inner_stream.extend(node_stream);
+                let mut inner_stream = String::default();
+                if let Some((_, node_stream)) = pkgs.remove(&node.path) {
+                    inner_stream.push_str(&node_stream);
                 }
 
                 write_stream(pkgs, &mut inner_stream, &node.children);
                 let name = node.ident();
                 if name.clone().unwrap_or_default() == "" {
-                    stream.extend(inner_stream);
+                    stream.push_str(&inner_stream);
                     return;
                 }
 
-                let name = name.unwrap().as_syn_ident();
-                stream.extend(quote! {
-                    pub mod #name {
-                        #inner_stream
-                    }
+                let name = name.unwrap();
+                stream.push_str(&format! {
+                    r#"
+                    pub mod {name} {{
+                        {inner_stream}
+                    }}
+                    "#
                 });
             }
         }
-        let mut stream = TokenStream::default();
-        let pkg_node = PkgNode::from_pkgs(&self.pkgs.keys().map(|k| &**k).collect::<Vec<_>>());
 
-        write_stream(&mut self.pkgs, &mut stream, &pkg_node);
+        let keys = pkgs.iter().map(|kv| kv.key().clone()).collect_vec();
+        let pkg_node = PkgNode::from_pkgs(&keys.iter().map(|s| &**s).collect_vec());
+        tracing::debug!(?pkg_node);
 
-        let ns_name = format_ident!("{}", ns_name);
+        write_stream(&mut pkgs, stream, &pkg_node);
+    }
 
-        quote! {
-            pub mod #ns_name {
+    pub fn write_file(self, ns_name: &str, file_name: impl AsRef<Path>) {
+        let mut stream = String::default();
+        self.write_items(&mut stream, &self.codegen_items);
+
+        let ns_name = ns_name;
+
+        stream = format! {r#"
+            pub mod {ns_name} {{
                 #![allow(warnings, clippy::all)]
-                #stream
+                {stream}
+            }}
+        "#};
+
+        let mut file = std::io::BufWriter::new(std::fs::File::create(&file_name).unwrap());
+        file.write_all(stream.to_string().as_bytes()).unwrap();
+        file.flush().unwrap();
+        fmt_file(file_name)
+    }
+
+    pub fn gen(self) -> anyhow::Result<()> {
+        match &*self.mode.clone() {
+            Mode::Workspace(info) => self.write_workspace(info.dir.clone()),
+            Mode::SingleFile { file_path: p } => {
+                self.write_file(
+                    p.file_name()
+                        .and_then(|s| s.to_str())
+                        .and_then(|s| s.split('.').next())
+                        .unwrap(),
+                    p,
+                );
+                Ok(())
             }
         }
     }

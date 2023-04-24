@@ -162,7 +162,7 @@ pub struct Path {
     pub did: DefId,
 }
 
-#[derive(PartialEq, Eq, Clone, Debug, Hash)]
+#[derive(PartialEq, Eq, Clone, Debug, Hash, PartialOrd, Ord)]
 pub struct ItemPath(Arc<[Symbol]>);
 
 impl Deref for ItemPath {

@@ -1,6 +1,5 @@
-use std::sync::Arc;
+use std::{fmt::Display, sync::Arc};
 
-use quote::{quote, ToTokens};
 pub use TyKind::*;
 
 use super::{context::tls::with_cx, rir::Path};
@@ -94,54 +93,55 @@ impl CodegenTy {
     }
 }
 
-impl ToTokens for CodegenTy {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+impl Display for CodegenTy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            CodegenTy::String => tokens.extend(quote! { ::std::string::String }),
-            CodegenTy::FastStr => tokens.extend(quote! { ::pilota::FastStr }),
-            CodegenTy::Str => tokens.extend(quote! { &'static str }),
-            CodegenTy::Void => tokens.extend(quote! { () }),
-            CodegenTy::U8 => tokens.extend(quote! { u8 }),
-            CodegenTy::Bool => tokens.extend(quote! { bool }),
-            CodegenTy::I8 => tokens.extend(quote! { i8 }),
-            CodegenTy::I16 => tokens.extend(quote! { i16 }),
-            CodegenTy::I32 => tokens.extend(quote! { i32 }),
-            CodegenTy::I64 => tokens.extend(quote! { i64 }),
-            CodegenTy::F64 => tokens.extend(quote! { f64 }),
-            CodegenTy::UInt32 => tokens.extend(quote! { u32 }),
-            CodegenTy::UInt64 => tokens.extend(quote! { u64 }),
-            CodegenTy::F32 => tokens.extend(quote! { f32 }),
+            CodegenTy::String => f.write_str("::std::string::String"),
+            CodegenTy::FastStr => f.write_str("::pilota::FastStr"),
+            CodegenTy::Str => f.write_str("&'static str"),
+            CodegenTy::Void => f.write_str("()"),
+            CodegenTy::U8 => f.write_str("u8"),
+            CodegenTy::Bool => f.write_str("bool"),
+            CodegenTy::I8 => f.write_str("i8"),
+            CodegenTy::I16 => f.write_str("i16"),
+            CodegenTy::I32 => f.write_str("i32"),
+            CodegenTy::I64 => f.write_str("i64"),
+            CodegenTy::F64 => f.write_str("f64"),
+            CodegenTy::UInt32 => f.write_str("u32"),
+            CodegenTy::UInt64 => f.write_str("u64"),
+            CodegenTy::F32 => f.write_str("f32"),
             CodegenTy::StaticRef(ty) => {
                 let ty = &**ty;
-                tokens.extend(quote! { &'static #ty })
+                write!(f, "&'static {ty}")
             }
             CodegenTy::Vec(ty) => {
                 let ty = &**ty;
-                tokens.extend(quote! { ::std::vec::Vec<#ty> })
+                write!(f, "::std::vec::Vec<{ty}>")
             }
             CodegenTy::Array(ty, size) => {
                 let ty = &**ty;
-                tokens.extend(quote! { [#ty; #size] })
+                write!(f, "[{ty}; {size}]")
             }
             CodegenTy::Set(ty) => {
                 let ty = &**ty;
-                tokens.extend(quote! { ::std::collections::HashSet<#ty> })
+                write!(f, "::std::collections::HashSet<{ty}>")
             }
             CodegenTy::Map(k, v) => {
                 let k = &**k;
                 let v = &**v;
-                tokens.extend(quote! { ::std::collections::HashMap<#k, #v> })
+                write!(f, "::std::collections::HashMap<{k}, {v}>")
             }
             CodegenTy::Adt(def) => with_cx(|cx| {
                 let path = cx.cur_related_item_path(def.did);
-                tokens.extend(quote! { #path })
+
+                write!(f, "{path}")
             }),
             CodegenTy::Arc(ty) => {
                 let ty = &**ty;
-                tokens.extend(quote!( ::std::sync::Arc<#ty> ))
+                write!(f, "::std::sync::Arc<{ty}>")
             }
-            CodegenTy::LazyStaticRef(ty) => ty.to_tokens(tokens),
-            CodegenTy::Bytes => tokens.extend(quote! { ::pilota::Bytes }),
+            CodegenTy::LazyStaticRef(ty) => ty.fmt(f),
+            CodegenTy::Bytes => f.write_str("::pilota::Bytes"),
         }
     }
 }
