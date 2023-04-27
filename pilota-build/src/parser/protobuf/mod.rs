@@ -63,6 +63,7 @@ impl Lower {
         type_: Option<protobuf::EnumOrUnknown<protobuf::descriptor::field_descriptor_proto::Type>>,
         type_name: Option<&str>,
         nested_messages: &FxHashMap<String, &DescriptorProto>,
+        message_name: Option<&str>,
     ) -> ir::Ty {
         if let Some(name) = type_name {
             if let Some(msg) = nested_messages.get(name) {
@@ -77,11 +78,13 @@ impl Lower {
                                 key.type_,
                                 key.type_name.as_deref(),
                                 nested_messages,
+                                message_name,
                             )),
                             Arc::from(self.lower_ty(
                                 value.type_,
                                 value.type_name.as_deref(),
                                 nested_messages,
+                                message_name,
                             )),
                         ),
                         tags: Default::default(),
@@ -173,7 +176,7 @@ impl Lower {
         &self,
         message: &DescriptorProto,
         parent_messages: &mut Vec<String>,
-    ) -> ir::Item {
+    ) -> Vec<ir::Item> {
         let fq_message_name = format!(
             "{}{}.{}{}",
             if self.cur_package.is_none() { "" } else { "." },
@@ -233,6 +236,7 @@ impl Lower {
                                     f.type_,
                                     f.type_name.as_deref(),
                                     &nested_messages,
+                                    Some(message.name()),
                                 )],
                                 tags: Default::default(),
                             })
@@ -245,7 +249,10 @@ impl Lower {
                     id: -1,
                     ty: ir::Ty {
                         kind: ir::TyKind::Path(Path {
-                            segments: Arc::from([FastStr::new(d.name()).into()]),
+                            segments: Arc::from([
+                                FastStr::new(message.name()).into(),
+                                FastStr::new(d.name()).into(),
+                            ]),
                         }),
                         tags: Default::default(),
                     },
@@ -261,7 +268,11 @@ impl Lower {
         nested_messages
             .iter()
             .filter(|(_, m)| !m.options.has_map_entry())
-            .for_each(|(_, m)| nested_items.push(Arc::new(self.lower_message(m, parent_messages))));
+            .for_each(|(_, m)| {
+                self.lower_message(m, parent_messages)
+                    .into_iter()
+                    .for_each(|item| nested_items.push(Arc::new(item)))
+            });
 
         parent_messages.pop();
 
@@ -277,8 +288,12 @@ impl Lower {
                 fields: fields
                     .iter()
                     .map(|f| {
-                        let mut ty =
-                            self.lower_ty(f.type_, f.type_name.as_deref(), &nested_messages);
+                        let mut ty = self.lower_ty(
+                            f.type_,
+                            f.type_name.as_deref(),
+                            &nested_messages,
+                            Some(message.name()),
+                        );
 
                         let is_map = matches!(ty.kind, TyKind::Map(_, _));
                         let repeated = !is_map && matches!(f.label(), Label::LABEL_REPEATED);
@@ -329,20 +344,22 @@ impl Lower {
         };
 
         if nested_items.is_empty() {
-            item
+            vec![item]
         } else {
             let name = item.name();
-            nested_items.push(Arc::new(item));
             let mut tags = Tags::default();
             tags.insert(PilotaName(name.0.mod_ident()));
-            Item {
-                related_items: Default::default(),
-                tags: Arc::from(tags),
-                kind: ir::ItemKind::Mod(ir::Mod {
-                    name: Ident { sym: name },
-                    items: nested_items,
-                }),
-            }
+            vec![
+                item,
+                Item {
+                    related_items: Default::default(),
+                    tags: Arc::from(tags),
+                    kind: ir::ItemKind::Mod(ir::Mod {
+                        name: Ident { sym: name },
+                        items: nested_items,
+                    }),
+                },
+            ]
         }
     }
 
@@ -373,11 +390,17 @@ impl Lower {
                                     None,
                                     m.input_type.as_deref(),
                                     &Default::default(),
+                                    Some(service.name()),
                                 ),
                                 tags: Arc::new(Tags::default()),
                             }],
                             oneway: false,
-                            ret: self.lower_ty(None, m.output_type.as_deref(), &Default::default()),
+                            ret: self.lower_ty(
+                                None,
+                                m.output_type.as_deref(),
+                                &Default::default(),
+                                Some(service.name()),
+                            ),
                             exceptions: None,
                         }
                     })
@@ -432,6 +455,7 @@ impl Lower {
                         .collect(),
                     id: file_id,
                     items: messages
+                        .flatten()
                         .chain(enums)
                         .chain(services)
                         .map(Arc::from)

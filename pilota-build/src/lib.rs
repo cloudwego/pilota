@@ -22,7 +22,6 @@ use std::{
 };
 
 pub mod plugin;
-mod test;
 
 pub use codegen::{
     protobuf::ProtobufBackend, thrift::ThriftBackend, traits::CodegenBackend, Codegen,
@@ -289,3 +288,5 @@ where
         });
     }
 }
+
+mod test;

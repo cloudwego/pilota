@@ -1,6 +1,7 @@
 use std::{ptr::NonNull, sync::Arc};
 
 use fxhash::FxHashMap;
+use itertools::Itertools;
 
 use crate::{
     errors,
@@ -35,6 +36,7 @@ enum ModuleId {
 enum Namespace {
     Value,
     Ty,
+    Mod,
 }
 
 pub struct CollectDef<'a> {
@@ -74,6 +76,7 @@ impl CollectDef<'_> {
         if match ns {
             Namespace::Value => table.value.insert(name.clone(), did),
             Namespace::Ty => table.ty.insert(name.clone(), did),
+            Namespace::Mod => table.mods.insert(name.clone(), did),
         }
         .is_some()
         {
@@ -128,6 +131,15 @@ impl CollectDef<'_> {
                     .resolutions
                     .ty
             }
+            Namespace::Mod => {
+                &mut self
+                    .resolver
+                    .def_modules
+                    .get_mut(&parent)
+                    .unwrap()
+                    .resolutions
+                    .mods
+            }
         };
         let def_id = self.resolver.did_counter.inc_one();
         table.insert(sym, def_id);
@@ -148,23 +160,14 @@ impl ir::visit::Visitor for CollectDef<'_> {
             | ir::ItemKind::Service(_)
             | ir::ItemKind::NewType(_) => Some(self.def_item(&item, Namespace::Ty)),
             ir::ItemKind::Const(_) => Some(self.def_item(&item, Namespace::Value)),
-            ir::ItemKind::Mod(_) => Some(self.def_item(&item, Namespace::Ty)),
+            ir::ItemKind::Mod(_) => Some(self.def_item(&item, Namespace::Mod)),
             ir::ItemKind::Use(_) => None,
         } {
             let prev_parent = self.parent.replace(ModuleId::Node(did));
             match &item.kind {
-                ir::ItemKind::Message(m) => m
-                    .fields
-                    .iter()
-                    .for_each(|f| self.def_sym(Namespace::Ty, (*f.name).clone())),
                 ir::ItemKind::Enum(e) => e.variants.iter().for_each(|e| {
-                    self.def_sym(Namespace::Ty, (*e.name).clone());
+                    self.def_sym(Namespace::Value, (*e.name).clone());
                 }),
-                ir::ItemKind::Service(s) => {
-                    s.methods
-                        .iter()
-                        .for_each(|m| self.def_sym(Namespace::Ty, (*m.name).clone()));
-                }
                 _ => {}
             }
             ir::visit::walk_item(self, item);
@@ -173,10 +176,11 @@ impl ir::visit::Visitor for CollectDef<'_> {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct SymbolTable {
     pub(crate) value: FxHashMap<Symbol, DefId>,
     pub(crate) ty: FxHashMap<Symbol, DefId>,
+    pub(crate) mods: FxHashMap<Symbol, DefId>,
 }
 
 pub struct Resolver {
@@ -217,80 +221,19 @@ pub struct ResolveResult {
     pub tags: FxHashMap<TagId, Arc<Tags>>,
 }
 
+pub struct ResolvedSymbols {
+    ty: Vec<DefId>,
+    value: Vec<DefId>,
+    r#mod: Vec<DefId>,
+}
+
 impl Resolver {
-    fn resolve_path<'a>(&self, ns: Namespace, path: &'a ir::Path) -> (&'a [Ident], DefId) {
-        let segs = &path.segments;
-        let cur_file = self.ir_files.get(self.cur_file.as_ref().unwrap()).unwrap();
-        {
-            let segs = if let Some(segs) = segs.strip_prefix(&*cur_file.package.segments) {
-                segs
-            } else {
-                segs
-            };
-            let sym = segs.first().unwrap();
-
-            let def_id = self.blocks.iter().rev().find_map(|b| {
-                let b = unsafe { b.as_ref() };
-                let target = match ns {
-                    Namespace::Value => b.value.get(&**sym).or_else(|| b.ty.get(&**sym)),
-                    Namespace::Ty => b.ty.get(&**sym),
-                }
-                .copied();
-                if let Some(target) = target {
-                    if segs.len() > 1 {
-                        let resolutions = &self.def_modules[&target].resolutions;
-                        let sym = &*segs[1];
-                        if !resolutions.ty.contains_key(sym) && !resolutions.value.contains_key(sym)
-                        {
-                            return None;
-                        }
-                    }
-                }
-                target
-            });
-
-            if let Some(def_id) = def_id {
-                return (&segs[1..], def_id);
-            }
-        }
-        cur_file
-            .uses
-            .iter()
-            .find_map(|f| {
-                if let Some(rest) = path.segments.strip_prefix(&*f.0.segments) {
-                    let file = &self.file_sym_map[&f.1];
-                    let table = match ns {
-                        Namespace::Value => &file.value,
-                        Namespace::Ty => &file.ty,
-                    };
-
-                    table
-                        .get(&**rest[0])
-                        .or_else(|| {
-                            if ns == Namespace::Value {
-                                file.ty.get(&**rest[0])
-                            } else {
-                                None
-                            }
-                        })
-                        .map(|def_id| (&rest[1..], *def_id))
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_else(|| {
-                panic!(
-                    "can not find path {} in file {}, {:?}",
-                    path, cur_file.package, cur_file.uses,
-                )
-            })
-    }
-
     fn get_def_id(&self, ns: Namespace, sym: &Symbol) -> DefId {
         if let Some(parent) = self.parent_node {
             *match ns {
                 Namespace::Value => self.def_modules[&parent].resolutions.value.get(sym),
                 Namespace::Ty => self.def_modules[&parent].resolutions.ty.get(sym),
+                Namespace::Mod => self.def_modules[&parent].resolutions.mods.get(sym),
             }
             .unwrap()
         } else {
@@ -298,6 +241,7 @@ impl Resolver {
             *match ns {
                 Namespace::Value => cur_file.value.get(sym),
                 Namespace::Ty => cur_file.ty.get(sym),
+                Namespace::Mod => cur_file.mods.get(sym),
             }
             .unwrap()
         }
@@ -357,7 +301,7 @@ impl Resolver {
     #[tracing::instrument(level = "debug", skip_all, fields(name = &**f.name))]
     fn lower_field(&mut self, f: &ir::Field) -> Arc<Field> {
         tracing::info!("lower filed {}, ty: {:?}", f.name, f.ty.kind);
-        let did = self.get_def_id(Namespace::Ty, &f.name);
+        let did = self.did_counter.inc_one();
         let tags_id = self.tags_id_counter.inc_one();
         self.tags.insert(tags_id, f.tags.clone());
         let ty = self.lower_type(&f.ty);
@@ -439,39 +383,124 @@ impl Resolver {
         Ty { kind, tags_id }
     }
 
-    fn lower_path(&self, p: &ir::Path, ns: Namespace) -> Path {
-        let (rest, mut def_id) = self.resolve_path(ns, p);
+    fn find_path_in_table(
+        &self,
+        path: &[Ident],
+        ns: Namespace,
+        table: &SymbolTable,
+    ) -> Option<DefId> {
+        assert!(!path.is_empty());
+        let mut status: ResolvedSymbols = ResolvedSymbols {
+            ty: table
+                .ty
+                .get(&path[0].sym)
+                .map_or_else(Default::default, |s| vec![*s]),
+            value: table
+                .value
+                .get(&path[0].sym)
+                .map_or_else(Default::default, |s| vec![*s]),
+            r#mod: table
+                .mods
+                .get(&path[0].sym)
+                .map_or_else(Default::default, |s| vec![*s]),
+        };
 
-        rest.iter().for_each(|ident| {
-            def_id = *match ns {
-                Namespace::Value => self.def_modules[&def_id]
-                    .resolutions
-                    .value
-                    .get(&**ident)
-                    .or_else(|| self.def_modules[&def_id].resolutions.ty.get(&**ident)),
-                Namespace::Ty => self.def_modules[&def_id].resolutions.ty.get(&**ident),
-            }
-            .unwrap_or_else(|| panic!("can not find {} in {:?}", ident, def_id));
+        path[1..].iter().for_each(|i| {
+            status = ResolvedSymbols {
+                ty: [&status.ty, &status.value, &status.r#mod]
+                    .into_iter()
+                    .flatten()
+                    .flat_map(|def_id| {
+                        self.def_modules
+                            .get(def_id)
+                            .and_then(|module| module.resolutions.ty.get(&i.sym))
+                    })
+                    .copied()
+                    .collect(),
+                value: [&status.ty, &status.value, &status.r#mod]
+                    .into_iter()
+                    .flatten()
+                    .flat_map(|def_id| {
+                        self.def_modules
+                            .get(def_id)
+                            .and_then(|module| module.resolutions.value.get(&i.sym))
+                    })
+                    .copied()
+                    .collect(),
+                r#mod: [&status.ty, &status.value, &status.r#mod]
+                    .into_iter()
+                    .flatten()
+                    .flat_map(|def_id| {
+                        self.def_modules
+                            .get(def_id)
+                            .and_then(|module| module.resolutions.mods.get(&i.sym))
+                    })
+                    .copied()
+                    .collect_vec(),
+            };
         });
 
-        let kind = self.def_modules.get(&def_id).map(|d| d.kind);
+        assert!(status.value.len() <= 1);
+        assert!(status.ty.len() <= 1);
+        assert!(status.r#mod.len() <= 1);
 
-        if kind == Some(DefKind::Mod) {
-            def_id = *self
-                .def_modules
-                .get(&def_id)
-                .unwrap()
-                .resolutions
-                .ty
-                .get(&**(p.segments.last().unwrap()))
-                .unwrap();
+        match ns {
+            Namespace::Value => status.value.get(0),
+            Namespace::Ty => status.ty.get(0),
+            Namespace::Mod => status.r#mod.get(0),
         }
+        .copied()
+    }
+
+    fn lower_path(&self, path: &ir::Path, ns: Namespace) -> Path {
+        let segs = &path.segments;
+        let cur_file = self.ir_files.get(self.cur_file.as_ref().unwrap()).unwrap();
+        let path_kind = match ns {
+            Namespace::Value => DefKind::Value,
+            Namespace::Ty => DefKind::Type,
+            Namespace::Mod => unreachable!(),
+        };
+        {
+            let segs = if let Some(segs) = segs.strip_prefix(&*cur_file.package.segments) {
+                segs
+            } else {
+                segs
+            };
+
+            let def_id = self.blocks.iter().rev().find_map(|b| {
+                let b = unsafe { b.as_ref() };
+                self.find_path_in_table(segs, ns, b)
+            });
+
+            if let Some(def_id) = def_id {
+                return Path {
+                    kind: path_kind,
+                    did: def_id,
+                };
+            }
+        }
+        let def_id = cur_file
+            .uses
+            .iter()
+            .find_map(|f| {
+                if let Some(rest) = path.segments.strip_prefix(&*f.0.segments) {
+                    let file = &self.file_sym_map[&f.1];
+                    self.find_path_in_table(rest, ns, file)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| {
+                panic!(
+                    "can not find path {} in file symbols {:?}, {:?}",
+                    path,
+                    self.file_sym_map.get(&self.cur_file.unwrap()),
+                    cur_file.uses,
+                )
+            });
 
         Path {
-            kind: match ns {
-                Namespace::Value => DefKind::Value,
-                Namespace::Ty => DefKind::Type,
-            },
+            kind: path_kind,
             did: def_id,
         }
     }
@@ -493,7 +522,7 @@ impl Resolver {
                 .iter()
                 .map(|v| {
                     let tags_id = self.tags_id_counter.inc_one();
-                    let did = self.get_def_id(Namespace::Ty, &v.name);
+                    let did = self.get_def_id(Namespace::Value, &v.name);
                     if !v.tags.is_empty() {
                         self.tags.insert(tags_id, v.tags.clone());
                     }
@@ -526,7 +555,7 @@ impl Resolver {
                 .methods
                 .iter()
                 .map(|m| {
-                    let def_id = self.get_def_id(Namespace::Ty, &m.name);
+                    let def_id = self.did_counter.inc_one();
                     let tags_id = self.tags_id_counter.inc_one();
                     self.tags.insert(tags_id, m.tags.clone());
                     let method = Arc::from(Method {
@@ -638,6 +667,7 @@ impl Resolver {
         let def_id = self.get_def_id(
             match &item.kind {
                 ir::ItemKind::Const(_) => Namespace::Value,
+                ir::ItemKind::Mod(_) => Namespace::Mod,
                 _ => Namespace::Ty,
             },
             &name,

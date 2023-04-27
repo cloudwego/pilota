@@ -69,12 +69,22 @@ impl ProtobufBackend {
                         ::pilota::prost::encoding::message::encoded_len_repeated(#tag, &#ident)
                     )
                 } else {
+                    let encoded_len = if self.is_one_of(ty) {
+                        quote!(msg.encoded_len())
+                    } else {
+                        let ident = match kind {
+                            FieldKind::Required => quote!((&#ident)),
+                            FieldKind::Optional => quote!(msg),
+                        };
+                        quote!(::pilota::prost::encoding::message::encoded_len(#tag, #ident))
+                    };
+
                     match kind {
                         FieldKind::Required => quote!(
-                            ::pilota::prost::encoding::message::encoded_len(#tag, &#ident)
+                            #encoded_len
                         ),
                         FieldKind::Optional => quote!(
-                            #ident.as_ref().map_or(0, |msg| ::pilota::prost::encoding::message::encoded_len(#tag, msg))
+                            #ident.as_ref().map_or(0, |msg| #encoded_len)
                         ),
                     }
                 }
@@ -110,6 +120,26 @@ impl ProtobufBackend {
             }
         }
         false
+    }
+
+    fn is_one_of_item(&self, def_id: DefId) -> bool {
+        let node = self.cx.node(def_id).unwrap();
+        if let NodeKind::Item(item) = node.kind {
+            if let Item::Enum(_) = &*item {
+                if self.cx.contains_tag::<OneOf>(node.tags) {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
+    fn is_one_of(&self, ty: &Ty) -> bool {
+        let mut ty = ty;
+        if let ty::TyKind::Vec(inner) = &ty.kind {
+            ty = inner;
+        }
+        matches!(&ty.kind, ty::TyKind::Path(p) if self.is_one_of_item(p.did))
     }
 
     fn ty_category(&self, ty: &Ty) -> Category {
@@ -208,13 +238,23 @@ impl ProtobufBackend {
                         }
                     )
                 } else {
+                    let encode = if self.is_one_of(ty) {
+                        quote!(_pilota_inner_value.encode(buf);)
+                    } else {
+                        let ident = match kind {
+                            FieldKind::Required => quote!((&#ident)),
+                            FieldKind::Optional => quote!(_pilota_inner_value),
+                        };
+                        quote!(::pilota::prost::encoding::message::encode(#tag, #ident, buf);)
+                    };
+
                     match kind {
                         FieldKind::Required => quote!(
-                            ::pilota::prost::encoding::message::encode(#tag, &#ident, buf);
+                            #encode
                         ),
                         FieldKind::Optional => quote!(
                             if let Some(_pilota_inner_value) = #ident.as_ref() {
-                                ::pilota::prost::encoding::message::encode(#tag, _pilota_inner_value, buf);
+                                #encode
                             }
                         ),
                     }
@@ -274,15 +314,25 @@ impl ProtobufBackend {
                     _ => quote!(merge),
                 };
 
-                let module = self.ty_module(ty);
-                let merge_fn = quote!(::pilota::prost::encoding::#module::#merge_fn);
+                if self.is_one_of(ty) {
+                    let did = match &ty.kind {
+                        ty::TyKind::Path(p) => p.did,
+                        _ => unreachable!(),
+                    };
 
-                match kind {
-                    FieldKind::Required => quote!(#merge_fn(wire_type, #ident, buf, ctx)),
-                    FieldKind::Optional => quote!(#merge_fn(wire_type,
-                        #ident.get_or_insert_with(::core::default::Default::default),
-                        buf,
-                        ctx)),
+                    let path = self.cx.cur_related_item_path(did);
+                    quote!(#path::merge(&mut #ident, tag, wire_type, buf, ctx))
+                } else {
+                    let module = self.ty_module(ty);
+                    let merge_fn = quote!(::pilota::prost::encoding::#module::#merge_fn);
+
+                    match kind {
+                        FieldKind::Required => quote!(#merge_fn(wire_type, #ident, buf, ctx)),
+                        FieldKind::Optional => quote!(#merge_fn(wire_type,
+                            #ident.get_or_insert_with(::core::default::Default::default),
+                            buf,
+                            ctx)),
+                    }
                 }
             }
             Category::Map => {
@@ -428,18 +478,24 @@ impl CodegenBackend for ProtobufBackend {
             );
             quote! {
                 #tag => {
-                    let mut owned_value = ::core::default::Default::default();
-                    let value = &mut owned_value;
-                    #merge?;
-                    *self = #name::#variant_name(owned_value);
-                    Ok(())
+                    match field {
+                        ::core::option::Option::Some(#name::#variant_name(ref mut value)) => {
+                            #merge?;
+                        },
+                        _ => {
+                            let mut owned_value = ::core::default::Default::default();
+                            let value = &mut owned_value;
+                            #merge?;
+                            *field = ::core::option::Option::Some(#name::#variant_name(owned_value));
+                        },
+                    }
                 }
             }
         });
 
         stream.extend(quote! {
-            impl ::pilota::prost::Message for #name {
-                fn encode_raw<B>(&self, buf: &mut B) where B: ::pilota::prost::bytes::BufMut {
+            impl #name {
+                pub fn encode<B>(&self, buf: &mut B) where B: ::pilota::prost::bytes::BufMut {
                     match self {
                         #(#encode)*
                     }
@@ -447,15 +503,15 @@ impl CodegenBackend for ProtobufBackend {
 
                 /// Returns the encoded length of the message without a length delimiter.
                 #[inline]
-                fn encoded_len(&self) -> usize {
+                pub fn encoded_len(&self) -> usize {
                     match self {
                         #(#encoded_len,)*
                     }
                 }
 
                 /// Decodes an instance of the message from a buffer, and merges it into self.
-                fn merge_field<B>(
-                    &mut self,
+                pub fn merge<B>(
+                    field: &mut ::core::option::Option<Self>,
                     tag: u32,
                     wire_type: ::pilota::prost::encoding::WireType,
                     buf: &mut B,
@@ -465,7 +521,8 @@ impl CodegenBackend for ProtobufBackend {
                     match tag {
                         #(#merge,)*
                         _ => unreachable!(concat!("invalid ", stringify!(#name), " tag: {}"), tag),
-                    }
+                    };
+                    Ok(())
                 }
             }
         });
