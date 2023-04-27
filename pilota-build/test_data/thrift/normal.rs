@@ -1,4 +1,3 @@
-
 pub mod normal {
     #![allow(warnings, clippy::all)]
 

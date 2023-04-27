@@ -4,6 +4,8 @@
 #![cfg_attr(not(doctest), doc = include_str!("../README.md"))]
 #![allow(clippy::mutable_key_type)]
 
+mod util;
+
 pub mod codegen;
 pub mod db;
 pub(crate) mod errors;
@@ -15,7 +17,6 @@ pub mod parser;
 mod resolve;
 mod symbol;
 pub mod tags;
-mod util;
 use std::{
     path::{Path, PathBuf},
     sync::Arc,
@@ -23,7 +24,6 @@ use std::{
 
 // mod dedup;
 pub mod plugin;
-mod test;
 
 pub use codegen::{
     protobuf::ProtobufBackend, thrift::ThriftBackend, traits::CodegenBackend, Codegen,
@@ -342,3 +342,5 @@ where
         .unwrap();
     }
 }
+
+mod test;

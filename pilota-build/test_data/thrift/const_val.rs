@@ -1,4 +1,3 @@
-
 pub mod const_val {
     #![allow(warnings, clippy::all)]
 
@@ -14,7 +13,7 @@ pub mod const_val {
             type Error = ::pilota::EnumConvertError<i32>;
 
             #[allow(non_upper_case_globals)]
-            fn try_from(v: i32) -> Result<Self, ::pilota::EnumConvertError<i32>> {
+            fn try_from(v: i32) -> ::std::result::Result<Self, ::pilota::EnumConvertError<i32>> {
                 const A: i32 = Index::A as i32;
                 const B: i32 = Index::B as i32;
                 match v {
@@ -83,21 +82,19 @@ pub mod const_val {
             }
         }
         ::pilota::lazy_static::lazy_static! {
-                pub static ref TEST_MAP_LIST: ::std::collections::HashMap<i32, ::std::vec::Vec<&'static str>> = {
-                let mut map = ::std::collections::HashMap::with_capacity(1);
-                map.insert(1i32, ::std::vec!["hello"]);
-                map
-            }
-        ;
-            }
+            pub static ref TEST_MAP_LIST: ::std::collections::HashMap<i32, ::std::vec::Vec<&'static str>> = {
+            let mut map = ::std::collections::HashMap::with_capacity(1);
+            map.insert(1i32, ::std::vec!["hello"]);
+            map
+        };
+        }
         pub const TEST_LIST: [&'static str; 2] = ["hello", "world"];
         ::pilota::lazy_static::lazy_static! {
-                pub static ref TEST_MAP: ::std::collections::HashMap<Index, &'static str> = {
-                let mut map = ::std::collections::HashMap::with_capacity(2);
-                map.insert(Index::A, "hello");map.insert(Index::B, "world");
-                map
-            }
-        ;
-            }
+            pub static ref TEST_MAP: ::std::collections::HashMap<Index, &'static str> = {
+            let mut map = ::std::collections::HashMap::with_capacity(2);
+            map.insert(Index::A, "hello");map.insert(Index::B, "world");
+            map
+        };
+        }
     }
 }

@@ -1,4 +1,3 @@
-
 pub mod bytes {
     #![allow(warnings, clippy::all)]
     #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]

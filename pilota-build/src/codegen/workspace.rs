@@ -36,11 +36,6 @@ struct CrateInfo {
     items: Vec<DefId>,
 }
 
-enum ModMode {
-    Single,
-    Multi,
-}
-
 impl<B> Workspace<B>
 where
     B: CodegenBackend + Send,
@@ -54,10 +49,6 @@ where
             base_dir: Arc::from(base_dir),
             cg,
         }
-    }
-
-    pub fn init_workspace(&self) -> anyhow::Result<()> {
-        Ok(())
     }
 
     pub fn group_defs(&self, entry_def_ids: &[DefId]) -> Result<(), anyhow::Error> {
@@ -201,17 +192,6 @@ async-trait = "0.1"
         });
 
         map
-    }
-
-    fn write_stream(
-        &self,
-        target_crate: impl AsRef<std::path::Path>,
-        _def_ids: &[DefId],
-        _mod_mode: ModMode,
-    ) {
-        let _target_file = target_crate.as_ref().join("src/lib.rs");
-        // let def_ids = def_ids
-        todo!();
     }
 
     fn create_crate(

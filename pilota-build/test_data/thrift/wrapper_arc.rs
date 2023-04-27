@@ -1,4 +1,3 @@
-
 pub mod wrapper_arc {
     #![allow(warnings, clippy::all)]
 
@@ -633,131 +632,6 @@ pub mod wrapper_arc {
                     + protocol.write_struct_end_len()
             }
         }
-        #[::async_trait::async_trait]
-        pub trait TestService {}
-        #[derivative(Default)]
-        #[derive(
-            ::pilota::derivative::Derivative, Debug, Hash, Eq, Ord, PartialOrd, Clone, PartialEq,
-        )]
-
-        pub enum TestServiceTestResult {
-            #[derivative(Default)]
-            Ok(::pilota::FastStr),
-        }
-
-        #[::async_trait::async_trait]
-        impl ::pilota::thrift::Message for TestServiceTestResult {
-            fn encode<T: ::pilota::thrift::TOutputProtocol>(
-                &self,
-                protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
-                #[allow(unused_imports)]
-                use ::pilota::thrift::TOutputProtocolExt;
-                protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {
-                    name: "TestServiceTestResult",
-                })?;
-                match self {
-                    TestServiceTestResult::Ok(ref value) => {
-                        protocol.write_faststr_field(0, (value).clone())?;
-                    }
-                }
-                protocol.write_field_stop()?;
-                protocol.write_struct_end()?;
-                Ok(())
-            }
-
-            fn decode<T: ::pilota::thrift::TInputProtocol>(
-                protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut ret = None;
-                protocol.read_struct_begin()?;
-                loop {
-                    let field_ident = protocol.read_field_begin()?;
-                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        break;
-                    }
-                    let field_id = field_ident.id;
-                    match field_id {
-                        Some(0) => {
-                            if ret.is_none() {
-                                ret = Some(TestServiceTestResult::Ok(protocol.read_faststr()?));
-                            } else {
-                                return Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
-                                    "received multiple fields for union from remote Message",
-                                ));
-                            }
-                        }
-                        _ => {
-                            protocol.skip(field_ident.field_type)?;
-                        }
-                    }
-                }
-                protocol.read_field_end()?;
-                protocol.read_struct_end()?;
-                if let Some(ret) = ret {
-                    Ok(ret)
-                } else {
-                    Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        "received empty union from remote Message",
-                    ))
-                }
-            }
-
-            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut ret = None;
-                protocol.read_struct_begin().await?;
-                loop {
-                    let field_ident = protocol.read_field_begin().await?;
-                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        break;
-                    }
-                    let field_id = field_ident.id;
-                    match field_id {
-                        Some(0) => {
-                            if ret.is_none() {
-                                ret =
-                                    Some(TestServiceTestResult::Ok(protocol.read_faststr().await?));
-                            } else {
-                                return Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
-                                    "received multiple fields for union from remote Message",
-                                ));
-                            }
-                        }
-                        _ => {
-                            protocol.skip(field_ident.field_type).await?;
-                        }
-                    }
-                }
-                protocol.read_field_end().await?;
-                protocol.read_struct_end().await?;
-                if let Some(ret) = ret {
-                    Ok(ret)
-                } else {
-                    Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        "received empty union from remote Message",
-                    ))
-                }
-            }
-
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
-                #[allow(unused_imports)]
-                use ::pilota::thrift::TLengthProtocolExt;
-                protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
-                    name: "TestServiceTestResult",
-                }) + match self {
-                    TestServiceTestResult::Ok(ref value) => {
-                        protocol.write_faststr_field_len(Some(0), value)
-                    }
-                } + protocol.write_field_stop_len()
-                    + protocol.write_struct_end_len()
-            }
-        }
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct TestServiceTestArgsRecv {
             pub req: Test,
@@ -918,5 +792,130 @@ pub mod wrapper_arc {
                     + protocol.write_struct_end_len()
             }
         }
+        #[derivative(Default)]
+        #[derive(
+            ::pilota::derivative::Derivative, Debug, Hash, Eq, Ord, PartialOrd, Clone, PartialEq,
+        )]
+
+        pub enum TestServiceTestResult {
+            #[derivative(Default)]
+            Ok(::pilota::FastStr),
+        }
+
+        #[::async_trait::async_trait]
+        impl ::pilota::thrift::Message for TestServiceTestResult {
+            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                &self,
+                protocol: &mut T,
+            ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TOutputProtocolExt;
+                protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {
+                    name: "TestServiceTestResult",
+                })?;
+                match self {
+                    TestServiceTestResult::Ok(ref value) => {
+                        protocol.write_faststr_field(0, (value).clone())?;
+                    }
+                }
+                protocol.write_field_stop()?;
+                protocol.write_struct_end()?;
+                Ok(())
+            }
+
+            fn decode<T: ::pilota::thrift::TInputProtocol>(
+                protocol: &mut T,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                let mut ret = None;
+                protocol.read_struct_begin()?;
+                loop {
+                    let field_ident = protocol.read_field_begin()?;
+                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                        break;
+                    }
+                    let field_id = field_ident.id;
+                    match field_id {
+                        Some(0) => {
+                            if ret.is_none() {
+                                ret = Some(TestServiceTestResult::Ok(protocol.read_faststr()?));
+                            } else {
+                                return Err(::pilota::thrift::DecodeError::new(
+                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                    "received multiple fields for union from remote Message",
+                                ));
+                            }
+                        }
+                        _ => {
+                            protocol.skip(field_ident.field_type)?;
+                        }
+                    }
+                }
+                protocol.read_field_end()?;
+                protocol.read_struct_end()?;
+                if let Some(ret) = ret {
+                    Ok(ret)
+                } else {
+                    Err(::pilota::thrift::DecodeError::new(
+                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        "received empty union from remote Message",
+                    ))
+                }
+            }
+
+            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &mut T,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                let mut ret = None;
+                protocol.read_struct_begin().await?;
+                loop {
+                    let field_ident = protocol.read_field_begin().await?;
+                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                        break;
+                    }
+                    let field_id = field_ident.id;
+                    match field_id {
+                        Some(0) => {
+                            if ret.is_none() {
+                                ret =
+                                    Some(TestServiceTestResult::Ok(protocol.read_faststr().await?));
+                            } else {
+                                return Err(::pilota::thrift::DecodeError::new(
+                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                    "received multiple fields for union from remote Message",
+                                ));
+                            }
+                        }
+                        _ => {
+                            protocol.skip(field_ident.field_type).await?;
+                        }
+                    }
+                }
+                protocol.read_field_end().await?;
+                protocol.read_struct_end().await?;
+                if let Some(ret) = ret {
+                    Ok(ret)
+                } else {
+                    Err(::pilota::thrift::DecodeError::new(
+                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        "received empty union from remote Message",
+                    ))
+                }
+            }
+
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TLengthProtocolExt;
+                protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
+                    name: "TestServiceTestResult",
+                }) + match self {
+                    TestServiceTestResult::Ok(ref value) => {
+                        protocol.write_faststr_field_len(Some(0), value)
+                    }
+                } + protocol.write_field_stop_len()
+                    + protocol.write_struct_end_len()
+            }
+        }
+        #[::async_trait::async_trait]
+        pub trait TestService {}
     }
 }
