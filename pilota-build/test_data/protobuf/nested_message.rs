@@ -1,4 +1,3 @@
-
 pub mod nested_message {
     #![allow(warnings, clippy::all)]
 

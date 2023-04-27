@@ -1,4 +1,3 @@
-
 pub mod pilota_name {
     #![allow(warnings, clippy::all)]
 

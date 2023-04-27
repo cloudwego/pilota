@@ -14,7 +14,7 @@ pub mod default_value {
             type Error = ::pilota::EnumConvertError<i32>;
 
             #[allow(non_upper_case_globals)]
-            fn try_from(v: i32) -> Result<Self, ::pilota::EnumConvertError<i32>> {
+            fn try_from(v: i32) -> ::std::result::Result<Self, ::pilota::EnumConvertError<i32>> {
                 const Read: i32 = B::Read as i32;
                 const Write: i32 = B::Write as i32;
                 match v {

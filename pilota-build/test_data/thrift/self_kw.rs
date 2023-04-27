@@ -14,7 +14,7 @@ pub mod self_kw {
             type Error = ::pilota::EnumConvertError<i32>;
 
             #[allow(non_upper_case_globals)]
-            fn try_from(v: i32) -> Result<Self, ::pilota::EnumConvertError<i32>> {
+            fn try_from(v: i32) -> ::std::result::Result<Self, ::pilota::EnumConvertError<i32>> {
                 const A: i32 = Index::A as i32;
                 const Self_: i32 = Index::Self_ as i32;
                 match v {

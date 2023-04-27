@@ -382,7 +382,7 @@ impl Context {
                 .lit_as_rvalue(d, &ty)
                 .with_context(|| format!("calc the default value for field {}", f.name))
             {
-                Ok(v) => Some(v),
+                Ok(v) => v,
                 Err(err) => {
                     panic!("{:?}", err)
                 }
@@ -404,17 +404,20 @@ impl Context {
                 .map(|(k, v)| {
                     let k = self.lit_into_ty(k, k_ty)?.0;
                     let v = self.lit_into_ty(v, v_ty)?.0;
-                    format!("map.insert({k}, {v});")
+                    anyhow::Ok(format!("map.insert({k}, {v});"))
                 })
+                .try_collect::<_, Vec<_>, _>()?
                 .join("");
-            format! {
-            r#"{{
+            anyhow::Ok(
+                format! {
+                        r#"{{
                     let mut map = ::std::collections::HashMap::with_capacity({len});
                     {kvs}
                     map
                 }}
             "#}
-            .into()
+                .into(),
+            )
         };
 
         anyhow::Ok(match (lit, ty) {
@@ -518,7 +521,7 @@ impl Context {
             (Literal::Map(_), CodegenTy::StaticRef(map)) => match &**map {
                 CodegenTy::Map(_, _) => {
                     let lazy_map =
-                        self.def_lit("INNER_MAP", lit, &mut CodegenTy::LazyStaticRef(map.clone()));
+                        self.def_lit("INNER_MAP", lit, &mut CodegenTy::LazyStaticRef(map.clone()))?;
                     let stream = format! {
                         r#"
                         {{
@@ -546,6 +549,8 @@ impl Context {
                 let stream = els
                     .iter()
                     .map(|el| self.lit_into_ty(el, inner))
+                    .try_collect::<_, Vec<_>, _>()?
+                    .into_iter()
                     .map(|(s, _)| s)
                     .join(",");
 
@@ -592,14 +597,14 @@ impl Context {
 
                         if let Some(v) = v {
                             let (mut v, is_const) =
-                                self.lit_into_ty(v, &self.codegen_item_ty(f.ty.kind.clone()));
+                                self.lit_into_ty(v, &self.codegen_item_ty(f.ty.kind.clone()))?;
 
                             if f.is_optional() {
                                 v = format!("Some({v})").into()
                             }
-                            (format!("{name}: {v}"), is_const)
+                            anyhow::Ok((format!("{name}: {v}"), is_const))
                         } else {
-                            (format!("{name}: Default::default()"), false)
+                            anyhow::Ok((format!("{name}: Default::default()"), false))
                         }
                     })
                     .try_collect()?;
@@ -622,23 +627,28 @@ impl Context {
         })
     }
 
-    pub(crate) fn def_lit(&self, name: &str, lit: &Literal, ty: &mut CodegenTy) -> String {
+    pub(crate) fn def_lit(
+        &self,
+        name: &str,
+        lit: &Literal,
+        ty: &mut CodegenTy,
+    ) -> anyhow::Result<String> {
         let should_lazy_static = ty.should_lazy_static();
         let name = format_ident!("{}", name.to_shouty_snake_case());
         if let (Literal::List(lit), CodegenTy::Array(_, size)) = (lit, &mut *ty) {
             *size = lit.len()
         }
-        if should_lazy_static {
-            let lit = self.lit_as_rvalue(lit, ty).0;
+        Ok(if should_lazy_static {
+            let lit = self.lit_as_rvalue(lit, ty)?.0;
             format! {r#"
                 ::pilota::lazy_static::lazy_static! {{
                     pub static ref {name}: {ty} = {lit};
                 }}
             "#}
         } else {
-            let lit = self.lit_into_ty(lit, ty).0;
+            let lit = self.lit_into_ty(lit, ty)?.0;
             format!(r#"pub const {name}: {ty} = {lit};"#)
-        }
+        })
     }
 
     pub fn rust_name(&self, def_id: DefId) -> Symbol {
