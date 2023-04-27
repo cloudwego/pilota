@@ -3,6 +3,8 @@
 )]
 #![cfg_attr(not(doctest), doc = include_str!("../README.md"))]
 
+mod util;
+
 pub mod codegen;
 pub mod db;
 pub(crate) mod errors;
@@ -14,7 +16,6 @@ pub mod parser;
 mod resolve;
 mod symbol;
 pub mod tags;
-mod util;
 use std::{
     io::Write,
     path::{Path, PathBuf},
