@@ -667,6 +667,7 @@ dependencies = [
 name = "pilota-build"
 version = "0.6.15"
 dependencies = [
+ "anyhow",
  "async-trait",
  "criterion",
  "derivative",

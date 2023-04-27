@@ -39,6 +39,7 @@ petgraph = "0.6"
 protobuf-parse = { package = "protobuf-parse2", version = "4.0.0-alpha.3" }
 protobuf = { package = "protobuf2", version = "4.0.0-alpha.2" }
 faststr = "0.2"
+anyhow = "1"
 
 [build-dependencies]
 itertools = "0.10"

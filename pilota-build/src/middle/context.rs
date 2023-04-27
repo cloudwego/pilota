@@ -1,5 +1,6 @@
 use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
 
+use anyhow::Context as _;
 use faststr::FastStr;
 use fxhash::{FxHashMap, FxHashSet};
 use heck::ToShoutySnakeCase;
@@ -103,42 +104,56 @@ impl Context {
     }
 
     pub fn default_val(&self, f: &Field) -> Option<(TokenStream, bool /* const? */)> {
-        f.default.as_ref().map(|d| {
+        f.default.as_ref().and_then(|d| {
             let ty = self.codegen_item_ty(f.ty.kind.clone());
-            self.lit_as_rvalue(d, &ty)
+            match self
+                .lit_as_rvalue(d, &ty)
+                .with_context(|| format!("calc the default value for field {}", f.name))
+            {
+                Ok(v) => Some(v),
+                Err(err) => {
+                    panic!("{:?}", err)
+                }
+            }
         })
     }
 
-    fn lit_as_rvalue(&self, lit: &Literal, ty: &CodegenTy) -> (TokenStream, bool /* const? */) {
+    fn lit_as_rvalue(
+        &self,
+        lit: &Literal,
+        ty: &CodegenTy,
+    ) -> anyhow::Result<(TokenStream, bool /* const? */)> {
         let mk_map = |m: &Vec<(Literal, Literal)>, k_ty: &Arc<CodegenTy>, v_ty: &Arc<CodegenTy>| {
             let k_ty = &**k_ty;
             let v_ty = &**v_ty;
             let len = m.len();
-            let kvs = m.iter().map(|(k, v)| {
-                let k = self.lit_into_ty(k, k_ty).0;
-                let v = self.lit_into_ty(v, v_ty).0;
-                quote! {
-                    map.insert(#k, #v);
-                }
-            });
-            let stream = quote::quote! {
+            let kvs = m
+                .iter()
+                .map(|(k, v)| {
+                    let k = self.lit_into_ty(k, k_ty)?.0;
+                    let v = self.lit_into_ty(v, v_ty)?.0;
+                    anyhow::Ok(quote! {
+                        map.insert(#k, #v);
+                    })
+                })
+                .try_collect::<_, Vec<_>, _>()?;
+            anyhow::Ok(quote::quote! {
                 {
                     let mut map = ::std::collections::HashMap::with_capacity(#len);
                     #(#kvs)*
                     map
                 }
-            };
-            stream
+            })
         };
 
-        match (lit, ty) {
+        anyhow::Ok(match (lit, ty) {
             (Literal::Map(m), CodegenTy::LazyStaticRef(map)) => match &**map {
-                CodegenTy::Map(k_ty, v_ty) => (mk_map(m, k_ty, v_ty), false),
+                CodegenTy::Map(k_ty, v_ty) => (mk_map(m, k_ty, v_ty)?, false),
                 _ => panic!("invalid map type {:?}", map),
             },
-            (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => (mk_map(m, k_ty, v_ty), false),
-            _ => self.lit_into_ty(lit, ty),
-        }
+            (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => (mk_map(m, k_ty, v_ty)?, false),
+            _ => self.lit_into_ty(lit, ty)?,
+        })
     }
 
     fn ident_into_ty(
@@ -160,8 +175,12 @@ impl Context {
         }
     }
 
-    fn lit_into_ty(&self, lit: &Literal, ty: &CodegenTy) -> (TokenStream, bool /* const? */) {
-        match (lit, ty) {
+    fn lit_into_ty(
+        &self,
+        lit: &Literal,
+        ty: &CodegenTy,
+    ) -> anyhow::Result<(TokenStream, bool /* const? */)> {
+        Ok(match (lit, ty) {
             (Literal::Path(p), ty) => {
                 let ident_ty = self.codegen_ty(p.did);
 
@@ -213,13 +232,16 @@ impl Context {
                 };
 
                 (
-                    e.variants.iter().find(|v| v.discr == Some(*i)).map_or_else(
-                        || panic!("invalid enum value"),
-                        |v| {
-                            let ident = self.cur_related_item_path(v.did);
-                            quote! { #ident }
-                        },
-                    ),
+                    e.variants
+                        .iter()
+                        .find(|v| v.discr == Some(*i))
+                        .map_or_else(
+                            || anyhow::bail!("invalid enum value {} for type `{}`", i, e.name),
+                            |v| {
+                                let ident = self.cur_related_item_path(v.did);
+                                anyhow::Ok(quote! { #ident })
+                            },
+                        )?,
                     true,
                 )
             }
@@ -235,13 +257,13 @@ impl Context {
                 }),
             ) => {
                 let ident = self.cur_related_item_path(*did);
-                let (stream, is_const) = self.lit_into_ty(l, inner_ty);
+                let (stream, is_const) = self.lit_into_ty(l, inner_ty)?;
                 (quote! { #ident(#stream) }, is_const)
             }
             (Literal::Map(_), CodegenTy::StaticRef(map)) => match &**map {
                 CodegenTy::Map(_, _) => {
                     let lazy_map =
-                        self.def_lit("INNER_MAP", lit, &mut CodegenTy::LazyStaticRef(map.clone()));
+                        self.def_lit("INNER_MAP", lit, &mut CodegenTy::LazyStaticRef(map.clone()))?;
                     let stream = quote::quote! {
                         {
                             #lazy_map
@@ -256,7 +278,7 @@ impl Context {
                 let stream = els
                     .iter()
                     .map(|el| self.lit_into_ty(el, inner))
-                    .collect::<Vec<_>>();
+                    .try_collect::<_, Vec<_>, _>()?;
                 let is_const = stream.iter().all(|(_, is_const)| *is_const);
                 let stream = stream.into_iter().map(|(s, _)| s);
 
@@ -266,6 +288,8 @@ impl Context {
                 let stream = els
                     .iter()
                     .map(|el| self.lit_into_ty(el, inner))
+                    .try_collect::<_, Vec<_>, _>()?
+                    .into_iter()
                     .map(|(s, _)| s);
 
                 (quote! { ::std::vec![#(#stream),*] }, false)
@@ -288,7 +312,7 @@ impl Context {
                     _ => panic!(),
                 };
 
-                let fields = def
+                let fields: Vec<_> = def
                     .fields
                     .iter()
                     .map(|f| {
@@ -308,16 +332,16 @@ impl Context {
 
                         if let Some(v) = v {
                             let (mut v, is_const) =
-                                self.lit_into_ty(v, &self.codegen_item_ty(f.ty.kind.clone()));
+                                self.lit_into_ty(v, &self.codegen_item_ty(f.ty.kind.clone()))?;
                             if f.is_optional() {
                                 v = quote!(Some(#v))
                             }
-                            (quote!(#name: #v), is_const)
+                            anyhow::Ok((quote!(#name: #v), is_const))
                         } else {
-                            (quote!(#name: Default::default()), false)
+                            anyhow::Ok((quote!(#name: Default::default()), false))
                         }
                     })
-                    .collect::<Vec<_>>();
+                    .try_collect()?;
                 let is_const = fields.iter().all(|(_, is_const)| *is_const);
                 let fields = fields.into_iter().map(|f| f.0);
 
@@ -333,27 +357,32 @@ impl Context {
                 )
             }
             _ => panic!("unexpected literal {:?} with ty {:?}", lit, ty),
-        }
+        })
     }
 
-    pub(crate) fn def_lit(&self, name: &str, lit: &Literal, ty: &mut CodegenTy) -> TokenStream {
+    pub(crate) fn def_lit(
+        &self,
+        name: &str,
+        lit: &Literal,
+        ty: &mut CodegenTy,
+    ) -> anyhow::Result<TokenStream> {
         let should_lazy_static = ty.should_lazy_static();
         let name = format_ident!("{}", name.to_shouty_snake_case());
         if let (Literal::List(lit), CodegenTy::Array(_, size)) = (lit, &mut *ty) {
             *size = lit.len()
         }
         if should_lazy_static {
-            let lit = self.lit_as_rvalue(lit, ty).0;
-            quote::quote! {
+            let lit = self.lit_as_rvalue(lit, ty)?.0;
+            Ok(quote::quote! {
                 ::pilota::lazy_static::lazy_static! {
                     pub static ref #name: #ty = #lit;
                 }
-            }
+            })
         } else {
-            let lit = self.lit_into_ty(lit, ty).0;
-            quote::quote! {
+            let lit = self.lit_into_ty(lit, ty)?.0;
+            Ok(quote::quote! {
                 pub const #name: #ty = #lit;
-            }
+            })
         }
     }
 
