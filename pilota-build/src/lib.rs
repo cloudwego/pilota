@@ -24,7 +24,6 @@ use std::{
 
 // mod dedup;
 pub mod plugin;
-mod test;
 
 pub use codegen::{
     protobuf::ProtobufBackend, thrift::ThriftBackend, traits::CodegenBackend, Codegen,
@@ -343,3 +342,5 @@ where
         .unwrap();
     }
 }
+
+mod test;

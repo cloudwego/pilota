@@ -409,13 +409,11 @@ impl Context {
                 .try_collect::<_, Vec<_>, _>()?
                 .join("");
             anyhow::Ok(
-                format! {
-                        r#"{{
+                format! {r#"{{
                     let mut map = ::std::collections::HashMap::with_capacity({len});
                     {kvs}
                     map
-                }}
-            "#}
+                }}"#}
                 .into(),
             )
         };

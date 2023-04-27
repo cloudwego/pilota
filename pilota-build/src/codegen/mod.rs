@@ -83,7 +83,7 @@ where
                         ty = format!("::std::option::Option<{ty}>")
                     }
 
-                    let attrs = adjust.iter().flat_map(|a| a.attrs()).join("");
+                    let attrs = adjust.iter().flat_map(|a| a.attrs()).sorted().join("");
 
                     format! {
                         r#"{attrs}
@@ -94,8 +94,7 @@ where
             .join("\n");
 
         stream.push_str(&format! {
-            r#"
-            #[derive(Clone, PartialEq)]
+            r#"#[derive(Clone, PartialEq)]
             pub struct {name} {{
                 {fields}
             }}"#
@@ -168,8 +167,7 @@ where
             .join("");
 
         stream.push_str(&format! {
-            r#"
-            #[derive(Clone, PartialEq, Copy)]
+            r#"#[derive(Clone, PartialEq, Copy)]
             #[repr(transparent)]
             pub struct {name}({repr});
 
@@ -185,8 +183,7 @@ where
                 fn from(value: {repr}) -> Self {{
                     Self(value)
                 }}
-            }}
-            "#
+            }}"#
         });
 
         self.backend.codegen_enum_impl(def_id, stream, e);
@@ -226,7 +223,7 @@ where
                 let name = self.rust_name(v.did);
 
                 self.with_adjust(v.did, |adjust| {
-                    let attrs = adjust.iter().flat_map(|a| a.attrs()).join("\n");
+                    let attrs = adjust.iter().flat_map(|a| a.attrs()).sorted().join("\n");
 
                     let fields = v
                         .fields
