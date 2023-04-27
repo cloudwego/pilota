@@ -10,8 +10,10 @@ use crate::{
         context::Context,
         rir::{self, Enum, Field, Message, Method, NewType, Service},
     },
+    rir::EnumVariant,
     symbol::{DefId, EnumRepr, IdentName},
     tags::{thrift::EntryMessage, EnumMode},
+    ty::TyKind,
 };
 
 mod ty;
@@ -442,6 +444,10 @@ impl CodegenBackend for ThriftBackend {
                     }
                 });
 
+                let variant_is_void = |v: &EnumVariant| {
+                    &*v.name.sym == "Ok" && v.fields.len() == 1 && v.fields[0].kind == TyKind::Void
+                };
+
                 stream.extend(self.codegen_impl_message_with_helper(
                     &name,
                     quote! {
@@ -468,24 +474,46 @@ impl CodegenBackend for ThriftBackend {
                         let read_field_end = helper.codegen_read_field_end();
                         let read_struct_end = helper.codegen_read_struct_end();
                         let skip = helper.codegen_skip_ttype(quote! { field_ident.field_type });
-                        let fields = e.variants.iter().map(|v| {
-                            let variant_name = self.cx.rust_name(v.did).as_syn_ident();
-                            assert_eq!(v.fields.len(), 1);
-                            let variant_id = v.id.unwrap() as i16;
-                            let decode = self.codegen_decode_ty(helper, &v.fields[0]);
-                            quote! {
-                                Some(#variant_id) => {
-                                    if ret.is_none() {
-                                        ret = Some(#name::#variant_name(#decode));
-                                    } else {
-                                        return Err(::pilota::thrift::DecodeError::new(
-                                            ::pilota::thrift::DecodeErrorKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                        let fields = e.variants.iter().filter_map(|v| {
+                            if variant_is_void(v) {
+                                None
+                            } else {
+                                let variant_name = self.cx.rust_name(v.did).as_syn_ident();
+                                assert_eq!(v.fields.len(), 1);
+                                let variant_id = v.id.unwrap() as i16;
+                                let decode = self.codegen_decode_ty(helper, &v.fields[0]);
+                                Some(
+                                    quote! {
+                                        Some(#variant_id) => {
+                                            if ret.is_none() {
+                                                ret = Some(#name::#variant_name(#decode));
+                                            } else {
+                                                return Err(::pilota::thrift::DecodeError::new(
+                                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                                    "received multiple fields for union from remote Message"
+                                                ));
+                                            }
+                                        },
                                     }
-                                },
+                                )
                             }
                         });
+
+                        let is_void_result =
+                            e.variants.first().filter(|v| variant_is_void(v)).is_some();
+
+                        let handle_none_ret = if is_void_result {
+                            quote! {
+                                Ok(#name::Ok(()))
+                            }
+                        } else {
+                            quote! {
+                                Err(::pilota::thrift::DecodeError::new(
+                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                    "received empty union from remote Message")
+                                )
+                            }
+                        };
                         quote! {
                             let mut ret = None;
                             #read_struct_begin;
@@ -507,10 +535,7 @@ impl CodegenBackend for ThriftBackend {
                             if let Some(ret) = ret {
                                 Ok(ret)
                             } else {
-                                Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
-                                    "received empty union from remote Message")
-                                )
+                                #handle_none_ret
                             }
                         }
                     },
