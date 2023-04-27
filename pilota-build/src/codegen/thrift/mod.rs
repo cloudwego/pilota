@@ -9,8 +9,10 @@ use crate::{
         context::Context,
         rir::{self, Enum, Field, Message, Method, NewType, Service},
     },
+    rir::EnumVariant,
     symbol::{DefId, EnumRepr, Symbol},
     tags::{thrift::EntryMessage, EnumMode},
+    ty::TyKind,
 };
 
 mod ty;
@@ -460,6 +462,10 @@ impl CodegenBackend for ThriftBackend {
                     })
                     .join("");
 
+                let variant_is_void = |v: &EnumVariant| {
+                    &*v.name.sym == "Ok" && v.fields.len() == 1 && v.fields[0].kind == TyKind::Void
+                };
+
                 stream.push_str(&self.codegen_impl_message_with_helper(
                     name.clone(),
                     format! {
@@ -489,13 +495,16 @@ impl CodegenBackend for ThriftBackend {
                         let fields = e
                             .variants
                             .iter()
-                            .map(|v| {
-                                let variant_name = self.cx.rust_name(v.did);
-                                assert_eq!(v.fields.len(), 1);
-                                let variant_id = v.id.unwrap() as i16;
-                                let decode = self.codegen_decode_ty(helper, &v.fields[0]);
-                                format! {
-                                    r#"Some({variant_id}) => {{
+                            .flat_map(|v| {
+                                if variant_is_void(v) {
+                                    None
+                                } else {
+                                    let variant_name = self.cx.rust_name(v.did);
+                                    assert_eq!(v.fields.len(), 1);
+                                    let variant_id = v.id.unwrap() as i16;
+                                    let decode = self.codegen_decode_ty(helper, &v.fields[0]);
+                                    Some(format! {
+                                        r#"Some({variant_id}) => {{
                                     if ret.is_none() {{
                                         ret = Some({name}::{variant_name}({decode}));
                                     }} else {{
@@ -505,9 +514,25 @@ impl CodegenBackend for ThriftBackend {
                                         ));
                                     }}
                                 }},"#
+                                    })
                                 }
                             })
                             .join("");
+
+                        let handle_none_ret: FastStr =
+                            if e.variants.first().filter(|v| variant_is_void(v)).is_some() {
+                                "Ok(#name::Ok(()))".into()
+                            } else {
+                                format!(
+                                    r#"
+                                    Err(::pilota::thrift::DecodeError::new(
+                                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                        "received empty union from remote Message")
+                                    )
+                                "#
+                                )
+                                .into()
+                            };
 
                         format! {
                             r#"let mut ret = None;
@@ -530,10 +555,7 @@ impl CodegenBackend for ThriftBackend {
                             if let Some(ret) = ret {{
                                 Ok(ret)
                             }} else {{
-                                Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
-                                    "received empty union from remote Message")
-                                )
+                                {handle_none_ret}
                             }}"#
                         }
                     },

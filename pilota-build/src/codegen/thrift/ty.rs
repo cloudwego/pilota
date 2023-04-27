@@ -116,7 +116,7 @@ impl ThriftBackend {
             ty::FastStr => {
                 format!("protocol.write_faststr_field({id}, ({ident}).clone())?;").into()
             }
-            ty::Void => format!("protocol.write_void_field({id})?;").into(),
+            ty::Void => "".into(),
             ty::U8 => format!("protocol.write_byte_field({id}, *{ident})?;").into(),
             ty::Bool => format!("protocol.write_bool_field({id}, *{ident})?;").into(),
             ty::BytesVec => format!("protocol.write_bytes_vec_field({id}, &{ident})?;").into(),
@@ -256,7 +256,7 @@ impl ThriftBackend {
         match &ty.kind {
             ty::String => format!("protocol.write_string_field_len(Some({id}), &{ident})").into(),
             ty::FastStr => format!("protocol.write_faststr_field_len(Some({id}), {ident})").into(),
-            ty::Void => format!("protocol.write_void_field_len(Some({id}))").into(),
+            ty::Void => "".into(),
             ty::U8 => format!("protocol.write_byte_field_len(Some({id}), *{ident})").into(),
             ty::Bool => format!("protocol.write_bool_field_len(Some({id}), *{ident})").into(),
             ty::BytesVec => {
