@@ -1,5 +1,6 @@
 use std::{ops::Deref, path::PathBuf, sync::Arc};
 
+use anyhow::Context as _;
 use dashmap::DashMap;
 use faststr::FastStr;
 use fxhash::{FxHashMap, FxHashSet};
@@ -377,11 +378,23 @@ impl Context {
     pub fn default_val(&self, f: &Field) -> Option<(FastStr, bool /* const? */)> {
         f.default.as_ref().map(|d| {
             let ty = self.codegen_item_ty(f.ty.kind.clone());
-            self.lit_as_rvalue(d, &ty)
+            match self
+                .lit_as_rvalue(d, &ty)
+                .with_context(|| format!("calc the default value for field {}", f.name))
+            {
+                Ok(v) => Some(v),
+                Err(err) => {
+                    panic!("{:?}", err)
+                }
+            }
         })
     }
 
-    fn lit_as_rvalue(&self, lit: &Literal, ty: &CodegenTy) -> (FastStr, bool /* const? */) {
+    fn lit_as_rvalue(
+        &self,
+        lit: &Literal,
+        ty: &CodegenTy,
+    ) -> anyhow::Result<(FastStr, bool /* const? */)> {
         let mk_map = |m: &Vec<(Literal, Literal)>, k_ty: &Arc<CodegenTy>, v_ty: &Arc<CodegenTy>| {
             let k_ty = &**k_ty;
             let v_ty = &**v_ty;
@@ -389,8 +402,8 @@ impl Context {
             let kvs = m
                 .iter()
                 .map(|(k, v)| {
-                    let k = self.lit_into_ty(k, k_ty).0;
-                    let v = self.lit_into_ty(v, v_ty).0;
+                    let k = self.lit_into_ty(k, k_ty)?.0;
+                    let v = self.lit_into_ty(v, v_ty)?.0;
                     format!("map.insert({k}, {v});")
                 })
                 .join("");
@@ -404,14 +417,14 @@ impl Context {
             .into()
         };
 
-        match (lit, ty) {
+        anyhow::Ok(match (lit, ty) {
             (Literal::Map(m), CodegenTy::LazyStaticRef(map)) => match &**map {
-                CodegenTy::Map(k_ty, v_ty) => (mk_map(m, k_ty, v_ty), false),
+                CodegenTy::Map(k_ty, v_ty) => (mk_map(m, k_ty, v_ty)?, false),
                 _ => panic!("invalid map type {:?}", map),
             },
-            (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => (mk_map(m, k_ty, v_ty), false),
-            _ => self.lit_into_ty(lit, ty),
-        }
+            (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => (mk_map(m, k_ty, v_ty)?, false),
+            _ => self.lit_into_ty(lit, ty)?,
+        })
     }
 
     fn ident_into_ty(
@@ -436,8 +449,12 @@ impl Context {
         }
     }
 
-    fn lit_into_ty(&self, lit: &Literal, ty: &CodegenTy) -> (FastStr, bool /* const? */) {
-        match (lit, ty) {
+    fn lit_into_ty(
+        &self,
+        lit: &Literal,
+        ty: &CodegenTy,
+    ) -> anyhow::Result<(FastStr, bool /* const? */)> {
+        Ok(match (lit, ty) {
             (Literal::Path(p), ty) => {
                 let ident_ty = self.codegen_ty(p.did);
 
@@ -495,7 +512,7 @@ impl Context {
                 }),
             ) => {
                 let ident = self.cur_related_item_path(*did);
-                let (stream, is_const) = self.lit_into_ty(l, inner_ty);
+                let (stream, is_const) = self.lit_into_ty(l, inner_ty)?;
                 (format! { "{ident}({stream})" }.into(), is_const)
             }
             (Literal::Map(_), CodegenTy::StaticRef(map)) => match &**map {
@@ -519,7 +536,7 @@ impl Context {
                 let stream = els
                     .iter()
                     .map(|el| self.lit_into_ty(el, inner))
-                    .collect::<Vec<_>>();
+                    .try_collect::<_, Vec<_>, _>()?;
                 let is_const = stream.iter().all(|(_, is_const)| *is_const);
                 let stream = stream.into_iter().map(|(s, _)| s).join(",");
 
@@ -555,7 +572,7 @@ impl Context {
                     _ => panic!(),
                 };
 
-                let fields = def
+                let fields: Vec<_> = def
                     .fields
                     .iter()
                     .map(|f| {
@@ -585,7 +602,7 @@ impl Context {
                             (format!("{name}: Default::default()"), false)
                         }
                     })
-                    .collect::<Vec<_>>();
+                    .try_collect()?;
                 let is_const = fields.iter().all(|(_, is_const)| *is_const);
                 let fields = fields.into_iter().map(|f| f.0).join(",");
 
@@ -602,7 +619,7 @@ impl Context {
                 )
             }
             _ => panic!("unexpected literal {:?} with ty {:?}", lit, ty),
-        }
+        })
     }
 
     pub(crate) fn def_lit(&self, name: &str, lit: &Literal, ty: &mut CodegenTy) -> String {
