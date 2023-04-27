@@ -436,7 +436,7 @@ impl Plugin for EnumNumPlugin {
                             type Error = ::pilota::EnumConvertError<#num_ty>;
 
                             #[allow(non_upper_case_globals)]
-                            fn try_from(v: i32) -> Result<Self, ::pilota::EnumConvertError<#num_ty>> {
+                            fn try_from(v: i32) -> ::std::result::Result<Self, ::pilota::EnumConvertError<#num_ty>> {
                                 #(#nums)*
                                 match v {
                                     #(
