@@ -123,9 +123,7 @@ impl ThriftBackend {
         match &ty.kind {
             ty::String => quote! { protocol.write_string_field(#id, &#ident)?; },
             ty::FastStr => quote! { protocol.write_faststr_field(#id, (#ident).clone())?; },
-            ty::Void => quote! {
-                protocol.write_void_field(#id)?;
-            },
+            ty::Void => quote! {},
             ty::U8 => quote! { protocol.write_byte_field(#id, *#ident)?; },
             ty::Bool => quote! { protocol.write_bool_field(#id, *#ident)?; },
             ty::BytesVec => quote! { protocol.write_bytes_vec_field(#id, &#ident)?;},
@@ -254,7 +252,7 @@ impl ThriftBackend {
             ty::String => quote! { protocol.write_string_field_len(Some(#id), &#ident) },
             ty::FastStr => quote! { protocol.write_faststr_field_len(Some(#id), #ident) },
             ty::Void => {
-                quote! { protocol.write_void_field_len(Some(#id)) }
+                quote! { 0 }
             }
             ty::U8 => {
                 quote! { protocol.write_byte_field_len(Some(#id), *#ident) }
