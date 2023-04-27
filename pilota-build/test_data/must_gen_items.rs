@@ -1,4 +1,3 @@
-
 pub mod must_gen_items {
     #![allow(warnings, clippy::all)]
 

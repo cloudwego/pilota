@@ -1,4 +1,3 @@
-
 pub mod const_val {
     #![allow(warnings, clippy::all)]
 

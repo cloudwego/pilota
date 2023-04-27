@@ -612,7 +612,7 @@ pub mod pilota_name {
             type Error = ::pilota::EnumConvertError<i32>;
 
             #[allow(non_upper_case_globals)]
-            fn try_from(v: i32) -> Result<Self, ::pilota::EnumConvertError<i32>> {
+            fn try_from(v: i32) -> ::std::result::Result<Self, ::pilota::EnumConvertError<i32>> {
                 const AA: i32 = Index::AA as i32;
                 const B: i32 = Index::B as i32;
                 match v {

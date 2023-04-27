@@ -1,4 +1,3 @@
-
 pub mod default_value {
     #![allow(warnings, clippy::all)]
 

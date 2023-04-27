@@ -1,4 +1,3 @@
-
 pub mod binary_bytes {
     #![allow(warnings, clippy::all)]
 

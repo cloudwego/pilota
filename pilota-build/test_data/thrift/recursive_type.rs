@@ -1,4 +1,3 @@
-
 pub mod recursive_type {
     #![allow(warnings, clippy::all)]
 

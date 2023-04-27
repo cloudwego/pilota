@@ -324,7 +324,7 @@ where
 
         let name = self.rust_name(did);
 
-        stream.push_str(&self.def_lit(&name, &c.lit, &mut ty))
+        stream.push_str(&self.def_lit(&name, &c.lit, &mut ty).unwrap())
     }
 
     pub fn write_workspace(self, base_dir: PathBuf) -> anyhow::Result<()> {
@@ -405,8 +405,7 @@ where
 
         let ns_name = ns_name;
 
-        stream = format! {r#"
-            pub mod {ns_name} {{
+        stream = format! {r#"pub mod {ns_name} {{
                 #![allow(warnings, clippy::all)]
                 {stream}
             }}

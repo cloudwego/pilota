@@ -1,4 +1,3 @@
-
 pub mod self_kw {
     #![allow(warnings, clippy::all)]
 

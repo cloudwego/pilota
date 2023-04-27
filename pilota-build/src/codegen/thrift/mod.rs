@@ -521,7 +521,7 @@ impl CodegenBackend for ThriftBackend {
 
                         let handle_none_ret: FastStr =
                             if e.variants.first().filter(|v| variant_is_void(v)).is_some() {
-                                "Ok(#name::Ok(()))".into()
+                                format!("Ok({name}::Ok(()))").into()
                             } else {
                                 format!(
                                     r#"

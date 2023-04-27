@@ -1,4 +1,3 @@
-
 pub mod serde {
     #![allow(warnings, clippy::all)]
 

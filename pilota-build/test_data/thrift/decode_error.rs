@@ -1,4 +1,3 @@
-
 pub mod decode_error {
     #![allow(warnings, clippy::all)]
 

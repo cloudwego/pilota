@@ -1,4 +1,3 @@
-
 pub mod string {
     #![allow(warnings, clippy::all)]
 

@@ -1,4 +1,3 @@
-
 pub mod enum_test {
     #![allow(warnings, clippy::all)]
 
