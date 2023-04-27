@@ -1,11 +1,135 @@
 pub mod nested_message {
     #![allow(warnings, clippy::all)]
+    #[derive(Debug, Default, Clone, PartialEq)]
+    pub struct Tt1 {
+        pub t2: tt1::T2,
+        pub t3: tt1::Label,
+        pub t4: tt1::t2::Tt3,
+    }
+    impl ::pilota::prost::Message for Tt1 {
+        #[inline]
+        fn encoded_len(&self) -> usize {
+            0 + ::pilota::prost::encoding::message::encoded_len(1u32, (&self.t2))
+                + ::pilota::prost::encoding::int32::encoded_len(2u32, &self.t3)
+                + ::pilota::prost::encoding::message::encoded_len(4u32, (&self.t4))
+        }
+        #[allow(unused_variables)]
+        fn encode_raw<B>(&self, buf: &mut B)
+        where
+            B: ::pilota::prost::bytes::BufMut,
+        {
+            ::pilota::prost::encoding::message::encode(1u32, (&self.t2), buf);
+            ::pilota::prost::encoding::int32::encode(2u32, &self.t3, buf);
+            ::pilota::prost::encoding::message::encode(4u32, (&self.t4), buf);
+        }
+        #[allow(unused_variables)]
+        fn merge_field<B>(
+            &mut self,
+            tag: u32,
+            wire_type: ::pilota::prost::encoding::WireType,
+            buf: &mut B,
+            ctx: ::pilota::prost::encoding::DecodeContext,
+        ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
+        where
+            B: ::pilota::prost::bytes::Buf,
+        {
+            const STRUCT_NAME: &'static str = stringify!(Tt1);
+            match tag {
+                1u32 => {
+                    let mut _inner_pilota_value = &mut self.t2;
+                    ::pilota::prost::encoding::message::merge(
+                        wire_type,
+                        _inner_pilota_value,
+                        buf,
+                        ctx,
+                    )
+                    .map_err(|mut error| {
+                        error.push(STRUCT_NAME, stringify!(t2));
+                        error
+                    })
+                }
+                2u32 => {
+                    let mut _inner_pilota_value = &mut self.t3;
+                    ::pilota::prost::encoding::int32::merge(
+                        wire_type,
+                        _inner_pilota_value,
+                        buf,
+                        ctx,
+                    )
+                    .map_err(|mut error| {
+                        error.push(STRUCT_NAME, stringify!(t3));
+                        error
+                    })
+                }
+                4u32 => {
+                    let mut _inner_pilota_value = &mut self.t4;
+                    ::pilota::prost::encoding::message::merge(
+                        wire_type,
+                        _inner_pilota_value,
+                        buf,
+                        ctx,
+                    )
+                    .map_err(|mut error| {
+                        error.push(STRUCT_NAME, stringify!(t4));
+                        error
+                    })
+                }
+                _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
+            }
+        }
+    }
     pub mod tt1 {
+        #[derive(Debug, Default, Clone, PartialEq)]
+        pub struct T2 {
+            pub t3: t2::Tt3,
+        }
+        impl ::pilota::prost::Message for T2 {
+            #[inline]
+            fn encoded_len(&self) -> usize {
+                0 + ::pilota::prost::encoding::message::encoded_len(1u32, (&self.t3))
+            }
+            #[allow(unused_variables)]
+            fn encode_raw<B>(&self, buf: &mut B)
+            where
+                B: ::pilota::prost::bytes::BufMut,
+            {
+                ::pilota::prost::encoding::message::encode(1u32, (&self.t3), buf);
+            }
+            #[allow(unused_variables)]
+            fn merge_field<B>(
+                &mut self,
+                tag: u32,
+                wire_type: ::pilota::prost::encoding::WireType,
+                buf: &mut B,
+                ctx: ::pilota::prost::encoding::DecodeContext,
+            ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
+            where
+                B: ::pilota::prost::bytes::Buf,
+            {
+                const STRUCT_NAME: &'static str = stringify!(T2);
+                match tag {
+                    1u32 => {
+                        let mut _inner_pilota_value = &mut self.t3;
+                        ::pilota::prost::encoding::message::merge(
+                            wire_type,
+                            _inner_pilota_value,
+                            buf,
+                            ctx,
+                        )
+                        .map_err(|mut error| {
+                            error.push(STRUCT_NAME, stringify!(t3));
+                            error
+                        })
+                    }
+                    _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
+                }
+            }
+        }
         pub mod t2 {
             #[derive(Debug, Default, Clone, PartialEq)]
             pub struct Tt3 {
                 pub a: ::std::option::Option<i32>,
-                pub m: ::std::collections::HashMap<i32, T2>,
+                pub m: ::std::collections::HashMap<i32, super::T2>,
             }
             impl ::pilota::prost::Message for Tt3 {
                 #[inline]
@@ -82,52 +206,6 @@ pub mod nested_message {
                     }
                 }
             }
-            #[derive(Debug, Default, Clone, PartialEq)]
-            pub struct T2 {
-                pub t3: Tt3,
-            }
-            impl ::pilota::prost::Message for T2 {
-                #[inline]
-                fn encoded_len(&self) -> usize {
-                    0 + ::pilota::prost::encoding::message::encoded_len(1u32, &self.t3)
-                }
-                #[allow(unused_variables)]
-                fn encode_raw<B>(&self, buf: &mut B)
-                where
-                    B: ::pilota::prost::bytes::BufMut,
-                {
-                    ::pilota::prost::encoding::message::encode(1u32, &self.t3, buf);
-                }
-                #[allow(unused_variables)]
-                fn merge_field<B>(
-                    &mut self,
-                    tag: u32,
-                    wire_type: ::pilota::prost::encoding::WireType,
-                    buf: &mut B,
-                    ctx: ::pilota::prost::encoding::DecodeContext,
-                ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
-                where
-                    B: ::pilota::prost::bytes::Buf,
-                {
-                    const STRUCT_NAME: &'static str = stringify!(T2);
-                    match tag {
-                        1u32 => {
-                            let mut _inner_pilota_value = &mut self.t3;
-                            ::pilota::prost::encoding::message::merge(
-                                wire_type,
-                                _inner_pilota_value,
-                                buf,
-                                ctx,
-                            )
-                            .map_err(|mut error| {
-                                error.push(STRUCT_NAME, stringify!(t3));
-                                error
-                            })
-                        }
-                        _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
-                    }
-                }
-            }
         }
         impl ::std::convert::From<Label> for i32 {
             fn from(e: Label) -> Self {
@@ -161,84 +239,6 @@ pub mod nested_message {
             LabelOptional = 1i32,
             LabelRequired = 2i32,
             LabelRepeated = 3i32,
-        }
-        #[derive(Debug, Default, Clone, PartialEq)]
-        pub struct Tt1 {
-            pub t2: t2::T2,
-            pub t3: Label,
-            pub t4: t2::Tt3,
-        }
-        impl ::pilota::prost::Message for Tt1 {
-            #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::prost::encoding::message::encoded_len(1u32, &self.t2)
-                    + ::pilota::prost::encoding::int32::encoded_len(2u32, &self.t3)
-                    + ::pilota::prost::encoding::message::encoded_len(4u32, &self.t4)
-            }
-            #[allow(unused_variables)]
-            fn encode_raw<B>(&self, buf: &mut B)
-            where
-                B: ::pilota::prost::bytes::BufMut,
-            {
-                ::pilota::prost::encoding::message::encode(1u32, &self.t2, buf);
-                ::pilota::prost::encoding::int32::encode(2u32, &self.t3, buf);
-                ::pilota::prost::encoding::message::encode(4u32, &self.t4, buf);
-            }
-            #[allow(unused_variables)]
-            fn merge_field<B>(
-                &mut self,
-                tag: u32,
-                wire_type: ::pilota::prost::encoding::WireType,
-                buf: &mut B,
-                ctx: ::pilota::prost::encoding::DecodeContext,
-            ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
-            where
-                B: ::pilota::prost::bytes::Buf,
-            {
-                const STRUCT_NAME: &'static str = stringify!(Tt1);
-                match tag {
-                    1u32 => {
-                        let mut _inner_pilota_value = &mut self.t2;
-                        ::pilota::prost::encoding::message::merge(
-                            wire_type,
-                            _inner_pilota_value,
-                            buf,
-                            ctx,
-                        )
-                        .map_err(|mut error| {
-                            error.push(STRUCT_NAME, stringify!(t2));
-                            error
-                        })
-                    }
-                    2u32 => {
-                        let mut _inner_pilota_value = &mut self.t3;
-                        ::pilota::prost::encoding::int32::merge(
-                            wire_type,
-                            _inner_pilota_value,
-                            buf,
-                            ctx,
-                        )
-                        .map_err(|mut error| {
-                            error.push(STRUCT_NAME, stringify!(t3));
-                            error
-                        })
-                    }
-                    4u32 => {
-                        let mut _inner_pilota_value = &mut self.t4;
-                        ::pilota::prost::encoding::message::merge(
-                            wire_type,
-                            _inner_pilota_value,
-                            buf,
-                            ctx,
-                        )
-                        .map_err(|mut error| {
-                            error.push(STRUCT_NAME, stringify!(t4));
-                            error
-                        })
-                    }
-                    _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
-                }
-            }
         }
     }
 }
