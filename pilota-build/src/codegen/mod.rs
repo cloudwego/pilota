@@ -83,7 +83,7 @@ where
                         ty = format!("::std::option::Option<{ty}>")
                     }
 
-                    let attrs = adjust.iter().flat_map(|a| a.attrs()).sorted().join("");
+                    let attrs = adjust.iter().flat_map(|a| a.attrs()).join("");
 
                     format! {
                         r#"{attrs}
@@ -108,7 +108,7 @@ where
             let item = self.item(def_id).unwrap();
             tracing::trace!("write item {}", item.symbol_name());
             self.with_adjust(def_id, |adjust| {
-                let attrs = adjust.iter().flat_map(|a| a.attrs()).sorted().join("\n");
+                let attrs = adjust.iter().flat_map(|a| a.attrs()).join("\n");
 
                 let impls = adjust.iter().flat_map(|a| &a.impls).sorted().join("\n");
                 stream.push_str(&impls);
@@ -223,7 +223,7 @@ where
                 let name = self.rust_name(v.did);
 
                 self.with_adjust(v.did, |adjust| {
-                    let attrs = adjust.iter().flat_map(|a| a.attrs()).sorted().join("\n");
+                    let attrs = adjust.iter().flat_map(|a| a.attrs()).join("\n");
 
                     let fields = v
                         .fields

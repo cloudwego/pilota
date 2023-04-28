@@ -1,6 +1,6 @@
 pub mod optional {
     #![allow(warnings, clippy::all)]
-    #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+    #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
     pub struct SearchRequest {
         pub page_number: ::std::option::Option<i32>,
     }

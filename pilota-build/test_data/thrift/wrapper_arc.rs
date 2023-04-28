@@ -2,7 +2,7 @@ pub mod wrapper_arc {
     #![allow(warnings, clippy::all)]
 
     pub mod wrapper_arc {
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {}
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
@@ -115,7 +115,7 @@ pub mod wrapper_arc {
                     + protocol.write_struct_end_len()
             }
         }
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestServiceTestArgsSend {
             pub req: ::std::sync::Arc<Test>,
         }
@@ -792,10 +792,9 @@ pub mod wrapper_arc {
                     + protocol.write_struct_end_len()
             }
         }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(
-            ::pilota::derivative::Derivative, Debug, Hash, Eq, Ord, PartialOrd, Clone, PartialEq,
-        )]
+        #[derive(Clone, PartialEq)]
 
         pub enum TestServiceTestResult {
             #[derivative(Default)]

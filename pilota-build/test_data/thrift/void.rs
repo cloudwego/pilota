@@ -2,10 +2,9 @@ pub mod void {
     #![allow(warnings, clippy::all)]
 
     pub mod void {
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(
-            ::pilota::derivative::Derivative, Debug, Hash, Eq, Ord, PartialOrd, Clone, PartialEq,
-        )]
+        #[derive(Clone, PartialEq)]
 
         pub enum TestTest123Result {
             #[derivative(Default)]
@@ -94,7 +93,7 @@ pub mod void {
                     + protocol.write_struct_end_len()
             }
         }
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestTest123ArgsSend {}
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ArgsSend {
@@ -218,7 +217,7 @@ pub mod void {
         }
         #[::async_trait::async_trait]
         pub trait Test {}
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestTest123ArgsRecv {}
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ArgsRecv {

@@ -2,7 +2,7 @@ pub mod pilota_name {
     #![allow(warnings, clippy::all)]
 
     pub mod pilota_name {
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Test2 {
             pub id: ::pilota::FastStr,
         }
@@ -153,7 +153,7 @@ pub mod pilota_name {
                     + protocol.write_struct_end_len()
             }
         }
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestServiceTestArgsSend {
             pub req: Test2,
         }
@@ -313,7 +313,7 @@ pub mod pilota_name {
                     + protocol.write_struct_end_len()
             }
         }
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Test1 {
             pub id: ::pilota::FastStr,
 
@@ -499,7 +499,7 @@ pub mod pilota_name {
         #[::async_trait::async_trait]
         pub trait TestService {}
         pub const LANG_ID: &'static str = "id";
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestServiceTestArgsRecv {
             pub req: Test2,
         }
@@ -659,10 +659,9 @@ pub mod pilota_name {
                     + protocol.write_struct_end_len()
             }
         }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(
-            ::pilota::derivative::Derivative, Debug, Hash, Eq, Ord, PartialOrd, Clone, PartialEq,
-        )]
+        #[derive(Clone, PartialEq)]
 
         pub enum TestServiceTestResult {
             #[derivative(Default)]
@@ -808,10 +807,9 @@ pub mod pilota_name {
                 }
             }
         }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(
-            ::pilota::derivative::Derivative, Debug, Hash, Eq, Ord, PartialOrd, Clone, PartialEq,
-        )]
+        #[derive(Clone, PartialEq)]
         #[repr(i32)]
         #[derive(Copy)]
         pub enum Index {

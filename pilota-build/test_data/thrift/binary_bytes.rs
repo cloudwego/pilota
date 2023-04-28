@@ -2,7 +2,7 @@ pub mod binary_bytes {
     #![allow(warnings, clippy::all)]
 
     pub mod binary_bytes {
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub bytes: ::pilota::Bytes,
 

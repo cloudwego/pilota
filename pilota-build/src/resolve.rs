@@ -23,7 +23,7 @@ use crate::{
 
 struct ModuleData {
     resolutions: SymbolTable,
-    kind: DefKind,
+    _kind: DefKind,
 }
 
 #[derive(Clone, Copy)]
@@ -89,7 +89,7 @@ impl CollectDef<'_> {
             did,
             ModuleData {
                 resolutions: Default::default(),
-                kind: match &item.kind {
+                _kind: match &item.kind {
                     ir::ItemKind::Message(_)
                     | ir::ItemKind::Enum(_)
                     | ir::ItemKind::Service(_)

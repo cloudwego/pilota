@@ -2,7 +2,7 @@ pub mod recursive_type {
     #![allow(warnings, clippy::all)]
 
     pub mod recursive_type {
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub a: ::std::option::Option<::std::boxed::Box<A>>,
         }
