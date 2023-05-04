@@ -18,7 +18,7 @@ use super::{
     DecodeError, DecodeErrorKind, EncodeError, ProtocolError, TAsyncInputProtocol,
     TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
     TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    INLINE_CAP, ZERO_COPY_THRESHOLD,
+    ZERO_COPY_THRESHOLD,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -1417,10 +1417,10 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
         let size = self.read_varint::<u32>()? as usize;
         let bytes = self.trans.split_to(size);
-        if size > INLINE_CAP {
+        if size >= ZERO_COPY_THRESHOLD {
             unsafe { return Ok(FastStr::from_bytes_mut_unchecked(bytes)) }
         }
-        unsafe { Ok(FastStr::new_inline(str::from_utf8_unchecked(bytes.deref()))) }
+        unsafe { Ok(FastStr::new(str::from_utf8_unchecked(bytes.deref()))) }
     }
 
     #[inline]
