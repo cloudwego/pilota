@@ -105,19 +105,33 @@ where
             })
             .join(",\n");
 
+        let mut cargo_toml = toml::from_str::<toml::Value>(&unsafe {
+            String::from_utf8_unchecked(std::fs::read(self.base_dir.join("Cargo.toml")).unwrap())
+        })
+        .unwrap();
+
+        crate::codegen::toml::merge_tomls(
+            &mut cargo_toml,
+            toml::from_str::<toml::Value>(&format!(
+                r#"[workspace]
+    members = [
+    {members}
+    ]
+    
+    [workspace.dependencies]
+    pilota = "0.6"
+    async-trait = "0.1"
+    anyhow = "1"
+    volo = "0.4"
+    volo-thrift = "0.4"
+    "#
+            ))
+            .unwrap(),
+        );
+
         std::fs::write(
             self.base_dir.join("Cargo.toml"),
-            format!(
-                r#"[workspace]
-members = [
-{members}
-]
-
-[workspace.dependencies]
-pilota = "0.6"
-async-trait = "0.1"
-"#
-            ),
+            toml::to_string_pretty(&cargo_toml).unwrap(),
         )?;
 
         Ok(())
@@ -199,47 +213,54 @@ async-trait = "0.1"
         base_dir: impl AsRef<std::path::Path>,
         info: CrateInfo,
     ) -> anyhow::Result<()> {
-        if base_dir.as_ref().join(&*info.name).exists() {
-            return Ok(());
+        if !base_dir.as_ref().join(&*info.name).exists() {
+            run_cmd(
+                Command::new("cargo")
+                    .arg("init")
+                    .arg("--lib")
+                    .current_dir(base_dir.as_ref())
+                    .arg(&*info.name),
+            )?;
         };
-        run_cmd(
-            Command::new("cargo")
-                .arg("init")
-                .arg("--lib")
-                .current_dir(base_dir.as_ref())
-                .arg(&*info.name),
-        )?;
 
         let cargo_toml_path = base_dir.as_ref().join(&*info.name).join("Cargo.toml");
 
-        let cargo_toml = unsafe { String::from_utf8_unchecked(std::fs::read(&cargo_toml_path)?) };
+        let mut cargo_toml = toml::from_str::<toml::Value>(&unsafe {
+            String::from_utf8_unchecked(std::fs::read(&cargo_toml_path)?)
+        })
+        .unwrap();
 
-        let lines = cargo_toml.lines().collect::<Vec<_>>();
-
-        let dep_start_pos = lines
-            .iter()
-            .find_position(|line| line.trim_end() == "[dependencies]");
+        super::toml::merge_tomls(
+            &mut cargo_toml,
+            toml::Value::Table(toml::toml! {
+                [dependencies]
+                volo.workspace = true
+                anyhow.workspace = true
+                pilota.workspace = true
+                volo-thrift.workspace = true
+                async-trait.workspace = true
+            }),
+        );
 
         let deps = info
             .deps
             .iter()
             .map(|s| Cow::from(format!(r#"{} = {{ path = "../{}" }}"#, s, s)))
-            .chain([
-                Cow::from("pilota.workspace = true"),
-                Cow::from("async-trait.workspace = true"),
-            ]);
+            .join("\n");
 
-        let mid_pos = dep_start_pos.map(|p| p.0 + 1).unwrap_or(lines.len() - 1);
+        super::toml::merge_tomls(
+            &mut cargo_toml,
+            toml::from_str::<toml::Value>(&format!("[dependencies]\n{deps}")).unwrap(),
+        );
 
-        let mut new_lines = lines[0..mid_pos]
-            .iter()
-            .map(|s| Cow::from(*s))
-            .chain(deps)
-            .chain(lines[mid_pos..].iter().map(|s| Cow::from(*s)));
-
-        std::fs::write(&cargo_toml_path, new_lines.join("\n"))?;
+        std::fs::write(
+            &cargo_toml_path,
+            toml::to_string_pretty(&cargo_toml).unwrap(),
+        )?;
 
         let mut stream = String::default();
+
+        stream.push_str("#![feature(impl_trait_in_assoc_type)]\n");
 
         self.cg.write_items(&mut stream, &info.items);
 

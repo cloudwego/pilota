@@ -28,6 +28,7 @@ use crate::{
 };
 
 pub(crate) mod pkg_tree;
+pub mod toml;
 pub(crate) mod traits;
 
 mod workspace;
@@ -110,7 +111,11 @@ where
             self.with_adjust(def_id, |adjust| {
                 let attrs = adjust.iter().flat_map(|a| a.attrs()).join("\n");
 
-                let impls = adjust.iter().flat_map(|a| &a.impls).sorted().join("\n");
+                let impls = adjust
+                    .iter()
+                    .flat_map(|a| &a.nested_items)
+                    .sorted()
+                    .join("\n");
                 stream.push_str(&impls);
                 stream.push_str(&attrs);
             });

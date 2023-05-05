@@ -19,6 +19,7 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.4" }
 
+toml = "0.7"
 heck = "0.4"
 syn = "2"
 normpath = "1"
