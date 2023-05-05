@@ -13,7 +13,7 @@ use super::{
     DecodeError, DecodeErrorKind, EncodeError, ProtocolError, TAsyncInputProtocol,
     TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
     TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    INLINE_CAP, ZERO_COPY_THRESHOLD,
+    ZERO_COPY_THRESHOLD,
 };
 
 static VERSION_1: u32 = 0x80010000;
@@ -904,10 +904,10 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
         let len = self.trans.read_i32()? as usize;
         let bytes = self.trans.split_to(len).freeze();
-        if len > INLINE_CAP {
+        if len >= ZERO_COPY_THRESHOLD {
             unsafe { return Ok(FastStr::from_bytes_unchecked(bytes)) };
         }
-        unsafe { Ok(FastStr::new_inline(str::from_utf8_unchecked(bytes.deref()))) }
+        unsafe { Ok(FastStr::new(str::from_utf8_unchecked(bytes.deref()))) }
     }
 
     #[inline]

@@ -17,8 +17,15 @@ use faststr::FastStr;
 pub use self::{binary::TAsyncBinaryProtocol, compact::TAsyncCompactProtocol};
 
 const MAXIMUM_SKIP_DEPTH: i8 = 64;
-const ZERO_COPY_THRESHOLD: usize = 4 * 1024; // 4KB
-const INLINE_CAP: usize = 22;
+
+#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+// According to the benchmark, 1KB is the suitable threshold for zero-copy on
+// Apple Silicon.
+const ZERO_COPY_THRESHOLD: usize = 1024;
+
+#[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+// While 4KB is better for other platforms (mainly amd64 linux).
+const ZERO_COPY_THRESHOLD: usize = 4 * 1024;
 
 lazy_static::lazy_static! {
     pub static ref VOID_IDENT: TStructIdentifier = TStructIdentifier { name: "void" };
@@ -639,7 +646,7 @@ pub trait TAsyncInputProtocol: Send {
     /// Read the end of a Thrift message.
     async fn read_message_end(&mut self) -> Result<(), DecodeError>;
 
-    /// Read the beginning of a Thrift struct.   
+    /// Read the beginning of a Thrift struct.
     async fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, DecodeError>;
 
     /// Read the end of a Thrift struct.
