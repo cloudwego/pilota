@@ -225,9 +225,10 @@ pub mod default_value {
                                     let mut val =
                                         ::std::collections::HashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
-                                        val.insert({ protocol.read_faststr()? }, {
-                                            protocol.read_faststr()?
-                                        });
+                                        val.insert(
+                                            protocol.read_faststr()?,
+                                            protocol.read_faststr()?,
+                                        );
                                     }
                                     protocol.read_map_end()?;
                                     val
@@ -350,9 +351,10 @@ pub mod default_value {
                                     let mut val =
                                         ::std::collections::HashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
-                                        val.insert({ protocol.read_faststr().await? }, {
-                                            protocol.read_faststr().await?
-                                        });
+                                        val.insert(
+                                            protocol.read_faststr().await?,
+                                            protocol.read_faststr().await?,
+                                        );
                                     }
                                     protocol.read_map_end().await?;
                                     val

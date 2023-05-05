@@ -393,20 +393,16 @@ pub mod wrapper_arc {
                                     let mut val =
                                         ::std::collections::HashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
-                                        val.insert({ protocol.read_i32()? }, {
-                                            {
-                                                let list_ident = protocol.read_list_begin()?;
-                                                let mut val = Vec::with_capacity(list_ident.size);
-                                                for _ in 0..list_ident.size {
-                                                    val.push(::std::sync::Arc::new(
-                                                        ::pilota::thrift::Message::decode(
-                                                            protocol,
-                                                        )?,
-                                                    ));
-                                                }
-                                                protocol.read_list_end()?;
-                                                val
+                                        val.insert(protocol.read_i32()?, {
+                                            let list_ident = protocol.read_list_begin()?;
+                                            let mut val = Vec::with_capacity(list_ident.size);
+                                            for _ in 0..list_ident.size {
+                                                val.push(::std::sync::Arc::new(
+                                                    ::pilota::thrift::Message::decode(protocol)?,
+                                                ));
                                             }
+                                            protocol.read_list_end()?;
+                                            val
                                         });
                                     }
                                     protocol.read_map_end()?;
@@ -520,21 +516,19 @@ pub mod wrapper_arc {
                                     let mut val =
                                         ::std::collections::HashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
-                                        val.insert({ protocol.read_i32().await? }, {
-                                            {
-                                                let list_ident = protocol.read_list_begin().await?;
-                                                let mut val = Vec::with_capacity(list_ident.size);
-                                                for _ in 0..list_ident.size {
-                                                    val.push(::std::sync::Arc::new(
-                                                        ::pilota::thrift::Message::decode_async(
-                                                            protocol,
-                                                        )
-                                                        .await?,
-                                                    ));
-                                                }
-                                                protocol.read_list_end().await?;
-                                                val
+                                        val.insert(protocol.read_i32().await?, {
+                                            let list_ident = protocol.read_list_begin().await?;
+                                            let mut val = Vec::with_capacity(list_ident.size);
+                                            for _ in 0..list_ident.size {
+                                                val.push(::std::sync::Arc::new(
+                                                    ::pilota::thrift::Message::decode_async(
+                                                        protocol,
+                                                    )
+                                                    .await?,
+                                                ));
                                             }
+                                            protocol.read_list_end().await?;
+                                            val
                                         });
                                     }
                                     protocol.read_map_end().await?;
