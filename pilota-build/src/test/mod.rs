@@ -7,9 +7,11 @@ use tempfile::tempdir;
 use crate::plugin::SerdePlugin;
 
 fn diff_file(old: impl AsRef<Path>, new: impl AsRef<Path>) {
-    let old_content = unsafe { String::from_utf8_unchecked(std::fs::read(old).unwrap()) };
+    let old_content =
+        unsafe { String::from_utf8_unchecked(std::fs::read(old).unwrap()) }.replace("\r", "");
 
-    let new_content = unsafe { String::from_utf8_unchecked(std::fs::read(new).unwrap()) };
+    let new_content =
+        unsafe { String::from_utf8_unchecked(std::fs::read(new).unwrap()) }.replace("\r", "");
 
     let patch = diffy::create_patch(&old_content, &new_content);
     if !patch.hunks().is_empty() {
