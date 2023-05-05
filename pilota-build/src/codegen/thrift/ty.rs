@@ -390,7 +390,7 @@ impl ThriftBackend {
                         let map_ident = {read_map_begin};
                         let mut val = ::std::collections::HashMap::with_capacity(map_ident.size);
                         for _ in 0..map_ident.size {{
-                            val.insert({{{read_el_key}}}, {{{read_el_val}}});
+                            val.insert({read_el_key}, {read_el_val});
                         }}
                         {read_map_end};
                         val
