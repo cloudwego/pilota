@@ -26,10 +26,9 @@ pub mod self_kw {
                 }
             }
         }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(
-            ::pilota::derivative::Derivative, Debug, Hash, Eq, Ord, PartialOrd, Clone, PartialEq,
-        )]
+        #[derive(Clone, PartialEq)]
         #[repr(i32)]
         #[derive(Copy)]
         pub enum Index {
@@ -81,7 +80,7 @@ pub mod self_kw {
                 protocol.write_i32_len(*self as i32)
             }
         }
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub r#type: ::pilota::FastStr,
         }

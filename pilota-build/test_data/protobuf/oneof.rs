@@ -1,6 +1,6 @@
 pub mod oneof {
     #![allow(warnings, clippy::all)]
-    #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+    #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
     pub struct Test {
         pub r#type: ::std::option::Option<test::Type>,
     }
@@ -49,10 +49,9 @@ pub mod oneof {
     }
 
     pub mod test {
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(
-            ::pilota::derivative::Derivative, Debug, Hash, Eq, Ord, PartialOrd, Clone, PartialEq,
-        )]
+        #[derive(Clone, PartialEq)]
 
         pub enum Type {
             #[derivative(Default)]

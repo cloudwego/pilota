@@ -2,7 +2,7 @@ pub mod normal {
     #![allow(warnings, clippy::all)]
 
     pub mod normal {
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub a: ::std::option::Option<i32>,
         }
@@ -136,7 +136,7 @@ pub mod normal {
                     + protocol.write_struct_end_len()
             }
         }
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct B {
             pub a: ::std::option::Option<A>,
         }

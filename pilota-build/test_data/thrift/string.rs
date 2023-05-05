@@ -2,7 +2,7 @@ pub mod string {
     #![allow(warnings, clippy::all)]
 
     pub mod string {
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub faststr: ::pilota::FastStr,
 

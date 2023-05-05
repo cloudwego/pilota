@@ -2,7 +2,7 @@ pub mod must_gen_items {
     #![allow(warnings, clippy::all)]
 
     pub mod must_gen_items {
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub a: ::std::option::Option<i32>,
         }

@@ -2,7 +2,7 @@ pub mod decode_error {
     #![allow(warnings, clippy::all)]
 
     pub mod decode_error {
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub b: B,
         }
@@ -152,7 +152,7 @@ pub mod decode_error {
                     + protocol.write_struct_end_len()
             }
         }
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct C {
             pub a: ::pilota::FastStr,
         }
@@ -302,7 +302,7 @@ pub mod decode_error {
                     + protocol.write_struct_end_len()
             }
         }
-        #[derive(Debug, Default, Hash, Eq, Ord, PartialOrd, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct B {
             pub c: C,
         }

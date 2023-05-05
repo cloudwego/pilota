@@ -16,6 +16,7 @@ mod middle;
 pub mod parser;
 mod resolve;
 mod symbol;
+pub use symbol::Symbol;
 pub mod tags;
 use std::{
     path::{Path, PathBuf},
@@ -44,7 +45,6 @@ use plugin::{
     WithAttrsPlugin,
 };
 pub use plugin::{BoxClonePlugin, ClonePlugin, Plugin};
-use rayon::{iter::ParallelIterator, prelude::IntoParallelIterator};
 use resolve::{ResolveResult, Resolver};
 use salsa::Durability;
 pub use symbol::{DefId, IdentName};
@@ -262,55 +262,39 @@ where
 
         let cx = cx.build(self.source_type, self.change_case);
 
-        rayon::scope({
-            let cx = cx.clone();
-            move |scope| {
-                {
-                    let cx = cx.clone();
-                    scope.spawn(move |_| cx.exec_plugin(BoxedPlugin));
-                }
-                {
-                    let cx = cx.clone();
-                    scope.spawn(move |_| {
-                        cx.exec_plugin(AutoDerivePlugin::new(
-                            Arc::from(["#[derive(PartialOrd)]".into()]),
-                            |ty| {
-                                let ty = match &ty.kind {
-                                    ty::Vec(ty) => ty,
-                                    _ => ty,
-                                };
-                                if matches!(ty.kind, ty::Map(_, _) | ty::Set(_)) {
-                                    PredicateResult::No
-                                } else {
-                                    PredicateResult::GoOn
-                                }
-                            },
-                        ))
-                    });
-                }
-                {
-                    let cx = cx;
-                    cx.exec_plugin(AutoDerivePlugin::new(
-                        Arc::from(["#[derive(Hash, Eq, Ord)]".into()]),
-                        |ty| {
-                            let ty = match &ty.kind {
-                                ty::Vec(ty) => ty,
-                                _ => ty,
-                            };
-                            if matches!(ty.kind, ty::Map(_, _) | ty::Set(_) | ty::F64 | ty::F32) {
-                                PredicateResult::No
-                            } else {
-                                PredicateResult::GoOn
-                            }
-                        },
-                    ));
-                }
-            }
-        });
+        cx.exec_plugin(BoxedPlugin);
 
-        self.plugins
-            .into_par_iter()
-            .for_each_with(cx.clone(), |cx, p| cx.exec_plugin(p));
+        cx.exec_plugin(AutoDerivePlugin::new(
+            Arc::from(["#[derive(PartialOrd)]".into()]),
+            |ty| {
+                let ty = match &ty.kind {
+                    ty::Vec(ty) => ty,
+                    _ => ty,
+                };
+                if matches!(ty.kind, ty::Map(_, _) | ty::Set(_)) {
+                    PredicateResult::No
+                } else {
+                    PredicateResult::GoOn
+                }
+            },
+        ));
+
+        cx.exec_plugin(AutoDerivePlugin::new(
+            Arc::from(["#[derive(Hash, Eq, Ord)]".into()]),
+            |ty| {
+                let ty = match &ty.kind {
+                    ty::Vec(ty) => ty,
+                    _ => ty,
+                };
+                if matches!(ty.kind, ty::Map(_, _) | ty::Set(_) | ty::F64 | ty::F32) {
+                    PredicateResult::No
+                } else {
+                    PredicateResult::GoOn
+                }
+            },
+        ));
+
+        self.plugins.into_iter().for_each(|p| cx.exec_plugin(p));
 
         std::thread::scope(|scope| {
             let pool = rayon::ThreadPoolBuilder::new();

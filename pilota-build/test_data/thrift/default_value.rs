@@ -24,10 +24,9 @@ pub mod default_value {
                 }
             }
         }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(
-            ::pilota::derivative::Derivative, Debug, Hash, Eq, Ord, PartialOrd, Clone, PartialEq,
-        )]
+        #[derive(Clone, PartialEq)]
         #[repr(i32)]
         #[derive(Copy)]
         pub enum B {

@@ -3,14 +3,14 @@ pub mod serde {
 
     pub mod serde {
         #[derive(
-            ::pilota::serde::Serialize,
-            ::pilota::serde::Deserialize,
-            Debug,
-            Default,
+            PartialOrd,
             Hash,
             Eq,
             Ord,
-            PartialOrd,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
         )]
         #[serde(rename_all = "camelCase")]
         #[derive(Clone, PartialEq)]
@@ -213,17 +213,9 @@ pub mod serde {
                 }
             }
         }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(
-            ::pilota::derivative::Derivative,
-            ::pilota::serde::Serialize,
-            ::pilota::serde::Deserialize,
-            Debug,
-            Hash,
-            Eq,
-            Ord,
-            PartialOrd,
-        )]
+        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize)]
         #[serde(untagged)]
         #[derive(Clone, PartialEq)]
         #[repr(i32)]
@@ -279,14 +271,14 @@ pub mod serde {
             }
         }
         #[derive(
-            ::pilota::serde::Serialize,
-            ::pilota::serde::Deserialize,
-            Debug,
-            Default,
+            PartialOrd,
             Hash,
             Eq,
             Ord,
-            PartialOrd,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
         )]
         #[serde(rename = "BB")]
         #[derive(Clone, PartialEq)]
