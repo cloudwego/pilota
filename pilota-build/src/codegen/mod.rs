@@ -58,6 +58,27 @@ impl<B> Codegen<B> {
     }
 }
 
+#[derive(Clone, Copy)]
+pub enum CodegenKind {
+    Direct,
+    RePub,
+}
+
+#[derive(Clone, Copy)]
+pub struct CodegenItem {
+    def_id: DefId,
+    kind: CodegenKind,
+}
+
+impl From<DefId> for CodegenItem {
+    fn from(value: DefId) -> Self {
+        CodegenItem {
+            def_id: value,
+            kind: CodegenKind::Direct,
+        }
+    }
+}
+
 impl<B> Codegen<B>
 where
     B: CodegenBackend + Send,
@@ -104,42 +125,49 @@ where
         self.backend.codegen_struct_impl(def_id, stream, s);
     }
 
-    pub fn write_item(&self, stream: &mut String, def_id: DefId) {
-        CUR_ITEM.set(&def_id, || {
-            let item = self.item(def_id).unwrap();
-            tracing::trace!("write item {}", item.symbol_name());
-            self.with_adjust(def_id, |adjust| {
-                let attrs = adjust.iter().flat_map(|a| a.attrs()).join("\n");
+    pub fn write_item(&self, stream: &mut String, item: CodegenItem) {
+        CUR_ITEM.set(&item.def_id, || match item.kind {
+            CodegenKind::Direct => {
+                let def_id = item.def_id;
+                let item = self.item(def_id).unwrap();
+                tracing::trace!("write item {}", item.symbol_name());
+                self.with_adjust(def_id, |adjust| {
+                    let attrs = adjust.iter().flat_map(|a| a.attrs()).join("\n");
 
-                let impls = adjust
-                    .iter()
-                    .flat_map(|a| &a.nested_items)
-                    .sorted()
-                    .join("\n");
-                stream.push_str(&impls);
-                stream.push_str(&attrs);
-            });
-
-            match &*item {
-                middle::rir::Item::Message(s) => self.write_struct(def_id, stream, s),
-                middle::rir::Item::Enum(e) => self.write_enum(def_id, stream, e),
-                middle::rir::Item::Service(s) => self.write_service(def_id, stream, s),
-                middle::rir::Item::NewType(t) => self.write_new_type(def_id, stream, t),
-                middle::rir::Item::Const(c) => self.write_const(def_id, stream, c),
-                middle::rir::Item::Mod(m) => {
-                    let mut inner = Default::default();
-                    m.items
+                    let impls = adjust
                         .iter()
-                        .for_each(|def_id| self.write_item(&mut inner, *def_id));
+                        .flat_map(|a| &a.nested_items)
+                        .sorted()
+                        .join("\n");
+                    stream.push_str(&impls);
+                    stream.push_str(&attrs);
+                });
 
-                    let name = self.rust_name(def_id);
-                    stream.push_str(&format! {
-                        r#"pub mod {name} {{
+                match &*item {
+                    middle::rir::Item::Message(s) => self.write_struct(def_id, stream, s),
+                    middle::rir::Item::Enum(e) => self.write_enum(def_id, stream, e),
+                    middle::rir::Item::Service(s) => self.write_service(def_id, stream, s),
+                    middle::rir::Item::NewType(t) => self.write_new_type(def_id, stream, t),
+                    middle::rir::Item::Const(c) => self.write_const(def_id, stream, c),
+                    middle::rir::Item::Mod(m) => {
+                        let mut inner = Default::default();
+                        m.items
+                            .iter()
+                            .for_each(|def_id| self.write_item(&mut inner, (*def_id).into()));
+
+                        let name = self.rust_name(def_id);
+                        stream.push_str(&format! {
+                            r#"pub mod {name} {{
                             {inner}
                         }}"#
-                    })
-                }
-            };
+                        })
+                    }
+                };
+            }
+            CodegenKind::RePub => {
+                let path = self.item_path(item.def_id).join("::");
+                stream.push_str(format!("pub use ::{};", path).as_str());
+            }
         })
     }
 
@@ -334,17 +362,18 @@ where
         ws.write_crates()
     }
 
-    pub fn write_items(&self, stream: &mut String, items: &[DefId])
+    pub fn write_items<'a>(&self, stream: &mut String, items: impl Iterator<Item = CodegenItem>)
     where
         B: Send,
     {
         use rayon::iter::ParallelIterator;
 
-        let mods = items.iter().copied().into_group_map_by(|def_id| {
+        let mods = items.into_group_map_by(|CodegenItem { def_id, .. }| {
             let path = Arc::from_iter(self.mod_path(*def_id).iter().map(|s| s.0.clone()));
             tracing::debug!("ths path of {:?} is {:?}", def_id, path);
             match &*self.mode {
-                Mode::Workspace(_) => Arc::from(&path[1..]), /* the first element for workspace */
+                Mode::Workspace(_) => Arc::from(&path[1..]), /* the first element for
+                                                                * workspace */
                 // path is crate name
                 Mode::SingleFile { .. } => path,
             }
@@ -403,7 +432,10 @@ where
 
     pub fn write_file(self, ns_name: &str, file_name: impl AsRef<Path>) {
         let mut stream = String::default();
-        self.write_items(&mut stream, &self.codegen_items);
+        self.write_items(
+            &mut stream,
+            self.codegen_items.iter().map(|def_id| (*def_id).into()),
+        );
 
         let ns_name = ns_name;
 

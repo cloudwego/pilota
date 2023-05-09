@@ -6,11 +6,12 @@ use fxhash::FxHashMap;
 use itertools::Itertools;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 
+use super::CodegenItem;
 use crate::{
     db::RirDatabase,
     fmt::fmt_file,
     middle::context::DefLocation,
-    rir::{self},
+    rir::{self, ItemPath},
     Codegen, CodegenBackend, Context, DefId,
 };
 
@@ -32,8 +33,11 @@ fn run_cmd(cmd: &mut Command) -> Result<(), anyhow::Error> {
 
 struct CrateInfo {
     name: FastStr,
+    main_mod_path: Option<ItemPath>,
     deps: Vec<FastStr>,
+    workspace_deps: Vec<FastStr>,
     items: Vec<DefId>,
+    re_pubs: Vec<DefId>,
 }
 
 impl<B> Workspace<B>
@@ -59,12 +63,7 @@ where
             .iter()
             .map(|(k, v)| {
                 let def_ids = v.iter().map(|i| i.0).copied().collect_vec();
-                let deps = self
-                    .collect_def_ids(&def_ids)
-                    .into_values()
-                    .sorted()
-                    .dedup()
-                    .collect_vec();
+                let deps = self.collect_def_ids(&def_ids).into_iter().collect_vec();
                 (k, deps)
             })
             .collect::<FxHashMap<_, _>>();
@@ -74,24 +73,6 @@ where
         }
 
         let this = self.clone();
-
-        entry_deps
-            .par_iter()
-            .try_for_each_with(this, |this, (k, deps)| {
-                let name = this.cx().crate_name(k);
-                this.create_crate(
-                    &this.base_dir,
-                    CrateInfo {
-                        name,
-                        items: entry_map[*k].iter().map(|(k, _)| **k).collect_vec(),
-                        deps: deps
-                            .iter()
-                            .filter(|dep| dep != *k)
-                            .map(|dep| this.cx().crate_name(dep))
-                            .collect_vec(),
-                    },
-                )
-            })?;
 
         let members = entry_map
             .keys()
@@ -123,16 +104,52 @@ where
     async-trait = "0.1"
     anyhow = "1"
     volo = "0.4"
-    volo-thrift = "0.4"
-    "#
+    volo-thrift = "0.4""#
             ))
             .unwrap(),
         );
+
+        let workspace_deps = cargo_toml
+            .get("workspace")
+            .unwrap()
+            .get("dependencies")
+            .unwrap()
+            .as_table()
+            .unwrap()
+            .keys()
+            .map(|s| FastStr::new(s))
+            .collect_vec();
 
         std::fs::write(
             self.base_dir.join("Cargo.toml"),
             toml::to_string_pretty(&cargo_toml).unwrap(),
         )?;
+
+        entry_deps
+            .par_iter()
+            .try_for_each_with(this, |this, (k, deps)| {
+                let name = this.cx().crate_name(k);
+                let deps = deps.iter().filter(|dep| dep.1 != ***k).collect_vec();
+                this.create_crate(
+                    &this.base_dir,
+                    CrateInfo {
+                        main_mod_path: match k {
+                            DefLocation::Fixed(path) => Some(path.clone()),
+                            DefLocation::Dynamic => None,
+                        },
+                        workspace_deps: workspace_deps.clone(),
+                        name,
+                        re_pubs: deps.iter().map(|v| v.0).collect_vec(),
+                        items: entry_map[*k].iter().map(|(k, _)| **k).collect_vec(),
+                        deps: deps
+                            .iter()
+                            .map(|dep| this.cx().crate_name(&dep.1))
+                            .sorted()
+                            .dedup()
+                            .collect_vec(),
+                    },
+                )
+            })?;
 
         Ok(())
     }
@@ -230,22 +247,15 @@ where
         })
         .unwrap();
 
-        super::toml::merge_tomls(
-            &mut cargo_toml,
-            toml::Value::Table(toml::toml! {
-                [dependencies]
-                volo.workspace = true
-                anyhow.workspace = true
-                pilota.workspace = true
-                volo-thrift.workspace = true
-                async-trait.workspace = true
-            }),
-        );
-
         let deps = info
             .deps
             .iter()
             .map(|s| Cow::from(format!(r#"{} = {{ path = "../{}" }}"#, s, s)))
+            .chain(
+                info.workspace_deps
+                    .iter()
+                    .map(|s| Cow::from(format!(r#"{s}.workspace = true"#))),
+            )
             .join("\n");
 
         super::toml::merge_tomls(
@@ -262,7 +272,20 @@ where
 
         stream.push_str("#![feature(impl_trait_in_assoc_type)]\n");
 
-        self.cg.write_items(&mut stream, &info.items);
+        self.cg.write_items(
+            &mut stream,
+            info.items
+                .iter()
+                .map(|def_id| CodegenItem::from(*def_id))
+                .chain(info.re_pubs.into_iter().map(|def_id| CodegenItem {
+                    def_id,
+                    kind: super::CodegenKind::RePub,
+                })),
+        );
+
+        if let Some(main_mod_path) = info.main_mod_path {
+            stream.push_str(&format!("pub use {}::*;", main_mod_path.join("::")));
+        }
 
         let src_file = base_dir.as_ref().join(&*info.name).join("src/lib.rs");
 
