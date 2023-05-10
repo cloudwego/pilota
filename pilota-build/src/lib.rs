@@ -18,10 +18,7 @@ mod resolve;
 mod symbol;
 pub use symbol::Symbol;
 pub mod tags;
-use std::{
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use std::{path::PathBuf, sync::Arc};
 
 // mod dedup;
 pub mod plugin;
@@ -185,17 +182,32 @@ pub enum Output {
     File(PathBuf),
 }
 
+#[derive(serde::Deserialize, serde::Serialize)]
+pub struct IdlService {
+    pub path: PathBuf,
+    pub config: serde_yaml::Value,
+}
+
+impl IdlService {
+    pub fn from_path(p: PathBuf) -> Self {
+        IdlService {
+            path: p,
+            config: Default::default(),
+        }
+    }
+}
+
 impl<MkB, P> Builder<MkB, P>
 where
     MkB: MakeBackend + Send,
     MkB::Target: Send,
     P: Parser,
 {
-    pub fn compile(mut self, files: &[impl AsRef<Path>], out: Output) {
+    pub fn compile(mut self, services: Vec<IdlService>, out: Output) {
         let _ = tracing_subscriber::fmt::try_init();
 
         let mut db = RootDatabase::default();
-        self.parser.inputs(files);
+        self.parser.inputs(services.iter().map(|s| &s.path));
         let ParseResult {
             files,
             input_files,
@@ -260,7 +272,7 @@ where
             CollectMode::All
         });
 
-        let cx = cx.build(self.source_type, self.change_case);
+        let cx = cx.build(Arc::from(services), self.source_type, self.change_case);
 
         cx.exec_plugin(BoxedPlugin);
 

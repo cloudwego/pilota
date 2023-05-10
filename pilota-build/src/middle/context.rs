@@ -54,6 +54,7 @@ pub struct Context {
     pub source_type: SourceType,
     pub db: salsa::Snapshot<RootDatabase>,
     pub adjusts: Arc<DashMap<DefId, Adjust>>,
+    pub services: Arc<[crate::IdlService]>,
     pub(crate) change_case: bool,
     pub(crate) codegen_items: Arc<Vec<DefId>>,
     pub(crate) path_resolver: Arc<dyn PathResolver>,
@@ -70,6 +71,7 @@ impl Clone for Context {
             codegen_items: self.codegen_items.clone(),
             path_resolver: self.path_resolver.clone(),
             mode: self.mode.clone(),
+            services: self.services.clone(),
         }
     }
 }
@@ -300,12 +302,18 @@ impl ContextBuilder {
         map
     }
 
-    pub(crate) fn build(self, source_type: SourceType, change_case: bool) -> Context {
+    pub(crate) fn build(
+        self,
+        services: Arc<[crate::IdlService]>,
+        source_type: SourceType,
+        change_case: bool,
+    ) -> Context {
         Context {
             adjusts: Default::default(),
             source_type,
             db: self.db.snapshot(),
             change_case,
+            services,
             codegen_items: Arc::new(self.codegen_items),
             path_resolver: match &self.mode {
                 Mode::Workspace(_) => Arc::new(WorkspacePathResolver),

@@ -101,7 +101,7 @@ impl ThriftLower {
         f
     }
 
-    fn lower_path(&mut self, path: &thrift_parser::Path) -> ir::Path {
+    fn lower_path(&self, path: &thrift_parser::Path) -> ir::Path {
         Path {
             segments: Arc::from_iter(path.segments.iter().map(|i| self.lower_ident(i))),
         }
@@ -115,7 +115,7 @@ impl ThriftLower {
         }
     }
 
-    fn lower_service(&mut self, service: &thrift_parser::Service) -> Vec<ir::Item> {
+    fn lower_service(&self, service: &thrift_parser::Service) -> Vec<ir::Item> {
         let kind = ir::ItemKind::Service(ir::Service {
             name: self.lower_ident(&service.name),
             extend: service
@@ -243,7 +243,7 @@ impl ThriftLower {
     }
 
     fn lower_method(
-        &mut self,
+        &self,
         service: &thrift_parser::Service,
         method: &thrift_parser::Function,
     ) -> ir::Method {
@@ -276,7 +276,7 @@ impl ThriftLower {
         }
     }
 
-    fn lower_enum(&mut self, e: &thrift_parser::Enum) -> ir::Enum {
+    fn lower_enum(&self, e: &thrift_parser::Enum) -> ir::Enum {
         ir::Enum {
             name: self.lower_ident(&e.name),
             variants: e
@@ -294,7 +294,7 @@ impl ThriftLower {
         }
     }
 
-    fn lower_lit(&mut self, l: &thrift_parser::ConstValue) -> ir::Literal {
+    fn lower_lit(&self, l: &thrift_parser::ConstValue) -> ir::Literal {
         match &l {
             thrift_parser::ConstValue::Bool(b) => ir::Literal::Bool(*b),
             thrift_parser::ConstValue::Path(p) => ir::Literal::Path(self.lower_path(p)),
@@ -312,7 +312,7 @@ impl ThriftLower {
         }
     }
 
-    fn lower_const(&mut self, c: &thrift_parser::Constant) -> ir::Const {
+    fn lower_const(&self, c: &thrift_parser::Constant) -> ir::Const {
         ir::Const {
             name: self.lower_ident(&c.name),
             ty: self.lower_ty(&c.r#type),
@@ -320,14 +320,14 @@ impl ThriftLower {
         }
     }
 
-    fn lower_typedef(&mut self, t: &thrift_parser::Typedef) -> ir::NewType {
+    fn lower_typedef(&self, t: &thrift_parser::Typedef) -> ir::NewType {
         ir::NewType {
             name: self.lower_ident(&t.alias),
             ty: self.lower_ty(&t.r#type),
         }
     }
 
-    fn lower_item(&mut self, item: &thrift_parser::Item) -> Vec<ir::Item> {
+    fn lower_item(&self, item: &thrift_parser::Item) -> Vec<ir::Item> {
         let single = match item {
             thrift_parser::Item::Typedef(t) => ir::ItemKind::NewType(self.lower_typedef(t)),
             thrift_parser::Item::Constant(c) => ir::ItemKind::Const(self.lower_const(c)),
@@ -357,7 +357,7 @@ impl ThriftLower {
         vec![self.mk_item(single, tags.into())]
     }
 
-    fn lower_union(&mut self, union: &thrift_parser::Union) -> Enum {
+    fn lower_union(&self, union: &thrift_parser::Union) -> Enum {
         Enum {
             name: self.lower_ident(&union.name),
             variants: union
@@ -375,11 +375,11 @@ impl ThriftLower {
         }
     }
 
-    fn lower_ident(&mut self, s: &thrift_parser::Ident) -> Ident {
+    fn lower_ident(&self, s: &thrift_parser::Ident) -> Ident {
         Ident::from(s.0.clone())
     }
 
-    fn lower_ty_with_tags(&mut self, ty: &thrift_parser::Ty, tags: &Tags) -> ir::Ty {
+    fn lower_ty_with_tags(&self, ty: &thrift_parser::Ty, tags: &Tags) -> ir::Ty {
         let rust_type = tags.get::<RustType>();
         if let Some(rust_type) = rust_type {
             let mut tags = Tags::default();
@@ -407,7 +407,7 @@ impl ThriftLower {
         self.lower_ty(ty)
     }
 
-    fn lower_ty(&mut self, ty: &thrift_parser::Ty) -> ir::Ty {
+    fn lower_ty(&self, ty: &thrift_parser::Ty) -> ir::Ty {
         let kind = match &ty {
             thrift_parser::Ty::String => ir::TyKind::String,
             thrift_parser::Ty::Void => ir::TyKind::Void,
@@ -433,12 +433,12 @@ impl ThriftLower {
         }
     }
 
-    fn lower_field(&mut self, f: &thrift_parser::Field) -> ir::Field {
+    fn lower_field(&self, f: &thrift_parser::Field) -> ir::Field {
         let tags = self.extract_tags(&f.annotations);
         self.lower_field_with_tags(f, tags)
     }
 
-    fn lower_field_with_tags(&mut self, f: &thrift_parser::Field, tags: Tags) -> ir::Field {
+    fn lower_field_with_tags(&self, f: &thrift_parser::Field, tags: Tags) -> ir::Field {
         ir::Field {
             name: self.lower_ident(&f.name),
             id: f.id,
@@ -452,7 +452,7 @@ impl ThriftLower {
         }
     }
 
-    fn extract_tags(&mut self, annotations: &Annotations) -> Tags {
+    fn extract_tags(&self, annotations: &Annotations) -> Tags {
         let mut tags = Tags::default();
         macro_rules! with_tags {
             ($annotation: tt -> $($key: ty)|+) => {
@@ -472,7 +472,7 @@ impl ThriftLower {
         tags
     }
 
-    fn lower_struct(&mut self, s: &thrift_parser::StructLike) -> ir::Message {
+    fn lower_struct(&self, s: &thrift_parser::StructLike) -> ir::Message {
         ir::Message {
             name: self.lower_ident(&s.name),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),

@@ -112,8 +112,11 @@ impl PathResolver for WorkspacePathResolver {
 
         let info = cx.workspace_info();
         let prefix = match &info.location_map[&item_def_id] {
-            location @ super::context::DefLocation::Fixed(_) => {
-                vec![cx.crate_name(location).into()]
+            location @ super::context::DefLocation::Fixed(prefix) => {
+                let mut path = Vec::with_capacity(prefix.len() + 1);
+                path.push(cx.crate_name(location).into());
+                path.extend(prefix.iter().cloned());
+                path
             }
             super::context::DefLocation::Dynamic => ["common".into()]
                 .iter()

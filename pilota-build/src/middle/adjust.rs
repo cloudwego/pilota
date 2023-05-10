@@ -40,7 +40,7 @@ impl Adjust {
     }
 
     #[inline]
-    pub fn add_impl(&mut self, r#impl: FastStr) {
+    pub fn add_nested_item(&mut self, r#impl: FastStr) {
         self.nested_items.push(r#impl)
     }
 }

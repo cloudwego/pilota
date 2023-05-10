@@ -16,7 +16,7 @@ use crate::{
 
 mod serde;
 
-pub use serde::SerdePlugin;
+pub use self::serde::SerdePlugin;
 
 pub trait Plugin: Sync + Send {
     fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
@@ -343,7 +343,7 @@ impl Plugin for ImplDefaultPlugin {
                         .join(",\n");
 
                     cx.with_adjust_mut(def_id, |adj| {
-                        adj.add_impl(
+                        adj.add_nested_item(
                             format!(
                                 r#"
                                 impl Default for {name} {{
@@ -431,7 +431,7 @@ impl Plugin for EnumNumPlugin {
                     .join("\n");
 
                 cx.with_adjust_mut(def_id, |adj| {
-                    adj.add_impl(format!(r#"
+                    adj.add_nested_item(format!(r#"
                         impl ::std::convert::From<{name}> for {num_ty} {{
                             fn from(e: {name}) -> Self {{
                                 e as _
