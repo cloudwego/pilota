@@ -41,7 +41,7 @@ pub mod normal {
                             break;
                         }
                         __pilota_decoding_field_id = field_ident.id;
-                        match __pilota_decoding_field_id {
+                        match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 a = Some(protocol.read_i32()?);
                             }
@@ -88,7 +88,7 @@ pub mod normal {
                             break;
                         }
                         __pilota_decoding_field_id = field_ident.id;
-                        match __pilota_decoding_field_id {
+                        match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 a = Some(protocol.read_i32().await?);
                             }
@@ -173,7 +173,7 @@ pub mod normal {
                             break;
                         }
                         __pilota_decoding_field_id = field_ident.id;
-                        match __pilota_decoding_field_id {
+                        match field_ident.id {
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
@@ -222,7 +222,7 @@ pub mod normal {
                             break;
                         }
                         __pilota_decoding_field_id = field_ident.id;
-                        match __pilota_decoding_field_id {
+                        match field_ident.id {
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
