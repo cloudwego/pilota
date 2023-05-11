@@ -33,9 +33,8 @@ pub mod wrapper_arc {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -75,9 +74,8 @@ pub mod wrapper_arc {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
                             }
@@ -152,9 +150,8 @@ pub mod wrapper_arc {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
@@ -216,9 +213,8 @@ pub mod wrapper_arc {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
@@ -358,9 +354,8 @@ pub mod wrapper_arc {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
@@ -478,9 +473,8 @@ pub mod wrapper_arc {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
@@ -663,9 +657,8 @@ pub mod wrapper_arc {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
@@ -725,9 +718,8 @@ pub mod wrapper_arc {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {

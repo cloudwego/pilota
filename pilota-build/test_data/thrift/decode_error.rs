@@ -37,9 +37,8 @@ pub mod decode_error {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
@@ -96,9 +95,8 @@ pub mod decode_error {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
@@ -187,9 +185,8 @@ pub mod decode_error {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(3)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
@@ -246,9 +243,8 @@ pub mod decode_error {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(3)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
@@ -337,9 +333,8 @@ pub mod decode_error {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
@@ -396,9 +391,8 @@ pub mod decode_error {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {

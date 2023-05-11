@@ -115,9 +115,8 @@ pub mod self_kw {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
@@ -174,9 +173,8 @@ pub mod self_kw {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match __pilota_decoding_field_id {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
