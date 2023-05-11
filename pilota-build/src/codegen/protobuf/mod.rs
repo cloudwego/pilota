@@ -211,13 +211,12 @@ impl ProtobufBackend {
 
                 match kind {
                     FieldKind::Required => format!("{encode_fn}({tag}, &{ident}, buf);").into(),
-                    FieldKind::Optional => {
-                        format! {
-                            r#"if let Some(_pilota_inner_value) = {ident}.as_ref() {{
-                                ::pilota::prost::encoding::{module}::encode({tag}, _pilota_inner_value, buf);
+                    FieldKind::Optional => format! {
+                        r#"if let Some(_pilota_inner_value) = {ident}.as_ref() {{
+                                {encode_fn}({tag}, _pilota_inner_value, buf);
                             }}"#
-                        }.into()
                     }
+                    .into(),
                 }
             }
             Category::Message => {
