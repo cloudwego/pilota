@@ -17,8 +17,8 @@ use crate::{
     },
     rir::Mod,
     symbol::{DefId, EnumRepr, FileId, Ident, Symbol},
-    tags::{RustWrapperArc, TagId, Tags},
-    ty::{BytesRepr, Folder, StringRepr, TyKind},
+    tags::{RustType, RustWrapperArc, TagId, Tags},
+    ty::{Folder, TyKind},
 };
 
 struct ModuleData {
@@ -270,7 +270,27 @@ impl Resolver {
         }
     }
 
-    fn modify_ty_by_tags(&mut self, ty: Ty, tags: &Tags) -> Ty {
+    fn modify_ty_by_tags(&mut self, mut ty: Ty, tags: &Tags) -> Ty {
+        match ty.kind {
+            ty::FastStr
+                if tags
+                    .get::<RustType>()
+                    .map(|repr| repr == "string")
+                    .unwrap_or(false) =>
+            {
+                ty.kind = ty::String;
+            }
+            ty::Bytes
+                if tags
+                    .get::<RustType>()
+                    .map(|repr| repr == "vec")
+                    .unwrap_or(false) =>
+            {
+                ty.kind = ty::BytesVec;
+            }
+            _ => {}
+        }
+
         if let Some(RustWrapperArc(true)) = tags.get::<RustWrapperArc>() {
             struct ArcFolder<'a>(&'a mut Resolver);
             impl Folder for ArcFolder<'_> {
@@ -338,28 +358,10 @@ impl Resolver {
 
     fn lower_type(&mut self, ty: &ir::Ty) -> Ty {
         let kind = match &ty.kind {
-            ir::TyKind::String
-                if ty
-                    .tags
-                    .get::<StringRepr>()
-                    .map(|repr| matches!(repr, StringRepr::String))
-                    .unwrap_or(false) =>
-            {
-                ty::String
-            }
             ir::TyKind::String => ty::FastStr,
             ir::TyKind::Void => ty::Void,
             ir::TyKind::U8 => ty::U8,
             ir::TyKind::Bool => ty::Bool,
-            ir::TyKind::Bytes
-                if ty
-                    .tags
-                    .get::<BytesRepr>()
-                    .map(|repr| matches!(repr, BytesRepr::Vec))
-                    .unwrap_or(false) =>
-            {
-                ty::BytesVec
-            }
             ir::TyKind::Bytes => ty::Bytes,
             ir::TyKind::I8 => ty::I8,
             ir::TyKind::I16 => ty::I16,
@@ -536,7 +538,14 @@ impl Resolver {
                         } else {
                             None
                         },
-                        fields: v.fields.iter().map(|p| self.lower_type(p)).collect(),
+                        fields: v
+                            .fields
+                            .iter()
+                            .map(|p| {
+                                let ty = self.lower_type(p);
+                                self.modify_ty_by_tags(ty, &p.tags)
+                            })
+                            .collect(),
                     });
                     next_discr = discr + 1;
                     self.nodes

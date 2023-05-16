@@ -295,16 +295,6 @@ pub trait TyTransformer {
     }
 }
 
-pub enum StringRepr {
-    FastStr,
-    String,
-}
-
-pub enum BytesRepr {
-    Vec,
-    Bytes,
-}
-
 pub(crate) struct DefaultTyTransformer<'s>(&'s dyn RirDatabase);
 
 impl TyTransformer for DefaultTyTransformer<'_> {

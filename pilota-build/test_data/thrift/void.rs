@@ -4,22 +4,22 @@ pub mod void {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, :: pilota :: derivative :: Derivative)]
         #[derivative(Default)]
         #[derive(Clone, PartialEq)]
-        pub enum TestTest123Result {
+        pub enum TestTest123ResultRecv {
             #[derivative(Default)]
             Ok(()),
         }
         #[::async_trait::async_trait]
-        impl ::pilota::thrift::Message for TestTest123Result {
+        impl ::pilota::thrift::Message for TestTest123ResultRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
                 use ::pilota::thrift::TOutputProtocolExt;
                 protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {
-                    name: "TestTest123Result",
+                    name: "TestTest123ResultRecv",
                 })?;
                 match self {
-                    TestTest123Result::Ok(ref value) => {}
+                    TestTest123ResultRecv::Ok(ref value) => {}
                 }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
@@ -47,7 +47,7 @@ pub mod void {
                 if let Some(ret) = ret {
                     Ok(ret)
                 } else {
-                    Ok(TestTest123Result::Ok(()))
+                    Ok(TestTest123ResultRecv::Ok(()))
                 }
             }
             async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -72,15 +72,99 @@ pub mod void {
                 if let Some(ret) = ret {
                     Ok(ret)
                 } else {
-                    Ok(TestTest123Result::Ok(()))
+                    Ok(TestTest123ResultRecv::Ok(()))
                 }
             }
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 use ::pilota::thrift::TLengthProtocolExt;
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
-                    name: "TestTest123Result",
+                    name: "TestTest123ResultRecv",
                 }) + match self {
-                    TestTest123Result::Ok(ref value) => 0,
+                    TestTest123ResultRecv::Ok(ref value) => 0,
+                } + protocol.write_field_stop_len()
+                    + protocol.write_struct_end_len()
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, :: pilota :: derivative :: Derivative)]
+        #[derivative(Default)]
+        #[derive(Clone, PartialEq)]
+        pub enum TestTest123ResultSend {
+            #[derivative(Default)]
+            Ok(()),
+        }
+        #[::async_trait::async_trait]
+        impl ::pilota::thrift::Message for TestTest123ResultSend {
+            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                &self,
+                protocol: &mut T,
+            ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
+                use ::pilota::thrift::TOutputProtocolExt;
+                protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {
+                    name: "TestTest123ResultSend",
+                })?;
+                match self {
+                    TestTest123ResultSend::Ok(ref value) => {}
+                }
+                protocol.write_field_stop()?;
+                protocol.write_struct_end()?;
+                Ok(())
+            }
+            fn decode<T: ::pilota::thrift::TInputProtocol>(
+                protocol: &mut T,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                let mut ret = None;
+                protocol.read_struct_begin()?;
+                loop {
+                    let field_ident = protocol.read_field_begin()?;
+                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                        break;
+                    }
+                    let field_id = field_ident.id;
+                    match field_id {
+                        _ => {
+                            protocol.skip(field_ident.field_type)?;
+                        }
+                    }
+                }
+                protocol.read_field_end()?;
+                protocol.read_struct_end()?;
+                if let Some(ret) = ret {
+                    Ok(ret)
+                } else {
+                    Ok(TestTest123ResultSend::Ok(()))
+                }
+            }
+            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &mut T,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                let mut ret = None;
+                protocol.read_struct_begin().await?;
+                loop {
+                    let field_ident = protocol.read_field_begin().await?;
+                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                        break;
+                    }
+                    let field_id = field_ident.id;
+                    match field_id {
+                        _ => {
+                            protocol.skip(field_ident.field_type).await?;
+                        }
+                    }
+                }
+                protocol.read_field_end().await?;
+                protocol.read_struct_end().await?;
+                if let Some(ret) = ret {
+                    Ok(ret)
+                } else {
+                    Ok(TestTest123ResultSend::Ok(()))
+                }
+            }
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+                use ::pilota::thrift::TLengthProtocolExt;
+                protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
+                    name: "TestTest123ResultSend",
+                }) + match self {
+                    TestTest123ResultSend::Ok(ref value) => 0,
                 } + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }
