@@ -1045,6 +1045,82 @@ pub mod string {
     }
 }
 
+pub mod faststr {
+    use std::borrow::Borrow;
+
+    use ::faststr::FastStr;
+
+    use super::*;
+
+    pub fn encode<B, T: Borrow<str>>(tag: u32, value: &T, buf: &mut B)
+    where
+        B: BufMut,
+    {
+        let value = value.borrow();
+        encode_key(tag, WireType::LengthDelimited, buf);
+        encode_varint(value.len() as u64, buf);
+        buf.put_slice(value.as_bytes());
+    }
+    pub fn merge<B>(
+        wire_type: WireType,
+        value: &mut FastStr,
+        buf: &mut B,
+        ctx: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        B: Buf,
+    {
+        let mut bytes = Bytes::new();
+
+        bytes::merge_one_copy(wire_type, &mut bytes, buf, ctx)?;
+        *value = unsafe { FastStr::from_bytes_unchecked(bytes) };
+        Ok(())
+    }
+
+    pub fn encode_repeated<B, T: Borrow<str>>(tag: u32, values: &[T], buf: &mut B)
+    where
+        B: ::bytes::BufMut,
+    {
+        for value in values {
+            encode(tag, value, buf);
+        }
+    }
+
+    pub fn merge_repeated<B>(
+        wire_type: WireType,
+        values: &mut Vec<FastStr>,
+        buf: &mut B,
+        ctx: DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        B: Buf,
+    {
+        check_wire_type(WireType::LengthDelimited, wire_type)?;
+        let mut value = Default::default();
+        merge(wire_type, &mut value, buf, ctx)?;
+        values.push(value);
+        Ok(())
+    }
+
+    #[inline]
+    pub fn encoded_len<T: Borrow<str>>(tag: u32, value: &T) -> usize {
+        let value = value.borrow();
+        key_len(tag) + encoded_len_varint(value.len() as u64) + value.len()
+    }
+
+    #[inline]
+    pub fn encoded_len_repeated<T: Borrow<str>>(tag: u32, values: &[T]) -> usize {
+        key_len(tag) * values.len()
+            + values
+                .iter()
+                .map(|value| {
+                    let value = value.borrow();
+                    encoded_len_varint(value.len() as u64) + value.len()
+                })
+                .sum::<usize>()
+    }
+}
+
 pub trait BytesAdapter: sealed::BytesAdapter {}
 
 mod sealed {
