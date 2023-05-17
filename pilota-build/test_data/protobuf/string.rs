@@ -9,8 +9,8 @@ pub mod string {
         #[inline]
         fn encoded_len(&self) -> usize {
             0 + self.a.as_ref().map_or(0, |value| {
-                ::pilota::prost::encoding::string::encoded_len(1u32, value)
-            }) + ::pilota::prost::encoding::string::encoded_len(2u32, &self.b)
+                ::pilota::prost::encoding::faststr::encoded_len(1u32, value)
+            }) + ::pilota::prost::encoding::faststr::encoded_len(2u32, &self.b)
         }
         #[allow(unused_variables)]
         fn encode_raw<B>(&self, buf: &mut B)
@@ -18,9 +18,9 @@ pub mod string {
             B: ::pilota::prost::bytes::BufMut,
         {
             if let Some(_pilota_inner_value) = self.a.as_ref() {
-                ::pilota::prost::encoding::string::encode(1u32, _pilota_inner_value, buf);
+                ::pilota::prost::encoding::faststr::encode(1u32, _pilota_inner_value, buf);
             }
-            ::pilota::prost::encoding::string::encode(2u32, &self.b, buf);
+            ::pilota::prost::encoding::faststr::encode(2u32, &self.b, buf);
         }
         #[allow(unused_variables)]
         fn merge_field<B>(
@@ -37,7 +37,7 @@ pub mod string {
             match tag {
                 1u32 => {
                     let mut _inner_pilota_value = &mut self.a;
-                    ::pilota::prost::encoding::string::merge(
+                    ::pilota::prost::encoding::faststr::merge(
                         wire_type,
                         _inner_pilota_value.get_or_insert_with(::core::default::Default::default),
                         buf,
@@ -50,7 +50,7 @@ pub mod string {
                 }
                 2u32 => {
                     let mut _inner_pilota_value = &mut self.b;
-                    ::pilota::prost::encoding::string::merge(
+                    ::pilota::prost::encoding::faststr::merge(
                         wire_type,
                         _inner_pilota_value,
                         buf,
