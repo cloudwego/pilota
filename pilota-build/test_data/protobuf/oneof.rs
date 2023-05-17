@@ -60,7 +60,7 @@ pub mod oneof {
             {
                 match self {
                     Type::S(value) => {
-                        ::pilota::prost::encoding::string::encode(2u32, &*value, buf);
+                        ::pilota::prost::encoding::faststr::encode(2u32, &*value, buf);
                     }
                     Type::I(value) => {
                         ::pilota::prost::encoding::int32::encode(4u32, &*value, buf);
@@ -71,7 +71,9 @@ pub mod oneof {
             #[inline]
             pub fn encoded_len(&self) -> usize {
                 match self {
-                    Type::S(value) => ::pilota::prost::encoding::string::encoded_len(2u32, &*value),
+                    Type::S(value) => {
+                        ::pilota::prost::encoding::faststr::encoded_len(2u32, &*value)
+                    }
                     Type::I(value) => ::pilota::prost::encoding::int32::encoded_len(4u32, &*value),
                 }
             }
@@ -89,12 +91,12 @@ pub mod oneof {
                 match tag {
                     2u32 => match field {
                         ::core::option::Option::Some(Type::S(ref mut value)) => {
-                            ::pilota::prost::encoding::string::merge(wire_type, value, buf, ctx)?;
+                            ::pilota::prost::encoding::faststr::merge(wire_type, value, buf, ctx)?;
                         }
                         _ => {
                             let mut owned_value = ::core::default::Default::default();
                             let value = &mut owned_value;
-                            ::pilota::prost::encoding::string::merge(wire_type, value, buf, ctx)?;
+                            ::pilota::prost::encoding::faststr::merge(wire_type, value, buf, ctx)?;
                             *field = ::core::option::Option::Some(Type::S(owned_value));
                         }
                     },
