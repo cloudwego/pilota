@@ -349,12 +349,13 @@ impl ThriftBackend {
                 let read_el = self.codegen_decode_ty(helper, ty);
                 format! {
                     r#"
-                    {{
+                    unsafe {{
                         let list_ident = {read_list_begin};
                         let mut val = Vec::with_capacity(list_ident.size);
-                        for _ in 0..list_ident.size {{
-                            val.push({read_el});
+                        for i in 0..list_ident.size {{
+                            *val.get_unchecked_mut(i) = {read_el};
                         }};
+                        val.set_len(list_ident.size);
                         {read_list_end};
                         val
                     }}

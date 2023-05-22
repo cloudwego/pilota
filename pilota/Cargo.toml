@@ -44,3 +44,7 @@ rand = "0.8"
 [[bench]]
 name = "faststr"
 harness = false
+
+[[bench]]
+name = "thrift_binary"
+harness = false

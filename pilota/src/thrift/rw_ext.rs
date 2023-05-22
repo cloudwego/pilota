@@ -129,6 +129,8 @@ pub trait WriteExt {
     fn write_f32_le(&mut self, n: f32) -> Result<(), IOError>;
 
     fn write_f64(&mut self, n: f64) -> Result<(), IOError>;
+
+    fn write_f64_le(&mut self, n: f64) -> Result<(), IOError>;
 }
 
 impl WriteExt for BytesMut {
@@ -263,6 +265,11 @@ impl WriteExt for BytesMut {
     #[inline]
     fn write_f64(&mut self, n: f64) -> Result<(), IOError> {
         self.write_u64(n.to_bits())
+    }
+
+    #[inline]
+    fn write_f64_le(&mut self, n: f64) -> Result<(), IOError> {
+        self.write_u64_le(n.to_bits())
     }
 }
 

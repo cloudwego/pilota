@@ -1,18 +1,15 @@
-use std::{convert::TryInto, str};
+use std::{convert::TryInto, ptr, slice, str};
 
-use bytes::{Bytes, BytesMut};
+use bytes::{Buf, BufMut, Bytes, BytesMut};
 use faststr::FastStr;
 use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
-    error::ProtocolErrorKind,
-    new_protocol_error,
-    rw_ext::{ReadExt, WriteExt},
-    DecodeError, DecodeErrorKind, EncodeError, ProtocolError, TAsyncInputProtocol,
-    TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
-    TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    ZERO_COPY_THRESHOLD,
+    error::ProtocolErrorKind, new_protocol_error, DecodeError, DecodeErrorKind, EncodeError,
+    ProtocolError, TAsyncInputProtocol, TFieldIdentifier, TInputProtocol, TLengthProtocol,
+    TListIdentifier, TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol,
+    TSetIdentifier, TStructIdentifier, TType, ZERO_COPY_THRESHOLD,
 };
 
 static VERSION_1: u32 = 0x80010000;
@@ -20,6 +17,8 @@ static VERSION_MASK: u32 = 0xffff0000;
 
 pub struct TBinaryProtocol<T> {
     pub(crate) trans: T,
+    pub(crate) buf: &'static mut [u8],
+    pub(crate) index: usize,
 
     zero_copy: bool,
     zero_copy_len: usize,
@@ -28,10 +27,19 @@ pub struct TBinaryProtocol<T> {
 impl<T> TBinaryProtocol<T> {
     /// `zero_copy` only takes effect when `T` is [`BytesMut`] for input and
     /// [`LinkedBytes`] for output.
+    ///
+    /// # Safety
+    ///
+    /// The 'buf' MUST point to the same area of trans, this is a
+    /// self-referencial struct.
+    ///
+    /// The 'trans' MUST have enough capacity to read from or write to.
     #[inline]
-    pub fn new(trans: T, zero_copy: bool) -> Self {
+    pub unsafe fn new(trans: T, buf: &'static mut [u8], zero_copy: bool) -> Self {
         Self {
             trans,
+            buf,
+            index: 0,
             zero_copy,
             zero_copy_len: 0,
         }
@@ -222,12 +230,16 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
 
     #[inline]
     fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), EncodeError> {
-        let mut data: [u8; 3] = [0; 3];
-        data[0] = field_type as u8;
-        let id = id.to_be_bytes();
-        data[1] = id[0];
-        data[2] = id[1];
-        self.trans.write_slice(&data)?;
+        unsafe {
+            *self.buf.get_unchecked_mut(self.index) = field_type as u8;
+            let buf: &mut [u8; 2] = self
+                .buf
+                .get_unchecked_mut(self.index + 1..self.index + 3)
+                .try_into()
+                .unwrap_unchecked();
+            *buf = id.to_be_bytes();
+            self.index += 3;
+        }
         Ok(())
     }
 
@@ -253,63 +265,130 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     #[inline]
     fn write_bytes(&mut self, b: Bytes) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
-        self.trans.write_slice(&b)?;
+        unsafe {
+            ptr::copy_nonoverlapping(
+                b.as_ptr(),
+                self.buf.as_mut_ptr().offset(self.index as isize),
+                b.len(),
+            );
+            self.index += b.len();
+        }
         Ok(())
     }
 
     #[inline]
     fn write_byte(&mut self, b: u8) -> Result<(), EncodeError> {
-        self.trans.write_u8(b)?;
+        unsafe {
+            *self.buf.get_unchecked_mut(self.index) = b;
+            self.index += 1;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError> {
-        self.trans.write_slice(&u)?;
+        unsafe {
+            let buf: &mut [u8; 16] = self
+                .buf
+                .get_unchecked_mut(self.index..self.index + 16)
+                .try_into()
+                .unwrap_unchecked();
+            *buf = u;
+            self.index += 16;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_i8(&mut self, i: i8) -> Result<(), EncodeError> {
-        self.trans.write_i8(i)?;
+        unsafe {
+            *self.buf.get_unchecked_mut(self.index) = *i.to_be_bytes().get_unchecked(0);
+            self.index += 1;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_i16(&mut self, i: i16) -> Result<(), EncodeError> {
-        self.trans.write_i16(i)?;
+        unsafe {
+            let buf: &mut [u8; 2] = self
+                .trans
+                .get_unchecked_mut(self.index..self.index + 2)
+                .try_into()
+                .unwrap_unchecked();
+            *buf = i.to_be_bytes();
+            self.index += 2;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_i32(&mut self, i: i32) -> Result<(), EncodeError> {
-        self.trans.write_i32(i)?;
+        unsafe {
+            let buf: &mut [u8; 4] = self
+                .trans
+                .get_unchecked_mut(self.index..self.index + 4)
+                .try_into()
+                .unwrap_unchecked();
+            *buf = i.to_be_bytes();
+            self.index += 4;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_i64(&mut self, i: i64) -> Result<(), EncodeError> {
-        self.trans.write_i64(i)?;
+        unsafe {
+            let buf: &mut [u8; 8] = self
+                .trans
+                .get_unchecked_mut(self.index..self.index + 8)
+                .try_into()
+                .unwrap_unchecked();
+            *buf = i.to_be_bytes();
+            self.index += 8;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
-        self.trans.write_f64(d)?;
+        unsafe {
+            let buf: &mut [u8; 8] = self
+                .trans
+                .get_unchecked_mut(self.index..self.index + 8)
+                .try_into()
+                .unwrap_unchecked();
+            *buf = d.to_bits().to_be_bytes();
+            self.index += 8;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_string(&mut self, s: &str) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
-        self.trans.write_slice(s.as_bytes())?;
+        unsafe {
+            ptr::copy_nonoverlapping(
+                s.as_ptr(),
+                self.buf.as_mut_ptr().offset(self.index as isize),
+                s.len(),
+            );
+            self.index += s.len();
+        }
         Ok(())
     }
 
     #[inline]
     fn write_faststr(&mut self, s: FastStr) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
-        self.trans.write_slice(s.as_ref())?;
+        unsafe {
+            ptr::copy_nonoverlapping(
+                s.as_ptr(),
+                self.buf.as_mut_ptr().offset(self.index as isize),
+                s.len(),
+            );
+            self.index += s.len();
+        }
         Ok(())
     }
 
@@ -357,7 +436,14 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     #[inline]
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
-        self.trans.write_slice(b)?;
+        unsafe {
+            ptr::copy_nonoverlapping(
+                b.as_ptr(),
+                self.buf.as_mut_ptr().offset(self.index as isize),
+                b.len(),
+            );
+            self.index += b.len();
+        }
         Ok(())
     }
 }
@@ -392,12 +478,16 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
 
     #[inline]
     fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), EncodeError> {
-        let mut data: [u8; 3] = [0; 3];
-        data[0] = field_type as u8;
-        let id = id.to_be_bytes();
-        data[1] = id[0];
-        data[2] = id[1];
-        self.trans.bytes_mut().write_slice(&data)?;
+        unsafe {
+            *self.buf.get_unchecked_mut(self.index) = field_type as u8;
+            let buf: &mut [u8; 2] = self
+                .buf
+                .get_unchecked_mut(self.index + 1..self.index + 3)
+                .try_into()
+                .unwrap_unchecked();
+            *buf = id.to_be_bytes();
+            self.index += 3;
+        }
         Ok(())
     }
 
@@ -424,69 +514,162 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     fn write_bytes(&mut self, b: Bytes) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
         if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
+            unsafe {
+                self.trans.bytes_mut().advance_mut(self.index);
+                self.index = 0;
+            }
             self.trans.insert(b);
+            self.buf = unsafe {
+                slice::from_raw_parts_mut(
+                    self.trans.bytes_mut().as_mut_ptr(),
+                    self.trans.bytes_mut().len(),
+                )
+            };
             return Ok(());
         }
-        self.trans.bytes_mut().write_slice(&b)?;
+        unsafe {
+            ptr::copy_nonoverlapping(
+                b.as_ptr(),
+                self.buf.as_mut_ptr().offset(self.index as isize),
+                b.len(),
+            );
+            self.index += b.len();
+        }
         Ok(())
     }
 
     #[inline]
     fn write_byte(&mut self, b: u8) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_u8(b)?;
+        unsafe {
+            *self.buf.get_unchecked_mut(self.index) = b;
+            self.index += 1;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_slice(&u)?;
+        unsafe {
+            let buf: &mut [u8; 16] = self
+                .trans
+                .bytes_mut()
+                .get_unchecked_mut(self.index..self.index + 16)
+                .try_into()
+                .unwrap_unchecked();
+            *buf = u;
+            self.index += 16;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_i8(&mut self, i: i8) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_i8(i)?;
+        unsafe {
+            *self.buf.get_unchecked_mut(self.index) = *i.to_be_bytes().get_unchecked(0);
+            self.index += 1;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_i16(&mut self, i: i16) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_i16(i)?;
+        unsafe {
+            let buf: &mut [u8; 2] = self
+                .trans
+                .bytes_mut()
+                .get_unchecked_mut(self.index..self.index + 2)
+                .try_into()
+                .unwrap_unchecked();
+            *buf = i.to_be_bytes();
+            self.index += 2;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_i32(&mut self, i: i32) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_i32(i)?;
+        unsafe {
+            let buf: &mut [u8; 4] = self
+                .trans
+                .bytes_mut()
+                .get_unchecked_mut(self.index..self.index + 4)
+                .try_into()
+                .unwrap_unchecked();
+            *buf = i.to_be_bytes();
+            self.index += 4;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_i64(&mut self, i: i64) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_i64(i)?;
+        unsafe {
+            let buf: &mut [u8; 8] = self
+                .trans
+                .bytes_mut()
+                .get_unchecked_mut(self.index..self.index + 8)
+                .try_into()
+                .unwrap_unchecked();
+            *buf = i.to_be_bytes();
+            self.index += 8;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_f64(d)?;
+        unsafe {
+            let buf: &mut [u8; 8] = self
+                .trans
+                .bytes_mut()
+                .get_unchecked_mut(self.index..self.index + 8)
+                .try_into()
+                .unwrap_unchecked();
+            *buf = d.to_bits().to_be_bytes();
+            self.index += 8;
+        }
         Ok(())
     }
 
     #[inline]
     fn write_string(&mut self, s: &str) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
-        self.trans.bytes_mut().write_slice(s.as_bytes())?;
+        unsafe {
+            ptr::copy_nonoverlapping(
+                s.as_ptr(),
+                self.buf.as_mut_ptr().offset(self.index as isize),
+                s.len(),
+            );
+            self.index += s.len();
+        }
         Ok(())
     }
+
     #[inline]
     fn write_faststr(&mut self, s: FastStr) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
         if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
+            unsafe {
+                self.trans.bytes_mut().advance_mut(self.index);
+                self.index = 0;
+            }
             self.trans.insert_faststr(s);
+            self.buf = unsafe {
+                slice::from_raw_parts_mut(
+                    self.trans.bytes_mut().as_mut_ptr(),
+                    self.trans.bytes_mut().len(),
+                )
+            };
             return Ok(());
         }
-        self.trans.bytes_mut().write_slice(s.as_ref())?;
+        unsafe {
+            ptr::copy_nonoverlapping(
+                s.as_ptr(),
+                self.buf.as_mut_ptr().offset(self.index as isize),
+                s.len(),
+            );
+            self.index += s.len();
+        }
         Ok(())
     }
 
@@ -530,10 +713,18 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     fn flush(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
+
     #[inline]
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
-        self.trans.bytes_mut().write_slice(b)?;
+        unsafe {
+            ptr::copy_nonoverlapping(
+                b.as_ptr(),
+                self.buf.as_mut_ptr().offset(self.index as isize),
+                b.len(),
+            );
+            self.index += b.len();
+        }
         Ok(())
     }
 }
@@ -755,7 +946,7 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     type Buf = BytesMut;
 
     fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
-        let size = self.trans.read_i32()?;
+        let size = self.read_i32()?;
 
         if size > 0 {
             return Err(DecodeError::new(
@@ -835,60 +1026,109 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
 
     #[inline]
     fn read_bytes(&mut self) -> Result<Bytes, DecodeError> {
-        let len = self.trans.read_i32()?;
+        let len = self.read_i32()?;
+        self.trans.advance(self.index);
+        self.index = 0;
         // split and freeze it
-        Ok(self.trans.split_to(len as usize).freeze())
+        let val = self.trans.split_to(len as usize).freeze();
+        self.buf = unsafe { slice::from_raw_parts_mut(self.trans.as_mut_ptr(), self.trans.len()) };
+        Ok(val)
     }
 
     #[inline]
     fn read_uuid(&mut self) -> Result<[u8; 16], DecodeError> {
-        let mut u = [0; 16];
-        self.trans.read_to_slice(&mut u)?;
+        let u;
+        unsafe {
+            u = self
+                .trans
+                .get_unchecked_mut(self.index..self.index + 16)
+                .try_into()
+                .unwrap_unchecked();
+            self.index += 16;
+        }
         Ok(u)
     }
 
     #[inline]
     fn read_i8(&mut self) -> Result<i8, DecodeError> {
-        Ok(self.trans.read_i8()?)
+        unsafe {
+            let val = *self.buf.get_unchecked(self.index) as i8;
+            self.index += 1;
+            Ok(val)
+        }
     }
 
     #[inline]
     fn read_i16(&mut self) -> Result<i16, DecodeError> {
-        Ok(self.trans.read_i16()?)
+        unsafe {
+            let val = self.buf.get_unchecked(self.index..self.index + 2);
+            self.index += 2;
+            Ok(i16::from_be_bytes(val.try_into().unwrap_unchecked()))
+        }
     }
 
     #[inline]
     fn read_i32(&mut self) -> Result<i32, DecodeError> {
-        Ok(self.trans.read_i32()?)
+        unsafe {
+            let val = self.buf.get_unchecked(self.index..self.index + 4);
+            self.index += 4;
+            Ok(i32::from_be_bytes(val.try_into().unwrap_unchecked()))
+        }
     }
 
     #[inline]
     fn read_i64(&mut self) -> Result<i64, DecodeError> {
-        Ok(self.trans.read_i64()?)
+        unsafe {
+            let val = self.buf.get_unchecked(self.index..self.index + 8);
+            self.index += 8;
+            Ok(i64::from_be_bytes(val.try_into().unwrap_unchecked()))
+        }
     }
 
     #[inline]
     fn read_double(&mut self) -> Result<f64, DecodeError> {
-        Ok(self.trans.read_f64()?)
+        unsafe {
+            let val = self.buf.get_unchecked(self.index..self.index + 8);
+            self.index += 8;
+            Ok(f64::from_bits(u64::from_be_bytes(
+                val.try_into().unwrap_unchecked(),
+            )))
+        }
     }
 
     #[inline]
     fn read_string(&mut self) -> Result<String, DecodeError> {
-        let len = self.trans.read_i32()?;
-        Ok(self.trans.read_to_string(len as usize)?)
+        unsafe {
+            let len = self.read_i32().unwrap_unchecked();
+            let val = str::from_utf8_unchecked(
+                self.buf
+                    .get_unchecked(self.index..self.index + len as usize),
+            )
+            .to_string();
+            self.index += len as usize;
+            Ok(val)
+        }
     }
 
     #[inline]
     fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
-        let len = self.trans.read_i32()? as usize;
-        if len >= ZERO_COPY_THRESHOLD {
-            let bytes = self.trans.split_to(len).freeze();
-            unsafe { return Ok(FastStr::from_bytes_unchecked(bytes)) };
-        }
         unsafe {
-            Ok(FastStr::new(str::from_utf8_unchecked(
-                self.trans.get(..len).unwrap(),
-            )))
+            let len = self.read_i32().unwrap_unchecked() as usize;
+            if len >= ZERO_COPY_THRESHOLD {
+                self.trans.advance(self.index);
+                self.index = 0;
+                let bytes = self.trans.split_to(len).freeze();
+                self.buf = slice::from_raw_parts_mut(self.trans.as_mut_ptr(), self.trans.len());
+                return Ok(FastStr::from_bytes_unchecked(bytes));
+            }
+
+            let val = FastStr::new(str::from_utf8_unchecked(
+                self.buf.get_unchecked(self.index..self.index + len),
+            ));
+
+            self.index += len;
+
+            Ok(val)
         }
     }
 
@@ -931,12 +1171,20 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
 
     #[inline]
     fn read_byte(&mut self) -> Result<u8, DecodeError> {
-        Ok(self.trans.read_u8()?)
+        unsafe {
+            let val = *self.buf.get_unchecked(self.index);
+            self.index += 1;
+            Ok(val)
+        }
     }
 
     #[inline]
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError> {
-        let len = self.trans.read_i32()? as usize;
-        Ok(self.trans.split_to(len).into())
+        let len = self.read_i32()? as usize;
+        self.trans.advance(self.index);
+        self.index = 0;
+        let val = self.trans.split_to(len).into();
+        self.buf = unsafe { slice::from_raw_parts_mut(self.trans.as_mut_ptr(), self.trans.len()) };
+        Ok(val)
     }
 }

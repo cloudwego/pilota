@@ -15,8 +15,8 @@ use super::{
     ZERO_COPY_THRESHOLD,
 };
 
-static VERSION_1: u32 = 0x80010000;
-static VERSION_MASK: u32 = 0xffff0000;
+const VERSION_LE: u32 = 0x88880000;
+const VERSION_MASK: u32 = 0xffff0000;
 
 pub struct TBinaryProtocol<T> {
     pub(crate) trans: T,
@@ -198,7 +198,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     #[inline]
     fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), EncodeError> {
         let msg_type_u8: u8 = identifier.message_type.into();
-        let version = (VERSION_1 | msg_type_u8 as u32) as i32;
+        let version = (VERSION_LE | msg_type_u8 as u32) as i32;
         self.write_i32(version)?;
         self.write_faststr(identifier.name.clone())?;
         self.write_i32(identifier.sequence_number)?;
@@ -224,7 +224,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), EncodeError> {
         let mut data: [u8; 3] = [0; 3];
         data[0] = field_type as u8;
-        let id = id.to_be_bytes();
+        let id = id.to_le_bytes();
         data[1] = id[0];
         data[2] = id[1];
         self.trans.write_slice(&data)?;
@@ -277,25 +277,25 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
 
     #[inline]
     fn write_i16(&mut self, i: i16) -> Result<(), EncodeError> {
-        self.trans.write_i16(i)?;
+        self.trans.write_i16_le(i)?;
         Ok(())
     }
 
     #[inline]
     fn write_i32(&mut self, i: i32) -> Result<(), EncodeError> {
-        self.trans.write_i32(i)?;
+        self.trans.write_i32_le(i)?;
         Ok(())
     }
 
     #[inline]
     fn write_i64(&mut self, i: i64) -> Result<(), EncodeError> {
-        self.trans.write_i64(i)?;
+        self.trans.write_i64_le(i)?;
         Ok(())
     }
 
     #[inline]
     fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
-        self.trans.write_f64(d)?;
+        self.trans.write_f64_le(d)?;
         Ok(())
     }
 
@@ -368,7 +368,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     #[inline]
     fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), EncodeError> {
         let msg_type_u8: u8 = identifier.message_type.into();
-        let version = (VERSION_1 | msg_type_u8 as u32) as i32;
+        let version = (VERSION_LE | msg_type_u8 as u32) as i32;
         self.write_i32(version)?;
         self.write_faststr(identifier.name.clone())?;
         self.write_i32(identifier.sequence_number)?;
@@ -394,7 +394,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), EncodeError> {
         let mut data: [u8; 3] = [0; 3];
         data[0] = field_type as u8;
-        let id = id.to_be_bytes();
+        let id = id.to_le_bytes();
         data[1] = id[0];
         data[2] = id[1];
         self.trans.bytes_mut().write_slice(&data)?;
@@ -451,25 +451,25 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
 
     #[inline]
     fn write_i16(&mut self, i: i16) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_i16(i)?;
+        self.trans.bytes_mut().write_i16_le(i)?;
         Ok(())
     }
 
     #[inline]
     fn write_i32(&mut self, i: i32) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_i32(i)?;
+        self.trans.bytes_mut().write_i32_le(i)?;
         Ok(())
     }
 
     #[inline]
     fn write_i64(&mut self, i: i64) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_i64(i)?;
+        self.trans.bytes_mut().write_i64_le(i)?;
         Ok(())
     }
 
     #[inline]
     fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_f64(d)?;
+        self.trans.bytes_mut().write_f64_le(d)?;
         Ok(())
     }
 
@@ -530,6 +530,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     fn flush(&mut self) -> Result<(), EncodeError> {
         Ok(())
     }
+
     #[inline]
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
@@ -549,7 +550,7 @@ where
 {
     // https://github.com/apache/thrift/blob/master/doc/specs/thrift-binary-protocol.md
     async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
-        let size = self.reader.read_i32().await?;
+        let size = self.reader.read_i32_le().await?;
         if size > 0 {
             return Err(DecodeError::new(
                 DecodeErrorKind::BadVersion,
@@ -567,7 +568,7 @@ where
         })?;
 
         let version = size & (VERSION_MASK as i32);
-        if version != (VERSION_1 as i32) {
+        if version != (VERSION_LE as i32) {
             return Err(DecodeError::new(
                 DecodeErrorKind::BadVersion,
                 "Bad version in ReadMessageBegin",
@@ -634,7 +635,7 @@ where
 
     #[inline]
     async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError> {
-        let len = self.reader.read_i32().await? as usize;
+        let len = self.reader.read_i32_le().await? as usize;
         // FIXME: use maybe_uninit?
         let mut v = vec![0; len];
         self.reader.read_exact(&mut v).await?;
@@ -650,7 +651,7 @@ where
 
     #[inline]
     async fn read_string(&mut self) -> Result<String, DecodeError> {
-        let len = self.reader.read_i32().await? as usize;
+        let len = self.reader.read_i32_le().await? as usize;
         // FIXME: use maybe_uninit?
         let mut v = vec![0; len];
         self.reader.read_exact(&mut v).await?;
@@ -674,22 +675,22 @@ where
 
     #[inline]
     async fn read_i16(&mut self) -> Result<i16, DecodeError> {
-        Ok(self.reader.read_i16().await?)
+        Ok(self.reader.read_i16_le().await?)
     }
 
     #[inline]
     async fn read_i32(&mut self) -> Result<i32, DecodeError> {
-        Ok(self.reader.read_i32().await?)
+        Ok(self.reader.read_i32_le().await?)
     }
 
     #[inline]
     async fn read_i64(&mut self) -> Result<i64, DecodeError> {
-        Ok(self.reader.read_i64().await?)
+        Ok(self.reader.read_i64_le().await?)
     }
 
     #[inline]
     async fn read_double(&mut self) -> Result<f64, DecodeError> {
-        Ok(self.reader.read_f64().await?)
+        Ok(self.reader.read_f64_le().await?)
     }
 
     #[inline]
@@ -755,7 +756,7 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     type Buf = BytesMut;
 
     fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
-        let size = self.trans.read_i32()?;
+        let size = self.trans.read_i32_le()?;
 
         if size > 0 {
             return Err(DecodeError::new(
@@ -773,7 +774,7 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
         })?;
 
         let version = size & (VERSION_MASK as i32);
-        if version != (VERSION_1 as i32) {
+        if version != (VERSION_LE as i32) {
             return Err(DecodeError::new(
                 DecodeErrorKind::BadVersion,
                 "Bad version in ReadMessageBegin",
@@ -835,7 +836,7 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
 
     #[inline]
     fn read_bytes(&mut self) -> Result<Bytes, DecodeError> {
-        let len = self.trans.read_i32()?;
+        let len = self.trans.read_i32_le()?;
         // split and freeze it
         Ok(self.trans.split_to(len as usize).freeze())
     }
@@ -854,33 +855,33 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
 
     #[inline]
     fn read_i16(&mut self) -> Result<i16, DecodeError> {
-        Ok(self.trans.read_i16()?)
+        Ok(self.trans.read_i16_le()?)
     }
 
     #[inline]
     fn read_i32(&mut self) -> Result<i32, DecodeError> {
-        Ok(self.trans.read_i32()?)
+        Ok(self.trans.read_i32_le()?)
     }
 
     #[inline]
     fn read_i64(&mut self) -> Result<i64, DecodeError> {
-        Ok(self.trans.read_i64()?)
+        Ok(self.trans.read_i64_le()?)
     }
 
     #[inline]
     fn read_double(&mut self) -> Result<f64, DecodeError> {
-        Ok(self.trans.read_f64()?)
+        Ok(self.trans.read_f64_le()?)
     }
 
     #[inline]
     fn read_string(&mut self) -> Result<String, DecodeError> {
-        let len = self.trans.read_i32()?;
+        let len = self.trans.read_i32_le()?;
         Ok(self.trans.read_to_string(len as usize)?)
     }
 
     #[inline]
     fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
-        let len = self.trans.read_i32()? as usize;
+        let len = self.trans.read_i32_le()? as usize;
         if len >= ZERO_COPY_THRESHOLD {
             let bytes = self.trans.split_to(len).freeze();
             unsafe { return Ok(FastStr::from_bytes_unchecked(bytes)) };
@@ -936,7 +937,7 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
 
     #[inline]
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError> {
-        let len = self.trans.read_i32()? as usize;
+        let len = self.trans.read_i32_le()? as usize;
         Ok(self.trans.split_to(len).into())
     }
 }
