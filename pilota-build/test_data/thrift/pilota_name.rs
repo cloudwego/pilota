@@ -960,7 +960,7 @@ pub mod pilota_name {
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
                 let value = protocol.read_i32()?;
-                Ok(Self::try_from(value).map_err(|_| {
+                Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
                     ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
                         format!("invalid enum value for Index, value: {}", value),
@@ -972,7 +972,7 @@ pub mod pilota_name {
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
                 let value = protocol.read_i32().await?;
-                Ok(Self::try_from(value).map_err(|_| {
+                Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
                     ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
                         format!("invalid enum value for Index, value: {}", value),

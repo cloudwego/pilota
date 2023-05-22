@@ -170,7 +170,8 @@ impl ProtobufBackend {
             .and_then(|tags| tags.get::<ProstType>().copied());
         Ident::new(
             match ty.kind {
-                ty::TyKind::String | ty::TyKind::FastStr => "string",
+                ty::TyKind::String => "string",
+                ty::TyKind::FastStr => "faststr",
                 ty::TyKind::Bool => "bool",
                 ty::TyKind::BytesVec | ty::TyKind::Bytes => "bytes",
                 ty::TyKind::I32 if prost_type == Some(ProstType::SFixed32) => "sfixed32",
