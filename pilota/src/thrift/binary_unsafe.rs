@@ -446,6 +446,11 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
         }
         Ok(())
     }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::BufMut {
+        unimplemented!("unsafe protocol doesn't support using buf_mut")
+    }
 }
 
 impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
@@ -726,6 +731,11 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
             self.index += b.len();
         }
         Ok(())
+    }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::BufMut {
+        unimplemented!("unsafe protocol doesn't support using buf_mut")
     }
 }
 
@@ -1186,5 +1196,10 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
         let val = self.trans.split_to(len).into();
         self.buf = unsafe { slice::from_raw_parts_mut(self.trans.as_mut_ptr(), self.trans.len()) };
         Ok(val)
+    }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::Buf {
+        unimplemented!("unsafe protocol doesn't support using buf_mut")
     }
 }

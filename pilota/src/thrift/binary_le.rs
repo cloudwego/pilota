@@ -360,6 +360,11 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
         self.trans.write_slice(b)?;
         Ok(())
     }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::BufMut {
+        self.trans
+    }
 }
 
 impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
@@ -536,6 +541,11 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
         self.write_i32(b.len() as i32)?;
         self.trans.bytes_mut().write_slice(b)?;
         Ok(())
+    }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::BufMut {
+        self.trans
     }
 }
 
@@ -939,5 +949,10 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError> {
         let len = self.trans.read_i32_le()? as usize;
         Ok(self.trans.split_to(len).into())
+    }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::Buf {
+        self.trans
     }
 }

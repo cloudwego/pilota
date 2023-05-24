@@ -210,6 +210,9 @@ pub trait TInputProtocol {
 
     /// Read a Vec<u8>.
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError>;
+
+    #[doc(hidden)]
+    fn buf_mut(&mut self) -> &mut Self::Buf;
 }
 
 macro_rules! write_field_len {
@@ -639,6 +642,9 @@ pub trait TOutputProtocol {
     fn write_map_end(&mut self) -> Result<(), EncodeError>;
     /// Flush buffered bytes to the underlying transport.
     fn flush(&mut self) -> Result<(), EncodeError>;
+
+    #[doc(hidden)]
+    fn buf_mut(&mut self) -> &mut Self::BufMut;
 }
 
 #[async_trait::async_trait]
