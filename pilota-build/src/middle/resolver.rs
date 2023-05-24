@@ -94,10 +94,10 @@ impl PathResolver for DefaultPathResolver {
         for (_idx, k) in path.into_iter().enumerate() {
             segs.push(match k {
                 Kind::Super => "super".into(),
-                Kind::Ident(ident) => ident,
+                Kind::Ident(ident) => Symbol::from(ident).to_string(),
             });
         }
-        segs.join("::").into()
+        segs.into_iter().join("::").into()
     }
 }
 
