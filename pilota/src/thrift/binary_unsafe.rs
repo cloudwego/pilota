@@ -44,6 +44,11 @@ impl<T> TBinaryProtocol<T> {
             zero_copy_len: 0,
         }
     }
+
+    #[doc(hidden)]
+    pub fn index(&self) -> usize {
+        self.index
+    }
 }
 
 #[inline]
