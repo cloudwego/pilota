@@ -21,7 +21,7 @@ pub mod string {
         {
             if let Some(_pilota_inner_value) = self.a.as_ref() {
                 ::pilota::prost::encoding::faststr::encode(1, _pilota_inner_value, buf);
-            }
+            };
             ::pilota::prost::encoding::faststr::encode(2, &self.b, buf);
         }
 

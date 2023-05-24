@@ -215,7 +215,7 @@ impl ProtobufBackend {
                     FieldKind::Optional => format! {
                         r#"if let Some(_pilota_inner_value) = {ident}.as_ref() {{
                                 {encode_fn}({tag}, _pilota_inner_value, buf);
-                            }}"#
+                            }};"#
                     }
                     .into(),
                 }
@@ -225,7 +225,7 @@ impl ProtobufBackend {
                     format!(
                         r#"for msg in &{ident} {{
                             ::pilota::prost::encoding::message::encode({tag}, msg, buf);
-                        }}"#
+                        }};"#
                     )
                     .into()
                 } else {

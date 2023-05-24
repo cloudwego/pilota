@@ -19,7 +19,7 @@ pub mod bytes {
         {
             if let Some(_pilota_inner_value) = self.a.as_ref() {
                 ::pilota::prost::encoding::bytes::encode(1, _pilota_inner_value, buf);
-            }
+            };
         }
 
         #[allow(unused_variables)]
