@@ -454,7 +454,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
 
     #[inline]
     fn buf_mut(&mut self) -> &mut Self::BufMut {
-        unimplemented!("unsafe protocol doesn't support using buf_mut")
+        self.trans
     }
 }
 
@@ -740,7 +740,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
 
     #[inline]
     fn buf_mut(&mut self) -> &mut Self::BufMut {
-        unimplemented!("unsafe protocol doesn't support using buf_mut")
+        self.trans
     }
 }
 
@@ -1205,6 +1205,6 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
 
     #[inline]
     fn buf_mut(&mut self) -> &mut Self::Buf {
-        unimplemented!("unsafe protocol doesn't support using buf_mut")
+        self.trans
     }
 }
