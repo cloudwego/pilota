@@ -212,7 +212,7 @@ pub mod nested_message {
                         2,
                         &self.m,
                         buf,
-                    )
+                    );
                 }
 
                 #[allow(unused_variables)]

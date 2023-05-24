@@ -267,7 +267,7 @@ impl ProtobufBackend {
                 let value_encoded_len_fn =
                     quote!(::pilota::prost::encoding::#value_module::encoded_len);
 
-                format!("::pilota::prost::encoding::hash_map::encode({key_encode_fn}, {key_encoded_len_fn}, {value_encode_fn}, {value_encoded_len_fn}, {tag}, &{ident}, buf)").into()
+                format!("::pilota::prost::encoding::hash_map::encode({key_encode_fn}, {key_encoded_len_fn}, {value_encode_fn}, {value_encoded_len_fn}, {tag}, &{ident}, buf);").into()
             }
         }
     }
