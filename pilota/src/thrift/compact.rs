@@ -655,16 +655,6 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn reserve(&mut self, size: usize) {
-        self.trans.reserve(size)
-    }
-
-    #[inline]
-    fn buf_mut(&mut self) -> &mut Self::BufMut {
-        self.trans
-    }
-
-    #[inline]
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
@@ -926,16 +916,6 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
     #[inline]
     fn flush(&mut self) -> Result<(), EncodeError> {
         Ok(())
-    }
-
-    #[inline]
-    fn reserve(&mut self, size: usize) {
-        self.trans.reserve(size)
-    }
-
-    #[inline]
-    fn buf_mut(&mut self) -> &mut Self::BufMut {
-        self.trans
     }
 
     #[inline]
@@ -1498,10 +1478,6 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     #[inline]
     fn read_map_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
-    }
-
-    fn buf_mut(&mut self) -> &mut Self::Buf {
-        self.trans
     }
 
     #[inline]
