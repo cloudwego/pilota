@@ -530,9 +530,10 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
             }
             self.trans.insert(b);
             self.buf = unsafe {
+                let l = self.trans.bytes_mut().len();
                 slice::from_raw_parts_mut(
-                    self.trans.bytes_mut().as_mut_ptr(),
-                    self.trans.bytes_mut().len(),
+                    self.trans.bytes_mut().as_mut_ptr().offset(l as isize),
+                    self.trans.bytes_mut().capacity() - l,
                 )
             };
             return Ok(());
@@ -561,8 +562,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError> {
         unsafe {
             let buf: &mut [u8; 16] = self
-                .trans
-                .bytes_mut()
+                .buf
                 .get_unchecked_mut(self.index..self.index + 16)
                 .try_into()
                 .unwrap_unchecked();
@@ -585,8 +585,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     fn write_i16(&mut self, i: i16) -> Result<(), EncodeError> {
         unsafe {
             let buf: &mut [u8; 2] = self
-                .trans
-                .bytes_mut()
+                .buf
                 .get_unchecked_mut(self.index..self.index + 2)
                 .try_into()
                 .unwrap_unchecked();
@@ -600,8 +599,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     fn write_i32(&mut self, i: i32) -> Result<(), EncodeError> {
         unsafe {
             let buf: &mut [u8; 4] = self
-                .trans
-                .bytes_mut()
+                .buf
                 .get_unchecked_mut(self.index..self.index + 4)
                 .try_into()
                 .unwrap_unchecked();
@@ -615,8 +613,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     fn write_i64(&mut self, i: i64) -> Result<(), EncodeError> {
         unsafe {
             let buf: &mut [u8; 8] = self
-                .trans
-                .bytes_mut()
+                .buf
                 .get_unchecked_mut(self.index..self.index + 8)
                 .try_into()
                 .unwrap_unchecked();
@@ -630,8 +627,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
         unsafe {
             let buf: &mut [u8; 8] = self
-                .trans
-                .bytes_mut()
+                .buf
                 .get_unchecked_mut(self.index..self.index + 8)
                 .try_into()
                 .unwrap_unchecked();
@@ -665,9 +661,10 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
             }
             self.trans.insert_faststr(s);
             self.buf = unsafe {
+                let l = self.trans.bytes_mut().len();
                 slice::from_raw_parts_mut(
-                    self.trans.bytes_mut().as_mut_ptr(),
-                    self.trans.bytes_mut().len(),
+                    self.trans.bytes_mut().as_mut_ptr().offset(l as isize),
+                    self.trans.bytes_mut().capacity() - l,
                 )
             };
             return Ok(());
@@ -1046,7 +1043,13 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
         self.index = 0;
         // split and freeze it
         let val = self.trans.split_to(len as usize).freeze();
-        self.buf = unsafe { slice::from_raw_parts_mut(self.trans.as_mut_ptr(), self.trans.len()) };
+        self.buf = unsafe {
+            let l = self.trans.len();
+            slice::from_raw_parts_mut(
+                self.trans.as_mut_ptr().offset(l as isize),
+                self.trans.capacity() - l,
+            )
+        };
         Ok(val)
     }
 

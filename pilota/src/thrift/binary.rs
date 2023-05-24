@@ -1,6 +1,6 @@
 use std::{convert::TryInto, str};
 
-use bytes::{Bytes, BytesMut};
+use bytes::{Buf, Bytes, BytesMut};
 use faststr::FastStr;
 use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -896,9 +896,9 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
             unsafe { return Ok(FastStr::from_bytes_unchecked(bytes)) };
         }
         unsafe {
-            Ok(FastStr::new(str::from_utf8_unchecked(
-                self.trans.get(..len).unwrap(),
-            )))
+            let val = FastStr::new(str::from_utf8_unchecked(self.trans.get(..len).unwrap()));
+            self.trans.advance(len);
+            Ok(val)
         }
     }
 
