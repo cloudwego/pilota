@@ -350,14 +350,15 @@ impl CodegenBackend for ProtobufBackend {
             .iter()
             .map(|field| {
                 let field_name = self.cx.rust_name(field.did);
-                self.codegen_encoded_len(
+                let len = self.codegen_encoded_len(
                     format!("self.{field_name}").into(),
                     &field.ty,
                     field.id as u32,
                     field.kind,
-                )
+                );
+                FastStr::from(format!("+ {len}"))
             })
-            .join("+");
+            .join("");
         let encode = s
             .fields
             .iter()
@@ -408,7 +409,7 @@ impl CodegenBackend for ProtobufBackend {
 
                 #[inline]
                 fn encoded_len(&self) -> usize {{
-                    0 + {encoded_len}
+                    0 {encoded_len}
                 }}
 
                 #[allow(unused_variables)]

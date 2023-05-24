@@ -256,7 +256,7 @@ impl ThriftBackend {
         match &ty.kind {
             ty::String => format!("protocol.write_string_field_len(Some({id}), &{ident})").into(),
             ty::FastStr => format!("protocol.write_faststr_field_len(Some({id}), {ident})").into(),
-            ty::Void => "".into(),
+            ty::Void => "0".into(),
             ty::U8 => format!("protocol.write_byte_field_len(Some({id}), *{ident})").into(),
             ty::Bool => format!("protocol.write_bool_field_len(Some({id}), *{ident})").into(),
             ty::BytesVec => {

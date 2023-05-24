@@ -88,7 +88,7 @@ pub mod void {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTest123ResultRecv",
                 }) + match self {
-                    TestTest123ResultRecv::Ok(ref value) => {}
+                    TestTest123ResultRecv::Ok(ref value) => 0,
                 } + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }
@@ -423,7 +423,7 @@ pub mod void {
                 protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTest123ResultSend",
                 }) + match self {
-                    TestTest123ResultSend::Ok(ref value) => {}
+                    TestTest123ResultSend::Ok(ref value) => 0,
                 } + protocol.write_field_stop_len()
                     + protocol.write_struct_end_len()
             }
