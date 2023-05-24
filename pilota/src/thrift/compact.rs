@@ -662,6 +662,11 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         self.trans.write_slice(b)?;
         Ok(())
     }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::BufMut {
+        self.trans
+    }
 }
 
 impl TCompactOutputProtocol<&mut LinkedBytes> {
@@ -925,6 +930,11 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
         self.write_varint(b.len() as u32)?;
         self.trans.bytes_mut().write_slice(b)?;
         Ok(())
+    }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::BufMut {
+        self.trans
     }
 }
 
@@ -1485,6 +1495,11 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         let size = self.read_varint::<u32>()? as usize;
 
         Ok(self.trans.split_to(size).into())
+    }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::Buf {
+        self.trans
     }
 }
 
