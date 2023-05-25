@@ -655,22 +655,17 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     }
 
     #[inline]
-    fn reserve(&mut self, size: usize) {
-        self.trans.reserve(size)
-    }
-
-    #[inline]
-    fn buf_mut(&mut self) -> &mut Self::BufMut {
-        self.trans
-    }
-
-    #[inline]
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(b.len() as u32)?;
         self.trans.write_slice(b)?;
         Ok(())
+    }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::BufMut {
+        self.trans
     }
 }
 
@@ -929,22 +924,17 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
     }
 
     #[inline]
-    fn reserve(&mut self, size: usize) {
-        self.trans.reserve(size)
-    }
-
-    #[inline]
-    fn buf_mut(&mut self) -> &mut Self::BufMut {
-        self.trans
-    }
-
-    #[inline]
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(b.len() as u32)?;
         self.trans.bytes_mut().write_slice(b)?;
         Ok(())
+    }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::BufMut {
+        self.trans
     }
 }
 
@@ -1500,15 +1490,16 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
         Ok(())
     }
 
-    fn buf_mut(&mut self) -> &mut Self::Buf {
-        self.trans
-    }
-
     #[inline]
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError> {
         let size = self.read_varint::<u32>()? as usize;
 
         Ok(self.trans.split_to(size).into())
+    }
+
+    #[inline]
+    fn buf_mut(&mut self) -> &mut Self::Buf {
+        self.trans
     }
 }
 

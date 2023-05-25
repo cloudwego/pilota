@@ -203,7 +203,7 @@ pub mod nested_message {
                 {
                     if let Some(_pilota_inner_value) = self.a.as_ref() {
                         ::pilota::prost::encoding::int32::encode(1, _pilota_inner_value, buf);
-                    }
+                    };
                     ::pilota::prost::encoding::hash_map::encode(
                         ::pilota::prost::encoding::int32::encode,
                         ::pilota::prost::encoding::int32::encoded_len,
@@ -212,7 +212,7 @@ pub mod nested_message {
                         2,
                         &self.m,
                         buf,
-                    )
+                    );
                 }
 
                 #[allow(unused_variables)]

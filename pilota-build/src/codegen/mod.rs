@@ -24,7 +24,7 @@ use crate::{
     },
     symbol::{DefId, EnumRepr},
     tags::EnumMode,
-    Context,
+    Context, Symbol,
 };
 
 pub(crate) mod pkg_tree;
@@ -412,7 +412,7 @@ where
                     return;
                 }
 
-                let name = name.unwrap();
+                let name = Symbol::from(name.unwrap());
                 stream.push_str(&format! {
                     r#"
                     pub mod {name} {{
@@ -430,14 +430,12 @@ where
         write_stream(&mut pkgs, stream, &pkg_node);
     }
 
-    pub fn write_file(self, ns_name: &str, file_name: impl AsRef<Path>) {
+    pub fn write_file(self, ns_name: Symbol, file_name: impl AsRef<Path>) {
         let mut stream = String::default();
         self.write_items(
             &mut stream,
             self.codegen_items.iter().map(|def_id| (*def_id).into()),
         );
-
-        let ns_name = ns_name;
 
         stream = format! {r#"pub mod {ns_name} {{
                 #![allow(warnings, clippy::all)]
@@ -456,10 +454,13 @@ where
             Mode::Workspace(info) => self.write_workspace(info.dir.clone()),
             Mode::SingleFile { file_path: p } => {
                 self.write_file(
-                    p.file_name()
-                        .and_then(|s| s.to_str())
-                        .and_then(|s| s.split('.').next())
-                        .unwrap(),
+                    FastStr::new(
+                        p.file_name()
+                            .and_then(|s| s.to_str())
+                            .and_then(|s| s.split('.').next())
+                            .unwrap(),
+                    )
+                    .into(),
                     p,
                 );
                 Ok(())

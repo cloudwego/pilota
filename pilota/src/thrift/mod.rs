@@ -1,4 +1,6 @@
 pub mod binary;
+pub mod binary_le;
+pub mod binary_unsafe;
 pub mod compact;
 pub mod error;
 pub mod rw_ext;
@@ -44,10 +46,12 @@ pub trait Message: Sized + Send {
 
 #[async_trait::async_trait]
 impl<M: Message> Message for Box<M> {
+    #[inline]
     fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), EncodeError> {
         self.deref().encode(protocol)
     }
 
+    #[inline]
     fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, DecodeError> {
         Ok(Box::new(M::decode(protocol)?))
     }
@@ -56,6 +60,7 @@ impl<M: Message> Message for Box<M> {
         Ok(Box::new(M::decode_async(protocol).await?))
     }
 
+    #[inline]
     fn size<T: TLengthProtocol>(&self, protocol: &mut T) -> usize {
         self.deref().size(protocol)
     }
@@ -63,10 +68,12 @@ impl<M: Message> Message for Box<M> {
 
 #[async_trait::async_trait]
 impl<M: Message + Send + Sync> Message for Arc<M> {
+    #[inline]
     fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), EncodeError> {
         self.deref().encode(protocol)
     }
 
+    #[inline]
     fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, DecodeError> {
         Ok(Arc::new(M::decode(protocol)?))
     }
@@ -75,6 +82,7 @@ impl<M: Message + Send + Sync> Message for Arc<M> {
         Ok(Arc::new(M::decode_async(protocol).await?))
     }
 
+    #[inline]
     fn size<T: TLengthProtocol>(&self, protocol: &mut T) -> usize {
         self.deref().size(protocol)
     }
@@ -128,6 +136,7 @@ pub trait TInputProtocol {
     fn read_map_end(&mut self) -> Result<(), DecodeError>;
     /// Skip a field with type `field_type` recursively until the default
     /// maximum skip depth is reached.
+    #[inline]
     fn skip(&mut self, field_type: TType) -> Result<(), DecodeError> {
         self.skip_till_depth(field_type, MAXIMUM_SKIP_DEPTH)
     }
@@ -202,6 +211,7 @@ pub trait TInputProtocol {
     /// Read a Vec<u8>.
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError>;
 
+    #[doc(hidden)]
     fn buf_mut(&mut self) -> &mut Self::Buf;
 }
 
@@ -633,8 +643,7 @@ pub trait TOutputProtocol {
     /// Flush buffered bytes to the underlying transport.
     fn flush(&mut self) -> Result<(), EncodeError>;
 
-    fn reserve(&mut self, size: usize);
-
+    #[doc(hidden)]
     fn buf_mut(&mut self) -> &mut Self::BufMut;
 }
 

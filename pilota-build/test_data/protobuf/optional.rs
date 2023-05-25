@@ -19,7 +19,7 @@ pub mod optional {
         {
             if let Some(_pilota_inner_value) = self.page_number.as_ref() {
                 ::pilota::prost::encoding::int32::encode(2, _pilota_inner_value, buf);
-            }
+            };
         }
 
         #[allow(unused_variables)]

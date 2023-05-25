@@ -15,8 +15,7 @@ use crate::{
     ir,
     ir::{Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path},
     symbol::{EnumRepr, FileId, Ident},
-    tags::{Annotation, PilotaName, RustType, RustWrapperArc, Tags},
-    ty::{BytesRepr, StringRepr},
+    tags::{Annotation, PilotaName, RustWrapperArc, Tags},
     util::error_abort,
 };
 
@@ -165,7 +164,32 @@ impl ThriftLower {
                 .unwrap_or_else(|| &*f.name);
 
             let name: Ident = format!(
-                "{}{}Result",
+                "{}{}ResultRecv",
+                service.name.as_str(),
+                method_name.to_upper_camel_case()
+            )
+            .into();
+
+            let mut tags = self.extract_tags(&f.result_type.1);
+            tags.remove::<RustWrapperArc>();
+            let kind = ir::ItemKind::Enum(ir::Enum {
+                name: name.clone(),
+                variants: std::iter::once(ir::EnumVariant {
+                    id: Some(0),
+                    name: "Ok".into(),
+                    tags: Default::default(),
+                    discr: None,
+                    fields: vec![self.lower_ty_with_tags(&f.result_type, tags)],
+                })
+                .chain(exception.clone())
+                .collect(),
+                repr: None,
+            });
+            related_items.push(name);
+            result.push(self.mk_item(kind, Default::default()));
+
+            let name: Ident = format!(
+                "{}{}ResultSend",
                 service.name.as_str(),
                 method_name.to_upper_camel_case()
             )
@@ -379,36 +403,13 @@ impl ThriftLower {
         Ident::from(s.0.clone())
     }
 
-    fn lower_ty_with_tags(&self, ty: &thrift_parser::Ty, tags: &Tags) -> ir::Ty {
-        let rust_type = tags.get::<RustType>();
-        if let Some(rust_type) = rust_type {
-            let mut tags = Tags::default();
-            match &ty {
-                thrift_parser::Ty::String if rust_type == "string" => {
-                    tags.insert(StringRepr::String);
-
-                    return ir::Ty {
-                        tags: tags.into(),
-                        kind: ir::TyKind::String,
-                    };
-                }
-                thrift_parser::Ty::Binary => {
-                    if rust_type == "vec" {
-                        tags.insert(BytesRepr::Vec);
-                        return ir::Ty {
-                            tags: tags.into(),
-                            kind: ir::TyKind::Bytes,
-                        };
-                    }
-                }
-                _ => {}
-            }
-        }
-        self.lower_ty(ty)
+    fn lower_ty(&self, ty: &thrift_parser::Type) -> ir::Ty {
+        let tags = self.extract_tags(&ty.1);
+        self.lower_ty_with_tags(ty, tags)
     }
 
-    fn lower_ty(&self, ty: &thrift_parser::Ty) -> ir::Ty {
-        let kind = match &ty {
+    fn lower_ty_with_tags(&self, ty: &thrift_parser::Type, tags: Tags) -> ir::Ty {
+        let kind = match &ty.0 {
             thrift_parser::Ty::String => ir::TyKind::String,
             thrift_parser::Ty::Void => ir::TyKind::Void,
             thrift_parser::Ty::Byte => ir::TyKind::U8,
@@ -429,7 +430,7 @@ impl ThriftLower {
 
         ir::Ty {
             kind,
-            tags: Default::default(),
+            tags: tags.into(),
         }
     }
 
@@ -442,7 +443,7 @@ impl ThriftLower {
         ir::Field {
             name: self.lower_ident(&f.name),
             id: f.id,
-            ty: self.lower_ty_with_tags(&f.ty, &tags),
+            ty: self.lower_ty(&f.ty),
             kind: match f.attribute {
                 thrift_parser::Attribute::Required => FieldKind::Required,
                 _ => FieldKind::Optional,

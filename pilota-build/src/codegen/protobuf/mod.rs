@@ -170,7 +170,8 @@ impl ProtobufBackend {
             .and_then(|tags| tags.get::<ProstType>().copied());
         Ident::new(
             match ty.kind {
-                ty::TyKind::String | ty::TyKind::FastStr => "string",
+                ty::TyKind::String => "string",
+                ty::TyKind::FastStr => "faststr",
                 ty::TyKind::Bool => "bool",
                 ty::TyKind::BytesVec | ty::TyKind::Bytes => "bytes",
                 ty::TyKind::I32 if prost_type == Some(ProstType::SFixed32) => "sfixed32",
@@ -211,13 +212,12 @@ impl ProtobufBackend {
 
                 match kind {
                     FieldKind::Required => format!("{encode_fn}({tag}, &{ident}, buf);").into(),
-                    FieldKind::Optional => {
-                        format! {
-                            r#"if let Some(_pilota_inner_value) = {ident}.as_ref() {{
-                                ::pilota::prost::encoding::{module}::encode({tag}, _pilota_inner_value, buf);
-                            }}"#
-                        }.into()
+                    FieldKind::Optional => format! {
+                        r#"if let Some(_pilota_inner_value) = {ident}.as_ref() {{
+                                {encode_fn}({tag}, _pilota_inner_value, buf);
+                            }};"#
                     }
+                    .into(),
                 }
             }
             Category::Message => {
@@ -225,7 +225,7 @@ impl ProtobufBackend {
                     format!(
                         r#"for msg in &{ident} {{
                             ::pilota::prost::encoding::message::encode({tag}, msg, buf);
-                        }}"#
+                        }};"#
                     )
                     .into()
                 } else {
@@ -267,7 +267,7 @@ impl ProtobufBackend {
                 let value_encoded_len_fn =
                     quote!(::pilota::prost::encoding::#value_module::encoded_len);
 
-                format!("::pilota::prost::encoding::hash_map::encode({key_encode_fn}, {key_encoded_len_fn}, {value_encode_fn}, {value_encoded_len_fn}, {tag}, &{ident}, buf)").into()
+                format!("::pilota::prost::encoding::hash_map::encode({key_encode_fn}, {key_encoded_len_fn}, {value_encode_fn}, {value_encoded_len_fn}, {tag}, &{ident}, buf);").into()
             }
         }
     }
@@ -350,14 +350,15 @@ impl CodegenBackend for ProtobufBackend {
             .iter()
             .map(|field| {
                 let field_name = self.cx.rust_name(field.did);
-                self.codegen_encoded_len(
+                let len = self.codegen_encoded_len(
                     format!("self.{field_name}").into(),
                     &field.ty,
                     field.id as u32,
                     field.kind,
-                )
+                );
+                FastStr::from(format!("+ {len}"))
             })
-            .join("+");
+            .join("");
         let encode = s
             .fields
             .iter()
@@ -408,7 +409,7 @@ impl CodegenBackend for ProtobufBackend {
 
                 #[inline]
                 fn encoded_len(&self) -> usize {{
-                    0 + {encoded_len}
+                    0 {encoded_len}
                 }}
 
                 #[allow(unused_variables)]

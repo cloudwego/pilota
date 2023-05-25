@@ -256,7 +256,7 @@ impl ThriftBackend {
         match &ty.kind {
             ty::String => format!("protocol.write_string_field_len(Some({id}), &{ident})").into(),
             ty::FastStr => format!("protocol.write_faststr_field_len(Some({id}), {ident})").into(),
-            ty::Void => "".into(),
+            ty::Void => "0".into(),
             ty::U8 => format!("protocol.write_byte_field_len(Some({id}), *{ident})").into(),
             ty::Bool => format!("protocol.write_bool_field_len(Some({id}), *{ident})").into(),
             ty::BytesVec => {
@@ -347,20 +347,39 @@ impl ThriftBackend {
                 let read_list_begin = helper.codegen_read_list_begin();
                 let read_list_end = helper.codegen_read_list_end();
                 let read_el = self.codegen_decode_ty(helper, ty);
-                format! {
-                    r#"
-                    {{
-                        let list_ident = {read_list_begin};
-                        let mut val = Vec::with_capacity(list_ident.size);
-                        for _ in 0..list_ident.size {{
-                            val.push({read_el});
-                        }};
-                        {read_list_end};
-                        val
-                    }}
-                    "#
+                let ty_rust_name = self.codegen_item_ty(ty.kind.clone());
+                if !helper.is_async {
+                    format! {
+                        r#"
+                        unsafe {{
+                            let list_ident = {read_list_begin};
+                            let mut val: Vec<{ty_rust_name}> = Vec::with_capacity(list_ident.size);
+                            for i in 0..list_ident.size {{
+                                val.as_mut_ptr().offset(i as isize).write({read_el});
+                            }};
+                            val.set_len(list_ident.size);
+                            {read_list_end};
+                            val
+                        }}
+                        "#
+                    }
+                    .into()
+                } else {
+                    format! {
+                        r#"
+                        {{
+                            let list_ident = {read_list_begin};
+                            let mut val = Vec::with_capacity(list_ident.size);
+                            for _ in 0..list_ident.size {{
+                                val.push({read_el});
+                            }};
+                            {read_list_end};
+                            val
+                        }}
+                        "#
+                    }
+                    .into()
                 }
-                .into()
             }
             ty::Set(ty) => {
                 let read_set_begin = helper.codegen_read_set_begin();
