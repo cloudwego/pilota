@@ -5,8 +5,6 @@ use std::{
 
 use faststr::FastStr;
 
-use super::{Message, TAsyncInputProtocol, TInputProtocol, TLengthProtocol, TOutputProtocol};
-
 #[derive(Debug)]
 pub enum Error {
     /// Errors encountered while operating on I/O channels.
@@ -139,6 +137,8 @@ impl Display for TransportError {
     }
 }
 
+impl std::error::Error for TransportError {}
+
 impl TryFrom<i32> for TransportErrorKind {
     type Error = Error;
     fn try_from(from: i32) -> Result<Self, Self::Error> {
@@ -234,6 +234,8 @@ impl Display for ProtocolError {
     }
 }
 
+impl std::error::Error for ProtocolError {}
+
 /// Runtime library error categories.
 ///
 /// This list may grow, and it is not recommended to match against it.
@@ -284,28 +286,6 @@ pub fn new_protocol_error<S: Into<String>>(kind: ProtocolErrorKind, message: S) 
     ProtocolError::new(kind, message)
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct DummyError;
-
-#[async_trait::async_trait]
-impl Message for DummyError {
-    fn encode<T: TOutputProtocol>(&self, _protocol: &mut T) -> Result<(), EncodeError> {
-        panic!()
-    }
-
-    fn decode<T: TInputProtocol>(_protocol: &mut T) -> Result<Self, DecodeError> {
-        panic!()
-    }
-
-    async fn decode_async<T: TAsyncInputProtocol>(_protocol: &mut T) -> Result<Self, DecodeError> {
-        panic!()
-    }
-
-    fn size<T: TLengthProtocol>(&self, _protocol: &mut T) -> usize {
-        panic!()
-    }
-}
-
 #[derive(Debug)]
 pub struct DecodeError {
     pub kind: DecodeErrorKind,
@@ -326,6 +306,8 @@ impl Display for DecodeError {
         Ok(())
     }
 }
+
+impl std::error::Error for DecodeError {}
 
 #[derive(Debug)]
 pub enum DecodeErrorKind {
@@ -362,6 +344,8 @@ impl Display for EncodeError {
         Ok(())
     }
 }
+
+impl std::error::Error for EncodeError {}
 
 pub trait DecodeErrorExt {
     fn with_msg<S: Into<String>>(self, get_msg: impl FnOnce() -> S) -> Self;
