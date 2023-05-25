@@ -1043,13 +1043,7 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
         self.index = 0;
         // split and freeze it
         let val = self.trans.split_to(len as usize).freeze();
-        self.buf = unsafe {
-            let l = self.trans.len();
-            slice::from_raw_parts_mut(
-                self.trans.as_mut_ptr().offset(l as isize),
-                self.trans.capacity() - l,
-            )
-        };
+        self.buf = unsafe { slice::from_raw_parts_mut(self.trans.as_mut_ptr(), self.trans.len()) };
         Ok(val)
     }
 

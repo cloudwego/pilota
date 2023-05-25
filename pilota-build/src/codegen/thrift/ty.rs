@@ -347,21 +347,39 @@ impl ThriftBackend {
                 let read_list_begin = helper.codegen_read_list_begin();
                 let read_list_end = helper.codegen_read_list_end();
                 let read_el = self.codegen_decode_ty(helper, ty);
-                format! {
-                    r#"
-                    unsafe {{
-                        let list_ident = {read_list_begin};
-                        let mut val = Vec::with_capacity(list_ident.size);
-                        for i in 0..list_ident.size {{
-                            *val.get_unchecked_mut(i) = {read_el};
-                        }};
-                        val.set_len(list_ident.size);
-                        {read_list_end};
-                        val
-                    }}
-                    "#
+                let ty_rust_name = self.codegen_item_ty(ty.kind.clone());
+                if !helper.is_async {
+                    format! {
+                        r#"
+                        unsafe {{
+                            let list_ident = {read_list_begin};
+                            let mut val: Vec<{ty_rust_name}> = Vec::with_capacity(list_ident.size);
+                            for i in 0..list_ident.size {{
+                                val.as_mut_ptr().offset(i as isize).write({read_el});
+                            }};
+                            val.set_len(list_ident.size);
+                            {read_list_end};
+                            val
+                        }}
+                        "#
+                    }
+                    .into()
+                } else {
+                    format! {
+                        r#"
+                        {{
+                            let list_ident = {read_list_begin};
+                            let mut val = Vec::with_capacity(list_ident.size);
+                            for _ in 0..list_ident.size {{
+                                val.push({read_el});
+                            }};
+                            {read_list_end};
+                            val
+                        }}
+                        "#
+                    }
+                    .into()
                 }
-                .into()
             }
             ty::Set(ty) => {
                 let read_set_begin = helper.codegen_read_set_begin();

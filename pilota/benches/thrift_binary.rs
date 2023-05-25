@@ -33,14 +33,8 @@ fn binary_bench(c: &mut criterion::Criterion) {
     drop(p);
     assert_eq!(buf_le.len(), 8 * size);
 
-    let b = buf_le.clone();
-    let mut v2: Vec<i64> = Vec::with_capacity(size);
-    let src = b.as_ptr();
-    let dst = v2.as_mut_ptr();
-    unsafe {
-        std::ptr::copy_nonoverlapping(src, dst as *mut u8, size * 8);
-        v2.set_len(size);
-    }
+    let b = buf.clone();
+    let v2 = read_be_unsafe_vec(b, size);
     assert_eq!(v, v2);
 
     group.bench_function("big endian decode vec i64", |b| {
@@ -165,6 +159,7 @@ fn read_be_unsafe_vec(mut b: BytesMut, size: usize) -> Vec<i64> {
         for i in 0..size {
             *v.get_unchecked_mut(i) = p.read_i64().unwrap();
         }
+        v.set_len(size);
         v
     }
 }
