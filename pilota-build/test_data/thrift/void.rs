@@ -369,8 +369,7 @@ pub mod void {
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
                     }
-                    let field_id = field_ident.id;
-                    match field_id {
+                    match field_ident.id {
                         _ => {
                             protocol.skip(field_ident.field_type)?;
                         }
@@ -395,8 +394,7 @@ pub mod void {
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
                     }
-                    let field_id = field_ident.id;
-                    match field_id {
+                    match field_ident.id {
                         _ => {
                             protocol.skip(field_ident.field_type).await?;
                         }
