@@ -415,6 +415,7 @@ pub(crate) fn walk_ty<V: Visitor>(v: &mut V, ty: &Ty) {
         Set(el) => v.visit_set(el),
         Map(key, value) => v.visit_map(key, value),
         Path(p) => v.visit_path(p),
+        Arc(p) => v.visit(p),
         _ => {}
     }
 }
