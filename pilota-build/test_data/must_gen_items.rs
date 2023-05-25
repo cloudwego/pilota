@@ -40,9 +40,8 @@ pub mod must_gen_items {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 a = Some(protocol.read_i32()?);
                             }
@@ -88,9 +87,8 @@ pub mod must_gen_items {
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
                         }
-                        let field_id = field_ident.id;
-                        __pilota_decoding_field_id = field_id;
-                        match field_id {
+                        __pilota_decoding_field_id = field_ident.id;
+                        match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 a = Some(protocol.read_i32().await?);
                             }

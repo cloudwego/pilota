@@ -332,9 +332,8 @@ impl ThriftBackend {
                 if field_ident.field_type == ::pilota::thrift::TType::Stop {{
                     break;
                 }}
-                let field_id = field_ident.id;
-                __pilota_decoding_field_id = field_id;
-                match field_id {{
+                __pilota_decoding_field_id = field_ident.id;
+                match field_ident.id {{
                     {match_fields}
                     _ => {{
                         {skip_ttype};
@@ -542,8 +541,7 @@ impl CodegenBackend for ThriftBackend {
                                 if field_ident.field_type == ::pilota::thrift::TType::Stop {{
                                     break;
                                 }}
-                                let field_id = field_ident.id;
-                                match field_id {{
+                                match field_ident.id {{
                                     {fields}
                                     _ => {{
                                         {skip};
