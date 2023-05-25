@@ -508,7 +508,7 @@ pub mod wrapper_arc {
                     + protocol.write_struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(Debug, Default, Clone, PartialEq)]
         pub struct TestServiceTestArgsSend {
             pub req: ::std::sync::Arc<Test>,
         }
