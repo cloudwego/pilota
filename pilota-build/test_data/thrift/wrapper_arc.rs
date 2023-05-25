@@ -618,20 +618,26 @@ pub mod wrapper_arc {
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 name2 = Some(unsafe {
                                     let list_ident = protocol.read_list_begin()?;
-                                    let mut val = Vec::with_capacity(list_ident.size);
+                                    let mut val: Vec<::std::vec::Vec<::std::sync::Arc<A>>> =
+                                        Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
-                                        *val.get_unchecked_mut(i) = unsafe {
+                                        val.as_mut_ptr().offset(i as isize).write(unsafe {
                                             let list_ident = protocol.read_list_begin()?;
-                                            let mut val = Vec::with_capacity(list_ident.size);
+                                            let mut val: Vec<::std::sync::Arc<A>> =
+                                                Vec::with_capacity(list_ident.size);
                                             for i in 0..list_ident.size {
-                                                *val.get_unchecked_mut(i) = ::std::sync::Arc::new(
-                                                    ::pilota::thrift::Message::decode(protocol)?,
+                                                val.as_mut_ptr().offset(i as isize).write(
+                                                    ::std::sync::Arc::new(
+                                                        ::pilota::thrift::Message::decode(
+                                                            protocol,
+                                                        )?,
+                                                    ),
                                                 );
                                             }
                                             val.set_len(list_ident.size);
                                             protocol.read_list_end()?;
                                             val
-                                        };
+                                        });
                                     }
                                     val.set_len(list_ident.size);
                                     protocol.read_list_end()?;
@@ -646,10 +652,15 @@ pub mod wrapper_arc {
                                     for _ in 0..map_ident.size {
                                         val.insert(protocol.read_i32()?, unsafe {
                                             let list_ident = protocol.read_list_begin()?;
-                                            let mut val = Vec::with_capacity(list_ident.size);
+                                            let mut val: Vec<::std::sync::Arc<A>> =
+                                                Vec::with_capacity(list_ident.size);
                                             for i in 0..list_ident.size {
-                                                *val.get_unchecked_mut(i) = ::std::sync::Arc::new(
-                                                    ::pilota::thrift::Message::decode(protocol)?,
+                                                val.as_mut_ptr().offset(i as isize).write(
+                                                    ::std::sync::Arc::new(
+                                                        ::pilota::thrift::Message::decode(
+                                                            protocol,
+                                                        )?,
+                                                    ),
                                                 );
                                             }
                                             val.set_len(list_ident.size);
@@ -739,27 +750,25 @@ pub mod wrapper_arc {
                                 id = Some(protocol.read_faststr().await?);
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                name2 = Some(unsafe {
+                                name2 = Some({
                                     let list_ident = protocol.read_list_begin().await?;
                                     let mut val = Vec::with_capacity(list_ident.size);
-                                    for i in 0..list_ident.size {
-                                        *val.get_unchecked_mut(i) = unsafe {
+                                    for _ in 0..list_ident.size {
+                                        val.push({
                                             let list_ident = protocol.read_list_begin().await?;
                                             let mut val = Vec::with_capacity(list_ident.size);
-                                            for i in 0..list_ident.size {
-                                                *val.get_unchecked_mut(i) = ::std::sync::Arc::new(
+                                            for _ in 0..list_ident.size {
+                                                val.push(::std::sync::Arc::new(
                                                     ::pilota::thrift::Message::decode_async(
                                                         protocol,
                                                     )
                                                     .await?,
-                                                );
+                                                ));
                                             }
-                                            val.set_len(list_ident.size);
                                             protocol.read_list_end().await?;
                                             val
-                                        };
+                                        });
                                     }
-                                    val.set_len(list_ident.size);
                                     protocol.read_list_end().await?;
                                     val
                                 });
@@ -770,18 +779,17 @@ pub mod wrapper_arc {
                                     let mut val =
                                         ::std::collections::HashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
-                                        val.insert(protocol.read_i32().await?, unsafe {
+                                        val.insert(protocol.read_i32().await?, {
                                             let list_ident = protocol.read_list_begin().await?;
                                             let mut val = Vec::with_capacity(list_ident.size);
-                                            for i in 0..list_ident.size {
-                                                *val.get_unchecked_mut(i) = ::std::sync::Arc::new(
+                                            for _ in 0..list_ident.size {
+                                                val.push(::std::sync::Arc::new(
                                                     ::pilota::thrift::Message::decode_async(
                                                         protocol,
                                                     )
                                                     .await?,
-                                                );
+                                                ));
                                             }
-                                            val.set_len(list_ident.size);
                                             protocol.read_list_end().await?;
                                             val
                                         });
