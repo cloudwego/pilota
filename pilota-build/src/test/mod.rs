@@ -188,7 +188,8 @@ mod tests {
         let mut data = BytesMut::from(&[
             12_u8, 0, 1, 12, 0, 1, 11, 0, 1, 0, 0, 0, 10, 104, 101, 108, 108, 111, 32, 119, 111,
             114, 108, 100, 0, 0, 0,
-        ] as &[u8]);
+        ] as &[u8])
+        .freeze();
 
         let err = A::decode(&mut TBinaryProtocol::new(&mut data, false)).unwrap_err();
 

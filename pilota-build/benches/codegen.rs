@@ -7,10 +7,12 @@ use pilota::{
 include!("../test_data/thrift/default_value.rs");
 
 fn decode(bytes: &[u8]) {
-    let _a = default_value::default_value::A::decode(
-        &mut pilota::thrift::binary::TBinaryProtocol::new(&mut BytesMut::from(bytes), false),
-    )
-    .unwrap();
+    let _a =
+        default_value::default_value::A::decode(&mut pilota::thrift::binary::TBinaryProtocol::new(
+            &mut BytesMut::from(bytes).freeze(),
+            false,
+        ))
+        .unwrap();
 }
 
 fn codegen(c: &mut Criterion) {

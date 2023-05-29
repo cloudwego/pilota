@@ -1,6 +1,6 @@
 use std::{convert::TryInto, str};
 
-use bytes::{Buf, Bytes, BytesMut};
+use bytes::{Bytes, BytesMut};
 use faststr::FastStr;
 use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -761,8 +761,8 @@ where
     }
 }
 
-impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
-    type Buf = BytesMut;
+impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
+    type Buf = Bytes;
 
     fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
         let size = self.trans.read_i32()?;
@@ -847,7 +847,7 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     fn read_bytes(&mut self) -> Result<Bytes, DecodeError> {
         let len = self.trans.read_i32()?;
         // split and freeze it
-        Ok(self.trans.split_to(len as usize).freeze())
+        Ok(self.trans.split_to(len as usize))
     }
 
     #[inline]
@@ -891,15 +891,8 @@ impl TInputProtocol for TBinaryProtocol<&mut BytesMut> {
     #[inline]
     fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
         let len = self.trans.read_i32()? as usize;
-        if len >= ZERO_COPY_THRESHOLD {
-            let bytes = self.trans.split_to(len).freeze();
-            unsafe { return Ok(FastStr::from_bytes_unchecked(bytes)) };
-        }
-        unsafe {
-            let val = FastStr::new(str::from_utf8_unchecked(self.trans.get(..len).unwrap()));
-            self.trans.advance(len);
-            Ok(val)
-        }
+        let bytes = self.trans.split_to(len);
+        unsafe { return Ok(FastStr::from_bytes_unchecked(bytes)) };
     }
 
     #[inline]

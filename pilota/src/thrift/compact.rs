@@ -2,7 +2,7 @@
 //
 // https://github.com/apache/thrift/blob/ec5e17714a1f9da34173749fc01eea33c7f6af62/lib/rs/src/protocol/compact.rs
 
-use std::{ops::Deref, str};
+use std::str;
 
 use bytes::{Bytes, BytesMut};
 use faststr::FastStr;
@@ -1241,7 +1241,7 @@ impl<T> TCompactInputProtocol<T> {
     }
 }
 
-impl TCompactInputProtocol<&mut BytesMut> {
+impl TCompactInputProtocol<&mut Bytes> {
     #[inline]
     fn read_varint<VI: VarInt>(&mut self) -> Result<VI, DecodeError> {
         let mut p = VarIntProcessor::new::<VI>();
@@ -1268,8 +1268,8 @@ impl TCompactInputProtocol<&mut BytesMut> {
     }
 }
 
-impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
-    type Buf = BytesMut;
+impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
+    type Buf = Bytes;
 
     fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
         let compact_id = self.read_byte()?;
@@ -1387,7 +1387,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     #[inline]
     fn read_bytes(&mut self) -> Result<Bytes, DecodeError> {
         let size = self.read_varint::<u32>()?;
-        Ok(self.trans.split_to(size as usize).freeze())
+        Ok(self.trans.split_to(size as usize))
     }
 
     #[inline]
@@ -1407,10 +1407,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut BytesMut> {
     fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
         let size = self.read_varint::<u32>()? as usize;
         let bytes = self.trans.split_to(size);
-        if size >= ZERO_COPY_THRESHOLD {
-            unsafe { return Ok(FastStr::from_bytes_mut_unchecked(bytes)) }
-        }
-        unsafe { Ok(FastStr::new(str::from_utf8_unchecked(bytes.deref()))) }
+        unsafe { return Ok(FastStr::from_bytes_unchecked(bytes)) }
     }
 
     #[inline]
@@ -1532,7 +1529,7 @@ mod tests {
         }};
     }
 
-    fn test_input_prot_bytesmut(trans: &mut BytesMut) -> TCompactInputProtocol<&mut BytesMut> {
+    fn test_input_prot_bytes(trans: &mut Bytes) -> TCompactInputProtocol<&mut Bytes> {
         TCompactInputProtocol::new(trans)
     }
     fn test_output_prot_bytesmut(trans: &mut BytesMut) -> TCompactOutputProtocol<&mut BytesMut> {
@@ -1713,7 +1710,6 @@ mod tests {
     #[test]
     fn must_read_message_begin_largest_maximum_positive_sequence_number() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         #[rustfmt::skip]
         let source_bytes: [u8; 11] = [
@@ -1730,7 +1726,10 @@ mod tests {
             0x72 /* "bar" */,
         ];
 
-        i_prot.trans.put_slice(&source_bytes);
+        trans.put_slice(&source_bytes);
+
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         let expected = TMessageIdentifier::new("bar".into(), TMessageType::Reply, i32::MAX);
         let res = assert_success!(i_prot.read_message_begin());
@@ -1767,7 +1766,6 @@ mod tests {
     #[test]
     fn must_read_message_begin_positive_sequence_number_0() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         #[rustfmt::skip]
         let source_bytes: [u8; 8] = [
@@ -1781,8 +1779,10 @@ mod tests {
             0x6F /* "foo" */,
         ];
 
-        i_prot.trans.put_slice(&source_bytes);
+        trans.put_slice(&source_bytes);
 
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
         let expected = TMessageIdentifier::new("foo".into(), TMessageType::Call, 431);
         let res = assert_success!(i_prot.read_message_begin());
 
@@ -1819,7 +1819,6 @@ mod tests {
     #[test]
     fn must_read_message_begin_positive_sequence_number_1() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         #[rustfmt::skip]
         let source_bytes: [u8; 9] = [
@@ -1834,7 +1833,10 @@ mod tests {
             0x72 /* "bar" */,
         ];
 
-        i_prot.trans.put_slice(&source_bytes);
+        trans.put_slice(&source_bytes);
+
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         let expected = TMessageIdentifier::new("bar".into(), TMessageType::Reply, 991_828);
         let res = assert_success!(i_prot.read_message_begin());
@@ -1870,7 +1872,6 @@ mod tests {
     #[test]
     fn must_read_message_begin_zero_sequence_number() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         #[rustfmt::skip]
         let source_bytes: [u8; 7] = [
@@ -1883,7 +1884,10 @@ mod tests {
             0x72 /* "bar" */,
         ];
 
-        i_prot.trans.put_slice(&source_bytes);
+        trans.put_slice(&source_bytes);
+
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         let expected = TMessageIdentifier::new("bar".into(), TMessageType::Reply, 0);
         let res = assert_success!(i_prot.read_message_begin());
@@ -1925,7 +1929,6 @@ mod tests {
     #[test]
     fn must_read_message_begin_largest_minimum_negative_sequence_number() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // two's complement notation of i32::MIN =
         // 1000_0000_0000_0000_0000_0000_0000_0000
@@ -1944,7 +1947,10 @@ mod tests {
             0x72 /* "bar" */,
         ];
 
-        i_prot.trans.put_slice(&source_bytes);
+        trans.put_slice(&source_bytes);
+
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         let expected = TMessageIdentifier::new("bar".into(), TMessageType::Reply, i32::MIN);
         let res = assert_success!(i_prot.read_message_begin());
@@ -1985,7 +1991,6 @@ mod tests {
     #[test]
     fn must_read_message_begin_negative_sequence_number_0() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // signed two's complement of -431 = 1111_1111_1111_1111_1111_1110_0101_0001
         #[rustfmt::skip]
@@ -2003,7 +2008,10 @@ mod tests {
             0x6F /* "foo" */,
         ];
 
-        i_prot.trans.put_slice(&source_bytes);
+        trans.put_slice(&source_bytes);
+
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         let expected = TMessageIdentifier::new("foo".into(), TMessageType::Call, -431);
         let res = assert_success!(i_prot.read_message_begin());
@@ -2045,7 +2053,6 @@ mod tests {
     #[test]
     fn must_read_message_begin_negative_sequence_number_1() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // signed two's complement of -73184125 =
         // 1111_1011_1010_0011_0100_1100_1000_0011
@@ -2064,7 +2071,10 @@ mod tests {
             0x6F /* "foo" */,
         ];
 
-        i_prot.trans.put_slice(&source_bytes);
+        trans.put_slice(&source_bytes);
+
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         let expected = TMessageIdentifier::new("foo".into(), TMessageType::Call, -73_184_125);
         let res = assert_success!(i_prot.read_message_begin());
@@ -2106,7 +2116,6 @@ mod tests {
     #[test]
     fn must_read_message_begin_negative_sequence_number_2() {
         let mut trans = BytesMut::new();
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
 
         // signed two's complement of -1073741823 =
         // 1100_0000_0000_0000_0000_0000_0000_0001
@@ -2125,7 +2134,10 @@ mod tests {
             0x6F, /* "foo" */
         ];
 
-        i_prot.trans.put_slice(&source_bytes);
+        trans.put_slice(&source_bytes);
+
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         let expected = TMessageIdentifier::new("foo".into(), TMessageType::Call, -1_073_741_823);
         let res = assert_success!(i_prot.read_message_begin());
@@ -2146,7 +2158,8 @@ mod tests {
             o_prot.write_field_end().unwrap();
             o_prot.flush().unwrap();
             // println!("trans {:?}", trans);
-            let mut i_prot = test_input_prot_bytesmut(&mut trans);
+            let mut trans = trans.freeze();
+            let mut i_prot = test_input_prot_bytes(&mut trans);
             i_prot.read_field_begin().unwrap();
             assert_eq!(val, i_prot.read_i64().unwrap());
         }
@@ -2160,7 +2173,8 @@ mod tests {
         let ident = TMessageIdentifier::new("service_call".into(), TMessageType::Call, 1_283_948);
         assert_success!(o_prot.write_message_begin(&ident));
 
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
         let res = assert_success!(i_prot.read_message_begin());
         assert_eq!(&res, &ident);
     }
@@ -2250,7 +2264,8 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         // read the struct back
         assert_success!(i_prot.read_struct_begin());
@@ -2372,7 +2387,8 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         // read the struct back
         assert_success!(i_prot.read_struct_begin());
@@ -2496,7 +2512,8 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         // read the struct back
         assert_success!(i_prot.read_struct_begin());
@@ -2646,7 +2663,8 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         // read the struct back
         assert_success!(i_prot.read_struct_begin());
@@ -2825,7 +2843,8 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         // read containing struct back
         assert_success!(i_prot.read_struct_begin());
@@ -3009,7 +3028,8 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         // read containing struct back
         assert_success!(i_prot.read_struct_begin());
@@ -3190,7 +3210,8 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         // read containing struct back
         assert_success!(i_prot.read_struct_begin());
@@ -3375,7 +3396,8 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         // read containing struct back
         assert_success!(i_prot.read_struct_begin());
@@ -3544,7 +3566,8 @@ mod tests {
         assert_success!(o_prot.write_field_stop());
         assert_success!(o_prot.write_struct_end());
 
-        let mut i_prot = test_input_prot_bytesmut(&mut trans);
+        let mut trans = trans.freeze();
+        let mut i_prot = test_input_prot_bytes(&mut trans);
 
         // read the struct back
         assert_success!(i_prot.read_struct_begin());

@@ -38,7 +38,7 @@ proptest = "1"
 serde = { version = "1", features = ["derive"] }
 
 [dev-dependencies]
-criterion = "0.4"
+criterion = "0.5"
 rand = "0.8"
 
 [[bench]]
