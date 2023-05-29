@@ -1,7 +1,7 @@
 #![allow(clippy::redundant_clone)]
 use std::{iter::repeat_with, sync::Arc};
 
-use bytes::BytesMut;
+use bytes::{Bytes, BytesMut};
 use criterion::{black_box, criterion_group, criterion_main};
 use faststr::FastStr;
 use rand::Rng;
@@ -66,54 +66,70 @@ fn faststr_bench(c: &mut criterion::Criterion) {
 
     let mut group = c.benchmark_group("Bench FastStr BytesMut");
 
-    let lens = [KB, 2 * KB, 4 * KB, 8 * KB, 16 * KB, 32 * KB];
+    let lens = [
+        // 32,
+        // 64,
+        // 128,
+        // 256,
+        // 512,
+        KB,
+        2 * KB,
+        4 * KB,
+        8 * KB,
+        16 * KB,
+        32 * KB,
+    ];
+
     for len in lens {
         let s = gen_string(len);
+        let buf = gen_bytes(s.as_str());
 
         #[inline]
-        fn gen_bytes_mut(s: &str) -> BytesMut {
+        fn gen_bytes(s: &str) -> Bytes {
             let mut s2 = String::with_capacity(s.len() * 3);
             s2.push_str(s);
             s2.push_str(s);
             s2.push_str(s);
-            BytesMut::from(s2.as_str())
+            BytesMut::from(s2.as_str()).freeze()
         }
 
         #[inline]
-        fn read_faststr_from_bytes_mut(buf: &mut BytesMut) -> FastStr {
+        fn read_faststr_from_bytes(buf: &mut Bytes) -> FastStr {
             let l = buf.len();
-            let b = buf.split_to(l / 3).freeze();
+            let b = buf.split_to(l / 3);
             unsafe { FastStr::from_bytes_unchecked(b) }
         }
 
+        group.bench_function(format!("bytes clone, length: {}", len), |b| {
+            b.iter(|| {
+                let _ = black_box(buf.clone());
+            });
+        });
+
         group.bench_function(format!("from bytes no clone, length: {}", len), |b| {
-            b.iter_batched_ref(
-                || gen_bytes_mut(s.as_str()),
-                |buf| {
-                    black_box(read_faststr_from_bytes_mut(buf));
-                },
-                criterion::BatchSize::PerIteration,
-            );
+            b.iter(|| {
+                let mut buf = black_box(buf.clone());
+                black_box(read_faststr_from_bytes(&mut buf));
+            });
         });
         group.bench_function(format!("faststr new no clone, length: {}", len), |b| {
             b.iter(|| {
+                let _ = black_box(buf.clone());
                 black_box(FastStr::new(&s));
             })
         });
 
         group.bench_function(format!("from bytes 1 clone, length: {}", len), |b| {
-            b.iter_batched_ref(
-                || gen_bytes_mut(s.as_str()),
-                |buf| {
-                    let s = read_faststr_from_bytes_mut(buf);
-                    let s1 = black_box(s.clone());
-                    black_box(s1);
-                },
-                criterion::BatchSize::PerIteration,
-            );
+            b.iter(|| {
+                let mut buf = black_box(buf.clone());
+                let s = read_faststr_from_bytes(&mut buf);
+                let s1 = black_box(s.clone());
+                black_box(s1);
+            });
         });
         group.bench_function(format!("faststr new 1 clone, length: {}", len), |b| {
             b.iter(|| {
+                let _ = black_box(buf.clone());
                 let s = FastStr::new(&s);
                 let s1 = black_box(s.clone());
                 black_box(s1);
@@ -121,22 +137,20 @@ fn faststr_bench(c: &mut criterion::Criterion) {
         });
 
         group.bench_function(format!("from bytes 3 clones, length: {}", len), |b| {
-            b.iter_batched_ref(
-                || gen_bytes_mut(s.as_str()),
-                |buf| {
-                    let s = read_faststr_from_bytes_mut(buf);
-                    let s1 = black_box(s.clone());
-                    let s2 = black_box(s.clone());
-                    let s3 = black_box(s.clone());
-                    black_box(s1);
-                    black_box(s2);
-                    black_box(s3);
-                },
-                criterion::BatchSize::PerIteration,
-            );
+            b.iter(|| {
+                let mut buf = black_box(buf.clone());
+                let s = read_faststr_from_bytes(&mut buf);
+                let s1 = black_box(s.clone());
+                let s2 = black_box(s.clone());
+                let s3 = black_box(s.clone());
+                black_box(s1);
+                black_box(s2);
+                black_box(s3);
+            });
         });
         group.bench_function(format!("faststr new 3 clones, length: {}", len), |b| {
             b.iter(|| {
+                let _ = black_box(buf.clone());
                 let s = FastStr::new(&s);
                 let s1 = black_box(s.clone());
                 let s2 = black_box(s.clone());

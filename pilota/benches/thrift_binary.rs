@@ -1,6 +1,6 @@
 #![allow(clippy::redundant_clone)]
 
-use bytes::BytesMut;
+use bytes::{Bytes, BytesMut};
 use criterion::{black_box, criterion_group, criterion_main};
 use pilota::thrift::{TInputProtocol, TOutputProtocol};
 use rand::{self, Rng};
@@ -22,6 +22,7 @@ fn binary_bench(c: &mut criterion::Criterion) {
         p.write_i64(*i).unwrap();
     }
     drop(p);
+    let buf = buf.freeze();
     assert_eq!(buf.len(), 8 * size);
 
     let mut buf_le = BytesMut::new();
@@ -31,6 +32,7 @@ fn binary_bench(c: &mut criterion::Criterion) {
         p.write_i64(*i).unwrap();
     }
     drop(p);
+    let buf_le = buf_le.freeze();
     assert_eq!(buf_le.len(), 8 * size);
 
     let b = buf.clone();
@@ -128,7 +130,7 @@ fn binary_bench(c: &mut criterion::Criterion) {
 }
 
 #[inline(never)]
-fn read_be(mut b: BytesMut, size: usize) -> Vec<i64> {
+fn read_be(mut b: Bytes, size: usize) -> Vec<i64> {
     let mut p = pilota::thrift::binary::TBinaryProtocol::new(&mut b, true);
     let mut v = Vec::with_capacity(size);
     for _ in 0..size {
@@ -138,10 +140,9 @@ fn read_be(mut b: BytesMut, size: usize) -> Vec<i64> {
 }
 
 #[inline(never)]
-fn read_be_unsafe(mut b: BytesMut, size: usize) -> Vec<i64> {
+fn read_be_unsafe(mut b: Bytes, size: usize) -> Vec<i64> {
     unsafe {
-        let s = std::slice::from_raw_parts_mut(b.as_mut_ptr(), b.len());
-        let mut p = pilota::thrift::binary_unsafe::TBinaryProtocol::new(&mut b, s, true);
+        let mut p = pilota::thrift::binary_unsafe::TBinaryUnsafeInputProtocol::new(&mut b);
         let mut v = Vec::with_capacity(size);
         for _ in 0..size {
             v.push(p.read_i64().unwrap());
@@ -151,10 +152,9 @@ fn read_be_unsafe(mut b: BytesMut, size: usize) -> Vec<i64> {
 }
 
 #[inline(never)]
-fn read_be_unsafe_vec(mut b: BytesMut, size: usize) -> Vec<i64> {
+fn read_be_unsafe_vec(mut b: Bytes, size: usize) -> Vec<i64> {
     unsafe {
-        let s = std::slice::from_raw_parts_mut(b.as_mut_ptr(), b.len());
-        let mut p = pilota::thrift::binary_unsafe::TBinaryProtocol::new(&mut b, s, true);
+        let mut p = pilota::thrift::binary_unsafe::TBinaryUnsafeInputProtocol::new(&mut b);
         let mut v = Vec::with_capacity(size);
         for i in 0..size {
             *v.get_unchecked_mut(i) = p.read_i64().unwrap();
@@ -165,7 +165,7 @@ fn read_be_unsafe_vec(mut b: BytesMut, size: usize) -> Vec<i64> {
 }
 
 #[inline(never)]
-fn read_be_unsafe_optimized(b: BytesMut, size: usize) -> Vec<i64> {
+fn read_be_unsafe_optimized(b: Bytes, size: usize) -> Vec<i64> {
     unsafe {
         let buf: &[u8] = b.as_ref();
         assert!(buf.len() >= size * 8);
@@ -197,7 +197,7 @@ fn write_be(b: &mut BytesMut, v: &Vec<i64>, size: usize) {
 fn write_be_unsafe(b: &mut BytesMut, v: &Vec<i64>, size: usize) {
     unsafe {
         let s = std::slice::from_raw_parts_mut(b.as_mut_ptr(), b.len());
-        let mut p = pilota::thrift::binary_unsafe::TBinaryProtocol::new(b, s, true);
+        let mut p = pilota::thrift::binary_unsafe::TBinaryUnsafeOutputProtocol::new(b, s, true);
         for el in v {
             p.write_i64(*el).unwrap();
         }
@@ -205,7 +205,7 @@ fn write_be_unsafe(b: &mut BytesMut, v: &Vec<i64>, size: usize) {
 }
 
 #[inline(never)]
-fn read_le(mut b: BytesMut, size: usize) -> Vec<i64> {
+fn read_le(mut b: Bytes, size: usize) -> Vec<i64> {
     let mut p = pilota::thrift::binary_le::TBinaryProtocol::new(&mut b, true);
 
     let mut v = Vec::with_capacity(size);
@@ -218,7 +218,7 @@ fn read_le(mut b: BytesMut, size: usize) -> Vec<i64> {
 // cargo asm -p pilota --bench thrift_binary --native --full-name --keep-labels
 // --simplify --rust
 #[inline(never)]
-fn read_le_unsafe_optimized(b: BytesMut, size: usize) -> Vec<i64> {
+fn read_le_unsafe_optimized(b: Bytes, size: usize) -> Vec<i64> {
     unsafe {
         let buf: &[u8] = b.as_ref();
         assert!(buf.len() >= size * 8);
@@ -239,7 +239,7 @@ fn read_le_unsafe_optimized(b: BytesMut, size: usize) -> Vec<i64> {
 }
 
 #[inline(never)]
-fn read_le_optimized(mut b: BytesMut, size: usize) -> Vec<i64> {
+fn read_le_optimized(mut b: Bytes, size: usize) -> Vec<i64> {
     let _p = pilota::thrift::binary_le::TBinaryProtocol::new(&mut b, true);
     let mut v: Vec<i64> = Vec::with_capacity(size);
     let _ = black_box({
