@@ -203,7 +203,23 @@ where
     MkB::Target: Send,
     P: Parser,
 {
-    pub fn compile(mut self, services: Vec<IdlService>, out: Output) {
+    pub fn compile(
+        self,
+        services: impl IntoIterator<Item = impl AsRef<std::path::Path>>,
+        out: Output,
+    ) {
+        let services = services
+            .into_iter()
+            .map(|path| IdlService {
+                config: serde_yaml::Value::default(),
+                path: path.as_ref().to_owned(),
+            })
+            .collect();
+
+        self.compile_with_config(services, out)
+    }
+
+    pub fn compile_with_config(mut self, services: Vec<IdlService>, out: Output) {
         let _ = tracing_subscriber::fmt::try_init();
 
         let mut db = RootDatabase::default();
