@@ -24,7 +24,7 @@ fn test_protobuf(source: impl AsRef<Path>, target: impl AsRef<Path>) {
         crate::Builder::protobuf()
             .ignore_unused(false)
             .include_dirs(vec![source.parent().unwrap().to_path_buf()])
-            .compile(
+            .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
                 crate::Output::File(target.into()),
             )
@@ -56,10 +56,12 @@ fn test_with_builder<F: FnOnce(&Path, &Path)>(
 
 fn test_thrift(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     test_with_builder(source, target, |source, target| {
-        crate::Builder::thrift().ignore_unused(false).compile(
-            vec![IdlService::from_path(source.to_owned())],
-            crate::Output::File(target.into()),
-        )
+        crate::Builder::thrift()
+            .ignore_unused(false)
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_owned())],
+                crate::Output::File(target.into()),
+            )
     });
 }
 
@@ -68,7 +70,7 @@ fn test_plugin_thrift(source: impl AsRef<Path>, target: impl AsRef<Path>) {
         crate::Builder::thrift()
             .ignore_unused(false)
             .plugin(SerdePlugin)
-            .compile(
+            .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
                 crate::Output::File(target.into()),
             )
@@ -80,7 +82,7 @@ fn test_plugin_proto(source: impl AsRef<Path>, target: impl AsRef<Path>) {
         crate::Builder::protobuf()
             .ignore_unused(false)
             .plugin(SerdePlugin)
-            .compile(
+            .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
                 crate::Output::File(target.into()),
             )
@@ -166,7 +168,7 @@ fn test_touch() {
     test_with_builder(file_path, out_path, |source, target| {
         crate::Builder::thrift()
             .touch([(source.into(), vec!["A"])])
-            .compile(
+            .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
                 crate::Output::File(target.into()),
             )
