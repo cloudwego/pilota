@@ -23,7 +23,7 @@ toml = "0.7"
 heck = "0.4"
 syn = "2"
 normpath = "1"
-serde = "1"
+serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
 fxhash = "0.2"
 proc-macro2 = "1"
