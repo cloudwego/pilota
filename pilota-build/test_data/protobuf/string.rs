@@ -51,7 +51,6 @@ pub mod string {
                         error
                     })
                 }
-
                 2 => {
                     let mut _inner_pilota_value = &mut self.b;
                     ::pilota::prost::encoding::faststr::merge(
@@ -65,7 +64,6 @@ pub mod string {
                         error
                     })
                 }
-
                 _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
             }
         }

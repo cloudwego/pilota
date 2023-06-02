@@ -81,8 +81,7 @@ impl ThriftBackend {
                 format! {
                     r#"if let Some(value) = self.{field_name}.as_ref() {{
                         {write_field}
-                    }};
-                    "#
+                    }}"#
                 }
                 .into()
             } else {
@@ -223,21 +222,17 @@ impl ThriftBackend {
 
         let read_fields = if helper.is_async {
             format! {
-                r#"
-                async {{
+                r#"async {{
                     {read_fields}
                     Ok::<_, ::pilota::thrift::DecodeError>(())
-                }}.await
-                "#
+                }}.await"#
             }
         } else {
             format! {
-                r#"
-                (|| {{
+                r#"(|| {{
                     {read_fields}
                     Ok::<_, ::pilota::thrift::DecodeError>(())
-                }})()
-                "#
+                }})()"#
             }
         };
 
@@ -317,8 +312,7 @@ impl ThriftBackend {
                 format!(
                     r#"Some({field_id}) if field_ident.field_type == {ttype}  => {{
                     {field_ident} = {read_field};
-                }},
-            "#
+                }},"#
                 )
             })
             .join("");
@@ -326,8 +320,7 @@ impl ThriftBackend {
         let read_field_end = helper.codegen_read_field_end();
 
         format! {
-            r#"
-            loop {{
+            r#"loop {{
                 let field_ident = {read_field_begin};
                 if field_ident.field_type == ::pilota::thrift::TType::Stop {{
                     break;
@@ -341,8 +334,7 @@ impl ThriftBackend {
                 }}
 
                 {read_field_end};
-            }};
-            "#
+            }};"#
         }
     }
 }
@@ -373,8 +365,7 @@ impl CodegenBackend for ThriftBackend {
             format! {
                 r#"protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier {{
                     name: "{name_str}",
-                }}) + {encode_fields_size} protocol.write_field_stop_len() + protocol.write_struct_end_len()
-                "#
+                }}) + {encode_fields_size} protocol.write_field_stop_len() + protocol.write_struct_end_len()"#
             },
             |helper| self.codegen_decode(helper, s),
         ));
@@ -418,8 +409,7 @@ impl CodegenBackend for ThriftBackend {
                             ::pilota::thrift::DecodeError::new(
                                 ::pilota::thrift::DecodeErrorKind::InvalidData,
                                 format!("{err_msg_tmpl}", value)
-                            ))?)
-                        "#
+                            ))?)"#
                     }
                 },
             )),
@@ -523,12 +513,10 @@ impl CodegenBackend for ThriftBackend {
                                 format!("Ok({name}::Ok(()))").into()
                             } else {
                                 format!(
-                                    r#"
-                                    Err(::pilota::thrift::DecodeError::new(
+                                    r#"Err(::pilota::thrift::DecodeError::new(
                                         ::pilota::thrift::DecodeErrorKind::InvalidData,
                                         "received empty union from remote Message")
-                                    )
-                                "#
+                                    )"#
                                 )
                                 .into()
                             };

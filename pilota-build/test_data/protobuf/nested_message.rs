@@ -52,7 +52,6 @@ pub mod nested_message {
                         error
                     })
                 }
-
                 2 => {
                     let mut _inner_pilota_value = &mut self.t3;
                     ::pilota::prost::encoding::int32::merge(
@@ -66,7 +65,6 @@ pub mod nested_message {
                         error
                     })
                 }
-
                 4 => {
                     let mut _inner_pilota_value = &mut self.t4;
                     ::pilota::prost::encoding::message::merge(
@@ -80,7 +78,6 @@ pub mod nested_message {
                         error
                     })
                 }
-
                 _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
             }
         }
@@ -170,7 +167,6 @@ pub mod nested_message {
                             error
                         })
                     }
-
                     _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
                 }
             }
@@ -242,7 +238,6 @@ pub mod nested_message {
                                 error
                             })
                         }
-
                         2 => {
                             let mut _inner_pilota_value = &mut self.m;
                             ::pilota::prost::encoding::hash_map::merge(
@@ -257,7 +252,6 @@ pub mod nested_message {
                                 error
                             })
                         }
-
                         _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
                     }
                 }

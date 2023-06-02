@@ -53,7 +53,6 @@ pub mod string {
                             {
                                 string = Some(protocol.read_string()?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -61,7 +60,6 @@ pub mod string {
 
                         protocol.read_field_end()?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
@@ -125,7 +123,6 @@ pub mod string {
                             {
                                 string = Some(protocol.read_string().await?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
                             }
@@ -133,7 +130,6 @@ pub mod string {
 
                         protocol.read_field_end().await?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 }
                 .await

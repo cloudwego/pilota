@@ -384,15 +384,13 @@ impl CodegenBackend for ProtobufBackend {
                 let tags = tags.join("|");
 
                 format! {
-                    r#"
-                {tags} => {{
+                    r#"{tags} => {{
                     let mut _inner_pilota_value = &mut self.{field_ident};
                     {merge}.map_err(|mut error| {{
                         error.push(STRUCT_NAME, stringify!({field_ident}));
                         error
                     }})
-                }},
-                "#
+                }},"#
                 }
             })
             .join("");

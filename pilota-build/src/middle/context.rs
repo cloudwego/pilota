@@ -529,12 +529,10 @@ impl Context {
                     let lazy_map =
                         self.def_lit("INNER_MAP", lit, &mut CodegenTy::LazyStaticRef(map.clone()))?;
                     let stream = format! {
-                        r#"
-                        {{
+                        r#"{{
                             {lazy_map}
                             &*INNER_MAP
-                        }}
-                        "#
+                        }}"#
                     }
                     .into();
                     (stream, false)

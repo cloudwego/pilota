@@ -137,13 +137,13 @@ pub mod default_value {
                 protocol.write_string_field(2, &&self.string)?;
                 if let Some(value) = self.a.as_ref() {
                     protocol.write_bool_field(3, *value)?;
-                };
+                }
                 if let Some(value) = self.test_b.as_ref() {
                     protocol.write_i32_field(4, (*value).into())?;
-                };
+                }
                 if let Some(value) = self.test_b2.as_ref() {
                     protocol.write_i32_field(5, (*value).into())?;
-                };
+                }
                 if let Some(value) = self.map.as_ref() {
                     protocol.write_map_field(
                         6,
@@ -159,17 +159,16 @@ pub mod default_value {
                             Ok(())
                         },
                     )?;
-                };
+                }
                 if let Some(value) = self.test_double.as_ref() {
                     protocol.write_double_field(7, *value)?;
-                };
+                }
                 if let Some(value) = self.test_double2.as_ref() {
                     protocol.write_double_field(8, *value)?;
-                };
+                }
                 if let Some(value) = self.alias_str.as_ref() {
                     protocol.write_faststr_field(9, (value).clone())?;
-                };
-
+                }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -248,7 +247,6 @@ pub mod default_value {
                             {
                                 alias_str = Some(protocol.read_faststr()?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -256,7 +254,6 @@ pub mod default_value {
 
                         protocol.read_field_end()?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
@@ -373,7 +370,6 @@ pub mod default_value {
                             {
                                 alias_str = Some(protocol.read_faststr().await?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
                             }
@@ -381,7 +377,6 @@ pub mod default_value {
 
                         protocol.read_field_end().await?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 }
                 .await
