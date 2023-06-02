@@ -1,6 +1,6 @@
 [package]
 name = "pilota-build"
-version = "0.7.1"
+version = "0.7.2"
 edition = "2021"
 description = "Compile thrift and protobuf idl into rust code at compile-time."
 documentation = "https://docs.rs/pilota-build"

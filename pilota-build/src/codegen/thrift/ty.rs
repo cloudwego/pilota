@@ -329,8 +329,7 @@ impl ThriftBackend {
                     {read_struct_begin}
                     {read_struct_end}
                     ()
-                }}
-                    "#
+                }}"#
                 }
                 .into()
             }
@@ -350,8 +349,7 @@ impl ThriftBackend {
                 let ty_rust_name = self.codegen_item_ty(ty.kind.clone());
                 if !helper.is_async {
                     format! {
-                        r#"
-                        unsafe {{
+                        r#"unsafe {{
                             let list_ident = {read_list_begin};
                             let mut val: Vec<{ty_rust_name}> = Vec::with_capacity(list_ident.size);
                             for i in 0..list_ident.size {{
@@ -360,14 +358,12 @@ impl ThriftBackend {
                             val.set_len(list_ident.size);
                             {read_list_end};
                             val
-                        }}
-                        "#
+                        }}"#
                     }
                     .into()
                 } else {
                     format! {
-                        r#"
-                        {{
+                        r#"{{
                             let list_ident = {read_list_begin};
                             let mut val = Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {{
@@ -375,8 +371,7 @@ impl ThriftBackend {
                             }};
                             {read_list_end};
                             val
-                        }}
-                        "#
+                        }}"#
                     }
                     .into()
                 }
@@ -385,15 +380,13 @@ impl ThriftBackend {
                 let read_set_begin = helper.codegen_read_set_begin();
                 let read_set_end = helper.codegen_read_set_end();
                 let read_el = self.codegen_decode_ty(helper, ty);
-                format! {r#"{{
-                    let list_ident = {read_set_begin};
+                format! {r#"{{let list_ident = {read_set_begin};
                     let mut val = ::std::collections::HashSet::with_capacity(list_ident.size);
                     for _ in 0..list_ident.size {{
                         val.insert({read_el});
                     }};
                     {read_set_end};
-                    val
-                }}"#}
+                    val}}"#}
                 .into()
             }
             ty::Map(key_ty, val_ty) => {
@@ -404,8 +397,7 @@ impl ThriftBackend {
                 let read_map_end = helper.codegen_read_map_end();
 
                 format! {
-                    r#"
-                    {{
+                    r#"{{
                         let map_ident = {read_map_begin};
                         let mut val = ::std::collections::HashMap::with_capacity(map_ident.size);
                         for _ in 0..map_ident.size {{
@@ -413,8 +405,7 @@ impl ThriftBackend {
                         }}
                         {read_map_end};
                         val
-                    }}
-                    "#
+                    }}"#
                 }
                 .into()
             }
