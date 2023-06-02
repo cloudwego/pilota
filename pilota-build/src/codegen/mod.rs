@@ -440,8 +440,7 @@ where
         stream = format! {r#"pub mod {ns_name} {{
                 #![allow(warnings, clippy::all)]
                 {stream}
-            }}
-        "#};
+            }}"#};
 
         let mut file = std::io::BufWriter::new(std::fs::File::create(&file_name).unwrap());
         file.write_all(stream.to_string().as_bytes()).unwrap();

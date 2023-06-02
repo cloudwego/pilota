@@ -42,7 +42,6 @@ pub mod oneof {
                         },
                     )
                 }
-
                 _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
             }
         }

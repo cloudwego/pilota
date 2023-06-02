@@ -19,8 +19,7 @@ pub mod recursive_type {
                 protocol.write_struct_begin(&struct_ident)?;
                 if let Some(value) = self.a.as_ref() {
                     protocol.write_struct_field(1, value)?;
-                };
-
+                }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -49,7 +48,6 @@ pub mod recursive_type {
                                     ::pilota::thrift::Message::decode(protocol)?,
                                 ));
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -57,7 +55,6 @@ pub mod recursive_type {
 
                         protocol.read_field_end()?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
@@ -100,7 +97,6 @@ pub mod recursive_type {
                                     ::pilota::thrift::Message::decode_async(protocol).await?,
                                 ));
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
                             }
@@ -108,7 +104,6 @@ pub mod recursive_type {
 
                         protocol.read_field_end().await?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 }
                 .await

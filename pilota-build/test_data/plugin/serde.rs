@@ -63,7 +63,6 @@ pub mod serde {
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 b = Some(protocol.read_i32()?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -71,7 +70,6 @@ pub mod serde {
 
                         protocol.read_field_end()?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
@@ -133,7 +131,6 @@ pub mod serde {
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 b = Some(protocol.read_i32().await?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
                             }
@@ -141,7 +138,6 @@ pub mod serde {
 
                         protocol.read_field_end().await?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 }
                 .await

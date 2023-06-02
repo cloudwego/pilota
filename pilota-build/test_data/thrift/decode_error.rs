@@ -44,7 +44,6 @@ pub mod decode_error {
                             {
                                 b = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -52,7 +51,6 @@ pub mod decode_error {
 
                         protocol.read_field_end()?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
@@ -102,7 +100,6 @@ pub mod decode_error {
                             {
                                 b = Some(::pilota::thrift::Message::decode_async(protocol).await?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
                             }
@@ -110,7 +107,6 @@ pub mod decode_error {
 
                         protocol.read_field_end().await?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 }
                 .await
@@ -192,7 +188,6 @@ pub mod decode_error {
                             {
                                 a = Some(protocol.read_faststr()?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -200,7 +195,6 @@ pub mod decode_error {
 
                         protocol.read_field_end()?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
@@ -250,7 +244,6 @@ pub mod decode_error {
                             {
                                 a = Some(protocol.read_faststr().await?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
                             }
@@ -258,7 +251,6 @@ pub mod decode_error {
 
                         protocol.read_field_end().await?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 }
                 .await
@@ -340,7 +332,6 @@ pub mod decode_error {
                             {
                                 c = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -348,7 +339,6 @@ pub mod decode_error {
 
                         protocol.read_field_end()?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
@@ -398,7 +388,6 @@ pub mod decode_error {
                             {
                                 c = Some(::pilota::thrift::Message::decode_async(protocol).await?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
                             }
@@ -406,7 +395,6 @@ pub mod decode_error {
 
                         protocol.read_field_end().await?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 }
                 .await

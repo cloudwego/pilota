@@ -131,12 +131,10 @@ impl ThriftBackend {
                 let write_el = self.codegen_encode_ty(ty, "val".into());
 
                 format! {
-                    r#"
-                    protocol.write_list_field({id}, {el_ttype}, &{ident}, |protocol, val| {{
+                    r#"protocol.write_list_field({id}, {el_ttype}, &{ident}, |protocol, val| {{
                         {write_el}
                         Ok(())
-                    }})?;
-                    "#
+                    }})?;"#
                 }
                 .into()
             }
@@ -145,12 +143,10 @@ impl ThriftBackend {
                 let el_ttype = self.ttype(ty);
 
                 format! {
-                    r#"
-                    protocol.write_set_field({id}, {el_ttype}, &{ident}, |protocol, val| {{
+                    r#"protocol.write_set_field({id}, {el_ttype}, &{ident}, |protocol, val| {{
                         {write_el}
                         Ok(())
-                    }})?;
-                    "#
+                    }})?;"#
                 }
                 .into()
             }
@@ -161,15 +157,13 @@ impl ThriftBackend {
                 let write_val = self.codegen_encode_ty(v, "val".into());
 
                 format! {
-                    r#"
-                    protocol.write_map_field({id}, {key_ttype}, {val_ttype}, &{ident}, |protocol, key| {{
+                    r#"protocol.write_map_field({id}, {key_ttype}, {val_ttype}, &{ident}, |protocol, key| {{
                         {write_key}
                         Ok(())
                     }}, |protocol, val| {{
                         {write_val}
                         Ok(())
-                    }})?;
-                    "#
+                    }})?;"#
                 }
                 .into()
             }
@@ -214,8 +208,7 @@ impl ThriftBackend {
                 format! {
                     r#"protocol.write_list_len({el_ttype}, {ident}, |protocol, el| {{
                         {add_el}
-                    }})
-                    "#
+                    }})"#
                 }
                 .into()
             }
@@ -225,8 +218,7 @@ impl ThriftBackend {
                 format! {
                     r#"protocol.write_set_len({el_ttype}, {ident}, |protocol, el| {{
                         {add_el}
-                    }})
-                    "#
+                    }})"#
                 }
                 .into()
             }
@@ -241,8 +233,7 @@ impl ThriftBackend {
                         {add_key}
                     }}, |protocol, val| {{
                         {add_val}
-                    }})
-                    "#
+                    }})"#
                 }
                 .into()
             }
@@ -274,8 +265,7 @@ impl ThriftBackend {
                 format! {
                     r#"protocol.write_list_field_len(Some({id}), {el_ttype}, {ident}, |protocol, el| {{
                         {add_el}
-                    }})
-                    "#
+                    }})"#
                 }
                 .into()
             }

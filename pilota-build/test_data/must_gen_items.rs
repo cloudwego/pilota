@@ -19,8 +19,7 @@ pub mod must_gen_items {
                 protocol.write_struct_begin(&struct_ident)?;
                 if let Some(value) = self.a.as_ref() {
                     protocol.write_i32_field(1, *value)?;
-                };
-
+                }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -45,7 +44,6 @@ pub mod must_gen_items {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 a = Some(protocol.read_i32()?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -53,7 +51,6 @@ pub mod must_gen_items {
 
                         protocol.read_field_end()?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
@@ -92,7 +89,6 @@ pub mod must_gen_items {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 a = Some(protocol.read_i32().await?);
                             }
-
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
                             }
@@ -100,7 +96,6 @@ pub mod must_gen_items {
 
                         protocol.read_field_end().await?;
                     }
-
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 }
                 .await

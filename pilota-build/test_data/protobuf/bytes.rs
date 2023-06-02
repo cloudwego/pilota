@@ -48,7 +48,6 @@ pub mod bytes {
                         error
                     })
                 }
-
                 _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
             }
         }
