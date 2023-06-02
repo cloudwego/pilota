@@ -70,7 +70,7 @@ impl ThriftBackend {
                 let el_ttype = self.ttype(ty);
 
                 format! {
-                    r#"protocol.write_set({el_ttype}, &{ident}, |protocol, val| {{s
+                    r#"protocol.write_set({el_ttype}, &{ident}, |protocol, val| {{
                         {write_el}
                         Ok(())
                     }})?;"#
