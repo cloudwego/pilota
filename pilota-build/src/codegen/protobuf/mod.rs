@@ -230,7 +230,7 @@ impl ProtobufBackend {
                     .into()
                 } else {
                     let encode: FastStr = if self.is_one_of(ty) {
-                        "pilota_inner_value.encode(buf);".into()
+                        "_pilota_inner_value.encode(buf);".into()
                     } else {
                         let ident: FastStr = match kind {
                             FieldKind::Required => format!("(&{ident})").into(),
