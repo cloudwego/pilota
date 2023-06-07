@@ -16,7 +16,7 @@ pub mod oneof {
             B: ::pilota::prost::bytes::BufMut,
         {
             if let Some(_pilota_inner_value) = self.r#type.as_ref() {
-                pilota_inner_value.encode(buf);
+                _pilota_inner_value.encode(buf);
             }
         }
 
