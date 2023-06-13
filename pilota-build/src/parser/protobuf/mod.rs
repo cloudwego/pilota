@@ -201,16 +201,16 @@ impl Lower {
         let mut fields = Vec::default();
         let mut oneof_fields = FxHashMap::default();
 
-        message.field.iter().for_each(|field| {
+        message.field.iter().enumerate().for_each(|(idx, field)| {
             if field.proto3_optional.unwrap_or(false) {
-                fields.push(field)
+                fields.push((idx, field))
             } else if let Some(oneof_index) = field.oneof_index {
                 oneof_fields
                     .entry(oneof_index)
                     .or_insert_with(Vec::default)
-                    .push(field)
+                    .push((idx, field))
             } else {
-                fields.push(field)
+                fields.push((idx, field))
             }
         });
 
@@ -228,7 +228,7 @@ impl Lower {
                         repr: None,
                         variants: fields
                             .iter()
-                            .map(|f| ir::EnumVariant {
+                            .map(|(_, f)| ir::EnumVariant {
                                 discr: None,
                                 id: f.number,
                                 name: FastStr::new(f.name()).into(),
@@ -244,22 +244,25 @@ impl Lower {
                     }),
                 }));
 
-                extra_fields.push(ir::Field {
-                    name: FastStr::new(d.name()).into(),
-                    id: -1,
-                    ty: ir::Ty {
-                        kind: ir::TyKind::Path(Path {
-                            segments: Arc::from([
-                                FastStr::new(message.name()).into(),
-                                FastStr::new(d.name()).into(),
-                            ]),
-                        }),
-                        tags: Default::default(),
+                extra_fields.push((
+                    fields[0].0,
+                    ir::Field {
+                        name: FastStr::new(d.name()).into(),
+                        id: -1,
+                        ty: ir::Ty {
+                            kind: ir::TyKind::Path(Path {
+                                segments: Arc::from([
+                                    FastStr::new(message.name()).into(),
+                                    FastStr::new(d.name()).into(),
+                                ]),
+                            }),
+                            tags: Default::default(),
+                        },
+                        tags: Arc::new(crate::tags!(OneOf)),
+                        kind: ir::FieldKind::Optional,
+                        default: None,
                     },
-                    tags: Arc::new(crate::tags!(OneOf)),
-                    kind: ir::FieldKind::Optional,
-                    default: None,
-                });
+                ));
             }
         });
 
@@ -287,7 +290,7 @@ impl Lower {
             kind: ir::ItemKind::Message(ir::Message {
                 fields: fields
                     .iter()
-                    .map(|f| {
+                    .map(|(idx, f)| {
                         let mut ty = self.lower_ty(
                             f.type_,
                             f.type_name.as_deref(),
@@ -324,20 +327,25 @@ impl Lower {
                             tags.insert(Repeated);
                         }
 
-                        ir::Field {
-                            default: None,
-                            id: f.number(),
-                            name: FastStr::new(f.name()).into(),
-                            ty,
-                            tags: Arc::new(tags),
-                            kind: if optional {
-                                FieldKind::Optional
-                            } else {
-                                FieldKind::Required
+                        (
+                            *idx,
+                            ir::Field {
+                                default: None,
+                                id: f.number(),
+                                name: FastStr::new(f.name()).into(),
+                                ty,
+                                tags: Arc::new(tags),
+                                kind: if optional {
+                                    FieldKind::Optional
+                                } else {
+                                    FieldKind::Required
+                                },
                             },
-                        }
+                        )
                     })
                     .chain(extra_fields)
+                    .sorted_unstable_by_key(|(idx, _)| *idx)
+                    .map(|(_, f)| f)
                     .collect(),
                 name: FastStr::new(message.name()).into(),
             }),

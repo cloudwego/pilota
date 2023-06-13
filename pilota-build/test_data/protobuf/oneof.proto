@@ -1,8 +1,14 @@
 syntax = "proto3";
 
 message Test {
+    int32 c = 1;
     oneof type {
         string s = 2;
         int32 i = 4;
+    }
+    int64 j = 5;
+    oneof test {
+        string a = 6;
+        int32 b = 8;
     }
 }
