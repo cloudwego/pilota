@@ -173,6 +173,14 @@ impl ContextBuilder {
             if set.contains(&def_id) {
                 return;
             }
+
+            let node = cx.db.node(def_id).unwrap();
+
+            match node.kind {
+                NodeKind::Item(_) => {}
+                _ => return collect(cx, node.parent.unwrap(), set),
+            }
+
             if !matches!(&*cx.db.item(def_id).unwrap(), rir::Item::Mod(_)) {
                 set.insert(def_id);
             }
@@ -187,10 +195,12 @@ impl ContextBuilder {
             let item = node.expect_item();
 
             match item {
-                rir::Item::Message(m) => m
-                    .fields
-                    .iter()
-                    .for_each(|f| PathCollector { cx, set }.visit(&f.ty)),
+                rir::Item::Message(m) => m.fields.iter().for_each(|f| {
+                    PathCollector { cx, set }.visit(&f.ty);
+                    if let Some(Literal::Path(p)) = &f.default {
+                        PathCollector { cx, set }.visit_path(&p);
+                    }
+                }),
                 rir::Item::Enum(e) => e
                     .variants
                     .iter()
@@ -453,6 +463,44 @@ impl Context {
                     format!("::pilota::FastStr::from_static_str({stream})").into(),
                     true,
                 )
+            }
+            (
+                CodegenTy::Adt(AdtDef {
+                    did: _,
+                    kind: AdtKind::Enum,
+                }),
+                CodegenTy::I64,
+            )
+            | (
+                CodegenTy::Adt(AdtDef {
+                    did: _,
+                    kind: AdtKind::Enum,
+                }),
+                CodegenTy::I32,
+            )
+            | (
+                CodegenTy::Adt(AdtDef {
+                    did: _,
+                    kind: AdtKind::Enum,
+                }),
+                CodegenTy::I16,
+            )
+            | (
+                CodegenTy::Adt(AdtDef {
+                    did: _,
+                    kind: AdtKind::Enum,
+                }),
+                CodegenTy::I8,
+            ) => {
+                let stream = self.cur_related_item_path(did);
+                let target = match target {
+                    CodegenTy::I64 => "i64",
+                    CodegenTy::I32 => "i32",
+                    CodegenTy::I16 => "i16",
+                    CodegenTy::I8 => "i8",
+                    _ => unreachable!(),
+                };
+                (format!("({stream} as {target})").into(), true)
             }
             _ => panic!("invalid convert {:?} to {:?}", ident_ty, target),
         }
