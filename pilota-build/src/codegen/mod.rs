@@ -323,6 +323,23 @@ where
         self.backend.codegen_service_impl(def_id, stream, s);
     }
 
+    /// get service information for volo-cli init, return path of service and
+    /// methods
+    pub fn get_init_service(&self, def_id: DefId) -> (String, String) {
+        let service_path = self.codegen_ty(def_id).global_path_for_volo_gen().into();
+        let methods = self.service_methods(def_id);
+
+        let methods = methods
+            .iter()
+            .map(|m| {
+                self.backend
+                    .codegen_service_method_with_global_path(def_id, m)
+            })
+            .join("\n");
+
+        (service_path, methods)
+    }
+
     pub fn write_new_type(&self, def_id: DefId, stream: &mut String, t: &middle::rir::NewType) {
         let name = self.rust_name(def_id);
         let ty = self.codegen_item_ty(t.ty.kind.clone());

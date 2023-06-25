@@ -93,7 +93,9 @@ impl CodegenTy {
         }
     }
 
-    fn global_path(&self) -> FastStr {
+    /// get the global path for ty, for adt type, it will return the path
+    /// warpped in volo_gen
+    pub fn global_path_for_volo_gen(&self) -> FastStr {
         match self {
             CodegenTy::String => "::std::string::String".into(),
             CodegenTy::FastStr => "::pilota::FastStr".into(),
@@ -111,27 +113,31 @@ impl CodegenTy {
             CodegenTy::F32 => "f32".into(),
             CodegenTy::StaticRef(ty) => {
                 let ty = &**ty;
-                format!("&'static {}", ty.global_path()).into()
+                format!("&'static {}", ty.global_path_for_volo_gen()).into()
             }
             CodegenTy::Vec(ty) => {
                 let ty = &**ty;
-                format!("::std::vec::Vec<{}>", ty.global_path()).into()
+                format!("::std::vec::Vec<{}>", ty.global_path_for_volo_gen()).into()
             }
             CodegenTy::Array(ty, size) => {
                 let ty = &**ty;
-                format!("[{}; {}]", ty.global_path(), size).into()
+                format!("[{}; {}]", ty.global_path_for_volo_gen(), size).into()
             }
             CodegenTy::Set(ty) => {
                 let ty = &**ty;
-                format!("::std::collections::HashSet<{}>", ty.global_path()).into()
+                format!(
+                    "::std::collections::HashSet<{}>",
+                    ty.global_path_for_volo_gen()
+                )
+                .into()
             }
             CodegenTy::Map(k, v) => {
                 let k = &**k;
                 let v = &**v;
                 format!(
                     "::std::collections::HashMap<{}, {}>",
-                    k.global_path(),
-                    v.global_path()
+                    k.global_path_for_volo_gen(),
+                    v.global_path_for_volo_gen()
                 )
                 .into()
             }
@@ -142,9 +148,9 @@ impl CodegenTy {
             }),
             CodegenTy::Arc(ty) => {
                 let ty = &**ty;
-                format!("::std::sync::Arc<{}>", ty.global_path()).into()
+                format!("::std::sync::Arc<{}>", ty.global_path_for_volo_gen()).into()
             }
-            CodegenTy::LazyStaticRef(ty) => ty.global_path(),
+            CodegenTy::LazyStaticRef(ty) => ty.global_path_for_volo_gen(),
             CodegenTy::Bytes => "::pilota::Bytes".into(),
         }
     }
