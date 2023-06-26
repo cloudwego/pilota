@@ -16,6 +16,7 @@ mod middle;
 pub mod parser;
 mod resolve;
 mod symbol;
+use itertools::Itertools;
 pub use symbol::Symbol;
 pub mod tags;
 use std::{path::PathBuf, sync::Arc};
@@ -120,7 +121,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
 
 impl<MkB, P> Builder<MkB, P>
 where
-    P: Parser,
+    P: Parser + Default,
 {
     pub fn include_dirs(mut self, include_dirs: Vec<PathBuf>) -> Self {
         self.parser.include_dirs(include_dirs);
@@ -201,7 +202,7 @@ impl<MkB, P> Builder<MkB, P>
 where
     MkB: MakeBackend + Send,
     MkB::Target: Send,
-    P: Parser,
+    P: Parser + Default,
 {
     pub fn compile(
         self,
@@ -219,16 +220,23 @@ where
         self.compile_with_config(services, out)
     }
 
-    pub fn compile_with_config(mut self, services: Vec<IdlService>, out: Output) {
-        let _ = tracing_subscriber::fmt::try_init();
-
+    pub fn build_cx(&mut self, services: Vec<IdlService>, out: Option<Output>) -> Context {
         let mut db = RootDatabase::default();
-        self.parser.inputs(services.iter().map(|s| &s.path));
+        let mut parser = std::mem::replace(&mut self.parser, P::default());
+        parser.inputs(services.iter().map(|s| &s.path));
         let ParseResult {
             files,
             input_files,
             file_ids_map,
-        } = self.parser.parse();
+        } = parser.parse();
+        tracing::info!(
+            "{} {:?}",
+            services.get(0).unwrap().path.to_str().unwrap(),
+            file_ids_map
+                .keys()
+                .map(|x| x.to_str().unwrap())
+                .collect_vec()
+        );
         db.set_file_ids_map_with_durability(Arc::new(file_ids_map), Durability::HIGH);
 
         let ResolveResult { files, nodes, tags } = Resolver::default().resolve_files(&files);
@@ -271,24 +279,32 @@ where
         let mut cx = ContextBuilder::new(
             db,
             match out {
-                Output::Workspace(dir) => Mode::Workspace(WorkspaceInfo {
+                Some(Output::Workspace(dir)) => Mode::Workspace(WorkspaceInfo {
                     dir,
                     location_map: Default::default(),
                 }),
-                Output::File(p) => Mode::SingleFile { file_path: p },
+                Some(Output::File(p)) => Mode::SingleFile { file_path: p },
+                None => Mode::SingleFile {
+                    file_path: Default::default(),
+                },
             },
             input,
         );
 
+        let touches = std::mem::replace(&mut self.touches, Default::default());
         cx.collect(if self.ignore_unused {
-            CollectMode::OnlyUsed {
-                touches: self.touches,
-            }
+            CollectMode::OnlyUsed { touches }
         } else {
             CollectMode::All
         });
 
-        let cx = cx.build(Arc::from(services), self.source_type, self.change_case);
+        cx.build(Arc::from(services), self.source_type, self.change_case)
+    }
+
+    pub fn compile_with_config(mut self, services: Vec<IdlService>, out: Output) {
+        let _ = tracing_subscriber::fmt::try_init();
+
+        let cx = self.build_cx(services, Some(out));
 
         cx.exec_plugin(BoxedPlugin);
 
@@ -352,6 +368,41 @@ where
             Ok::<_, rayon::ThreadPoolBuildError>(())
         })
         .unwrap();
+    }
+
+    pub fn init_service(mut self, service: IdlService) -> Option<(String, String)> {
+        let _ = tracing_subscriber::fmt::try_init();
+        let path = service.path.clone();
+        let cx = self.build_cx(vec![service], None);
+
+        std::thread::scope(|scope| {
+            let pool = rayon::ThreadPoolBuilder::new();
+            let pool = pool
+                .spawn_handler(|thread| {
+                    let mut builder = std::thread::Builder::new();
+                    if let Some(name) = thread.name() {
+                        builder = builder.name(name.to_string());
+                    }
+                    if let Some(size) = thread.stack_size() {
+                        builder = builder.stack_size(size);
+                    }
+
+                    //TODO@wy is it height cost to clone?
+                    let cx = cx.clone();
+                    builder.spawn_scoped(scope, move || {
+                        CONTEXT.set(&cx, || thread.run());
+                    })?;
+                    Ok(())
+                })
+                .build()?;
+
+            let service_and_method = pool.install(move || {
+                Codegen::new(self.mk_backend.make_backend(cx)).pick_init_service(path)
+            });
+
+            Ok::<_, rayon::ThreadPoolBuildError>(service_and_method)
+        })
+        .unwrap() //TODO@wy how to return ??? option&result
     }
 }
 

@@ -8,6 +8,7 @@ use std::{
 use dashmap::DashMap;
 use faststr::FastStr;
 use itertools::Itertools;
+use normpath::PathExt;
 use pkg_tree::PkgNode;
 use quote::quote;
 use rayon::prelude::IntoParallelRefIterator;
@@ -22,7 +23,7 @@ use crate::{
         context::{tls::CUR_ITEM, Mode},
         rir,
     },
-    symbol::{DefId, EnumRepr},
+    symbol::{DefId, EnumRepr, FileId},
     tags::EnumMode,
     Context, Symbol,
 };
@@ -326,7 +327,10 @@ where
     /// get service information for volo-cli init, return path of service and
     /// methods
     pub fn get_init_service(&self, def_id: DefId) -> (String, String) {
-        let service_path = self.codegen_ty(def_id).global_path_for_volo_gen().into();
+        let service_name = self.rust_name(def_id);
+        let mod_prefix = self.mod_path(def_id);
+        let service_path = format!("{}::{}", mod_prefix.join("::"), service_name);
+        tracing::info!("service_path: {}", service_path);
         let methods = self.service_methods(def_id);
 
         let methods = methods
@@ -338,6 +342,36 @@ where
             .join("\n");
 
         (service_path, methods)
+    }
+
+    pub fn pick_init_service(&self, path: PathBuf) -> Option<(String, String)> {
+        let path = path
+            .normalize()
+            .unwrap_or_else(|_| panic!("normalize path failed: {}", path.display()))
+            .into_path_buf();
+        tracing::info!("path {:?}", path);
+        let file_id: FileId = self.file_id(path).unwrap();
+        let items = self
+            .codegen_items
+            .iter()
+            .map(|def_id| (*def_id))
+            .filter(|def_id| {
+                // select service kind
+                let item = self.item(*def_id).unwrap();
+                match &*item {
+                    middle::rir::Item::Service(_) => true,
+                    _ => false,
+                }
+            })
+            .filter(
+                // check for same file
+                |def_id| self.node(*def_id).unwrap().file_id == file_id,
+            )
+            .nth(0);
+        match items {
+            Some(def_id) => Some(self.get_init_service(def_id)),
+            None => None,
+        }
     }
 
     pub fn write_new_type(&self, def_id: DefId, stream: &mut String, t: &middle::rir::NewType) {
