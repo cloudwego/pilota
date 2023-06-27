@@ -229,7 +229,7 @@ where
             input_files,
             file_ids_map,
         } = parser.parse();
-        tracing::info!(
+        tracing::debug!(
             "{} {:?}",
             services.get(0).unwrap().path.to_str().unwrap(),
             file_ids_map
@@ -370,39 +370,16 @@ where
         .unwrap();
     }
 
-    pub fn init_service(mut self, service: IdlService) -> Option<(String, String)> {
+    pub fn init_service(mut self, service: IdlService) -> anyhow::Result<(String, String)> {
         let _ = tracing_subscriber::fmt::try_init();
         let path = service.path.clone();
         let cx = self.build_cx(vec![service], None);
 
-        std::thread::scope(|scope| {
-            let pool = rayon::ThreadPoolBuilder::new();
-            let pool = pool
-                .spawn_handler(|thread| {
-                    let mut builder = std::thread::Builder::new();
-                    if let Some(name) = thread.name() {
-                        builder = builder.name(name.to_string());
-                    }
-                    if let Some(size) = thread.stack_size() {
-                        builder = builder.stack_size(size);
-                    }
-
-                    //TODO@wy is it height cost to clone?
-                    let cx = cx.clone();
-                    builder.spawn_scoped(scope, move || {
-                        CONTEXT.set(&cx, || thread.run());
-                    })?;
-                    Ok(())
-                })
-                .build()?;
-
-            let service_and_method = pool.install(move || {
+        std::thread::scope(|_scope| {
+            CONTEXT.set(&cx.clone(), move || {
                 Codegen::new(self.mk_backend.make_backend(cx)).pick_init_service(path)
-            });
-
-            Ok::<_, rayon::ThreadPoolBuildError>(service_and_method)
+            })
         })
-        .unwrap() //TODO@wy how to return ??? option&result
     }
 }
 

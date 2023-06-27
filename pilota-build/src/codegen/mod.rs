@@ -330,7 +330,7 @@ where
         let service_name = self.rust_name(def_id);
         let mod_prefix = self.mod_path(def_id);
         let service_path = format!("{}::{}", mod_prefix.join("::"), service_name);
-        tracing::info!("service_path: {}", service_path);
+        tracing::debug!("service_path: {}", service_path);
         let methods = self.service_methods(def_id);
 
         let methods = methods
@@ -344,14 +344,21 @@ where
         (service_path, methods)
     }
 
-    pub fn pick_init_service(&self, path: PathBuf) -> Option<(String, String)> {
+    pub fn pick_init_service(&self, path: PathBuf) -> anyhow::Result<(String, String)> {
         let path = path
             .normalize()
-            .unwrap_or_else(|_| panic!("normalize path failed: {}", path.display()))
+            // .unwrap_or_else(|_| panic!("normalize path failed: {}", path.display()))
+            .map_err(|e| {
+                anyhow::Error::msg(format!(
+                    "Normalize path {} failed: {}, please check service path",
+                    path.display(),
+                    e
+                ))
+            })?
             .into_path_buf();
-        tracing::info!("path {:?}", path);
+        tracing::debug!("path {:?}", path);
         let file_id: FileId = self.file_id(path).unwrap();
-        let items = self
+        let item = self
             .codegen_items
             .iter()
             .map(|def_id| (*def_id))
@@ -368,9 +375,9 @@ where
                 |def_id| self.node(*def_id).unwrap().file_id == file_id,
             )
             .nth(0);
-        match items {
-            Some(def_id) => Some(self.get_init_service(def_id)),
-            None => None,
+        match item {
+            Some(def_id) => Ok(self.get_init_service(def_id)),
+            None => Err(anyhow::anyhow!("No service found.")),
         }
     }
 
