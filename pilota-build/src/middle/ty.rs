@@ -1,6 +1,5 @@
 use std::{fmt::Display, sync::Arc};
 
-use faststr::FastStr;
 pub use TyKind::*;
 
 use super::{context::tls::with_cx, rir::Path};
@@ -93,9 +92,8 @@ impl CodegenTy {
         }
     }
 
-    /// get the global path for ty, for adt type, it will return the path
-    /// warpped in volo_gen
-    pub fn global_path_for_volo_gen(&self) -> FastStr {
+    /// get the global path for ty.
+    pub fn global_path_for_volo_gen(&self) -> faststr::FastStr {
         match self {
             CodegenTy::String => "::std::string::String".into(),
             CodegenTy::FastStr => "::pilota::FastStr".into(),

@@ -222,7 +222,7 @@ where
 
     pub fn build_cx(&mut self, services: Vec<IdlService>, out: Option<Output>) -> Context {
         let mut db = RootDatabase::default();
-        let mut parser = std::mem::replace(&mut self.parser, P::default());
+        let mut parser = std::mem::take(&mut self.parser);
         parser.inputs(services.iter().map(|s| &s.path));
         let ParseResult {
             files,
@@ -291,7 +291,7 @@ where
             input,
         );
 
-        let touches = std::mem::replace(&mut self.touches, Default::default());
+        let touches = std::mem::take(&mut self.touches);
         cx.collect(if self.ignore_unused {
             CollectMode::OnlyUsed { touches }
         } else {
@@ -370,6 +370,7 @@ where
         .unwrap();
     }
 
+    // gen service_global_name and methods for certain service in IdlService
     pub fn init_service(mut self, service: IdlService) -> anyhow::Result<(String, String)> {
         let _ = tracing_subscriber::fmt::try_init();
         let path = service.path.clone();

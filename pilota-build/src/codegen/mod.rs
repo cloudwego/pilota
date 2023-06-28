@@ -344,10 +344,11 @@ where
         (service_path, methods)
     }
 
+    // pick first service as init service from idlservice
     pub fn pick_init_service(&self, path: PathBuf) -> anyhow::Result<(String, String)> {
+        // convert path to absolute path to match with file_id_map
         let path = path
             .normalize()
-            // .unwrap_or_else(|_| panic!("normalize path failed: {}", path.display()))
             .map_err(|e| {
                 anyhow::Error::msg(format!(
                     "Normalize path {} failed: {}, please check service path",
@@ -361,20 +362,16 @@ where
         let item = self
             .codegen_items
             .iter()
-            .map(|def_id| (*def_id))
+            .copied()
             .filter(|def_id| {
                 // select service kind
                 let item = self.item(*def_id).unwrap();
-                match &*item {
-                    middle::rir::Item::Service(_) => true,
-                    _ => false,
-                }
+                matches!(&*item, middle::rir::Item::Service(_))
             })
-            .filter(
+            .find(
                 // check for same file
                 |def_id| self.node(*def_id).unwrap().file_id == file_id,
-            )
-            .nth(0);
+            );
         match item {
             Some(def_id) => Ok(self.get_init_service(def_id)),
             None => Err(anyhow::anyhow!("No service found.")),
