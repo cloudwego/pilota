@@ -8,6 +8,7 @@ use std::{
 use dashmap::DashMap;
 use faststr::FastStr;
 use itertools::Itertools;
+use normpath::PathExt;
 use pkg_tree::PkgNode;
 use quote::quote;
 use rayon::prelude::IntoParallelRefIterator;
@@ -22,7 +23,7 @@ use crate::{
         context::{tls::CUR_ITEM, Mode},
         rir,
     },
-    symbol::{DefId, EnumRepr},
+    symbol::{DefId, EnumRepr, FileId},
     tags::EnumMode,
     Context, Symbol,
 };
@@ -321,6 +322,60 @@ where
             "#
         });
         self.backend.codegen_service_impl(def_id, stream, s);
+    }
+
+    /// get service information for volo-cli init, return path of service and
+    /// methods
+    pub fn get_init_service(&self, def_id: DefId) -> (String, String) {
+        let service_name = self.rust_name(def_id);
+        let mod_prefix = self.mod_path(def_id);
+        let service_path = format!("{}::{}", mod_prefix.join("::"), service_name);
+        tracing::debug!("service_path: {}", service_path);
+        let methods = self.service_methods(def_id);
+
+        let methods = methods
+            .iter()
+            .map(|m| {
+                self.backend
+                    .codegen_service_method_with_global_path(def_id, m)
+            })
+            .join("\n");
+
+        (service_path, methods)
+    }
+
+    // pick first service as init service from idlservice
+    pub fn pick_init_service(&self, path: PathBuf) -> anyhow::Result<(String, String)> {
+        // convert path to absolute path to match with file_id_map
+        let path = path
+            .normalize()
+            .map_err(|e| {
+                anyhow::Error::msg(format!(
+                    "Normalize path {} failed: {}, please check service path",
+                    path.display(),
+                    e
+                ))
+            })?
+            .into_path_buf();
+        tracing::debug!("path {:?}", path);
+        let file_id: FileId = self.file_id(path).unwrap();
+        let item = self
+            .codegen_items
+            .iter()
+            .copied()
+            .filter(|def_id| {
+                // select service kind
+                let item = self.item(*def_id).unwrap();
+                matches!(&*item, middle::rir::Item::Service(_))
+            })
+            .find(
+                // check for same file
+                |def_id| self.node(*def_id).unwrap().file_id == file_id,
+            );
+        match item {
+            Some(def_id) => Ok(self.get_init_service(def_id)),
+            None => Err(anyhow::anyhow!("No service found.")),
+        }
     }
 
     pub fn write_new_type(&self, def_id: DefId, stream: &mut String, t: &middle::rir::NewType) {

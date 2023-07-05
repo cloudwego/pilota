@@ -50,6 +50,7 @@ pub trait RirDatabase {
 
     fn node(&self, def_id: DefId) -> Option<rir::Node>;
     fn file(&self, file_id: FileId) -> Option<Arc<rir::File>>;
+    fn file_id(&self, path: PathBuf) -> Option<FileId>;
     fn item(&self, def_id: DefId) -> Option<Arc<rir::Item>>;
     fn expect_item(&self, def_id: DefId) -> Arc<rir::Item>;
     fn codegen_item_ty(&self, ty: TyKind) -> CodegenTy;
@@ -80,6 +81,10 @@ fn expect_item(db: &dyn RirDatabase, def_id: DefId) -> Arc<rir::Item> {
 
 fn file(db: &dyn RirDatabase, file_id: FileId) -> Option<Arc<rir::File>> {
     db.files().get(&file_id).cloned()
+}
+
+fn file_id(db: &dyn RirDatabase, path: PathBuf) -> Option<FileId> {
+    db.file_ids_map().get(&path).cloned()
 }
 
 fn codegen_item_ty(db: &dyn RirDatabase, ty: TyKind) -> CodegenTy {
