@@ -16,7 +16,6 @@ mod middle;
 pub mod parser;
 mod resolve;
 mod symbol;
-use itertools::Itertools;
 pub use symbol::Symbol;
 pub mod tags;
 use std::{path::PathBuf, sync::Arc};
@@ -121,7 +120,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
 
 impl<MkB, P> Builder<MkB, P>
 where
-    P: Parser + Default,
+    P: Parser,
 {
     pub fn include_dirs(mut self, include_dirs: Vec<PathBuf>) -> Self {
         self.parser.include_dirs(include_dirs);
@@ -202,7 +201,7 @@ impl<MkB, P> Builder<MkB, P>
 where
     MkB: MakeBackend + Send,
     MkB::Target: Send,
-    P: Parser + Default,
+    P: Parser,
 {
     pub fn compile(
         self,
@@ -220,23 +219,22 @@ where
         self.compile_with_config(services, out)
     }
 
-    pub fn build_cx(&mut self, services: Vec<IdlService>, out: Option<Output>) -> Context {
+    pub fn build_cx(
+        services: Vec<IdlService>,
+        out: Option<Output>,
+        mut parser: P,
+        touches: Vec<(PathBuf, Vec<String>)>,
+        ignore_unused: bool,
+        source_type: SourceType,
+        change_case: bool,
+    ) -> Context {
         let mut db = RootDatabase::default();
-        let mut parser = std::mem::take(&mut self.parser);
         parser.inputs(services.iter().map(|s| &s.path));
         let ParseResult {
             files,
             input_files,
             file_ids_map,
         } = parser.parse();
-        tracing::debug!(
-            "{} {:?}",
-            services.get(0).unwrap().path.to_str().unwrap(),
-            file_ids_map
-                .keys()
-                .map(|x| x.to_str().unwrap())
-                .collect_vec()
-        );
         db.set_file_ids_map_with_durability(Arc::new(file_ids_map), Durability::HIGH);
 
         let ResolveResult { files, nodes, tags } = Resolver::default().resolve_files(&files);
@@ -291,20 +289,27 @@ where
             input,
         );
 
-        let touches = std::mem::take(&mut self.touches);
-        cx.collect(if self.ignore_unused {
+        cx.collect(if ignore_unused {
             CollectMode::OnlyUsed { touches }
         } else {
             CollectMode::All
         });
 
-        cx.build(Arc::from(services), self.source_type, self.change_case)
+        cx.build(Arc::from(services), source_type, change_case)
     }
 
-    pub fn compile_with_config(mut self, services: Vec<IdlService>, out: Output) {
+    pub fn compile_with_config(self, services: Vec<IdlService>, out: Output) {
         let _ = tracing_subscriber::fmt::try_init();
 
-        let cx = self.build_cx(services, Some(out));
+        let cx = Self::build_cx(
+            services,
+            Some(out),
+            self.parser,
+            self.touches,
+            self.ignore_unused,
+            self.source_type,
+            self.change_case,
+        );
 
         cx.exec_plugin(BoxedPlugin);
 
@@ -371,10 +376,18 @@ where
     }
 
     // gen service_global_name and methods for certain service in IdlService
-    pub fn init_service(mut self, service: IdlService) -> anyhow::Result<(String, String)> {
+    pub fn init_service(self, service: IdlService) -> anyhow::Result<(String, String)> {
         let _ = tracing_subscriber::fmt::try_init();
         let path = service.path.clone();
-        let cx = self.build_cx(vec![service], None);
+        let cx = Self::build_cx(
+            vec![service],
+            None,
+            self.parser,
+            self.touches,
+            self.ignore_unused,
+            self.source_type,
+            self.change_case,
+        );
 
         std::thread::scope(|_scope| {
             CONTEXT.set(&cx.clone(), move || {
