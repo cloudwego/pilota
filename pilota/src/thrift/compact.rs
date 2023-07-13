@@ -186,10 +186,10 @@ macro_rules! write_field_header_len {
     ($self:expr, $ax:expr, $field_type:expr, $id:expr) => {
         let field_delta = $id - $self.last_write_field_id;
         if field_delta > 0 && field_delta < 15 {
-            $ax += $self.write_byte_len(0);
+            $ax += $self.byte_len(0);
         } else {
-            $ax += $self.write_byte_len($field_type as u8);
-            $ax += $self.write_i16_len($id);
+            $ax += $self.byte_len($field_type as u8);
+            $ax += $self.i16_len($id);
         }
         $self.last_write_field_id = $id;
     };
@@ -197,24 +197,23 @@ macro_rules! write_field_header_len {
 
 impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     #[inline]
-    fn write_message_begin_len(&mut self, ident: &TMessageIdentifier) -> usize {
-        2 + VarInt::required_space(ident.sequence_number as u32)
-            + self.write_faststr_len(&ident.name)
+    fn message_begin_len(&mut self, ident: &TMessageIdentifier) -> usize {
+        2 + VarInt::required_space(ident.sequence_number as u32) + self.faststr_len(&ident.name)
     }
     #[inline]
-    fn write_message_end_len(&mut self) -> usize {
+    fn message_end_len(&mut self) -> usize {
         self.assert_no_pending_bool_write();
         0
     }
 
     #[inline]
-    fn write_struct_begin_len(&mut self, _ident: &TStructIdentifier) -> usize {
+    fn struct_begin_len(&mut self, _ident: &TStructIdentifier) -> usize {
         self.write_field_id_stack.push(self.last_write_field_id);
         self.last_write_field_id = 0;
         0
     }
     #[inline]
-    fn write_struct_end_len(&mut self) -> usize {
+    fn struct_end_len(&mut self) -> usize {
         self.assert_no_pending_bool_write();
         self.last_write_field_id = self
             .write_field_id_stack
@@ -222,7 +221,7 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
             .ok_or_else(|| {
                 DecodeError::new(
                     super::DecodeErrorKind::InvalidData,
-                    "WriteStructEndLen called without matching WriteStructBeginLen",
+                    "StructEndLen called without matching StructBeginLen",
                 )
             })
             .unwrap();
@@ -230,9 +229,9 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     }
 
     #[inline]
-    fn write_field_begin_len(&mut self, field_type: TType, id: Option<i16>) -> usize {
+    fn field_begin_len(&mut self, field_type: TType, id: Option<i16>) -> usize {
         // `id` is an Option<i16> following trait [`TLengthProtocol`]
-        // write_field_begin_len.
+        // field_begin_len.
         match field_type {
             TType::Bool => {
                 if self.pending_write_bool_field_identifier.is_some() {
@@ -258,18 +257,18 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
         }
     }
     #[inline]
-    fn write_field_end_len(&mut self) -> usize {
+    fn field_end_len(&mut self) -> usize {
         self.assert_no_pending_bool_write();
         0
     }
     #[inline]
-    fn write_field_stop_len(&mut self) -> usize {
+    fn field_stop_len(&mut self) -> usize {
         self.assert_no_pending_bool_write();
-        self.write_byte_len(TType::Stop as u8)
+        self.byte_len(TType::Stop as u8)
     }
 
     #[inline]
-    fn write_bool_len(&mut self, b: bool) -> usize {
+    fn bool_len(&mut self, b: bool) -> usize {
         match self.pending_write_bool_field_identifier.take() {
             Some(pending) => {
                 let field_id = pending.id.expect("bool field should have a field id");
@@ -282,7 +281,7 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
                 write_field_header_len!(self, ax, tc_field_type, field_id);
                 ax
             }
-            None => self.write_byte_len(if b {
+            None => self.byte_len(if b {
                 TCompactType::BooleanTrue as u8
             } else {
                 TCompactType::BooleanFalse as u8
@@ -291,112 +290,104 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
     }
 
     #[inline]
-    fn write_bytes_len(&mut self, b: &[u8]) -> usize {
-        if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
-            self.zero_copy_len += b.len();
-        }
+    fn bytes_len(&mut self, b: &[u8]) -> usize {
         VarInt::required_space(b.len() as u32) + b.len()
     }
     #[inline]
-    fn write_byte_len(&mut self, _b: u8) -> usize {
+    fn byte_len(&mut self, _b: u8) -> usize {
         1
     }
 
     #[inline]
-    fn write_uuid_len(&mut self, _u: [u8; 16]) -> usize {
+    fn uuid_len(&mut self, _u: [u8; 16]) -> usize {
         16
     }
 
     #[inline]
-    fn write_i8_len(&mut self, _i: i8) -> usize {
+    fn i8_len(&mut self, _i: i8) -> usize {
         1
     }
     #[inline]
-    fn write_i16_len(&mut self, i: i16) -> usize {
+    fn i16_len(&mut self, i: i16) -> usize {
         VarInt::required_space(i)
     }
     #[inline]
-    fn write_i32_len(&mut self, i: i32) -> usize {
+    fn i32_len(&mut self, i: i32) -> usize {
         VarInt::required_space(i)
     }
     #[inline]
-    fn write_i64_len(&mut self, i: i64) -> usize {
+    fn i64_len(&mut self, i: i64) -> usize {
         VarInt::required_space(i)
     }
     #[inline]
-    fn write_double_len(&mut self, d: f64) -> usize {
+    fn double_len(&mut self, d: f64) -> usize {
         d.to_le_bytes().len()
     }
 
     #[inline]
-    fn write_string_len(&mut self, s: &str) -> usize {
+    fn string_len(&mut self, s: &str) -> usize {
         VarInt::required_space(s.len() as u32) + s.len()
     }
 
     #[inline]
-    fn write_faststr_len(&mut self, s: &FastStr) -> usize {
-        if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
-            self.zero_copy_len += s.len();
-        }
+    fn faststr_len(&mut self, s: &FastStr) -> usize {
         VarInt::required_space(s.len() as u32) + s.len()
     }
 
     #[inline]
-    fn write_list_begin_len(&mut self, identifier: TListIdentifier) -> usize {
+    fn list_begin_len(&mut self, identifier: TListIdentifier) -> usize {
         if identifier.size <= 14 {
-            self.write_byte_len(
+            self.byte_len(
                 ((identifier.size as i32) << 4) as u8
                     | (tcompact_get_compact(identifier.element_type).unwrap() as u8),
             )
         } else {
-            self.write_byte_len(
-                0xF0 | (tcompact_get_compact(identifier.element_type).unwrap() as u8),
-            ) + VarInt::required_space(identifier.size as u32)
+            self.byte_len(0xF0 | (tcompact_get_compact(identifier.element_type).unwrap() as u8))
+                + VarInt::required_space(identifier.size as u32)
         }
     }
     #[inline]
-    fn write_list_end_len(&mut self) -> usize {
+    fn list_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_set_begin_len(&mut self, identifier: TSetIdentifier) -> usize {
+    fn set_begin_len(&mut self, identifier: TSetIdentifier) -> usize {
         if identifier.size <= 14 {
-            self.write_byte_len(
+            self.byte_len(
                 ((identifier.size as i32) << 4) as u8
                     | (tcompact_get_compact(identifier.element_type).unwrap() as u8),
             )
         } else {
-            self.write_byte_len(
-                0xF0 | (tcompact_get_compact(identifier.element_type).unwrap() as u8),
-            ) + VarInt::required_space(identifier.size as u32)
+            self.byte_len(0xF0 | (tcompact_get_compact(identifier.element_type).unwrap() as u8))
+                + VarInt::required_space(identifier.size as u32)
         }
     }
     #[inline]
-    fn write_set_end_len(&mut self) -> usize {
+    fn set_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_map_begin_len(&mut self, identifier: TMapIdentifier) -> usize {
+    fn map_begin_len(&mut self, identifier: TMapIdentifier) -> usize {
         if identifier.size == 0 {
-            self.write_byte_len(TType::Stop as u8)
+            self.byte_len(TType::Stop as u8)
         } else {
             VarInt::required_space(identifier.size as u32)
-                + self.write_byte_len(
+                + self.byte_len(
                     (tcompact_get_compact(identifier.key_type).unwrap() as u8) << 4
                         | (tcompact_get_compact(identifier.value_type).unwrap()) as u8,
                 )
         }
     }
     #[inline]
-    fn write_map_end_len(&mut self) -> usize {
+    fn map_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_bytes_vec_len(&mut self, b: &[u8]) -> usize {
-        self.write_bytes_len(b)
+    fn bytes_vec_len(&mut self, b: &[u8]) -> usize {
+        self.bytes_len(b)
     }
 
     #[inline]
@@ -550,9 +541,15 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(b.len() as u32)?;
+        self.write_bytes_without_len(b)
+    }
+
+    #[inline]
+    fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), EncodeError> {
         self.trans.write_slice(&b)?;
         Ok(())
     }
+
     #[inline]
     fn write_byte(&mut self, b: u8) -> Result<(), EncodeError> {
         self.trans.write_u8(b)?;
@@ -811,7 +808,12 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(b.len() as u32)?;
+        self.write_bytes_without_len(b)
+    }
+    #[inline]
+    fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), EncodeError> {
         if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
+            self.zero_copy_len += b.len();
             self.trans.insert(b);
             return Ok(());
         }
@@ -871,6 +873,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(s.len() as u32)?;
         if self.zero_copy && s.len() <= ZERO_COPY_THRESHOLD {
+            self.zero_copy_len += s.len();
             self.trans.insert_faststr(s);
             return Ok(());
         }
@@ -1228,6 +1231,7 @@ pub struct TCompactInputProtocol<T> {
     // Saved because boolean fields and their value are encoded in a single byte,
     // and reading the field only occurs after the field id is read.
     pending_read_bool_value: Option<bool>,
+    pending_read_bool_field_identifier: Option<TFieldIdentifier>,
 }
 
 impl<T> TCompactInputProtocol<T> {
@@ -1237,6 +1241,13 @@ impl<T> TCompactInputProtocol<T> {
             last_read_field_id: 0,
             read_field_id_stack: Vec::with_capacity(24),
             pending_read_bool_value: None,
+            pending_read_bool_field_identifier: None,
+        }
+    }
+
+    fn assert_no_pending_bool_read(&self) {
+        if let Some(ref f) = self.pending_read_bool_field_identifier {
+            panic!("pending bool field {:?} not read", f);
         }
     }
 }
@@ -1266,6 +1277,223 @@ impl TCompactInputProtocol<&mut Bytes> {
         };
         Ok((element_type, element_count as usize))
     }
+}
+
+macro_rules! read_field_header_len {
+    ($self:expr, $ax:expr, $field_type:expr, $id:expr) => {
+        let field_delta = $id - $self.last_read_field_id;
+        if field_delta > 0 && field_delta < 15 {
+            $ax += $self.byte_len(0);
+        } else {
+            $ax += $self.byte_len($field_type as u8);
+            $ax += $self.i16_len($id);
+        }
+        $self.last_read_field_id = $id;
+    };
+}
+
+impl<T> TLengthProtocol for TCompactInputProtocol<T> {
+    #[inline]
+    fn message_begin_len(&mut self, ident: &TMessageIdentifier) -> usize {
+        2 + VarInt::required_space(ident.sequence_number as u32) + self.faststr_len(&ident.name)
+    }
+    #[inline]
+    fn message_end_len(&mut self) -> usize {
+        self.assert_no_pending_bool_read();
+        0
+    }
+
+    #[inline]
+    fn struct_begin_len(&mut self, _ident: &TStructIdentifier) -> usize {
+        self.read_field_id_stack.push(self.last_read_field_id);
+        self.last_read_field_id = 0;
+        0
+    }
+    #[inline]
+    fn struct_end_len(&mut self) -> usize {
+        self.assert_no_pending_bool_read();
+        self.last_read_field_id = self
+            .read_field_id_stack
+            .pop()
+            .ok_or_else(|| {
+                DecodeError::new(
+                    super::DecodeErrorKind::InvalidData,
+                    "StructEndLen called without matching StructBeginLen",
+                )
+            })
+            .unwrap();
+        0
+    }
+
+    #[inline]
+    fn field_begin_len(&mut self, field_type: TType, id: Option<i16>) -> usize {
+        // `id` is an Option<i16> following trait [`TLengthProtocol`]
+        // field_begin_len.
+        match field_type {
+            TType::Bool => {
+                if self.pending_read_bool_field_identifier.is_some() {
+                    panic!(
+                        "should not have a pending bool while reading another bool with id: \
+                        {:?}",
+                        id,
+                    )
+                }
+                self.pending_read_bool_field_identifier = Some(TFieldIdentifier {
+                    name: None,
+                    field_type,
+                    id,
+                });
+                0
+            }
+            _ => {
+                let tc_field_type = TCompactType::try_from(field_type).unwrap(); // this should never happen
+                let mut ax = 0;
+                read_field_header_len!(self, ax, tc_field_type, id.expect("expecting a field id"));
+                ax
+            }
+        }
+    }
+    #[inline]
+    fn field_end_len(&mut self) -> usize {
+        self.assert_no_pending_bool_read();
+        0
+    }
+    #[inline]
+    fn field_stop_len(&mut self) -> usize {
+        self.assert_no_pending_bool_read();
+        self.byte_len(TType::Stop as u8)
+    }
+
+    #[inline]
+    fn bool_len(&mut self, b: bool) -> usize {
+        match self.pending_read_bool_field_identifier.take() {
+            Some(pending) => {
+                let field_id = pending.id.expect("bool field should have a field id");
+                let tc_field_type = if b {
+                    TCompactType::BooleanTrue
+                } else {
+                    TCompactType::BooleanFalse
+                };
+                let mut ax = 0;
+                read_field_header_len!(self, ax, tc_field_type, field_id);
+                ax
+            }
+            None => self.byte_len(if b {
+                TCompactType::BooleanTrue as u8
+            } else {
+                TCompactType::BooleanFalse as u8
+            }),
+        }
+    }
+
+    #[inline]
+    fn bytes_len(&mut self, b: &[u8]) -> usize {
+        VarInt::required_space(b.len() as u32) + b.len()
+    }
+    #[inline]
+    fn byte_len(&mut self, _b: u8) -> usize {
+        1
+    }
+
+    #[inline]
+    fn uuid_len(&mut self, _u: [u8; 16]) -> usize {
+        16
+    }
+
+    #[inline]
+    fn i8_len(&mut self, _i: i8) -> usize {
+        1
+    }
+    #[inline]
+    fn i16_len(&mut self, i: i16) -> usize {
+        VarInt::required_space(i)
+    }
+    #[inline]
+    fn i32_len(&mut self, i: i32) -> usize {
+        VarInt::required_space(i)
+    }
+    #[inline]
+    fn i64_len(&mut self, i: i64) -> usize {
+        VarInt::required_space(i)
+    }
+    #[inline]
+    fn double_len(&mut self, d: f64) -> usize {
+        d.to_le_bytes().len()
+    }
+
+    #[inline]
+    fn string_len(&mut self, s: &str) -> usize {
+        VarInt::required_space(s.len() as u32) + s.len()
+    }
+
+    #[inline]
+    fn faststr_len(&mut self, s: &FastStr) -> usize {
+        VarInt::required_space(s.len() as u32) + s.len()
+    }
+
+    #[inline]
+    fn list_begin_len(&mut self, identifier: TListIdentifier) -> usize {
+        if identifier.size <= 14 {
+            self.byte_len(
+                ((identifier.size as i32) << 4) as u8
+                    | (tcompact_get_compact(identifier.element_type).unwrap() as u8),
+            )
+        } else {
+            self.byte_len(0xF0 | (tcompact_get_compact(identifier.element_type).unwrap() as u8))
+                + VarInt::required_space(identifier.size as u32)
+        }
+    }
+    #[inline]
+    fn list_end_len(&mut self) -> usize {
+        0
+    }
+
+    #[inline]
+    fn set_begin_len(&mut self, identifier: TSetIdentifier) -> usize {
+        if identifier.size <= 14 {
+            self.byte_len(
+                ((identifier.size as i32) << 4) as u8
+                    | (tcompact_get_compact(identifier.element_type).unwrap() as u8),
+            )
+        } else {
+            self.byte_len(0xF0 | (tcompact_get_compact(identifier.element_type).unwrap() as u8))
+                + VarInt::required_space(identifier.size as u32)
+        }
+    }
+    #[inline]
+    fn set_end_len(&mut self) -> usize {
+        0
+    }
+
+    #[inline]
+    fn map_begin_len(&mut self, identifier: TMapIdentifier) -> usize {
+        if identifier.size == 0 {
+            self.byte_len(TType::Stop as u8)
+        } else {
+            VarInt::required_space(identifier.size as u32)
+                + self.byte_len(
+                    (tcompact_get_compact(identifier.key_type).unwrap() as u8) << 4
+                        | (tcompact_get_compact(identifier.value_type).unwrap()) as u8,
+                )
+        }
+    }
+    #[inline]
+    fn map_end_len(&mut self) -> usize {
+        0
+    }
+
+    #[inline]
+    fn bytes_vec_len(&mut self, b: &[u8]) -> usize {
+        self.bytes_len(b)
+    }
+
+    #[inline]
+    fn zero_copy_len(&mut self) -> usize {
+        0
+    }
+
+    #[inline]
+    fn reset(&mut self) {}
 }
 
 impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
@@ -1495,7 +1723,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
     }
 
     #[inline]
-    fn buf_mut(&mut self) -> &mut Self::Buf {
+    fn buf(&mut self) -> &mut Self::Buf {
         self.trans
     }
 }
@@ -1505,7 +1733,6 @@ mod tests {
     use std::io::Read;
 
     use bytes::{Buf, BufMut, Bytes, BytesMut};
-    use linkedbytes::LinkedBytes;
 
     use super::{TCompactInputProtocol, TCompactOutputProtocol};
     use crate::thrift::{
@@ -1536,17 +1763,6 @@ mod tests {
         TCompactOutputProtocol::new(trans, false)
     }
 
-    fn test_input_prot_linkedbytes(
-        trans: &mut LinkedBytes,
-    ) -> TCompactInputProtocol<&mut LinkedBytes> {
-        TCompactInputProtocol::new(trans)
-    }
-    fn test_output_prot_linkedbytes(
-        trans: &mut LinkedBytes,
-    ) -> TCompactOutputProtocol<&mut LinkedBytes> {
-        TCompactOutputProtocol::new(trans, false)
-    }
-
     #[test]
     fn must_have_same_length_written() {
         let mut trans = BytesMut::new();
@@ -1561,121 +1777,115 @@ mod tests {
         // message
         let identifier = &TMessageIdentifier::new("foo".into(), TMessageType::Call, 1);
         o_prot.write_message_begin(identifier).unwrap();
-        let exp = o_prot.write_message_begin_len(identifier);
+        let exp = o_prot.message_begin_len(identifier);
         mteq!(o_prot, exp);
         o_prot.write_message_end().unwrap();
-        let exp = o_prot.write_message_end_len();
+        let exp = o_prot.message_end_len();
         mteq!(o_prot, exp);
 
         // struct
         let identifier = &TStructIdentifier::new("foo");
         o_prot.write_struct_begin(identifier).unwrap();
-        let exp = o_prot.write_struct_begin_len(identifier);
+        let exp = o_prot.struct_begin_len(identifier);
         mteq!(o_prot, exp);
         o_prot.write_struct_end().unwrap();
-        let exp = o_prot.write_struct_end_len();
+        let exp = o_prot.struct_end_len();
         mteq!(o_prot, exp);
 
         // === START [ field test ] ===
         let (field_type, field_id) = (TType::I64, 0);
         o_prot.write_field_begin(field_type, field_id).unwrap(); // first id = 0
-        mteq!(
-            o_prot,
-            o_prot.write_field_begin_len(field_type, Some(field_id))
-        );
+        mteq!(o_prot, o_prot.field_begin_len(field_type, Some(field_id)));
         o_prot.write_field_end().unwrap();
-        mteq!(o_prot, o_prot.write_field_end_len());
+        mteq!(o_prot, o_prot.field_end_len());
 
         // trigger 3 bytes write, field ID delta > 0b1111
         // 1 byte (field header) + 2 bytes (I16, for field ID)
         let (field_type, field_id) = (TType::Binary, 16);
         o_prot.write_field_begin(field_type, field_id).unwrap();
-        mteq!(
-            o_prot,
-            o_prot.write_field_begin_len(field_type, Some(field_id))
-        );
+        mteq!(o_prot, o_prot.field_begin_len(field_type, Some(field_id)));
 
         // bare write bool
         o_prot.write_bool(false).unwrap();
-        mteq!(o_prot, o_prot.write_bool_len(false));
+        mteq!(o_prot, o_prot.bool_len(false));
         // write bool with field
         let (field_type, field_id) = (TType::Bool, 17);
         let mut ax = 0;
         o_prot.write_field_begin(field_type, field_id).unwrap();
         let _pending_bool_field_ident = o_prot.pending_write_bool_field_identifier.take();
-        ax += o_prot.write_field_begin_len(field_type, Some(field_id));
+        ax += o_prot.field_begin_len(field_type, Some(field_id));
         //
         o_prot.write_bool(false).unwrap();
-        ax += o_prot.write_bool_len(false);
+        ax += o_prot.bool_len(false);
         o_prot.write_field_end().unwrap();
-        ax += o_prot.write_field_end_len();
+        ax += o_prot.field_end_len();
         mteq!(o_prot, ax);
 
         o_prot.write_field_stop().unwrap();
-        mteq!(o_prot, o_prot.write_field_stop_len());
+        mteq!(o_prot, o_prot.field_stop_len());
         // === END [ field test ] ===
 
         o_prot.write_byte(0xff).unwrap();
-        mteq!(o_prot, o_prot.write_byte_len(0xff));
+        mteq!(o_prot, o_prot.byte_len(0xff));
         o_prot.write_i8(-1).unwrap();
-        mteq!(o_prot, o_prot.write_i8_len(-1));
+        mteq!(o_prot, o_prot.i8_len(-1));
 
         o_prot.write_i16(-1).unwrap();
-        mteq!(o_prot, o_prot.write_i16_len(-1));
+        mteq!(o_prot, o_prot.i16_len(-1));
 
         o_prot.write_i32(-1).unwrap();
-        mteq!(o_prot, o_prot.write_i32_len(-1));
+        mteq!(o_prot, o_prot.i32_len(-1));
 
         o_prot.write_i64(-1).unwrap();
-        mteq!(o_prot, o_prot.write_i64_len(-1));
+        mteq!(o_prot, o_prot.i64_len(-1));
 
         o_prot.write_double(13.37f64).unwrap();
-        mteq!(o_prot, o_prot.write_double_len(13.37f64));
+        mteq!(o_prot, o_prot.double_len(13.37f64));
 
         let identifier = 0xf00baau64.to_le_bytes().to_vec();
         o_prot.write_bytes(Bytes::from(identifier.clone())).unwrap();
-        mteq!(o_prot, o_prot.write_bytes_len(&identifier[..]));
+        mteq!(o_prot, o_prot.bytes_len(&identifier[..]));
 
         let identifier = [0u8; 16];
         o_prot.write_uuid(identifier).unwrap();
-        mteq!(o_prot, o_prot.write_uuid_len(identifier));
+        mteq!(o_prot, o_prot.uuid_len(identifier));
 
         let identifier = "foobar";
         o_prot.write_faststr(identifier.into()).unwrap();
-        mteq!(o_prot, o_prot.write_faststr_len(&identifier.into()));
+        mteq!(o_prot, o_prot.faststr_len(&identifier.into()));
 
         let mut identifier = TListIdentifier::new(TType::I16, 0);
         o_prot.write_list_begin(identifier).unwrap();
-        mteq!(o_prot, o_prot.write_list_begin_len(identifier));
+        mteq!(o_prot, o_prot.list_begin_len(identifier));
         o_prot.write_list_end().unwrap();
-        mteq!(o_prot, o_prot.write_list_end_len());
+        mteq!(o_prot, o_prot.list_end_len());
         identifier.size = 1;
         o_prot.write_list_begin(identifier).unwrap();
-        mteq!(o_prot, o_prot.write_list_begin_len(identifier));
+        mteq!(o_prot, o_prot.list_begin_len(identifier));
         o_prot.write_list_end().unwrap();
-        mteq!(o_prot, o_prot.write_list_end_len());
+        mteq!(o_prot, o_prot.list_end_len());
 
         let mut identifier = TSetIdentifier::new(TType::I16, 0);
         o_prot.write_set_begin(identifier).unwrap();
-        mteq!(o_prot, o_prot.write_set_begin_len(identifier));
+        mteq!(o_prot, o_prot.set_begin_len(identifier));
         o_prot.write_set_end().unwrap();
-        mteq!(o_prot, o_prot.write_set_end_len());
+        mteq!(o_prot, o_prot.set_end_len());
         identifier.size = 1;
         o_prot.write_set_begin(identifier).unwrap();
-        mteq!(o_prot, o_prot.write_set_begin_len(identifier));
+        mteq!(o_prot, o_prot.set_begin_len(identifier));
         o_prot.write_set_end().unwrap();
-        mteq!(o_prot, o_prot.write_set_end_len());
+        mteq!(o_prot, o_prot.set_end_len());
 
         let mut identifier = TMapIdentifier::new(TType::Binary, TType::I64, 0);
         o_prot.write_map_begin(identifier).unwrap();
-        mteq!(o_prot, o_prot.write_map_begin_len(identifier));
+        mteq!(o_prot, o_prot.map_begin_len(identifier));
         o_prot.write_map_end().unwrap();
-        mteq!(o_prot, o_prot.write_map_end_len());
+        mteq!(o_prot, o_prot.map_end_len());
         identifier.size = 1;
         o_prot.write_map_begin(identifier).unwrap();
-        mteq!(o_prot, o_prot.write_map_begin_len(identifier));
+        mteq!(o_prot, o_prot.map_begin_len(identifier));
         o_prot.write_map_end().unwrap();
-        mteq!(o_prot, o_prot.write_map_end_len());
+        mteq!(o_prot, o_prot.map_end_len());
     }
 
     #[test]

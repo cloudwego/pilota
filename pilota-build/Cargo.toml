@@ -59,7 +59,6 @@ tempfile = "3"
 diffy = "0.3"
 criterion = { version = "0.5", features = ["html_reports"] }
 
-
 [[bench]]
 name = "codegen"
 harness = false

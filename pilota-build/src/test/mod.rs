@@ -6,6 +6,24 @@ use tempfile::tempdir;
 
 use crate::{plugin::SerdePlugin, IdlService};
 
+// include!("../../test_data/must_gen_items.rs");
+// include!("../../test_data/unknown_fields.rs");
+
+// include!("../../test_data/thrift/binary_bytes.rs");
+// include!("../../test_data/thrift/const_val.rs");
+// include!("../../test_data/thrift/default_value.rs");
+// include!("../../test_data/thrift/enum_test.rs");
+// include!("../../test_data/thrift/normal.rs");
+// include!("../../test_data/thrift/pilota_name.rs");
+// include!("../../test_data/thrift/recursive_type.rs");
+// include!("../../test_data/thrift/self_kw.rs");
+// include!("../../test_data/thrift/string.rs");
+// include!("../../test_data/thrift/union.rs");
+// include!("../../test_data/thrift/void.rs");
+// include!("../../test_data/thrift/wrapper_arc.rs");
+
+// include!("../../test_data/plugin/serde.rs");
+
 fn diff_file(old: impl AsRef<Path>, new: impl AsRef<Path>) {
     let old_content =
         unsafe { String::from_utf8_unchecked(std::fs::read(old).unwrap()) }.replace("\r", "");
@@ -168,6 +186,26 @@ fn test_touch() {
     test_with_builder(file_path, out_path, |source, target| {
         crate::Builder::thrift()
             .touch([(source.into(), vec!["A"])])
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            )
+    });
+}
+
+#[test]
+fn test_unknown_fields() {
+    let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("unknown_fields.thrift");
+
+    let mut out_path = file_path.clone();
+    out_path.set_extension("rs");
+
+    test_with_builder(file_path, out_path, |source, target| {
+        crate::Builder::thrift()
+            .ignore_unused(false)
+            .keep_unknown_fields(true)
             .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
                 crate::Output::File(target.into()),

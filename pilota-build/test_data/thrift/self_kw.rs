@@ -53,6 +53,8 @@ pub mod self_kw {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
                 let value = protocol.read_i32()?;
                 Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
                     ::pilota::thrift::DecodeError::new(
@@ -77,7 +79,7 @@ pub mod self_kw {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.write_i32_len(*self as i32)
+                protocol.i32_len(*self as i32)
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -104,16 +106,25 @@ pub mod self_kw {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+
                 let mut r#type = None;
 
                 let mut __pilota_decoding_field_id = None;
+                let mut offset = 0;
 
                 protocol.read_struct_begin()?;
+                offset += protocol.struct_begin_len(&pilota::thrift::VOID_IDENT);
                 if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                            offset += protocol.field_stop_len();
                             break;
+                        } else {
+                            offset +=
+                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -121,13 +132,15 @@ pub mod self_kw {
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 r#type = Some(protocol.read_faststr()?);
+                                offset += protocol.faststr_len(r#type.as_ref().unwrap());
                             }
                             _ => {
-                                protocol.skip(field_ident.field_type)?;
+                                offset += protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
+                        offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -143,15 +156,14 @@ pub mod self_kw {
                     }
                 };
                 protocol.read_struct_end()?;
+                offset += protocol.struct_end_len();
 
                 let Some(r#type) = r#type else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field r#type is required".to_string()
-                    )
-                )
-            };
+                        "field r#type is required".to_string(),
+                    ));
+                };
 
                 let data = Self { r#type };
                 Ok(data)
@@ -163,13 +175,16 @@ pub mod self_kw {
                 let mut r#type = None;
 
                 let mut __pilota_decoding_field_id = None;
+                let mut offset = 0;
 
                 protocol.read_struct_begin().await?;
+
                 if let Err(err) = async {
                     loop {
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
+                        } else {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -203,13 +218,11 @@ pub mod self_kw {
                 protocol.read_struct_end().await?;
 
                 let Some(r#type) = r#type else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field r#type is required".to_string()
-                    )
-                )
-            };
+                        "field r#type is required".to_string(),
+                    ));
+                };
 
                 let data = Self { r#type };
                 Ok(data)
@@ -218,10 +231,10 @@ pub mod self_kw {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + protocol.write_faststr_field_len(Some(1), &self.r#type)
-                    + protocol.write_field_stop_len()
-                    + protocol.write_struct_end_len()
+                protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
+                    + protocol.faststr_field_len(Some(1), &self.r#type)
+                    + protocol.field_stop_len()
+                    + protocol.struct_end_len()
             }
         }
     }

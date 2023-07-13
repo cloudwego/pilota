@@ -87,7 +87,7 @@ where
     pub fn write_struct(&self, def_id: DefId, stream: &mut String, s: &rir::Message) {
         let name = self.rust_name(def_id);
 
-        let fields = s
+        let mut fields = s
             .fields
             .iter()
             .map(|f| {
@@ -116,11 +116,31 @@ where
             })
             .join("\n");
 
+        if self.keep_unknown_fields {
+            match self.node(def_id) {
+                Some(rir::Node {
+                    kind: rir::NodeKind::Item(_),
+                    tags,
+                    ..
+                }) => {
+                    if let Some(crate::tags::KeepUnknownFields(false)) = self
+                        .tags(tags)
+                        .as_ref()
+                        .and_then(|tags| tags.get::<crate::tags::KeepUnknownFields>())
+                    {
+                    } else {
+                        fields.push_str("pub _unknown_fields: ::pilota::Bytes,");
+                    }
+                }
+                _ => {}
+            };
+        }
+
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq)]
-            pub struct {name} {{
-                {fields}
-            }}"#
+                pub struct {name} {{
+                    {fields}
+                }}"#
         });
 
         self.backend.codegen_struct_impl(def_id, stream, s);
@@ -249,8 +269,8 @@ where
         if e.repr.is_some() {
             repr.extend(quote! { #[derive(Copy)] })
         }
-
-        let variants = e
+        let mut keep = true;
+        let mut variants = e
             .variants
             .iter()
             .map(|v| {
@@ -266,6 +286,7 @@ where
                         .join(",");
 
                     let fields_stream = if fields.is_empty() {
+                        keep = false;
                         Default::default()
                     } else {
                         format!("({fields})")
@@ -291,6 +312,27 @@ where
             })
             .join("\n");
 
+        if self.keep_unknown_fields {
+            match self.node(def_id) {
+                Some(rir::Node {
+                    kind: rir::NodeKind::Item(_),
+                    tags,
+                    ..
+                }) => {
+                    if let Some(crate::tags::KeepUnknownFields(false)) = self
+                        .tags(tags)
+                        .as_ref()
+                        .and_then(|tags| tags.get::<crate::tags::KeepUnknownFields>())
+                    {
+                    } else {
+                        if keep {
+                            variants.push_str("_UnknownFields(::pilota::Bytes),");
+                        }
+                    }
+                }
+                _ => {}
+            };
+        }
         stream.push_str(&format! {
             r#"
             #[derive(Clone, PartialEq)]

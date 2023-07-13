@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use faststr::FastStr;
 use itertools::Itertools;
 use proc_macro2::{Ident, Span};
@@ -20,6 +22,14 @@ pub struct ProtobufBackend {
 impl ProtobufBackend {
     pub fn new(cx: Context) -> Self {
         ProtobufBackend { cx }
+    }
+}
+
+impl Deref for ProtobufBackend {
+    type Target = Context;
+
+    fn deref(&self) -> &Self::Target {
+        &self.cx
     }
 }
 
@@ -82,8 +92,7 @@ impl ProtobufBackend {
                 }
             }
             Category::Map => {
-                let ty::TyKind::Map(key_ty, value_ty) = &ty.kind
-                else {
+                let ty::TyKind::Map(key_ty, value_ty) = &ty.kind else {
                     unreachable!();
                 };
 
@@ -251,8 +260,7 @@ impl ProtobufBackend {
             }
 
             Category::Map => {
-                let ty::TyKind::Map(key_ty, value_ty) = &ty.kind
-                else {
+                let ty::TyKind::Map(key_ty, value_ty) = &ty.kind else {
                     unreachable!();
                 };
 
@@ -325,8 +333,7 @@ impl ProtobufBackend {
                 }
             }
             Category::Map => {
-                let ty::TyKind::Map(key_ty, value_ty) = &ty.kind
-                else {
+                let ty::TyKind::Map(key_ty, value_ty) = &ty.kind else {
                     unreachable!();
                 };
 

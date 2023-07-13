@@ -51,6 +51,8 @@ pub mod default_value {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
                 let value = protocol.read_i32()?;
                 Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
                     ::pilota::thrift::DecodeError::new(
@@ -75,7 +77,7 @@ pub mod default_value {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.write_i32_len(*self as i32)
+                protocol.i32_len(*self as i32)
             }
         }
         impl Default for A {
@@ -134,7 +136,7 @@ pub mod default_value {
 
                 protocol.write_struct_begin(&struct_ident)?;
                 protocol.write_faststr_field(1, (&self.faststr).clone())?;
-                protocol.write_string_field(2, &&self.string)?;
+                protocol.write_string_field(2, &self.string)?;
                 if let Some(value) = self.a.as_ref() {
                     protocol.write_bool_field(3, *value)?;
                 }
@@ -177,6 +179,9 @@ pub mod default_value {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+
                 let mut faststr = ::pilota::FastStr::from_static_str("hello world");
                 let mut string = None;
                 let mut a = Some(false);
@@ -188,13 +193,19 @@ pub mod default_value {
                 let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
 
                 let mut __pilota_decoding_field_id = None;
+                let mut offset = 0;
 
                 protocol.read_struct_begin()?;
+                offset += protocol.struct_begin_len(&pilota::thrift::VOID_IDENT);
                 if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                            offset += protocol.field_stop_len();
                             break;
+                        } else {
+                            offset +=
+                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -202,20 +213,25 @@ pub mod default_value {
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 faststr = protocol.read_faststr()?;
+                                offset += protocol.faststr_len(&faststr);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 string = Some(protocol.read_string()?);
+                                offset += protocol.string_len(string.as_ref().unwrap());
                             }
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
                                 a = Some(protocol.read_bool()?);
+                                offset += protocol.bool_len(*a.as_ref().unwrap());
                             }
                             Some(4) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 test_b = Some(::pilota::thrift::Message::decode(protocol)?);
+                                offset += protocol.struct_len(test_b.as_ref().unwrap());
                             }
                             Some(5) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 test_b2 = Some(::pilota::thrift::Message::decode(protocol)?);
+                                offset += protocol.struct_len(test_b2.as_ref().unwrap());
                             }
                             Some(6) if field_ident.field_type == ::pilota::thrift::TType::Map => {
                                 map = Some({
@@ -231,28 +247,39 @@ pub mod default_value {
                                     protocol.read_map_end()?;
                                     val
                                 });
+                                offset += protocol.map_len(
+                                    ::pilota::thrift::TType::Binary,
+                                    ::pilota::thrift::TType::Binary,
+                                    map.as_ref().unwrap(),
+                                    |protocol, key| protocol.faststr_len(key),
+                                    |protocol, val| protocol.faststr_len(val),
+                                );
                             }
                             Some(7)
                                 if field_ident.field_type == ::pilota::thrift::TType::Double =>
                             {
                                 test_double = Some(protocol.read_double()?);
+                                offset += protocol.double_len(*test_double.as_ref().unwrap());
                             }
                             Some(8)
                                 if field_ident.field_type == ::pilota::thrift::TType::Double =>
                             {
                                 test_double2 = Some(protocol.read_double()?);
+                                offset += protocol.double_len(*test_double2.as_ref().unwrap());
                             }
                             Some(9)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 alias_str = Some(protocol.read_faststr()?);
+                                offset += protocol.faststr_len(alias_str.as_ref().unwrap());
                             }
                             _ => {
-                                protocol.skip(field_ident.field_type)?;
+                                offset += protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
+                        offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -268,6 +295,7 @@ pub mod default_value {
                     }
                 };
                 protocol.read_struct_end()?;
+                offset += protocol.struct_end_len();
 
                 let string = string.unwrap_or_else(|| "test".to_string());
                 if map.is_none() {
@@ -309,13 +337,16 @@ pub mod default_value {
                 let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
 
                 let mut __pilota_decoding_field_id = None;
+                let mut offset = 0;
 
                 protocol.read_struct_begin().await?;
+
                 if let Err(err) = async {
                     loop {
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
+                        } else {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -423,43 +454,45 @@ pub mod default_value {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + protocol.write_faststr_field_len(Some(1), &self.faststr)
-                    + protocol.write_string_field_len(Some(2), &&self.string)
+                protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
+                    + protocol.faststr_field_len(Some(1), &self.faststr)
+                    + protocol.string_field_len(Some(2), &&self.string)
                     + self
                         .a
                         .as_ref()
-                        .map_or(0, |value| protocol.write_bool_field_len(Some(3), *value))
-                    + self.test_b.as_ref().map_or(0, |value| {
-                        protocol.write_i32_field_len(Some(4), (*value).into())
-                    })
-                    + self.test_b2.as_ref().map_or(0, |value| {
-                        protocol.write_i32_field_len(Some(5), (*value).into())
-                    })
+                        .map_or(0, |value| protocol.bool_field_len(Some(3), *value))
+                    + self
+                        .test_b
+                        .as_ref()
+                        .map_or(0, |value| protocol.i32_field_len(Some(4), (*value).into()))
+                    + self
+                        .test_b2
+                        .as_ref()
+                        .map_or(0, |value| protocol.i32_field_len(Some(5), (*value).into()))
                     + self.map.as_ref().map_or(0, |value| {
-                        protocol.write_map_field_len(
+                        protocol.map_field_len(
                             Some(6),
                             ::pilota::thrift::TType::Binary,
                             ::pilota::thrift::TType::Binary,
                             value,
-                            |protocol, key| protocol.write_faststr_len(key),
-                            |protocol, val| protocol.write_faststr_len(val),
+                            |protocol, key| protocol.faststr_len(key),
+                            |protocol, val| protocol.faststr_len(val),
                         )
                     })
                     + self
                         .test_double
                         .as_ref()
-                        .map_or(0, |value| protocol.write_double_field_len(Some(7), *value))
+                        .map_or(0, |value| protocol.double_field_len(Some(7), *value))
                     + self
                         .test_double2
                         .as_ref()
-                        .map_or(0, |value| protocol.write_double_field_len(Some(8), *value))
+                        .map_or(0, |value| protocol.double_field_len(Some(8), *value))
                     + self
                         .alias_str
                         .as_ref()
-                        .map_or(0, |value| protocol.write_faststr_field_len(Some(9), value))
-                    + protocol.write_field_stop_len()
-                    + protocol.write_struct_end_len()
+                        .map_or(0, |value| protocol.faststr_field_len(Some(9), value))
+                    + protocol.field_stop_len()
+                    + protocol.struct_end_len()
             }
         }
         pub const A_S: &'static str = "string";

@@ -18,7 +18,7 @@ pub mod recursive_type {
 
                 protocol.write_struct_begin(&struct_ident)?;
                 if let Some(value) = self.a.as_ref() {
-                    protocol.write_struct_field(1, value)?;
+                    protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                 }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
@@ -28,16 +28,25 @@ pub mod recursive_type {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+
                 let mut a = None;
 
                 let mut __pilota_decoding_field_id = None;
+                let mut offset = 0;
 
                 protocol.read_struct_begin()?;
+                offset += protocol.struct_begin_len(&pilota::thrift::VOID_IDENT);
                 if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                            offset += protocol.field_stop_len();
                             break;
+                        } else {
+                            offset +=
+                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -47,13 +56,15 @@ pub mod recursive_type {
                                 a = Some(::std::boxed::Box::new(
                                     ::pilota::thrift::Message::decode(protocol)?,
                                 ));
+                                offset += protocol.struct_len(a.as_ref().unwrap());
                             }
                             _ => {
-                                protocol.skip(field_ident.field_type)?;
+                                offset += protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
+                        offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -69,6 +80,7 @@ pub mod recursive_type {
                     }
                 };
                 protocol.read_struct_end()?;
+                offset += protocol.struct_end_len();
 
                 let data = Self { a };
                 Ok(data)
@@ -80,13 +92,16 @@ pub mod recursive_type {
                 let mut a = None;
 
                 let mut __pilota_decoding_field_id = None;
+                let mut offset = 0;
 
                 protocol.read_struct_begin().await?;
+
                 if let Err(err) = async {
                     loop {
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
+                        } else {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -128,13 +143,13 @@ pub mod recursive_type {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
+                protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
                     + self
                         .a
                         .as_ref()
-                        .map_or(0, |value| protocol.write_struct_field_len(Some(1), value))
-                    + protocol.write_field_stop_len()
-                    + protocol.write_struct_end_len()
+                        .map_or(0, |value| protocol.struct_field_len(Some(1), value))
+                    + protocol.field_stop_len()
+                    + protocol.struct_end_len()
             }
         }
     }
