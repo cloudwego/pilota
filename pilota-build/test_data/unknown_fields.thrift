@@ -36,6 +36,11 @@ const map<i32, list<string>> TEST_MAP_LIST = {
 
 service Test {
    void test_123();
+   string testException(1: string req) throws (1: STException stException);
+}
+
+exception STException {
+    1: string message;
 }
 
 union TestUnion {

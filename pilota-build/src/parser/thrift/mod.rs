@@ -227,7 +227,9 @@ impl ThriftLower {
                     repr: None,
                 });
                 related_items.push(name);
-                result.push(self.mk_item(kind, Default::default()));
+                let mut tags = Tags::default();
+                tags.insert(crate::tags::KeepUnknownFields(false));
+                result.push(self.mk_item(kind, tags.into()));
             }
 
             let name: Ident = format!(
