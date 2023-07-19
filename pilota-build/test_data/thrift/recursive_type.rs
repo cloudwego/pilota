@@ -34,12 +34,12 @@ pub mod recursive_type {
                 let mut a = None;
 
                 let mut __pilota_decoding_field_id = None;
-                let mut offset = 0;
 
                 protocol.read_struct_begin()?;
-                offset += protocol.struct_begin_len(&pilota::thrift::VOID_IDENT);
                 if let Err(err) = (|| {
                     loop {
+                        let mut offset = 0;
+
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             offset += protocol.field_stop_len();
@@ -56,7 +56,6 @@ pub mod recursive_type {
                                 a = Some(::std::boxed::Box::new(
                                     ::pilota::thrift::Message::decode(protocol)?,
                                 ));
-                                offset += protocol.struct_len(a.as_ref().unwrap());
                             }
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
@@ -80,7 +79,6 @@ pub mod recursive_type {
                     }
                 };
                 protocol.read_struct_end()?;
-                offset += protocol.struct_end_len();
 
                 let data = Self { a };
                 Ok(data)
@@ -92,12 +90,12 @@ pub mod recursive_type {
                 let mut a = None;
 
                 let mut __pilota_decoding_field_id = None;
-                let mut offset = 0;
 
                 protocol.read_struct_begin().await?;
-
                 if let Err(err) = async {
                     loop {
+                        let mut offset = 0;
+
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;

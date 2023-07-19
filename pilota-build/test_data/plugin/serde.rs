@@ -48,12 +48,12 @@ pub mod serde {
                 let mut b = None;
 
                 let mut __pilota_decoding_field_id = None;
-                let mut offset = 0;
 
                 protocol.read_struct_begin()?;
-                offset += protocol.struct_begin_len(&pilota::thrift::VOID_IDENT);
                 if let Err(err) = (|| {
                     loop {
+                        let mut offset = 0;
+
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             offset += protocol.field_stop_len();
@@ -68,11 +68,9 @@ pub mod serde {
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 a = Some(protocol.read_faststr()?);
-                                offset += protocol.faststr_len(a.as_ref().unwrap());
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 b = Some(protocol.read_i32()?);
-                                offset += protocol.i32_len(*b.as_ref().unwrap());
                             }
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
@@ -96,7 +94,6 @@ pub mod serde {
                     }
                 };
                 protocol.read_struct_end()?;
-                offset += protocol.struct_end_len();
 
                 let Some(a) = a else {
                     return Err(::pilota::thrift::DecodeError::new(
@@ -122,12 +119,12 @@ pub mod serde {
                 let mut b = None;
 
                 let mut __pilota_decoding_field_id = None;
-                let mut offset = 0;
 
                 protocol.read_struct_begin().await?;
-
                 if let Err(err) = async {
                     loop {
+                        let mut offset = 0;
+
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;

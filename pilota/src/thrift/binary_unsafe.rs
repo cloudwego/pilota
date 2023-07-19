@@ -14,6 +14,8 @@ use super::{
 static VERSION_1: u32 = 0x80010000;
 static VERSION_MASK: u32 = 0xffff0000;
 
+const FIELD_BEGIN_LEN: usize = 3;
+
 pub struct TBinaryUnsafeOutputProtocol<T> {
     pub(crate) trans: T,
     pub(crate) buf: &'static mut [u8],
@@ -983,9 +985,18 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     #[inline]
     fn read_bytes(&mut self) -> Result<Bytes, DecodeError> {
         let len = self.read_i32()?;
+        self.trans.advance(self.index);
         self.index = 0;
         // split and freeze it
         let val = self.trans.split_to(len as usize);
+        self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
+        Ok(val)
+    }
+
+    #[inline]
+    fn get_bytes(&mut self, _ptr: *const u8, len: usize) -> Result<Bytes, DecodeError> {
+        self.index = 0;
+        let val = self.trans.split_to(len);
         self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
         Ok(val)
     }
@@ -1000,7 +1011,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
                 .try_into()
                 .unwrap_unchecked();
             self.index += 16;
-            self.trans.advance(16);
         }
         Ok(u)
     }
@@ -1010,7 +1020,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         unsafe {
             let val = *self.buf.get_unchecked(self.index) as i8;
             self.index += 1;
-            self.trans.advance(1);
             Ok(val)
         }
     }
@@ -1020,7 +1029,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         unsafe {
             let val = self.buf.get_unchecked(self.index..self.index + 2);
             self.index += 2;
-            self.trans.advance(2);
             Ok(i16::from_be_bytes(val.try_into().unwrap_unchecked()))
         }
     }
@@ -1030,7 +1038,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         unsafe {
             let val = self.buf.get_unchecked(self.index..self.index + 4);
             self.index += 4;
-            self.trans.advance(4);
             Ok(i32::from_be_bytes(val.try_into().unwrap_unchecked()))
         }
     }
@@ -1040,7 +1047,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         unsafe {
             let val = self.buf.get_unchecked(self.index..self.index + 8);
             self.index += 8;
-            self.trans.advance(8);
             Ok(i64::from_be_bytes(val.try_into().unwrap_unchecked()))
         }
     }
@@ -1050,7 +1056,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         unsafe {
             let val = self.buf.get_unchecked(self.index..self.index + 8);
             self.index += 8;
-            self.trans.advance(8);
             Ok(f64::from_bits(u64::from_be_bytes(
                 val.try_into().unwrap_unchecked(),
             )))
@@ -1067,7 +1072,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
             )
             .to_string();
             self.index += len as usize;
-            self.trans.advance(len as usize);
             Ok(val)
         }
     }
@@ -1076,6 +1080,7 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
         unsafe {
             let len = self.read_i32().unwrap_unchecked() as usize;
+            self.trans.advance(self.index);
             self.index = 0;
             let bytes = self.trans.split_to(len);
             self.buf = slice::from_raw_parts(self.trans.as_ptr(), self.trans.len());
@@ -1125,7 +1130,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         unsafe {
             let val = *self.buf.get_unchecked(self.index);
             self.index += 1;
-            self.trans.advance(1);
             Ok(val)
         }
     }
@@ -1133,6 +1137,7 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     #[inline]
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError> {
         let len = self.read_i32()? as usize;
+        self.trans.advance(self.index);
         self.index = 0;
         let val = self.trans.split_to(len).into();
         self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
@@ -1144,6 +1149,17 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         &mut self.trans
     }
 
+    #[inline]
+    fn skip(&mut self, field_type: TType) -> Result<usize, DecodeError> {
+        debug_assert!(self.index >= FIELD_BEGIN_LEN);
+
+        self.trans.advance(self.index - FIELD_BEGIN_LEN);
+        self.index = FIELD_BEGIN_LEN;
+        self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
+
+        self.skip_till_depth(field_type, crate::thrift::MAXIMUM_SKIP_DEPTH)
+    }
+
     /// Skip a field with type `field_type` recursively up to `depth` levels.
     fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<usize, DecodeError> {
         if depth == 0 {
@@ -1152,98 +1168,89 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
                 format!("cannot parse past {:?}", field_type),
             ));
         }
-        let mut length: usize = 0;
+        let mut len: usize = 0;
 
         match field_type {
             TType::Bool => {
                 self.index += 1;
-                self.trans.advance(1);
-                length += 1;
+                len += 1;
             }
             TType::I8 => {
                 self.index += 1;
-                self.trans.advance(1);
-                length += 1;
+                len += 1;
             }
             TType::I16 => {
                 self.index += 2;
-                self.trans.advance(2);
-                length += 2;
+                len += 2;
             }
             TType::I32 => {
                 self.index += 4;
-                self.trans.advance(4);
-                length += 4;
+                len += 4;
             }
             TType::I64 => {
                 self.index += 8;
-                self.trans.advance(8);
-                length += 8;
+                len += 8;
             }
             TType::Double => {
                 self.index += 8;
-                self.trans.advance(8);
-                length += 8;
+                len += 8;
             }
             TType::Binary => {
-                let len = unsafe { self.read_i32().unwrap_unchecked() };
-                self.trans.advance(len as usize);
-                self.index = 0;
-                self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
-                length += 4 + len as usize;
+                let length = unsafe { self.read_i32().unwrap_unchecked() };
+                len += 4 + length as usize;
+                self.index += length as usize;
             }
             TType::Uuid => {
                 self.index += 16;
-                self.trans.advance(16);
-                length += 16;
+                len += 16;
             }
             TType::Struct => {
                 self.read_struct_begin()?;
-                length += self.struct_begin_len(&crate::thrift::VOID_IDENT);
+                len += self.struct_begin_len(&crate::thrift::VOID_IDENT);
                 loop {
                     let field_ident = self.read_field_begin()?;
                     if field_ident.field_type == TType::Stop {
-                        length += self.field_stop_len();
+                        len += self.field_stop_len();
                         break;
                     } else {
-                        length += self.field_begin_len(field_ident.field_type, field_ident.id);
+                        len += self.field_begin_len(field_ident.field_type, field_ident.id);
                     }
-                    length += self.skip_till_depth(field_ident.field_type, depth - 1)?;
+                    len += self.skip_till_depth(field_ident.field_type, depth - 1)?;
                     self.read_field_end()?;
-                    length += self.field_end_len();
+                    len += self.field_end_len();
                 }
                 self.read_struct_end()?;
-                length += self.struct_end_len();
+                len += self.struct_end_len();
             }
             TType::List => {
                 let list_ident = self.read_list_begin()?;
-                length += self.list_begin_len(list_ident);
+                len += self.list_begin_len(list_ident);
                 for _ in 0..list_ident.size {
-                    length += self.skip_till_depth(list_ident.element_type, depth - 1)?;
+                    len += self.skip_till_depth(list_ident.element_type, depth - 1)?;
                 }
                 self.read_list_end()?;
-                length += self.list_end_len();
+                len += self.list_end_len();
             }
             TType::Set => {
                 let set_ident = self.read_set_begin()?;
-                length += self.set_begin_len(set_ident);
+                len += self.set_begin_len(set_ident);
                 for _ in 0..set_ident.size {
-                    length += self.skip_till_depth(set_ident.element_type, depth - 1)?;
+                    len += self.skip_till_depth(set_ident.element_type, depth - 1)?;
                 }
                 self.read_set_end()?;
-                length += self.set_end_len();
+                len += self.set_end_len();
             }
             TType::Map => {
                 let map_ident = self.read_map_begin()?;
-                length += self.map_begin_len(map_ident);
+                len += self.map_begin_len(map_ident);
                 for _ in 0..map_ident.size {
                     let key_type = map_ident.key_type;
                     let val_type = map_ident.value_type;
-                    length += self.skip_till_depth(key_type, depth - 1)?;
-                    length += self.skip_till_depth(val_type, depth - 1)?;
+                    len += self.skip_till_depth(key_type, depth - 1)?;
+                    len += self.skip_till_depth(val_type, depth - 1)?;
                 }
                 self.read_map_end()?;
-                length += self.map_end_len();
+                len += self.map_end_len();
             }
             u => {
                 return Err(DecodeError::new(
@@ -1253,6 +1260,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
             }
         };
 
-        Ok(length)
+        Ok(len)
     }
 }

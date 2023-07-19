@@ -858,6 +858,13 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
     }
 
     #[inline]
+    fn get_bytes(&mut self, ptr: *const u8, len: usize) -> Result<Bytes, DecodeError> {
+        Ok(Bytes::copy_from_slice(unsafe {
+            std::slice::from_raw_parts(ptr, len)
+        }))
+    }
+
+    #[inline]
     fn read_uuid(&mut self) -> Result<[u8; 16], DecodeError> {
         let mut u = [0; 16];
         self.trans.read_to_slice(&mut u)?;

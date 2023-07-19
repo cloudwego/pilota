@@ -193,12 +193,12 @@ pub mod default_value {
                 let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
 
                 let mut __pilota_decoding_field_id = None;
-                let mut offset = 0;
 
                 protocol.read_struct_begin()?;
-                offset += protocol.struct_begin_len(&pilota::thrift::VOID_IDENT);
                 if let Err(err) = (|| {
                     loop {
+                        let mut offset = 0;
+
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             offset += protocol.field_stop_len();
@@ -213,25 +213,20 @@ pub mod default_value {
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 faststr = protocol.read_faststr()?;
-                                offset += protocol.faststr_len(&faststr);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 string = Some(protocol.read_string()?);
-                                offset += protocol.string_len(string.as_ref().unwrap());
                             }
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
                                 a = Some(protocol.read_bool()?);
-                                offset += protocol.bool_len(*a.as_ref().unwrap());
                             }
                             Some(4) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 test_b = Some(::pilota::thrift::Message::decode(protocol)?);
-                                offset += protocol.struct_len(test_b.as_ref().unwrap());
                             }
                             Some(5) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 test_b2 = Some(::pilota::thrift::Message::decode(protocol)?);
-                                offset += protocol.struct_len(test_b2.as_ref().unwrap());
                             }
                             Some(6) if field_ident.field_type == ::pilota::thrift::TType::Map => {
                                 map = Some({
@@ -247,31 +242,21 @@ pub mod default_value {
                                     protocol.read_map_end()?;
                                     val
                                 });
-                                offset += protocol.map_len(
-                                    ::pilota::thrift::TType::Binary,
-                                    ::pilota::thrift::TType::Binary,
-                                    map.as_ref().unwrap(),
-                                    |protocol, key| protocol.faststr_len(key),
-                                    |protocol, val| protocol.faststr_len(val),
-                                );
                             }
                             Some(7)
                                 if field_ident.field_type == ::pilota::thrift::TType::Double =>
                             {
                                 test_double = Some(protocol.read_double()?);
-                                offset += protocol.double_len(*test_double.as_ref().unwrap());
                             }
                             Some(8)
                                 if field_ident.field_type == ::pilota::thrift::TType::Double =>
                             {
                                 test_double2 = Some(protocol.read_double()?);
-                                offset += protocol.double_len(*test_double2.as_ref().unwrap());
                             }
                             Some(9)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 alias_str = Some(protocol.read_faststr()?);
-                                offset += protocol.faststr_len(alias_str.as_ref().unwrap());
                             }
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
@@ -295,7 +280,6 @@ pub mod default_value {
                     }
                 };
                 protocol.read_struct_end()?;
-                offset += protocol.struct_end_len();
 
                 let string = string.unwrap_or_else(|| "test".to_string());
                 if map.is_none() {
@@ -337,12 +321,12 @@ pub mod default_value {
                 let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
 
                 let mut __pilota_decoding_field_id = None;
-                let mut offset = 0;
 
                 protocol.read_struct_begin().await?;
-
                 if let Err(err) = async {
                     loop {
+                        let mut offset = 0;
+
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;

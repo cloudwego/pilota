@@ -149,16 +149,13 @@ impl ThriftBackend {
         let mut fields = s.fields.iter().map(|f| self.rust_name(f.did)).join(",");
 
         if keep {
+            if !fields.is_empty() {
+                fields.push_str(", ");
+            }
             if !helper.is_async {
-                if !fields.is_empty() {
-                    fields.push_str(", ");
-                }
-                fields.push_str("_unknown_fields: _unknown_fields.freeze()");
+                fields.push_str("_unknown_fields");
             } else {
-                if !fields.is_empty() {
-                    fields.push_str(", ");
-                }
-                fields.push_str("_unknown_fields: ::pilota::Bytes::new()");
+                fields.push_str("_unknown_fields: ::pilota::LinkedBytes::new()");
             }
         }
 
@@ -191,7 +188,7 @@ impl ThriftBackend {
             .join("");
 
         if keep && !helper.is_async {
-            def_fields.push_str("let mut _unknown_fields = ::pilota::BytesMut::new();");
+            def_fields.push_str("let mut _unknown_fields = ::pilota::LinkedBytes::new();");
         }
 
         let set_default_fields = s
@@ -222,9 +219,7 @@ impl ThriftBackend {
             .join("\n");
 
         let read_struct_begin = helper.codegen_read_struct_begin();
-        let struct_begin_len = helper.codegen_struct_begin_len();
         let read_struct_end = helper.codegen_read_struct_end();
-        let struct_end_len = helper.codegen_struct_end_len();
         let read_fields = self.codegen_decode_fields(helper, &s.fields, keep);
 
         let verify_required_fields = required_without_default_fields
@@ -266,10 +261,8 @@ impl ThriftBackend {
             {def_fields}
 
             let mut __pilota_decoding_field_id = None;
-            let mut offset = 0;
 
             {read_struct_begin};
-            {struct_begin_len}
             if let Err(err) = {read_fields} {{
                 if let Some(field_id) = __pilota_decoding_field_id {{
                     return Err(::pilota::thrift::DecodeError::new(
@@ -281,7 +274,6 @@ impl ThriftBackend {
                 }}
             }};
             {read_struct_end};
-            {struct_end_len}
 
 
             {verify_required_fields}
@@ -314,13 +306,11 @@ impl ThriftBackend {
         fields: &'a [Arc<Field>],
         keep: bool,
     ) -> String {
-        let record_offset = if keep && !helper.is_async {
-            r#"let begin_off = offset;
-            let begin_ptr = protocol.buf().chunk().as_ptr();"#
+        let record_ptr = if keep && !helper.is_async {
+            r#"let begin_ptr = protocol.buf().chunk().as_ptr();"#
         } else {
             ""
         };
-
         let read_field_begin = helper.codegen_read_field_begin();
         let field_begin_len = helper.codegen_field_begin_len();
         let match_fields = fields
@@ -329,14 +319,6 @@ impl ThriftBackend {
                 let field_ident = self.rust_name(f.did);
                 let ttype = self.ttype(&f.ty);
                 let mut read_field = self.codegen_decode_ty(helper, &f.ty);
-                let mut read_field_len = if helper.is_async {
-                    Default::default()
-                } else {
-                    format!(
-                        "offset += {};",
-                        self.codegen_ty_size(&f.ty, format!("&{field_ident}").into())
-                    )
-                };
                 let field_id = f.id as i16;
                 if self.field_is_box(f) {
                     read_field = format!("::std::boxed::Box::new({read_field})").into();
@@ -350,21 +332,11 @@ impl ThriftBackend {
                     }
                 } {
                     read_field = format!("Some({read_field})").into();
-                    if !helper.is_async {
-                        read_field_len = format!(
-                            "offset += {};",
-                            self.codegen_ty_size(
-                                &f.ty,
-                                format!("{field_ident}.as_ref().unwrap()").into()
-                            )
-                        );
-                    }
                 }
 
                 format!(
                     r#"Some({field_id}) if field_ident.field_type == {ttype}  => {{
                     {field_ident} = {read_field};
-                    {read_field_len}
                 }},"#
                 )
             })
@@ -375,12 +347,7 @@ impl ThriftBackend {
         }
 
         let write_unknown_field = if keep && !helper.is_async {
-            r#"unsafe {
-                    _unknown_fields.extend_from_slice(::std::slice::from_raw_parts(
-                        begin_ptr,
-                        offset - begin_off
-                    ));
-                }"#
+            "_unknown_fields.push_back(protocol.get_bytes(begin_ptr, offset)?);"
         } else {
             ""
         };
@@ -391,7 +358,8 @@ impl ThriftBackend {
 
         format! {
             r#"loop {{
-                {record_offset}
+                let mut offset = 0;
+                {record_ptr}
                 let field_ident = {read_field_begin};
                 if field_ident.field_type == ::pilota::thrift::TType::Stop {{
                     {field_stop_len} 
@@ -436,7 +404,9 @@ impl CodegenBackend for ThriftBackend {
                         keep = false;
                     } else {
                         encode_fields.push_str(
-                            "protocol.write_bytes_without_len(self._unknown_fields.clone());",
+                            r#"for bytes in self._unknown_fields.list.iter() {
+                                protocol.write_bytes_without_len(bytes.clone());
+                            }"#,
                         );
                     }
                 }
@@ -448,7 +418,7 @@ impl CodegenBackend for ThriftBackend {
             .map(|s| format!("{s} +"))
             .join("");
         if keep {
-            encode_fields_size.push_str("self._unknown_fields.len() +");
+            encode_fields_size.push_str("self._unknown_fields.size() +");
         }
         stream.push_str(&self.codegen_impl_message_with_helper(
             name,
@@ -552,8 +522,10 @@ impl CodegenBackend for ThriftBackend {
                             } else {
                                 encode_variants.push_str(&format! {
                                     "{name}::_UnknownFields(ref value) => {{
-                                            protocol.write_bytes_without_len(value.clone());
-                                        }}",
+                                        for bytes in value.list.iter() {{
+                                            protocol.write_bytes_without_len(bytes.clone());
+                                        }}
+                                    }}",
                                 });
                             }
                         }
@@ -580,7 +552,7 @@ impl CodegenBackend for ThriftBackend {
                 if keep {
                     variants_size.push_str(&format! {
                         "{name}::_UnknownFields(ref value) => {{
-                                value.len()
+                                value.size()
                             }}",
                     })
                 }
@@ -610,21 +582,17 @@ impl CodegenBackend for ThriftBackend {
                         }} +  protocol.field_stop_len() + protocol.struct_end_len()"#
                     },
                     |helper| {
-                        let record_offset = if keep && !helper.is_async {
-                            r#"let begin_off = offset;
-                            let begin_ptr = protocol.buf().chunk().as_ptr();"#
+                        let record_ptr = if keep && !helper.is_async {
+                            r#"let begin_ptr = protocol.buf().chunk().as_ptr();"#
                         } else {
                             ""
                         };
                         let read_struct_begin = helper.codegen_read_struct_begin();
-                        let struct_begin_len = helper.codegen_struct_begin_len();
                         let read_field_begin = helper.codegen_read_field_begin();
                         let field_begin_len = helper.codegen_field_begin_len();
                         let read_field_end = helper.codegen_read_field_end();
-                        let field_end_len = helper.codegen_field_end_len();
-                        let field_stop_len =helper.codegen_field_stop_len();
+                        let field_stop_len = helper.codegen_field_stop_len();
                         let read_struct_end = helper.codegen_read_struct_end();
-                        let struct_end_len = helper.codegen_struct_end_len();
                         let mut skip = helper.codegen_skip_ttype("field_ident.field_type".into());
                         if !helper.is_async {
                             skip = format!("offset += {skip}")
@@ -669,21 +637,20 @@ impl CodegenBackend for ThriftBackend {
                             })
                             .join("");
                         let write_unknown_field = if keep && !helper.is_async {
-                            format!(r#"if ret.is_none() {{
+                            format!(
+                                r#"if ret.is_none() {{
                                 unsafe {{
-                                    ret = Some({name}::_UnknownFields(::pilota::Bytes::copy_from_slice(
-                                        ::std::slice::from_raw_parts(
-                                            begin_ptr,
-                                            offset - begin_off
-                                        )
-                                    )));
+                                    let mut linked_bytes = ::pilota::LinkedBytes::new();
+                                    linked_bytes.push_back(protocol.get_bytes(begin_ptr, offset)?);
+                                    ret = Some({name}::_UnknownFields(linked_bytes));
                                 }}
                             }} else {{
                                 return Err(::pilota::thrift::DecodeError::new(
                                     ::pilota::thrift::DecodeErrorKind::InvalidData,
                                     "received multiple fields for union from remote Message"
                                 )); 
-                            }}"#)
+                            }}"#
+                            )
                         } else {
                             Default::default()
                         };
@@ -703,11 +670,10 @@ impl CodegenBackend for ThriftBackend {
 
                         format! {
                             r#"let mut ret = None;
-                            let mut offset = 0;
                             {read_struct_begin};
-                            {struct_begin_len}
                             loop {{
-                                {record_offset}
+                                let mut offset = 0;
+                                {record_ptr}
                                 let field_ident = {read_field_begin};
                                 if field_ident.field_type == ::pilota::thrift::TType::Stop {{
                                     {field_stop_len} 
@@ -724,9 +690,7 @@ impl CodegenBackend for ThriftBackend {
                                 }}
                             }}
                             {read_field_end};
-                            {field_end_len}
                             {read_struct_end};
-                            {struct_end_len}
                             if let Some(ret) = ret {{
                                 Ok(ret)
                             }} else {{

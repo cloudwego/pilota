@@ -53,3 +53,15 @@ typedef list<list<string>> Td
 struct D {
     1: required Td td,
 }
+
+struct SubMessage {
+
+}
+
+struct Message {
+
+}
+
+struct ObjReq {
+
+}

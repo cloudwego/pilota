@@ -4,6 +4,7 @@ pub mod binary_unsafe;
 pub mod compact;
 pub mod error;
 pub mod rw_ext;
+pub mod unknown;
 pub mod varint_ext;
 
 use std::{
@@ -149,97 +150,97 @@ pub trait TInputProtocol: TLengthProtocol {
                 format!("cannot parse past {:?}", field_type),
             ));
         }
-        let mut length = 0;
+        let mut len = 0;
 
         match field_type {
             TType::Bool => {
                 assert_remaining!(self.buf().remaining() >= 1);
                 self.buf().advance(1);
-                length += 1;
+                len += 1;
             }
             TType::I8 => {
                 assert_remaining!(self.buf().remaining() >= 1);
                 self.buf().advance(1);
-                length += 1;
+                len += 1;
             }
             TType::I16 => {
                 assert_remaining!(self.buf().remaining() >= 2);
                 self.buf().advance(2);
-                length += 2;
+                len += 2;
             }
             TType::I32 => {
                 assert_remaining!(self.buf().remaining() >= 4);
                 self.buf().advance(4);
-                length += 4;
+                len += 4;
             }
             TType::I64 => {
                 assert_remaining!(self.buf().remaining() >= 8);
                 self.buf().advance(8);
-                length += 8;
+                len += 8;
             }
             TType::Double => {
                 assert_remaining!(self.buf().remaining() >= 8);
                 self.buf().advance(8);
-                length += 8;
+                len += 8;
             }
             TType::Binary => {
-                let len = self.read_i32()?;
-                assert_remaining!(self.buf().remaining() >= len as usize);
-                self.buf().advance(len as usize);
-                length += 4 + len as usize;
+                let length = self.read_i32()?;
+                assert_remaining!(self.buf().remaining() >= length as usize);
+                self.buf().advance(length as usize);
+                len += 4 + length as usize;
             }
             TType::Uuid => {
                 assert_remaining!(self.buf().remaining() >= 16);
                 self.buf().advance(16);
-                length += 16;
+                len += 16;
             }
             TType::Struct => {
                 self.read_struct_begin()?;
-                length += self.struct_begin_len(&crate::thrift::VOID_IDENT);
+                len += self.struct_begin_len(&crate::thrift::VOID_IDENT);
                 loop {
                     let field_ident = self.read_field_begin()?;
                     if field_ident.field_type == TType::Stop {
-                        length += self.field_stop_len();
+                        len += self.field_stop_len();
                         break;
                     } else {
-                        length += self.field_begin_len(field_ident.field_type, field_ident.id);
+                        len += self.field_begin_len(field_ident.field_type, field_ident.id);
                     }
-                    length += self.skip_till_depth(field_ident.field_type, depth - 1)?;
+                    len += self.skip_till_depth(field_ident.field_type, depth - 1)?;
                     self.read_field_end()?;
-                    length += self.field_end_len();
+                    len += self.field_end_len();
                 }
                 self.read_struct_end()?;
-                length += self.struct_end_len();
+                len += self.struct_end_len();
             }
             TType::List => {
                 let list_ident = self.read_list_begin()?;
-                length += self.list_begin_len(list_ident);
+                len += self.list_begin_len(list_ident);
                 for _ in 0..list_ident.size {
-                    length += self.skip_till_depth(list_ident.element_type, depth - 1)?;
+                    len += self.skip_till_depth(list_ident.element_type, depth - 1)?;
                 }
                 self.read_list_end()?;
-                length += self.list_end_len();
+                len += self.list_end_len();
             }
             TType::Set => {
                 let set_ident = self.read_set_begin()?;
-                length += self.set_begin_len(set_ident);
+                len += self.set_begin_len(set_ident);
                 for _ in 0..set_ident.size {
-                    length += self.skip_till_depth(set_ident.element_type, depth - 1)?;
+                    len += self.skip_till_depth(set_ident.element_type, depth - 1)?;
                 }
                 self.read_set_end()?;
-                length += self.set_end_len();
+                len += self.set_end_len();
             }
             TType::Map => {
                 let map_ident = self.read_map_begin()?;
-                length += self.map_begin_len(map_ident);
+                len += self.map_begin_len(map_ident);
                 for _ in 0..map_ident.size {
                     let key_type = map_ident.key_type;
                     let val_type = map_ident.value_type;
-                    length += self.skip_till_depth(key_type, depth - 1)?;
-                    length += self.skip_till_depth(val_type, depth - 1)?;
+                    len += self.skip_till_depth(key_type, depth - 1)?;
+                    len += self.skip_till_depth(val_type, depth - 1)?;
                 }
                 self.read_map_end()?;
-                length += self.map_end_len();
+                len += self.map_end_len();
             }
             u => {
                 return Err(DecodeError::new(
@@ -249,7 +250,7 @@ pub trait TInputProtocol: TLengthProtocol {
             }
         };
 
-        Ok(length)
+        Ok(len)
     }
 
     // utility (DO NOT USE IN GENERATED CODE!!!!)
@@ -262,6 +263,8 @@ pub trait TInputProtocol: TLengthProtocol {
 
     /// Read a Vec<u8>.
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError>;
+
+    fn get_bytes(&mut self, ptr: *const u8, len: usize) -> Result<Bytes, DecodeError>;
 
     #[doc(hidden)]
     fn buf(&mut self) -> &mut Self::Buf;

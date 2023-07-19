@@ -129,7 +129,7 @@ where
                         .and_then(|tags| tags.get::<crate::tags::KeepUnknownFields>())
                     {
                     } else {
-                        fields.push_str("pub _unknown_fields: ::pilota::Bytes,");
+                        fields.push_str("pub _unknown_fields: ::pilota::LinkedBytes,");
                     }
                 }
                 _ => {}
@@ -326,7 +326,7 @@ where
                     {
                     } else {
                         if keep {
-                            variants.push_str("_UnknownFields(::pilota::Bytes),");
+                            variants.push_str("_UnknownFields(::pilota::LinkedBytes),");
                         }
                     }
                 }

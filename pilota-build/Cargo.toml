@@ -58,7 +58,13 @@ derivative = "2"
 tempfile = "3"
 diffy = "0.3"
 criterion = { version = "0.5", features = ["html_reports"] }
+rand = "0.8"
+linkedbytes = "0.1"
 
 [[bench]]
 name = "codegen"
+harness = false
+
+[[bench]]
+name = "unknown"
 harness = false

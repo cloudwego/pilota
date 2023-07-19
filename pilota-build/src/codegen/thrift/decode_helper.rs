@@ -66,7 +66,6 @@ impl DecodeHelper {
 
     protocol_len!(field_end_len);
     protocol_len!(field_stop_len);
-    protocol_len!(struct_end_len);
 
     pub fn codegen_skip_ttype(&self, tt: FastStr) -> String {
         if self.is_async {
@@ -89,14 +88,6 @@ impl DecodeHelper {
             Default::default()
         } else {
             "offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);".into()
-        }
-    }
-
-    pub fn codegen_struct_begin_len(&self) -> FastStr {
-        if self.is_async {
-            Default::default()
-        } else {
-            "offset += protocol.struct_begin_len(&pilota::thrift::VOID_IDENT);".into()
         }
     }
 }
