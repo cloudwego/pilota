@@ -628,15 +628,23 @@ pub mod wrapper_arc {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
+                let mut fields_num = 0;
                 let mut id = None;
+                fields_num += 1;
                 let mut name2 = None;
+                fields_num += 1;
                 let mut name3 = None;
+                fields_num += 1;
 
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
+                        if fields_num == 0 {
+                            break;
+                        }
+
                         let mut offset = 0;
 
                         let field_ident = protocol.read_field_begin()?;
@@ -653,6 +661,7 @@ pub mod wrapper_arc {
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 id = Some(protocol.read_faststr()?);
+                                fields_num -= 1;
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 name2 = Some(unsafe {
@@ -682,6 +691,7 @@ pub mod wrapper_arc {
                                     protocol.read_list_end()?;
                                     val
                                 });
+                                fields_num -= 1;
                             }
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::Map => {
                                 name3 = Some({
@@ -710,6 +720,7 @@ pub mod wrapper_arc {
                                     protocol.read_map_end()?;
                                     val
                                 });
+                                fields_num -= 1;
                             }
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;

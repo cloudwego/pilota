@@ -69,7 +69,8 @@ pub mod unknown_fields {
                             }
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields.push_back(protocol.get_bytes(begin_ptr, offset)?);
+                                _unknown_fields
+                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
                             }
                         }
 
@@ -227,6 +228,7 @@ pub mod unknown_fields {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
+                let mut fields_num = 0;
                 let mut _unknown_fields = ::pilota::LinkedBytes::new();
 
                 let mut __pilota_decoding_field_id = None;
@@ -234,6 +236,12 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
+                        if fields_num == 0 {
+                            let remaining = protocol.buf().remaining();
+                            _unknown_fields.push_back(protocol.get_bytes(None, remaining - 2)?);
+                            break;
+                        }
+
                         let mut offset = 0;
                         let begin_ptr = protocol.buf().chunk().as_ptr();
                         let field_ident = protocol.read_field_begin()?;
@@ -248,7 +256,8 @@ pub mod unknown_fields {
                         match field_ident.id {
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields.push_back(protocol.get_bytes(begin_ptr, offset)?);
+                                _unknown_fields
+                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
                             }
                         }
 
@@ -386,7 +395,8 @@ pub mod unknown_fields {
                             }
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields.push_back(protocol.get_bytes(begin_ptr, offset)?);
+                                _unknown_fields
+                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
                             }
                         }
 
@@ -737,7 +747,8 @@ pub mod unknown_fields {
                             }
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields.push_back(protocol.get_bytes(begin_ptr, offset)?);
+                                _unknown_fields
+                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
                             }
                         }
 
@@ -962,7 +973,8 @@ pub mod unknown_fields {
                         match field_ident.id {
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields.push_back(protocol.get_bytes(begin_ptr, offset)?);
+                                _unknown_fields
+                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
                             }
                         }
 
@@ -1107,7 +1119,8 @@ pub mod unknown_fields {
                             }
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields.push_back(protocol.get_bytes(begin_ptr, offset)?);
+                                _unknown_fields
+                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
                             }
                         }
 
@@ -1207,7 +1220,7 @@ pub mod unknown_fields {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestTestExceptionArgsSend {
-            pub req: ::pilota::FastStr,
+            pub req: ObjReq,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTestExceptionArgsSend {
@@ -1222,7 +1235,7 @@ pub mod unknown_fields {
                 };
 
                 protocol.write_struct_begin(&struct_ident)?;
-                protocol.write_faststr_field(1, (&self.req).clone())?;
+                protocol.write_struct_field(1, &self.req, ::pilota::thrift::TType::Struct)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -1254,9 +1267,9 @@ pub mod unknown_fields {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1)
-                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                                if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                req = Some(protocol.read_faststr()?);
+                                req = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
@@ -1315,9 +1328,10 @@ pub mod unknown_fields {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1)
-                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                                if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                req = Some(protocol.read_faststr().await?);
+                                req =
+                                    Some(::pilota::thrift::Message::decode_async(protocol).await?);
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
@@ -1362,7 +1376,7 @@ pub mod unknown_fields {
                 use ::pilota::thrift::TLengthProtocolExt;
                 protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestExceptionArgsSend",
-                }) + protocol.faststr_field_len(Some(1), &self.req)
+                }) + protocol.struct_field_len(Some(1), &self.req)
                     + protocol.field_stop_len()
                     + protocol.struct_end_len()
             }
@@ -1654,7 +1668,8 @@ pub mod unknown_fields {
                         match field_ident.id {
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields.push_back(protocol.get_bytes(begin_ptr, offset)?);
+                                _unknown_fields
+                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
                             }
                         }
 
@@ -1786,7 +1801,8 @@ pub mod unknown_fields {
                         match field_ident.id {
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields.push_back(protocol.get_bytes(begin_ptr, offset)?);
+                                _unknown_fields
+                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
                             }
                         }
 
@@ -2061,7 +2077,8 @@ pub mod unknown_fields {
                             if ret.is_none() {
                                 unsafe {
                                     let mut linked_bytes = ::pilota::LinkedBytes::new();
-                                    linked_bytes.push_back(protocol.get_bytes(begin_ptr, offset)?);
+                                    linked_bytes
+                                        .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
                                     ret = Some(TestUnion::_UnknownFields(linked_bytes));
                                 }
                             } else {
@@ -2158,7 +2175,7 @@ pub mod unknown_fields {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestTestExceptionArgsRecv {
-            pub req: ::pilota::FastStr,
+            pub req: ObjReq,
         }
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTestExceptionArgsRecv {
@@ -2173,7 +2190,7 @@ pub mod unknown_fields {
                 };
 
                 protocol.write_struct_begin(&struct_ident)?;
-                protocol.write_faststr_field(1, (&self.req).clone())?;
+                protocol.write_struct_field(1, &self.req, ::pilota::thrift::TType::Struct)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -2205,9 +2222,9 @@ pub mod unknown_fields {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1)
-                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                                if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                req = Some(protocol.read_faststr()?);
+                                req = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
                             _ => {
                                 offset += protocol.skip(field_ident.field_type)?;
@@ -2266,9 +2283,10 @@ pub mod unknown_fields {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1)
-                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                                if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                req = Some(protocol.read_faststr().await?);
+                                req =
+                                    Some(::pilota::thrift::Message::decode_async(protocol).await?);
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
@@ -2313,7 +2331,7 @@ pub mod unknown_fields {
                 use ::pilota::thrift::TLengthProtocolExt;
                 protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestExceptionArgsRecv",
-                }) + protocol.faststr_field_len(Some(1), &self.req)
+                }) + protocol.struct_field_len(Some(1), &self.req)
                     + protocol.field_stop_len()
                     + protocol.struct_end_len()
             }
@@ -2458,7 +2476,7 @@ pub mod unknown_fields {
 
         pub enum TestTestExceptionResultSend {
             #[derivative(Default)]
-            Ok(::pilota::FastStr),
+            Ok(ObjReq),
 
             StException(StException),
         }
@@ -2476,7 +2494,7 @@ pub mod unknown_fields {
                 })?;
                 match self {
                     TestTestExceptionResultSend::Ok(ref value) => {
-                        protocol.write_faststr_field(0, (value).clone())?;
+                        protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                     TestTestExceptionResultSend::StException(ref value) => {
                         protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
@@ -2507,8 +2525,8 @@ pub mod unknown_fields {
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
-                                let field_ident = protocol.read_faststr()?;
-                                offset += protocol.faststr_len(&field_ident);
+                                let field_ident = ::pilota::thrift::Message::decode(protocol)?;
+                                offset += protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultSend::Ok(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -2562,7 +2580,8 @@ pub mod unknown_fields {
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
-                                let field_ident = protocol.read_faststr().await?;
+                                let field_ident =
+                                    ::pilota::thrift::Message::decode_async(protocol).await?;
 
                                 ret = Some(TestTestExceptionResultSend::Ok(field_ident));
                             } else {
@@ -2609,7 +2628,7 @@ pub mod unknown_fields {
                     name: "TestTestExceptionResultSend",
                 }) + match self {
                     TestTestExceptionResultSend::Ok(ref value) => {
-                        protocol.faststr_field_len(Some(0), value)
+                        protocol.struct_field_len(Some(0), value)
                     }
                     TestTestExceptionResultSend::StException(ref value) => {
                         protocol.struct_field_len(Some(1), value)
@@ -2624,7 +2643,7 @@ pub mod unknown_fields {
 
         pub enum TestTestExceptionResultRecv {
             #[derivative(Default)]
-            Ok(::pilota::FastStr),
+            Ok(ObjReq),
 
             StException(StException),
         }
@@ -2642,7 +2661,7 @@ pub mod unknown_fields {
                 })?;
                 match self {
                     TestTestExceptionResultRecv::Ok(ref value) => {
-                        protocol.write_faststr_field(0, (value).clone())?;
+                        protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                     TestTestExceptionResultRecv::StException(ref value) => {
                         protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
@@ -2673,8 +2692,8 @@ pub mod unknown_fields {
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
-                                let field_ident = protocol.read_faststr()?;
-                                offset += protocol.faststr_len(&field_ident);
+                                let field_ident = ::pilota::thrift::Message::decode(protocol)?;
+                                offset += protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultRecv::Ok(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -2728,7 +2747,8 @@ pub mod unknown_fields {
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
-                                let field_ident = protocol.read_faststr().await?;
+                                let field_ident =
+                                    ::pilota::thrift::Message::decode_async(protocol).await?;
 
                                 ret = Some(TestTestExceptionResultRecv::Ok(field_ident));
                             } else {
@@ -2775,7 +2795,7 @@ pub mod unknown_fields {
                     name: "TestTestExceptionResultRecv",
                 }) + match self {
                     TestTestExceptionResultRecv::Ok(ref value) => {
-                        protocol.faststr_field_len(Some(0), value)
+                        protocol.struct_field_len(Some(0), value)
                     }
                     TestTestExceptionResultRecv::StException(ref value) => {
                         protocol.struct_field_len(Some(1), value)

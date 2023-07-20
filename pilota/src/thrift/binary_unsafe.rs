@@ -994,7 +994,11 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     }
 
     #[inline]
-    fn get_bytes(&mut self, _ptr: *const u8, len: usize) -> Result<Bytes, DecodeError> {
+    fn get_bytes(&mut self, ptr: Option<*const u8>, mut len: usize) -> Result<Bytes, DecodeError> {
+        if ptr.is_none() {
+            len -= self.index;
+            self.trans.advance(self.index);
+        }
         self.index = 0;
         let val = self.trans.split_to(len);
         self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };

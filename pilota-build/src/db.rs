@@ -1,6 +1,6 @@
 use std::{fmt, path::PathBuf, sync::Arc};
 
-use fxhash::FxHashMap;
+use fxhash::{FxHashMap, FxHashSet};
 
 use crate::{
     middle::{
@@ -47,6 +47,8 @@ pub trait RirDatabase {
     fn tags_map(&self) -> Arc<FxHashMap<TagId, Arc<Tags>>>;
     #[salsa::input]
     fn input_files(&self) -> Arc<Vec<FileId>>;
+    #[salsa::input]
+    fn args(&self) -> Arc<FxHashSet<DefId>>;
 
     fn node(&self, def_id: DefId) -> Option<rir::Node>;
     fn file(&self, file_id: FileId) -> Option<Arc<rir::File>>;
@@ -57,6 +59,7 @@ pub trait RirDatabase {
     fn codegen_const_ty(&self, ty: TyKind) -> CodegenTy;
     fn codegen_ty(&self, def_id: DefId) -> CodegenTy;
     fn service_methods(&self, def_id: DefId) -> Arc<[Arc<rir::Method>]>;
+    fn is_arg(&self, def_id: DefId) -> bool;
 }
 
 fn node(db: &dyn RirDatabase, def_id: DefId) -> Option<rir::Node> {
@@ -152,6 +155,10 @@ fn service_methods(db: &dyn RirDatabase, def_id: DefId) -> Arc<[Arc<rir::Method>
         .chain(service.methods.iter().cloned());
 
     Arc::from_iter(methods)
+}
+
+fn is_arg(db: &dyn RirDatabase, def_id: DefId) -> bool {
+    db.args().contains(&def_id)
 }
 
 impl salsa::Database for RootDatabase {}

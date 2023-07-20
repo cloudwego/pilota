@@ -858,10 +858,14 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
     }
 
     #[inline]
-    fn get_bytes(&mut self, ptr: *const u8, len: usize) -> Result<Bytes, DecodeError> {
-        Ok(Bytes::copy_from_slice(unsafe {
-            std::slice::from_raw_parts(ptr, len)
-        }))
+    fn get_bytes(&mut self, ptr: Option<*const u8>, len: usize) -> Result<Bytes, DecodeError> {
+        if let Some(ptr) = ptr {
+            Ok(Bytes::copy_from_slice(unsafe {
+                std::slice::from_raw_parts(ptr, len)
+            }))
+        } else {
+            Ok(self.trans.split_to(len))
+        }
     }
 
     #[inline]

@@ -264,7 +264,7 @@ pub trait TInputProtocol: TLengthProtocol {
     /// Read a Vec<u8>.
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError>;
 
-    fn get_bytes(&mut self, ptr: *const u8, len: usize) -> Result<Bytes, DecodeError>;
+    fn get_bytes(&mut self, ptr: Option<*const u8>, len: usize) -> Result<Bytes, DecodeError>;
 
     #[doc(hidden)]
     fn buf(&mut self) -> &mut Self::Buf;

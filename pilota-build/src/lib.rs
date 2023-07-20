@@ -247,7 +247,12 @@ where
         } = parser.parse();
         db.set_file_ids_map_with_durability(Arc::new(file_ids_map), Durability::HIGH);
 
-        let ResolveResult { files, nodes, tags } = Resolver::default().resolve_files(&files);
+        let ResolveResult {
+            files,
+            nodes,
+            tags,
+            args,
+        } = Resolver::default().resolve_files(&files);
 
         // discard duplicated items
         // let mods = nodes
@@ -272,6 +277,7 @@ where
         db.set_type_graph_with_durability(type_graph, Durability::HIGH);
         db.set_nodes_with_durability(Arc::new(nodes), Durability::HIGH);
         db.set_tags_map_with_durability(Arc::new(tags), Durability::HIGH);
+        db.set_args_with_durability(Arc::new(args), Durability::HIGH);
 
         let mut input = Vec::with_capacity(input_files.len());
         for file_id in &input_files {

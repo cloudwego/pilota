@@ -25,3 +25,12 @@ struct ObjReq {
     5: required string flagMsg
     6: optional string mockCost,
 }
+
+exception STException {
+    1: string message;
+}
+
+service Test {
+   void test_123();
+   ObjReq testException(1: ObjReq req) throws (1: STException stException);
+}
