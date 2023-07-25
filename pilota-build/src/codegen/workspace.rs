@@ -100,11 +100,11 @@ where
     ]
     
     [workspace.dependencies]
-    pilota = "0.6"
+    pilota = "*"
     async-trait = "0.1"
     anyhow = "1"
-    volo = "0.4"
-    volo-thrift = "0.4""#
+    volo = "*"
+    volo-thrift = "*""#
             ))
             .unwrap(),
         );

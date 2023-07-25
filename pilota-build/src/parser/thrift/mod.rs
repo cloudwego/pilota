@@ -186,7 +186,9 @@ impl ThriftLower {
                 repr: None,
             });
             related_items.push(name);
-            result.push(self.mk_item(kind, Default::default()));
+            let mut tags = Tags::default();
+            tags.insert(crate::tags::KeepUnknownFields(false));
+            result.push(self.mk_item(kind, tags.into()));
 
             let name: Ident = format!(
                 "{}{}ResultSend",
@@ -208,7 +210,9 @@ impl ThriftLower {
                 repr: None,
             });
             related_items.push(name);
-            result.push(self.mk_item(kind, Default::default()));
+            let mut tags = Tags::default();
+            tags.insert(crate::tags::KeepUnknownFields(false));
+            result.push(self.mk_item(kind, tags.into()));
 
             if !exception.is_empty() {
                 let name: Ident = format!(
@@ -223,7 +227,9 @@ impl ThriftLower {
                     repr: None,
                 });
                 related_items.push(name);
-                result.push(self.mk_item(kind, Default::default()));
+                let mut tags = Tags::default();
+                tags.insert(crate::tags::KeepUnknownFields(false));
+                result.push(self.mk_item(kind, tags.into()));
             }
 
             let name: Ident = format!(
@@ -237,7 +243,9 @@ impl ThriftLower {
                 fields: f.arguments.iter().map(|a| self.lower_field(a)).collect(),
             });
             related_items.push(name);
-            result.push(self.mk_item(kind, Default::default()));
+            let mut tags = Tags::default();
+            tags.insert(crate::tags::KeepUnknownFields(false));
+            result.push(self.mk_item(kind, tags.into()));
 
             let name: Ident = format!(
                 "{}{}ArgsRecv",
@@ -258,7 +266,9 @@ impl ThriftLower {
                     .collect(),
             });
             related_items.push(name);
-            result.push(self.mk_item(kind, Default::default()));
+            let mut tags: Tags = Tags::default();
+            tags.insert(crate::tags::KeepUnknownFields(false));
+            result.push(self.mk_item(kind, tags.into()));
         });
 
         service_item.related_items = related_items;

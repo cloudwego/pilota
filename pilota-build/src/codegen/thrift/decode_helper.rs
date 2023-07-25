@@ -26,6 +26,21 @@ macro_rules! protocol_method {
     };
 }
 
+macro_rules! protocol_len {
+    ($m:ident) => {
+        paste! {
+            #[inline]
+            pub fn [<codegen_ $m>](&self) -> faststr::FastStr {
+                if self.is_async {
+                    Default::default()
+                } else {
+                    format!("offset += protocol.{}();", stringify!($m)).into()
+                }
+            }
+        }
+    };
+}
+
 impl DecodeHelper {
     protocol_method!(read_i8);
     protocol_method!(read_i16);
@@ -49,6 +64,9 @@ impl DecodeHelper {
     protocol_method!(read_field_end);
     protocol_method!(read_bool);
 
+    protocol_len!(field_end_len);
+    protocol_len!(field_stop_len);
+
     pub fn codegen_skip_ttype(&self, tt: FastStr) -> String {
         if self.is_async {
             format!("protocol.skip({tt}).await?")
@@ -62,6 +80,14 @@ impl DecodeHelper {
             "::pilota::thrift::Message::decode_async(protocol).await?".into()
         } else {
             "::pilota::thrift::Message::decode(protocol)?".into()
+        }
+    }
+
+    pub fn codegen_field_begin_len(&self) -> FastStr {
+        if self.is_async {
+            Default::default()
+        } else {
+            "offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);".into()
         }
     }
 }

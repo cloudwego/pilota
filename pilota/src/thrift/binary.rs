@@ -52,133 +52,127 @@ fn field_type_from_u8(ttype: u8) -> Result<TType, ProtocolError> {
 
 impl<T> TLengthProtocol for TBinaryProtocol<T> {
     #[inline]
-    fn write_message_begin_len(&mut self, identifier: &TMessageIdentifier) -> usize {
-        self.write_i32_len(0) + self.write_faststr_len(&identifier.name) + self.write_i32_len(0)
+    fn message_begin_len(&mut self, identifier: &TMessageIdentifier) -> usize {
+        self.i32_len(0) + self.faststr_len(&identifier.name) + self.i32_len(0)
     }
 
     #[inline]
-    fn write_message_end_len(&mut self) -> usize {
+    fn message_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_struct_begin_len(&mut self, _identifier: &TStructIdentifier) -> usize {
+    fn struct_begin_len(&mut self, _identifier: &TStructIdentifier) -> usize {
         0
     }
 
     #[inline]
-    fn write_struct_end_len(&mut self) -> usize {
+    fn struct_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_field_begin_len(&mut self, _field_type: TType, _id: Option<i16>) -> usize {
-        self.write_byte_len(0) + self.write_i16_len(0)
+    fn field_begin_len(&mut self, _field_type: TType, _id: Option<i16>) -> usize {
+        self.byte_len(0) + self.i16_len(0)
     }
 
     #[inline]
-    fn write_field_end_len(&mut self) -> usize {
+    fn field_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_field_stop_len(&mut self) -> usize {
-        self.write_byte_len(0)
+    fn field_stop_len(&mut self) -> usize {
+        self.byte_len(0)
     }
 
     #[inline]
-    fn write_bool_len(&mut self, _b: bool) -> usize {
-        self.write_i8_len(0)
+    fn bool_len(&mut self, _b: bool) -> usize {
+        self.i8_len(0)
     }
 
     #[inline]
-    fn write_bytes_len(&mut self, b: &[u8]) -> usize {
-        if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
-            self.zero_copy_len += b.len();
-        }
-        self.write_i32_len(0) + b.len()
+    fn bytes_len(&mut self, b: &[u8]) -> usize {
+        self.i32_len(0) + b.len()
     }
 
     #[inline]
-    fn write_byte_len(&mut self, _b: u8) -> usize {
+    fn byte_len(&mut self, _b: u8) -> usize {
         1
     }
 
     #[inline]
-    fn write_uuid_len(&mut self, _u: [u8; 16]) -> usize {
+    fn uuid_len(&mut self, _u: [u8; 16]) -> usize {
         16
     }
 
     #[inline]
-    fn write_i8_len(&mut self, _i: i8) -> usize {
+    fn i8_len(&mut self, _i: i8) -> usize {
         1
     }
 
     #[inline]
-    fn write_i16_len(&mut self, _i: i16) -> usize {
+    fn i16_len(&mut self, _i: i16) -> usize {
         2
     }
 
     #[inline]
-    fn write_i32_len(&mut self, _i: i32) -> usize {
+    fn i32_len(&mut self, _i: i32) -> usize {
         4
     }
 
     #[inline]
-    fn write_i64_len(&mut self, _i: i64) -> usize {
+    fn i64_len(&mut self, _i: i64) -> usize {
         8
     }
 
     #[inline]
-    fn write_double_len(&mut self, _d: f64) -> usize {
+    fn double_len(&mut self, _d: f64) -> usize {
         8
     }
 
-    fn write_string_len(&mut self, s: &str) -> usize {
-        self.write_i32_len(0) + s.len()
+    fn string_len(&mut self, s: &str) -> usize {
+        self.i32_len(0) + s.len()
     }
 
     #[inline]
-    fn write_faststr_len(&mut self, s: &FastStr) -> usize {
-        if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
-            self.zero_copy_len += s.len();
-        }
-        self.write_i32_len(0) + s.len()
+    fn faststr_len(&mut self, s: &FastStr) -> usize {
+        self.i32_len(0) + s.len()
     }
 
     #[inline]
-    fn write_list_begin_len(&mut self, _identifier: TListIdentifier) -> usize {
-        self.write_byte_len(0) + self.write_i32_len(0)
+    fn list_begin_len(&mut self, _identifier: TListIdentifier) -> usize {
+        self.byte_len(0) + self.i32_len(0)
     }
 
     #[inline]
-    fn write_list_end_len(&mut self) -> usize {
+    fn list_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_set_begin_len(&mut self, _identifier: TSetIdentifier) -> usize {
-        self.write_byte_len(0) + self.write_i32_len(0)
+    fn set_begin_len(&mut self, _identifier: TSetIdentifier) -> usize {
+        self.byte_len(0) + self.i32_len(0)
     }
 
     #[inline]
-    fn write_set_end_len(&mut self) -> usize {
+    fn set_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_map_begin_len(&mut self, _identifier: TMapIdentifier) -> usize {
-        self.write_byte_len(0) + self.write_byte_len(0) + self.write_i32_len(0)
+    fn map_begin_len(&mut self, _identifier: TMapIdentifier) -> usize {
+        self.byte_len(0) + self.byte_len(0) + self.i32_len(0)
     }
 
     #[inline]
-    fn write_map_end_len(&mut self) -> usize {
+    fn map_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_bytes_vec_len(&mut self, b: &[u8]) -> usize {
-        self.write_i32_len(0) + b.len()
+    fn bytes_vec_len(&mut self, b: &[u8]) -> usize {
+        self.i32_len(0) + b.len()
     }
 
     #[inline]
@@ -253,6 +247,11 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     #[inline]
     fn write_bytes(&mut self, b: Bytes) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
+        self.write_bytes_without_len(b)
+    }
+
+    #[inline]
+    fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), EncodeError> {
         self.trans.write_slice(&b)?;
         Ok(())
     }
@@ -428,7 +427,13 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     #[inline]
     fn write_bytes(&mut self, b: Bytes) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
+        self.write_bytes_without_len(b)
+    }
+
+    #[inline]
+    fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), EncodeError> {
         if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
+            self.zero_copy_len += b.len();
             self.trans.insert(b);
             return Ok(());
         }
@@ -488,6 +493,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     fn write_faststr(&mut self, s: FastStr) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
         if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
+            self.zero_copy_len += s.len();
             self.trans.insert_faststr(s);
             return Ok(());
         }
@@ -548,8 +554,216 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 }
 
+impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
+    type Buf = Bytes;
+
+    fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
+        let size = self.trans.read_i32()?;
+
+        if size > 0 {
+            return Err(DecodeError::new(
+                DecodeErrorKind::BadVersion,
+                "Missing version in ReadMessageBegin".to_string(),
+            ));
+        }
+        let type_u8 = (size & 0xf) as u8;
+
+        let message_type = TMessageType::try_from(type_u8).map_err(|_| {
+            DecodeError::new(
+                DecodeErrorKind::InvalidData,
+                format!("invalid message type {}", type_u8),
+            )
+        })?;
+
+        let version = size & (VERSION_MASK as i32);
+        if version != (VERSION_1 as i32) {
+            return Err(DecodeError::new(
+                DecodeErrorKind::BadVersion,
+                "Bad version in ReadMessageBegin",
+            ));
+        }
+
+        let name = self.read_faststr()?;
+
+        let sequence_number = self.read_i32()?;
+        Ok(TMessageIdentifier::new(name, message_type, sequence_number))
+    }
+
+    #[inline]
+    fn read_message_end(&mut self) -> Result<(), DecodeError> {
+        Ok(())
+    }
+
+    #[inline]
+    fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, DecodeError> {
+        Ok(None)
+    }
+
+    #[inline]
+    fn read_struct_end(&mut self) -> Result<(), DecodeError> {
+        Ok(())
+    }
+
+    #[inline]
+    fn read_field_begin(&mut self) -> Result<TFieldIdentifier, DecodeError> {
+        let field_type_byte = self.read_byte()?;
+        let field_type = field_type_byte.try_into().map_err(|_| {
+            DecodeError::new(
+                DecodeErrorKind::InvalidData,
+                format!("invalid ttype {}", field_type_byte),
+            )
+        })?;
+        let id = match field_type {
+            TType::Stop => Ok(0),
+            _ => self.read_i16(),
+        }?;
+        Ok(TFieldIdentifier::new::<Option<&'static str>, i16>(
+            None, field_type, id,
+        ))
+    }
+
+    #[inline]
+    fn read_field_end(&mut self) -> Result<(), DecodeError> {
+        Ok(())
+    }
+
+    #[inline]
+    fn read_bool(&mut self) -> Result<bool, DecodeError> {
+        let b = self.read_i8()?;
+        match b {
+            0 => Ok(false),
+            _ => Ok(true),
+        }
+    }
+
+    #[inline]
+    fn read_bytes(&mut self) -> Result<Bytes, DecodeError> {
+        let len = self.trans.read_i32()?;
+        // split and freeze it
+        Ok(self.trans.split_to(len as usize))
+    }
+
+    #[inline]
+    fn get_bytes(&mut self, ptr: Option<*const u8>, len: usize) -> Result<Bytes, DecodeError> {
+        if let Some(ptr) = ptr {
+            Ok(Bytes::copy_from_slice(unsafe {
+                std::slice::from_raw_parts(ptr, len)
+            }))
+        } else {
+            Ok(self.trans.split_to(len))
+        }
+    }
+
+    #[inline]
+    fn read_uuid(&mut self) -> Result<[u8; 16], DecodeError> {
+        let mut u = [0; 16];
+        self.trans.read_to_slice(&mut u)?;
+        Ok(u)
+    }
+
+    #[inline]
+    fn read_i8(&mut self) -> Result<i8, DecodeError> {
+        Ok(self.trans.read_i8()?)
+    }
+
+    #[inline]
+    fn read_i16(&mut self) -> Result<i16, DecodeError> {
+        Ok(self.trans.read_i16()?)
+    }
+
+    #[inline]
+    fn read_i32(&mut self) -> Result<i32, DecodeError> {
+        Ok(self.trans.read_i32()?)
+    }
+
+    #[inline]
+    fn read_i64(&mut self) -> Result<i64, DecodeError> {
+        Ok(self.trans.read_i64()?)
+    }
+
+    #[inline]
+    fn read_double(&mut self) -> Result<f64, DecodeError> {
+        Ok(self.trans.read_f64()?)
+    }
+
+    #[inline]
+    fn read_string(&mut self) -> Result<String, DecodeError> {
+        let len = self.trans.read_i32()?;
+        Ok(self.trans.read_to_string(len as usize)?)
+    }
+
+    #[inline]
+    fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
+        let len = self.trans.read_i32()? as usize;
+        let bytes = self.trans.split_to(len);
+        unsafe { return Ok(FastStr::from_bytes_unchecked(bytes)) };
+    }
+
+    #[inline]
+    fn read_list_begin(&mut self) -> Result<TListIdentifier, DecodeError> {
+        let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
+        let size = self.read_i32()?;
+        Ok(TListIdentifier::new(element_type, size as usize))
+    }
+
+    #[inline]
+    fn read_list_end(&mut self) -> Result<(), DecodeError> {
+        Ok(())
+    }
+
+    #[inline]
+    fn read_set_begin(&mut self) -> Result<TSetIdentifier, DecodeError> {
+        let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
+        let size = self.read_i32()?;
+        Ok(TSetIdentifier::new(element_type, size as usize))
+    }
+
+    #[inline]
+    fn read_set_end(&mut self) -> Result<(), DecodeError> {
+        Ok(())
+    }
+
+    #[inline]
+    fn read_map_begin(&mut self) -> Result<TMapIdentifier, DecodeError> {
+        let key_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
+        let value_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
+        let size = self.read_i32()?;
+        Ok(TMapIdentifier::new(key_type, value_type, size as usize))
+    }
+
+    #[inline]
+    fn read_map_end(&mut self) -> Result<(), DecodeError> {
+        Ok(())
+    }
+
+    #[inline]
+    fn read_byte(&mut self) -> Result<u8, DecodeError> {
+        Ok(self.trans.read_u8()?)
+    }
+
+    #[inline]
+    fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError> {
+        let len = self.trans.read_i32()? as usize;
+        Ok(self.trans.split_to(len).into())
+    }
+
+    #[inline]
+    fn buf(&mut self) -> &mut Self::Buf {
+        self.trans
+    }
+}
+
 pub struct TAsyncBinaryProtocol<R> {
     reader: R,
+}
+
+impl<R> TAsyncBinaryProtocol<R>
+where
+    R: AsyncRead + Unpin + Send,
+{
+    pub fn new(reader: R) -> Self {
+        Self { reader }
+    }
 }
 
 #[async_trait::async_trait]
@@ -749,202 +963,5 @@ where
     #[inline]
     async fn read_map_end(&mut self) -> Result<(), DecodeError> {
         Ok(())
-    }
-}
-
-impl<R> TAsyncBinaryProtocol<R>
-where
-    R: AsyncRead + Unpin + Send,
-{
-    pub fn new(reader: R) -> Self {
-        Self { reader }
-    }
-}
-
-impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
-    type Buf = Bytes;
-
-    fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
-        let size = self.trans.read_i32()?;
-
-        if size > 0 {
-            return Err(DecodeError::new(
-                DecodeErrorKind::BadVersion,
-                "Missing version in ReadMessageBegin".to_string(),
-            ));
-        }
-        let type_u8 = (size & 0xf) as u8;
-
-        let message_type = TMessageType::try_from(type_u8).map_err(|_| {
-            DecodeError::new(
-                DecodeErrorKind::InvalidData,
-                format!("invalid message type {}", type_u8),
-            )
-        })?;
-
-        let version = size & (VERSION_MASK as i32);
-        if version != (VERSION_1 as i32) {
-            return Err(DecodeError::new(
-                DecodeErrorKind::BadVersion,
-                "Bad version in ReadMessageBegin",
-            ));
-        }
-
-        let name = self.read_faststr()?;
-
-        let sequence_number = self.read_i32()?;
-        Ok(TMessageIdentifier::new(name, message_type, sequence_number))
-    }
-
-    #[inline]
-    fn read_message_end(&mut self) -> Result<(), DecodeError> {
-        Ok(())
-    }
-
-    #[inline]
-    fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, DecodeError> {
-        Ok(None)
-    }
-
-    #[inline]
-    fn read_struct_end(&mut self) -> Result<(), DecodeError> {
-        Ok(())
-    }
-
-    #[inline]
-    fn read_field_begin(&mut self) -> Result<TFieldIdentifier, DecodeError> {
-        let field_type_byte = self.read_byte()?;
-        let field_type = field_type_byte.try_into().map_err(|_| {
-            DecodeError::new(
-                DecodeErrorKind::InvalidData,
-                format!("invalid ttype {}", field_type_byte),
-            )
-        })?;
-        let id = match field_type {
-            TType::Stop => Ok(0),
-            _ => self.read_i16(),
-        }?;
-        Ok(TFieldIdentifier::new::<Option<&'static str>, i16>(
-            None, field_type, id,
-        ))
-    }
-
-    #[inline]
-    fn read_field_end(&mut self) -> Result<(), DecodeError> {
-        Ok(())
-    }
-
-    #[inline]
-    fn read_bool(&mut self) -> Result<bool, DecodeError> {
-        let b = self.read_i8()?;
-        match b {
-            0 => Ok(false),
-            _ => Ok(true),
-        }
-    }
-
-    #[inline]
-    fn read_bytes(&mut self) -> Result<Bytes, DecodeError> {
-        let len = self.trans.read_i32()?;
-        // split and freeze it
-        Ok(self.trans.split_to(len as usize))
-    }
-
-    #[inline]
-    fn read_uuid(&mut self) -> Result<[u8; 16], DecodeError> {
-        let mut u = [0; 16];
-        self.trans.read_to_slice(&mut u)?;
-        Ok(u)
-    }
-
-    #[inline]
-    fn read_i8(&mut self) -> Result<i8, DecodeError> {
-        Ok(self.trans.read_i8()?)
-    }
-
-    #[inline]
-    fn read_i16(&mut self) -> Result<i16, DecodeError> {
-        Ok(self.trans.read_i16()?)
-    }
-
-    #[inline]
-    fn read_i32(&mut self) -> Result<i32, DecodeError> {
-        Ok(self.trans.read_i32()?)
-    }
-
-    #[inline]
-    fn read_i64(&mut self) -> Result<i64, DecodeError> {
-        Ok(self.trans.read_i64()?)
-    }
-
-    #[inline]
-    fn read_double(&mut self) -> Result<f64, DecodeError> {
-        Ok(self.trans.read_f64()?)
-    }
-
-    #[inline]
-    fn read_string(&mut self) -> Result<String, DecodeError> {
-        let len = self.trans.read_i32()?;
-        Ok(self.trans.read_to_string(len as usize)?)
-    }
-
-    #[inline]
-    fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
-        let len = self.trans.read_i32()? as usize;
-        let bytes = self.trans.split_to(len);
-        unsafe { return Ok(FastStr::from_bytes_unchecked(bytes)) };
-    }
-
-    #[inline]
-    fn read_list_begin(&mut self) -> Result<TListIdentifier, DecodeError> {
-        let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
-        let size = self.read_i32()?;
-        Ok(TListIdentifier::new(element_type, size as usize))
-    }
-
-    #[inline]
-    fn read_list_end(&mut self) -> Result<(), DecodeError> {
-        Ok(())
-    }
-
-    #[inline]
-    fn read_set_begin(&mut self) -> Result<TSetIdentifier, DecodeError> {
-        let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
-        let size = self.read_i32()?;
-        Ok(TSetIdentifier::new(element_type, size as usize))
-    }
-
-    #[inline]
-    fn read_set_end(&mut self) -> Result<(), DecodeError> {
-        Ok(())
-    }
-
-    #[inline]
-    fn read_map_begin(&mut self) -> Result<TMapIdentifier, DecodeError> {
-        let key_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
-        let value_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
-        let size = self.read_i32()?;
-        Ok(TMapIdentifier::new(key_type, value_type, size as usize))
-    }
-
-    #[inline]
-    fn read_map_end(&mut self) -> Result<(), DecodeError> {
-        Ok(())
-    }
-
-    #[inline]
-    fn read_byte(&mut self) -> Result<u8, DecodeError> {
-        Ok(self.trans.read_u8()?)
-    }
-
-    #[inline]
-    fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError> {
-        let len = self.trans.read_i32()? as usize;
-        Ok(self.trans.split_to(len).into())
-    }
-
-    #[inline]
-    fn buf_mut(&mut self) -> &mut Self::Buf {
-        self.trans
     }
 }

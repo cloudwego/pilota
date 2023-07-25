@@ -80,6 +80,7 @@ pub struct Builder<MkB, P> {
     ignore_unused: bool,
     touches: Vec<(std::path::PathBuf, Vec<String>)>,
     change_case: bool,
+    keep_unknown_fields: bool,
 }
 
 impl Builder<MkThriftBackend, ThriftParser> {
@@ -96,6 +97,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             touches: Vec::default(),
             ignore_unused: true,
             change_case: true,
+            keep_unknown_fields: false,
         }
     }
 }
@@ -114,6 +116,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             touches: Vec::default(),
             ignore_unused: true,
             change_case: true,
+            keep_unknown_fields: false,
         }
     }
 }
@@ -138,6 +141,7 @@ impl<MkB, P> Builder<MkB, P> {
             ignore_unused: self.ignore_unused,
             touches: self.touches,
             change_case: self.change_case,
+            keep_unknown_fields: self.keep_unknown_fields,
         }
     }
 
@@ -173,6 +177,11 @@ impl<MkB, P> Builder<MkB, P> {
             item.into_iter()
                 .map(|s| (s.0, s.1.into_iter().map(|s| s.into()).collect())),
         );
+        self
+    }
+
+    pub fn keep_unknown_fields(mut self, keep_unknown_fields: bool) -> Self {
+        self.keep_unknown_fields = keep_unknown_fields;
         self
     }
 }
@@ -227,6 +236,7 @@ where
         ignore_unused: bool,
         source_type: SourceType,
         change_case: bool,
+        keep_unknown_fields: bool,
     ) -> Context {
         let mut db = RootDatabase::default();
         parser.inputs(services.iter().map(|s| &s.path));
@@ -237,7 +247,12 @@ where
         } = parser.parse();
         db.set_file_ids_map_with_durability(Arc::new(file_ids_map), Durability::HIGH);
 
-        let ResolveResult { files, nodes, tags } = Resolver::default().resolve_files(&files);
+        let ResolveResult {
+            files,
+            nodes,
+            tags,
+            args,
+        } = Resolver::default().resolve_files(&files);
 
         // discard duplicated items
         // let mods = nodes
@@ -262,6 +277,7 @@ where
         db.set_type_graph_with_durability(type_graph, Durability::HIGH);
         db.set_nodes_with_durability(Arc::new(nodes), Durability::HIGH);
         db.set_tags_map_with_durability(Arc::new(tags), Durability::HIGH);
+        db.set_args_with_durability(Arc::new(args), Durability::HIGH);
 
         let mut input = Vec::with_capacity(input_files.len());
         for file_id in &input_files {
@@ -295,7 +311,12 @@ where
             CollectMode::All
         });
 
-        cx.build(Arc::from(services), source_type, change_case)
+        cx.build(
+            Arc::from(services),
+            source_type,
+            change_case,
+            keep_unknown_fields,
+        )
     }
 
     pub fn compile_with_config(self, services: Vec<IdlService>, out: Output) {
@@ -309,6 +330,7 @@ where
             self.ignore_unused,
             self.source_type,
             self.change_case,
+            self.keep_unknown_fields,
         );
 
         cx.exec_plugin(BoxedPlugin);
@@ -387,6 +409,7 @@ where
             self.ignore_unused,
             self.source_type,
             self.change_case,
+            self.keep_unknown_fields,
         );
 
         std::thread::scope(|_scope| {

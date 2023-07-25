@@ -20,7 +20,7 @@ pub mod string {
 
                 protocol.write_struct_begin(&struct_ident)?;
                 protocol.write_faststr_field(1, (&self.faststr).clone())?;
-                protocol.write_string_field(2, &&self.string)?;
+                protocol.write_string_field(2, &self.string)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -29,6 +29,9 @@ pub mod string {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+
                 let mut faststr = None;
                 let mut string = None;
 
@@ -37,9 +40,15 @@ pub mod string {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
+                        let mut offset = 0;
+
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                            offset += protocol.field_stop_len();
                             break;
+                        } else {
+                            offset +=
+                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -54,11 +63,12 @@ pub mod string {
                                 string = Some(protocol.read_string()?);
                             }
                             _ => {
-                                protocol.skip(field_ident.field_type)?;
+                                offset += protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
+                        offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -76,21 +86,17 @@ pub mod string {
                 protocol.read_struct_end()?;
 
                 let Some(faststr) = faststr else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field faststr is required".to_string()
-                    )
-                )
-            };
+                        "field faststr is required".to_string(),
+                    ));
+                };
                 let Some(string) = string else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field string is required".to_string()
-                    )
-                )
-            };
+                        "field string is required".to_string(),
+                    ));
+                };
 
                 let data = Self { faststr, string };
                 Ok(data)
@@ -107,9 +113,12 @@ pub mod string {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
+                        let mut offset = 0;
+
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
+                        } else {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -148,21 +157,17 @@ pub mod string {
                 protocol.read_struct_end().await?;
 
                 let Some(faststr) = faststr else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field faststr is required".to_string()
-                    )
-                )
-            };
+                        "field faststr is required".to_string(),
+                    ));
+                };
                 let Some(string) = string else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field string is required".to_string()
-                    )
-                )
-            };
+                        "field string is required".to_string(),
+                    ));
+                };
 
                 let data = Self { faststr, string };
                 Ok(data)
@@ -171,11 +176,11 @@ pub mod string {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + protocol.write_faststr_field_len(Some(1), &self.faststr)
-                    + protocol.write_string_field_len(Some(2), &&self.string)
-                    + protocol.write_field_stop_len()
-                    + protocol.write_struct_end_len()
+                protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
+                    + protocol.faststr_field_len(Some(1), &self.faststr)
+                    + protocol.string_field_len(Some(2), &&self.string)
+                    + protocol.field_stop_len()
+                    + protocol.struct_end_len()
             }
         }
     }

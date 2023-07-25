@@ -203,6 +203,17 @@ impl Annotation for SerdeAttribute {
     const KEY: &'static str = "pilota.serde_attribute";
 }
 
+#[derive(Debug)]
+pub struct KeepUnknownFields(pub bool);
+
+impl FromStr for KeepUnknownFields {
+    type Err = std::convert::Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(s == "true"))
+    }
+}
+
 pub mod protobuf {
 
     #[derive(Copy, Clone, PartialEq, Eq)]

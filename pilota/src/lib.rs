@@ -9,13 +9,15 @@ pub mod thrift;
 // reexport
 pub use async_recursion;
 pub use async_trait;
-pub use bytes::Bytes;
+pub use bytes::*;
 pub use derivative;
 pub use faststr::FastStr;
 pub use lazy_static;
 pub use serde;
 pub use thiserror::Error as ThisError;
 pub use tokio::io::AsyncRead;
+
+pub use crate::thrift::unknown::LinkedBytes;
 
 #[derive(thiserror::Error, Debug)]
 pub enum EnumConvertError<Num> {

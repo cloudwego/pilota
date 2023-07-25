@@ -53,6 +53,8 @@ pub mod enum_test {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
                 let value = protocol.read_i32()?;
                 Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
                     ::pilota::thrift::DecodeError::new(
@@ -77,7 +79,7 @@ pub mod enum_test {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.write_i32_len(*self as i32)
+                protocol.i32_len(*self as i32)
             }
         }
     }

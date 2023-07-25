@@ -1,6 +1,6 @@
 use std::{ptr::NonNull, sync::Arc};
 
-use fxhash::FxHashMap;
+use fxhash::{FxHashMap, FxHashSet};
 use itertools::Itertools;
 
 use crate::{
@@ -195,6 +195,7 @@ pub struct Resolver {
     cur_file: Option<FileId>,
     ir_files: FxHashMap<FileId, Arc<ir::File>>,
     errors: errors::Handler,
+    args: FxHashSet<DefId>,
 }
 
 impl Default for Resolver {
@@ -211,6 +212,7 @@ impl Default for Resolver {
             errors: Default::default(),
             cur_file: None,
             parent_node: None,
+            args: Default::default(),
         }
     }
 }
@@ -219,6 +221,7 @@ pub struct ResolveResult {
     pub files: FxHashMap<FileId, Arc<File>>,
     pub nodes: FxHashMap<DefId, Node>,
     pub tags: FxHashMap<TagId, Arc<Tags>>,
+    pub args: FxHashSet<DefId>,
 }
 
 pub struct ResolvedSymbols {
@@ -267,6 +270,7 @@ impl Resolver {
             tags: self.tags,
             files,
             nodes: self.nodes,
+            args: self.args,
         }
     }
 
@@ -324,7 +328,7 @@ impl Resolver {
         let did = self.did_counter.inc_one();
         let tags_id = self.tags_id_counter.inc_one();
         self.tags.insert(tags_id, f.tags.clone());
-        let ty = self.lower_type(&f.ty);
+        let ty = self.lower_type(&f.ty, false);
         let ty = self.modify_ty_by_tags(ty, &f.tags);
 
         let f = Arc::from(Field {
@@ -356,7 +360,7 @@ impl Resolver {
         }
     }
 
-    fn lower_type(&mut self, ty: &ir::Ty) -> Ty {
+    fn lower_type(&mut self, ty: &ir::Ty, is_args: bool) -> Ty {
         let kind = match &ty.kind {
             ir::TyKind::String => ty::FastStr,
             ir::TyKind::Void => ty::Void,
@@ -368,12 +372,13 @@ impl Resolver {
             ir::TyKind::I32 => ty::I32,
             ir::TyKind::I64 => ty::I64,
             ir::TyKind::F64 => ty::F64,
-            ir::TyKind::Vec(ty) => ty::Vec(Arc::from(self.lower_type(ty))),
-            ir::TyKind::Set(ty) => ty::Set(Arc::from(self.lower_type(ty))),
-            ir::TyKind::Map(k, v) => {
-                ty::Map(Arc::from(self.lower_type(k)), Arc::from(self.lower_type(v)))
-            }
-            ir::TyKind::Path(p) => ty::Path(self.lower_path(p, Namespace::Ty)),
+            ir::TyKind::Vec(ty) => ty::Vec(Arc::from(self.lower_type(ty, false))),
+            ir::TyKind::Set(ty) => ty::Set(Arc::from(self.lower_type(ty, false))),
+            ir::TyKind::Map(k, v) => ty::Map(
+                Arc::from(self.lower_type(k, false)),
+                Arc::from(self.lower_type(v, false)),
+            ),
+            ir::TyKind::Path(p) => ty::Path(self.lower_path(p, Namespace::Ty, is_args)),
             ir::TyKind::UInt64 => ty::UInt64,
             ir::TyKind::UInt32 => ty::UInt32,
             ir::TyKind::F32 => ty::F32,
@@ -454,7 +459,7 @@ impl Resolver {
         .copied()
     }
 
-    fn lower_path(&self, path: &ir::Path, ns: Namespace) -> Path {
+    fn lower_path(&mut self, path: &ir::Path, ns: Namespace, is_args: bool) -> Path {
         let segs = &path.segments;
         let cur_file = self.ir_files.get(self.cur_file.as_ref().unwrap()).unwrap();
         let path_kind = match ns {
@@ -475,6 +480,9 @@ impl Resolver {
             });
 
             if let Some(def_id) = def_id {
+                if is_args {
+                    self.args.insert(def_id);
+                }
                 return Path {
                     kind: path_kind,
                     did: def_id,
@@ -501,6 +509,9 @@ impl Resolver {
                 )
             });
 
+        if is_args {
+            self.args.insert(def_id);
+        }
         Path {
             kind: path_kind,
             did: def_id,
@@ -542,7 +553,7 @@ impl Resolver {
                             .fields
                             .iter()
                             .map(|p| {
-                                let ty = self.lower_type(p);
+                                let ty = self.lower_type(p, false);
                                 self.modify_ty_by_tags(ty, &p.tags)
                             })
                             .collect(),
@@ -580,7 +591,7 @@ impl Resolver {
                                 let def_id = self.did_counter.inc_one();
                                 let arg = Arc::new(Arg {
                                     def_id,
-                                    ty: self.lower_type(&a.ty),
+                                    ty: self.lower_type(&a.ty, true),
                                     name: a.name.clone(),
                                     id: a.id,
                                     tags_id,
@@ -592,12 +603,12 @@ impl Resolver {
                                 arg
                             })
                             .collect(),
-                        ret: self.lower_type(&m.ret),
+                        ret: self.lower_type(&m.ret, true),
                         oneway: m.oneway,
                         exceptions: m
                             .exceptions
                             .as_ref()
-                            .map(|p| self.lower_path(p, Namespace::Ty)),
+                            .map(|p| self.lower_path(p, Namespace::Ty, true)),
                     });
                     self.nodes.insert(
                         def_id,
@@ -610,7 +621,7 @@ impl Resolver {
             extend: s
                 .extend
                 .iter()
-                .map(|p| self.lower_path(p, Namespace::Ty))
+                .map(|p| self.lower_path(p, Namespace::Ty, false))
                 .collect(),
         }
     }
@@ -618,14 +629,14 @@ impl Resolver {
     fn lower_type_alias(&mut self, t: &ir::NewType) -> NewType {
         NewType {
             name: t.name.clone(),
-            ty: self.lower_type(&t.ty),
+            ty: self.lower_type(&t.ty, false),
         }
     }
 
-    fn lower_lit(&self, l: &ir::Literal) -> Literal {
+    fn lower_lit(&mut self, l: &ir::Literal) -> Literal {
         match l {
             ir::Literal::Bool(b) => Literal::Bool(*b),
-            ir::Literal::Path(p) => Literal::Path(self.lower_path(p, Namespace::Value)),
+            ir::Literal::Path(p) => Literal::Path(self.lower_path(p, Namespace::Value, false)),
             ir::Literal::String(s) => Literal::String(s.clone()),
             ir::Literal::Int(i) => Literal::Int(*i),
             ir::Literal::Float(f) => Literal::Float(f.clone()),
@@ -641,7 +652,7 @@ impl Resolver {
     fn lower_const(&mut self, c: &ir::Const) -> Const {
         Const {
             name: c.name.clone(),
-            ty: self.lower_type(&c.ty),
+            ty: self.lower_type(&c.ty, false),
             lit: self.lower_lit(&c.lit),
         }
     }
@@ -709,6 +720,7 @@ impl Resolver {
                         segments: Arc::from([i.clone()]),
                     },
                     Namespace::Ty,
+                    false,
                 )
                 .did
             })

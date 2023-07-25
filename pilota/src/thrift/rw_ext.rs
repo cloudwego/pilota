@@ -65,25 +65,26 @@ macro_rules! io_read_impl {
     }};
 }
 
+#[macro_export]
 macro_rules! assert_remaining {
     ($cond: expr, $($arg:tt)+) => {
         #[cfg(not(feature = "unstable"))]
         if !$cond {
-            return Err(IOError::NoRemaining(format!($($arg)+)));
+            return Err(IOError::NoRemaining(format!($($arg)+)))?;
         }
         #[cfg(feature = "unstable")]
         if !std::intrinsics::likely($cond) {
-            return Err(IOError::NoRemaining(format!($($arg)+)));
+            return Err(IOError::NoRemaining(format!($($arg)+)))?;
         }
     };
     ($cond: expr) => {
         #[cfg(not(feature = "unstable"))]
         if !$cond {
-            return Err(IOError::NoRemaining(String::new()));
+            return Err(IOError::NoRemaining(String::new()))?;
         }
         #[cfg(feature = "unstable")]
         if !std::intrinsics::likely($cond) {
-            return Err(IOError::NoRemaining(String::new()));
+            return Err(IOError::NoRemaining(String::new()))?;
         }
     };
 }

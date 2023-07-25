@@ -175,6 +175,26 @@ fn test_touch() {
     });
 }
 
+#[test]
+fn test_unknown_fields() {
+    let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("unknown_fields.thrift");
+
+    let mut out_path = file_path.clone();
+    out_path.set_extension("rs");
+
+    test_with_builder(file_path, out_path, |source, target| {
+        crate::Builder::thrift()
+            .ignore_unused(false)
+            .keep_unknown_fields(true)
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            )
+    });
+}
+
 mod tests {
     use pilota::{
         prost::bytes::BytesMut,

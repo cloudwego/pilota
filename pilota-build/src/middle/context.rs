@@ -59,6 +59,7 @@ pub struct Context {
     pub(crate) codegen_items: Arc<Vec<DefId>>,
     pub(crate) path_resolver: Arc<dyn PathResolver>,
     pub(crate) mode: Arc<Mode>,
+    pub(crate) keep_unknown_fields: bool,
 }
 
 impl Clone for Context {
@@ -72,6 +73,7 @@ impl Clone for Context {
             path_resolver: self.path_resolver.clone(),
             mode: self.mode.clone(),
             services: self.services.clone(),
+            keep_unknown_fields: self.keep_unknown_fields,
         }
     }
 }
@@ -317,6 +319,7 @@ impl ContextBuilder {
         services: Arc<[crate::IdlService]>,
         source_type: SourceType,
         change_case: bool,
+        keep_unknown_fields: bool,
     ) -> Context {
         Context {
             adjusts: Default::default(),
@@ -330,6 +333,7 @@ impl ContextBuilder {
                 Mode::SingleFile { .. } => Arc::new(DefaultPathResolver),
             },
             mode: Arc::new(self.mode),
+            keep_unknown_fields,
         }
     }
 }

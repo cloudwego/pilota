@@ -99,9 +99,7 @@ impl Lower {
                 tags: Default::default(),
             };
         }
-        let Some(ty) = type_ else {
-            panic!()
-        };
+        let Some(ty) = type_ else { panic!() };
 
         let mut tags = Tags::default();
         let kind = match ty.enum_value().unwrap() {

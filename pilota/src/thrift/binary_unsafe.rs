@@ -14,6 +14,8 @@ use super::{
 static VERSION_1: u32 = 0x80010000;
 static VERSION_MASK: u32 = 0xffff0000;
 
+const FIELD_BEGIN_LEN: usize = 3;
+
 pub struct TBinaryUnsafeOutputProtocol<T> {
     pub(crate) trans: T,
     pub(crate) buf: &'static mut [u8],
@@ -64,133 +66,127 @@ fn field_type_from_u8(ttype: u8) -> Result<TType, ProtocolError> {
 
 impl<T> TLengthProtocol for TBinaryUnsafeOutputProtocol<T> {
     #[inline]
-    fn write_message_begin_len(&mut self, identifier: &TMessageIdentifier) -> usize {
-        self.write_i32_len(0) + self.write_faststr_len(&identifier.name) + self.write_i32_len(0)
+    fn message_begin_len(&mut self, identifier: &TMessageIdentifier) -> usize {
+        self.i32_len(0) + self.faststr_len(&identifier.name) + self.i32_len(0)
     }
 
     #[inline]
-    fn write_message_end_len(&mut self) -> usize {
+    fn message_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_struct_begin_len(&mut self, _identifier: &TStructIdentifier) -> usize {
+    fn struct_begin_len(&mut self, _identifier: &TStructIdentifier) -> usize {
         0
     }
 
     #[inline]
-    fn write_struct_end_len(&mut self) -> usize {
+    fn struct_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_field_begin_len(&mut self, _field_type: TType, _id: Option<i16>) -> usize {
-        self.write_byte_len(0) + self.write_i16_len(0)
+    fn field_begin_len(&mut self, _field_type: TType, _id: Option<i16>) -> usize {
+        self.byte_len(0) + self.i16_len(0)
     }
 
     #[inline]
-    fn write_field_end_len(&mut self) -> usize {
+    fn field_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_field_stop_len(&mut self) -> usize {
-        self.write_byte_len(0)
+    fn field_stop_len(&mut self) -> usize {
+        self.byte_len(0)
     }
 
     #[inline]
-    fn write_bool_len(&mut self, _b: bool) -> usize {
-        self.write_i8_len(0)
+    fn bool_len(&mut self, _b: bool) -> usize {
+        self.i8_len(0)
     }
 
     #[inline]
-    fn write_bytes_len(&mut self, b: &[u8]) -> usize {
-        if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
-            self.zero_copy_len += b.len();
-        }
-        self.write_i32_len(0) + b.len()
+    fn bytes_len(&mut self, b: &[u8]) -> usize {
+        self.i32_len(0) + b.len()
     }
 
     #[inline]
-    fn write_byte_len(&mut self, _b: u8) -> usize {
+    fn byte_len(&mut self, _b: u8) -> usize {
         1
     }
 
     #[inline]
-    fn write_uuid_len(&mut self, _u: [u8; 16]) -> usize {
+    fn uuid_len(&mut self, _u: [u8; 16]) -> usize {
         16
     }
 
     #[inline]
-    fn write_i8_len(&mut self, _i: i8) -> usize {
+    fn i8_len(&mut self, _i: i8) -> usize {
         1
     }
 
     #[inline]
-    fn write_i16_len(&mut self, _i: i16) -> usize {
+    fn i16_len(&mut self, _i: i16) -> usize {
         2
     }
 
     #[inline]
-    fn write_i32_len(&mut self, _i: i32) -> usize {
+    fn i32_len(&mut self, _i: i32) -> usize {
         4
     }
 
     #[inline]
-    fn write_i64_len(&mut self, _i: i64) -> usize {
+    fn i64_len(&mut self, _i: i64) -> usize {
         8
     }
 
     #[inline]
-    fn write_double_len(&mut self, _d: f64) -> usize {
+    fn double_len(&mut self, _d: f64) -> usize {
         8
     }
 
-    fn write_string_len(&mut self, s: &str) -> usize {
-        self.write_i32_len(0) + s.len()
+    fn string_len(&mut self, s: &str) -> usize {
+        self.i32_len(0) + s.len()
     }
 
     #[inline]
-    fn write_faststr_len(&mut self, s: &FastStr) -> usize {
-        if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
-            self.zero_copy_len += s.len();
-        }
-        self.write_i32_len(0) + s.len()
+    fn faststr_len(&mut self, s: &FastStr) -> usize {
+        self.i32_len(0) + s.len()
     }
 
     #[inline]
-    fn write_list_begin_len(&mut self, _identifier: TListIdentifier) -> usize {
-        self.write_byte_len(0) + self.write_i32_len(0)
+    fn list_begin_len(&mut self, _identifier: TListIdentifier) -> usize {
+        self.byte_len(0) + self.i32_len(0)
     }
 
     #[inline]
-    fn write_list_end_len(&mut self) -> usize {
+    fn list_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_set_begin_len(&mut self, _identifier: TSetIdentifier) -> usize {
-        self.write_byte_len(0) + self.write_i32_len(0)
+    fn set_begin_len(&mut self, _identifier: TSetIdentifier) -> usize {
+        self.byte_len(0) + self.i32_len(0)
     }
 
     #[inline]
-    fn write_set_end_len(&mut self) -> usize {
+    fn set_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_map_begin_len(&mut self, _identifier: TMapIdentifier) -> usize {
-        self.write_byte_len(0) + self.write_byte_len(0) + self.write_i32_len(0)
+    fn map_begin_len(&mut self, _identifier: TMapIdentifier) -> usize {
+        self.byte_len(0) + self.byte_len(0) + self.i32_len(0)
     }
 
     #[inline]
-    fn write_map_end_len(&mut self) -> usize {
+    fn map_end_len(&mut self) -> usize {
         0
     }
 
     #[inline]
-    fn write_bytes_vec_len(&mut self, b: &[u8]) -> usize {
-        self.write_i32_len(0) + b.len()
+    fn bytes_vec_len(&mut self, b: &[u8]) -> usize {
+        self.i32_len(0) + b.len()
     }
 
     #[inline]
@@ -269,6 +265,11 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     #[inline]
     fn write_bytes(&mut self, b: Bytes) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
+        self.write_bytes_without_len(b)
+    }
+
+    #[inline]
+    fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), EncodeError> {
         unsafe {
             ptr::copy_nonoverlapping(
                 b.as_ptr(),
@@ -522,7 +523,13 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     #[inline]
     fn write_bytes(&mut self, b: Bytes) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
+        self.write_bytes_without_len(b)
+    }
+
+    #[inline]
+    fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), EncodeError> {
         if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
+            self.zero_copy_len += b.len();
             unsafe {
                 self.trans.bytes_mut().advance_mut(self.index);
                 self.index = 0;
@@ -654,6 +661,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     fn write_faststr(&mut self, s: FastStr) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
         if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
+            self.zero_copy_len += s.len();
             unsafe {
                 self.trans.bytes_mut().advance_mut(self.index);
                 self.index = 0;
@@ -766,6 +774,132 @@ impl<'a> TBinaryUnsafeInputProtocol<'a> {
     }
 }
 
+impl<'a> TLengthProtocol for TBinaryUnsafeInputProtocol<'a> {
+    #[inline]
+    fn message_begin_len(&mut self, identifier: &TMessageIdentifier) -> usize {
+        self.i32_len(0) + self.faststr_len(&identifier.name) + self.i32_len(0)
+    }
+
+    #[inline]
+    fn message_end_len(&mut self) -> usize {
+        0
+    }
+
+    #[inline]
+    fn struct_begin_len(&mut self, _identifier: &TStructIdentifier) -> usize {
+        0
+    }
+
+    #[inline]
+    fn struct_end_len(&mut self) -> usize {
+        0
+    }
+
+    #[inline]
+    fn field_begin_len(&mut self, _field_type: TType, _id: Option<i16>) -> usize {
+        self.byte_len(0) + self.i16_len(0)
+    }
+
+    #[inline]
+    fn field_end_len(&mut self) -> usize {
+        0
+    }
+
+    #[inline]
+    fn field_stop_len(&mut self) -> usize {
+        self.byte_len(0)
+    }
+
+    #[inline]
+    fn bool_len(&mut self, _b: bool) -> usize {
+        self.i8_len(0)
+    }
+
+    #[inline]
+    fn bytes_len(&mut self, b: &[u8]) -> usize {
+        self.i32_len(0) + b.len()
+    }
+
+    #[inline]
+    fn byte_len(&mut self, _b: u8) -> usize {
+        1
+    }
+
+    #[inline]
+    fn uuid_len(&mut self, _u: [u8; 16]) -> usize {
+        16
+    }
+
+    #[inline]
+    fn i8_len(&mut self, _i: i8) -> usize {
+        1
+    }
+
+    #[inline]
+    fn i16_len(&mut self, _i: i16) -> usize {
+        2
+    }
+
+    #[inline]
+    fn i32_len(&mut self, _i: i32) -> usize {
+        4
+    }
+
+    #[inline]
+    fn i64_len(&mut self, _i: i64) -> usize {
+        8
+    }
+
+    #[inline]
+    fn double_len(&mut self, _d: f64) -> usize {
+        8
+    }
+
+    fn string_len(&mut self, s: &str) -> usize {
+        self.i32_len(0) + s.len()
+    }
+
+    #[inline]
+    fn faststr_len(&mut self, s: &FastStr) -> usize {
+        self.i32_len(0) + s.len()
+    }
+
+    #[inline]
+    fn list_begin_len(&mut self, _identifier: TListIdentifier) -> usize {
+        self.byte_len(0) + self.i32_len(0)
+    }
+
+    #[inline]
+    fn list_end_len(&mut self) -> usize {
+        0
+    }
+
+    #[inline]
+    fn set_begin_len(&mut self, _identifier: TSetIdentifier) -> usize {
+        self.byte_len(0) + self.i32_len(0)
+    }
+
+    #[inline]
+    fn set_end_len(&mut self) -> usize {
+        0
+    }
+
+    #[inline]
+    fn map_begin_len(&mut self, _identifier: TMapIdentifier) -> usize {
+        self.byte_len(0) + self.byte_len(0) + self.i32_len(0)
+    }
+
+    #[inline]
+    fn map_end_len(&mut self) -> usize {
+        0
+    }
+
+    #[inline]
+    fn bytes_vec_len(&mut self, b: &[u8]) -> usize {
+        self.i32_len(0) + b.len()
+    }
+}
+
 impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     type Buf = Bytes;
 
@@ -860,11 +994,23 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     }
 
     #[inline]
+    fn get_bytes(&mut self, ptr: Option<*const u8>, mut len: usize) -> Result<Bytes, DecodeError> {
+        if ptr.is_none() {
+            len -= self.index;
+            self.trans.advance(self.index);
+        }
+        self.index = 0;
+        let val = self.trans.split_to(len);
+        self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
+        Ok(val)
+    }
+
+    #[inline]
     fn read_uuid(&mut self) -> Result<[u8; 16], DecodeError> {
         let u;
         unsafe {
             u = self
-                .trans
+                .buf
                 .get_unchecked(self.index..self.index + 16)
                 .try_into()
                 .unwrap_unchecked();
@@ -1003,7 +1149,121 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     }
 
     #[inline]
-    fn buf_mut(&mut self) -> &mut Self::Buf {
+    fn buf(&mut self) -> &mut Self::Buf {
         &mut self.trans
+    }
+
+    #[inline]
+    fn skip(&mut self, field_type: TType) -> Result<usize, DecodeError> {
+        debug_assert!(self.index >= FIELD_BEGIN_LEN);
+
+        self.trans.advance(self.index - FIELD_BEGIN_LEN);
+        self.index = FIELD_BEGIN_LEN;
+        self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
+
+        self.skip_till_depth(field_type, crate::thrift::MAXIMUM_SKIP_DEPTH)
+    }
+
+    /// Skip a field with type `field_type` recursively up to `depth` levels.
+    fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<usize, DecodeError> {
+        if depth == 0 {
+            return Err(DecodeError::new(
+                DecodeErrorKind::DepthLimit,
+                format!("cannot parse past {:?}", field_type),
+            ));
+        }
+        let mut len: usize = 0;
+
+        match field_type {
+            TType::Bool => {
+                self.index += 1;
+                len += 1;
+            }
+            TType::I8 => {
+                self.index += 1;
+                len += 1;
+            }
+            TType::I16 => {
+                self.index += 2;
+                len += 2;
+            }
+            TType::I32 => {
+                self.index += 4;
+                len += 4;
+            }
+            TType::I64 => {
+                self.index += 8;
+                len += 8;
+            }
+            TType::Double => {
+                self.index += 8;
+                len += 8;
+            }
+            TType::Binary => {
+                let length = unsafe { self.read_i32().unwrap_unchecked() };
+                len += 4 + length as usize;
+                self.index += length as usize;
+            }
+            TType::Uuid => {
+                self.index += 16;
+                len += 16;
+            }
+            TType::Struct => {
+                self.read_struct_begin()?;
+                len += self.struct_begin_len(&crate::thrift::VOID_IDENT);
+                loop {
+                    let field_ident = self.read_field_begin()?;
+                    if field_ident.field_type == TType::Stop {
+                        len += self.field_stop_len();
+                        break;
+                    } else {
+                        len += self.field_begin_len(field_ident.field_type, field_ident.id);
+                    }
+                    len += self.skip_till_depth(field_ident.field_type, depth - 1)?;
+                    self.read_field_end()?;
+                    len += self.field_end_len();
+                }
+                self.read_struct_end()?;
+                len += self.struct_end_len();
+            }
+            TType::List => {
+                let list_ident = self.read_list_begin()?;
+                len += self.list_begin_len(list_ident);
+                for _ in 0..list_ident.size {
+                    len += self.skip_till_depth(list_ident.element_type, depth - 1)?;
+                }
+                self.read_list_end()?;
+                len += self.list_end_len();
+            }
+            TType::Set => {
+                let set_ident = self.read_set_begin()?;
+                len += self.set_begin_len(set_ident);
+                for _ in 0..set_ident.size {
+                    len += self.skip_till_depth(set_ident.element_type, depth - 1)?;
+                }
+                self.read_set_end()?;
+                len += self.set_end_len();
+            }
+            TType::Map => {
+                let map_ident = self.read_map_begin()?;
+                len += self.map_begin_len(map_ident);
+                for _ in 0..map_ident.size {
+                    let key_type = map_ident.key_type;
+                    let val_type = map_ident.value_type;
+                    len += self.skip_till_depth(key_type, depth - 1)?;
+                    len += self.skip_till_depth(val_type, depth - 1)?;
+                }
+                self.read_map_end()?;
+                len += self.map_end_len();
+            }
+            u => {
+                return Err(DecodeError::new(
+                    DecodeErrorKind::DepthLimit,
+                    format!("cannot skip field type {:?}", &u),
+                ))
+            }
+        };
+
+        Ok(len)
     }
 }

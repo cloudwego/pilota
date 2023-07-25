@@ -323,7 +323,8 @@ impl Plugin for ImplDefaultPlugin {
                 if m.fields.iter().all(|f| cx.default_val(f).is_none()) {
                     cx.with_adjust_mut(def_id, |adj| adj.add_attrs(&["#[derive(Default)]".into()]));
                 } else {
-                    let fields = m
+                    #[allow(unused_mut)]
+                    let mut fields = m
                         .fields
                         .iter()
                         .map(|f| {
@@ -341,6 +342,13 @@ impl Plugin for ImplDefaultPlugin {
                             }
                         })
                         .join(",\n");
+
+                    if cx.keep_unknown_fields {
+                        if !fields.is_empty() {
+                            fields.push_str(",\n");
+                        }
+                        fields.push_str("unknown_fields: ::pilota::Bytes::new()");
+                    }
 
                     cx.with_adjust_mut(def_id, |adj| {
                         adj.add_nested_item(
@@ -404,7 +412,7 @@ impl Plugin for EnumNumPlugin {
                 let name = name_str;
                 let num_ty = match e.repr {
                     Some(EnumRepr::I32) => quote!(i32),
-                    None => return,
+                    _ => return,
                 };
                 let variants = e
                     .variants

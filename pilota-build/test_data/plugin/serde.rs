@@ -41,6 +41,9 @@ pub mod serde {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+
                 let mut a = None;
                 let mut b = None;
 
@@ -49,9 +52,15 @@ pub mod serde {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
+                        let mut offset = 0;
+
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                            offset += protocol.field_stop_len();
                             break;
+                        } else {
+                            offset +=
+                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -64,11 +73,12 @@ pub mod serde {
                                 b = Some(protocol.read_i32()?);
                             }
                             _ => {
-                                protocol.skip(field_ident.field_type)?;
+                                offset += protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
+                        offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -86,21 +96,17 @@ pub mod serde {
                 protocol.read_struct_end()?;
 
                 let Some(a) = a else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field a is required".to_string()
-                    )
-                )
-            };
+                        "field a is required".to_string(),
+                    ));
+                };
                 let Some(b) = b else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field b is required".to_string()
-                    )
-                )
-            };
+                        "field b is required".to_string(),
+                    ));
+                };
 
                 let data = Self { a, b };
                 Ok(data)
@@ -117,9 +123,12 @@ pub mod serde {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
+                        let mut offset = 0;
+
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
+                        } else {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -156,21 +165,17 @@ pub mod serde {
                 protocol.read_struct_end().await?;
 
                 let Some(a) = a else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field a is required".to_string()
-                    )
-                )
-            };
+                        "field a is required".to_string(),
+                    ));
+                };
                 let Some(b) = b else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field b is required".to_string()
-                    )
-                )
-            };
+                        "field b is required".to_string(),
+                    ));
+                };
 
                 let data = Self { a, b };
                 Ok(data)
@@ -179,11 +184,11 @@ pub mod serde {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.write_struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + protocol.write_faststr_field_len(Some(1), &self.a)
-                    + protocol.write_i32_field_len(Some(2), *&self.b)
-                    + protocol.write_field_stop_len()
-                    + protocol.write_struct_end_len()
+                protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
+                    + protocol.faststr_field_len(Some(1), &self.a)
+                    + protocol.i32_field_len(Some(2), *&self.b)
+                    + protocol.field_stop_len()
+                    + protocol.struct_end_len()
             }
         }
         impl ::std::convert::From<C> for i32 {
@@ -237,6 +242,8 @@ pub mod serde {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
                 let value = protocol.read_i32()?;
                 Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
                     ::pilota::thrift::DecodeError::new(
@@ -261,7 +268,7 @@ pub mod serde {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.write_i32_len(*self as i32)
+                protocol.i32_len(*self as i32)
             }
         }
         #[derive(
@@ -307,6 +314,8 @@ pub mod serde {
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
                 Ok(B(protocol.read_i32()?))
             }
 
@@ -319,7 +328,7 @@ pub mod serde {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.write_i32_len(*&**self)
+                protocol.i32_len(*&**self)
             }
         }
     }

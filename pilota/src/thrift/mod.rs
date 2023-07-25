@@ -4,6 +4,7 @@ pub mod binary_unsafe;
 pub mod compact;
 pub mod error;
 pub mod rw_ext;
+pub mod unknown;
 pub mod varint_ext;
 
 use std::{
@@ -17,6 +18,7 @@ pub use error::*;
 use faststr::FastStr;
 
 pub use self::{binary::TAsyncBinaryProtocol, compact::TAsyncCompactProtocol};
+use crate::{assert_remaining, thrift::rw_ext::IOError};
 
 const MAXIMUM_SKIP_DEPTH: i8 = 64;
 
@@ -88,7 +90,7 @@ impl<M: Message + Send + Sync> Message for Arc<M> {
     }
 }
 
-pub trait TInputProtocol {
+pub trait TInputProtocol: TLengthProtocol {
     type Buf: Buf;
     /// Read the beginning of a Thrift message.
     fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError>;
@@ -137,67 +139,118 @@ pub trait TInputProtocol {
     /// Skip a field with type `field_type` recursively until the default
     /// maximum skip depth is reached.
     #[inline]
-    fn skip(&mut self, field_type: TType) -> Result<(), DecodeError> {
+    fn skip(&mut self, field_type: TType) -> Result<usize, DecodeError> {
         self.skip_till_depth(field_type, MAXIMUM_SKIP_DEPTH)
     }
     /// Skip a field with type `field_type` recursively up to `depth` levels.
-    fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<(), DecodeError> {
+    fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<usize, DecodeError> {
         if depth == 0 {
             return Err(DecodeError::new(
                 DecodeErrorKind::DepthLimit,
                 format!("cannot parse past {:?}", field_type),
             ));
         }
+        let mut len = 0;
 
         match field_type {
-            TType::Bool => self.read_bool().map(|_| ()),
-            TType::I8 => self.read_i8().map(|_| ()),
-            TType::I16 => self.read_i16().map(|_| ()),
-            TType::I32 => self.read_i32().map(|_| ()),
-            TType::I64 => self.read_i64().map(|_| ()),
-            TType::Double => self.read_double().map(|_| ()),
-            TType::Binary => self.read_bytes().map(|_| ()),
-            TType::Uuid => self.read_uuid().map(|_| ()),
+            TType::Bool => {
+                assert_remaining!(self.buf().remaining() >= 1);
+                self.buf().advance(1);
+                len += 1;
+            }
+            TType::I8 => {
+                assert_remaining!(self.buf().remaining() >= 1);
+                self.buf().advance(1);
+                len += 1;
+            }
+            TType::I16 => {
+                assert_remaining!(self.buf().remaining() >= 2);
+                self.buf().advance(2);
+                len += 2;
+            }
+            TType::I32 => {
+                assert_remaining!(self.buf().remaining() >= 4);
+                self.buf().advance(4);
+                len += 4;
+            }
+            TType::I64 => {
+                assert_remaining!(self.buf().remaining() >= 8);
+                self.buf().advance(8);
+                len += 8;
+            }
+            TType::Double => {
+                assert_remaining!(self.buf().remaining() >= 8);
+                self.buf().advance(8);
+                len += 8;
+            }
+            TType::Binary => {
+                let length = self.read_i32()?;
+                assert_remaining!(self.buf().remaining() >= length as usize);
+                self.buf().advance(length as usize);
+                len += 4 + length as usize;
+            }
+            TType::Uuid => {
+                assert_remaining!(self.buf().remaining() >= 16);
+                self.buf().advance(16);
+                len += 16;
+            }
             TType::Struct => {
                 self.read_struct_begin()?;
+                len += self.struct_begin_len(&crate::thrift::VOID_IDENT);
                 loop {
                     let field_ident = self.read_field_begin()?;
                     if field_ident.field_type == TType::Stop {
+                        len += self.field_stop_len();
                         break;
+                    } else {
+                        len += self.field_begin_len(field_ident.field_type, field_ident.id);
                     }
-                    self.skip_till_depth(field_ident.field_type, depth - 1)?;
+                    len += self.skip_till_depth(field_ident.field_type, depth - 1)?;
+                    self.read_field_end()?;
+                    len += self.field_end_len();
                 }
-                self.read_struct_end()
+                self.read_struct_end()?;
+                len += self.struct_end_len();
             }
             TType::List => {
                 let list_ident = self.read_list_begin()?;
+                len += self.list_begin_len(list_ident);
                 for _ in 0..list_ident.size {
-                    self.skip_till_depth(list_ident.element_type, depth - 1)?;
+                    len += self.skip_till_depth(list_ident.element_type, depth - 1)?;
                 }
-                self.read_list_end()
+                self.read_list_end()?;
+                len += self.list_end_len();
             }
             TType::Set => {
                 let set_ident = self.read_set_begin()?;
+                len += self.set_begin_len(set_ident);
                 for _ in 0..set_ident.size {
-                    self.skip_till_depth(set_ident.element_type, depth - 1)?;
+                    len += self.skip_till_depth(set_ident.element_type, depth - 1)?;
                 }
-                self.read_set_end()
+                self.read_set_end()?;
+                len += self.set_end_len();
             }
             TType::Map => {
                 let map_ident = self.read_map_begin()?;
+                len += self.map_begin_len(map_ident);
                 for _ in 0..map_ident.size {
                     let key_type = map_ident.key_type;
                     let val_type = map_ident.value_type;
-                    self.skip_till_depth(key_type, depth - 1)?;
-                    self.skip_till_depth(val_type, depth - 1)?;
+                    len += self.skip_till_depth(key_type, depth - 1)?;
+                    len += self.skip_till_depth(val_type, depth - 1)?;
                 }
-                self.read_map_end()
+                self.read_map_end()?;
+                len += self.map_end_len();
             }
-            u => Err(DecodeError::new(
-                DecodeErrorKind::DepthLimit,
-                format!("cannot skip field type {:?}", &u),
-            )),
-        }
+            u => {
+                return Err(DecodeError::new(
+                    DecodeErrorKind::DepthLimit,
+                    format!("cannot skip field type {:?}", &u),
+                ))
+            }
+        };
+
+        Ok(len)
     }
 
     // utility (DO NOT USE IN GENERATED CODE!!!!)
@@ -211,38 +264,40 @@ pub trait TInputProtocol {
     /// Read a Vec<u8>.
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError>;
 
+    fn get_bytes(&mut self, ptr: Option<*const u8>, len: usize) -> Result<Bytes, DecodeError>;
+
     #[doc(hidden)]
-    fn buf_mut(&mut self) -> &mut Self::Buf;
+    fn buf(&mut self) -> &mut Self::Buf;
 }
 
-macro_rules! write_field_len {
+macro_rules! field_len {
     ($ttype:ty, $name:ident($($k:ident: $t:ty),*)) => {
         paste::paste! {
             #[inline]
-            fn [<write_ $name _field_len>](&mut self, id: Option<i16>, $($k: $t),*) -> usize {
-                self.write_field_begin_len($ttype, id) + self.[<write_ $name _len>]($($k),*) + self.write_field_end_len()
+            fn [<$name _field_len>](&mut self, id: Option<i16>, $($k: $t),*) -> usize {
+                self.field_begin_len($ttype, id) + self.[<$name _len>]($($k),*) + self.field_end_len()
             }
         }
     };
 }
 
 pub trait TLengthProtocolExt: TLengthProtocol + Sized {
-    write_field_len!(TType::Bool, bool(b: bool));
-    write_field_len!(TType::I8, i8(i: i8));
-    write_field_len!(TType::I16, i16(i: i16));
-    write_field_len!(TType::I32, i32(i: i32));
-    write_field_len!(TType::I64, i64(i: i64));
-    write_field_len!(TType::Double, double(d: f64));
-    write_field_len!(TType::Binary, bytes(b: &[u8]));
-    write_field_len!(TType::Binary, bytes_vec(b: &[u8]));
-    write_field_len!(TType::Uuid, uuid(u: [u8; 16]));
-    write_field_len!(TType::Binary, string(s: &str));
-    write_field_len!(TType::Binary, faststr(s: &FastStr));
-    write_field_len!(TType::I8, byte(b: u8));
-    write_field_len!(TType::Void, void());
+    field_len!(TType::Bool, bool(b: bool));
+    field_len!(TType::I8, i8(i: i8));
+    field_len!(TType::I16, i16(i: i16));
+    field_len!(TType::I32, i32(i: i32));
+    field_len!(TType::I64, i64(i: i64));
+    field_len!(TType::Double, double(d: f64));
+    field_len!(TType::Binary, bytes(b: &[u8]));
+    field_len!(TType::Binary, bytes_vec(b: &[u8]));
+    field_len!(TType::Uuid, uuid(u: [u8; 16]));
+    field_len!(TType::Binary, string(s: &str));
+    field_len!(TType::Binary, faststr(s: &FastStr));
+    field_len!(TType::I8, byte(b: u8));
+    field_len!(TType::Void, void());
 
     #[inline]
-    fn write_list_field_len<T, F>(
+    fn list_field_len<T, F>(
         &mut self,
         id: Option<i16>,
         el_ttype: TType,
@@ -252,25 +307,25 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
     where
         F: Fn(&mut Self, &T) -> usize,
     {
-        self.write_field_begin_len(TType::List, id)
-            + self.write_list_len(el_ttype, els, el_len)
-            + self.write_field_end_len()
+        self.field_begin_len(TType::List, id)
+            + self.list_len(el_ttype, els, el_len)
+            + self.field_end_len()
     }
 
     #[inline]
-    fn write_list_len<T, F>(&mut self, el_ttype: TType, els: &[T], len: F) -> usize
+    fn list_len<T, F>(&mut self, el_ttype: TType, els: &[T], len: F) -> usize
     where
         F: Fn(&mut Self, &T) -> usize,
     {
-        self.write_list_begin_len(TListIdentifier {
+        self.list_begin_len(TListIdentifier {
             element_type: el_ttype,
             size: els.len(),
         }) + els.iter().map(|el| len(self, el)).sum::<usize>()
-            + self.write_list_end_len()
+            + self.list_end_len()
     }
 
     #[inline]
-    fn write_set_field_len<T, F>(
+    fn set_field_len<T, F>(
         &mut self,
         id: Option<i16>,
         el_ttype: TType,
@@ -280,30 +335,30 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
     where
         F: Fn(&mut Self, &T) -> usize,
     {
-        self.write_field_begin_len(TType::Set, id)
-            + self.write_set_len(el_ttype, els, el_len)
-            + self.write_field_end_len()
+        self.field_begin_len(TType::Set, id)
+            + self.set_len(el_ttype, els, el_len)
+            + self.field_end_len()
     }
 
     #[inline]
-    fn write_set_len<T, F>(&mut self, el_ttype: TType, els: &HashSet<T>, el_len: F) -> usize
+    fn set_len<T, F>(&mut self, el_ttype: TType, els: &HashSet<T>, el_len: F) -> usize
     where
         F: Fn(&mut Self, &T) -> usize,
     {
-        self.write_set_begin_len(TSetIdentifier {
+        self.set_begin_len(TSetIdentifier {
             element_type: el_ttype,
             size: els.len(),
         }) + els.iter().map(|el| el_len(self, el)).sum::<usize>()
-            + self.write_set_end_len()
+            + self.set_end_len()
     }
 
     #[inline]
-    fn write_message_len<M: Message>(&mut self, id: Option<i16>, m: &M) -> usize {
-        self.write_field_begin_len(TType::Struct, id) + m.size(self) + self.write_field_end_len()
+    fn message_len<M: Message>(&mut self, id: Option<i16>, m: &M) -> usize {
+        self.field_begin_len(TType::Struct, id) + m.size(self) + self.field_end_len()
     }
 
     #[inline]
-    fn write_map_field_len<K, V, FK, FV>(
+    fn map_field_len<K, V, FK, FV>(
         &mut self,
         id: Option<i16>,
         key_ttype: TType,
@@ -316,13 +371,13 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
         FK: Fn(&mut Self, &K) -> usize,
         FV: Fn(&mut Self, &V) -> usize,
     {
-        self.write_field_begin_len(TType::Map, id)
-            + self.write_map_len(key_ttype, val_ttype, els, key_len, val_len)
-            + self.write_field_end_len()
+        self.field_begin_len(TType::Map, id)
+            + self.map_len(key_ttype, val_ttype, els, key_len, val_len)
+            + self.field_end_len()
     }
 
     #[inline]
-    fn write_map_len<K, V, FK, FV>(
+    fn map_len<K, V, FK, FV>(
         &mut self,
         key_ttype: TType,
         val_ttype: TType,
@@ -334,7 +389,7 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
         FK: Fn(&mut Self, &K) -> usize,
         FV: Fn(&mut Self, &V) -> usize,
     {
-        self.write_map_begin_len(TMapIdentifier {
+        self.map_begin_len(TMapIdentifier {
             key_type: key_ttype,
             value_type: val_ttype,
             size: els.len(),
@@ -342,23 +397,21 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
             .iter()
             .map(|(k, v)| key_len(self, k) + val_len(self, v))
             .sum::<usize>()
-            + self.write_map_end_len()
+            + self.map_end_len()
     }
 
     #[inline]
-    fn write_void_len(&mut self) -> usize {
-        self.write_struct_begin_len(&crate::thrift::VOID_IDENT) + self.write_struct_end_len()
+    fn void_len(&mut self) -> usize {
+        self.struct_begin_len(&crate::thrift::VOID_IDENT) + self.struct_end_len()
     }
 
     #[inline]
-    fn write_struct_field_len<M: Message>(&mut self, id: Option<i16>, m: &M) -> usize {
-        self.write_field_begin_len(TType::Struct, id)
-            + self.write_struct_len(m)
-            + self.write_field_end_len()
+    fn struct_field_len<M: Message>(&mut self, id: Option<i16>, m: &M) -> usize {
+        self.field_begin_len(TType::Struct, id) + self.struct_len(m) + self.field_end_len()
     }
 
     #[inline]
-    fn write_struct_len<M: Message>(&mut self, m: &M) -> usize {
+    fn struct_len<M: Message>(&mut self, m: &M) -> usize {
         m.size(self)
     }
 }
@@ -368,61 +421,63 @@ impl<T> TLengthProtocolExt for T where T: TLengthProtocol {}
 pub trait TLengthProtocol {
     // size
 
-    fn write_message_begin_len(&mut self, identifier: &TMessageIdentifier) -> usize;
+    fn message_begin_len(&mut self, identifier: &TMessageIdentifier) -> usize;
 
-    fn write_message_end_len(&mut self) -> usize;
+    fn message_end_len(&mut self) -> usize;
 
-    fn write_struct_begin_len(&mut self, identifier: &TStructIdentifier) -> usize;
+    fn struct_begin_len(&mut self, identifier: &TStructIdentifier) -> usize;
 
-    fn write_struct_end_len(&mut self) -> usize;
+    fn struct_end_len(&mut self) -> usize;
 
-    fn write_field_begin_len(&mut self, field_type: TType, id: Option<i16>) -> usize;
+    fn field_begin_len(&mut self, field_type: TType, id: Option<i16>) -> usize;
 
-    fn write_field_end_len(&mut self) -> usize;
+    fn field_end_len(&mut self) -> usize;
 
-    fn write_field_stop_len(&mut self) -> usize;
+    fn field_stop_len(&mut self) -> usize;
 
-    fn write_bool_len(&mut self, b: bool) -> usize;
+    fn bool_len(&mut self, b: bool) -> usize;
 
-    fn write_bytes_len(&mut self, b: &[u8]) -> usize;
+    fn bytes_len(&mut self, b: &[u8]) -> usize;
 
-    fn write_bytes_vec_len(&mut self, b: &[u8]) -> usize;
+    fn bytes_vec_len(&mut self, b: &[u8]) -> usize;
 
-    fn write_byte_len(&mut self, b: u8) -> usize;
+    fn byte_len(&mut self, b: u8) -> usize;
 
-    fn write_uuid_len(&mut self, u: [u8; 16]) -> usize;
+    fn uuid_len(&mut self, u: [u8; 16]) -> usize;
 
-    fn write_i8_len(&mut self, i: i8) -> usize;
+    fn i8_len(&mut self, i: i8) -> usize;
 
-    fn write_i16_len(&mut self, i: i16) -> usize;
+    fn i16_len(&mut self, i: i16) -> usize;
 
-    fn write_i32_len(&mut self, i: i32) -> usize;
+    fn i32_len(&mut self, i: i32) -> usize;
 
-    fn write_i64_len(&mut self, i: i64) -> usize;
+    fn i64_len(&mut self, i: i64) -> usize;
 
-    fn write_double_len(&mut self, d: f64) -> usize;
+    fn double_len(&mut self, d: f64) -> usize;
 
-    fn write_string_len(&mut self, s: &str) -> usize;
+    fn string_len(&mut self, s: &str) -> usize;
 
-    fn write_faststr_len(&mut self, s: &FastStr) -> usize;
+    fn faststr_len(&mut self, s: &FastStr) -> usize;
 
-    fn write_list_begin_len(&mut self, identifier: TListIdentifier) -> usize;
+    fn list_begin_len(&mut self, identifier: TListIdentifier) -> usize;
 
-    fn write_list_end_len(&mut self) -> usize;
+    fn list_end_len(&mut self) -> usize;
 
-    fn write_set_begin_len(&mut self, identifier: TSetIdentifier) -> usize;
+    fn set_begin_len(&mut self, identifier: TSetIdentifier) -> usize;
 
-    fn write_set_end_len(&mut self) -> usize;
+    fn set_end_len(&mut self) -> usize;
 
-    fn write_map_begin_len(&mut self, identifier: TMapIdentifier) -> usize;
+    fn map_begin_len(&mut self, identifier: TMapIdentifier) -> usize;
 
-    fn write_map_end_len(&mut self) -> usize;
+    fn map_end_len(&mut self) -> usize;
 
     /// The zero copy length used to calculate the recommended malloc length.
-    fn zero_copy_len(&mut self) -> usize;
+    fn zero_copy_len(&mut self) -> usize {
+        0
+    }
 
     /// Resets the zero copy length counter.
-    fn reset(&mut self);
+    fn reset(&mut self) {}
 }
 
 macro_rules! write_field {
@@ -522,8 +577,13 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
     }
 
     #[inline]
-    fn write_struct_field<M: Message>(&mut self, id: i16, m: &M) -> Result<(), EncodeError> {
-        self.write_field_begin(TType::Struct, id)?;
+    fn write_struct_field<M: Message>(
+        &mut self,
+        id: i16,
+        m: &M,
+        ty: TType,
+    ) -> Result<(), EncodeError> {
+        self.write_field_begin(ty, id)?;
         self.write_struct(m)?;
         self.write_field_end()
     }
@@ -586,7 +646,7 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
 
 impl<T> TOutputProtocolExt for T where T: TOutputProtocol {}
 
-pub trait TOutputProtocol {
+pub trait TOutputProtocol: TLengthProtocol {
     type BufMut: BufMut;
 
     /// Write the beginning of a Thrift message.
@@ -608,6 +668,7 @@ pub trait TOutputProtocol {
     fn write_bool(&mut self, b: bool) -> Result<(), EncodeError>;
     /// Write a fixed-length byte array.
     fn write_bytes(&mut self, b: Bytes) -> Result<(), EncodeError>;
+    fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), EncodeError>;
     /// Write a uuid.
     fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError>;
     /// Write a Vec<u8>.
