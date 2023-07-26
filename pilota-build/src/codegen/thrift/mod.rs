@@ -430,33 +430,16 @@ impl ThriftBackend {
 
 impl CodegenBackend for ThriftBackend {
     fn codegen_struct_impl(&self, def_id: DefId, stream: &mut String, s: &Message) {
-        let mut keep = self.keep_unknown_fields;
+        let keep = self.keep_unknown_fields.contains(&def_id);
         let name = self.cx.rust_name(def_id);
         let name_str = &**s.name;
         let mut encode_fields = self.codegen_encode_fields(&s.fields).join("");
         if keep {
-            match self.node(def_id) {
-                Some(rir::Node {
-                    kind: rir::NodeKind::Item(_),
-                    tags,
-                    ..
-                }) => {
-                    if let Some(crate::tags::KeepUnknownFields(false)) = self
-                        .tags(tags)
-                        .as_ref()
-                        .and_then(|tags| tags.get::<crate::tags::KeepUnknownFields>())
-                    {
-                        keep = false;
-                    } else {
-                        encode_fields.push_str(
-                            r#"for bytes in self._unknown_fields.list.iter() {
+            encode_fields.push_str(
+                r#"for bytes in self._unknown_fields.list.iter() {
                                 protocol.write_bytes_without_len(bytes.clone());
                             }"#,
-                        );
-                    }
-                }
-                _ => {}
-            };
+            );
         }
         let mut encode_fields_size = self
             .codegen_encode_fields_size(&s.fields)
@@ -495,7 +478,7 @@ impl CodegenBackend for ThriftBackend {
     }
 
     fn codegen_enum_impl(&self, def_id: DefId, stream: &mut String, e: &Enum) {
-        let mut keep = self.keep_unknown_fields;
+        let keep = self.keep_unknown_fields.contains(&def_id);
         let name = self.rust_name(def_id);
         let is_entry_message = self.node_contains_tag::<EntryMessage>(def_id);
         let v = match self
@@ -552,30 +535,13 @@ impl CodegenBackend for ThriftBackend {
                     })
                     .join("");
                 if keep {
-                    match self.node(def_id) {
-                        Some(rir::Node {
-                            kind: rir::NodeKind::Item(_),
-                            tags,
-                            ..
-                        }) => {
-                            if let Some(crate::tags::KeepUnknownFields(false)) = self
-                                .tags(tags)
-                                .as_ref()
-                                .and_then(|tags| tags.get::<crate::tags::KeepUnknownFields>())
-                            {
-                                keep = false;
-                            } else {
-                                encode_variants.push_str(&format! {
-                                    "{name}::_UnknownFields(ref value) => {{
+                    encode_variants.push_str(&format! {
+                        "{name}::_UnknownFields(ref value) => {{
                                         for bytes in value.list.iter() {{
                                             protocol.write_bytes_without_len(bytes.clone());
                                         }}
                                     }}",
-                                });
-                            }
-                        }
-                        _ => {}
-                    };
+                    });
                 }
 
                 let mut variants_size = e

@@ -343,7 +343,7 @@ impl Plugin for ImplDefaultPlugin {
                         })
                         .join(",\n");
 
-                    if cx.keep_unknown_fields {
+                    if cx.keep_unknown_fields.contains(&def_id) {
                         if !fields.is_empty() {
                             fields.push_str(",\n");
                         }

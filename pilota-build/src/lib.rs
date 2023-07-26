@@ -16,6 +16,7 @@ mod middle;
 pub mod parser;
 mod resolve;
 mod symbol;
+
 pub use symbol::Symbol;
 pub mod tags;
 use std::{path::PathBuf, sync::Arc};
@@ -80,7 +81,7 @@ pub struct Builder<MkB, P> {
     ignore_unused: bool,
     touches: Vec<(std::path::PathBuf, Vec<String>)>,
     change_case: bool,
-    keep_unknown_fields: bool,
+    keep_unknown_fields: Vec<std::path::PathBuf>,
 }
 
 impl Builder<MkThriftBackend, ThriftParser> {
@@ -97,7 +98,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             touches: Vec::default(),
             ignore_unused: true,
             change_case: true,
-            keep_unknown_fields: false,
+            keep_unknown_fields: Vec::default(),
         }
     }
 }
@@ -116,7 +117,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             touches: Vec::default(),
             ignore_unused: true,
             change_case: true,
-            keep_unknown_fields: false,
+            keep_unknown_fields: Vec::default(),
         }
     }
 }
@@ -180,8 +181,8 @@ impl<MkB, P> Builder<MkB, P> {
         self
     }
 
-    pub fn keep_unknown_fields(mut self, keep_unknown_fields: bool) -> Self {
-        self.keep_unknown_fields = keep_unknown_fields;
+    pub fn keep_unknown_fields(mut self, item: impl IntoIterator<Item = PathBuf>) -> Self {
+        self.keep_unknown_fields.extend(item);
         self
     }
 }
@@ -236,7 +237,7 @@ where
         ignore_unused: bool,
         source_type: SourceType,
         change_case: bool,
-        keep_unknown_fields: bool,
+        keep_unknown_fields: Vec<PathBuf>,
     ) -> Context {
         let mut db = RootDatabase::default();
         parser.inputs(services.iter().map(|s| &s.path));
@@ -311,12 +312,9 @@ where
             CollectMode::All
         });
 
-        cx.build(
-            Arc::from(services),
-            source_type,
-            change_case,
-            keep_unknown_fields,
-        )
+        cx.keep(keep_unknown_fields);
+
+        cx.build(Arc::from(services), source_type, change_case)
     }
 
     pub fn compile_with_config(self, services: Vec<IdlService>, out: Output) {

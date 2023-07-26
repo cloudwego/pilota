@@ -754,6 +754,7 @@ impl Resolver {
                     .map(|i| i.sym.clone())
                     .collect::<Vec<_>>(),
             ),
+            uses: file.uses.iter().map(|(_, f)| *f).collect(),
         };
 
         if should_pop {
