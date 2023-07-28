@@ -187,6 +187,7 @@ pub struct File {
     pub package: ItemPath,
     pub items: Vec<DefId>,
     pub file_id: FileId,
+    pub uses: Vec<FileId>,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]

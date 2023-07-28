@@ -1,3 +1,5 @@
+include "must_gen_items.thrift"
+
 struct A {
     1: required binary bytes,
     2: required binary vec(pilota.rust_type="vec"),
@@ -10,7 +12,7 @@ struct B {
 }
 
 struct C {
-
+    1: required must_gen_items.A a,
 }
 
 enum Index {

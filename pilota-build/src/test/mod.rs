@@ -187,7 +187,7 @@ fn test_unknown_fields() {
     test_with_builder(file_path, out_path, |source, target| {
         crate::Builder::thrift()
             .ignore_unused(false)
-            .keep_unknown_fields(true)
+            .keep_unknown_fields([source.into()])
             .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
                 crate::Output::File(target.into()),

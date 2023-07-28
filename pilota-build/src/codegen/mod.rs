@@ -116,24 +116,8 @@ where
             })
             .join("\n");
 
-        if self.keep_unknown_fields {
-            match self.node(def_id) {
-                Some(rir::Node {
-                    kind: rir::NodeKind::Item(_),
-                    tags,
-                    ..
-                }) => {
-                    if let Some(crate::tags::KeepUnknownFields(false)) = self
-                        .tags(tags)
-                        .as_ref()
-                        .and_then(|tags| tags.get::<crate::tags::KeepUnknownFields>())
-                    {
-                    } else {
-                        fields.push_str("pub _unknown_fields: ::pilota::LinkedBytes,");
-                    }
-                }
-                _ => {}
-            };
+        if self.keep_unknown_fields.contains(&def_id) {
+            fields.push_str("pub _unknown_fields: ::pilota::LinkedBytes,");
         }
 
         stream.push_str(&format! {
@@ -312,26 +296,8 @@ where
             })
             .join("\n");
 
-        if self.keep_unknown_fields {
-            match self.node(def_id) {
-                Some(rir::Node {
-                    kind: rir::NodeKind::Item(_),
-                    tags,
-                    ..
-                }) => {
-                    if let Some(crate::tags::KeepUnknownFields(false)) = self
-                        .tags(tags)
-                        .as_ref()
-                        .and_then(|tags| tags.get::<crate::tags::KeepUnknownFields>())
-                    {
-                    } else {
-                        if keep {
-                            variants.push_str("_UnknownFields(::pilota::LinkedBytes),");
-                        }
-                    }
-                }
-                _ => {}
-            };
+        if self.keep_unknown_fields.contains(&def_id) && keep {
+            variants.push_str("_UnknownFields(::pilota::LinkedBytes),");
         }
         stream.push_str(&format! {
             r#"

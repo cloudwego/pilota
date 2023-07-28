@@ -19,7 +19,7 @@ use super::{
 use crate::{
     db::{RirDatabase, RootDatabase},
     rir::{self, Field, Item, ItemPath, Literal},
-    symbol::{DefId, IdentName, Symbol},
+    symbol::{DefId, FileId, IdentName, Symbol},
     tags::{EnumMode, TagId, Tags},
     ty::{AdtDef, AdtKind, CodegenTy, Visitor},
     Plugin,
@@ -59,7 +59,7 @@ pub struct Context {
     pub(crate) codegen_items: Arc<Vec<DefId>>,
     pub(crate) path_resolver: Arc<dyn PathResolver>,
     pub(crate) mode: Arc<Mode>,
-    pub(crate) keep_unknown_fields: bool,
+    pub(crate) keep_unknown_fields: FxHashSet<DefId>,
 }
 
 impl Clone for Context {
@@ -73,7 +73,7 @@ impl Clone for Context {
             path_resolver: self.path_resolver.clone(),
             mode: self.mode.clone(),
             services: self.services.clone(),
-            keep_unknown_fields: self.keep_unknown_fields,
+            keep_unknown_fields: self.keep_unknown_fields.clone(),
         }
     }
 }
@@ -83,6 +83,7 @@ pub(crate) struct ContextBuilder {
     pub(crate) codegen_items: Vec<DefId>,
     input_items: Vec<DefId>,
     mode: Mode,
+    keep_unknown_fields: FxHashSet<DefId>,
 }
 
 impl ContextBuilder {
@@ -92,6 +93,7 @@ impl ContextBuilder {
             mode,
             input_items,
             codegen_items: Default::default(),
+            keep_unknown_fields: Default::default(),
         }
     }
     pub(crate) fn collect(&mut self, mode: CollectMode) {
@@ -314,12 +316,57 @@ impl ContextBuilder {
         map
     }
 
+    pub(crate) fn keep(&mut self, keep_unknown_fields: Vec<PathBuf>) {
+        let mut file_ids = FxHashSet::default();
+        keep_unknown_fields.into_iter().for_each(|p| {
+            let path = p.normalize().unwrap().into_path_buf();
+            let file_ids_map = self.db.file_ids_map();
+            let file_id = file_ids_map.get(&path).unwrap();
+            keep_files(self, file_id, &mut file_ids);
+
+            fn keep_files(
+                cx: &mut ContextBuilder,
+                file_id: &FileId,
+                file_ids: &mut FxHashSet<FileId>,
+            ) {
+                if !file_ids.insert(*file_id) {
+                    return;
+                }
+                let files = cx.db.files();
+                let file = files.get(&file_id).unwrap();
+                file.uses.iter().for_each(|f| keep_files(cx, f, file_ids));
+                cx.keep_unknown_fields.extend(
+                    file.items
+                        .iter()
+                        .filter(|&&def_id| match cx.db.node(def_id) {
+                            Some(rir::Node {
+                                kind: rir::NodeKind::Item(_),
+                                tags,
+                                ..
+                            }) => {
+                                if let Some(crate::tags::KeepUnknownFields(false)) =
+                                    cx.db.tags_map().get(&tags).and_then(|tags| {
+                                        tags.get::<crate::tags::KeepUnknownFields>()
+                                    })
+                                {
+                                    false
+                                } else {
+                                    true
+                                }
+                            }
+                            _ => true,
+                        })
+                        .cloned(),
+                )
+            }
+        });
+    }
+
     pub(crate) fn build(
         self,
         services: Arc<[crate::IdlService]>,
         source_type: SourceType,
         change_case: bool,
-        keep_unknown_fields: bool,
     ) -> Context {
         Context {
             adjusts: Default::default(),
@@ -333,7 +380,7 @@ impl ContextBuilder {
                 Mode::SingleFile { .. } => Arc::new(DefaultPathResolver),
             },
             mode: Arc::new(self.mode),
-            keep_unknown_fields,
+            keep_unknown_fields: self.keep_unknown_fields,
         }
     }
 }
