@@ -1,4 +1,5 @@
 include "must_gen_items.thrift"
+include "thrift/void.thrift"
 
 struct A {
     1: required binary bytes,
