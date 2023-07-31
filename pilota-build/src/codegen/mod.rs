@@ -462,7 +462,7 @@ where
             stream: &mut String,
             nodes: &[PkgNode],
         ) {
-            for node in nodes {
+            for node in nodes.iter().sorted_by_key(|x| &x.path) {
                 let mut inner_stream = String::default();
                 if let Some((_, node_stream)) = pkgs.remove(&node.path) {
                     inner_stream.push_str(&node_stream);
