@@ -86,17 +86,21 @@ pub mod string {
                 protocol.read_struct_end()?;
 
                 let Some(faststr) = faststr else {
-                    return Err(::pilota::thrift::DecodeError::new(
+                return Err(
+                    ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        "field faststr is required".to_string(),
-                    ));
-                };
+                            "field faststr is required".to_string()
+                    )
+                )
+            };
                 let Some(string) = string else {
-                    return Err(::pilota::thrift::DecodeError::new(
+                return Err(
+                    ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        "field string is required".to_string(),
-                    ));
-                };
+                            "field string is required".to_string()
+                    )
+                )
+            };
 
                 let data = Self { faststr, string };
                 Ok(data)
@@ -157,17 +161,21 @@ pub mod string {
                 protocol.read_struct_end().await?;
 
                 let Some(faststr) = faststr else {
-                    return Err(::pilota::thrift::DecodeError::new(
+                return Err(
+                    ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        "field faststr is required".to_string(),
-                    ));
-                };
+                            "field faststr is required".to_string()
+                    )
+                )
+            };
                 let Some(string) = string else {
-                    return Err(::pilota::thrift::DecodeError::new(
+                return Err(
+                    ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        "field string is required".to_string(),
-                    ));
-                };
+                            "field string is required".to_string()
+                    )
+                )
+            };
 
                 let data = Self { faststr, string };
                 Ok(data)

@@ -3,12 +3,13 @@ use std::{convert::TryInto, ptr, slice, str};
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use faststr::FastStr;
 use linkedbytes::LinkedBytes;
+use smallvec::SmallVec;
 
 use super::{
     error::ProtocolErrorKind, new_protocol_error, DecodeError, DecodeErrorKind, EncodeError,
     ProtocolError, TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier,
     TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier,
-    TStructIdentifier, TType, ZERO_COPY_THRESHOLD,
+    TStructIdentifier, TType, BINARY_BASIC_TYPE_FIXED_SIZE, ZERO_COPY_THRESHOLD,
 };
 
 static VERSION_1: u32 = 0x80010000;
@@ -900,6 +901,21 @@ impl<'a> TLengthProtocol for TBinaryUnsafeInputProtocol<'a> {
     }
 }
 
+struct SkipData {
+    pub ttype: [TType; 2],
+    pub len: u32,
+}
+
+macro_rules! skip_stack_pop {
+    ($stack: expr) => {
+        let top: &mut SkipData = $stack.last_mut().unwrap();
+        top.len -= 1;
+        if (top.len == 0) {
+            $stack.pop();
+        }
+    };
+}
+
 impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     type Buf = Bytes;
 
@@ -1164,106 +1180,153 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         self.skip_till_depth(field_type, crate::thrift::MAXIMUM_SKIP_DEPTH)
     }
 
-    /// Skip a field with type `field_type` recursively up to `depth` levels.
-    fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<usize, DecodeError> {
-        if depth == 0 {
-            return Err(DecodeError::new(
-                DecodeErrorKind::DepthLimit,
-                format!("cannot parse past {:?}", field_type),
-            ));
-        }
+    /// Skip a field with type `field_type` iterativly.
+    fn skip_till_depth(&mut self, field_type: TType, _: i8) -> Result<usize, DecodeError> {
+        let mut ttype = field_type;
         let mut len: usize = 0;
+        let mut stack: SmallVec<[SkipData; 8]> = SmallVec::<[SkipData; 8]>::new();
 
-        match field_type {
-            TType::Bool => {
-                self.index += 1;
-                len += 1;
-            }
-            TType::I8 => {
-                self.index += 1;
-                len += 1;
-            }
-            TType::I16 => {
-                self.index += 2;
-                len += 2;
-            }
-            TType::I32 => {
-                self.index += 4;
-                len += 4;
-            }
-            TType::I64 => {
-                self.index += 8;
-                len += 8;
-            }
-            TType::Double => {
-                self.index += 8;
-                len += 8;
-            }
-            TType::Binary => {
-                let length = unsafe { self.read_i32().unwrap_unchecked() };
-                len += 4 + length as usize;
-                self.index += length as usize;
-            }
-            TType::Uuid => {
-                self.index += 16;
-                len += 16;
-            }
-            TType::Struct => {
-                self.read_struct_begin()?;
-                len += self.struct_begin_len(&crate::thrift::VOID_IDENT);
-                loop {
+        if field_type == TType::Struct {
+            stack.push(SkipData {
+                ttype: [TType::Struct, TType::Struct],
+                len: 1,
+            });
+        }
+
+        loop {
+            match ttype {
+                TType::Bool => {
+                    self.index += 1;
+                    len += 1;
+                }
+                TType::I8 => {
+                    self.index += 1;
+                    len += 1;
+                }
+                TType::I16 => {
+                    self.index += 2;
+                    len += 2;
+                }
+                TType::I32 => {
+                    self.index += 4;
+                    len += 4;
+                }
+                TType::I64 => {
+                    self.index += 8;
+                    len += 8;
+                }
+                TType::Double => {
+                    self.index += 8;
+                    len += 8;
+                }
+                TType::Binary => {
+                    let length = unsafe { self.read_i32().unwrap_unchecked() };
+                    len += 4 + length as usize;
+                    self.index += length as usize;
+                }
+                TType::Uuid => {
+                    self.index += 16;
+                    len += 16;
+                }
+                TType::Struct => {
                     let field_ident = self.read_field_begin()?;
                     if field_ident.field_type == TType::Stop {
                         len += self.field_stop_len();
-                        break;
+                        skip_stack_pop!(stack);
                     } else {
                         len += self.field_begin_len(field_ident.field_type, field_ident.id);
+                        let fixed_size =
+                            BINARY_BASIC_TYPE_FIXED_SIZE[field_ident.field_type as usize];
+                        if fixed_size > 0 {
+                            // fastpath
+                            self.index += fixed_size;
+                            len += fixed_size;
+                            continue;
+                        } else {
+                            stack.push(SkipData {
+                                ttype: [field_ident.field_type, field_ident.field_type],
+                                len: 1,
+                            });
+                        }
                     }
-                    len += self.skip_till_depth(field_ident.field_type, depth - 1)?;
-                    self.read_field_end()?;
-                    len += self.field_end_len();
                 }
-                self.read_struct_end()?;
-                len += self.struct_end_len();
-            }
-            TType::List => {
-                let list_ident = self.read_list_begin()?;
-                len += self.list_begin_len(list_ident);
-                for _ in 0..list_ident.size {
-                    len += self.skip_till_depth(list_ident.element_type, depth - 1)?;
+                TType::List => {
+                    let list_ident = self.read_list_begin()?;
+                    len += self.list_begin_len(list_ident);
+                    if list_ident.size != 0 {
+                        let fixed_size =
+                            BINARY_BASIC_TYPE_FIXED_SIZE[list_ident.element_type as usize];
+                        if fixed_size > 0 {
+                            // fastpath
+                            self.index += fixed_size * list_ident.size;
+                            len += fixed_size * list_ident.size;
+                        } else {
+                            // slowpath
+                            stack.push(SkipData {
+                                ttype: [list_ident.element_type, list_ident.element_type],
+                                len: list_ident.size as u32,
+                            });
+                        }
+                    }
                 }
-                self.read_list_end()?;
-                len += self.list_end_len();
-            }
-            TType::Set => {
-                let set_ident = self.read_set_begin()?;
-                len += self.set_begin_len(set_ident);
-                for _ in 0..set_ident.size {
-                    len += self.skip_till_depth(set_ident.element_type, depth - 1)?;
+                TType::Set => {
+                    let set_ident = self.read_set_begin()?;
+                    len += self.set_begin_len(set_ident);
+                    if set_ident.size != 0 {
+                        let fixed_size =
+                            BINARY_BASIC_TYPE_FIXED_SIZE[set_ident.element_type as usize];
+                        if fixed_size > 0 {
+                            // fastpath
+                            self.index += fixed_size * set_ident.size;
+                            len += fixed_size * set_ident.size;
+                        } else {
+                            // slowpath
+                            stack.push(SkipData {
+                                ttype: [set_ident.element_type, set_ident.element_type],
+                                len: set_ident.size as u32,
+                            });
+                        }
+                    }
                 }
-                self.read_set_end()?;
-                len += self.set_end_len();
-            }
-            TType::Map => {
-                let map_ident = self.read_map_begin()?;
-                len += self.map_begin_len(map_ident);
-                for _ in 0..map_ident.size {
-                    let key_type = map_ident.key_type;
-                    let val_type = map_ident.value_type;
-                    len += self.skip_till_depth(key_type, depth - 1)?;
-                    len += self.skip_till_depth(val_type, depth - 1)?;
+                TType::Map => {
+                    let map_ident = self.read_map_begin()?;
+                    len += self.map_begin_len(map_ident);
+                    if map_ident.size > 0 {
+                        let key_fixed_size =
+                            BINARY_BASIC_TYPE_FIXED_SIZE[map_ident.key_type as usize];
+                        let val_fixed_size =
+                            BINARY_BASIC_TYPE_FIXED_SIZE[map_ident.value_type as usize];
+                        if key_fixed_size > 0 && val_fixed_size > 0 {
+                            // fastpath
+                            let skip_size = (key_fixed_size + val_fixed_size) * map_ident.size;
+                            self.index += skip_size;
+                            len += skip_size;
+                        } else {
+                            // slowpath
+                            stack.push(SkipData {
+                                ttype: [map_ident.key_type, map_ident.value_type],
+                                len: (map_ident.size * 2) as u32,
+                            });
+                        }
+                    }
                 }
-                self.read_map_end()?;
-                len += self.map_end_len();
-            }
-            u => {
-                return Err(DecodeError::new(
-                    DecodeErrorKind::DepthLimit,
-                    format!("cannot skip field type {:?}", &u),
-                ))
-            }
-        };
+                u => {
+                    return Err(DecodeError::new(
+                        DecodeErrorKind::DepthLimit,
+                        format!("cannot skip field type {:?}", &u),
+                    ))
+                }
+            };
 
-        Ok(len)
+            if stack.is_empty() {
+                return Ok(len);
+            }
+
+            let top = stack.last().unwrap();
+            ttype = top.ttype[(top.len & 1) as usize];
+            if ttype != TType::Struct {
+                skip_stack_pop!(stack);
+            }
+        }
     }
 }

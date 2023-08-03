@@ -731,6 +731,7 @@ dependencies = [
  "proptest",
  "rand",
  "serde",
+ "smallvec",
  "thiserror",
  "tokio",
 ]
