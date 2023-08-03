@@ -157,11 +157,13 @@ pub mod self_kw {
                 protocol.read_struct_end()?;
 
                 let Some(r#type) = r#type else {
-                    return Err(::pilota::thrift::DecodeError::new(
+                return Err(
+                    ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        "field r#type is required".to_string(),
-                    ));
-                };
+                            "field r#type is required".to_string()
+                    )
+                )
+            };
 
                 let data = Self { r#type };
                 Ok(data)
@@ -216,11 +218,13 @@ pub mod self_kw {
                 protocol.read_struct_end().await?;
 
                 let Some(r#type) = r#type else {
-                    return Err(::pilota::thrift::DecodeError::new(
+                return Err(
+                    ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        "field r#type is required".to_string(),
-                    ));
-                };
+                            "field r#type is required".to_string()
+                    )
+                )
+            };
 
                 let data = Self { r#type };
                 Ok(data)

@@ -921,6 +921,26 @@ impl TryFrom<u8> for TType {
     }
 }
 
+const BINARY_BASIC_TYPE_FIXED_SIZE: [usize; 17] = [
+    0,  // TType::Stop
+    0,  // TType::Void
+    1,  // TType::Bool
+    1,  // TType::I8
+    8,  // TType::Double
+    0,  // NAN
+    2,  // TType::I16
+    0,  // NAN
+    4,  // TType::I32
+    0,  // NAN
+    8,  // TType::I64
+    0,  // TType::Binary
+    0,  // TType::Struct
+    0,  // TType::Map
+    0,  // TType::List
+    0,  // TType::Set
+    16, // TType::Uuid
+];
+
 /// Thrift message types.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u8)]

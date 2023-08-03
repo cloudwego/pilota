@@ -86,17 +86,21 @@ pub mod binary_bytes {
                 protocol.read_struct_end()?;
 
                 let Some(bytes) = bytes else {
-                    return Err(::pilota::thrift::DecodeError::new(
+                return Err(
+                    ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        "field bytes is required".to_string(),
-                    ));
-                };
+                            "field bytes is required".to_string()
+                    )
+                )
+            };
                 let Some(vec) = vec else {
-                    return Err(::pilota::thrift::DecodeError::new(
+                return Err(
+                    ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        "field vec is required".to_string(),
-                    ));
-                };
+                            "field vec is required".to_string()
+                    )
+                )
+            };
 
                 let data = Self { bytes, vec };
                 Ok(data)
@@ -157,17 +161,21 @@ pub mod binary_bytes {
                 protocol.read_struct_end().await?;
 
                 let Some(bytes) = bytes else {
-                    return Err(::pilota::thrift::DecodeError::new(
+                return Err(
+                    ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        "field bytes is required".to_string(),
-                    ));
-                };
+                            "field bytes is required".to_string()
+                    )
+                )
+            };
                 let Some(vec) = vec else {
-                    return Err(::pilota::thrift::DecodeError::new(
+                return Err(
+                    ::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        "field vec is required".to_string(),
-                    ));
-                };
+                            "field vec is required".to_string()
+                    )
+                )
+            };
 
                 let data = Self { bytes, vec };
                 Ok(data)

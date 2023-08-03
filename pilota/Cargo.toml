@@ -36,6 +36,7 @@ integer-encoding = { version = "3", features = [
 ] }
 proptest = "1"
 serde = { version = "1", features = ["derive"] }
+smallvec = "1"
 
 [dev-dependencies]
 criterion = "0.5"
@@ -47,4 +48,8 @@ harness = false
 
 [[bench]]
 name = "thrift_binary"
+harness = false
+
+[[bench]]
+name = "skip"
 harness = false
