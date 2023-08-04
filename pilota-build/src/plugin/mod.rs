@@ -413,7 +413,7 @@ impl Plugin for EnumNumPlugin {
                         let variant_name_str = cx.rust_name(v.did);
                         let variant_name = variant_name_str;
                         format!(
-                            "{variant_name} => ::std::result::Result::Ok({name}::{variant_name}), \n"
+                            "{variant_name} => ::std::result::Result::Ok({name}::{variant_name}),\n"
                         )
                     })
                     .join("");
