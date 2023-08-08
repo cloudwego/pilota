@@ -715,7 +715,7 @@ dependencies = [
 
 [[package]]
 name = "pilota"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -738,7 +738,7 @@ dependencies = [
 
 [[package]]
 name = "pilota-build"
-version = "0.7.8"
+version = "0.8.0"
 dependencies = [
  "anyhow",
  "async-trait",
