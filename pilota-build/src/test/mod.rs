@@ -188,6 +188,7 @@ fn test_unknown_fields() {
         crate::Builder::thrift()
             .ignore_unused(false)
             .keep_unknown_fields([source.into()])
+            .plugin(SerdePlugin)
             .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
                 crate::Output::File(target.into()),

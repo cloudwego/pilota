@@ -287,6 +287,8 @@ where
             stream.push_str(&format!("pub use {}::*;", main_mod_path.join("::")));
         }
 
+        let stream = stream.lines().map(|s| s.trim_end()).join("\n");
+
         let src_file = base_dir.as_ref().join(&*info.name).join("src/lib.rs");
 
         std::fs::write(&src_file, stream)?;

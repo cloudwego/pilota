@@ -398,7 +398,7 @@ impl ThriftBackend {
                 {record_ptr}
                 let field_ident = {read_field_begin};
                 if field_ident.field_type == ::pilota::thrift::TType::Stop {{
-                    {field_stop_len} 
+                    {field_stop_len}
                     break;
                 }} else {{
                     {field_begin_len}
@@ -685,7 +685,7 @@ impl CodegenBackend for ThriftBackend {
                                 {record_ptr}
                                 let field_ident = {read_field_begin};
                                 if field_ident.field_type == ::pilota::thrift::TType::Stop {{
-                                    {field_stop_len} 
+                                    {field_stop_len}
                                     break;
                                 }} else {{
                                     {field_begin_len}

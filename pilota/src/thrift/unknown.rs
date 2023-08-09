@@ -4,8 +4,9 @@ use bytes::Bytes;
 
 const DEFAULT_DEQUE_SIZE: usize = 16;
 
-#[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
-
+#[derive(
+    PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize,
+)]
 pub struct LinkedBytes {
     pub list: VecDeque<Bytes>,
     pub size: usize,
