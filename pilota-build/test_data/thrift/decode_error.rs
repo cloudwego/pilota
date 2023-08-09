@@ -36,15 +36,12 @@ pub mod decode_error {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -54,12 +51,12 @@ pub mod decode_error {
                                 b = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -99,8 +96,6 @@ pub mod decode_error {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -193,15 +188,12 @@ pub mod decode_error {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -211,12 +203,12 @@ pub mod decode_error {
                                 a = Some(protocol.read_faststr()?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -256,8 +248,6 @@ pub mod decode_error {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -350,15 +340,12 @@ pub mod decode_error {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -368,12 +355,12 @@ pub mod decode_error {
                                 c = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -413,8 +400,6 @@ pub mod decode_error {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;

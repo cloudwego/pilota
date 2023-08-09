@@ -38,15 +38,12 @@ pub mod normal {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -54,12 +51,12 @@ pub mod normal {
                                 a = Some(protocol.read_i32()?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -90,8 +87,6 @@ pub mod normal {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -176,25 +171,22 @@ pub mod normal {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -226,8 +218,6 @@ pub mod normal {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -350,38 +340,24 @@ pub mod normal {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut fields_num = 0;
                 let mut msg = None;
-                fields_num += 1;
                 let mut msg_map = None;
-                fields_num += 1;
                 let mut sub_msgs = None;
-                fields_num += 1;
                 let mut msg_set = None;
-                fields_num += 1;
                 let mut flag_msg = None;
-                fields_num += 1;
                 let mut mock_cost = None;
-                fields_num += 1;
 
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        if fields_num == 0 {
-                            break;
-                        }
-
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -389,7 +365,6 @@ pub mod normal {
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
                                 msg = Some(::pilota::thrift::Message::decode(protocol)?);
-                                fields_num -= 1;
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::Map => {
                                 msg_map = Some({
@@ -405,7 +380,6 @@ pub mod normal {
                                     protocol.read_map_end()?;
                                     val
                                 });
-                                fields_num -= 1;
                             }
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 sub_msgs = Some(unsafe {
@@ -421,7 +395,6 @@ pub mod normal {
                                     protocol.read_list_end()?;
                                     val
                                 });
-                                fields_num -= 1;
                             }
                             Some(4) if field_ident.field_type == ::pilota::thrift::TType::Set => {
                                 msg_set = Some({
@@ -434,27 +407,24 @@ pub mod normal {
                                     protocol.read_set_end()?;
                                     val
                                 });
-                                fields_num -= 1;
                             }
                             Some(5)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 flag_msg = Some(protocol.read_faststr()?);
-                                fields_num -= 1;
                             }
                             Some(6)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 mock_cost = Some(protocol.read_faststr()?);
-                                fields_num -= 1;
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -530,8 +500,6 @@ pub mod normal {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -741,15 +709,12 @@ pub mod normal {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -759,12 +724,12 @@ pub mod normal {
                                 a = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -795,8 +760,6 @@ pub mod normal {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -885,15 +848,12 @@ pub mod normal {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -903,12 +863,12 @@ pub mod normal {
                                 req = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -951,8 +911,6 @@ pub mod normal {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -1048,25 +1006,22 @@ pub mod normal {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -1098,8 +1053,6 @@ pub mod normal {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -1183,18 +1136,16 @@ pub mod normal {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            protocol.skip(field_ident.field_type)?;
                         }
                     }
                 }
@@ -1213,8 +1164,6 @@ pub mod normal {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -1284,15 +1233,12 @@ pub mod normal {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -1302,12 +1248,12 @@ pub mod normal {
                                 message = Some(protocol.read_faststr()?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -1338,8 +1284,6 @@ pub mod normal {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -1429,15 +1373,12 @@ pub mod normal {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -1447,12 +1388,12 @@ pub mod normal {
                                 value = Some(protocol.read_faststr()?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -1483,8 +1424,6 @@ pub mod normal {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -1574,15 +1513,12 @@ pub mod normal {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -1592,12 +1528,12 @@ pub mod normal {
                                 req = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -1640,8 +1576,6 @@ pub mod normal {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -1743,20 +1677,18 @@ pub mod normal {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         Some(1) => {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(protocol)?;
-                                offset += protocol.struct_len(&field_ident);
+                                protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionException::StException(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -1766,7 +1698,7 @@ pub mod normal {
                             }
                         }
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            protocol.skip(field_ident.field_type)?;
                         }
                     }
                 }
@@ -1788,8 +1720,6 @@ pub mod normal {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -1882,20 +1812,18 @@ pub mod normal {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(protocol)?;
-                                offset += protocol.struct_len(&field_ident);
+                                protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultSend::Ok(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -1907,7 +1835,7 @@ pub mod normal {
                         Some(1) => {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(protocol)?;
-                                offset += protocol.struct_len(&field_ident);
+                                protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultSend::StException(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -1917,7 +1845,7 @@ pub mod normal {
                             }
                         }
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            protocol.skip(field_ident.field_type)?;
                         }
                     }
                 }
@@ -1939,8 +1867,6 @@ pub mod normal {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -2049,20 +1975,18 @@ pub mod normal {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(protocol)?;
-                                offset += protocol.struct_len(&field_ident);
+                                protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultRecv::Ok(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -2074,7 +1998,7 @@ pub mod normal {
                         Some(1) => {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(protocol)?;
-                                offset += protocol.struct_len(&field_ident);
+                                protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultRecv::StException(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -2084,7 +2008,7 @@ pub mod normal {
                             }
                         }
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            protocol.skip(field_ident.field_type)?;
                         }
                     }
                 }
@@ -2106,8 +2030,6 @@ pub mod normal {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -2209,18 +2131,16 @@ pub mod normal {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            protocol.skip(field_ident.field_type)?;
                         }
                     }
                 }
@@ -2239,8 +2159,6 @@ pub mod normal {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -2322,15 +2240,12 @@ pub mod normal {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -2355,12 +2270,12 @@ pub mod normal {
                                 });
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -2395,8 +2310,6 @@ pub mod normal {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
