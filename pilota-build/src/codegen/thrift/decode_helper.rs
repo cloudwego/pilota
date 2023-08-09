@@ -30,11 +30,15 @@ macro_rules! protocol_len {
     ($m:ident) => {
         paste! {
             #[inline]
-            pub fn [<codegen_ $m>](&self) -> faststr::FastStr {
+            pub fn [<codegen_ $m>](&self, keep: bool) -> faststr::FastStr {
                 if self.is_async {
                     Default::default()
                 } else {
-                    format!("offset += protocol.{}();", stringify!($m)).into()
+                    if keep {
+                        format!("__pilota_offset += protocol.{}();", stringify!($m)).into()
+                    } else {
+                        format!("protocol.{}();", stringify!($m)).into()
+                    }
                 }
             }
         }
@@ -83,11 +87,15 @@ impl DecodeHelper {
         }
     }
 
-    pub fn codegen_field_begin_len(&self) -> FastStr {
+    pub fn codegen_field_begin_len(&self, keep: bool) -> FastStr {
         if self.is_async {
             Default::default()
         } else {
-            "offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);".into()
+            if keep {
+                "__pilota_offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);".into()
+            } else {
+                "protocol.field_begin_len(field_ident.field_type, field_ident.id);".into()
+            }
         }
     }
 }

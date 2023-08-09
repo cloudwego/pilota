@@ -43,14 +43,14 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-                        let begin_ptr = protocol.buf().chunk().as_ptr();
+                        let mut __pilota_offset = 0;
+                        let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            __pilota_offset += protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
+                            __pilota_offset +=
                                 protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
@@ -59,14 +59,16 @@ pub mod unknown_fields {
                                 a = Some(protocol.read_i32()?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields
-                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
+                                __pilota_offset += protocol.skip(field_ident.field_type)?;
+                                _unknown_fields.push_back(
+                                    protocol
+                                        .get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?,
+                                );
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        __pilota_offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -97,8 +99,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -194,14 +194,14 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-                        let begin_ptr = protocol.buf().chunk().as_ptr();
+                        let mut __pilota_offset = 0;
+                        let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            __pilota_offset += protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
+                            __pilota_offset +=
                                 protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
@@ -212,14 +212,16 @@ pub mod unknown_fields {
                                 a = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields
-                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
+                                __pilota_offset += protocol.skip(field_ident.field_type)?;
+                                _unknown_fields.push_back(
+                                    protocol
+                                        .get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?,
+                                );
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        __pilota_offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -250,8 +252,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -354,14 +354,14 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-                        let begin_ptr = protocol.buf().chunk().as_ptr();
+                        let mut __pilota_offset = 0;
+                        let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            __pilota_offset += protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
+                            __pilota_offset +=
                                 protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
@@ -377,14 +377,16 @@ pub mod unknown_fields {
                                 vec = Some(protocol.read_bytes_vec()?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields
-                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
+                                __pilota_offset += protocol.skip(field_ident.field_type)?;
+                                _unknown_fields.push_back(
+                                    protocol
+                                        .get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?,
+                                );
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        __pilota_offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -437,8 +439,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -555,14 +555,14 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-                        let begin_ptr = protocol.buf().chunk().as_ptr();
+                        let mut __pilota_offset = 0;
+                        let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            __pilota_offset += protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
+                            __pilota_offset +=
                                 protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
@@ -571,14 +571,16 @@ pub mod unknown_fields {
                                 td = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields
-                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
+                                __pilota_offset += protocol.skip(field_ident.field_type)?;
+                                _unknown_fields.push_back(
+                                    protocol
+                                        .get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?,
+                                );
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        __pilota_offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -621,8 +623,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -717,25 +717,22 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -767,8 +764,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -879,14 +874,14 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-                        let begin_ptr = protocol.buf().chunk().as_ptr();
+                        let mut __pilota_offset = 0;
+                        let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            __pilota_offset += protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
+                            __pilota_offset +=
                                 protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
@@ -927,14 +922,16 @@ pub mod unknown_fields {
                                 });
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields
-                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
+                                __pilota_offset += protocol.skip(field_ident.field_type)?;
+                                _unknown_fields.push_back(
+                                    protocol
+                                        .get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?,
+                                );
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        __pilota_offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -997,8 +994,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -1152,27 +1147,29 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-                        let begin_ptr = protocol.buf().chunk().as_ptr();
+                        let mut __pilota_offset = 0;
+                        let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            __pilota_offset += protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
+                            __pilota_offset +=
                                 protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields
-                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
+                                __pilota_offset += protocol.skip(field_ident.field_type)?;
+                                _unknown_fields.push_back(
+                                    protocol
+                                        .get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?,
+                                );
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        __pilota_offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -1201,8 +1198,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -1293,14 +1288,14 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-                        let begin_ptr = protocol.buf().chunk().as_ptr();
+                        let mut __pilota_offset = 0;
+                        let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            __pilota_offset += protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
+                            __pilota_offset +=
                                 protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
@@ -1311,14 +1306,16 @@ pub mod unknown_fields {
                                 message = Some(protocol.read_faststr()?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields
-                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
+                                __pilota_offset += protocol.skip(field_ident.field_type)?;
+                                _unknown_fields.push_back(
+                                    protocol
+                                        .get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?,
+                                );
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        __pilota_offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -1352,8 +1349,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -1443,25 +1438,22 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -1493,8 +1485,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -1588,14 +1578,14 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-                        let begin_ptr = protocol.buf().chunk().as_ptr();
+                        let mut __pilota_offset = 0;
+                        let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            __pilota_offset += protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
+                            __pilota_offset +=
                                 protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
@@ -1606,14 +1596,16 @@ pub mod unknown_fields {
                                 a = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields
-                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
+                                __pilota_offset += protocol.skip(field_ident.field_type)?;
+                                _unknown_fields.push_back(
+                                    protocol
+                                        .get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?,
+                                );
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        __pilota_offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -1653,8 +1645,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -1753,27 +1743,29 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-                        let begin_ptr = protocol.buf().chunk().as_ptr();
+                        let mut __pilota_offset = 0;
+                        let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            __pilota_offset += protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
+                            __pilota_offset +=
                                 protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields
-                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
+                                __pilota_offset += protocol.skip(field_ident.field_type)?;
+                                _unknown_fields.push_back(
+                                    protocol
+                                        .get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?,
+                                );
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        __pilota_offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -1802,8 +1794,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -1899,20 +1889,21 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-                    let begin_ptr = protocol.buf().chunk().as_ptr();
+                    let mut __pilota_offset = 0;
+                    let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        __pilota_offset += protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        __pilota_offset +=
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         Some(1) => {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(protocol)?;
-                                offset += protocol.struct_len(&field_ident);
+                                __pilota_offset += protocol.struct_len(&field_ident);
                                 ret = Some(TestUnion::A(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -1924,7 +1915,7 @@ pub mod unknown_fields {
                         Some(2) => {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(protocol)?;
-                                offset += protocol.struct_len(&field_ident);
+                                __pilota_offset += protocol.struct_len(&field_ident);
                                 ret = Some(TestUnion::B(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -1934,13 +1925,15 @@ pub mod unknown_fields {
                             }
                         }
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            __pilota_offset += protocol.skip(field_ident.field_type)?;
                             if ret.is_none() {
                                 unsafe {
-                                    let mut linked_bytes = ::pilota::LinkedBytes::new();
-                                    linked_bytes
-                                        .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
-                                    ret = Some(TestUnion::_UnknownFields(linked_bytes));
+                                    let mut __pilota_linked_bytes = ::pilota::LinkedBytes::new();
+                                    __pilota_linked_bytes.push_back(
+                                        protocol
+                                            .get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?,
+                                    );
+                                    ret = Some(TestUnion::_UnknownFields(__pilota_linked_bytes));
                                 }
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -1969,8 +1962,6 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -2072,20 +2063,18 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         Some(1) => {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(protocol)?;
-                                offset += protocol.struct_len(&field_ident);
+                                protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionException::StException(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -2095,7 +2084,7 @@ pub mod unknown_fields {
                             }
                         }
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            protocol.skip(field_ident.field_type)?;
                         }
                     }
                 }
@@ -2117,8 +2106,6 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -2211,20 +2198,18 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(protocol)?;
-                                offset += protocol.struct_len(&field_ident);
+                                protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultRecv::Ok(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -2236,7 +2221,7 @@ pub mod unknown_fields {
                         Some(1) => {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(protocol)?;
-                                offset += protocol.struct_len(&field_ident);
+                                protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultRecv::StException(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -2246,7 +2231,7 @@ pub mod unknown_fields {
                             }
                         }
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            protocol.skip(field_ident.field_type)?;
                         }
                     }
                 }
@@ -2268,8 +2253,6 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -2371,18 +2354,16 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            protocol.skip(field_ident.field_type)?;
                         }
                     }
                 }
@@ -2401,8 +2382,6 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -2542,7 +2521,7 @@ pub mod unknown_fields {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut fields_num = 0;
+                let mut __pilota_fields_num = 0;
                 let mut _unknown_fields = ::pilota::LinkedBytes::new();
 
                 let mut __pilota_decoding_field_id = None;
@@ -2550,33 +2529,35 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        if fields_num == 0 {
-                            let remaining = protocol.buf().remaining();
-                            _unknown_fields.push_back(protocol.get_bytes(None, remaining - 2)?);
+                        if __pilota_fields_num == 0 {
+                            let __pilota_remaining = protocol.buf().remaining();
+                            _unknown_fields
+                                .push_back(protocol.get_bytes(None, __pilota_remaining - 2)?);
                             break;
                         }
-
-                        let mut offset = 0;
-                        let begin_ptr = protocol.buf().chunk().as_ptr();
+                        let mut __pilota_offset = 0;
+                        let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            __pilota_offset += protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
+                            __pilota_offset +=
                                 protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
-                                _unknown_fields
-                                    .push_back(protocol.get_bytes(Some(begin_ptr), offset)?);
+                                __pilota_offset += protocol.skip(field_ident.field_type)?;
+                                _unknown_fields.push_back(
+                                    protocol
+                                        .get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?,
+                                );
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        __pilota_offset += protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -2605,8 +2586,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -2689,15 +2668,12 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -2707,12 +2683,12 @@ pub mod unknown_fields {
                                 req = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -2755,8 +2731,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -2856,18 +2830,16 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            protocol.skip(field_ident.field_type)?;
                         }
                     }
                 }
@@ -2886,8 +2858,6 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -3060,15 +3030,12 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
@@ -3078,12 +3045,12 @@ pub mod unknown_fields {
                                 req = Some(::pilota::thrift::Message::decode(protocol)?);
                             }
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -3126,8 +3093,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -3234,20 +3199,18 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(protocol)?;
-                                offset += protocol.struct_len(&field_ident);
+                                protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultSend::Ok(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -3259,7 +3222,7 @@ pub mod unknown_fields {
                         Some(1) => {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(protocol)?;
-                                offset += protocol.struct_len(&field_ident);
+                                protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultSend::StException(field_ident));
                             } else {
                                 return Err(::pilota::thrift::DecodeError::new(
@@ -3269,7 +3232,7 @@ pub mod unknown_fields {
                             }
                         }
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            protocol.skip(field_ident.field_type)?;
                         }
                     }
                 }
@@ -3291,8 +3254,6 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -3407,18 +3368,16 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            protocol.skip(field_ident.field_type)?;
                         }
                     }
                 }
@@ -3437,8 +3396,6 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -3506,18 +3463,16 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin()?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin()?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        offset += protocol.field_stop_len();
+                        protocol.field_stop_len();
                         break;
                     } else {
-                        offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
                         _ => {
-                            offset += protocol.skip(field_ident.field_type)?;
+                            protocol.skip(field_ident.field_type)?;
                         }
                     }
                 }
@@ -3536,8 +3491,6 @@ pub mod unknown_fields {
                 let mut ret = None;
                 protocol.read_struct_begin().await?;
                 loop {
-                    let mut offset = 0;
-
                     let field_ident = protocol.read_field_begin().await?;
                     if field_ident.field_type == ::pilota::thrift::TType::Stop {
                         break;
@@ -3601,25 +3554,22 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -3651,8 +3601,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
@@ -3732,25 +3680,22 @@ pub mod unknown_fields {
                 protocol.read_struct_begin()?;
                 if let Err(err) = (|| {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            offset += protocol.field_stop_len();
+                            protocol.field_stop_len();
                             break;
                         } else {
-                            offset +=
-                                protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             _ => {
-                                offset += protocol.skip(field_ident.field_type)?;
+                                protocol.skip(field_ident.field_type)?;
                             }
                         }
 
                         protocol.read_field_end()?;
-                        offset += protocol.field_end_len();
+                        protocol.field_end_len();
                     }
                     Ok::<_, ::pilota::thrift::DecodeError>(())
                 })() {
@@ -3782,8 +3727,6 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let mut offset = 0;
-
                         let field_ident = protocol.read_field_begin().await?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
                             break;
