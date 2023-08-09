@@ -347,7 +347,7 @@ impl Plugin for ImplDefaultPlugin {
                         if !fields.is_empty() {
                             fields.push_str(",\n");
                         }
-                        fields.push_str("unknown_fields: ::pilota::Bytes::new()");
+                        fields.push_str("_unknown_fields: ::pilota::LinkedBytes::new()");
                     }
 
                     cx.with_adjust_mut(def_id, |adj| {

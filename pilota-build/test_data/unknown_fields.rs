@@ -2,7 +2,18 @@ pub mod unknown_fields {
     #![allow(warnings, clippy::all)]
 
     pub mod must_gen_items {
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct A {
             pub a: ::std::option::Option<i32>,
             pub _unknown_fields: ::pilota::LinkedBytes,
@@ -153,7 +164,18 @@ pub mod unknown_fields {
                     + protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct B {
             pub a: ::std::option::Option<A>,
             pub _unknown_fields: ::pilota::LinkedBytes,
@@ -311,7 +333,18 @@ pub mod unknown_fields {
     }
 
     pub mod unknown_fields {
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct A {
             pub bytes: ::pilota::Bytes,
 
@@ -516,7 +549,18 @@ pub mod unknown_fields {
                     + protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct D {
             pub td: Td,
             pub _unknown_fields: ::pilota::LinkedBytes,
@@ -685,7 +729,18 @@ pub mod unknown_fields {
         }
         #[::async_trait::async_trait]
         pub trait Test {}
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct TestTest123ArgsSend {}
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ArgsSend {
@@ -812,7 +867,18 @@ pub mod unknown_fields {
             }
         }
         pub const TEST_LIST: [&'static str; 2] = ["hello", "world"];
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct B {
             pub faststr: ::pilota::FastStr,
 
@@ -1111,7 +1177,18 @@ pub mod unknown_fields {
                     + protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct SubMessage {
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
@@ -1245,7 +1322,18 @@ pub mod unknown_fields {
                     + protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct StException {
             pub message: ::std::option::Option<::pilota::FastStr>,
             pub _unknown_fields: ::pilota::LinkedBytes,
@@ -1406,7 +1494,18 @@ pub mod unknown_fields {
                     + protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct TestTest123ArgsRecv {}
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ArgsRecv {
@@ -1539,7 +1638,18 @@ pub mod unknown_fields {
             map
         };
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct C {
             pub a: super::must_gen_items::A,
             pub _unknown_fields: ::pilota::LinkedBytes,
@@ -1707,7 +1817,18 @@ pub mod unknown_fields {
                     + protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct Message {
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
@@ -1842,7 +1963,7 @@ pub mod unknown_fields {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
 
         pub enum TestUnion {
             #[derivative(Default)]
@@ -2027,7 +2148,7 @@ pub mod unknown_fields {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
 
         pub enum TestTestExceptionException {
             #[derivative(Default)]
@@ -2157,7 +2278,7 @@ pub mod unknown_fields {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
 
         pub enum TestTestExceptionResultRecv {
             #[derivative(Default)]
@@ -2320,7 +2441,7 @@ pub mod unknown_fields {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
 
         pub enum TestTest123ResultRecv {
             #[derivative(Default)]
@@ -2438,7 +2559,7 @@ pub mod unknown_fields {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
         #[repr(i32)]
         #[derive(Copy)]
         pub enum Index {
@@ -2492,7 +2613,18 @@ pub mod unknown_fields {
                 protocol.i32_len(*self as i32)
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct ObjReq {
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
@@ -2632,7 +2764,18 @@ pub mod unknown_fields {
                     + protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct TestTestExceptionArgsSend {
             pub req: ObjReq,
         }
@@ -2796,7 +2939,7 @@ pub mod unknown_fields {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
 
         pub enum TestTest123ResultSend {
             #[derivative(Default)]
@@ -2889,7 +3032,18 @@ pub mod unknown_fields {
                     + protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct Td(pub ::std::vec::Vec<::std::vec::Vec<::pilota::FastStr>>);
 
         impl ::std::ops::Deref for Td {
@@ -2994,7 +3148,18 @@ pub mod unknown_fields {
                 })
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct TestTestExceptionArgsRecv {
             pub req: ObjReq,
         }
@@ -3158,7 +3323,7 @@ pub mod unknown_fields {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
 
         pub enum TestTestExceptionResultSend {
             #[derivative(Default)]
@@ -3334,7 +3499,7 @@ pub mod unknown_fields {
         pub trait Test {}
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
 
         pub enum TestTest123ResultRecv {
             #[derivative(Default)]
@@ -3429,7 +3594,7 @@ pub mod unknown_fields {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
 
         pub enum TestTest123ResultSend {
             #[derivative(Default)]
@@ -3522,7 +3687,18 @@ pub mod unknown_fields {
                     + protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct TestTest123ArgsSend {}
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ArgsSend {
@@ -3648,7 +3824,18 @@ pub mod unknown_fields {
                     + protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub struct TestTest123ArgsRecv {}
         #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ArgsRecv {

@@ -11,7 +11,7 @@ use itertools::Itertools;
 use normpath::PathExt;
 use pkg_tree::PkgNode;
 use quote::quote;
-use rayon::prelude::IntoParallelRefIterator;
+use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use traits::CodegenBackend;
 
 use self::workspace::Workspace;
@@ -429,8 +429,6 @@ where
     where
         B: Send,
     {
-        use rayon::iter::ParallelIterator;
-
         let mods = items.into_group_map_by(|CodegenItem { def_id, .. }| {
             let path = Arc::from_iter(self.mod_path(*def_id).iter().map(|s| s.0.clone()));
             tracing::debug!("ths path of {:?} is {:?}", def_id, path);
@@ -504,9 +502,9 @@ where
                 #![allow(warnings, clippy::all)]
                 {stream}
             }}"#};
-
+        let stream = stream.lines().map(|s| s.trim_end()).join("\n");
         let mut file = std::io::BufWriter::new(std::fs::File::create(&file_name).unwrap());
-        file.write_all(stream.to_string().as_bytes()).unwrap();
+        file.write_all(stream.as_bytes()).unwrap();
         file.flush().unwrap();
         fmt_file(file_name)
     }
