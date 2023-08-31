@@ -93,21 +93,17 @@ pub mod serde {
                 protocol.read_struct_end()?;
 
                 let Some(a) = a else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field a is required".to_string()
-                    )
-                )
-            };
+                        "field a is required".to_string(),
+                    ));
+                };
                 let Some(b) = b else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field b is required".to_string()
-                    )
-                )
-            };
+                        "field b is required".to_string(),
+                    ));
+                };
 
                 let data = Self { a, b };
                 Ok(data)
@@ -164,21 +160,17 @@ pub mod serde {
                 protocol.read_struct_end().await?;
 
                 let Some(a) = a else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field a is required".to_string()
-                    )
-                )
-            };
+                        "field a is required".to_string(),
+                    ));
+                };
                 let Some(b) = b else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field b is required".to_string()
-                    )
-                )
-            };
+                        "field b is required".to_string(),
+                    ));
+                };
 
                 let data = Self { a, b };
                 Ok(data)

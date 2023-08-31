@@ -328,13 +328,11 @@ pub mod wrapper_arc {
                 protocol.read_struct_end()?;
 
                 let Some(req) = req else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field req is required".to_string()
-                    )
-                )
-            };
+                        "field req is required".to_string(),
+                    ));
+                };
 
                 let data = Self { req };
                 Ok(data)
@@ -391,13 +389,11 @@ pub mod wrapper_arc {
                 protocol.read_struct_end().await?;
 
                 let Some(req) = req else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field req is required".to_string()
-                    )
-                )
-            };
+                        "field req is required".to_string(),
+                    ));
+                };
 
                 let data = Self { req };
                 Ok(data)
@@ -718,29 +714,23 @@ pub mod wrapper_arc {
                 protocol.read_struct_end()?;
 
                 let Some(id) = id else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field id is required".to_string()
-                    )
-                )
-            };
+                        "field id is required".to_string(),
+                    ));
+                };
                 let Some(name2) = name2 else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field name2 is required".to_string()
-                    )
-                )
-            };
+                        "field name2 is required".to_string(),
+                    ));
+                };
                 let Some(name3) = name3 else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field name3 is required".to_string()
-                    )
-                )
-            };
+                        "field name3 is required".to_string(),
+                    ));
+                };
 
                 let data = Self { id, name2, name3 };
                 Ok(data)
@@ -844,29 +834,23 @@ pub mod wrapper_arc {
                 protocol.read_struct_end().await?;
 
                 let Some(id) = id else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field id is required".to_string()
-                    )
-                )
-            };
+                        "field id is required".to_string(),
+                    ));
+                };
                 let Some(name2) = name2 else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field name2 is required".to_string()
-                    )
-                )
-            };
+                        "field name2 is required".to_string(),
+                    ));
+                };
                 let Some(name3) = name3 else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field name3 is required".to_string()
-                    )
-                )
-            };
+                        "field name3 is required".to_string(),
+                    ));
+                };
 
                 let data = Self { id, name2, name3 };
                 Ok(data)
@@ -986,13 +970,11 @@ pub mod wrapper_arc {
                 protocol.read_struct_end()?;
 
                 let Some(req) = req else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field req is required".to_string()
-                    )
-                )
-            };
+                        "field req is required".to_string(),
+                    ));
+                };
 
                 let data = Self { req };
                 Ok(data)
@@ -1050,13 +1032,11 @@ pub mod wrapper_arc {
                 protocol.read_struct_end().await?;
 
                 let Some(req) = req else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field req is required".to_string()
-                    )
-                )
-            };
+                        "field req is required".to_string(),
+                    ));
+                };
 
                 let data = Self { req };
                 Ok(data)

@@ -7,7 +7,8 @@ use quote::quote;
 
 use crate::{
     db::RirDatabase,
-    rir::{EnumVariant, Field, Item},
+    middle::context::tls::CUR_ITEM,
+    rir::{EnumVariant, Field, Item, NodeKind},
     symbol::{DefId, EnumRepr},
     tags::EnumMode,
     ty::{self, Ty, Visitor},
@@ -19,6 +20,10 @@ mod serde;
 pub use self::serde::SerdePlugin;
 
 pub trait Plugin: Sync + Send {
+    fn on_codegen_uint(&mut self, cx: &Context, items: &[DefId]) {
+        walk_codegen_uint(self, cx, items)
+    }
+
     fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         walk_item(self, cx, def_id, item)
     }
@@ -113,6 +118,19 @@ pub fn walk_item<P: Plugin + ?Sized>(p: &mut P, cx: &Context, _def_id: DefId, it
             .for_each(|v| p.on_variant(cx, v.did, v.clone())),
         _ => {}
     }
+}
+
+pub fn walk_codegen_uint<P: Plugin + ?Sized>(p: &mut P, cx: &Context, items: &[DefId]) {
+    items.iter().for_each(|def_id| {
+        CUR_ITEM.set(def_id, || {
+            let node = cx.node(*def_id).unwrap();
+
+            match &node.kind {
+                NodeKind::Item(item) => p.on_item(cx, *def_id, item.clone()),
+                _ => {}
+            }
+        });
+    });
 }
 
 pub fn walk_field<P: Plugin + ?Sized>(
