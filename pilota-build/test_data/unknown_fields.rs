@@ -437,21 +437,17 @@ pub mod unknown_fields {
                 protocol.read_struct_end()?;
 
                 let Some(bytes) = bytes else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field bytes is required".to_string()
-                    )
-                )
-            };
+                        "field bytes is required".to_string(),
+                    ));
+                };
                 let Some(vec) = vec else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field vec is required".to_string()
-                    )
-                )
-            };
+                        "field vec is required".to_string(),
+                    ));
+                };
 
                 let data = Self {
                     bytes,
@@ -514,21 +510,17 @@ pub mod unknown_fields {
                 protocol.read_struct_end().await?;
 
                 let Some(bytes) = bytes else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field bytes is required".to_string()
-                    )
-                )
-            };
+                        "field bytes is required".to_string(),
+                    ));
+                };
                 let Some(vec) = vec else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field vec is required".to_string()
-                    )
-                )
-            };
+                        "field vec is required".to_string(),
+                    ));
+                };
 
                 let data = Self {
                     bytes,
@@ -642,13 +634,11 @@ pub mod unknown_fields {
                 protocol.read_struct_end()?;
 
                 let Some(td) = td else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field td is required".to_string()
-                    )
-                )
-            };
+                        "field td is required".to_string(),
+                    ));
+                };
 
                 let data = Self {
                     td,
@@ -702,13 +692,11 @@ pub mod unknown_fields {
                 protocol.read_struct_end().await?;
 
                 let Some(td) = td else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field td is required".to_string()
-                    )
-                )
-            };
+                        "field td is required".to_string(),
+                    ));
+                };
 
                 let data = Self {
                     td,
@@ -1015,29 +1003,23 @@ pub mod unknown_fields {
                 protocol.read_struct_end()?;
 
                 let Some(faststr) = faststr else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field faststr is required".to_string()
-                    )
-                )
-            };
+                        "field faststr is required".to_string(),
+                    ));
+                };
                 let Some(string) = string else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field string is required".to_string()
-                    )
-                )
-            };
+                        "field string is required".to_string(),
+                    ));
+                };
                 let Some(list) = list else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field list is required".to_string()
-                    )
-                )
-            };
+                        "field list is required".to_string(),
+                    ));
+                };
 
                 let data = Self {
                     faststr,
@@ -1121,29 +1103,23 @@ pub mod unknown_fields {
                 protocol.read_struct_end().await?;
 
                 let Some(faststr) = faststr else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field faststr is required".to_string()
-                    )
-                )
-            };
+                        "field faststr is required".to_string(),
+                    ));
+                };
                 let Some(string) = string else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field string is required".to_string()
-                    )
-                )
-            };
+                        "field string is required".to_string(),
+                    ));
+                };
                 let Some(list) = list else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field list is required".to_string()
-                    )
-                )
-            };
+                        "field list is required".to_string(),
+                    ));
+                };
 
                 let data = Self {
                     faststr,
@@ -1733,13 +1709,11 @@ pub mod unknown_fields {
                 protocol.read_struct_end()?;
 
                 let Some(a) = a else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field a is required".to_string()
-                    )
-                )
-            };
+                        "field a is required".to_string(),
+                    ));
+                };
 
                 let data = Self { a, _unknown_fields };
                 Ok(data)
@@ -1792,13 +1766,11 @@ pub mod unknown_fields {
                 protocol.read_struct_end().await?;
 
                 let Some(a) = a else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field a is required".to_string()
-                    )
-                )
-            };
+                        "field a is required".to_string(),
+                    ));
+                };
 
                 let data = Self {
                     a,
@@ -2852,13 +2824,11 @@ pub mod unknown_fields {
                 protocol.read_struct_end()?;
 
                 let Some(req) = req else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field req is required".to_string()
-                    )
-                )
-            };
+                        "field req is required".to_string(),
+                    ));
+                };
 
                 let data = Self { req };
                 Ok(data)
@@ -2915,13 +2885,11 @@ pub mod unknown_fields {
                 protocol.read_struct_end().await?;
 
                 let Some(req) = req else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field req is required".to_string()
-                    )
-                )
-            };
+                        "field req is required".to_string(),
+                    ));
+                };
 
                 let data = Self { req };
                 Ok(data)
@@ -3236,13 +3204,11 @@ pub mod unknown_fields {
                 protocol.read_struct_end()?;
 
                 let Some(req) = req else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field req is required".to_string()
-                    )
-                )
-            };
+                        "field req is required".to_string(),
+                    ));
+                };
 
                 let data = Self { req };
                 Ok(data)
@@ -3299,13 +3265,11 @@ pub mod unknown_fields {
                 protocol.read_struct_end().await?;
 
                 let Some(req) = req else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field req is required".to_string()
-                    )
-                )
-            };
+                        "field req is required".to_string(),
+                    ));
+                };
 
                 let data = Self { req };
                 Ok(data)

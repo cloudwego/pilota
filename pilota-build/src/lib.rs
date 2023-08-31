@@ -255,16 +255,6 @@ where
             args,
         } = Resolver::default().resolve_files(&files);
 
-        // discard duplicated items
-        // let mods = nodes
-        //     .iter()
-        //     .into_group_map_by(|(_, node)|
-        // files.get(&node.file_id).unwrap().package.clone());
-
-        // for (_, m) in mods {
-        //     m.iter().unique_by(f);
-        // }
-
         db.set_files_with_durability(Arc::new(files), Durability::HIGH);
         let items = nodes.iter().filter_map(|(k, v)| {
             if let NodeKind::Item(item) = &v.kind {

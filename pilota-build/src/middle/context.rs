@@ -10,7 +10,7 @@ use normpath::PathExt;
 use quote::format_ident;
 use salsa::ParallelDatabase;
 
-use self::tls::{with_cur_item, CUR_ITEM};
+use self::tls::with_cur_item;
 use super::{
     adjust::Adjust,
     resolver::{DefaultPathResolver, PathResolver, WorkspacePathResolver},
@@ -26,8 +26,13 @@ use crate::{
 };
 
 #[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Clone)]
+pub struct CrateId {
+    pub(crate) main_file: FileId,
+}
+
+#[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Clone)]
 pub(crate) enum DefLocation {
-    Fixed(ItemPath),
+    Fixed(CrateId, ItemPath),
     Dynamic,
 }
 
@@ -56,7 +61,7 @@ pub struct Context {
     pub adjusts: Arc<DashMap<DefId, Adjust>>,
     pub services: Arc<[crate::IdlService]>,
     pub(crate) change_case: bool,
-    pub(crate) codegen_items: Arc<Vec<DefId>>,
+    pub(crate) codegen_items: Arc<[DefId]>,
     pub(crate) path_resolver: Arc<dyn PathResolver>,
     pub(crate) mode: Arc<Mode>,
     pub(crate) keep_unknown_fields: FxHashSet<DefId>,
@@ -266,7 +271,10 @@ impl ContextBuilder {
                 let file_id = cx.db.node(def_id).unwrap().file_id;
                 if cx.db.input_files().contains(&file_id) {
                     let file = cx.db.file(file_id).unwrap();
-                    map.insert(def_id, DefLocation::Fixed(file.package.clone()));
+                    map.insert(
+                        def_id,
+                        DefLocation::Fixed(CrateId { main_file: file_id }, file.package.clone()),
+                    );
                 } else {
                     map.insert(def_id, DefLocation::Dynamic);
                 }
@@ -374,7 +382,7 @@ impl ContextBuilder {
             db: self.db.snapshot(),
             change_case,
             services,
-            codegen_items: Arc::new(self.codegen_items),
+            codegen_items: Arc::from(self.codegen_items),
             path_resolver: match &self.mode {
                 Mode::Workspace(_) => Arc::new(WorkspacePathResolver),
                 Mode::SingleFile { .. } => Arc::new(DefaultPathResolver),
@@ -833,13 +841,7 @@ impl Context {
 
     #[allow(clippy::single_match)]
     pub fn exec_plugin<P: Plugin>(&self, mut p: P) {
-        for def_id in self.codegen_items.clone().iter() {
-            let node = self.node(*def_id).unwrap();
-            CUR_ITEM.set(def_id, || match &node.kind {
-                NodeKind::Item(item) => p.on_item(self, *def_id, item.clone()),
-                _ => {}
-            })
-        }
+        p.on_codegen_uint(self, &self.codegen_items);
 
         p.on_emit(self)
     }
@@ -866,7 +868,29 @@ impl Context {
 
     pub(crate) fn crate_name(&self, location: &DefLocation) -> FastStr {
         match location {
-            DefLocation::Fixed(path) => path.iter().join("_").into(),
+            DefLocation::Fixed(crate_id, _) => {
+                let main_file = crate_id.main_file;
+                let service = self
+                    .services
+                    .iter()
+                    .find(|s| self.file_id(s.path.clone()).unwrap() == main_file)
+                    .unwrap();
+                service
+                    .config
+                    .get("crate_name")
+                    .map(|s| s.as_str().map(|s| FastStr::new(s)))
+                    .flatten()
+                    .unwrap_or_else(|| {
+                        service
+                            .path
+                            .file_stem()
+                            .unwrap()
+                            .to_str()
+                            .unwrap()
+                            .replace(".", "_")
+                            .into()
+                    })
+            }
             DefLocation::Dynamic => "common".into(),
         }
     }

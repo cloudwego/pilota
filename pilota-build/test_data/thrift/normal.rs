@@ -442,37 +442,29 @@ pub mod normal {
                 protocol.read_struct_end()?;
 
                 let Some(msg) = msg else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field msg is required".to_string()
-                    )
-                )
-            };
+                        "field msg is required".to_string(),
+                    ));
+                };
                 let Some(msg_map) = msg_map else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field msg_map is required".to_string()
-                    )
-                )
-            };
+                        "field msg_map is required".to_string(),
+                    ));
+                };
                 let Some(sub_msgs) = sub_msgs else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field sub_msgs is required".to_string()
-                    )
-                )
-            };
+                        "field sub_msgs is required".to_string(),
+                    ));
+                };
                 let Some(flag_msg) = flag_msg else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field flag_msg is required".to_string()
-                    )
-                )
-            };
+                        "field flag_msg is required".to_string(),
+                    ));
+                };
 
                 let data = Self {
                     msg,
@@ -594,37 +586,29 @@ pub mod normal {
                 protocol.read_struct_end().await?;
 
                 let Some(msg) = msg else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field msg is required".to_string()
-                    )
-                )
-            };
+                        "field msg is required".to_string(),
+                    ));
+                };
                 let Some(msg_map) = msg_map else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field msg_map is required".to_string()
-                    )
-                )
-            };
+                        "field msg_map is required".to_string(),
+                    ));
+                };
                 let Some(sub_msgs) = sub_msgs else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field sub_msgs is required".to_string()
-                    )
-                )
-            };
+                        "field sub_msgs is required".to_string(),
+                    ));
+                };
                 let Some(flag_msg) = flag_msg else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field flag_msg is required".to_string()
-                    )
-                )
-            };
+                        "field flag_msg is required".to_string(),
+                    ));
+                };
 
                 let data = Self {
                     msg,
@@ -889,13 +873,11 @@ pub mod normal {
                 protocol.read_struct_end()?;
 
                 let Some(req) = req else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field req is required".to_string()
-                    )
-                )
-            };
+                        "field req is required".to_string(),
+                    ));
+                };
 
                 let data = Self { req };
                 Ok(data)
@@ -952,13 +934,11 @@ pub mod normal {
                 protocol.read_struct_end().await?;
 
                 let Some(req) = req else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field req is required".to_string()
-                    )
-                )
-            };
+                        "field req is required".to_string(),
+                    ));
+                };
 
                 let data = Self { req };
                 Ok(data)
@@ -1554,13 +1534,11 @@ pub mod normal {
                 protocol.read_struct_end()?;
 
                 let Some(req) = req else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field req is required".to_string()
-                    )
-                )
-            };
+                        "field req is required".to_string(),
+                    ));
+                };
 
                 let data = Self { req };
                 Ok(data)
@@ -1617,13 +1595,11 @@ pub mod normal {
                 protocol.read_struct_end().await?;
 
                 let Some(req) = req else {
-                return Err(
-                    ::pilota::thrift::DecodeError::new(
+                    return Err(::pilota::thrift::DecodeError::new(
                         ::pilota::thrift::DecodeErrorKind::InvalidData,
-                            "field req is required".to_string()
-                    )
-                )
-            };
+                        "field req is required".to_string(),
+                    ));
+                };
 
                 let data = Self { req };
                 Ok(data)

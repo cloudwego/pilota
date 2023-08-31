@@ -10,7 +10,7 @@ use super::CodegenItem;
 use crate::{
     db::RirDatabase,
     fmt::fmt_file,
-    middle::context::DefLocation,
+    middle::context::{CrateId, DefLocation},
     rir::{self, ItemPath},
     Codegen, CodegenBackend, Context, DefId,
 };
@@ -77,7 +77,7 @@ where
         let members = entry_map
             .keys()
             .filter_map(|k| {
-                if let DefLocation::Fixed(_) = k {
+                if let DefLocation::Fixed(..) = k {
                     let name = self.cx().crate_name(k);
                     Some(format!("    \"{name}\""))
                 } else {
@@ -134,7 +134,7 @@ where
                     &this.base_dir,
                     CrateInfo {
                         main_mod_path: match k {
-                            DefLocation::Fixed(path) => Some(path.clone()),
+                            DefLocation::Fixed(_, path) => Some(path.clone()),
                             DefLocation::Dynamic => None,
                         },
                         workspace_deps: workspace_deps.clone(),
@@ -175,7 +175,10 @@ where
                 let file_id = cx.node(def_id).unwrap().file_id;
                 if cx.input_files().contains(&file_id) {
                     let file = cx.file(file_id).unwrap();
-                    map.insert(def_id, DefLocation::Fixed(file.package.clone()));
+                    map.insert(
+                        def_id,
+                        DefLocation::Fixed(CrateId { main_file: file_id }, file.package.clone()),
+                    );
                 } else {
                     map.insert(def_id, DefLocation::Dynamic);
                 }
