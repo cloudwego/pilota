@@ -16,6 +16,7 @@ use crate::{
 };
 
 mod serde;
+mod workspace;
 
 pub use self::serde::SerdePlugin;
 
@@ -303,6 +304,10 @@ impl<T> Plugin for Box<T>
 where
     T: Plugin + ?Sized,
 {
+    fn on_codegen_uint(&mut self, cx: &Context, items: &[DefId]) {
+        self.deref_mut().on_codegen_uint(cx, items)
+    }
+
     fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         self.deref_mut().on_item(cx, def_id, item)
     }

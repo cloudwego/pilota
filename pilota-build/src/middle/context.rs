@@ -1,4 +1,4 @@
-use std::{ops::Deref, path::PathBuf, sync::Arc};
+use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
 
 use anyhow::Context as _;
 use dashmap::DashMap;
@@ -31,7 +31,7 @@ pub struct CrateId {
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Clone)]
-pub(crate) enum DefLocation {
+pub enum DefLocation {
     Fixed(CrateId, ItemPath),
     Dynamic,
 }
@@ -65,6 +65,9 @@ pub struct Context {
     pub(crate) path_resolver: Arc<dyn PathResolver>,
     pub(crate) mode: Arc<Mode>,
     pub(crate) keep_unknown_fields: FxHashSet<DefId>,
+    pub location_map: FxHashMap<DefId, DefLocation>,
+    pub entry_map: HashMap<DefLocation, Vec<(DefId, DefLocation)>>,
+    pub plugin_gen: DashMap<DefLocation, String>,
 }
 
 impl Clone for Context {
@@ -79,6 +82,9 @@ impl Clone for Context {
             mode: self.mode.clone(),
             services: self.services.clone(),
             keep_unknown_fields: self.keep_unknown_fields.clone(),
+            location_map: self.location_map.clone(),
+            entry_map: self.entry_map.clone(),
+            plugin_gen: self.plugin_gen.clone(),
         }
     }
 }
@@ -89,6 +95,8 @@ pub(crate) struct ContextBuilder {
     input_items: Vec<DefId>,
     mode: Mode,
     keep_unknown_fields: FxHashSet<DefId>,
+    pub location_map: FxHashMap<DefId, DefLocation>,
+    entry_map: HashMap<DefLocation, Vec<(DefId, DefLocation)>>,
 }
 
 impl ContextBuilder {
@@ -99,6 +107,8 @@ impl ContextBuilder {
             input_items,
             codegen_items: Default::default(),
             keep_unknown_fields: Default::default(),
+            location_map: Default::default(),
+            entry_map: Default::default(),
         }
     }
     pub(crate) fn collect(&mut self, mode: CollectMode) {
@@ -159,7 +169,11 @@ impl ContextBuilder {
         }
         if matches!(self.mode, Mode::Workspace(_)) {
             let location_map = self.workspace_collect_def_ids(&self.codegen_items);
-
+            self.location_map = location_map.clone();
+            self.entry_map = location_map
+                .clone()
+                .into_iter()
+                .into_group_map_by(|item| item.1.clone());
             if let Mode::Workspace(info) = &mut self.mode {
                 info.location_map = location_map
             }
@@ -389,6 +403,9 @@ impl ContextBuilder {
             },
             mode: Arc::new(self.mode),
             keep_unknown_fields: self.keep_unknown_fields,
+            location_map: self.location_map,
+            entry_map: self.entry_map,
+            plugin_gen: Default::default(),
         }
     }
 }

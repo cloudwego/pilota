@@ -38,6 +38,7 @@ struct CrateInfo {
     workspace_deps: Vec<FastStr>,
     items: Vec<DefId>,
     re_pubs: Vec<DefId>,
+    user_gen: Option<String>,
 }
 
 impl<B> Workspace<B>
@@ -147,6 +148,7 @@ where
                             .sorted()
                             .dedup()
                             .collect_vec(),
+                        user_gen: this.cx().plugin_gen.get(k).map(|v| v.value().clone()),
                     },
                 )
             })?;
@@ -275,8 +277,10 @@ where
 
         stream.push_str("#![feature(impl_trait_in_assoc_type)]\n");
 
+        let mut out_stream = String::default();
+
         self.cg.write_items(
-            &mut stream,
+            &mut out_stream,
             info.items
                 .iter()
                 .map(|def_id| CodegenItem::from(*def_id))
@@ -287,15 +291,25 @@ where
         );
 
         if let Some(main_mod_path) = info.main_mod_path {
-            stream.push_str(&format!("pub use {}::*;", main_mod_path.join("::")));
+            out_stream.push_str(&format!("pub use {}::*;", main_mod_path.join("::")));
         }
 
+        stream.push_str("include!(\"gen.rs\");\n");
+        if let Some(user_gen) = info.user_gen {
+            stream.push_str(&user_gen);
+        }
+
+        let out_stream = out_stream.lines().map(|s| s.trim_end()).join("\n");
         let stream = stream.lines().map(|s| s.trim_end()).join("\n");
 
         let src_file = base_dir.as_ref().join(&*info.name).join("src/lib.rs");
+        let out_file = base_dir.as_ref().join(&*info.name).join("src/gen.rs");
 
         std::fs::write(&src_file, stream)?;
+        std::fs::write(&out_file, out_stream)?;
+
         fmt_file(src_file);
+        fmt_file(out_file);
 
         Ok(())
     }
