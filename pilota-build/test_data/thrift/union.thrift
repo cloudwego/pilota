@@ -6,3 +6,7 @@ union Union {
 struct A {
     1: Union u,
 }
+
+union Empty {
+
+}

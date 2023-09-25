@@ -536,6 +536,10 @@ impl CodegenBackend for ThriftBackend {
                     });
                 }
 
+                if e.variants.is_empty() {
+                    encode_variants.push_str("_ => {},");
+                }
+
                 let mut variants_size = e
                     .variants
                     .iter()
@@ -560,6 +564,10 @@ impl CodegenBackend for ThriftBackend {
                     })
                 }
 
+                if e.variants.is_empty() {
+                    variants_size.push_str("_ => 0,");
+                }
+
                 let variant_is_void = |v: &EnumVariant| {
                     &*v.name.sym == "Ok" && v.fields.len() == 1 && v.fields[0].kind == TyKind::Void
                 };
@@ -577,21 +585,13 @@ impl CodegenBackend for ThriftBackend {
                         protocol.write_struct_end()?;
                         Ok(())"#
                     },
-                    if !e.variants.is_empty() {
                         format! {
                             r#"protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
                                 name: "{name_str}",
                             }}) + match self {{
                                 {variants_size}
                             }} +  protocol.field_stop_len() + protocol.struct_end_len()"#
-                        }
-                    } else {
-                        format! {
-                            r#"protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
-                                name: "{name_str}",
-                            }}) + protocol.field_stop_len() + protocol.struct_end_len()"#
-                        }
-                    },
+                        },
                     |helper| {
                         let record_ptr = if keep && !helper.is_async {
                             r#"let mut __pilota_offset = 0;
