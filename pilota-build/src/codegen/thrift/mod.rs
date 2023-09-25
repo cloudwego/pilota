@@ -577,12 +577,20 @@ impl CodegenBackend for ThriftBackend {
                         protocol.write_struct_end()?;
                         Ok(())"#
                     },
-                    format! {
-                        r#"protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
-                            name: "{name_str}",
-                        }}) + match self {{
-                            {variants_size}
-                        }} +  protocol.field_stop_len() + protocol.struct_end_len()"#
+                    if !e.variants.is_empty() {
+                        format! {
+                            r#"protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
+                                name: "{name_str}",
+                            }}) + match self {{
+                                {variants_size}
+                            }} +  protocol.field_stop_len() + protocol.struct_end_len()"#
+                        }
+                    } else {
+                        format! {
+                            r#"protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
+                                name: "{name_str}",
+                            }}) + protocol.field_stop_len() + protocol.struct_end_len()"#
+                        }
                     },
                     |helper| {
                         let record_ptr = if keep && !helper.is_async {
