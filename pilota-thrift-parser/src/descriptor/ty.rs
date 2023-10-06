@@ -27,6 +27,7 @@ pub enum Ty {
     I32,
     I64,
     Double,
+	Uuid,
     List {
         value: Arc<Type>,
         cpp_type: Option<CppType>,
