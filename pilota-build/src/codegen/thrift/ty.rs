@@ -60,7 +60,7 @@ impl ThriftBackend {
             ty::I32 => format!("protocol.write_i32(*{ident})?;").into(),
             ty::I64 => format!("protocol.write_i64(*{ident})?;").into(),
             ty::F64 => format!("protocol.write_double(*{ident})?;").into(),
-			ty::Uuid => format!("protocol.write_uuid({ident})?;").into(),
+            ty::Uuid => format!("protocol.write_uuid({ident})?;").into(),
             ty::Vec(ty) => {
                 let el_ttype = self.ttype(ty);
                 let write_el = self.codegen_encode_ty(ty, "val".into());
