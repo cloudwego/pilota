@@ -2168,6 +2168,8 @@ pub mod normal {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Message {
+            pub uid: ::std::option::Option<[u8; 16]>,
+
             pub value: ::std::option::Option<::pilota::FastStr>,
 
             pub sub_messages: ::std::option::Option<::std::vec::Vec<SubMessage>>,
@@ -2183,6 +2185,9 @@ pub mod normal {
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "Message" };
 
                 protocol.write_struct_begin(&struct_ident)?;
+                if let Some(value) = self.uid.as_ref() {
+                    protocol.write_uuid_field(1, *value)?;
+                }
                 if let Some(value) = self.value.as_ref() {
                     protocol.write_faststr_field(2, (value).clone())?;
                 }
@@ -2208,6 +2213,7 @@ pub mod normal {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
+                let mut uid = None;
                 let mut value = None;
                 let mut sub_messages = None;
 
@@ -2225,6 +2231,9 @@ pub mod normal {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
+                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::Uuid => {
+                                uid = Some(protocol.read_uuid()?);
+                            }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
@@ -2269,6 +2278,7 @@ pub mod normal {
                 protocol.read_struct_end()?;
 
                 let data = Self {
+                    uid,
                     value,
                     sub_messages,
                 };
@@ -2278,6 +2288,7 @@ pub mod normal {
             async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
                 protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+                let mut uid = None;
                 let mut value = None;
                 let mut sub_messages = None;
 
@@ -2293,6 +2304,9 @@ pub mod normal {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
+                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::Uuid => {
+                                uid = Some(protocol.read_uuid().await?);
+                            }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
@@ -2337,6 +2351,7 @@ pub mod normal {
                 protocol.read_struct_end().await?;
 
                 let data = Self {
+                    uid,
                     value,
                     sub_messages,
                 };
@@ -2347,6 +2362,10 @@ pub mod normal {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Message" })
+                    + self
+                        .uid
+                        .as_ref()
+                        .map_or(0, |value| protocol.uuid_field_len(Some(1), *value))
                     + self
                         .value
                         .as_ref()

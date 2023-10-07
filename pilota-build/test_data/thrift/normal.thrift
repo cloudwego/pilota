@@ -13,6 +13,7 @@ struct SubMessage {
 }
 
 struct Message {
+	1: uuid uid;
     2: optional string value;
     3: optional list<SubMessage> subMessages;
 }
