@@ -35,7 +35,7 @@ pub enum TyKind {
     UInt32,
     F32,
     F64,
-	Uuid,
+    Uuid,
     Vec(Arc<Ty>),
     Set(Arc<Ty>),
     Map(Arc<Ty>, Arc<Ty>),
