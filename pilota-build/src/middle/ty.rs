@@ -1,8 +1,10 @@
-use std::{fmt::Display, sync::Arc};
+use std::fmt::Display;
+pub use std::sync::Arc;
 
 pub use TyKind::*;
 
-use super::{context::tls::with_cx, rir::Path};
+use super::context::tls::with_cx;
+pub use super::rir::Path;
 use crate::{db::RirDatabase, symbol::DefId, tags::TagId};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
