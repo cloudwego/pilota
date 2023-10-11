@@ -430,6 +430,7 @@ impl ThriftLower {
             thrift_parser::Ty::I32 => ir::TyKind::I32,
             thrift_parser::Ty::I64 => ir::TyKind::I64,
             thrift_parser::Ty::Double => ir::TyKind::F64,
+            thrift_parser::Ty::Uuid => ir::TyKind::Uuid,
             thrift_parser::Ty::List { value, .. } => ir::TyKind::Vec(self.lower_ty(value).into()),
             thrift_parser::Ty::Set { value, .. } => ir::TyKind::Set(self.lower_ty(value).into()),
             thrift_parser::Ty::Map { key, value, .. } => {

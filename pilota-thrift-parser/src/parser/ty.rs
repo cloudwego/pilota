@@ -50,6 +50,7 @@ impl Parser for Ty {
             map(tag("i32"), |_| Ty::I32),
             map(tag("i64"), |_| Ty::I64),
             map(tag("double"), |_| Ty::Double),
+            map(tag("uuid"), |_| Ty::Uuid),
             map(
                 tuple((
                     tag("list"),

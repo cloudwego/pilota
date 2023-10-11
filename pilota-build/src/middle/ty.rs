@@ -24,6 +24,7 @@ pub enum TyKind {
     UInt64,
     F32,
     F64,
+    Uuid,
     Vec(Arc<Ty>),
     Set(Arc<Ty>),
     Map(Arc<Ty>, Arc<Ty>),
@@ -66,6 +67,7 @@ pub enum CodegenTy {
     UInt64,
     F32,
     F64,
+    Uuid,
     Bytes,
     LazyStaticRef(Arc<CodegenTy>),
     StaticRef(Arc<CodegenTy>),
@@ -111,6 +113,7 @@ impl CodegenTy {
             CodegenTy::UInt32 => "u32".into(),
             CodegenTy::UInt64 => "u64".into(),
             CodegenTy::F32 => "f32".into(),
+            CodegenTy::Uuid => "[u8; 16]".into(),
             CodegenTy::StaticRef(ty) => {
                 let ty = &**ty;
                 format!("&'static {}", ty.global_path()).into()
@@ -169,6 +172,7 @@ impl Display for CodegenTy {
             CodegenTy::UInt32 => f.write_str("u32"),
             CodegenTy::UInt64 => f.write_str("u64"),
             CodegenTy::F32 => f.write_str("f32"),
+            CodegenTy::Uuid => f.write_str("[u8; 16]"),
             CodegenTy::StaticRef(ty) => {
                 let ty = &**ty;
                 write!(f, "&'static {ty}")
@@ -294,6 +298,11 @@ pub trait TyTransformer {
     }
 
     #[inline]
+    fn uuid(&self) -> CodegenTy {
+        CodegenTy::Uuid
+    }
+
+    #[inline]
     fn arc(&self, ty: &Ty) -> CodegenTy {
         CodegenTy::Arc(Arc::from(self.codegen_item_ty(&ty.kind)))
     }
@@ -342,6 +351,7 @@ pub trait TyTransformer {
             I32 => self.i32(),
             I64 => self.i64(),
             F64 => self.f64(),
+            Uuid => self.uuid(),
             Vec(ty) => self.vec(ty),
             Set(ty) => self.set(ty),
             Map(k, v) => self.map(k, v),
@@ -452,6 +462,7 @@ pub(crate) fn fold_ty<F: Folder>(f: &mut F, ty: &Ty) -> Ty {
         I32 => TyKind::I32,
         I64 => TyKind::I64,
         F64 => TyKind::F64,
+        Uuid => TyKind::Uuid,
         Vec(ty) => TyKind::Vec(f.fold_ty(ty).into()),
         Set(ty) => TyKind::Set(f.fold_ty(ty).into()),
         Map(k, v) => TyKind::Map(fold_ty(f, k).into(), fold_ty(f, v).into()),

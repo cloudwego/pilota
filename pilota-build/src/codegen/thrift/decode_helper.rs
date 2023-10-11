@@ -67,6 +67,7 @@ impl DecodeHelper {
     protocol_method!(read_field_begin);
     protocol_method!(read_field_end);
     protocol_method!(read_bool);
+    protocol_method!(read_uuid);
 
     protocol_len!(field_end_len);
     protocol_len!(field_stop_len);

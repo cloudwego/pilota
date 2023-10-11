@@ -148,6 +148,7 @@ fn prepare_obj_req(size: usize) -> crate::normal::normal::ObjReq {
     let msg = crate::normal::normal::Message {
         value: Some(generate_message(size)),
         sub_messages: Some(sub_msg_list.clone()),
+        uid: None,
     };
 
     let mut msg_map = std::collections::HashMap::new();
@@ -155,6 +156,7 @@ fn prepare_obj_req(size: usize) -> crate::normal::normal::ObjReq {
         crate::normal::normal::Message {
             value: None,
             sub_messages: Some(sub_msg_list.clone()),
+            uid: None,
         },
         crate::normal::normal::SubMessage {
             value: Some(generate_message(size)),

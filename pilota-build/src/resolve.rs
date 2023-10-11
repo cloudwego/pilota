@@ -372,6 +372,7 @@ impl Resolver {
             ir::TyKind::I32 => ty::I32,
             ir::TyKind::I64 => ty::I64,
             ir::TyKind::F64 => ty::F64,
+            ir::TyKind::Uuid => ty::Uuid,
             ir::TyKind::Vec(ty) => ty::Vec(Arc::from(self.lower_type(ty, false))),
             ir::TyKind::Set(ty) => ty::Set(Arc::from(self.lower_type(ty, false))),
             ir::TyKind::Map(k, v) => ty::Map(
