@@ -99,7 +99,7 @@ where
     members = [
     {members}
     ]
-    
+
     [workspace.dependencies]
     pilota = "*"
     async-trait = "0.1"
@@ -273,14 +273,17 @@ where
             toml::to_string_pretty(&cargo_toml).unwrap(),
         )?;
 
-        let mut stream = String::default();
+        let mut lib_rs_stream = String::default();
+        lib_rs_stream.push_str("#![feature(impl_trait_in_assoc_type)]\n");
+        lib_rs_stream.push_str("\ninclude!(\"gen.rs\");\n");
+        lib_rs_stream.push_str("pub use gen::*;\n");
+        if let Some(user_gen) = info.user_gen {
+            lib_rs_stream.push_str(&user_gen);
+        }
 
-        stream.push_str("#![feature(impl_trait_in_assoc_type)]\n");
-
-        let mut out_stream = String::default();
-
+        let mut gen_rs_stream = String::default();
         self.cg.write_items(
-            &mut out_stream,
+            &mut gen_rs_stream,
             info.items
                 .iter()
                 .map(|def_id| CodegenItem::from(*def_id))
@@ -289,27 +292,25 @@ where
                     kind: super::CodegenKind::RePub,
                 })),
         );
-
         if let Some(main_mod_path) = info.main_mod_path {
-            out_stream.push_str(&format!("pub use {}::*;", main_mod_path.join("::")));
+            gen_rs_stream.push_str(&format!("pub use {}::*;", main_mod_path.join("::")));
         }
+        gen_rs_stream = format! {r#"mod gen {{
+            #![allow(warnings, clippy::all)]
+            {gen_rs_stream}
+        }}"#};
 
-        stream.push_str("include!(\"gen.rs\");\n");
-        if let Some(user_gen) = info.user_gen {
-            stream.push_str(&user_gen);
-        }
+        let lib_rs_stream = lib_rs_stream.lines().map(|s| s.trim_end()).join("\n");
+        let gen_rs_stream = gen_rs_stream.lines().map(|s| s.trim_end()).join("\n");
 
-        let out_stream = out_stream.lines().map(|s| s.trim_end()).join("\n");
-        let stream = stream.lines().map(|s| s.trim_end()).join("\n");
+        let lib_rs = base_dir.as_ref().join(&*info.name).join("src/lib.rs");
+        let gen_rs = base_dir.as_ref().join(&*info.name).join("src/gen.rs");
 
-        let src_file = base_dir.as_ref().join(&*info.name).join("src/lib.rs");
-        let out_file = base_dir.as_ref().join(&*info.name).join("src/gen.rs");
+        std::fs::write(&lib_rs, lib_rs_stream)?;
+        std::fs::write(&gen_rs, gen_rs_stream)?;
 
-        std::fs::write(&src_file, stream)?;
-        std::fs::write(&out_file, out_stream)?;
-
-        fmt_file(src_file);
-        fmt_file(out_file);
+        fmt_file(lib_rs);
+        fmt_file(gen_rs);
 
         Ok(())
     }
