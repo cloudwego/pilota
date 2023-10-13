@@ -12,7 +12,7 @@ pub(crate) mod errors;
 mod fmt;
 mod index;
 mod ir;
-mod middle;
+pub mod middle;
 pub mod parser;
 mod resolve;
 mod symbol;
