@@ -8,7 +8,6 @@ pub mod binary_bytes {
 
             pub vec: ::std::vec::Vec<u8>,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,

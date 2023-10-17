@@ -6,7 +6,6 @@ pub mod decode_error {
         pub struct A {
             pub b: B,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -104,7 +103,10 @@ pub mod decode_error {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                b = Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                                b = Some(
+                                    <B as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
+                                );
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
@@ -154,7 +156,6 @@ pub mod decode_error {
         pub struct C {
             pub a: ::pilota::FastStr,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for C {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -302,7 +303,6 @@ pub mod decode_error {
         pub struct B {
             pub c: C,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for B {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -400,7 +400,10 @@ pub mod decode_error {
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                c = Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                                c = Some(
+                                    <C as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
+                                );
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;

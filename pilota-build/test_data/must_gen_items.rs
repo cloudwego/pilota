@@ -6,7 +6,6 @@ pub mod must_gen_items {
         pub struct A {
             pub a: ::std::option::Option<i32>,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,

@@ -20,7 +20,6 @@ pub mod serde {
 
             pub b: i32,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -222,7 +221,6 @@ pub mod serde {
             E = 1,
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for C {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -294,7 +292,6 @@ pub mod serde {
             }
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for B {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,

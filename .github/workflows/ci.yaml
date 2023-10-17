@@ -27,7 +27,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@stable
+    - uses: dtolnay/rust-toolchain@nightly
       with:
         components: rustfmt, clippy
     # - uses: Swatinem/rust-cache@v1
@@ -41,7 +41,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@stable
+    - uses: dtolnay/rust-toolchain@nightly
       with:
         components: rustfmt, clippy
     # - uses: Swatinem/rust-cache@v1
@@ -55,7 +55,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@stable
+    - uses: dtolnay/rust-toolchain@nightly
       with:
         components: rustfmt, clippy
     - uses: Swatinem/rust-cache@v1
@@ -69,7 +69,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@stable
+    - uses: dtolnay/rust-toolchain@nightly
       with:
         components: rustfmt, clippy
     - uses: Swatinem/rust-cache@v1
@@ -84,11 +84,11 @@ jobs:
     strategy:
       matrix:
         rust:
-          - stable
+          - nightly
 
     steps:
     - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@stable
+    - uses: dtolnay/rust-toolchain@nightly
       with:
         components: rustfmt, clippy
     # - uses: Swatinem/rust-cache@v1

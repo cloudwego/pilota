@@ -6,7 +6,6 @@ pub mod pilota_name {
         pub struct Test2 {
             pub id: ::pilota::FastStr,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Test2 {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -154,7 +153,6 @@ pub mod pilota_name {
         pub struct TestServiceTestArgsRecv {
             pub req: Test2,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestServiceTestArgsRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -257,8 +255,10 @@ pub mod pilota_name {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                req =
-                                    Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                                req = Some(
+                                    <Test2 as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
+                                );
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
@@ -317,7 +317,6 @@ pub mod pilota_name {
             Ok(Test1),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestServiceTestResultSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -398,7 +397,8 @@ pub mod pilota_name {
                         Some(0) => {
                             if ret.is_none() {
                                 let field_ident =
-                                    ::pilota::thrift::Message::decode_async(protocol).await?;
+                                    <Test1 as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?;
 
                                 ret = Some(TestServiceTestResultSend::Ok(field_ident));
                             } else {
@@ -444,7 +444,6 @@ pub mod pilota_name {
 
             pub hello: ::pilota::FastStr,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Test1 {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -618,7 +617,6 @@ pub mod pilota_name {
         pub struct TestServiceTestArgsSend {
             pub req: Test2,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestServiceTestArgsSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -721,8 +719,10 @@ pub mod pilota_name {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                req =
-                                    Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                                req = Some(
+                                    <Test2 as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
+                                );
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
@@ -784,7 +784,6 @@ pub mod pilota_name {
             Ok(Test1),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestServiceTestResultRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -865,7 +864,8 @@ pub mod pilota_name {
                         Some(0) => {
                             if ret.is_none() {
                                 let field_ident =
-                                    ::pilota::thrift::Message::decode_async(protocol).await?;
+                                    <Test1 as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?;
 
                                 ret = Some(TestServiceTestResultRecv::Ok(field_ident));
                             } else {
@@ -940,7 +940,6 @@ pub mod pilota_name {
             B = 1,
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Index {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,

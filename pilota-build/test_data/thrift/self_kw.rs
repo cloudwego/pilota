@@ -38,7 +38,6 @@ pub mod self_kw {
             Self_ = 1,
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Index {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -86,7 +85,6 @@ pub mod self_kw {
         pub struct A {
             pub r#type: ::pilota::FastStr,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,

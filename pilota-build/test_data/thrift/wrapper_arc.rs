@@ -4,7 +4,6 @@ pub mod wrapper_arc {
     pub mod wrapper_arc {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {}
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -130,7 +129,6 @@ pub mod wrapper_arc {
             Ok(Test),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestServiceTestResultRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -211,7 +209,8 @@ pub mod wrapper_arc {
                         Some(0) => {
                             if ret.is_none() {
                                 let field_ident =
-                                    ::pilota::thrift::Message::decode_async(protocol).await?;
+                                    <Test as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?;
 
                                 ret = Some(TestServiceTestResultRecv::Ok(field_ident));
                             } else {
@@ -255,7 +254,6 @@ pub mod wrapper_arc {
         pub struct TestServiceTestArgsRecv {
             pub req: Test,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestServiceTestArgsRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -358,8 +356,10 @@ pub mod wrapper_arc {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                req =
-                                    Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                                req = Some(
+                                    <Test as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
+                                );
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
@@ -418,7 +418,6 @@ pub mod wrapper_arc {
             Ok(::std::sync::Arc<Test>),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestServiceTestResultSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -501,7 +500,8 @@ pub mod wrapper_arc {
                         Some(0) => {
                             if ret.is_none() {
                                 let field_ident = ::std::sync::Arc::new(
-                                    ::pilota::thrift::Message::decode_async(protocol).await?,
+                                    <Test as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
                                 );
 
                                 ret = Some(TestServiceTestResultSend::Ok(field_ident));
@@ -550,7 +550,6 @@ pub mod wrapper_arc {
 
             pub name3: ::std::collections::HashMap<i32, ::std::vec::Vec<::std::sync::Arc<A>>>,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Test {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -770,7 +769,7 @@ pub mod wrapper_arc {
                                             let mut val = Vec::with_capacity(list_ident.size);
                                             for _ in 0..list_ident.size {
                                                 val.push(::std::sync::Arc::new(
-                                                    ::pilota::thrift::Message::decode_async(
+                                                    <A as ::pilota::thrift::Message>::decode_async(
                                                         protocol,
                                                     )
                                                     .await?,
@@ -795,7 +794,7 @@ pub mod wrapper_arc {
                                             let mut val = Vec::with_capacity(list_ident.size);
                                             for _ in 0..list_ident.size {
                                                 val.push(::std::sync::Arc::new(
-                                                    ::pilota::thrift::Message::decode_async(
+                                                    <A as ::pilota::thrift::Message>::decode_async(
                                                         protocol,
                                                     )
                                                     .await?,
@@ -895,7 +894,6 @@ pub mod wrapper_arc {
         pub struct TestServiceTestArgsSend {
             pub req: ::std::sync::Arc<Test>,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestServiceTestArgsSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -1001,7 +999,8 @@ pub mod wrapper_arc {
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
                                 req = Some(::std::sync::Arc::new(
-                                    ::pilota::thrift::Message::decode_async(protocol).await?,
+                                    <Test as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
                                 ));
                             }
                             _ => {

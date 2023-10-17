@@ -7,7 +7,6 @@ use pilota::thrift::{
     binary_unsafe::TBinaryUnsafeInputProtocol, DecodeError, TInputProtocol, TOutputProtocol,
     TOutputProtocolExt, TStructIdentifier, TType,
 };
-
 use rand::Rng;
 
 fn skip_bench(c: &mut Criterion) {

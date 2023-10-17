@@ -38,7 +38,6 @@ pub mod enum_test {
             B = 16,
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Index {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
