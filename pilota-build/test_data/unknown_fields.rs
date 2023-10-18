@@ -18,7 +18,6 @@ pub mod unknown_fields {
             pub a: ::std::option::Option<i32>,
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -180,7 +179,6 @@ pub mod unknown_fields {
             pub a: ::std::option::Option<A>,
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for B {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -284,7 +282,10 @@ pub mod unknown_fields {
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                a = Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                                a = Some(
+                                    <A as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
+                                );
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
@@ -351,7 +352,6 @@ pub mod unknown_fields {
             pub vec: ::std::vec::Vec<u8>,
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -557,7 +557,6 @@ pub mod unknown_fields {
             pub td: Td,
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for D {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -665,7 +664,10 @@ pub mod unknown_fields {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                td = Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                                td = Some(
+                                    <Td as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
+                                );
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
@@ -730,7 +732,6 @@ pub mod unknown_fields {
             PartialEq,
         )]
         pub struct TestTest123ArgsSend {}
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ArgsSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -875,7 +876,6 @@ pub mod unknown_fields {
             pub list: ::std::vec::Vec<::std::vec::Vec<::pilota::FastStr>>,
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for B {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -1168,7 +1168,6 @@ pub mod unknown_fields {
         pub struct SubMessage {
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for SubMessage {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -1314,7 +1313,6 @@ pub mod unknown_fields {
             pub message: ::std::option::Option<::pilota::FastStr>,
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for StException {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -1483,7 +1481,6 @@ pub mod unknown_fields {
             PartialEq,
         )]
         pub struct TestTest123ArgsRecv {}
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ArgsRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -1630,7 +1627,6 @@ pub mod unknown_fields {
             pub a: super::must_gen_items::A,
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for C {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -1729,40 +1725,42 @@ pub mod unknown_fields {
                 protocol.read_struct_begin().await?;
                 if let Err(err) = async {
                     loop {
-                        let field_ident = protocol.read_field_begin().await?;
-                        if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            break;
-                        } else {
-                        }
-                        __pilota_decoding_field_id = field_ident.id;
-                        match field_ident.id {
-                            Some(1)
-                                if field_ident.field_type == ::pilota::thrift::TType::Struct =>
-                            {
-                                a = Some(::pilota::thrift::Message::decode_async(protocol).await?);
-                            }
-                            _ => {
-                                protocol.skip(field_ident.field_type).await?;
-                            }
-                        }
 
-                        protocol.read_field_end().await?;
-                    }
-                    Ok::<_, ::pilota::thrift::DecodeError>(())
+
+                let field_ident = protocol.read_field_begin().await?;
+                if field_ident.field_type == ::pilota::thrift::TType::Stop {
+
+                    break;
+                } else {
+
                 }
-                .await
-                {
-                    if let Some(field_id) = __pilota_decoding_field_id {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
-                                err,
-                            )),
-                            format!("decode struct `C` field(#{}) failed", field_id),
-                        ));
-                    } else {
-                        return Err(err);
-                    }
-                };
+                __pilota_decoding_field_id = field_ident.id;
+                match field_ident.id {
+                    Some(1) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
+                    a = Some(<super::must_gen_items::A as ::pilota::thrift::Message>::decode_async(protocol).await?);
+
+                },
+                    _ => {
+                        protocol.skip(field_ident.field_type).await?;
+
+                    },
+                }
+
+                protocol.read_field_end().await?;
+
+
+            };
+                    Ok::<_, ::pilota::thrift::DecodeError>(())
+                }.await {
+                if let Some(field_id) = __pilota_decoding_field_id {
+                    return Err(::pilota::thrift::DecodeError::new(
+                        ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(err)),
+                        format!("decode struct `C` field(#{}) failed", field_id),
+                    ));
+                } else {
+                    return Err(err)
+                }
+            };
                 protocol.read_struct_end().await?;
 
                 let Some(a) = a else {
@@ -1804,7 +1802,6 @@ pub mod unknown_fields {
         pub struct Message {
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Message {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -1945,7 +1942,6 @@ pub mod unknown_fields {
             _UnknownFields(::pilota::LinkedBytes),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestUnion {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -2064,7 +2060,8 @@ pub mod unknown_fields {
                         Some(1) => {
                             if ret.is_none() {
                                 let field_ident =
-                                    ::pilota::thrift::Message::decode_async(protocol).await?;
+                                    <A as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?;
 
                                 ret = Some(TestUnion::A(field_ident));
                             } else {
@@ -2077,7 +2074,8 @@ pub mod unknown_fields {
                         Some(2) => {
                             if ret.is_none() {
                                 let field_ident =
-                                    ::pilota::thrift::Message::decode_async(protocol).await?;
+                                    <B as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?;
 
                                 ret = Some(TestUnion::B(field_ident));
                             } else {
@@ -2127,7 +2125,6 @@ pub mod unknown_fields {
             StException(StException),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTestExceptionException {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -2208,7 +2205,10 @@ pub mod unknown_fields {
                         Some(1) => {
                             if ret.is_none() {
                                 let field_ident =
-                                    ::pilota::thrift::Message::decode_async(protocol).await?;
+                                    <StException as ::pilota::thrift::Message>::decode_async(
+                                        protocol,
+                                    )
+                                    .await?;
 
                                 ret = Some(TestTestExceptionException::StException(field_ident));
                             } else {
@@ -2259,7 +2259,6 @@ pub mod unknown_fields {
             StException(StException),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTestExceptionResultRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -2355,7 +2354,8 @@ pub mod unknown_fields {
                         Some(0) => {
                             if ret.is_none() {
                                 let field_ident =
-                                    ::pilota::thrift::Message::decode_async(protocol).await?;
+                                    <ObjReq as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?;
 
                                 ret = Some(TestTestExceptionResultRecv::Ok(field_ident));
                             } else {
@@ -2368,7 +2368,10 @@ pub mod unknown_fields {
                         Some(1) => {
                             if ret.is_none() {
                                 let field_ident =
-                                    ::pilota::thrift::Message::decode_async(protocol).await?;
+                                    <StException as ::pilota::thrift::Message>::decode_async(
+                                        protocol,
+                                    )
+                                    .await?;
 
                                 ret = Some(TestTestExceptionResultRecv::StException(field_ident));
                             } else {
@@ -2420,7 +2423,6 @@ pub mod unknown_fields {
             Ok(()),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ResultRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -2541,7 +2543,6 @@ pub mod unknown_fields {
             B = 1,
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Index {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -2600,7 +2601,6 @@ pub mod unknown_fields {
         pub struct ObjReq {
             pub _unknown_fields: ::pilota::LinkedBytes,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for ObjReq {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -2751,7 +2751,6 @@ pub mod unknown_fields {
         pub struct TestTestExceptionArgsSend {
             pub req: ObjReq,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTestExceptionArgsSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -2854,8 +2853,10 @@ pub mod unknown_fields {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                req =
-                                    Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                                req = Some(
+                                    <ObjReq as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
+                                );
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
@@ -2914,7 +2915,6 @@ pub mod unknown_fields {
             Ok(()),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ResultSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -3028,7 +3028,6 @@ pub mod unknown_fields {
             }
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Td {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -3131,7 +3130,6 @@ pub mod unknown_fields {
         pub struct TestTestExceptionArgsRecv {
             pub req: ObjReq,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTestExceptionArgsRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -3234,8 +3232,10 @@ pub mod unknown_fields {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                req =
-                                    Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                                req = Some(
+                                    <ObjReq as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
+                                );
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;
@@ -3296,7 +3296,6 @@ pub mod unknown_fields {
             StException(StException),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTestExceptionResultSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -3392,7 +3391,8 @@ pub mod unknown_fields {
                         Some(0) => {
                             if ret.is_none() {
                                 let field_ident =
-                                    ::pilota::thrift::Message::decode_async(protocol).await?;
+                                    <ObjReq as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?;
 
                                 ret = Some(TestTestExceptionResultSend::Ok(field_ident));
                             } else {
@@ -3405,7 +3405,10 @@ pub mod unknown_fields {
                         Some(1) => {
                             if ret.is_none() {
                                 let field_ident =
-                                    ::pilota::thrift::Message::decode_async(protocol).await?;
+                                    <StException as ::pilota::thrift::Message>::decode_async(
+                                        protocol,
+                                    )
+                                    .await?;
 
                                 ret = Some(TestTestExceptionResultSend::StException(field_ident));
                             } else {
@@ -3470,7 +3473,6 @@ pub mod unknown_fields {
             Ok(()),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ResultRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -3565,7 +3567,6 @@ pub mod unknown_fields {
             Ok(()),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ResultSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -3664,7 +3665,6 @@ pub mod unknown_fields {
             PartialEq,
         )]
         pub struct TestTest123ArgsSend {}
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ArgsSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -3801,7 +3801,6 @@ pub mod unknown_fields {
             PartialEq,
         )]
         pub struct TestTest123ArgsRecv {}
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ArgsRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,

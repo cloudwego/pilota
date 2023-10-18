@@ -80,9 +80,13 @@ impl DecodeHelper {
         }
     }
 
-    pub fn codegen_item_decode(&self) -> FastStr {
+    pub fn codegen_item_decode(&self, name: FastStr) -> FastStr {
         if self.is_async {
-            "::pilota::thrift::Message::decode_async(protocol).await?".into()
+            format!(
+                "<{} as ::pilota::thrift::Message>::decode_async(protocol).await?",
+                name
+            )
+            .into()
         } else {
             "::pilota::thrift::Message::decode(protocol)?".into()
         }

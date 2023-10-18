@@ -13,7 +13,6 @@ pub mod union {
             B(::pilota::Bytes),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Union {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -162,7 +161,6 @@ pub mod union {
 
         pub enum Empty {}
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for Empty {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -257,7 +255,6 @@ pub mod union {
         pub struct A {
             pub u: ::std::option::Option<Union>,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -350,7 +347,10 @@ pub mod union {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                u = Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                                u = Some(
+                                    <Union as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
+                                );
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type).await?;

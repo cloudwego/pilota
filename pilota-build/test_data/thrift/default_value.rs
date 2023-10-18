@@ -36,7 +36,6 @@ pub mod default_value {
             Write = 2,
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for B {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -124,7 +123,6 @@ pub mod default_value {
 
             pub alias_str: ::std::option::Option<::pilota::FastStr>,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -343,12 +341,16 @@ pub mod default_value {
                                 a = Some(protocol.read_bool().await?);
                             }
                             Some(4) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                test_b =
-                                    Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                                test_b = Some(
+                                    <B as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
+                                );
                             }
                             Some(5) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                test_b2 =
-                                    Some(::pilota::thrift::Message::decode_async(protocol).await?);
+                                test_b2 = Some(
+                                    <B as ::pilota::thrift::Message>::decode_async(protocol)
+                                        .await?,
+                                );
                             }
                             Some(6) if field_ident.field_type == ::pilota::thrift::TType::Map => {
                                 map = Some({

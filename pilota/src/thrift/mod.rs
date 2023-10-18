@@ -35,7 +35,6 @@ lazy_static::lazy_static! {
     pub static ref VOID_IDENT: TStructIdentifier = TStructIdentifier { name: "void" };
 }
 
-#[async_trait::async_trait]
 pub trait Message: Sized + Send {
     fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), EncodeError>;
 
@@ -46,7 +45,6 @@ pub trait Message: Sized + Send {
     fn size<T: TLengthProtocol>(&self, protocol: &mut T) -> usize;
 }
 
-#[async_trait::async_trait]
 impl<M: Message> Message for Box<M> {
     #[inline]
     fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), EncodeError> {
@@ -68,7 +66,6 @@ impl<M: Message> Message for Box<M> {
     }
 }
 
-#[async_trait::async_trait]
 impl<M: Message + Send + Sync> Message for Arc<M> {
     #[inline]
     fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), EncodeError> {

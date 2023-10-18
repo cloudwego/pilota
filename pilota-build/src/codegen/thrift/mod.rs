@@ -100,7 +100,6 @@ impl ThriftBackend {
         decode_async: String,
     ) -> String {
         format! {r#"
-            #[::async_trait::async_trait]
             impl ::pilota::thrift::Message for {name} {{
                 fn encode<T: ::pilota::thrift::TOutputProtocol>(
                     &self,
@@ -666,7 +665,7 @@ impl CodegenBackend for ThriftBackend {
                                 return Err(::pilota::thrift::DecodeError::new(
                                     ::pilota::thrift::DecodeErrorKind::InvalidData,
                                     "received multiple fields for union from remote Message"
-                                )); 
+                                ));
                             }}"#
                             )
                         } else {

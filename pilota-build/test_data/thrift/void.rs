@@ -11,7 +11,6 @@ pub mod void {
             Ok(()),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ResultRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -99,7 +98,6 @@ pub mod void {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestTest123ArgsSend {}
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ArgsSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -225,7 +223,6 @@ pub mod void {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestTest123ArgsRecv {}
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ArgsRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -358,7 +355,6 @@ pub mod void {
             Ok(()),
         }
 
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for TestTest123ResultSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,

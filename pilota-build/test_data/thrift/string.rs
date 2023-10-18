@@ -8,7 +8,6 @@ pub mod string {
 
             pub string: ::std::string::String,
         }
-        #[::async_trait::async_trait]
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
