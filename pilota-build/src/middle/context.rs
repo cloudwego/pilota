@@ -883,6 +883,16 @@ impl Context {
             .into()
     }
 
+    pub fn config(&self, crate_id: &CrateId) -> &serde_yaml::Value {
+        let main_file = crate_id.main_file;
+        let service = self
+            .services
+            .iter()
+            .find(|s| self.file_id(s.path.clone()).unwrap() == main_file)
+            .unwrap();
+        &service.config
+    }
+
     pub(crate) fn crate_name(&self, location: &DefLocation) -> FastStr {
         match location {
             DefLocation::Fixed(crate_id, _) => {
@@ -892,8 +902,7 @@ impl Context {
                     .iter()
                     .find(|s| self.file_id(s.path.clone()).unwrap() == main_file)
                     .unwrap();
-                service
-                    .config
+                self.config(crate_id)
                     .get("crate_name")
                     .map(|s| s.as_str().map(|s| FastStr::new(s)))
                     .flatten()

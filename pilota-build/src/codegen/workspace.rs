@@ -274,11 +274,23 @@ where
         )?;
 
         let mut lib_rs_stream = String::default();
-        lib_rs_stream.push_str("#![feature(impl_trait_in_assoc_type)]\n");
-        lib_rs_stream.push_str("\ninclude!(\"gen.rs\");\n");
-        lib_rs_stream.push_str("pub use gen::*;\n");
+        lib_rs_stream.push_str("#![feature(impl_trait_in_assoc_type)]\n\n");
+        lib_rs_stream.push_str("include!(\"gen.rs\");\n");
+        lib_rs_stream.push_str("pub use gen::*;\n\n");
+
         if let Some(user_gen) = info.user_gen {
-            lib_rs_stream.push_str(&user_gen);
+            if !user_gen.is_empty() {
+                lib_rs_stream.push_str("include!(\"custom.rs\");\n");
+
+                let mut custom_rs_stream = String::default();
+                custom_rs_stream.push_str(&user_gen);
+
+                let custom_rs = base_dir.as_ref().join(&*info.name).join("src/custom.rs");
+
+                std::fs::write(&custom_rs, custom_rs_stream)?;
+
+                fmt_file(custom_rs);
+            }
         }
 
         let mut gen_rs_stream = String::default();
@@ -295,7 +307,7 @@ where
         if let Some(main_mod_path) = info.main_mod_path {
             gen_rs_stream.push_str(&format!("pub use {}::*;", main_mod_path.join("::")));
         }
-        gen_rs_stream = format! {r#"mod gen {{
+        gen_rs_stream = format! {r#"pub mod gen {{
             #![allow(warnings, clippy::all)]
             {gen_rs_stream}
         }}"#};
