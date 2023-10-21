@@ -773,7 +773,6 @@ pub mod pilota_name {
             }
         }
         pub const LANG_ID: &'static str = "id";
-        #[::async_trait::async_trait]
         pub trait TestService {}
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]

@@ -717,7 +717,6 @@ pub mod unknown_fields {
                     + protocol.struct_end_len()
             }
         }
-        #[::async_trait::async_trait]
         pub trait Test {}
         #[derive(
             PartialOrd,
@@ -3462,7 +3461,6 @@ pub mod unknown_fields {
 
     pub mod void {
 
-        #[::async_trait::async_trait]
         pub trait Test {}
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]

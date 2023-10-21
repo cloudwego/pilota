@@ -136,7 +136,6 @@ pub mod normal {
                     + protocol.struct_end_len()
             }
         }
-        #[::async_trait::async_trait]
         pub trait Test {}
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestTest123ArgsSend {}

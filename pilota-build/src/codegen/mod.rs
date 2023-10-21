@@ -323,7 +323,6 @@ where
 
         stream.push_str(&format! {
             r#"
-            #[::async_trait::async_trait]
             pub trait {name} {{
                 {methods}
             }}
