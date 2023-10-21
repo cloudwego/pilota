@@ -440,7 +440,6 @@ pub mod void {
                     + protocol.struct_end_len()
             }
         }
-        #[::async_trait::async_trait]
         pub trait Test {}
     }
 }
