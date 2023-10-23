@@ -102,7 +102,6 @@ where
 
     [workspace.dependencies]
     pilota = "*"
-    async-trait = "0.1"
     anyhow = "1"
     volo = "*"
     volo-thrift = "*""#
