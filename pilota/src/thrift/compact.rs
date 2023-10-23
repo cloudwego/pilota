@@ -949,7 +949,6 @@ pub struct TAsyncCompactProtocol<R> {
     pending_read_bool_value: Option<bool>,
 }
 
-#[async_trait::async_trait]
 impl<R> TAsyncInputProtocol for TAsyncCompactProtocol<R>
 where
     R: AsyncRead + Unpin + Send,

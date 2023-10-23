@@ -8,7 +8,6 @@ pub mod thrift;
 
 // reexport
 pub use async_recursion;
-pub use async_trait;
 pub use bytes::*;
 pub use derivative;
 pub use faststr::FastStr;
