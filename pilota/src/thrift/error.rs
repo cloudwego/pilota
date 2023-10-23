@@ -194,7 +194,8 @@ impl From<ProtocolError> for DecodeError {
             ProtocolErrorKind::BadVersion => DecodeErrorKind::BadVersion,
             ProtocolErrorKind::NotImplemented => DecodeErrorKind::NotImplemented,
             ProtocolErrorKind::DepthLimit => DecodeErrorKind::DepthLimit,
-            _ => unimplemented!(),
+            ProtocolErrorKind::Unknown => DecodeErrorKind::Unknown,
+            ProtocolErrorKind::SizeLimit => DecodeErrorKind::Unknown,
         };
         DecodeError::new(kind, value.message)
     }
@@ -311,6 +312,7 @@ impl std::error::Error for DecodeError {}
 
 #[derive(Debug)]
 pub enum DecodeErrorKind {
+    Unknown,
     InvalidData,
     NegativeSize,
     BadVersion,
