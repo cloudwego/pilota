@@ -9,6 +9,7 @@ pub mod varint_ext;
 
 use std::{
     collections::{HashMap, HashSet},
+    future::Future,
     ops::Deref,
     sync::Arc,
 };
@@ -40,7 +41,9 @@ pub trait Message: Sized + Send {
 
     fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, DecodeError>;
 
-    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, DecodeError>;
+    fn decode_async<T: TAsyncInputProtocol>(
+        protocol: &mut T,
+    ) -> impl Future<Output = Result<Self, DecodeError>> + Send;
 
     fn size<T: TLengthProtocol>(&self, protocol: &mut T) -> usize;
 }
@@ -705,90 +708,102 @@ pub trait TOutputProtocol: TLengthProtocol {
     fn buf_mut(&mut self) -> &mut Self::BufMut;
 }
 
-#[async_trait::async_trait]
 pub trait TAsyncInputProtocol: Send {
     /// Read the beginning of a Thrift message.
-    async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError>;
+    fn read_message_begin(
+        &mut self,
+    ) -> impl Future<Output = Result<TMessageIdentifier, DecodeError>> + Send;
 
     /// Read the end of a Thrift message.
-    async fn read_message_end(&mut self) -> Result<(), DecodeError>;
+    fn read_message_end(&mut self) -> impl Future<Output = Result<(), DecodeError>> + Send;
 
     /// Read the beginning of a Thrift struct.
-    async fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, DecodeError>;
+    fn read_struct_begin(
+        &mut self,
+    ) -> impl Future<Output = Result<Option<TStructIdentifier>, DecodeError>> + Send;
 
     /// Read the end of a Thrift struct.
-    async fn read_struct_end(&mut self) -> Result<(), DecodeError>;
+    fn read_struct_end(&mut self) -> impl Future<Output = Result<(), DecodeError>> + Send;
 
     /// Read the beginning of a Thrift struct field.
-    async fn read_field_begin(&mut self) -> Result<TFieldIdentifier, DecodeError>;
+    fn read_field_begin(
+        &mut self,
+    ) -> impl Future<Output = Result<TFieldIdentifier, DecodeError>> + Send;
 
     /// Read the end of a Thrift struct field.
-    async fn read_field_end(&mut self) -> Result<(), DecodeError>;
+    fn read_field_end(&mut self) -> impl Future<Output = Result<(), DecodeError>> + Send;
 
     /// Read a bool.
-    async fn read_bool(&mut self) -> Result<bool, DecodeError>;
+    fn read_bool(&mut self) -> impl Future<Output = Result<bool, DecodeError>> + Send;
 
     /// Read a binary.
-    async fn read_bytes(&mut self) -> Result<Bytes, DecodeError>;
+    fn read_bytes(&mut self) -> impl Future<Output = Result<Bytes, DecodeError>> + Send;
 
     /// Read a binary, return `Vec<u8>`
-    async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError>;
+    fn read_bytes_vec(&mut self) -> impl Future<Output = Result<Vec<u8>, DecodeError>> + Send;
 
     /// Read a uuid.
-    async fn read_uuid(&mut self) -> Result<[u8; 16], DecodeError>;
+    fn read_uuid(&mut self) -> impl Future<Output = Result<[u8; 16], DecodeError>> + Send;
 
     /// Read a string.
-    async fn read_string(&mut self) -> Result<String, DecodeError>;
+    fn read_string(&mut self) -> impl Future<Output = Result<String, DecodeError>> + Send;
 
     /// Read a string, return `FastStr`
-    async fn read_faststr(&mut self) -> Result<FastStr, DecodeError>;
+    fn read_faststr(&mut self) -> impl Future<Output = Result<FastStr, DecodeError>> + Send;
 
     /// Read a byte.
-    async fn read_byte(&mut self) -> Result<u8, DecodeError>;
+    fn read_byte(&mut self) -> impl Future<Output = Result<u8, DecodeError>> + Send;
 
     /// Read a word.
-    async fn read_i8(&mut self) -> Result<i8, DecodeError>;
+    fn read_i8(&mut self) -> impl Future<Output = Result<i8, DecodeError>> + Send;
 
     /// Read a 16-bit signed integer.
-    async fn read_i16(&mut self) -> Result<i16, DecodeError>;
+    fn read_i16(&mut self) -> impl Future<Output = Result<i16, DecodeError>> + Send;
 
     /// Read a 32-bit signed integer.
-    async fn read_i32(&mut self) -> Result<i32, DecodeError>;
+    fn read_i32(&mut self) -> impl Future<Output = Result<i32, DecodeError>> + Send;
 
     /// Read a 64-bit signed integer.
-    async fn read_i64(&mut self) -> Result<i64, DecodeError>;
+    fn read_i64(&mut self) -> impl Future<Output = Result<i64, DecodeError>> + Send;
 
     /// Read a 64-bit float.
-    async fn read_double(&mut self) -> Result<f64, DecodeError>;
+    fn read_double(&mut self) -> impl Future<Output = Result<f64, DecodeError>> + Send;
 
     /// Read the beginning of a list.
-    async fn read_list_begin(&mut self) -> Result<TListIdentifier, DecodeError>;
+    fn read_list_begin(
+        &mut self,
+    ) -> impl Future<Output = Result<TListIdentifier, DecodeError>> + Send;
 
     /// Read the end of a list.
-    async fn read_list_end(&mut self) -> Result<(), DecodeError>;
+    fn read_list_end(&mut self) -> impl Future<Output = Result<(), DecodeError>> + Send;
 
     /// Read the beginning of a set.
-    async fn read_set_begin(&mut self) -> Result<TSetIdentifier, DecodeError>;
+    fn read_set_begin(
+        &mut self,
+    ) -> impl Future<Output = Result<TSetIdentifier, DecodeError>> + Send;
 
     /// Read the end of a set.
-    async fn read_set_end(&mut self) -> Result<(), DecodeError>;
+    fn read_set_end(&mut self) -> impl Future<Output = Result<(), DecodeError>> + Send;
 
     /// Read the beginning of a map.
-    async fn read_map_begin(&mut self) -> Result<TMapIdentifier, DecodeError>;
+    fn read_map_begin(
+        &mut self,
+    ) -> impl Future<Output = Result<TMapIdentifier, DecodeError>> + Send;
 
     /// Read the end of a map.
-    async fn read_map_end(&mut self) -> Result<(), DecodeError>;
+    fn read_map_end(&mut self) -> impl Future<Output = Result<(), DecodeError>> + Send;
 
     /// Skip a field with type `field_type` recursively until the default
     /// maximum skip depth is reached.
     #[inline]
-    async fn skip(&mut self, field_type: TType) -> Result<(), DecodeError> {
-        self.skip_till_depth(field_type, MAXIMUM_SKIP_DEPTH).await
+    fn skip(&mut self, field_type: TType) -> impl Future<Output = Result<(), DecodeError>> + Send {
+        self.skip_till_depth(field_type, MAXIMUM_SKIP_DEPTH)
     }
 
-    // conflict with async_trait macro on trait: #[async_recursion::async_recursion]
     /// Skip a field with type `field_type` recursively up to `depth` levels.
+    #[async_recursion::async_recursion]
     async fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<(), DecodeError> {
+        // async move {
         if depth == 0 {
             return Err(DecodeError::new(
                 DecodeErrorKind::DepthLimit,
@@ -847,6 +862,7 @@ pub trait TAsyncInputProtocol: Send {
                 format!("cannot skip field type {:?}", &u),
             )),
         }
+        // }
     }
 }
 

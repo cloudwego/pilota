@@ -559,7 +559,6 @@ pub struct TAsyncBinaryProtocol<R> {
     reader: R,
 }
 
-#[async_trait::async_trait]
 impl<R> TAsyncInputProtocol for TAsyncBinaryProtocol<R>
 where
     R: AsyncRead + Unpin + Send,

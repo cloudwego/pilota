@@ -766,7 +766,6 @@ where
     }
 }
 
-#[async_trait::async_trait]
 impl<R> TAsyncInputProtocol for TAsyncBinaryProtocol<R>
 where
     R: AsyncRead + Unpin + Send,
