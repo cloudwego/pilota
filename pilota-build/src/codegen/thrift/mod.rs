@@ -93,12 +93,32 @@ impl ThriftBackend {
 
     fn codegen_impl_message(
         &self,
+        def_id: DefId,
         name: Symbol,
         encode: String,
         size: String,
         decode: String,
         decode_async: String,
     ) -> String {
+        let decode_async_fn = if self.cx().db.type_graph().is_cycled(def_id) {
+            format!(
+                r#"async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &mut T,
+            ) -> ::std::result::Result<Self,::pilota::thrift::DecodeError> {{
+                ::std::boxed::Box::pin(async move {{
+                    {decode_async}
+                }}).await
+            }}"#
+            )
+        } else {
+            format!(
+                r#"async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &mut T,
+            ) -> ::std::result::Result<Self,::pilota::thrift::DecodeError> {{
+                {decode_async}
+            }}"#
+            )
+        };
         format! {r#"
             impl ::pilota::thrift::Message for {name} {{
                 fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -118,11 +138,7 @@ impl ThriftBackend {
                     {decode}
                 }}
 
-                async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
-                    protocol: &mut T,
-                ) -> ::std::result::Result<Self,::pilota::thrift::DecodeError> {{
-                    {decode_async}
-                }}
+                {decode_async_fn}
 
                 fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {{
                     #[allow(unused_imports)]
@@ -134,6 +150,7 @@ impl ThriftBackend {
 
     fn codegen_impl_message_with_helper<F: Fn(&DecodeHelper) -> String>(
         &self,
+        def_id: DefId,
         name: Symbol,
         encode: String,
         size: String,
@@ -141,7 +158,14 @@ impl ThriftBackend {
     ) -> String {
         let decode_stream = decode(&DecodeHelper::new(false));
         let decode_async_stream = decode(&DecodeHelper::new(true));
-        self.codegen_impl_message(name, encode, size, decode_stream, decode_async_stream)
+        self.codegen_impl_message(
+            def_id,
+            name,
+            encode,
+            size,
+            decode_stream,
+            decode_async_stream,
+        )
     }
 
     fn codegen_decode(
@@ -440,6 +464,7 @@ impl CodegenBackend for ThriftBackend {
             encode_fields_size.push_str("self._unknown_fields.size() +");
         }
         stream.push_str(&self.codegen_impl_message_with_helper(
+            def_id,
             name,
             format! {
                 r#"let struct_ident =::pilota::thrift::TStructIdentifier {{
@@ -485,6 +510,7 @@ impl CodegenBackend for ThriftBackend {
         };
         match e.repr {
             Some(EnumRepr::I32) => stream.push_str(&self.codegen_impl_message_with_helper(
+                def_id,
                 name.clone(),
                 format! {
                     r#"protocol.write_i32({v})?;
@@ -571,7 +597,7 @@ impl CodegenBackend for ThriftBackend {
                     &*v.name.sym == "Ok" && v.fields.len() == 1 && v.fields[0].kind == TyKind::Void
                 };
 
-                stream.push_str(&self.codegen_impl_message_with_helper(
+                stream.push_str(&self.codegen_impl_message_with_helper(def_id,
                     name.clone(),
                     format! {
                         r#"protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {{
@@ -727,6 +753,7 @@ impl CodegenBackend for ThriftBackend {
         let encode_size = self.codegen_ty_size(&t.ty, "&**self".into());
 
         stream.push_str(&self.codegen_impl_message_with_helper(
+            def_id,
             name.clone(),
             format! {
                 r#"{encode}

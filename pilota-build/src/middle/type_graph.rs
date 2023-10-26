@@ -54,4 +54,17 @@ impl TypeGraph {
         let b = self.node_map[&b];
         has_path_connecting(&self.graph, a, b, None)
     }
+
+    pub fn is_cycled(&self, a: DefId) -> bool {
+        let a = self.node_map[&a];
+        for n in self
+            .graph
+            .neighbors_directed(a, petgraph::Direction::Outgoing)
+        {
+            if has_path_connecting(&self.graph, n, a, None) {
+                return true;
+            }
+        }
+        false
+    }
 }
