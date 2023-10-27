@@ -102,12 +102,12 @@ impl ThriftBackend {
     ) -> String {
         let decode_async_fn = if self.cx().db.type_graph().is_cycled(def_id) {
             format!(
-                r#"async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &mut T,
-            ) -> ::std::result::Result<Self,::pilota::thrift::DecodeError> {{
+                r#"fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &'a mut T,
+            ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>> + Send + 'a>> {{
                 ::std::boxed::Box::pin(async move {{
                     {decode_async}
-                }}).await
+                }})
             }}"#
             )
         } else {
