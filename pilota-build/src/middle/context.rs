@@ -601,6 +601,7 @@ impl Context {
                 format! { "::pilota::FastStr::from_static_str(\"{s}\")" }.into(),
                 true,
             ),
+            (Literal::Int(i), CodegenTy::I8) => (format! { "{i}i8" }.into(), true),
             (Literal::Int(i), CodegenTy::I16) => (format! { "{i}i16" }.into(), true),
             (Literal::Int(i), CodegenTy::I32) => (format! { "{i}i32" }.into(), true),
             (Literal::Int(i), CodegenTy::I64) => (format! { "{i}i64" }.into(), true),
