@@ -80,9 +80,16 @@ pub mod recursive_type {
                 Ok(data)
             }
 
-            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
                 ::std::boxed::Box::pin(async move {
                     let mut a = None;
 
@@ -134,7 +141,6 @@ pub mod recursive_type {
                     let data = Self { a };
                     Ok(data)
                 })
-                .await
             }
 
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
