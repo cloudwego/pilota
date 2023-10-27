@@ -61,16 +61,25 @@ pub mod default_value {
                 })?)
             }
 
-            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let value = protocol.read_i32().await?;
-                Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
-                    ::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
-                        format!("invalid enum value for B, value: {}", value),
-                    )
-                })?)
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
+                ::std::boxed::Box::pin(async move {
+                    let value = protocol.read_i32().await?;
+                    Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
+                        ::pilota::thrift::DecodeError::new(
+                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                            format!("invalid enum value for B, value: {}", value),
+                        )
+                    })?)
+                })
             }
 
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
@@ -302,134 +311,157 @@ pub mod default_value {
                 Ok(data)
             }
 
-            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut faststr = ::pilota::FastStr::from_static_str("hello world");
-                let mut string = None;
-                let mut a = Some(false);
-                let mut test_b = Some(B::Read);
-                let mut test_b2 = Some(B::Write);
-                let mut map = None;
-                let mut test_double = Some(1f64);
-                let mut test_double2 = Some(1.2f64);
-                let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
+                ::std::boxed::Box::pin(async move {
+                    let mut faststr = ::pilota::FastStr::from_static_str("hello world");
+                    let mut string = None;
+                    let mut a = Some(false);
+                    let mut test_b = Some(B::Read);
+                    let mut test_b2 = Some(B::Write);
+                    let mut map = None;
+                    let mut test_double = Some(1f64);
+                    let mut test_double2 = Some(1.2f64);
+                    let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
 
-                let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = None;
 
-                protocol.read_struct_begin().await?;
-                if let Err(err) = async {
-                    loop {
-                        let field_ident = protocol.read_field_begin().await?;
-                        if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            break;
-                        } else {
-                        }
-                        __pilota_decoding_field_id = field_ident.id;
-                        match field_ident.id {
-                            Some(1)
-                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
-                            {
-                                faststr = protocol.read_faststr().await?;
+                    protocol.read_struct_begin().await?;
+                    if let Err(err) = async {
+                        loop {
+                            let field_ident = protocol.read_field_begin().await?;
+                            if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                                break;
+                            } else {
                             }
-                            Some(2)
-                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
-                            {
-                                string = Some(protocol.read_string().await?);
-                            }
-                            Some(3) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
-                                a = Some(protocol.read_bool().await?);
-                            }
-                            Some(4) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                test_b = Some(
-                                    <B as ::pilota::thrift::Message>::decode_async(protocol)
-                                        .await?,
-                                );
-                            }
-                            Some(5) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                test_b2 = Some(
-                                    <B as ::pilota::thrift::Message>::decode_async(protocol)
-                                        .await?,
-                                );
-                            }
-                            Some(6) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                map = Some({
-                                    let map_ident = protocol.read_map_begin().await?;
-                                    let mut val =
-                                        ::std::collections::HashMap::with_capacity(map_ident.size);
-                                    for _ in 0..map_ident.size {
-                                        val.insert(
-                                            protocol.read_faststr().await?,
-                                            protocol.read_faststr().await?,
+                            __pilota_decoding_field_id = field_ident.id;
+                            match field_ident.id {
+                                Some(1)
+                                    if field_ident.field_type
+                                        == ::pilota::thrift::TType::Binary =>
+                                {
+                                    faststr = protocol.read_faststr().await?;
+                                }
+                                Some(2)
+                                    if field_ident.field_type
+                                        == ::pilota::thrift::TType::Binary =>
+                                {
+                                    string = Some(protocol.read_string().await?);
+                                }
+                                Some(3)
+                                    if field_ident.field_type == ::pilota::thrift::TType::Bool =>
+                                {
+                                    a = Some(protocol.read_bool().await?);
+                                }
+                                Some(4)
+                                    if field_ident.field_type == ::pilota::thrift::TType::I32 =>
+                                {
+                                    test_b = Some(
+                                        <B as ::pilota::thrift::Message>::decode_async(protocol)
+                                            .await?,
+                                    );
+                                }
+                                Some(5)
+                                    if field_ident.field_type == ::pilota::thrift::TType::I32 =>
+                                {
+                                    test_b2 = Some(
+                                        <B as ::pilota::thrift::Message>::decode_async(protocol)
+                                            .await?,
+                                    );
+                                }
+                                Some(6)
+                                    if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                                {
+                                    map = Some({
+                                        let map_ident = protocol.read_map_begin().await?;
+                                        let mut val = ::std::collections::HashMap::with_capacity(
+                                            map_ident.size,
                                         );
-                                    }
-                                    protocol.read_map_end().await?;
-                                    val
-                                });
+                                        for _ in 0..map_ident.size {
+                                            val.insert(
+                                                protocol.read_faststr().await?,
+                                                protocol.read_faststr().await?,
+                                            );
+                                        }
+                                        protocol.read_map_end().await?;
+                                        val
+                                    });
+                                }
+                                Some(7)
+                                    if field_ident.field_type
+                                        == ::pilota::thrift::TType::Double =>
+                                {
+                                    test_double = Some(protocol.read_double().await?);
+                                }
+                                Some(8)
+                                    if field_ident.field_type
+                                        == ::pilota::thrift::TType::Double =>
+                                {
+                                    test_double2 = Some(protocol.read_double().await?);
+                                }
+                                Some(9)
+                                    if field_ident.field_type
+                                        == ::pilota::thrift::TType::Binary =>
+                                {
+                                    alias_str = Some(protocol.read_faststr().await?);
+                                }
+                                _ => {
+                                    protocol.skip(field_ident.field_type).await?;
+                                }
                             }
-                            Some(7)
-                                if field_ident.field_type == ::pilota::thrift::TType::Double =>
-                            {
-                                test_double = Some(protocol.read_double().await?);
-                            }
-                            Some(8)
-                                if field_ident.field_type == ::pilota::thrift::TType::Double =>
-                            {
-                                test_double2 = Some(protocol.read_double().await?);
-                            }
-                            Some(9)
-                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
-                            {
-                                alias_str = Some(protocol.read_faststr().await?);
-                            }
-                            _ => {
-                                protocol.skip(field_ident.field_type).await?;
-                            }
+
+                            protocol.read_field_end().await?;
                         }
-
-                        protocol.read_field_end().await?;
+                        Ok::<_, ::pilota::thrift::DecodeError>(())
                     }
-                    Ok::<_, ::pilota::thrift::DecodeError>(())
-                }
-                .await
-                {
-                    if let Some(field_id) = __pilota_decoding_field_id {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
-                                err,
-                            )),
-                            format!("decode struct `A` field(#{}) failed", field_id),
-                        ));
-                    } else {
-                        return Err(err);
+                    .await
+                    {
+                        if let Some(field_id) = __pilota_decoding_field_id {
+                            return Err(::pilota::thrift::DecodeError::new(
+                                ::pilota::thrift::DecodeErrorKind::WithContext(
+                                    ::std::boxed::Box::new(err),
+                                ),
+                                format!("decode struct `A` field(#{}) failed", field_id),
+                            ));
+                        } else {
+                            return Err(err);
+                        }
+                    };
+                    protocol.read_struct_end().await?;
+
+                    let string = string.unwrap_or_else(|| "test".to_string());
+                    if map.is_none() {
+                        map = Some({
+                            let mut map = ::std::collections::HashMap::with_capacity(1);
+                            map.insert(
+                                ::pilota::FastStr::from_static_str("hello"),
+                                ::pilota::FastStr::from_static_str("world"),
+                            );
+                            map
+                        });
                     }
-                };
-                protocol.read_struct_end().await?;
 
-                let string = string.unwrap_or_else(|| "test".to_string());
-                if map.is_none() {
-                    map = Some({
-                        let mut map = ::std::collections::HashMap::with_capacity(1);
-                        map.insert(
-                            ::pilota::FastStr::from_static_str("hello"),
-                            ::pilota::FastStr::from_static_str("world"),
-                        );
-                        map
-                    });
-                }
-
-                let data = Self {
-                    faststr,
-                    string,
-                    a,
-                    test_b,
-                    test_b2,
-                    map,
-                    test_double,
-                    test_double2,
-                    alias_str,
-                };
-                Ok(data)
+                    let data = Self {
+                        faststr,
+                        string,
+                        a,
+                        test_b,
+                        test_b2,
+                        map,
+                        test_double,
+                        test_double2,
+                        alias_str,
+                    };
+                    Ok(data)
+                })
             }
 
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {

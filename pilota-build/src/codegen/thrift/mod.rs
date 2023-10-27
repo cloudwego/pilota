@@ -100,25 +100,36 @@ impl ThriftBackend {
         decode: String,
         decode_async: String,
     ) -> String {
-        let decode_async_fn = if self.cx().db.type_graph().is_cycled(def_id) {
-            format!(
-                r#"fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &'a mut T,
-            ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>> + Send + 'a>> {{
-                ::std::boxed::Box::pin(async move {{
-                    {decode_async}
-                }})
-            }}"#
-            )
-        } else {
-            format!(
-                r#"async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &mut T,
-            ) -> ::std::result::Result<Self,::pilota::thrift::DecodeError> {{
+        // FIXME: here we will encounter problems when the type is indirect recursive
+        // such as `struct A { a: Vec<A> }`.
+        // Just use the boxed future for now.
+        // let decode_async_fn = if self.cx().db.type_graph().is_cycled(def_id) {
+        //     format!(
+        //         r#"fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+        //         protocol: &'a mut T,
+        //     ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output =
+        //       ::std::result::Result<Self, ::pilota::thrift::DecodeError>> + Send +
+        //       'a>> {{ ::std::boxed::Box::pin(async move {{ {decode_async} }})
+        //     }}"#
+        //     )
+        // } else {
+        //     format!(
+        //         r#"async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
+        //         protocol: &mut T,
+        //     ) -> ::std::result::Result<Self,::pilota::thrift::DecodeError> {{
+        //       {decode_async}
+        //     }}"#
+        //     )
+        // };
+        let decode_async_fn = format!(
+            r#"fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+            protocol: &'a mut T,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>> + Send + 'a>> {{
+            ::std::boxed::Box::pin(async move {{
                 {decode_async}
-            }}"#
-            )
-        };
+            }})
+        }}"#
+        );
         format! {r#"
             impl ::pilota::thrift::Message for {name} {{
                 fn encode<T: ::pilota::thrift::TOutputProtocol>(
