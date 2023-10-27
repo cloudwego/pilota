@@ -59,30 +59,39 @@ pub mod void {
                 }
             }
 
-            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut ret = None;
-                protocol.read_struct_begin().await?;
-                loop {
-                    let field_ident = protocol.read_field_begin().await?;
-                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        break;
-                    } else {
-                    }
-                    match field_ident.id {
-                        _ => {
-                            protocol.skip(field_ident.field_type).await?;
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
+                ::std::boxed::Box::pin(async move {
+                    let mut ret = None;
+                    protocol.read_struct_begin().await?;
+                    loop {
+                        let field_ident = protocol.read_field_begin().await?;
+                        if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                            break;
+                        } else {
+                        }
+                        match field_ident.id {
+                            _ => {
+                                protocol.skip(field_ident.field_type).await?;
+                            }
                         }
                     }
-                }
-                protocol.read_field_end().await?;
-                protocol.read_struct_end().await?;
-                if let Some(ret) = ret {
-                    Ok(ret)
-                } else {
-                    Ok(TestTest123ResultRecv::Ok(()))
-                }
+                    protocol.read_field_end().await?;
+                    protocol.read_struct_end().await?;
+                    if let Some(ret) = ret {
+                        Ok(ret)
+                    } else {
+                        Ok(TestTest123ResultRecv::Ok(()))
+                    }
+                })
             }
 
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
@@ -166,50 +175,59 @@ pub mod void {
                 Ok(data)
             }
 
-            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut __pilota_decoding_field_id = None;
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
+                ::std::boxed::Box::pin(async move {
+                    let mut __pilota_decoding_field_id = None;
 
-                protocol.read_struct_begin().await?;
-                if let Err(err) = async {
-                    loop {
-                        let field_ident = protocol.read_field_begin().await?;
-                        if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            break;
-                        } else {
-                        }
-                        __pilota_decoding_field_id = field_ident.id;
-                        match field_ident.id {
-                            _ => {
-                                protocol.skip(field_ident.field_type).await?;
+                    protocol.read_struct_begin().await?;
+                    if let Err(err) = async {
+                        loop {
+                            let field_ident = protocol.read_field_begin().await?;
+                            if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                                break;
+                            } else {
                             }
+                            __pilota_decoding_field_id = field_ident.id;
+                            match field_ident.id {
+                                _ => {
+                                    protocol.skip(field_ident.field_type).await?;
+                                }
+                            }
+
+                            protocol.read_field_end().await?;
                         }
-
-                        protocol.read_field_end().await?;
+                        Ok::<_, ::pilota::thrift::DecodeError>(())
                     }
-                    Ok::<_, ::pilota::thrift::DecodeError>(())
-                }
-                .await
-                {
-                    if let Some(field_id) = __pilota_decoding_field_id {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
-                                err,
-                            )),
-                            format!(
-                                "decode struct `TestTest123ArgsSend` field(#{}) failed",
-                                field_id
-                            ),
-                        ));
-                    } else {
-                        return Err(err);
-                    }
-                };
-                protocol.read_struct_end().await?;
+                    .await
+                    {
+                        if let Some(field_id) = __pilota_decoding_field_id {
+                            return Err(::pilota::thrift::DecodeError::new(
+                                ::pilota::thrift::DecodeErrorKind::WithContext(
+                                    ::std::boxed::Box::new(err),
+                                ),
+                                format!(
+                                    "decode struct `TestTest123ArgsSend` field(#{}) failed",
+                                    field_id
+                                ),
+                            ));
+                        } else {
+                            return Err(err);
+                        }
+                    };
+                    protocol.read_struct_end().await?;
 
-                let data = Self {};
-                Ok(data)
+                    let data = Self {};
+                    Ok(data)
+                })
             }
 
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
@@ -291,50 +309,59 @@ pub mod void {
                 Ok(data)
             }
 
-            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut __pilota_decoding_field_id = None;
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
+                ::std::boxed::Box::pin(async move {
+                    let mut __pilota_decoding_field_id = None;
 
-                protocol.read_struct_begin().await?;
-                if let Err(err) = async {
-                    loop {
-                        let field_ident = protocol.read_field_begin().await?;
-                        if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            break;
-                        } else {
-                        }
-                        __pilota_decoding_field_id = field_ident.id;
-                        match field_ident.id {
-                            _ => {
-                                protocol.skip(field_ident.field_type).await?;
+                    protocol.read_struct_begin().await?;
+                    if let Err(err) = async {
+                        loop {
+                            let field_ident = protocol.read_field_begin().await?;
+                            if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                                break;
+                            } else {
                             }
+                            __pilota_decoding_field_id = field_ident.id;
+                            match field_ident.id {
+                                _ => {
+                                    protocol.skip(field_ident.field_type).await?;
+                                }
+                            }
+
+                            protocol.read_field_end().await?;
                         }
-
-                        protocol.read_field_end().await?;
+                        Ok::<_, ::pilota::thrift::DecodeError>(())
                     }
-                    Ok::<_, ::pilota::thrift::DecodeError>(())
-                }
-                .await
-                {
-                    if let Some(field_id) = __pilota_decoding_field_id {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
-                                err,
-                            )),
-                            format!(
-                                "decode struct `TestTest123ArgsRecv` field(#{}) failed",
-                                field_id
-                            ),
-                        ));
-                    } else {
-                        return Err(err);
-                    }
-                };
-                protocol.read_struct_end().await?;
+                    .await
+                    {
+                        if let Some(field_id) = __pilota_decoding_field_id {
+                            return Err(::pilota::thrift::DecodeError::new(
+                                ::pilota::thrift::DecodeErrorKind::WithContext(
+                                    ::std::boxed::Box::new(err),
+                                ),
+                                format!(
+                                    "decode struct `TestTest123ArgsRecv` field(#{}) failed",
+                                    field_id
+                                ),
+                            ));
+                        } else {
+                            return Err(err);
+                        }
+                    };
+                    protocol.read_struct_end().await?;
 
-                let data = Self {};
-                Ok(data)
+                    let data = Self {};
+                    Ok(data)
+                })
             }
 
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
@@ -403,30 +430,39 @@ pub mod void {
                 }
             }
 
-            async fn decode_async<T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
-                let mut ret = None;
-                protocol.read_struct_begin().await?;
-                loop {
-                    let field_ident = protocol.read_field_begin().await?;
-                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        break;
-                    } else {
-                    }
-                    match field_ident.id {
-                        _ => {
-                            protocol.skip(field_ident.field_type).await?;
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
+                ::std::boxed::Box::pin(async move {
+                    let mut ret = None;
+                    protocol.read_struct_begin().await?;
+                    loop {
+                        let field_ident = protocol.read_field_begin().await?;
+                        if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                            break;
+                        } else {
+                        }
+                        match field_ident.id {
+                            _ => {
+                                protocol.skip(field_ident.field_type).await?;
+                            }
                         }
                     }
-                }
-                protocol.read_field_end().await?;
-                protocol.read_struct_end().await?;
-                if let Some(ret) = ret {
-                    Ok(ret)
-                } else {
-                    Ok(TestTest123ResultSend::Ok(()))
-                }
+                    protocol.read_field_end().await?;
+                    protocol.read_struct_end().await?;
+                    if let Some(ret) = ret {
+                        Ok(ret)
+                    } else {
+                        Ok(TestTest123ResultSend::Ok(()))
+                    }
+                })
             }
 
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
