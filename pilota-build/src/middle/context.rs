@@ -740,7 +740,7 @@ impl Context {
                 let is_const = fields.iter().all(|(_, is_const)| *is_const);
                 let fields = fields.into_iter().map(|f| f.0).join(",");
 
-                let name = self.rust_name(*did);
+                let name = self.cur_related_item_path(*did);
 
                 (
                     format! {
