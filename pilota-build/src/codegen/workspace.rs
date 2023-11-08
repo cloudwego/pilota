@@ -273,7 +273,6 @@ where
         )?;
 
         let mut lib_rs_stream = String::default();
-        lib_rs_stream.push_str("#![feature(impl_trait_in_assoc_type)]\n\n");
         lib_rs_stream.push_str("include!(\"gen.rs\");\n");
         lib_rs_stream.push_str("pub use gen::*;\n\n");
 
