@@ -16,3 +16,7 @@ struct A {
     8: optional double test_double2 = 1.2,
     9: optional string alias_str = A_S,
 }
+
+struct C {
+    1: string off = "off",
+}

@@ -353,7 +353,6 @@ impl Plugin for ImplDefaultPlugin {
                         .map(|f| {
                             let name = cx.rust_name(f.did);
                             let default = cx.default_val(f).map(|v| v.0);
-
                             if let Some(default) = default {
                                 let mut val = default;
                                 if f.is_optional() {
