@@ -340,7 +340,11 @@ where
     pub fn get_init_service(&self, def_id: DefId) -> (String, String) {
         let service_name = self.rust_name(def_id);
         let mod_prefix = self.mod_path(def_id);
-        let service_path = format!("{}::{}", mod_prefix.join("::"), service_name);
+        let service_path = format!(
+            "{}::{}",
+            mod_prefix.iter().map(|item| item.to_string()).join("::"),
+            service_name
+        );
         tracing::debug!("service_path: {}", service_path);
         let methods = self.service_methods(def_id);
 

@@ -24,8 +24,6 @@ pub trait PathResolver: Sync + Send {
                 _ => panic!(),
             };
 
-            //  keyword escape
-            let name = name.to_string().into();
             segs.push(name);
         }
 
