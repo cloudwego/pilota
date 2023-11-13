@@ -84,12 +84,12 @@ impl PathResolver for DefaultPathResolver {
         #[derive(Debug)]
         enum Kind {
             Super,
-            Ident(FastStr),
+            Ident(Symbol),
         }
 
         let path = (0..p1.len() - i)
             .map(|_| Kind::Super)
-            .chain((i..p2.len()).map(|i| Kind::Ident(p2[i].clone().0)))
+            .chain((i..p2.len()).map(|i| Kind::Ident(p2[i].clone())))
             .collect::<Vec<_>>();
 
         let _length = path.len();
@@ -97,7 +97,7 @@ impl PathResolver for DefaultPathResolver {
         for (_idx, k) in path.into_iter().enumerate() {
             segs.push(match k {
                 Kind::Super => "super".into(),
-                Kind::Ident(ident) => Symbol::from(ident).to_string(),
+                Kind::Ident(ident) => ident.to_string(),
             });
         }
         segs.into_iter().join("::").into()
@@ -135,10 +135,7 @@ impl PathResolver for WorkspacePathResolver {
         if p2[0] == p1[0] {
             DefaultPathResolver.related_path(p1, p2)
         } else {
-            let mut segs = vec![];
-            p2.iter().for_each(|s| segs.push(s.clone()));
-
-            format!("::{}", segs.join("::")).into()
+            format!("::{}", p2.iter().map(|s| s.to_string()).join("::")).into()
         }
     }
 }
