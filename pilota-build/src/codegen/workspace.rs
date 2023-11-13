@@ -303,7 +303,10 @@ where
                 })),
         );
         if let Some(main_mod_path) = info.main_mod_path {
-            gen_rs_stream.push_str(&format!("pub use {}::*;", main_mod_path.join("::")));
+            gen_rs_stream.push_str(&format!(
+                "pub use {}::*;",
+                main_mod_path.iter().map(|item| item.to_string()).join("::")
+            ));
         }
         gen_rs_stream = format! {r#"pub mod gen {{
             #![allow(warnings, clippy::all)]

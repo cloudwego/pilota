@@ -871,18 +871,18 @@ impl Context {
         info
     }
 
-    pub fn def_id_info(&self, def_id: DefId) -> FastStr {
-        let file_path = self
-            .file(self.node(def_id).unwrap().file_id)
-            .unwrap()
-            .package
-            .clone();
-        file_path
-            .iter()
-            .chain(&[self.node(def_id).unwrap().name()])
-            .join("::")
-            .into()
-    }
+    // pub fn def_id_info(&self, def_id: DefId) -> FastStr {
+    //     let file_path = self
+    //         .file(self.node(def_id).unwrap().file_id)
+    //         .unwrap()
+    //         .package
+    //         .clone();
+    //     file_path
+    //         .iter()
+    //         .chain(&[self.node(def_id).unwrap().name()])
+    //         .join("::")
+    //         .into()
+    // }
 
     pub fn config(&self, crate_id: &CrateId) -> &serde_yaml::Value {
         let main_file = crate_id.main_file;

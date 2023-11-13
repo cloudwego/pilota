@@ -93,7 +93,7 @@ impl ThriftBackend {
 
     fn codegen_impl_message(
         &self,
-        def_id: DefId,
+        _def_id: DefId,
         name: Symbol,
         encode: String,
         size: String,

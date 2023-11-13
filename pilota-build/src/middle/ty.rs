@@ -1,6 +1,7 @@
 use std::fmt::Display;
 pub use std::sync::Arc;
 
+use itertools::Itertools;
 pub use TyKind::*;
 
 use super::context::tls::with_cx;
@@ -141,7 +142,11 @@ impl CodegenTy {
                 .into()
             }
             CodegenTy::Adt(def) => with_cx(|cx| {
-                let path = cx.item_path(def.did).join("::");
+                let path = cx
+                    .item_path(def.did)
+                    .iter()
+                    .map(|item| item.to_string())
+                    .join("::");
 
                 format!("::{path}").into()
             }),
