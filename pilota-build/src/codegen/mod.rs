@@ -170,7 +170,11 @@ where
                 };
             }
             CodegenKind::RePub => {
-                let path = self.item_path(item.def_id).join("::");
+                let path = self
+                    .item_path(item.def_id)
+                    .iter()
+                    .map(|item| item.to_string())
+                    .join("::");
                 stream.push_str(format!("pub use ::{};", path).as_str());
             }
         })
