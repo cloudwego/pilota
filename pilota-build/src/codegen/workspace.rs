@@ -130,23 +130,27 @@ where
             .try_for_each_with(this, |this, (k, deps)| {
                 let name = this.cx().crate_name(k);
                 let deps = deps.iter().filter(|dep| dep.1 != ***k).collect_vec();
-                this.create_crate(
-                    &this.base_dir,
-                    CrateInfo {
-                        main_mod_path: match k {
-                            DefLocation::Fixed(_, path) => Some(path.clone()),
-                            DefLocation::Dynamic => None,
-                        },
-                        workspace_deps: workspace_deps.clone(),
-                        name,
-                        re_pubs: deps.iter().map(|v| v.0).collect_vec(),
-                        items: entry_map[*k].iter().map(|(k, _)| **k).collect_vec(),
-                        deps: deps
-                            .iter()
+                let (main_mod_path, re_pubs, deps) = match k {
+                    DefLocation::Fixed(_, path) => (
+                        Some(path.clone()),
+                        deps.iter().map(|v| v.0).collect_vec(),
+                        deps.iter()
                             .map(|dep| this.cx().crate_name(&dep.1))
                             .sorted()
                             .dedup()
                             .collect_vec(),
+                    ),
+                    DefLocation::Dynamic => (None, vec![], vec![]),
+                };
+                this.create_crate(
+                    &this.base_dir,
+                    CrateInfo {
+                        main_mod_path,
+                        workspace_deps: workspace_deps.clone(),
+                        name,
+                        re_pubs,
+                        items: entry_map[*k].iter().map(|(k, _)| **k).collect_vec(),
+                        deps,
                         user_gen: this.cx().plugin_gen.get(k).map(|v| v.value().clone()),
                     },
                 )
@@ -174,7 +178,29 @@ where
             }
             if !matches!(&*cx.item(def_id).unwrap(), rir::Item::Mod(_)) {
                 let file_id = cx.node(def_id).unwrap().file_id;
+
                 if cx.input_files().contains(&file_id) {
+                    let type_graph = cx.type_graph();
+                    let node = type_graph.node_map[&def_id];
+                    for from in type_graph
+                        .graph
+                        .neighbors_directed(node, petgraph::Direction::Incoming)
+                    {
+                        let from_def_id = type_graph.id_map[&from];
+                        let from_file_id = cx.node(from_def_id).unwrap().file_id;
+                        if !cx.input_files().contains(&from_file_id)
+                            || map
+                                .get(&from_def_id)
+                                .map(|v| match v {
+                                    DefLocation::Fixed(_, _) => false,
+                                    DefLocation::Dynamic => true,
+                                })
+                                .unwrap_or_default()
+                        {
+                            map.insert(def_id, DefLocation::Dynamic);
+                            return;
+                        }
+                    }
                     let file = cx.file(file_id).unwrap();
                     map.insert(
                         def_id,

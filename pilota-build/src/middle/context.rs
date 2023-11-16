@@ -283,7 +283,29 @@ impl ContextBuilder {
             }
             if !matches!(&*cx.db.item(def_id).unwrap(), rir::Item::Mod(_)) {
                 let file_id = cx.db.node(def_id).unwrap().file_id;
+
                 if cx.db.input_files().contains(&file_id) {
+                    let type_graph = cx.db.type_graph();
+                    let node = type_graph.node_map[&def_id];
+                    for from in type_graph
+                        .graph
+                        .neighbors_directed(node, petgraph::Direction::Incoming)
+                    {
+                        let from_def_id = type_graph.id_map[&from];
+                        let from_file_id = cx.db.node(from_def_id).unwrap().file_id;
+                        if !cx.db.input_files().contains(&from_file_id)
+                            || map
+                                .get(&from_def_id)
+                                .map(|v| match v {
+                                    DefLocation::Fixed(_, _) => false,
+                                    DefLocation::Dynamic => true,
+                                })
+                                .unwrap_or_default()
+                        {
+                            map.insert(def_id, DefLocation::Dynamic);
+                            return;
+                        }
+                    }
                     let file = cx.db.file(file_id).unwrap();
                     map.insert(
                         def_id,
