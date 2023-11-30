@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use fxhash::FxHashMap;
 
 use crate::{
@@ -6,9 +8,9 @@ use crate::{
     DefId,
 };
 
-type Nodes = FxHashMap<DefId, Node>;
+type Nodes = Arc<FxHashMap<DefId, Node>>;
 
-fn def_id_equal(nodes: &Nodes, def_id1: DefId, def_id2: DefId) -> bool {
+pub fn def_id_equal(nodes: &Nodes, def_id1: DefId, def_id2: DefId) -> bool {
     let node1 = nodes.get(&def_id1).unwrap();
     let node2 = nodes.get(&def_id2).unwrap();
     node_equal(nodes, node1, node2)
@@ -28,9 +30,7 @@ fn node_equal(nodes: &Nodes, n1: &Node, n2: &Node) -> bool {
         (crate::rir::NodeKind::Method(m1), crate::rir::NodeKind::Method(m2)) => {
             method_equal(nodes, m1, m2)
         }
-        (crate::rir::NodeKind::Arg(a1), crate::rir::NodeKind::Arg(a2)) => {
-            arg_equal(nodes, a1, a2)
-        }
+        (crate::rir::NodeKind::Arg(a1), crate::rir::NodeKind::Arg(a2)) => arg_equal(nodes, a1, a2),
         _ => false,
     }
 }

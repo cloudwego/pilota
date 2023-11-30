@@ -17,11 +17,12 @@ pub mod parser;
 mod resolve;
 mod symbol;
 
+use faststr::FastStr;
 pub use symbol::Symbol;
 pub mod tags;
 use std::{path::PathBuf, sync::Arc};
 
-// mod dedup;
+mod dedup;
 pub mod plugin;
 
 pub use codegen::{
@@ -82,6 +83,7 @@ pub struct Builder<MkB, P> {
     touches: Vec<(std::path::PathBuf, Vec<String>)>,
     change_case: bool,
     keep_unknown_fields: Vec<std::path::PathBuf>,
+    dedups: Vec<FastStr>,
 }
 
 impl Builder<MkThriftBackend, ThriftParser> {
@@ -99,6 +101,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             ignore_unused: true,
             change_case: true,
             keep_unknown_fields: Vec::default(),
+            dedups: Vec::default(),
         }
     }
 }
@@ -118,6 +121,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             ignore_unused: true,
             change_case: true,
             keep_unknown_fields: Vec::default(),
+            dedups: Vec::default(),
         }
     }
 }
@@ -143,6 +147,7 @@ impl<MkB, P> Builder<MkB, P> {
             touches: self.touches,
             change_case: self.change_case,
             keep_unknown_fields: self.keep_unknown_fields,
+            dedups: self.dedups,
         }
     }
 
@@ -183,6 +188,11 @@ impl<MkB, P> Builder<MkB, P> {
 
     pub fn keep_unknown_fields(mut self, item: impl IntoIterator<Item = PathBuf>) -> Self {
         self.keep_unknown_fields.extend(item);
+        self
+    }
+
+    pub fn dedup(mut self, item: impl IntoIterator<Item = FastStr>) -> Self {
+        self.dedups.extend(item);
         self
     }
 }
@@ -238,6 +248,7 @@ where
         source_type: SourceType,
         change_case: bool,
         keep_unknown_fields: Vec<PathBuf>,
+        dedups: Vec<FastStr>,
     ) -> Context {
         let mut db = RootDatabase::default();
         parser.inputs(services.iter().map(|s| &s.path));
@@ -304,7 +315,7 @@ where
 
         cx.keep(keep_unknown_fields);
 
-        cx.build(Arc::from(services), source_type, change_case)
+        cx.build(Arc::from(services), source_type, change_case, dedups)
     }
 
     pub fn compile_with_config(self, services: Vec<IdlService>, out: Output) {
@@ -319,6 +330,7 @@ where
             self.source_type,
             self.change_case,
             self.keep_unknown_fields,
+            self.dedups,
         );
 
         cx.exec_plugin(BoxedPlugin);
@@ -398,6 +410,7 @@ where
             self.source_type,
             self.change_case,
             self.keep_unknown_fields,
+            self.dedups,
         );
 
         std::thread::scope(|_scope| {
