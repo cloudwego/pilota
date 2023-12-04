@@ -68,6 +68,7 @@ pub struct Context {
     pub location_map: FxHashMap<DefId, DefLocation>,
     pub entry_map: HashMap<DefLocation, Vec<(DefId, DefLocation)>>,
     pub plugin_gen: DashMap<DefLocation, String>,
+    pub(crate) dedups: Vec<FastStr>,
 }
 
 impl Clone for Context {
@@ -85,6 +86,7 @@ impl Clone for Context {
             location_map: self.location_map.clone(),
             entry_map: self.entry_map.clone(),
             plugin_gen: self.plugin_gen.clone(),
+            dedups: self.dedups.clone(),
         }
     }
 }
@@ -411,6 +413,7 @@ impl ContextBuilder {
         services: Arc<[crate::IdlService]>,
         source_type: SourceType,
         change_case: bool,
+        dedups: Vec<FastStr>,
     ) -> Context {
         Context {
             adjusts: Default::default(),
@@ -428,6 +431,7 @@ impl ContextBuilder {
             location_map: self.location_map,
             entry_map: self.entry_map,
             plugin_gen: Default::default(),
+            dedups,
         }
     }
 }

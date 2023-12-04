@@ -7,6 +7,7 @@ use std::{
 
 use dashmap::DashMap;
 use faststr::FastStr;
+use fxhash::FxHashMap;
 use itertools::Itertools;
 use normpath::PathExt;
 use pkg_tree::PkgNode;
@@ -17,6 +18,7 @@ use traits::CodegenBackend;
 use self::workspace::Workspace;
 use crate::{
     db::RirDatabase,
+    dedup::def_id_equal,
     fmt::fmt_file,
     middle::{
         self,
@@ -130,42 +132,51 @@ where
         self.backend.codegen_struct_impl(def_id, stream, s);
     }
 
-    pub fn write_item(&self, stream: &mut String, item: CodegenItem) {
+    pub fn write_item(
+        &self,
+        stream: &mut String,
+        item: CodegenItem,
+        dup: &mut FxHashMap<FastStr, Vec<DefId>>,
+    ) {
         CUR_ITEM.set(&item.def_id, || match item.kind {
             CodegenKind::Direct => {
-                let def_id = item.def_id;
-                let item = self.item(def_id).unwrap();
-                tracing::trace!("write item {}", item.symbol_name());
-                self.with_adjust(def_id, |adjust| {
-                    let attrs = adjust.iter().flat_map(|a| a.attrs()).join("\n");
+                if !self.duplicate(dup, item.def_id) {
+                    let def_id = item.def_id;
+                    let item = self.item(def_id).unwrap();
+                    tracing::trace!("write item {}", item.symbol_name());
+                    self.with_adjust(def_id, |adjust| {
+                        let attrs = adjust.iter().flat_map(|a| a.attrs()).join("\n");
 
-                    let impls = adjust
-                        .iter()
-                        .flat_map(|a| &a.nested_items)
-                        .sorted()
-                        .join("\n");
-                    stream.push_str(&impls);
-                    stream.push_str(&attrs);
-                });
-
-                match &*item {
-                    middle::rir::Item::Message(s) => self.write_struct(def_id, stream, s),
-                    middle::rir::Item::Enum(e) => self.write_enum(def_id, stream, e),
-                    middle::rir::Item::Service(s) => self.write_service(def_id, stream, s),
-                    middle::rir::Item::NewType(t) => self.write_new_type(def_id, stream, t),
-                    middle::rir::Item::Const(c) => self.write_const(def_id, stream, c),
-                    middle::rir::Item::Mod(m) => {
-                        let mut inner = Default::default();
-                        m.items
+                        let impls = adjust
                             .iter()
-                            .for_each(|def_id| self.write_item(&mut inner, (*def_id).into()));
+                            .flat_map(|a| &a.nested_items)
+                            .sorted()
+                            .join("\n");
+                        stream.push_str(&impls);
+                        stream.push_str(&attrs);
+                    });
 
-                        let name = self.rust_name(def_id);
-                        stream.push_str(&format! {
-                            r#"pub mod {name} {{
+                    match &*item {
+                        middle::rir::Item::Message(s) => {
+                            self.write_struct(def_id, stream, s);
+                        }
+                        middle::rir::Item::Enum(e) => self.write_enum(def_id, stream, e),
+                        middle::rir::Item::Service(s) => self.write_service(def_id, stream, s),
+                        middle::rir::Item::NewType(t) => self.write_new_type(def_id, stream, t),
+                        middle::rir::Item::Const(c) => self.write_const(def_id, stream, c),
+                        middle::rir::Item::Mod(m) => {
+                            let mut inner = Default::default();
+                            m.items.iter().for_each(|def_id| {
+                                self.write_item(&mut inner, (*def_id).into(), dup)
+                            });
+
+                            let name = self.rust_name(def_id);
+                            stream.push_str(&format! {
+                                r#"pub mod {name} {{
                             {inner}
                         }}"#
-                        })
+                            })
+                        }
                     }
                 };
             }
@@ -178,6 +189,21 @@ where
                 stream.push_str(format!("pub use ::{};", path).as_str());
             }
         })
+    }
+
+    fn duplicate(&self, dup: &mut FxHashMap<FastStr, Vec<DefId>>, def_id: DefId) -> bool {
+        let name = self.rust_name(def_id);
+        if !self.dedups.contains(&name.0) {
+            return false;
+        }
+        let dup = dup.entry(name.0).or_default();
+        for id in dup.iter() {
+            if def_id_equal(&self.nodes(), *id, def_id) {
+                return true;
+            }
+        }
+        dup.push(def_id);
+        false
     }
 
     pub fn write_enum_as_new_type(
@@ -457,8 +483,9 @@ where
             let span = tracing::span!(tracing::Level::TRACE, "write_mod", path = ?p);
 
             let _enter = span.enter();
+            let mut dup = FxHashMap::default();
             for def_id in def_ids.iter() {
-                this.write_item(&mut stream, *def_id)
+                this.write_item(&mut stream, *def_id, &mut dup)
             }
         });
 
