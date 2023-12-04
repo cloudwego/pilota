@@ -422,7 +422,7 @@ impl ThriftLower {
         let kind = match &ty.0 {
             thrift_parser::Ty::String => ir::TyKind::String,
             thrift_parser::Ty::Void => ir::TyKind::Void,
-            thrift_parser::Ty::Byte => ir::TyKind::U8,
+            thrift_parser::Ty::Byte => ir::TyKind::I8,
             thrift_parser::Ty::Bool => ir::TyKind::Bool,
             thrift_parser::Ty::Binary => ir::TyKind::Bytes,
             thrift_parser::Ty::I8 => ir::TyKind::I8,
