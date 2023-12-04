@@ -19,4 +19,5 @@ struct A {
 
 struct C {
     1: string off = "off",
+    2: optional byte test_byte = 0,
 }

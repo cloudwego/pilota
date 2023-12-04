@@ -513,12 +513,15 @@ pub mod multi {
             fn default() -> Self {
                 C {
                     off: Some(::pilota::FastStr::from_static_str("off")),
+                    test_byte: Some(0i8),
                 }
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub struct C {
             pub off: ::std::option::Option<::pilota::FastStr>,
+
+            pub test_byte: ::std::option::Option<i8>,
         }
         impl ::pilota::thrift::Message for C {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -533,6 +536,9 @@ pub mod multi {
                 if let Some(value) = self.off.as_ref() {
                     protocol.write_faststr_field(1, (value).clone())?;
                 }
+                if let Some(value) = self.test_byte.as_ref() {
+                    protocol.write_i8_field(2, *value)?;
+                }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -545,6 +551,7 @@ pub mod multi {
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
                 let mut off = Some(::pilota::FastStr::from_static_str("off"));
+                let mut test_byte = Some(0i8);
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -564,6 +571,9 @@ pub mod multi {
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 off = Some(protocol.read_faststr()?);
+                            }
+                            Some(2) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
+                                test_byte = Some(protocol.read_i8()?);
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
@@ -588,7 +598,7 @@ pub mod multi {
                 };
                 protocol.read_struct_end()?;
 
-                let data = Self { off };
+                let data = Self { off, test_byte };
                 Ok(data)
             }
 
@@ -604,6 +614,7 @@ pub mod multi {
             > {
                 ::std::boxed::Box::pin(async move {
                     let mut off = Some(::pilota::FastStr::from_static_str("off"));
+                    let mut test_byte = Some(0i8);
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -622,6 +633,11 @@ pub mod multi {
                                         == ::pilota::thrift::TType::Binary =>
                                 {
                                     off = Some(protocol.read_faststr().await?);
+                                }
+                                Some(2)
+                                    if field_ident.field_type == ::pilota::thrift::TType::I8 =>
+                                {
+                                    test_byte = Some(protocol.read_i8().await?);
                                 }
                                 _ => {
                                     protocol.skip(field_ident.field_type).await?;
@@ -647,7 +663,7 @@ pub mod multi {
                     };
                     protocol.read_struct_end().await?;
 
-                    let data = Self { off };
+                    let data = Self { off, test_byte };
                     Ok(data)
                 })
             }
@@ -660,6 +676,10 @@ pub mod multi {
                         .off
                         .as_ref()
                         .map_or(0, |value| protocol.faststr_field_len(Some(1), value))
+                    + self
+                        .test_byte
+                        .as_ref()
+                        .map_or(0, |value| protocol.i8_field_len(Some(2), *value))
                     + protocol.field_stop_len()
                     + protocol.struct_end_len()
             }
@@ -673,6 +693,7 @@ pub mod multi {
                 A {
                     c: Some(super::default_value::C {
                         off: Some(::pilota::FastStr::from_static_str("off")),
+                        test_byte: Default::default(),
                     }),
                 }
             }
@@ -705,9 +726,7 @@ pub mod multi {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut c = Some(super::default_value::C {
-                    off: Some(::pilota::FastStr::from_static_str("off")),
-                });
+                let mut c = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -751,6 +770,13 @@ pub mod multi {
                 };
                 protocol.read_struct_end()?;
 
+                if c.is_none() {
+                    c = Some(super::default_value::C {
+                        off: Some(::pilota::FastStr::from_static_str("off")),
+                        test_byte: Default::default(),
+                    });
+                }
+
                 let data = Self { c };
                 Ok(data)
             }
@@ -766,9 +792,7 @@ pub mod multi {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut c = Some(super::default_value::C {
-                        off: Some(::pilota::FastStr::from_static_str("off")),
-                    });
+                    let mut c = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -812,6 +836,13 @@ pub mod multi {
                 }
             };
                     protocol.read_struct_end().await?;
+
+                    if c.is_none() {
+                        c = Some(super::default_value::C {
+                            off: Some(::pilota::FastStr::from_static_str("off")),
+                            test_byte: Default::default(),
+                        });
+                    }
 
                     let data = Self { c };
                     Ok(data)
