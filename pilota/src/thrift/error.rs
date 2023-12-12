@@ -34,6 +34,7 @@ impl From<io::Error> for TransportError {
         match err.kind() {
             io::ErrorKind::ConnectionReset
             | io::ErrorKind::ConnectionRefused
+            | io::ErrorKind::ConnectionAborted
             | io::ErrorKind::NotConnected => TransportError {
                 kind: TransportErrorKind::NotOpen,
                 message: err.to_string(),
@@ -48,6 +49,14 @@ impl From<io::Error> for TransportError {
             },
             io::ErrorKind::UnexpectedEof => TransportError {
                 kind: TransportErrorKind::EndOfFile,
+                message: err.to_string(),
+            },
+            io::ErrorKind::NotFound => TransportError {
+                kind: TransportErrorKind::NotFound,
+                message: err.to_string(),
+            },
+            io::ErrorKind::PermissionDenied => TransportError {
+                kind: TransportErrorKind::PermissionDenied,
                 message: err.to_string(),
             },
             _ => {
@@ -119,6 +128,10 @@ pub enum TransportErrorKind {
     NegativeSize = 5,
     /// Too large a buffer or message size was requested or received.
     SizeLimit = 6,
+    /// An entity was not found, often a file.
+    NotFound = 7,
+    /// The operation lacked the necessary privileges to complete.
+    PermissionDenied = 8,
 }
 
 impl Display for TransportError {
@@ -131,6 +144,8 @@ impl Display for TransportError {
             TransportErrorKind::EndOfFile => "end of file",
             TransportErrorKind::NegativeSize => "negative size message",
             TransportErrorKind::SizeLimit => "message too long",
+            TransportErrorKind::NotFound => "entity not found",
+            TransportErrorKind::PermissionDenied => "permission denied",
         };
 
         write!(f, "{} because {}", error_text, self.message)
@@ -150,6 +165,8 @@ impl TryFrom<i32> for TransportErrorKind {
             4 => Ok(TransportErrorKind::EndOfFile),
             5 => Ok(TransportErrorKind::NegativeSize),
             6 => Ok(TransportErrorKind::SizeLimit),
+            7 => Ok(TransportErrorKind::NotFound),
+            8 => Ok(TransportErrorKind::PermissionDenied),
             _ => Err(Error::Protocol(ProtocolError {
                 kind: ProtocolErrorKind::Unknown,
                 message: format!("cannot convert {} to TransportErrorKind", from),
