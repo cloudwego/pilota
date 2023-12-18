@@ -48,6 +48,7 @@ fn test_with_builder<F: FnOnce(&Path, &Path)>(
                 .and_then(|s| s.to_str())
                 .unwrap()
         ));
+        println!("{path:?}");
 
         f(source.as_ref(), &path);
         diff_file(target, path);

@@ -286,11 +286,12 @@ pub mod normal {
         pub struct ObjReq {
             pub msg: Message,
 
-            pub msg_map: ::std::collections::HashMap<Message, SubMessage>,
+            pub msg_map: ::std::collections::HashMap<Message, SubMessage, ::pilota::Hasher>,
 
             pub sub_msgs: ::std::vec::Vec<SubMessage>,
 
-            pub msg_set: ::std::option::Option<::std::collections::HashSet<Message>>,
+            pub msg_set:
+                ::std::option::Option<::std::collections::HashSet<Message, ::pilota::Hasher>>,
 
             pub flag_msg: ::pilota::FastStr,
 
@@ -386,7 +387,10 @@ pub mod normal {
                                 msg_map = Some({
                                     let map_ident = protocol.read_map_begin()?;
                                     let mut val =
-                                        ::std::collections::HashMap::with_capacity(map_ident.size);
+                                        ::std::collections::HashMap::with_capacity_and_hasher(
+                                            map_ident.size,
+                                            ::pilota::Hasher::new(),
+                                        );
                                     for _ in 0..map_ident.size {
                                         val.insert(
                                             ::pilota::thrift::Message::decode(protocol)?,
@@ -416,7 +420,10 @@ pub mod normal {
                                 msg_set = Some({
                                     let list_ident = protocol.read_set_begin()?;
                                     let mut val =
-                                        ::std::collections::HashSet::with_capacity(list_ident.size);
+                                        ::std::collections::HashSet::with_capacity_and_hasher(
+                                            list_ident.size,
+                                            ::pilota::Hasher::new(),
+                                        );
                                     for _ in 0..list_ident.size {
                                         val.insert(::pilota::thrift::Message::decode(protocol)?);
                                     }
@@ -533,7 +540,10 @@ pub mod normal {
                 },Some(2) if field_ident.field_type == ::pilota::thrift::TType::Map  => {
                     msg_map = Some({
                         let map_ident = protocol.read_map_begin().await?;
-                        let mut val = ::std::collections::HashMap::with_capacity(map_ident.size);
+                        let mut val = ::std::collections::HashMap::with_capacity_and_hasher(
+                            map_ident.size,
+                            ::pilota::Hasher::new(),
+                        );
                         for _ in 0..map_ident.size {
                             val.insert(<Message as ::pilota::thrift::Message>::decode_async(protocol).await?, <SubMessage as ::pilota::thrift::Message>::decode_async(protocol).await?);
                         }
@@ -554,7 +564,10 @@ pub mod normal {
 
                 },Some(4) if field_ident.field_type == ::pilota::thrift::TType::Set  => {
                     msg_set = Some({let list_ident = protocol.read_set_begin().await?;
-                    let mut val = ::std::collections::HashSet::with_capacity(list_ident.size);
+                    let mut val = ::std::collections::HashSet::with_capacity_and_hasher(
+                        list_ident.size,
+                        ::pilota::Hasher::new(),
+                    );
                     for _ in 0..list_ident.size {
                         val.insert(<Message as ::pilota::thrift::Message>::decode_async(protocol).await?);
                     };

@@ -129,13 +129,17 @@ impl CodegenTy {
             }
             CodegenTy::Set(ty) => {
                 let ty = &**ty;
-                format!("::std::collections::HashSet<{}>", ty.global_path()).into()
+                format!(
+                    "::std::collections::HashSet<{}, ::pilota::Hasher>",
+                    ty.global_path()
+                )
+                .into()
             }
             CodegenTy::Map(k, v) => {
                 let k = &**k;
                 let v = &**v;
                 format!(
-                    "::std::collections::HashMap<{}, {}>",
+                    "::std::collections::HashMap<{}, {}, ::pilota::Hasher>",
                     k.global_path(),
                     v.global_path()
                 )
@@ -192,12 +196,12 @@ impl Display for CodegenTy {
             }
             CodegenTy::Set(ty) => {
                 let ty = &**ty;
-                write!(f, "::std::collections::HashSet<{ty}>")
+                write!(f, "::std::collections::HashSet<{ty}, ::pilota::Hasher>")
             }
             CodegenTy::Map(k, v) => {
                 let k = &**k;
                 let v = &**v;
-                write!(f, "::std::collections::HashMap<{k}, {v}>")
+                write!(f, "::std::collections::HashMap<{k}, {v}, ::pilota::Hasher>")
             }
             CodegenTy::Adt(def) => with_cx(|cx| {
                 let path = cx.cur_related_item_path(def.did);

@@ -272,7 +272,10 @@ pub mod default_value {
                     test_b: Some(B::Read),
                     test_b2: Some(B::Write),
                     map: Some({
-                        let mut map = ::std::collections::HashMap::with_capacity(1);
+                        let mut map = ::std::collections::HashMap::with_capacity_and_hasher(
+                            1,
+                            ::pilota::Hasher::new(),
+                        );
                         map.insert(
                             ::pilota::FastStr::from_static_str("hello"),
                             ::pilota::FastStr::from_static_str("world"),
@@ -298,7 +301,7 @@ pub mod default_value {
             pub test_b2: ::std::option::Option<B>,
 
             pub map: ::std::option::Option<
-                ::std::collections::HashMap<::pilota::FastStr, ::pilota::FastStr>,
+                ::std::collections::HashMap<::pilota::FastStr, ::pilota::FastStr, ::pilota::Hasher>,
             >,
 
             pub test_double: ::std::option::Option<f64>,
@@ -411,7 +414,10 @@ pub mod default_value {
                                 map = Some({
                                     let map_ident = protocol.read_map_begin()?;
                                     let mut val =
-                                        ::std::collections::HashMap::with_capacity(map_ident.size);
+                                        ::std::collections::HashMap::with_capacity_and_hasher(
+                                            map_ident.size,
+                                            ::pilota::Hasher::new(),
+                                        );
                                     for _ in 0..map_ident.size {
                                         val.insert(
                                             protocol.read_faststr()?,
@@ -463,7 +469,10 @@ pub mod default_value {
                 let string = string.unwrap_or_else(|| "test".to_string());
                 if map.is_none() {
                     map = Some({
-                        let mut map = ::std::collections::HashMap::with_capacity(1);
+                        let mut map = ::std::collections::HashMap::with_capacity_and_hasher(
+                            1,
+                            ::pilota::Hasher::new(),
+                        );
                         map.insert(
                             ::pilota::FastStr::from_static_str("hello"),
                             ::pilota::FastStr::from_static_str("world"),
@@ -557,9 +566,11 @@ pub mod default_value {
                                 {
                                     map = Some({
                                         let map_ident = protocol.read_map_begin().await?;
-                                        let mut val = ::std::collections::HashMap::with_capacity(
-                                            map_ident.size,
-                                        );
+                                        let mut val =
+                                            ::std::collections::HashMap::with_capacity_and_hasher(
+                                                map_ident.size,
+                                                ::pilota::Hasher::new(),
+                                            );
                                         for _ in 0..map_ident.size {
                                             val.insert(
                                                 protocol.read_faststr().await?,
@@ -615,7 +626,10 @@ pub mod default_value {
                     let string = string.unwrap_or_else(|| "test".to_string());
                     if map.is_none() {
                         map = Some({
-                            let mut map = ::std::collections::HashMap::with_capacity(1);
+                            let mut map = ::std::collections::HashMap::with_capacity_and_hasher(
+                                1,
+                                ::pilota::Hasher::new(),
+                            );
                             map.insert(
                                 ::pilota::FastStr::from_static_str("hello"),
                                 ::pilota::FastStr::from_static_str("world"),

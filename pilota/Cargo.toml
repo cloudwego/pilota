@@ -18,6 +18,7 @@ keywords = ["serialization", "thrift", "protobuf"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
+ahash = { version = "0.8", optional = true }
 paste = "1"
 bytes = { version = "1", features = ["serde"] }
 async-recursion = "1"
@@ -39,6 +40,11 @@ smallvec = "1"
 [dev-dependencies]
 criterion = "0.5"
 rand = "0.8"
+
+[features]
+default = ["ahash"]
+
+ahash = ["dep:ahash"]
 
 [[bench]]
 name = "faststr"
