@@ -390,7 +390,10 @@ impl ThriftBackend {
                 let read_set_end = helper.codegen_read_set_end();
                 let read_el = self.codegen_decode_ty(helper, ty);
                 format! {r#"{{let list_ident = {read_set_begin};
-                    let mut val = ::std::collections::HashSet::with_capacity(list_ident.size);
+                    let mut val = ::std::collections::HashSet::with_capacity_and_hasher(
+                        list_ident.size,
+                        ::pilota::Hasher::new(),
+                    );
                     for _ in 0..list_ident.size {{
                         val.insert({read_el});
                     }};
@@ -408,7 +411,10 @@ impl ThriftBackend {
                 format! {
                     r#"{{
                         let map_ident = {read_map_begin};
-                        let mut val = ::std::collections::HashMap::with_capacity(map_ident.size);
+                        let mut val = ::std::collections::HashMap::with_capacity_and_hasher(
+                            map_ident.size,
+                            ::pilota::Hasher::new(),
+                        );
                         for _ in 0..map_ident.size {{
                             val.insert({read_el_key}, {read_el_val});
                         }}

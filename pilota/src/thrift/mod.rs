@@ -19,7 +19,7 @@ pub use error::*;
 use faststr::FastStr;
 
 pub use self::{binary::TAsyncBinaryProtocol, compact::TAsyncCompactProtocol};
-use crate::{assert_remaining, thrift::rw_ext::IOError};
+use crate::{assert_remaining, thrift::rw_ext::IOError, Hasher};
 
 const MAXIMUM_SKIP_DEPTH: i8 = 64;
 
@@ -329,7 +329,7 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
         &mut self,
         id: Option<i16>,
         el_ttype: TType,
-        els: &HashSet<T>,
+        els: &HashSet<T, Hasher>,
         el_len: F,
     ) -> usize
     where
@@ -341,7 +341,7 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
     }
 
     #[inline]
-    fn set_len<T, F>(&mut self, el_ttype: TType, els: &HashSet<T>, el_len: F) -> usize
+    fn set_len<T, F>(&mut self, el_ttype: TType, els: &HashSet<T, Hasher>, el_len: F) -> usize
     where
         F: Fn(&mut Self, &T) -> usize,
     {
@@ -363,7 +363,7 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
         id: Option<i16>,
         key_ttype: TType,
         val_ttype: TType,
-        els: &HashMap<K, V>,
+        els: &HashMap<K, V, Hasher>,
         key_len: FK,
         val_len: FV,
     ) -> usize
@@ -381,7 +381,7 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
         &mut self,
         key_ttype: TType,
         val_ttype: TType,
-        els: &HashMap<K, V>,
+        els: &HashMap<K, V, Hasher>,
         key_len: FK,
         val_len: FV,
     ) -> usize
@@ -545,7 +545,7 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
         &mut self,
         id: i16,
         el_ttype: TType,
-        els: &HashSet<T>,
+        els: &HashSet<T, Hasher>,
         encode: F,
     ) -> Result<(), EncodeError>
     where
@@ -560,7 +560,7 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
     fn write_set<T, F>(
         &mut self,
         el_ttype: TType,
-        els: &HashSet<T>,
+        els: &HashSet<T, Hasher>,
         encode: F,
     ) -> Result<(), EncodeError>
     where
@@ -599,7 +599,7 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
         id: i16,
         key_ttype: TType,
         val_ttype: TType,
-        els: &HashMap<K, V>,
+        els: &HashMap<K, V, Hasher>,
         key_encode: FK,
         val_encode: FV,
     ) -> Result<(), EncodeError>
@@ -617,7 +617,7 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
         &mut self,
         key_ttype: TType,
         val_ttype: TType,
-        els: &HashMap<K, V>,
+        els: &HashMap<K, V, Hasher>,
         key_encode: FK,
         val_encode: FV,
     ) -> Result<(), EncodeError>

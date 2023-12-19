@@ -1697,8 +1697,11 @@ pub mod unknown_fields {
             }
         }
         ::pilota::lazy_static::lazy_static! {
-            pub static ref TEST_MAP_LIST: ::std::collections::HashMap<i32, ::std::vec::Vec<&'static str>> = {
-            let mut map = ::std::collections::HashMap::with_capacity(1);
+            pub static ref TEST_MAP_LIST: ::std::collections::HashMap<i32, ::std::vec::Vec<&'static str>, ::pilota::Hasher> = {
+            let mut map = ::std::collections::HashMap::with_capacity_and_hasher(
+                1,
+                ::pilota::Hasher::new(),
+            );
             map.insert(1i32, ::std::vec!["hello"]);
             map
         };
@@ -3674,8 +3677,11 @@ pub mod unknown_fields {
             }
         }
         ::pilota::lazy_static::lazy_static! {
-            pub static ref TEST_MAP: ::std::collections::HashMap<Index, &'static str> = {
-            let mut map = ::std::collections::HashMap::with_capacity(2);
+            pub static ref TEST_MAP: ::std::collections::HashMap<Index, &'static str, ::pilota::Hasher> = {
+            let mut map = ::std::collections::HashMap::with_capacity_and_hasher(
+                2,
+                ::pilota::Hasher::new(),
+            );
             map.insert(Index::A, "hello");map.insert(Index::B, "world");
             map
         };
