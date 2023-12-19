@@ -30,12 +30,12 @@ anyhow = "1"
 thiserror = "1"
 faststr = { version = "0.2", features = ["serde"] }
 integer-encoding = { version = "4", features = ["tokio", "tokio_async"] }
-proptest = "1"
 serde = { version = "1", features = ["derive"] }
 smallvec = "1"
 
 [dev-dependencies]
 criterion = "0.5"
+proptest = "1"
 rand = "0.8"
 
 [[bench]]
