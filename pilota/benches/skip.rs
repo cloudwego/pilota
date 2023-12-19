@@ -1,5 +1,4 @@
-use std::collections::{HashMap, HashSet};
-
+use ahash::{AHashMap, AHashSet};
 use bytes::{Bytes, BytesMut};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use faststr::FastStr;
@@ -79,7 +78,7 @@ fn generate_struct() -> Bytes {
         101,
         TType::Binary,
         TType::I32,
-        &HashMap::from([("key1", 1), ("key2", 2), ("key3", 3)]),
+        &AHashMap::from([("key1", 1), ("key2", 2), ("key3", 3)]),
         |protocol, key| {
             protocol.write_string(*key)?;
             Ok(())
@@ -93,7 +92,7 @@ fn generate_struct() -> Bytes {
     p.write_set_field(
         201,
         TType::Binary,
-        &HashSet::from(["set1", "set2", "set3"]),
+        &AHashSet::from(["set1", "set2", "set3"]),
         |protocol, key| {
             protocol.write_string(*key)?;
             Ok(())

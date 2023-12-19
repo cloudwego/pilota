@@ -584,11 +584,7 @@ pub mod wrapper_arc {
 
             pub name2: ::std::vec::Vec<::std::vec::Vec<::std::sync::Arc<A>>>,
 
-            pub name3: ::std::collections::HashMap<
-                i32,
-                ::std::vec::Vec<::std::sync::Arc<A>>,
-                ::pilota::Hasher,
-            >,
+            pub name3: ::pilota::AHashMap<i32, ::std::vec::Vec<::std::sync::Arc<A>>>,
         }
         impl ::pilota::thrift::Message for Test {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -704,11 +700,7 @@ pub mod wrapper_arc {
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::Map => {
                                 name3 = Some({
                                     let map_ident = protocol.read_map_begin()?;
-                                    let mut val =
-                                        ::std::collections::HashMap::with_capacity_and_hasher(
-                                            map_ident.size,
-                                            ::pilota::Hasher::new(),
-                                        );
+                                    let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
                                         val.insert(protocol.read_i32()?, unsafe {
                                             let list_ident = protocol.read_list_begin()?;
@@ -834,10 +826,7 @@ pub mod wrapper_arc {
                 },Some(3) if field_ident.field_type == ::pilota::thrift::TType::Map  => {
                     name3 = Some({
                         let map_ident = protocol.read_map_begin().await?;
-                        let mut val = ::std::collections::HashMap::with_capacity_and_hasher(
-                            map_ident.size,
-                            ::pilota::Hasher::new(),
-                        );
+                        let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                         for _ in 0..map_ident.size {
                             val.insert(protocol.read_i32().await?, {
                             let list_ident = protocol.read_list_begin().await?;

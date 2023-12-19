@@ -91,22 +91,16 @@ pub mod const_val {
             }
         }
         ::pilota::lazy_static::lazy_static! {
-            pub static ref TEST_MAP_LIST: ::std::collections::HashMap<i32, ::std::vec::Vec<&'static str>, ::pilota::Hasher> = {
-            let mut map = ::std::collections::HashMap::with_capacity_and_hasher(
-                1,
-                ::pilota::Hasher::new(),
-            );
+            pub static ref TEST_MAP_LIST: ::pilota::AHashMap<i32, ::std::vec::Vec<&'static str>> = {
+            let mut map = ::pilota::AHashMap::with_capacity(1);
             map.insert(1i32, ::std::vec!["hello"]);
             map
         };
         }
         pub const TEST_LIST: [&'static str; 2] = ["hello", "world"];
         ::pilota::lazy_static::lazy_static! {
-            pub static ref TEST_MAP: ::std::collections::HashMap<Index, &'static str, ::pilota::Hasher> = {
-            let mut map = ::std::collections::HashMap::with_capacity_and_hasher(
-                2,
-                ::pilota::Hasher::new(),
-            );
+            pub static ref TEST_MAP: ::pilota::AHashMap<Index, &'static str> = {
+            let mut map = ::pilota::AHashMap::with_capacity(2);
             map.insert(Index::A, "hello");map.insert(Index::B, "world");
             map
         };

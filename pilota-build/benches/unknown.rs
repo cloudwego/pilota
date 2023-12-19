@@ -151,7 +151,7 @@ fn prepare_obj_req(size: usize) -> crate::normal::normal::ObjReq {
         uid: None,
     };
 
-    let mut msg_map = std::collections::HashMap::new();
+    let mut msg_map = pilota::AHashMap::default();
     msg_map.insert(
         crate::normal::normal::Message {
             value: None,
@@ -163,7 +163,7 @@ fn prepare_obj_req(size: usize) -> crate::normal::normal::ObjReq {
         },
     );
 
-    let mut msg_set = std::collections::HashSet::new();
+    let mut msg_set = pilota::AHashSet::default();
     msg_set.insert(msg.clone());
 
     req.msg = msg; // 2 * size

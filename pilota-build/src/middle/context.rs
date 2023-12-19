@@ -530,10 +530,7 @@ impl Context {
                 .join("");
             anyhow::Ok(
                 format! {r#"{{
-                    let mut map = ::std::collections::HashMap::with_capacity_and_hasher(
-                        {len},
-                        ::pilota::Hasher::new(),
-                    );
+                    let mut map = ::pilota::AHashMap::with_capacity({len});
                     {kvs}
                     map
                 }}"#}
