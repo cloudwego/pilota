@@ -177,7 +177,7 @@ pub mod nested_message {
             pub struct Tt3 {
                 pub a: ::std::option::Option<i32>,
 
-                pub m: ::std::collections::HashMap<i32, super::T2, ::pilota::Hasher>,
+                pub m: ::pilota::AHashMap<i32, super::T2>,
             }
             impl ::pilota::prost::Message for Tt3 {
                 #[inline]

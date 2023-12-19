@@ -7,6 +7,7 @@ pub mod prost;
 pub mod thrift;
 
 // reexport
+pub use ahash::{AHashMap, AHashSet};
 pub use async_recursion;
 pub use bytes::*;
 pub use derivative;
@@ -23,8 +24,3 @@ pub enum EnumConvertError<Num> {
     #[error("invalid value `{0}` for enum `{1}`")]
     InvalidNum(Num, &'static str),
 }
-
-#[cfg(feature = "ahash")]
-pub type Hasher = ahash::random_state::RandomState;
-#[cfg(not(feature = "ahash"))]
-pub type Hasher = std::collections::hash_map::RandomState;

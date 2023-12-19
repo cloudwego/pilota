@@ -18,7 +18,7 @@ keywords = ["serialization", "thrift", "protobuf"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-ahash = { version = "0.8", optional = true }
+ahash = { version = "0.8", features = ["serde"] }
 paste = "1"
 bytes = { version = "1", features = ["serde"] }
 async-recursion = "1"
@@ -29,10 +29,7 @@ derivative = "2"
 anyhow = "1"
 thiserror = "1"
 faststr = { version = "0.2", features = ["serde"] }
-integer-encoding = { version = "4", features = [
-    "tokio",
-    "tokio_async",
-] }
+integer-encoding = { version = "4", features = ["tokio", "tokio_async"] }
 proptest = "1"
 serde = { version = "1", features = ["derive"] }
 smallvec = "1"
@@ -40,11 +37,6 @@ smallvec = "1"
 [dev-dependencies]
 criterion = "0.5"
 rand = "0.8"
-
-[features]
-default = ["ahash"]
-
-ahash = ["dep:ahash"]
 
 [[bench]]
 name = "faststr"

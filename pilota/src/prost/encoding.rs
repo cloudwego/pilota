@@ -1672,8 +1672,8 @@ macro_rules! map {
 }
 
 pub mod hash_map {
-    use std::collections::HashMap;
-    map!(HashMap);
+    use crate::AHashMap;
+    map!(AHashMap);
 }
 
 pub mod btree_map {
