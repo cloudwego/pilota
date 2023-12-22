@@ -7,6 +7,7 @@ use crate::{
         rir::{self},
         ty::{AdtDef, AdtKind, CodegenTy, TyKind},
         type_graph::TypeGraph,
+        workspace_graph::WorkspaceGraph,
     },
     symbol::{DefId, FileId},
     tags::Tags,
@@ -49,6 +50,8 @@ pub trait RirDatabase {
     fn input_files(&self) -> Arc<Vec<FileId>>;
     #[salsa::input]
     fn args(&self) -> Arc<FxHashSet<DefId>>;
+    #[salsa::input]
+    fn workspace_graph(&self) -> Arc<WorkspaceGraph>;
 
     fn node(&self, def_id: DefId) -> Option<rir::Node>;
     fn file(&self, file_id: FileId) -> Option<Arc<rir::File>>;

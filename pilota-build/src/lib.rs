@@ -33,6 +33,7 @@ use middle::{
     context::{tls::CONTEXT, CollectMode, ContextBuilder, Mode, WorkspaceInfo},
     rir::NodeKind,
     type_graph::TypeGraph,
+    workspace_graph::WorkspaceGraph,
 };
 pub use middle::{
     context::{Context, SourceType},
@@ -275,8 +276,10 @@ where
             }
         });
 
-        let type_graph = Arc::from(TypeGraph::from_items(items));
+        let type_graph = Arc::from(TypeGraph::from_items(items.clone()));
+        let workspace_graph = Arc::from(WorkspaceGraph::from_items(items));
         db.set_type_graph_with_durability(type_graph, Durability::HIGH);
+        db.set_workspace_graph_with_durability(workspace_graph, Durability::HIGH);
         db.set_nodes_with_durability(Arc::new(nodes), Durability::HIGH);
         db.set_tags_map_with_durability(Arc::new(tags), Durability::HIGH);
         db.set_args_with_durability(Arc::new(args), Durability::HIGH);
