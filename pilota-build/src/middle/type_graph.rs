@@ -13,18 +13,15 @@ use crate::symbol::DefId;
 pub struct TypeGraph {
     pub(crate) graph: Graph<DefId, ()>,
     pub(crate) node_map: FxHashMap<DefId, NodeIndex>,
-    pub(crate) id_map: FxHashMap<NodeIndex, DefId>,
 }
 
 impl TypeGraph {
     pub fn from_items(items: impl Iterator<Item = (DefId, Arc<Item>)> + Clone) -> Self {
         let mut graph: Graph<DefId, ()> = Graph::new();
         let mut node_map = FxHashMap::default();
-        let mut id_map = FxHashMap::default();
         items.clone().for_each(|(def_id, _)| {
             let node_index = graph.add_node(def_id);
             node_map.insert(def_id, node_index);
-            id_map.insert(node_index, def_id);
         });
 
         items.for_each(|(def_id, item)| {
@@ -50,11 +47,7 @@ impl TypeGraph {
                 _ => {}
             };
         });
-        Self {
-            graph,
-            node_map,
-            id_map,
-        }
+        Self { graph, node_map }
     }
 
     pub fn is_nested(&self, a: DefId, b: DefId) -> bool {
