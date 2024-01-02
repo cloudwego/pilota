@@ -85,6 +85,7 @@ pub struct Builder<MkB, P> {
     change_case: bool,
     keep_unknown_fields: Vec<std::path::PathBuf>,
     dedups: Vec<FastStr>,
+    nonstandard_snake_case: bool,
 }
 
 impl Builder<MkThriftBackend, ThriftParser> {
@@ -103,6 +104,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             change_case: true,
             keep_unknown_fields: Vec::default(),
             dedups: Vec::default(),
+            nonstandard_snake_case: false,
         }
     }
 }
@@ -123,6 +125,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             change_case: true,
             keep_unknown_fields: Vec::default(),
             dedups: Vec::default(),
+            nonstandard_snake_case: false,
         }
     }
 }
@@ -133,6 +136,12 @@ where
 {
     pub fn include_dirs(mut self, include_dirs: Vec<PathBuf>) -> Self {
         self.parser.include_dirs(include_dirs);
+        self
+    }
+
+    pub fn nonstandard_snake_case(mut self, flag: bool) -> Self {
+        self.parser.nonstandard_snake_case(flag);
+        self.nonstandard_snake_case = flag;
         self
     }
 }
@@ -149,6 +158,7 @@ impl<MkB, P> Builder<MkB, P> {
             change_case: self.change_case,
             keep_unknown_fields: self.keep_unknown_fields,
             dedups: self.dedups,
+            nonstandard_snake_case: self.nonstandard_snake_case,
         }
     }
 
@@ -240,6 +250,7 @@ where
         self.compile_with_config(services, out)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn build_cx(
         services: Vec<IdlService>,
         out: Option<Output>,
@@ -250,6 +261,7 @@ where
         change_case: bool,
         keep_unknown_fields: Vec<PathBuf>,
         dedups: Vec<FastStr>,
+        nonstandard_snake_case: bool,
     ) -> Context {
         let mut db = RootDatabase::default();
         parser.inputs(services.iter().map(|s| &s.path));
@@ -318,7 +330,13 @@ where
 
         cx.keep(keep_unknown_fields);
 
-        cx.build(Arc::from(services), source_type, change_case, dedups)
+        cx.build(
+            Arc::from(services),
+            source_type,
+            change_case,
+            dedups,
+            nonstandard_snake_case,
+        )
     }
 
     pub fn compile_with_config(self, services: Vec<IdlService>, out: Output) {
@@ -334,6 +352,7 @@ where
             self.change_case,
             self.keep_unknown_fields,
             self.dedups,
+            self.nonstandard_snake_case,
         );
 
         cx.exec_plugin(BoxedPlugin);
@@ -414,6 +433,7 @@ where
             self.change_case,
             self.keep_unknown_fields,
             self.dedups,
+            self.nonstandard_snake_case,
         );
 
         std::thread::scope(|_scope| {
