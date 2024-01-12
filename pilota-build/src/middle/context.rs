@@ -69,6 +69,7 @@ pub struct Context {
     pub entry_map: HashMap<DefLocation, Vec<(DefId, DefLocation)>>,
     pub plugin_gen: DashMap<DefLocation, String>,
     pub(crate) dedups: Vec<FastStr>,
+    pub(crate) nonstandard_snake_case: bool,
 }
 
 impl Clone for Context {
@@ -87,6 +88,7 @@ impl Clone for Context {
             entry_map: self.entry_map.clone(),
             plugin_gen: self.plugin_gen.clone(),
             dedups: self.dedups.clone(),
+            nonstandard_snake_case: self.nonstandard_snake_case,
         }
     }
 }
@@ -428,6 +430,7 @@ impl ContextBuilder {
         source_type: SourceType,
         change_case: bool,
         dedups: Vec<FastStr>,
+        nonstandard_snake_case: bool,
     ) -> Context {
         Context {
             adjusts: Default::default(),
@@ -446,6 +449,7 @@ impl ContextBuilder {
             entry_map: self.entry_map,
             plugin_gen: Default::default(),
             dedups,
+            nonstandard_snake_case,
         }
     }
 }
@@ -840,8 +844,8 @@ impl Context {
                 crate::rir::Item::Enum(e) => (&**e.name).enum_ident(),
                 crate::rir::Item::Service(s) => (&**s.name).trait_ident(),
                 crate::rir::Item::NewType(t) => (&**t.name).newtype_ident(),
-                crate::rir::Item::Const(c) => (&**c.name).const_ident(),
-                crate::rir::Item::Mod(m) => (&**m.name).mod_ident(),
+                crate::rir::Item::Const(c) => (&**c.name).const_ident(self.nonstandard_snake_case),
+                crate::rir::Item::Mod(m) => (&**m.name).mod_ident(self.nonstandard_snake_case),
             },
             NodeKind::Variant(v) => {
                 let parent = self.node(def_id).unwrap().parent.unwrap();
@@ -854,14 +858,14 @@ impl Context {
                     .unwrap_or(EnumMode::Enum)
                     == EnumMode::NewType
                 {
-                    (&**v.name).shouty_snake_case()
+                    (&**v.name).shouty_snake_case(self.nonstandard_snake_case)
                 } else {
                     (&**v.name).variant_ident()
                 }
             }
-            NodeKind::Field(f) => (&**f.name).field_ident(),
-            NodeKind::Method(m) => (&**m.name).fn_ident(),
-            NodeKind::Arg(a) => (&**a.name).field_ident(),
+            NodeKind::Field(f) => (&**f.name).field_ident(self.nonstandard_snake_case),
+            NodeKind::Method(m) => (&**m.name).fn_ident(self.nonstandard_snake_case),
+            NodeKind::Arg(a) => (&**a.name).field_ident(self.nonstandard_snake_case),
         }
         .into()
     }

@@ -13,11 +13,12 @@ use super::Parser;
 use crate::{
     index::Idx,
     ir::{self, FieldKind, Item, Path, TyKind},
-    symbol::{EnumRepr, FileId, Ident, IdentName},
+    symbol::{EnumRepr, FileId, Ident},
     tags::{
         protobuf::{ClientStreaming, OneOf, ProstType, Repeated, ServerStreaming},
         PilotaName, Tags,
     },
+    IdentName,
 };
 
 #[derive(Default)]
@@ -25,6 +26,7 @@ pub struct ProtobufParser {
     inner: protobuf_parse::Parser,
     include_dirs: Vec<PathBuf>,
     input_files: FxHashSet<PathBuf>,
+    nonstandard_snake_case: bool,
 }
 
 #[derive(PartialEq, Eq)]
@@ -38,6 +40,7 @@ struct Lower {
     files: FxHashMap<String, FileId>,
     cur_package: Option<String>,
     cur_syntax: Syntax,
+    nonstandard_snake_case: bool,
 }
 
 impl Default for Lower {
@@ -47,6 +50,7 @@ impl Default for Lower {
             files: Default::default(),
             cur_package: None,
             cur_syntax: Syntax::Proto3,
+            nonstandard_snake_case: false,
         }
     }
 }
@@ -354,7 +358,7 @@ impl Lower {
         } else {
             let name = item.name();
             let mut tags = Tags::default();
-            tags.insert(PilotaName(name.0.mod_ident()));
+            tags.insert(PilotaName(name.0.mod_ident(self.nonstandard_snake_case)));
             vec![
                 item,
                 Item {
@@ -492,12 +496,19 @@ impl Parser for ProtobufParser {
         self.inner.includes(dirs);
     }
 
+    fn nonstandard_snake_case(&mut self, nonstandard: bool) {
+        self.nonstandard_snake_case = nonstandard;
+    }
+
     fn parse(self) -> super::ParseResult {
         let descriptors = self.inner.parse_and_typecheck().unwrap().file_descriptors;
 
         let mut input_file_ids = vec![];
 
-        let mut lower = Lower::default();
+        let mut lower = Lower {
+            nonstandard_snake_case: self.nonstandard_snake_case,
+            ..Default::default()
+        };
 
         let files = lower.lower(&descriptors);
 

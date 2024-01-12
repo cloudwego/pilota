@@ -162,21 +162,21 @@ pub trait IdentName {
         self.upper_camel_ident()
     }
 
-    fn mod_ident(&self) -> FastStr {
-        self.snake_ident()
+    fn mod_ident(&self, nonstandard: bool) -> FastStr {
+        self.snake_ident(nonstandard)
     }
 
     fn variant_ident(&self) -> FastStr {
         self.upper_camel_ident()
     }
-    fn fn_ident(&self) -> FastStr {
-        self.snake_ident()
+    fn fn_ident(&self, nonstandard: bool) -> FastStr {
+        self.snake_ident(nonstandard)
     }
-    fn field_ident(&self) -> FastStr {
-        self.snake_ident()
+    fn field_ident(&self, nonstandard: bool) -> FastStr {
+        self.snake_ident(nonstandard)
     }
-    fn const_ident(&self) -> FastStr {
-        self.shouty_snake_case()
+    fn const_ident(&self, nonstandard: bool) -> FastStr {
+        self.shouty_snake_case(nonstandard)
     }
 
     fn trait_ident(&self) -> FastStr {
@@ -188,8 +188,8 @@ pub trait IdentName {
     }
 
     fn upper_camel_ident(&self) -> FastStr;
-    fn snake_ident(&self) -> FastStr;
-    fn shouty_snake_case(&self) -> FastStr;
+    fn snake_ident(&self, nonstandard: bool) -> FastStr;
+    fn shouty_snake_case(&self, nonstandard: bool) -> FastStr;
 }
 
 impl IdentName for &str {
@@ -198,12 +198,22 @@ impl IdentName for &str {
         s.into()
     }
 
-    fn snake_ident(&self) -> FastStr {
-        self.to_snake_case().into()
+    fn snake_ident(&self, nonstandard: bool) -> FastStr {
+        if nonstandard {
+            to_snake_case(self)
+        } else {
+            self.to_snake_case()
+        }
+        .into()
     }
 
-    fn shouty_snake_case(&self) -> FastStr {
-        self.to_shouty_snake_case().into()
+    fn shouty_snake_case(&self, nonstandard: bool) -> FastStr {
+        if nonstandard {
+            to_snake_case(self).to_uppercase()
+        } else {
+            self.to_shouty_snake_case()
+        }
+        .into()
     }
 }
 
@@ -212,11 +222,55 @@ impl IdentName for FastStr {
         (&**self).upper_camel_ident()
     }
 
-    fn snake_ident(&self) -> FastStr {
-        (&**self).snake_ident()
+    fn snake_ident(&self, nonstandard: bool) -> FastStr {
+        (&**self).snake_ident(nonstandard)
     }
 
-    fn shouty_snake_case(&self) -> FastStr {
-        (&**self).shouty_snake_case()
+    fn shouty_snake_case(&self, nonstandard: bool) -> FastStr {
+        (&**self).shouty_snake_case(nonstandard)
+    }
+}
+
+// Taken from rustc.
+fn to_snake_case(mut str: &str) -> String {
+    let mut words = vec![];
+    // Preserve leading underscores
+    str = str.trim_start_matches(|c: char| {
+        if c == '_' {
+            words.push(String::new());
+            true
+        } else {
+            false
+        }
+    });
+    for s in str.split('_') {
+        let mut last_upper = false;
+        let mut buf = String::new();
+        if s.is_empty() {
+            continue;
+        }
+        for ch in s.chars() {
+            if !buf.is_empty() && buf != "'" && ch.is_uppercase() && !last_upper {
+                words.push(buf);
+                buf = String::new();
+            }
+            last_upper = ch.is_uppercase();
+            buf.extend(ch.to_lowercase());
+        }
+        words.push(buf);
+    }
+    words.join("_")
+}
+
+#[cfg(test)]
+mod tests {
+    use heck::ToSnakeCase;
+
+    use crate::symbol::to_snake_case;
+
+    #[test]
+    fn snake_case() {
+        assert_eq!("IDs".to_snake_case(), "i_ds");
+        assert_eq!(to_snake_case("IDs"), "ids");
     }
 }
