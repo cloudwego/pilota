@@ -1,13 +1,14 @@
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
+use ahash::AHashMap;
 use faststr::FastStr;
-use fxhash::{FxHashMap, FxHashSet};
 use itertools::Itertools;
 use normpath::PathExt;
 use protobuf::descriptor::{
     field_descriptor_proto::{Label, Type},
     DescriptorProto, EnumDescriptorProto, ServiceDescriptorProto,
 };
+use rustc_hash::{FxHashMap, FxHashSet};
 
 use super::Parser;
 use crate::{
@@ -66,8 +67,7 @@ impl Lower {
         &self,
         type_: Option<protobuf::EnumOrUnknown<protobuf::descriptor::field_descriptor_proto::Type>>,
         type_name: Option<&str>,
-        nested_messages: &FxHashMap<String, &DescriptorProto>,
-        message_name: Option<&str>,
+        nested_messages: &AHashMap<FastStr, &DescriptorProto>,
     ) -> ir::Ty {
         if let Some(name) = type_name {
             if let Some(msg) = nested_messages.get(name) {
@@ -82,13 +82,11 @@ impl Lower {
                                 key.type_,
                                 key.type_name.as_deref(),
                                 nested_messages,
-                                message_name,
                             )),
                             Arc::from(self.lower_ty(
                                 value.type_,
                                 value.type_name.as_deref(),
                                 nested_messages,
-                                message_name,
                             )),
                         ),
                         tags: Default::default(),
@@ -197,8 +195,8 @@ impl Lower {
         let nested_messages = message
             .nested_type
             .iter()
-            .map(|m| (format!("{}.{}", fq_message_name, m.name()), m))
-            .collect::<FxHashMap<_, _>>();
+            .map(|m| (format!("{}.{}", fq_message_name, m.name()).into(), m))
+            .collect::<AHashMap<FastStr, _>>();
 
         let mut fields = Vec::default();
         let mut oneof_fields = FxHashMap::default();
@@ -238,7 +236,6 @@ impl Lower {
                                     f.type_,
                                     f.type_name.as_deref(),
                                     &nested_messages,
-                                    Some(message.name()),
                                 )],
                                 tags: Default::default(),
                             })
@@ -293,12 +290,8 @@ impl Lower {
                 fields: fields
                     .iter()
                     .map(|(idx, f)| {
-                        let mut ty = self.lower_ty(
-                            f.type_,
-                            f.type_name.as_deref(),
-                            &nested_messages,
-                            Some(message.name()),
-                        );
+                        let mut ty =
+                            self.lower_ty(f.type_, f.type_name.as_deref(), &nested_messages);
 
                         let is_map = matches!(ty.kind, TyKind::Map(_, _));
                         let repeated = !is_map && matches!(f.label(), Label::LABEL_REPEATED);
@@ -400,17 +393,11 @@ impl Lower {
                                     None,
                                     m.input_type.as_deref(),
                                     &Default::default(),
-                                    Some(service.name()),
                                 ),
                                 tags: Arc::new(Tags::default()),
                             }],
                             oneway: false,
-                            ret: self.lower_ty(
-                                None,
-                                m.output_type.as_deref(),
-                                &Default::default(),
-                                Some(service.name()),
-                            ),
+                            ret: self.lower_ty(None, m.output_type.as_deref(), &Default::default()),
                             exceptions: None,
                         }
                     })

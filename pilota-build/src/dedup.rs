@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use fxhash::FxHashMap;
+use rustc_hash::FxHashMap;
 
 use crate::{
     rir::{Arg, EnumVariant, Field, Item, Method, Node},

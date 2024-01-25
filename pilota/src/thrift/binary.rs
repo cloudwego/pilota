@@ -696,7 +696,7 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
     fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
         let len = self.trans.read_i32()? as usize;
         let bytes = self.trans.split_to(len);
-        unsafe { return Ok(FastStr::from_bytes_unchecked(bytes)) };
+        unsafe { Ok(FastStr::from_bytes_unchecked(bytes)) }
     }
 
     #[inline]

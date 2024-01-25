@@ -1,9 +1,9 @@
 use std::{collections::HashSet, ops::DerefMut, sync::Arc};
 
 use faststr::FastStr;
-use fxhash::FxHashMap;
 use itertools::Itertools;
 use quote::quote;
+use rustc_hash::FxHashMap;
 
 use crate::{
     db::RirDatabase,
@@ -125,10 +125,8 @@ pub fn walk_codegen_uint<P: Plugin + ?Sized>(p: &mut P, cx: &Context, items: &[D
     items.iter().for_each(|def_id| {
         CUR_ITEM.set(def_id, || {
             let node = cx.node(*def_id).unwrap();
-
-            match &node.kind {
-                NodeKind::Item(item) => p.on_item(cx, *def_id, item.clone()),
-                _ => {}
+            if let NodeKind::Item(item) = &node.kind {
+                p.on_item(cx, *def_id, item.clone())
             }
         });
     });

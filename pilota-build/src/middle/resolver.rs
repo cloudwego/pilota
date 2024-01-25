@@ -96,7 +96,7 @@ impl PathResolver for DefaultPathResolver {
 
         let _length = path.len();
 
-        for (_idx, k) in path.into_iter().enumerate() {
+        for k in path.into_iter() {
             segs.push(match k {
                 Kind::Super => "super".into(),
                 Kind::Ident(ident) => ident.to_string(),

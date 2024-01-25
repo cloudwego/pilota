@@ -1,6 +1,6 @@
 use std::{fmt, path::PathBuf, sync::Arc};
 
-use fxhash::{FxHashMap, FxHashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::{
     middle::{

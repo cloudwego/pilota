@@ -2,9 +2,9 @@ use std::{borrow::Cow, path::PathBuf, process::Command, sync::Arc};
 
 use anyhow::bail;
 use faststr::FastStr;
-use fxhash::FxHashMap;
 use itertools::Itertools;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
+use rustc_hash::FxHashMap;
 
 use super::CodegenItem;
 use crate::{
@@ -117,7 +117,7 @@ where
             .as_table()
             .unwrap()
             .keys()
-            .map(|s| FastStr::new(s))
+            .map(FastStr::new)
             .collect_vec();
 
         std::fs::write(

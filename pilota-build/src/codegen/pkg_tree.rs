@@ -27,11 +27,7 @@ fn from_pkgs(base_path: &[FastStr], pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
         .into_group_map_by(|p| p.first().unwrap());
 
     Arc::from_iter(groups.into_iter().map(|(k, v)| {
-        let path = base_path
-            .iter()
-            .chain(Some(k).into_iter())
-            .cloned()
-            .collect::<Vec<_>>();
+        let path = base_path.iter().chain(Some(k)).cloned().collect::<Vec<_>>();
 
         let pkgs = v
             .into_iter()

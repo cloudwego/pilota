@@ -347,7 +347,7 @@ impl ThriftBackend {
         })
     }
 
-    fn codegen_entry_enum(&self, _def_id: DefId, _stream: &mut String, _e: &rir::Enum) {
+    fn codegen_entry_enum(&self, _def_id: DefId, _stream: &mut str, _e: &rir::Enum) {
         // TODO
     }
 
@@ -713,13 +713,10 @@ impl CodegenBackend for ThriftBackend {
                             if e.variants.first().filter(|v| variant_is_void(v)).is_some() {
                                 format!("Ok({name}::Ok(()))").into()
                             } else {
-                                format!(
-                                    r#"Err(::pilota::thrift::DecodeError::new(
-                                        ::pilota::thrift::DecodeErrorKind::InvalidData,
-                                        "received empty union from remote Message")
-                                    )"#
-                                )
-                                .into()
+                                r#"Err(::pilota::thrift::DecodeError::new(
+                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                    "received empty union from remote Message")
+                                )"#.into()
                             };
 
                         format! {

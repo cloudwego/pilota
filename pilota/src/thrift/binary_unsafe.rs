@@ -272,11 +272,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     #[inline]
     fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), EncodeError> {
         unsafe {
-            ptr::copy_nonoverlapping(
-                b.as_ptr(),
-                self.buf.as_mut_ptr().offset(self.index as isize),
-                b.len(),
-            );
+            ptr::copy_nonoverlapping(b.as_ptr(), self.buf.as_mut_ptr().add(self.index), b.len());
             self.index += b.len();
         }
         Ok(())
@@ -374,11 +370,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     fn write_string(&mut self, s: &str) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
         unsafe {
-            ptr::copy_nonoverlapping(
-                s.as_ptr(),
-                self.buf.as_mut_ptr().offset(self.index as isize),
-                s.len(),
-            );
+            ptr::copy_nonoverlapping(s.as_ptr(), self.buf.as_mut_ptr().add(self.index), s.len());
             self.index += s.len();
         }
         Ok(())
@@ -388,11 +380,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     fn write_faststr(&mut self, s: FastStr) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
         unsafe {
-            ptr::copy_nonoverlapping(
-                s.as_ptr(),
-                self.buf.as_mut_ptr().offset(self.index as isize),
-                s.len(),
-            );
+            ptr::copy_nonoverlapping(s.as_ptr(), self.buf.as_mut_ptr().add(self.index), s.len());
             self.index += s.len();
         }
         Ok(())
@@ -443,11 +431,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
         unsafe {
-            ptr::copy_nonoverlapping(
-                b.as_ptr(),
-                self.buf.as_mut_ptr().offset(self.index as isize),
-                b.len(),
-            );
+            ptr::copy_nonoverlapping(b.as_ptr(), self.buf.as_mut_ptr().add(self.index), b.len());
             self.index += b.len();
         }
         Ok(())
@@ -539,18 +523,14 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
             self.buf = unsafe {
                 let l = self.trans.bytes_mut().len();
                 slice::from_raw_parts_mut(
-                    self.trans.bytes_mut().as_mut_ptr().offset(l as isize),
+                    self.trans.bytes_mut().as_mut_ptr().add(l),
                     self.trans.bytes_mut().capacity() - l,
                 )
             };
             return Ok(());
         }
         unsafe {
-            ptr::copy_nonoverlapping(
-                b.as_ptr(),
-                self.buf.as_mut_ptr().offset(self.index as isize),
-                b.len(),
-            );
+            ptr::copy_nonoverlapping(b.as_ptr(), self.buf.as_mut_ptr().add(self.index), b.len());
             self.index += b.len();
         }
         Ok(())
@@ -648,11 +628,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     fn write_string(&mut self, s: &str) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
         unsafe {
-            ptr::copy_nonoverlapping(
-                s.as_ptr(),
-                self.buf.as_mut_ptr().offset(self.index as isize),
-                s.len(),
-            );
+            ptr::copy_nonoverlapping(s.as_ptr(), self.buf.as_mut_ptr().add(self.index), s.len());
             self.index += s.len();
         }
         Ok(())
@@ -671,18 +647,14 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
             self.buf = unsafe {
                 let l = self.trans.bytes_mut().len();
                 slice::from_raw_parts_mut(
-                    self.trans.bytes_mut().as_mut_ptr().offset(l as isize),
+                    self.trans.bytes_mut().as_mut_ptr().add(l),
                     self.trans.bytes_mut().capacity() - l,
                 )
             };
             return Ok(());
         }
         unsafe {
-            ptr::copy_nonoverlapping(
-                s.as_ptr(),
-                self.buf.as_mut_ptr().offset(self.index as isize),
-                s.len(),
-            );
+            ptr::copy_nonoverlapping(s.as_ptr(), self.buf.as_mut_ptr().add(self.index), s.len());
             self.index += s.len();
         }
         Ok(())
@@ -733,11 +705,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
         unsafe {
-            ptr::copy_nonoverlapping(
-                b.as_ptr(),
-                self.buf.as_mut_ptr().offset(self.index as isize),
-                b.len(),
-            );
+            ptr::copy_nonoverlapping(b.as_ptr(), self.buf.as_mut_ptr().add(self.index), b.len());
             self.index += b.len();
         }
         Ok(())
@@ -1104,7 +1072,7 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
             self.index = 0;
             let bytes = self.trans.split_to(len);
             self.buf = slice::from_raw_parts(self.trans.as_ptr(), self.trans.len());
-            return Ok(FastStr::from_bytes_unchecked(bytes));
+            Ok(FastStr::from_bytes_unchecked(bytes))
         }
     }
 
@@ -1166,7 +1134,7 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
 
     #[inline]
     fn buf(&mut self) -> &mut Self::Buf {
-        &mut self.trans
+        self.trans
     }
 
     #[inline]

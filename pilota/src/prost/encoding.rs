@@ -1559,6 +1559,7 @@ macro_rules! map {
         ///
         /// This is necessary because enumeration values can have a default value other
         /// than 0 in proto2.
+        #[allow(clippy::too_many_arguments)]
         pub fn encode_with_default<K, V, B, KE, KL, VE, VL>(
             key_encode: KE,
             key_encoded_len: KL,
