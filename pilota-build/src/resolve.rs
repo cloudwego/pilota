@@ -1,7 +1,7 @@
 use std::{ptr::NonNull, sync::Arc};
 
+use ahash::AHashMap;
 use itertools::Itertools;
-use pilota::AHashMap;
 use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::{

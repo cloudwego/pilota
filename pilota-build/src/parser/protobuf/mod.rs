@@ -1,9 +1,9 @@
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
+use ahash::AHashMap;
 use faststr::FastStr;
 use itertools::Itertools;
 use normpath::PathExt;
-use pilota::AHashMap;
 use protobuf::descriptor::{
     field_descriptor_proto::{Label, Type},
     DescriptorProto, EnumDescriptorProto, ServiceDescriptorProto,

@@ -789,6 +789,7 @@ dependencies = [
 name = "pilota-build"
 version = "0.10.2"
 dependencies = [
+ "ahash",
  "anyhow",
  "criterion",
  "dashmap",

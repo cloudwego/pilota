@@ -5,11 +5,11 @@ use std::{
     sync::Arc,
 };
 
+use ahash::AHashMap;
 use dashmap::DashMap;
 use faststr::FastStr;
 use itertools::Itertools;
 use normpath::PathExt;
-use pilota::AHashMap;
 use pkg_tree::PkgNode;
 use quote::quote;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};

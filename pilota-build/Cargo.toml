@@ -18,8 +18,8 @@ maintenance = { status = "actively-developed" }
 
 [dependencies]
 pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.10" }
-pilota = { path = "../pilota", version = "0.10" }
 
+ahash = "0.8"
 anyhow = "1"
 dashmap = "5"
 heck = "0.4"
