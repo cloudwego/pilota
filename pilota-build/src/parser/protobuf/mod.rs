@@ -1,13 +1,14 @@
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
 use faststr::FastStr;
-use fxhash::{FxHashMap, FxHashSet};
 use itertools::Itertools;
 use normpath::PathExt;
+use pilota::AHashMap;
 use protobuf::descriptor::{
     field_descriptor_proto::{Label, Type},
     DescriptorProto, EnumDescriptorProto, ServiceDescriptorProto,
 };
+use rustc_hash::{FxHashMap, FxHashSet};
 
 use super::Parser;
 use crate::{
@@ -66,7 +67,7 @@ impl Lower {
         &self,
         type_: Option<protobuf::EnumOrUnknown<protobuf::descriptor::field_descriptor_proto::Type>>,
         type_name: Option<&str>,
-        nested_messages: &FxHashMap<String, &DescriptorProto>,
+        nested_messages: &AHashMap<FastStr, &DescriptorProto>,
         message_name: Option<&str>,
     ) -> ir::Ty {
         if let Some(name) = type_name {
@@ -197,8 +198,8 @@ impl Lower {
         let nested_messages = message
             .nested_type
             .iter()
-            .map(|m| (format!("{}.{}", fq_message_name, m.name()), m))
-            .collect::<FxHashMap<_, _>>();
+            .map(|m| (format!("{}.{}", fq_message_name, m.name()).into(), m))
+            .collect::<AHashMap<FastStr, _>>();
 
         let mut fields = Vec::default();
         let mut oneof_fields = FxHashMap::default();

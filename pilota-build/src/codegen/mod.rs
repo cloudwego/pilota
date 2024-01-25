@@ -7,9 +7,9 @@ use std::{
 
 use dashmap::DashMap;
 use faststr::FastStr;
-use fxhash::FxHashMap;
 use itertools::Itertools;
 use normpath::PathExt;
+use pilota::AHashMap;
 use pkg_tree::PkgNode;
 use quote::quote;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
@@ -136,7 +136,7 @@ where
         &self,
         stream: &mut String,
         item: CodegenItem,
-        dup: &mut FxHashMap<FastStr, Vec<DefId>>,
+        dup: &mut AHashMap<FastStr, Vec<DefId>>,
     ) {
         CUR_ITEM.set(&item.def_id, || match item.kind {
             CodegenKind::Direct => {
@@ -191,7 +191,7 @@ where
         })
     }
 
-    fn duplicate(&self, dup: &mut FxHashMap<FastStr, Vec<DefId>>, def_id: DefId) -> bool {
+    fn duplicate(&self, dup: &mut AHashMap<FastStr, Vec<DefId>>, def_id: DefId) -> bool {
         let name = self.rust_name(def_id);
         if !self.dedups.contains(&name.0) {
             return false;
@@ -483,7 +483,7 @@ where
             let span = tracing::span!(tracing::Level::TRACE, "write_mod", path = ?p);
 
             let _enter = span.enter();
-            let mut dup = FxHashMap::default();
+            let mut dup = AHashMap::default();
             for def_id in def_ids.iter() {
                 this.write_item(&mut stream, *def_id, &mut dup)
             }

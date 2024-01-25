@@ -8,7 +8,7 @@ use crate::{ir::File, symbol::FileId};
 pub(crate) mod protobuf;
 pub(crate) mod thrift;
 
-use fxhash::FxHashMap;
+use rustc_hash::FxHashMap;
 pub use thrift::ThriftParser;
 
 pub use self::protobuf::ProtobufParser;

@@ -7,7 +7,7 @@ use nom::{
     IResult,
 };
 
-use super::super::{
+use crate::{
     descriptor::{Annotation, Annotations, Literal},
     parser::*,
 };

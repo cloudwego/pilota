@@ -3,11 +3,11 @@ use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
 use anyhow::Context as _;
 use dashmap::DashMap;
 use faststr::FastStr;
-use fxhash::{FxHashMap, FxHashSet};
 use heck::ToShoutySnakeCase;
 use itertools::Itertools;
 use normpath::PathExt;
 use quote::format_ident;
+use rustc_hash::{FxHashMap, FxHashSet};
 use salsa::ParallelDatabase;
 
 use self::tls::with_cur_item;

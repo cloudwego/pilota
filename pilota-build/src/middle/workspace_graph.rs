@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use fxhash::FxHashMap;
 use petgraph::{graph::NodeIndex, Graph};
+use rustc_hash::FxHashMap;
 
 use super::{
     rir::Item,

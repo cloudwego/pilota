@@ -1,12 +1,12 @@
 use std::{path::PathBuf, str::FromStr, sync::Arc};
 
 use faststr::FastStr;
-use fxhash::FxHashMap;
 use heck::ToUpperCamelCase;
 use itertools::Itertools;
 use normpath::PathExt;
 use pilota_thrift_parser as thrift_parser;
 use pilota_thrift_parser::parser::Parser as _;
+use rustc_hash::FxHashMap;
 use salsa::ParallelDatabase;
 use thrift_parser::Annotations;
 

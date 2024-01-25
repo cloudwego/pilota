@@ -1,7 +1,8 @@
 use std::{ptr::NonNull, sync::Arc};
 
-use fxhash::{FxHashMap, FxHashSet};
 use itertools::Itertools;
+use pilota::AHashMap;
+use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::{
     errors,
@@ -178,9 +179,9 @@ impl ir::visit::Visitor for CollectDef<'_> {
 
 #[derive(Default, Debug)]
 pub struct SymbolTable {
-    pub(crate) value: FxHashMap<Symbol, DefId>,
-    pub(crate) ty: FxHashMap<Symbol, DefId>,
-    pub(crate) mods: FxHashMap<Symbol, DefId>,
+    pub(crate) value: AHashMap<Symbol, DefId>,
+    pub(crate) ty: AHashMap<Symbol, DefId>,
+    pub(crate) mods: AHashMap<Symbol, DefId>,
 }
 
 pub struct Resolver {

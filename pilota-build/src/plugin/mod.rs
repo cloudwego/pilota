@@ -1,9 +1,9 @@
 use std::{collections::HashSet, ops::DerefMut, sync::Arc};
 
 use faststr::FastStr;
-use fxhash::FxHashMap;
 use itertools::Itertools;
 use quote::quote;
+use rustc_hash::FxHashMap;
 
 use crate::{
     db::RirDatabase,
