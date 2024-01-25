@@ -6,7 +6,7 @@ pub fn merge_tomls(a: &mut toml::Value, b: toml::Value) {
         (toml::Value::String(a), toml::Value::String(b)) => *a = b,
         (toml::Value::Array(a), toml::Value::Array(b)) => {
             a.extend(b);
-            a.sort_by(|a, b| a.to_string().cmp(&b.to_string()));
+            a.sort_by_key(|a| a.to_string());
             a.dedup_by(|a, b| a.to_string() == b.to_string());
         }
         (toml::Value::Table(a), toml::Value::Table(b)) => b.into_iter().for_each(|(k, v)| {
@@ -16,6 +16,6 @@ pub fn merge_tomls(a: &mut toml::Value, b: toml::Value) {
                 a.insert(k, v);
             }
         }),
-        pair @ _ => panic!("can not merge {pair:?}"),
+        pair => panic!("can not merge {pair:?}"),
     }
 }

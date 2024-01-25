@@ -165,11 +165,10 @@ impl ir::visit::Visitor for CollectDef<'_> {
             ir::ItemKind::Use(_) => None,
         } {
             let prev_parent = self.parent.replace(ModuleId::Node(did));
-            match &item.kind {
-                ir::ItemKind::Enum(e) => e.variants.iter().for_each(|e| {
+            if let ir::ItemKind::Enum(e) = &item.kind {
+                e.variants.iter().for_each(|e| {
                     self.def_sym(Namespace::Value, (*e.name).clone());
-                }),
-                _ => {}
+                })
             }
             ir::visit::walk_item(self, item);
             self.parent = prev_parent;
@@ -454,9 +453,9 @@ impl Resolver {
         assert!(status.r#mod.len() <= 1);
 
         match ns {
-            Namespace::Value => status.value.get(0),
-            Namespace::Ty => status.ty.get(0),
-            Namespace::Mod => status.r#mod.get(0),
+            Namespace::Value => status.value.first(),
+            Namespace::Ty => status.ty.first(),
+            Namespace::Mod => status.r#mod.first(),
         }
         .copied()
     }

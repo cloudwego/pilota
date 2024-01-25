@@ -1110,17 +1110,17 @@ where
 
     #[inline]
     async fn read_i16(&mut self) -> Result<i16, DecodeError> {
-        Ok(self.read_varint_async::<i16>().await?)
+        self.read_varint_async::<i16>().await
     }
 
     #[inline]
     async fn read_i32(&mut self) -> Result<i32, DecodeError> {
-        Ok(self.read_varint_async::<i32>().await?)
+        self.read_varint_async::<i32>().await
     }
 
     #[inline]
     async fn read_i64(&mut self) -> Result<i64, DecodeError> {
-        Ok(self.read_varint_async::<i64>().await?)
+        self.read_varint_async::<i64>().await
     }
 
     #[inline]
@@ -1645,7 +1645,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
     fn read_faststr(&mut self) -> Result<FastStr, DecodeError> {
         let size = self.read_varint::<u32>()? as usize;
         let bytes = self.trans.split_to(size);
-        unsafe { return Ok(FastStr::from_bytes_unchecked(bytes)) }
+        unsafe { Ok(FastStr::from_bytes_unchecked(bytes)) }
     }
 
     #[inline]

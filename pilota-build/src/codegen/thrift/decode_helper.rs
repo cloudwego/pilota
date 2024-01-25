@@ -95,12 +95,11 @@ impl DecodeHelper {
     pub fn codegen_field_begin_len(&self, keep: bool) -> FastStr {
         if self.is_async {
             Default::default()
+        } else if keep {
+            "__pilota_offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);"
+                .into()
         } else {
-            if keep {
-                "__pilota_offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);".into()
-            } else {
-                "protocol.field_begin_len(field_ident.field_type, field_ident.id);".into()
-            }
+            "protocol.field_begin_len(field_ident.field_type, field_ident.id);".into()
         }
     }
 }

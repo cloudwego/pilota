@@ -458,7 +458,7 @@ where
         ws.write_crates()
     }
 
-    pub fn write_items<'a>(&self, stream: &mut String, items: impl Iterator<Item = CodegenItem>)
+    pub fn write_items(&self, stream: &mut String, items: impl Iterator<Item = CodegenItem>)
     where
         B: Send,
     {

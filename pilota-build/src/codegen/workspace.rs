@@ -117,7 +117,7 @@ where
             .as_table()
             .unwrap()
             .keys()
-            .map(|s| FastStr::new(s))
+            .map(FastStr::new)
             .collect_vec();
 
         std::fs::write(

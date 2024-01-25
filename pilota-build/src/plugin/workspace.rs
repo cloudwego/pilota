@@ -15,10 +15,8 @@ impl Plugin for _WorkspacePlugin {
             v.iter().for_each(|(def_id, _)| {
                 CUR_ITEM.set(def_id, || {
                     let node = cx.node(*def_id).unwrap();
-
-                    match &node.kind {
-                        NodeKind::Item(item) => self.on_item(cx, *def_id, item.clone()),
-                        _ => {}
+                    if let NodeKind::Item(item) = &node.kind {
+                        self.on_item(cx, *def_id, item.clone());
                     }
                 });
             })
@@ -31,15 +29,12 @@ impl Plugin for _WorkspacePlugin {
         def_id: crate::DefId,
         item: std::sync::Arc<crate::rir::Item>,
     ) {
-        match &*item {
-            Item::Service(s) => {
-                if let Some(loc) = cx.location_map.get(&def_id) {
-                    if let Some(mut gen) = cx.plugin_gen.get_mut(loc) {
-                        gen.push_str(&format!("pub struct {};", s.name.sym));
-                    }
-                };
-            }
-            _ => {}
+        if let Item::Service(s) = &*item {
+            if let Some(loc) = cx.location_map.get(&def_id) {
+                if let Some(mut gen) = cx.plugin_gen.get_mut(loc) {
+                    gen.push_str(&format!("pub struct {};", s.name.sym));
+                }
+            };
         }
     }
 }

@@ -225,7 +225,7 @@ impl ContextBuilder {
                 rir::Item::Message(m) => m.fields.iter().for_each(|f| {
                     PathCollector { cx, set }.visit(&f.ty);
                     if let Some(Literal::Path(p)) = &f.default {
-                        PathCollector { cx, set }.visit_path(&p);
+                        PathCollector { cx, set }.visit_path(p);
                     }
                 }),
                 rir::Item::Enum(e) => e
@@ -395,7 +395,7 @@ impl ContextBuilder {
                     return;
                 }
                 let files = cx.db.files();
-                let file = files.get(&file_id).unwrap();
+                let file = files.get(file_id).unwrap();
                 file.uses.iter().for_each(|f| keep_files(cx, f, file_ids));
                 cx.keep_unknown_fields.extend(
                     file.items
@@ -405,17 +405,12 @@ impl ContextBuilder {
                                 kind: rir::NodeKind::Item(_),
                                 tags,
                                 ..
-                            }) => {
-                                if let Some(crate::tags::KeepUnknownFields(false)) =
-                                    cx.db.tags_map().get(&tags).and_then(|tags| {
-                                        tags.get::<crate::tags::KeepUnknownFields>()
-                                    })
-                                {
-                                    false
-                                } else {
-                                    true
-                                }
-                            }
+                            }) => !matches!(
+                                cx.db.tags_map().get(&tags).and_then(|tags| {
+                                    tags.get::<crate::tags::KeepUnknownFields>()
+                                }),
+                                Some(crate::tags::KeepUnknownFields(false))
+                            ),
                             _ => true,
                         })
                         .cloned(),
@@ -483,7 +478,7 @@ impl Context {
     where
         F: FnOnce(&mut Adjust) -> T,
     {
-        let adjust = &mut *self.adjusts.entry(def_id).or_insert_with(Default::default);
+        let adjust = &mut *self.adjusts.entry(def_id).or_default();
         f(adjust)
     }
 
@@ -949,8 +944,7 @@ impl Context {
                     .unwrap();
                 self.config(crate_id)
                     .get("crate_name")
-                    .map(|s| s.as_str().map(|s| FastStr::new(s)))
-                    .flatten()
+                    .and_then(|s| s.as_str().map(FastStr::new))
                     .unwrap_or_else(|| {
                         service
                             .path
@@ -958,7 +952,7 @@ impl Context {
                             .unwrap()
                             .to_str()
                             .unwrap()
-                            .replace(".", "_")
+                            .replace('.', "_")
                             .into()
                     })
             }
