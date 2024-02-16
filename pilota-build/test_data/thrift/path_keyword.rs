@@ -82,14 +82,14 @@ pub mod path_keyword {
                 protocol.read_struct_end()?;
 
                 let Some(bytes) = bytes else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field bytes is required".to_string(),
                     ));
                 };
                 let Some(vec) = vec else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field vec is required".to_string(),
                     ));
                 };
@@ -161,14 +161,14 @@ pub mod path_keyword {
                     protocol.read_struct_end().await?;
 
                     let Some(bytes) = bytes else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field bytes is required".to_string(),
                         ));
                     };
                     let Some(vec) = vec else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field vec is required".to_string(),
                         ));
                     };

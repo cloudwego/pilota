@@ -140,8 +140,8 @@ pub trait TInputProtocol: TLengthProtocol {
     /// Skip a field with type `field_type` recursively up to `depth` levels.
     fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<usize, DecodeError> {
         if depth == 0 {
-            return Err(DecodeError::new(
-                DecodeErrorKind::DepthLimit,
+            return Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::DepthLimit,
                 format!("cannot parse past {:?}", field_type),
             ));
         }
@@ -238,8 +238,8 @@ pub trait TInputProtocol: TLengthProtocol {
                 len += self.map_end_len();
             }
             u => {
-                return Err(DecodeError::new(
-                    DecodeErrorKind::DepthLimit,
+                return Err(DecodeError::new_protocol(
+                    ProtocolExceptionKind::DepthLimit,
                     format!("cannot skip field type {:?}", &u),
                 ))
             }
@@ -800,8 +800,8 @@ pub trait TAsyncInputProtocol: Send {
     async fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<(), DecodeError> {
         // async move {
         if depth == 0 {
-            return Err(DecodeError::new(
-                DecodeErrorKind::DepthLimit,
+            return Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::DepthLimit,
                 format!("cannot parse past {:?}", field_type),
             ));
         }
@@ -852,8 +852,8 @@ pub trait TAsyncInputProtocol: Send {
                 }
                 self.read_map_end().await
             }
-            u => Err(DecodeError::new(
-                DecodeErrorKind::DepthLimit,
+            u => Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::DepthLimit,
                 format!("cannot skip field type {:?}", &u),
             )),
         }
@@ -921,8 +921,8 @@ impl TryFrom<u8> for TType {
             14 => Ok(TType::Set),
             15 => Ok(TType::List),
             16 => Ok(TType::Uuid),
-            _ => Err(DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            _ => Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid ttype {}", value),
             )),
         }
@@ -973,8 +973,8 @@ impl TryFrom<u8> for TMessageType {
             2 => Ok(TMessageType::Reply),
             3 => Ok(TMessageType::Exception),
             4 => Ok(TMessageType::OneWay),
-            _ => Err(DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            _ => Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid tmessage type {}", value),
             )),
         }

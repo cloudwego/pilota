@@ -458,14 +458,14 @@ pub mod unknown_fields {
                 protocol.read_struct_end()?;
 
                 let Some(bytes) = bytes else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field bytes is required".to_string(),
                     ));
                 };
                 let Some(vec) = vec else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field vec is required".to_string(),
                     ));
                 };
@@ -541,14 +541,14 @@ pub mod unknown_fields {
                     protocol.read_struct_end().await?;
 
                     let Some(bytes) = bytes else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field bytes is required".to_string(),
                         ));
                     };
                     let Some(vec) = vec else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field vec is required".to_string(),
                         ));
                     };
@@ -665,8 +665,8 @@ pub mod unknown_fields {
                 protocol.read_struct_end()?;
 
                 let Some(td) = td else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field td is required".to_string(),
                     ));
                 };
@@ -736,8 +736,8 @@ pub mod unknown_fields {
                     protocol.read_struct_end().await?;
 
                     let Some(td) = td else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field td is required".to_string(),
                         ));
                     };
@@ -1054,20 +1054,20 @@ pub mod unknown_fields {
                 protocol.read_struct_end()?;
 
                 let Some(faststr) = faststr else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field faststr is required".to_string(),
                     ));
                 };
                 let Some(string) = string else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field string is required".to_string(),
                     ));
                 };
                 let Some(list) = list else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field list is required".to_string(),
                     ));
                 };
@@ -1166,20 +1166,20 @@ pub mod unknown_fields {
                     protocol.read_struct_end().await?;
 
                     let Some(faststr) = faststr else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field faststr is required".to_string(),
                         ));
                     };
                     let Some(string) = string else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field string is required".to_string(),
                         ));
                     };
                     let Some(list) = list else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field list is required".to_string(),
                         ));
                     };
@@ -1797,8 +1797,8 @@ pub mod unknown_fields {
                 protocol.read_struct_end()?;
 
                 let Some(a) = a else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field a is required".to_string(),
                     ));
                 };
@@ -1864,8 +1864,8 @@ pub mod unknown_fields {
                     protocol.read_struct_end().await?;
 
                     let Some(a) = a else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field a is required".to_string(),
                         ));
                     };
@@ -2105,8 +2105,8 @@ pub mod unknown_fields {
                                 __pilota_offset += protocol.struct_len(&field_ident);
                                 ret = Some(TestUnion::A(field_ident));
                             } else {
-                                return Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                return Err(::pilota::thrift::DecodeError::new_protocol(
+                                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received multiple fields for union from remote Message",
                                 ));
                             }
@@ -2117,8 +2117,8 @@ pub mod unknown_fields {
                                 __pilota_offset += protocol.struct_len(&field_ident);
                                 ret = Some(TestUnion::B(field_ident));
                             } else {
-                                return Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                return Err(::pilota::thrift::DecodeError::new_protocol(
+                                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received multiple fields for union from remote Message",
                                 ));
                             }
@@ -2135,8 +2135,8 @@ pub mod unknown_fields {
                                     ret = Some(TestUnion::_UnknownFields(__pilota_linked_bytes));
                                 }
                             } else {
-                                return Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                return Err(::pilota::thrift::DecodeError::new_protocol(
+                                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received multiple fields for union from remote Message",
                                 ));
                             }
@@ -2148,8 +2148,8 @@ pub mod unknown_fields {
                 if let Some(ret) = ret {
                     Ok(ret)
                 } else {
-                    Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "received empty union from remote Message",
                     ))
                 }
@@ -2183,8 +2183,8 @@ pub mod unknown_fields {
 
                                     ret = Some(TestUnion::A(field_ident));
                                 } else {
-                                    return Err(::pilota::thrift::DecodeError::new(
-                                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                         "received multiple fields for union from remote Message",
                                     ));
                                 }
@@ -2197,8 +2197,8 @@ pub mod unknown_fields {
 
                                     ret = Some(TestUnion::B(field_ident));
                                 } else {
-                                    return Err(::pilota::thrift::DecodeError::new(
-                                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                         "received multiple fields for union from remote Message",
                                     ));
                                 }
@@ -2213,8 +2213,8 @@ pub mod unknown_fields {
                     if let Some(ret) = ret {
                         Ok(ret)
                     } else {
-                        Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "received empty union from remote Message",
                         ))
                     }
@@ -2286,8 +2286,8 @@ pub mod unknown_fields {
                                 protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionException::StException(field_ident));
                             } else {
-                                return Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                return Err(::pilota::thrift::DecodeError::new_protocol(
+                                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received multiple fields for union from remote Message",
                                 ));
                             }
@@ -2302,8 +2302,8 @@ pub mod unknown_fields {
                 if let Some(ret) = ret {
                     Ok(ret)
                 } else {
-                    Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "received empty union from remote Message",
                     ))
                 }
@@ -2340,8 +2340,8 @@ pub mod unknown_fields {
                                     ret =
                                         Some(TestTestExceptionException::StException(field_ident));
                                 } else {
-                                    return Err(::pilota::thrift::DecodeError::new(
-                                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                         "received multiple fields for union from remote Message",
                                     ));
                                 }
@@ -2356,8 +2356,8 @@ pub mod unknown_fields {
                     if let Some(ret) = ret {
                         Ok(ret)
                     } else {
-                        Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "received empty union from remote Message",
                         ))
                     }
@@ -2433,8 +2433,8 @@ pub mod unknown_fields {
                                 protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultRecv::Ok(field_ident));
                             } else {
-                                return Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                return Err(::pilota::thrift::DecodeError::new_protocol(
+                                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received multiple fields for union from remote Message",
                                 ));
                             }
@@ -2445,8 +2445,8 @@ pub mod unknown_fields {
                                 protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultRecv::StException(field_ident));
                             } else {
-                                return Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                return Err(::pilota::thrift::DecodeError::new_protocol(
+                                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received multiple fields for union from remote Message",
                                 ));
                             }
@@ -2461,8 +2461,8 @@ pub mod unknown_fields {
                 if let Some(ret) = ret {
                     Ok(ret)
                 } else {
-                    Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "received empty union from remote Message",
                     ))
                 }
@@ -2498,8 +2498,8 @@ pub mod unknown_fields {
 
                                     ret = Some(TestTestExceptionResultRecv::Ok(field_ident));
                                 } else {
-                                    return Err(::pilota::thrift::DecodeError::new(
-                                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                         "received multiple fields for union from remote Message",
                                     ));
                                 }
@@ -2515,8 +2515,8 @@ pub mod unknown_fields {
                                     ret =
                                         Some(TestTestExceptionResultRecv::StException(field_ident));
                                 } else {
-                                    return Err(::pilota::thrift::DecodeError::new(
-                                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                         "received multiple fields for union from remote Message",
                                     ));
                                 }
@@ -2531,8 +2531,8 @@ pub mod unknown_fields {
                     if let Some(ret) = ret {
                         Ok(ret)
                     } else {
-                        Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "received empty union from remote Message",
                         ))
                     }
@@ -2711,8 +2711,8 @@ pub mod unknown_fields {
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
                 let value = protocol.read_i32()?;
                 Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
-                    ::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    ::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         format!("invalid enum value for Index, value: {}", value),
                     )
                 })?)
@@ -2731,8 +2731,8 @@ pub mod unknown_fields {
                 ::std::boxed::Box::pin(async move {
                     let value = protocol.read_i32().await?;
                     Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
-                        ::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        ::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             format!("invalid enum value for Index, value: {}", value),
                         )
                     })?)
@@ -2991,8 +2991,8 @@ pub mod unknown_fields {
                 protocol.read_struct_end()?;
 
                 let Some(req) = req else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field req is required".to_string(),
                     ));
                 };
@@ -3065,8 +3065,8 @@ pub mod unknown_fields {
                     protocol.read_struct_end().await?;
 
                     let Some(req) = req else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field req is required".to_string(),
                         ));
                     };
@@ -3400,8 +3400,8 @@ pub mod unknown_fields {
                 protocol.read_struct_end()?;
 
                 let Some(req) = req else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field req is required".to_string(),
                     ));
                 };
@@ -3474,8 +3474,8 @@ pub mod unknown_fields {
                     protocol.read_struct_end().await?;
 
                     let Some(req) = req else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field req is required".to_string(),
                         ));
                     };
@@ -3551,8 +3551,8 @@ pub mod unknown_fields {
                                 protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultSend::Ok(field_ident));
                             } else {
-                                return Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                return Err(::pilota::thrift::DecodeError::new_protocol(
+                                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received multiple fields for union from remote Message",
                                 ));
                             }
@@ -3563,8 +3563,8 @@ pub mod unknown_fields {
                                 protocol.struct_len(&field_ident);
                                 ret = Some(TestTestExceptionResultSend::StException(field_ident));
                             } else {
-                                return Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                return Err(::pilota::thrift::DecodeError::new_protocol(
+                                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received multiple fields for union from remote Message",
                                 ));
                             }
@@ -3579,8 +3579,8 @@ pub mod unknown_fields {
                 if let Some(ret) = ret {
                     Ok(ret)
                 } else {
-                    Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "received empty union from remote Message",
                     ))
                 }
@@ -3616,8 +3616,8 @@ pub mod unknown_fields {
 
                                     ret = Some(TestTestExceptionResultSend::Ok(field_ident));
                                 } else {
-                                    return Err(::pilota::thrift::DecodeError::new(
-                                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                         "received multiple fields for union from remote Message",
                                     ));
                                 }
@@ -3633,8 +3633,8 @@ pub mod unknown_fields {
                                     ret =
                                         Some(TestTestExceptionResultSend::StException(field_ident));
                                 } else {
-                                    return Err(::pilota::thrift::DecodeError::new(
-                                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                         "received multiple fields for union from remote Message",
                                     ));
                                 }
@@ -3649,8 +3649,8 @@ pub mod unknown_fields {
                     if let Some(ret) = ret {
                         Ok(ret)
                     } else {
-                        Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "received empty union from remote Message",
                         ))
                     }

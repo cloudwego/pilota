@@ -82,14 +82,14 @@ pub mod string {
                 protocol.read_struct_end()?;
 
                 let Some(faststr) = faststr else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field faststr is required".to_string(),
                     ));
                 };
                 let Some(string) = string else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field string is required".to_string(),
                     ));
                 };
@@ -161,14 +161,14 @@ pub mod string {
                     protocol.read_struct_end().await?;
 
                     let Some(faststr) = faststr else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field faststr is required".to_string(),
                         ));
                     };
                     let Some(string) = string else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field string is required".to_string(),
                         ));
                     };

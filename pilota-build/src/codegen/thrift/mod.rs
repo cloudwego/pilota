@@ -278,8 +278,8 @@ impl ThriftBackend {
                 format!(
                     r#"let Some({s}) = {s} else {{
                 return Err(
-                    ::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    ::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field {s} is required".to_string()
                     )
                 )
@@ -535,8 +535,8 @@ impl CodegenBackend for ThriftBackend {
                     format! {
                         r#"let value = {read_i32};
                         Ok(::std::convert::TryFrom::try_from(value).map_err(|err|
-                            ::pilota::thrift::DecodeError::new(
-                                ::pilota::thrift::DecodeErrorKind::InvalidData,
+                            ::pilota::thrift::DecodeError::new_protocol(
+                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                 format!("{err_msg_tmpl}", value)
                             ))?)"#
                     }
@@ -680,8 +680,8 @@ impl CodegenBackend for ThriftBackend {
                                         {decode_len}
                                         ret = Some({name}::{variant_name}(field_ident));
                                     }} else {{
-                                        return Err(::pilota::thrift::DecodeError::new(
-                                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                             "received multiple fields for union from remote Message"
                                         ));
                                     }}
@@ -699,8 +699,8 @@ impl CodegenBackend for ThriftBackend {
                                     ret = Some({name}::_UnknownFields(__pilota_linked_bytes));
                                 }}
                             }} else {{
-                                return Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                return Err(::pilota::thrift::DecodeError::new_protocol(
+                                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received multiple fields for union from remote Message"
                                 ));
                             }}"#
@@ -713,8 +713,8 @@ impl CodegenBackend for ThriftBackend {
                             if e.variants.first().filter(|v| variant_is_void(v)).is_some() {
                                 format!("Ok({name}::Ok(()))").into()
                             } else {
-                                r#"Err(::pilota::thrift::DecodeError::new(
-                                    ::pilota::thrift::DecodeErrorKind::InvalidData,
+                                r#"Err(::pilota::thrift::DecodeError::new_protocol(
+                                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received empty union from remote Message")
                                 )"#.into()
                             };

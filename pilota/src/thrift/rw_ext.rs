@@ -2,7 +2,7 @@ use std::mem;
 
 use bytes::{Buf as _, BufMut, BytesMut};
 
-use super::{DecodeError, EncodeError};
+use super::DecodeError;
 
 #[derive(thiserror::Error, Debug)]
 pub enum IOError {
@@ -12,13 +12,7 @@ pub enum IOError {
 
 impl From<IOError> for DecodeError {
     fn from(e: IOError) -> Self {
-        DecodeError::new(super::DecodeErrorKind::InvalidData, format!("{}", e))
-    }
-}
-
-impl From<IOError> for EncodeError {
-    fn from(value: IOError) -> Self {
-        EncodeError::new(super::ProtocolErrorKind::InvalidData, format!("{}", value))
+        DecodeError::new_protocol(super::ProtocolExceptionKind::InvalidData, format!("{}", e))
     }
 }
 
@@ -73,7 +67,7 @@ macro_rules! assert_remaining {
             return Err(IOError::NoRemaining(format!($($arg)+)))?;
         }
         #[cfg(feature = "unstable")]
-        if !std::intrinsics::likely($cond) {
+        if !std::intrinsics::unlikely($cond) {
             return Err(IOError::NoRemaining(format!($($arg)+)))?;
         }
     };
@@ -83,193 +77,192 @@ macro_rules! assert_remaining {
             return Err(IOError::NoRemaining(String::new()))?;
         }
         #[cfg(feature = "unstable")]
-        if !std::intrinsics::likely($cond) {
+        if !std::intrinsics::unlikely($cond) {
             return Err(IOError::NoRemaining(String::new()))?;
         }
     };
 }
 
 pub trait WriteExt {
-    fn write_slice(&mut self, src: &[u8]) -> Result<(), IOError>;
-    fn write_u8(&mut self, n: u8) -> Result<(), IOError>;
-    fn write_i8(&mut self, n: i8) -> Result<(), IOError>;
-    fn write_u16(&mut self, n: u16) -> Result<(), IOError>;
-    fn write_u16_le(&mut self, n: u16) -> Result<(), IOError>;
-    fn write_i16(&mut self, n: i16) -> Result<(), IOError>;
-    fn write_i16_le(&mut self, n: i16) -> Result<(), IOError>;
-    fn write_u32(&mut self, n: u32) -> Result<(), IOError>;
-    fn write_u32_le(&mut self, n: u32) -> Result<(), IOError>;
-    fn write_i32(&mut self, n: i32) -> Result<(), IOError>;
-    fn write_i32_le(&mut self, n: i32) -> Result<(), IOError>;
-    fn write_u64(&mut self, n: u64) -> Result<(), IOError>;
+    fn write_slice(&mut self, src: &[u8]);
+    fn write_u8(&mut self, n: u8);
+    fn write_i8(&mut self, n: i8);
+    fn write_u16(&mut self, n: u16);
+    fn write_u16_le(&mut self, n: u16);
+    fn write_i16(&mut self, n: i16);
+    fn write_i16_le(&mut self, n: i16);
+    fn write_u32(&mut self, n: u32);
+    fn write_u32_le(&mut self, n: u32);
+    fn write_i32(&mut self, n: i32);
+    fn write_i32_le(&mut self, n: i32);
+    fn write_u64(&mut self, n: u64);
 
-    fn write_u64_le(&mut self, n: u64) -> Result<(), IOError>;
+    fn write_u64_le(&mut self, n: u64);
 
-    fn write_i64(&mut self, n: i64) -> Result<(), IOError>;
+    fn write_i64(&mut self, n: i64);
 
-    fn write_i64_le(&mut self, n: i64) -> Result<(), IOError>;
+    fn write_i64_le(&mut self, n: i64);
 
-    fn write_u128(&mut self, n: u128) -> Result<(), IOError>;
+    fn write_u128(&mut self, n: u128);
 
-    fn write_u128_le(&mut self, n: u128) -> Result<(), IOError>;
+    fn write_u128_le(&mut self, n: u128);
 
-    fn write_i128(&mut self, n: i128) -> Result<(), IOError>;
+    fn write_i128(&mut self, n: i128);
 
-    fn write_i128_le(&mut self, n: i128) -> Result<(), IOError>;
+    fn write_i128_le(&mut self, n: i128);
 
-    fn write_uint(&mut self, n: u64, nbytes: usize) -> Result<(), IOError>;
+    fn write_uint(&mut self, n: u64, nbytes: usize);
 
-    fn write_uint_le(&mut self, n: u64, nbytes: usize) -> Result<(), IOError>;
+    fn write_uint_le(&mut self, n: u64, nbytes: usize);
 
-    fn write_int(&mut self, n: i64, nbytes: usize) -> Result<(), IOError>;
+    fn write_int(&mut self, n: i64, nbytes: usize);
 
-    fn write_int_le(&mut self, n: i64, nbytes: usize) -> Result<(), IOError>;
+    fn write_int_le(&mut self, n: i64, nbytes: usize);
 
-    fn write_f32(&mut self, n: f32) -> Result<(), IOError>;
+    fn write_f32(&mut self, n: f32);
 
-    fn write_f32_le(&mut self, n: f32) -> Result<(), IOError>;
+    fn write_f32_le(&mut self, n: f32);
 
-    fn write_f64(&mut self, n: f64) -> Result<(), IOError>;
+    fn write_f64(&mut self, n: f64);
 
-    fn write_f64_le(&mut self, n: f64) -> Result<(), IOError>;
+    fn write_f64_le(&mut self, n: f64);
 }
 
 impl WriteExt for BytesMut {
     #[inline]
-    fn write_slice(&mut self, src: &[u8]) -> Result<(), IOError> {
+    fn write_slice(&mut self, src: &[u8]) {
         self.put_slice(src);
-        Ok(())
     }
 
     #[inline]
-    fn write_u8(&mut self, n: u8) -> Result<(), IOError> {
+    fn write_u8(&mut self, n: u8) {
         let src = [n];
         self.write_slice(&src)
     }
 
     #[inline]
-    fn write_i8(&mut self, n: i8) -> Result<(), IOError> {
+    fn write_i8(&mut self, n: i8) {
         let src = [n as u8];
         self.write_slice(&src)
     }
 
     #[inline]
-    fn write_u16(&mut self, n: u16) -> Result<(), IOError> {
+    fn write_u16(&mut self, n: u16) {
         self.write_slice(&n.to_be_bytes())
     }
 
     #[inline]
-    fn write_u16_le(&mut self, n: u16) -> Result<(), IOError> {
+    fn write_u16_le(&mut self, n: u16) {
         self.write_slice(&n.to_le_bytes())
     }
 
     #[inline]
-    fn write_i16(&mut self, n: i16) -> Result<(), IOError> {
+    fn write_i16(&mut self, n: i16) {
         self.write_slice(&n.to_be_bytes())
     }
 
     #[inline]
-    fn write_i16_le(&mut self, n: i16) -> Result<(), IOError> {
+    fn write_i16_le(&mut self, n: i16) {
         self.write_slice(&n.to_le_bytes())
     }
 
     #[inline]
-    fn write_u32(&mut self, n: u32) -> Result<(), IOError> {
+    fn write_u32(&mut self, n: u32) {
         self.write_slice(&n.to_be_bytes())
     }
 
     #[inline]
-    fn write_u32_le(&mut self, n: u32) -> Result<(), IOError> {
+    fn write_u32_le(&mut self, n: u32) {
         self.write_slice(&n.to_le_bytes())
     }
 
     #[inline]
-    fn write_i32(&mut self, n: i32) -> Result<(), IOError> {
+    fn write_i32(&mut self, n: i32) {
         self.write_slice(&n.to_be_bytes())
     }
 
     #[inline]
-    fn write_i32_le(&mut self, n: i32) -> Result<(), IOError> {
+    fn write_i32_le(&mut self, n: i32) {
         self.write_slice(&n.to_le_bytes())
     }
 
     #[inline]
-    fn write_u64(&mut self, n: u64) -> Result<(), IOError> {
+    fn write_u64(&mut self, n: u64) {
         self.write_slice(&n.to_be_bytes())
     }
 
     #[inline]
-    fn write_u64_le(&mut self, n: u64) -> Result<(), IOError> {
+    fn write_u64_le(&mut self, n: u64) {
         self.write_slice(&n.to_le_bytes())
     }
 
     #[inline]
-    fn write_i64(&mut self, n: i64) -> Result<(), IOError> {
+    fn write_i64(&mut self, n: i64) {
         self.write_slice(&n.to_be_bytes())
     }
 
     #[inline]
-    fn write_i64_le(&mut self, n: i64) -> Result<(), IOError> {
+    fn write_i64_le(&mut self, n: i64) {
         self.write_slice(&n.to_le_bytes())
     }
 
     #[inline]
-    fn write_u128(&mut self, n: u128) -> Result<(), IOError> {
+    fn write_u128(&mut self, n: u128) {
         self.write_slice(&n.to_be_bytes())
     }
 
     #[inline]
-    fn write_u128_le(&mut self, n: u128) -> Result<(), IOError> {
+    fn write_u128_le(&mut self, n: u128) {
         self.write_slice(&n.to_le_bytes())
     }
 
     #[inline]
-    fn write_i128(&mut self, n: i128) -> Result<(), IOError> {
+    fn write_i128(&mut self, n: i128) {
         self.write_slice(&n.to_be_bytes())
     }
 
     #[inline]
-    fn write_i128_le(&mut self, n: i128) -> Result<(), IOError> {
+    fn write_i128_le(&mut self, n: i128) {
         self.write_slice(&n.to_le_bytes())
     }
 
     #[inline]
-    fn write_uint(&mut self, n: u64, nbytes: usize) -> Result<(), IOError> {
+    fn write_uint(&mut self, n: u64, nbytes: usize) {
         self.write_slice(&n.to_be_bytes()[mem::size_of_val(&n) - nbytes..])
     }
 
     #[inline]
-    fn write_uint_le(&mut self, n: u64, nbytes: usize) -> Result<(), IOError> {
+    fn write_uint_le(&mut self, n: u64, nbytes: usize) {
         self.write_slice(&n.to_le_bytes()[0..nbytes])
     }
 
     #[inline]
-    fn write_int(&mut self, n: i64, nbytes: usize) -> Result<(), IOError> {
+    fn write_int(&mut self, n: i64, nbytes: usize) {
         self.write_slice(&n.to_be_bytes()[mem::size_of_val(&n) - nbytes..])
     }
 
     #[inline]
-    fn write_int_le(&mut self, n: i64, nbytes: usize) -> Result<(), IOError> {
+    fn write_int_le(&mut self, n: i64, nbytes: usize) {
         self.write_slice(&n.to_le_bytes()[0..nbytes])
     }
 
     #[inline]
-    fn write_f32(&mut self, n: f32) -> Result<(), IOError> {
+    fn write_f32(&mut self, n: f32) {
         self.write_u32(n.to_bits())
     }
 
     #[inline]
-    fn write_f32_le(&mut self, n: f32) -> Result<(), IOError> {
+    fn write_f32_le(&mut self, n: f32) {
         self.write_u32_le(n.to_bits())
     }
 
     #[inline]
-    fn write_f64(&mut self, n: f64) -> Result<(), IOError> {
+    fn write_f64(&mut self, n: f64) {
         self.write_u64(n.to_bits())
     }
 
     #[inline]
-    fn write_f64_le(&mut self, n: f64) -> Result<(), IOError> {
+    fn write_f64_le(&mut self, n: f64) {
         self.write_u64_le(n.to_bits())
     }
 }

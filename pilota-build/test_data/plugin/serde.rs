@@ -92,14 +92,14 @@ pub mod serde {
                 protocol.read_struct_end()?;
 
                 let Some(a) = a else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field a is required".to_string(),
                     ));
                 };
                 let Some(b) = b else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field b is required".to_string(),
                     ));
                 };
@@ -170,14 +170,14 @@ pub mod serde {
                     protocol.read_struct_end().await?;
 
                     let Some(a) = a else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field a is required".to_string(),
                         ));
                     };
                     let Some(b) = b else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field b is required".to_string(),
                         ));
                     };
@@ -251,8 +251,8 @@ pub mod serde {
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
                 let value = protocol.read_i32()?;
                 Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
-                    ::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    ::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         format!("invalid enum value for C, value: {}", value),
                     )
                 })?)
@@ -271,8 +271,8 @@ pub mod serde {
                 ::std::boxed::Box::pin(async move {
                     let value = protocol.read_i32().await?;
                     Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
-                        ::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        ::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             format!("invalid enum value for C, value: {}", value),
                         )
                     })?)

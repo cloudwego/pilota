@@ -73,8 +73,8 @@ pub mod decode_error {
                 protocol.read_struct_end()?;
 
                 let Some(b) = b else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field b is required".to_string(),
                     ));
                 };
@@ -142,8 +142,8 @@ pub mod decode_error {
                     protocol.read_struct_end().await?;
 
                     let Some(b) = b else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field b is required".to_string(),
                         ));
                     };
@@ -233,8 +233,8 @@ pub mod decode_error {
                 protocol.read_struct_end()?;
 
                 let Some(a) = a else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field a is required".to_string(),
                     ));
                 };
@@ -299,8 +299,8 @@ pub mod decode_error {
                     protocol.read_struct_end().await?;
 
                     let Some(a) = a else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field a is required".to_string(),
                         ));
                     };
@@ -390,8 +390,8 @@ pub mod decode_error {
                 protocol.read_struct_end()?;
 
                 let Some(c) = c else {
-                    return Err(::pilota::thrift::DecodeError::new(
-                        ::pilota::thrift::DecodeErrorKind::InvalidData,
+                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field c is required".to_string(),
                     ));
                 };
@@ -459,8 +459,8 @@ pub mod decode_error {
                     protocol.read_struct_end().await?;
 
                     let Some(c) = c else {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::InvalidData,
+                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field c is required".to_string(),
                         ));
                     };

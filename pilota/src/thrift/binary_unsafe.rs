@@ -6,10 +6,10 @@ use linkedbytes::LinkedBytes;
 use smallvec::SmallVec;
 
 use super::{
-    error::ProtocolErrorKind, new_protocol_error, DecodeError, DecodeErrorKind, EncodeError,
-    ProtocolError, TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier,
-    TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier,
-    TStructIdentifier, TType, BINARY_BASIC_TYPE_FIXED_SIZE, ZERO_COPY_THRESHOLD,
+    error::ProtocolExceptionKind, DecodeError, EncodeError, ProtocolException, TFieldIdentifier,
+    TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier, TMessageIdentifier,
+    TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
+    BINARY_BASIC_TYPE_FIXED_SIZE, ZERO_COPY_THRESHOLD,
 };
 
 static VERSION_1: u32 = 0x80010000;
@@ -54,10 +54,10 @@ impl<T> TBinaryUnsafeOutputProtocol<T> {
 }
 
 #[inline]
-fn field_type_from_u8(ttype: u8) -> Result<TType, ProtocolError> {
+fn field_type_from_u8(ttype: u8) -> Result<TType, ProtocolException> {
     let ttype: TType = ttype.try_into().map_err(|_| {
-        new_protocol_error(
-            ProtocolErrorKind::InvalidData,
+        ProtocolException::new(
+            ProtocolExceptionKind::InvalidData,
             format!("invalid ttype {}", ttype),
         )
     })?;
@@ -891,24 +891,24 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         let size = self.read_i32()?;
 
         if size > 0 {
-            return Err(DecodeError::new(
-                DecodeErrorKind::BadVersion,
+            return Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::BadVersion,
                 "Missing version in ReadMessageBegin".to_string(),
             ));
         }
         let type_u8 = (size & 0xf) as u8;
 
         let message_type = TMessageType::try_from(type_u8).map_err(|_| {
-            DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            DecodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid message type {}", type_u8),
             )
         })?;
 
         let version = size & (VERSION_MASK as i32);
         if version != (VERSION_1 as i32) {
-            return Err(DecodeError::new(
-                DecodeErrorKind::BadVersion,
+            return Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::BadVersion,
                 "Bad version in ReadMessageBegin",
             ));
         }
@@ -938,8 +938,8 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     fn read_field_begin(&mut self) -> Result<TFieldIdentifier, DecodeError> {
         let field_type_byte = self.read_byte()?;
         let field_type = field_type_byte.try_into().map_err(|_| {
-            DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            DecodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid ttype {}", field_type_byte),
             )
         })?;
@@ -1279,8 +1279,8 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
                     }
                 }
                 u => {
-                    return Err(DecodeError::new(
-                        DecodeErrorKind::DepthLimit,
+                    return Err(DecodeError::new_protocol(
+                        ProtocolExceptionKind::DepthLimit,
                         format!("cannot skip field type {:?}", &u),
                     ))
                 }

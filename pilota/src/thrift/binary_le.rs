@@ -6,13 +6,11 @@ use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
-    error::ProtocolErrorKind,
-    new_protocol_error,
+    error::ProtocolExceptionKind,
     rw_ext::{ReadExt, WriteExt},
-    DecodeError, DecodeErrorKind, EncodeError, ProtocolError, TAsyncInputProtocol,
-    TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
-    TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    ZERO_COPY_THRESHOLD,
+    DecodeError, EncodeError, ProtocolException, TAsyncInputProtocol, TFieldIdentifier,
+    TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier, TMessageIdentifier,
+    TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType, ZERO_COPY_THRESHOLD,
 };
 
 const VERSION_LE: u32 = 0x88880000;
@@ -39,10 +37,10 @@ impl<T> TBinaryProtocol<T> {
 }
 
 #[inline]
-fn field_type_from_u8(ttype: u8) -> Result<TType, ProtocolError> {
+fn field_type_from_u8(ttype: u8) -> Result<TType, ProtocolException> {
     let ttype: TType = ttype.try_into().map_err(|_| {
-        new_protocol_error(
-            ProtocolErrorKind::InvalidData,
+        ProtocolException::new(
+            ProtocolExceptionKind::InvalidData,
             format!("invalid ttype {}", ttype),
         )
     })?;
@@ -221,7 +219,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
         let id = id.to_le_bytes();
         data[1] = id[0];
         data[2] = id[1];
-        self.trans.write_slice(&data)?;
+        self.trans.write_slice(&data);
         Ok(())
     }
 
@@ -252,63 +250,63 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
 
     #[inline]
     fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), EncodeError> {
-        self.trans.write_slice(&b)?;
+        self.trans.write_slice(&b);
         Ok(())
     }
 
     #[inline]
     fn write_byte(&mut self, b: u8) -> Result<(), EncodeError> {
-        self.trans.write_u8(b)?;
+        self.trans.write_u8(b);
         Ok(())
     }
 
     #[inline]
     fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError> {
-        self.trans.write_slice(&u)?;
+        self.trans.write_slice(&u);
         Ok(())
     }
 
     #[inline]
     fn write_i8(&mut self, i: i8) -> Result<(), EncodeError> {
-        self.trans.write_i8(i)?;
+        self.trans.write_i8(i);
         Ok(())
     }
 
     #[inline]
     fn write_i16(&mut self, i: i16) -> Result<(), EncodeError> {
-        self.trans.write_i16_le(i)?;
+        self.trans.write_i16_le(i);
         Ok(())
     }
 
     #[inline]
     fn write_i32(&mut self, i: i32) -> Result<(), EncodeError> {
-        self.trans.write_i32_le(i)?;
+        self.trans.write_i32_le(i);
         Ok(())
     }
 
     #[inline]
     fn write_i64(&mut self, i: i64) -> Result<(), EncodeError> {
-        self.trans.write_i64_le(i)?;
+        self.trans.write_i64_le(i);
         Ok(())
     }
 
     #[inline]
     fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
-        self.trans.write_f64_le(d)?;
+        self.trans.write_f64_le(d);
         Ok(())
     }
 
     #[inline]
     fn write_string(&mut self, s: &str) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
-        self.trans.write_slice(s.as_bytes())?;
+        self.trans.write_slice(s.as_bytes());
         Ok(())
     }
 
     #[inline]
     fn write_faststr(&mut self, s: FastStr) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
-        self.trans.write_slice(s.as_ref())?;
+        self.trans.write_slice(s.as_ref());
         Ok(())
     }
 
@@ -356,7 +354,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     #[inline]
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
-        self.trans.write_slice(b)?;
+        self.trans.write_slice(b);
         Ok(())
     }
 
@@ -401,7 +399,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
         let id = id.to_le_bytes();
         data[1] = id[0];
         data[2] = id[1];
-        self.trans.bytes_mut().write_slice(&data)?;
+        self.trans.bytes_mut().write_slice(&data);
         Ok(())
     }
 
@@ -437,56 +435,56 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
             self.trans.insert(b);
             return Ok(());
         }
-        self.trans.bytes_mut().write_slice(&b)?;
+        self.trans.bytes_mut().write_slice(&b);
         Ok(())
     }
 
     #[inline]
     fn write_byte(&mut self, b: u8) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_u8(b)?;
+        self.trans.bytes_mut().write_u8(b);
         Ok(())
     }
 
     #[inline]
     fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_slice(&u)?;
+        self.trans.bytes_mut().write_slice(&u);
         Ok(())
     }
 
     #[inline]
     fn write_i8(&mut self, i: i8) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_i8(i)?;
+        self.trans.bytes_mut().write_i8(i);
         Ok(())
     }
 
     #[inline]
     fn write_i16(&mut self, i: i16) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_i16_le(i)?;
+        self.trans.bytes_mut().write_i16_le(i);
         Ok(())
     }
 
     #[inline]
     fn write_i32(&mut self, i: i32) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_i32_le(i)?;
+        self.trans.bytes_mut().write_i32_le(i);
         Ok(())
     }
 
     #[inline]
     fn write_i64(&mut self, i: i64) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_i64_le(i)?;
+        self.trans.bytes_mut().write_i64_le(i);
         Ok(())
     }
 
     #[inline]
     fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_f64_le(d)?;
+        self.trans.bytes_mut().write_f64_le(d);
         Ok(())
     }
 
     #[inline]
     fn write_string(&mut self, s: &str) -> Result<(), EncodeError> {
         self.write_i32(s.len() as i32)?;
-        self.trans.bytes_mut().write_slice(s.as_bytes())?;
+        self.trans.bytes_mut().write_slice(s.as_bytes());
         Ok(())
     }
     #[inline]
@@ -497,7 +495,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
             self.trans.insert_faststr(s);
             return Ok(());
         }
-        self.trans.bytes_mut().write_slice(s.as_ref())?;
+        self.trans.bytes_mut().write_slice(s.as_ref());
         Ok(())
     }
 
@@ -545,7 +543,7 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     #[inline]
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError> {
         self.write_i32(b.len() as i32)?;
-        self.trans.bytes_mut().write_slice(b)?;
+        self.trans.bytes_mut().write_slice(b);
         Ok(())
     }
 
@@ -567,26 +565,26 @@ where
     async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
         let size = self.reader.read_i32_le().await?;
         if size > 0 {
-            return Err(DecodeError::new(
-                DecodeErrorKind::BadVersion,
-                "Missing version in ReadMessageBegin".to_string(),
+            return Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::BadVersion,
+                "Missing version in ReadMessageBegin",
             ));
         }
 
         let type_u8 = (size & 0xf) as u8;
 
         let message_type = TMessageType::try_from(type_u8).map_err(|_| {
-            DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            DecodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid message type {}", type_u8),
             )
         })?;
 
         let version = size & (VERSION_MASK as i32);
         if version != (VERSION_LE as i32) {
-            return Err(DecodeError::new(
-                DecodeErrorKind::BadVersion,
-                "Bad version in ReadMessageBegin",
+            return Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::BadVersion,
+                format!("Bad version {:x} in ReadMessageBegin", version),
             ));
         }
 
@@ -615,8 +613,8 @@ where
     async fn read_field_begin(&mut self) -> Result<TFieldIdentifier, DecodeError> {
         let field_type_byte = self.read_byte().await?;
         let field_type = field_type_byte.try_into().map_err(|_| {
-            DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            DecodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid ttype {}", field_type_byte),
             )
         })?;
@@ -774,24 +772,24 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
         let size = self.trans.read_i32_le()?;
 
         if size > 0 {
-            return Err(DecodeError::new(
-                DecodeErrorKind::BadVersion,
+            return Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::BadVersion,
                 "Missing version in ReadMessageBegin".to_string(),
             ));
         }
         let type_u8 = (size & 0xf) as u8;
 
         let message_type = TMessageType::try_from(type_u8).map_err(|_| {
-            DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            DecodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid message type {}", type_u8),
             )
         })?;
 
         let version = size & (VERSION_MASK as i32);
         if version != (VERSION_LE as i32) {
-            return Err(DecodeError::new(
-                DecodeErrorKind::BadVersion,
+            return Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::BadVersion,
                 "Bad version in ReadMessageBegin",
             ));
         }
@@ -821,8 +819,8 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
     fn read_field_begin(&mut self) -> Result<TFieldIdentifier, DecodeError> {
         let field_type_byte = self.read_byte()?;
         let field_type = field_type_byte.try_into().map_err(|_| {
-            DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            DecodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid ttype {}", field_type_byte),
             )
         })?;

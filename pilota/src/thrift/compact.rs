@@ -11,14 +11,12 @@ use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
-    error::ProtocolErrorKind,
-    new_protocol_error,
+    error::ProtocolExceptionKind,
     rw_ext::{ReadExt, WriteExt},
     varint_ext::VarIntProcessor,
-    DecodeError, DecodeErrorKind, EncodeError, ProtocolError, TAsyncInputProtocol,
-    TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
-    TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType,
-    ZERO_COPY_THRESHOLD,
+    DecodeError, EncodeError, ProtocolException, TAsyncInputProtocol, TFieldIdentifier,
+    TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier, TMessageIdentifier,
+    TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType, ZERO_COPY_THRESHOLD,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -44,7 +42,7 @@ const COMPACT_BOOLEAN_TRUE: u8 = TCompactType::BooleanTrue as u8;
 const COMPACT_BOOLEAN_FALSE: u8 = TCompactType::BooleanFalse as u8;
 
 impl TryFrom<u8> for TCompactType {
-    type Error = ProtocolError;
+    type Error = ProtocolException;
     #[inline]
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
@@ -62,8 +60,8 @@ impl TryFrom<u8> for TCompactType {
             0x0B => Ok(TCompactType::Map),
             0x0C => Ok(TCompactType::Struct),
             0x0D => Ok(TCompactType::Uuid),
-            _ => Err(new_protocol_error(
-                ProtocolErrorKind::InvalidData,
+            _ => Err(ProtocolException::new(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid compact type {:?}", value),
             )),
         }
@@ -71,7 +69,7 @@ impl TryFrom<u8> for TCompactType {
 }
 
 impl TryFrom<TType> for TCompactType {
-    type Error = ProtocolError;
+    type Error = ProtocolException;
     #[inline]
     fn try_from(value: TType) -> Result<Self, Self::Error> {
         match value {
@@ -88,8 +86,8 @@ impl TryFrom<TType> for TCompactType {
             TType::Map => Ok(Self::Map),
             TType::Struct => Ok(Self::Struct),
             TType::Uuid => Ok(Self::Uuid),
-            _ => Err(new_protocol_error(
-                ProtocolErrorKind::InvalidData,
+            _ => Err(ProtocolException::new(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid ttype {:?}", value),
             )),
         }
@@ -97,7 +95,7 @@ impl TryFrom<TType> for TCompactType {
 }
 
 impl TryFrom<TCompactType> for TType {
-    type Error = ProtocolError;
+    type Error = ProtocolException;
     #[inline]
     fn try_from(value: TCompactType) -> Result<Self, Self::Error> {
         match value {
@@ -125,20 +123,20 @@ const COMPACT_TYPE_MASK: u8 = 0x0E0;
 const COMPACT_TYPE_SHIFT_AMOUNT: u8 = 5;
 
 #[inline]
-fn tcompact_get_ttype(ct: TCompactType) -> Result<TType, ProtocolError> {
+fn tcompact_get_ttype(ct: TCompactType) -> Result<TType, ProtocolException> {
     ct.try_into().map_err(|_| {
-        new_protocol_error(
-            ProtocolErrorKind::InvalidData,
+        ProtocolException::new(
+            ProtocolExceptionKind::InvalidData,
             format!("don't know what type: {:?}", ct),
         )
     })
 }
 
 #[inline]
-fn tcompact_get_compact(tt: TType) -> Result<TCompactType, ProtocolError> {
+fn tcompact_get_compact(tt: TType) -> Result<TCompactType, ProtocolException> {
     tt.try_into().map_err(|_| {
-        new_protocol_error(
-            ProtocolErrorKind::InvalidData,
+        ProtocolException::new(
+            ProtocolExceptionKind::InvalidData,
             format!("invalid ttype {:?}", tt),
         )
     })
@@ -219,8 +217,8 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
             .write_field_id_stack
             .pop()
             .ok_or_else(|| {
-                DecodeError::new(
-                    super::DecodeErrorKind::InvalidData,
+                DecodeError::new_protocol(
+                    super::ProtocolExceptionKind::InvalidData,
                     "StructEndLen called without matching StructBeginLen",
                 )
             })
@@ -406,7 +404,7 @@ impl TCompactOutputProtocol<&mut BytesMut> {
     fn write_varint<VI: VarInt>(&mut self, n: VI) -> Result<(), EncodeError> {
         let mut buf = [0u8; 10];
         let size = n.encode_var(&mut buf);
-        self.trans.write_slice(&buf[0..size])?;
+        self.trans.write_slice(&buf[0..size]);
         Ok(())
     }
 
@@ -451,7 +449,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
             COMPACT_PROTOCOL_ID,
             (COMPACT_VERSION & COMPACT_VERSION_MASK)
                 | ((mtype << COMPACT_TYPE_SHIFT_AMOUNT) & COMPACT_TYPE_MASK),
-        ])?;
+        ]);
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(identifier.sequence_number as u32)?;
         self.write_faststr(identifier.name.clone())?;
@@ -473,8 +471,8 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     fn write_struct_end(&mut self) -> Result<(), EncodeError> {
         self.assert_no_pending_bool_write();
         self.last_write_field_id = self.write_field_id_stack.pop().ok_or_else(|| {
-            EncodeError::new(
-                ProtocolErrorKind::InvalidData,
+            EncodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 "WriteStructEnd called without matching WriteStructBegin",
             )
         })?;
@@ -546,25 +544,25 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
 
     #[inline]
     fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), EncodeError> {
-        self.trans.write_slice(&b)?;
+        self.trans.write_slice(&b);
         Ok(())
     }
 
     #[inline]
     fn write_byte(&mut self, b: u8) -> Result<(), EncodeError> {
-        self.trans.write_u8(b)?;
+        self.trans.write_u8(b);
         Ok(())
     }
 
     #[inline]
     fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError> {
-        self.trans.write_slice(&u)?;
+        self.trans.write_slice(&u);
         Ok(())
     }
 
     #[inline]
     fn write_i8(&mut self, i: i8) -> Result<(), EncodeError> {
-        self.trans.write_i8(i)?;
+        self.trans.write_i8(i);
         Ok(())
     }
     #[inline]
@@ -584,7 +582,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
     }
     #[inline]
     fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
-        self.trans.write_f64(d)?;
+        self.trans.write_f64(d);
         Ok(())
     }
 
@@ -593,7 +591,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(s.len() as u32)?;
-        self.trans.write_slice(s.as_bytes())?;
+        self.trans.write_slice(s.as_bytes());
         Ok(())
     }
 
@@ -602,7 +600,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(s.len() as u32)?;
-        self.trans.write_slice(s.as_ref())?;
+        self.trans.write_slice(s.as_ref());
         Ok(())
     }
 
@@ -656,7 +654,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(b.len() as u32)?;
-        self.trans.write_slice(b)?;
+        self.trans.write_slice(b);
         Ok(())
     }
 
@@ -671,7 +669,7 @@ impl TCompactOutputProtocol<&mut LinkedBytes> {
     fn write_varint<VI: VarInt>(&mut self, n: VI) -> Result<(), EncodeError> {
         let mut buf = [0u8; 10];
         let size = n.encode_var(&mut buf);
-        self.trans.bytes_mut().write_slice(&buf[0..size])?;
+        self.trans.bytes_mut().write_slice(&buf[0..size]);
         Ok(())
     }
 
@@ -716,7 +714,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
             COMPACT_PROTOCOL_ID,
             (COMPACT_VERSION & COMPACT_VERSION_MASK)
                 | ((mtype << COMPACT_TYPE_SHIFT_AMOUNT) & COMPACT_TYPE_MASK),
-        ])?;
+        ]);
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(identifier.sequence_number as u32)?;
         self.write_faststr(identifier.name.clone())?;
@@ -738,8 +736,8 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
     fn write_struct_end(&mut self) -> Result<(), EncodeError> {
         self.assert_no_pending_bool_write();
         self.last_write_field_id = self.write_field_id_stack.pop().ok_or_else(|| {
-            EncodeError::new(
-                ProtocolErrorKind::InvalidData,
+            EncodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 "WriteStructEnd called without matching WriteStructBegin",
             )
         })?;
@@ -817,24 +815,24 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
             self.trans.insert(b);
             return Ok(());
         }
-        self.trans.bytes_mut().write_slice(&b)?;
+        self.trans.bytes_mut().write_slice(&b);
         Ok(())
     }
     #[inline]
     fn write_byte(&mut self, b: u8) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_u8(b)?;
+        self.trans.bytes_mut().write_u8(b);
         Ok(())
     }
 
     #[inline]
     fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_slice(&u)?;
+        self.trans.bytes_mut().write_slice(&u);
         Ok(())
     }
 
     #[inline]
     fn write_i8(&mut self, i: i8) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_i8(i)?;
+        self.trans.bytes_mut().write_i8(i);
         Ok(())
     }
     #[inline]
@@ -854,7 +852,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
     }
     #[inline]
     fn write_double(&mut self, d: f64) -> Result<(), EncodeError> {
-        self.trans.bytes_mut().write_f64(d)?;
+        self.trans.bytes_mut().write_f64(d);
         Ok(())
     }
 
@@ -863,7 +861,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(s.len() as u32)?;
-        self.trans.bytes_mut().write_slice(s.as_bytes())?;
+        self.trans.bytes_mut().write_slice(s.as_bytes());
         Ok(())
     }
 
@@ -877,7 +875,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
             self.trans.insert_faststr(s);
             return Ok(());
         }
-        self.trans.bytes_mut().write_slice(s.as_ref())?;
+        self.trans.bytes_mut().write_slice(s.as_ref());
         Ok(())
     }
 
@@ -931,7 +929,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
         // length is strictly positive as per the spec, so
         // cast i32 as u32 so that varint writing won't use zigzag encoding
         self.write_varint(b.len() as u32)?;
-        self.trans.bytes_mut().write_slice(b)?;
+        self.trans.bytes_mut().write_slice(b);
         Ok(())
     }
 
@@ -956,8 +954,8 @@ where
     async fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
         let compact_id = self.read_byte().await?;
         if compact_id != COMPACT_PROTOCOL_ID {
-            return Err(DecodeError::new(
-                DecodeErrorKind::BadVersion,
+            return Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::BadVersion,
                 format!("invalid compact protocol header {:?}", compact_id),
             ));
         }
@@ -965,8 +963,8 @@ where
         let type_and_byte = self.read_byte().await?;
         let version = type_and_byte & COMPACT_VERSION_MASK;
         if version != COMPACT_VERSION {
-            return Err(DecodeError::new(
-                DecodeErrorKind::BadVersion,
+            return Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::BadVersion,
                 format!("cannot process compact protocol version {:?}", version),
             ));
         }
@@ -974,8 +972,8 @@ where
         // NOTE: unsigned right shift will pad with 0s
         let type_id = type_and_byte >> 5;
         let message_type = TMessageType::try_from(type_id).map_err(|_| {
-            DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            DecodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid message type {}", type_id),
             )
         })?;
@@ -1057,8 +1055,8 @@ where
                 match b {
                     TCompactType::BooleanTrue => Ok(true),
                     TCompactType::BooleanFalse => Ok(false),
-                    unkn => Err(DecodeError::new(
-                        DecodeErrorKind::InvalidData,
+                    unkn => Err(DecodeError::new_protocol(
+                        ProtocolExceptionKind::InvalidData,
                         format!("cannot convert {:?} into bool", unkn),
                     )),
                 }
@@ -1214,8 +1212,9 @@ where
             let read = self.reader.read_u8().await?;
             p.push(read)?;
         }
-        p.decode()
-            .ok_or_else(|| DecodeError::new(DecodeErrorKind::InvalidData, "can't decode varint"))
+        p.decode().ok_or_else(|| {
+            DecodeError::new_protocol(ProtocolExceptionKind::InvalidData, "can't decode varint")
+        })
     }
 }
 
@@ -1259,8 +1258,9 @@ impl TCompactInputProtocol<&mut Bytes> {
             let read = self.trans.read_u8()?;
             p.push(read)?;
         }
-        p.decode()
-            .ok_or_else(|| DecodeError::new(DecodeErrorKind::InvalidData, "can't decode varint"))
+        p.decode().ok_or_else(|| {
+            DecodeError::new_protocol(ProtocolExceptionKind::InvalidData, "can't decode varint")
+        })
     }
 
     #[inline]
@@ -1315,8 +1315,8 @@ impl<T> TLengthProtocol for TCompactInputProtocol<T> {
             .read_field_id_stack
             .pop()
             .ok_or_else(|| {
-                DecodeError::new(
-                    super::DecodeErrorKind::InvalidData,
+                DecodeError::new_protocol(
+                    super::ProtocolExceptionKind::InvalidData,
                     "StructEndLen called without matching StructBeginLen",
                 )
             })
@@ -1501,8 +1501,8 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
     fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError> {
         let compact_id = self.read_byte()?;
         if compact_id != COMPACT_PROTOCOL_ID {
-            return Err(DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            return Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid compact protocol header {:?}", compact_id),
             ));
         }
@@ -1510,8 +1510,8 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
         let type_and_byte = self.read_byte()?;
         let version = type_and_byte & COMPACT_VERSION_MASK;
         if version != COMPACT_VERSION {
-            return Err(DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            return Err(DecodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 format!("cannot process compact protocol version {:?}", version),
             ));
         }
@@ -1519,8 +1519,8 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
         // NOTE: unsigned right shift will pad with 0s
         let type_id = type_and_byte >> 5;
         let message_type = TMessageType::try_from(type_id).map_err(|_| {
-            DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            DecodeError::new_protocol(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid message type {:?}", type_id),
             )
         })?;
@@ -1602,8 +1602,8 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
                 match b {
                     TCompactType::BooleanTrue => Ok(true),
                     TCompactType::BooleanFalse => Ok(false),
-                    unkn => Err(DecodeError::new(
-                        DecodeErrorKind::InvalidData,
+                    unkn => Err(DecodeError::new_protocol(
+                        ProtocolExceptionKind::InvalidData,
                         format!("cannot convert {:?} into bool", unkn),
                     )),
                 }
