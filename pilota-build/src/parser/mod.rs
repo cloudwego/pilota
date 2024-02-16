@@ -8,6 +8,7 @@ use crate::{ir::File, symbol::FileId};
 pub(crate) mod protobuf;
 pub(crate) mod thrift;
 
+use faststr::FastStr;
 use rustc_hash::FxHashMap;
 pub use thrift::ThriftParser;
 
@@ -29,6 +30,8 @@ pub trait Parser {
     fn include_dirs(&mut self, dirs: Vec<PathBuf>);
 
     fn nonstandard_snake_case(&mut self, _nonstandard: bool) {}
+
+    fn common_crate_name(&mut self, _name: FastStr) {}
 
     fn parse(self) -> ParseResult;
 }

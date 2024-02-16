@@ -86,6 +86,7 @@ pub struct Builder<MkB, P> {
     keep_unknown_fields: Vec<std::path::PathBuf>,
     dedups: Vec<FastStr>,
     nonstandard_snake_case: bool,
+    common_crate_name: FastStr
 }
 
 impl Builder<MkThriftBackend, ThriftParser> {
@@ -105,6 +106,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             keep_unknown_fields: Vec::default(),
             dedups: Vec::default(),
             nonstandard_snake_case: false,
+            common_crate_name: "common".into()
         }
     }
 }
@@ -126,6 +128,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             keep_unknown_fields: Vec::default(),
             dedups: Vec::default(),
             nonstandard_snake_case: false,
+            common_crate_name: "common".into(),
         }
     }
 }
@@ -144,6 +147,12 @@ where
         self.nonstandard_snake_case = flag;
         self
     }
+    
+    pub fn common_crate_name(mut self, name: FastStr) -> Self {
+        self.parser.common_crate_name(name.clone());
+        self.common_crate_name = name; 
+        self 
+    }
 }
 
 impl<MkB, P> Builder<MkB, P> {
@@ -159,6 +168,7 @@ impl<MkB, P> Builder<MkB, P> {
             keep_unknown_fields: self.keep_unknown_fields,
             dedups: self.dedups,
             nonstandard_snake_case: self.nonstandard_snake_case,
+            common_crate_name: self.common_crate_name
         }
     }
 
@@ -262,6 +272,7 @@ where
         keep_unknown_fields: Vec<PathBuf>,
         dedups: Vec<FastStr>,
         nonstandard_snake_case: bool,
+        common_crate_name: FastStr,
     ) -> Context {
         let mut db = RootDatabase::default();
         parser.inputs(services.iter().map(|s| &s.path));
@@ -336,6 +347,7 @@ where
             change_case,
             dedups,
             nonstandard_snake_case,
+            common_crate_name
         )
     }
 
@@ -353,6 +365,7 @@ where
             self.keep_unknown_fields,
             self.dedups,
             self.nonstandard_snake_case,
+            self.common_crate_name
         );
 
         cx.exec_plugin(BoxedPlugin);
@@ -434,6 +447,7 @@ where
             self.keep_unknown_fields,
             self.dedups,
             self.nonstandard_snake_case,
+            self.common_crate_name
         );
 
         std::thread::scope(|_scope| {
