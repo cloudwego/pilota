@@ -10,7 +10,7 @@ pub mod pilota_name {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "TEST" };
@@ -24,7 +24,7 @@ pub mod pilota_name {
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
@@ -33,7 +33,7 @@ pub mod pilota_name {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(err) = (|| {
+                if let Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -57,23 +57,20 @@ pub mod pilota_name {
                         protocol.read_field_end()?;
                         protocol.field_end_len();
                     }
-                    Ok::<_, ::pilota::thrift::DecodeError>(())
+                    Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
-                                err,
-                            )),
-                            format!("decode struct `TEST` field(#{}) failed", field_id),
+                        err.prepend_msg(&format!(
+                            "decode struct `TEST` field(#{}) failed, caused by: ",
+                            field_id
                         ));
-                    } else {
-                        return Err(err);
                     }
+                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
                 let Some(id) = id else {
-                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                    return Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field id is required".to_string(),
                     ));
@@ -88,7 +85,7 @@ pub mod pilota_name {
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
-                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
                         > + Send
                         + 'a,
                 >,
@@ -99,7 +96,7 @@ pub mod pilota_name {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(err) = async {
+                    if let Err(mut err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -121,25 +118,22 @@ pub mod pilota_name {
 
                             protocol.read_field_end().await?;
                         }
-                        Ok::<_, ::pilota::thrift::DecodeError>(())
+                        Ok::<_, ::pilota::thrift::ThriftException>(())
                     }
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            return Err(::pilota::thrift::DecodeError::new(
-                                ::pilota::thrift::DecodeErrorKind::WithContext(
-                                    ::std::boxed::Box::new(err),
-                                ),
-                                format!("decode struct `TEST` field(#{}) failed", field_id),
+                            err.prepend_msg(&format!(
+                                "decode struct `TEST` field(#{}) failed, caused by: ",
+                                field_id
                             ));
-                        } else {
-                            return Err(err);
                         }
+                        return Err(err);
                     };
                     protocol.read_struct_end().await?;
 
                     let Some(id) = id else {
-                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                        return Err(::pilota::thrift::new_protocol_exception(
                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field id is required".to_string(),
                         ));
@@ -167,7 +161,7 @@ pub mod pilota_name {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier {
@@ -183,7 +177,7 @@ pub mod pilota_name {
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
@@ -192,7 +186,7 @@ pub mod pilota_name {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(err) = (|| {
+                if let Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -216,26 +210,17 @@ pub mod pilota_name {
                         protocol.read_field_end()?;
                         protocol.field_end_len();
                     }
-                    Ok::<_, ::pilota::thrift::DecodeError>(())
+                    Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
-                                err,
-                            )),
-                            format!(
-                                "decode struct `TestServiceTestArgsRecv` field(#{}) failed",
-                                field_id
-                            ),
-                        ));
-                    } else {
-                        return Err(err);
+                        err.prepend_msg(&format!("decode struct `TestServiceTestArgsRecv` field(#{}) failed, caused by: ", field_id));
                     }
+                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
                 let Some(req) = req else {
-                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                    return Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field req is required".to_string(),
                     ));
@@ -250,7 +235,7 @@ pub mod pilota_name {
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
-                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
                         > + Send
                         + 'a,
                 >,
@@ -261,7 +246,7 @@ pub mod pilota_name {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(err) = async {
+                    if let Err(mut err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -288,28 +273,19 @@ pub mod pilota_name {
 
                             protocol.read_field_end().await?;
                         }
-                        Ok::<_, ::pilota::thrift::DecodeError>(())
+                        Ok::<_, ::pilota::thrift::ThriftException>(())
                     }
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            return Err(::pilota::thrift::DecodeError::new(
-                                ::pilota::thrift::DecodeErrorKind::WithContext(
-                                    ::std::boxed::Box::new(err),
-                                ),
-                                format!(
-                                    "decode struct `TestServiceTestArgsRecv` field(#{}) failed",
-                                    field_id
-                                ),
-                            ));
-                        } else {
-                            return Err(err);
+                            err.prepend_msg(&format!("decode struct `TestServiceTestArgsRecv` field(#{}) failed, caused by: ", field_id));
                         }
+                        return Err(err);
                     };
                     protocol.read_struct_end().await?;
 
                     let Some(req) = req else {
-                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                        return Err(::pilota::thrift::new_protocol_exception(
                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field req is required".to_string(),
                         ));
@@ -343,7 +319,7 @@ pub mod pilota_name {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {
@@ -361,7 +337,7 @@ pub mod pilota_name {
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
                 let mut ret = None;
@@ -381,7 +357,7 @@ pub mod pilota_name {
                                 protocol.struct_len(&field_ident);
                                 ret = Some(TestServiceTestResultSend::Ok(field_ident));
                             } else {
-                                return Err(::pilota::thrift::DecodeError::new_protocol(
+                                return Err(::pilota::thrift::new_protocol_exception(
                                     ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received multiple fields for union from remote Message",
                                 ));
@@ -397,7 +373,7 @@ pub mod pilota_name {
                 if let Some(ret) = ret {
                     Ok(ret)
                 } else {
-                    Err(::pilota::thrift::DecodeError::new_protocol(
+                    Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "received empty union from remote Message",
                     ))
@@ -409,7 +385,7 @@ pub mod pilota_name {
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
-                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
                         > + Send
                         + 'a,
                 >,
@@ -434,7 +410,7 @@ pub mod pilota_name {
 
                                     ret = Some(TestServiceTestResultSend::Ok(field_ident));
                                 } else {
-                                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                                    return Err(::pilota::thrift::new_protocol_exception(
                                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                         "received multiple fields for union from remote Message",
                                     ));
@@ -450,7 +426,7 @@ pub mod pilota_name {
                     if let Some(ret) = ret {
                         Ok(ret)
                     } else {
-                        Err(::pilota::thrift::DecodeError::new_protocol(
+                        Err(::pilota::thrift::new_protocol_exception(
                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "received empty union from remote Message",
                         ))
@@ -481,7 +457,7 @@ pub mod pilota_name {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "Test" };
@@ -496,7 +472,7 @@ pub mod pilota_name {
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
@@ -506,7 +482,7 @@ pub mod pilota_name {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(err) = (|| {
+                if let Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -535,29 +511,26 @@ pub mod pilota_name {
                         protocol.read_field_end()?;
                         protocol.field_end_len();
                     }
-                    Ok::<_, ::pilota::thrift::DecodeError>(())
+                    Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
-                                err,
-                            )),
-                            format!("decode struct `Test` field(#{}) failed", field_id),
+                        err.prepend_msg(&format!(
+                            "decode struct `Test` field(#{}) failed, caused by: ",
+                            field_id
                         ));
-                    } else {
-                        return Err(err);
                     }
+                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
                 let Some(id) = id else {
-                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                    return Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field id is required".to_string(),
                     ));
                 };
                 let Some(hello) = hello else {
-                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                    return Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field hello is required".to_string(),
                     ));
@@ -572,7 +545,7 @@ pub mod pilota_name {
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
-                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
                         > + Send
                         + 'a,
                 >,
@@ -584,7 +557,7 @@ pub mod pilota_name {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(err) = async {
+                    if let Err(mut err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -612,31 +585,28 @@ pub mod pilota_name {
 
                             protocol.read_field_end().await?;
                         }
-                        Ok::<_, ::pilota::thrift::DecodeError>(())
+                        Ok::<_, ::pilota::thrift::ThriftException>(())
                     }
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            return Err(::pilota::thrift::DecodeError::new(
-                                ::pilota::thrift::DecodeErrorKind::WithContext(
-                                    ::std::boxed::Box::new(err),
-                                ),
-                                format!("decode struct `Test` field(#{}) failed", field_id),
+                            err.prepend_msg(&format!(
+                                "decode struct `Test` field(#{}) failed, caused by: ",
+                                field_id
                             ));
-                        } else {
-                            return Err(err);
                         }
+                        return Err(err);
                     };
                     protocol.read_struct_end().await?;
 
                     let Some(id) = id else {
-                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                        return Err(::pilota::thrift::new_protocol_exception(
                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field id is required".to_string(),
                         ));
                     };
                     let Some(hello) = hello else {
-                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                        return Err(::pilota::thrift::new_protocol_exception(
                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field hello is required".to_string(),
                         ));
@@ -665,7 +635,7 @@ pub mod pilota_name {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier {
@@ -681,7 +651,7 @@ pub mod pilota_name {
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
@@ -690,7 +660,7 @@ pub mod pilota_name {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(err) = (|| {
+                if let Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -714,26 +684,17 @@ pub mod pilota_name {
                         protocol.read_field_end()?;
                         protocol.field_end_len();
                     }
-                    Ok::<_, ::pilota::thrift::DecodeError>(())
+                    Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        return Err(::pilota::thrift::DecodeError::new(
-                            ::pilota::thrift::DecodeErrorKind::WithContext(::std::boxed::Box::new(
-                                err,
-                            )),
-                            format!(
-                                "decode struct `TestServiceTestArgsSend` field(#{}) failed",
-                                field_id
-                            ),
-                        ));
-                    } else {
-                        return Err(err);
+                        err.prepend_msg(&format!("decode struct `TestServiceTestArgsSend` field(#{}) failed, caused by: ", field_id));
                     }
+                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
                 let Some(req) = req else {
-                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                    return Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field req is required".to_string(),
                     ));
@@ -748,7 +709,7 @@ pub mod pilota_name {
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
-                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
                         > + Send
                         + 'a,
                 >,
@@ -759,7 +720,7 @@ pub mod pilota_name {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(err) = async {
+                    if let Err(mut err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -786,28 +747,19 @@ pub mod pilota_name {
 
                             protocol.read_field_end().await?;
                         }
-                        Ok::<_, ::pilota::thrift::DecodeError>(())
+                        Ok::<_, ::pilota::thrift::ThriftException>(())
                     }
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            return Err(::pilota::thrift::DecodeError::new(
-                                ::pilota::thrift::DecodeErrorKind::WithContext(
-                                    ::std::boxed::Box::new(err),
-                                ),
-                                format!(
-                                    "decode struct `TestServiceTestArgsSend` field(#{}) failed",
-                                    field_id
-                                ),
-                            ));
-                        } else {
-                            return Err(err);
+                            err.prepend_msg(&format!("decode struct `TestServiceTestArgsSend` field(#{}) failed, caused by: ", field_id));
                         }
+                        return Err(err);
                     };
                     protocol.read_struct_end().await?;
 
                     let Some(req) = req else {
-                        return Err(::pilota::thrift::DecodeError::new_protocol(
+                        return Err(::pilota::thrift::new_protocol_exception(
                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field req is required".to_string(),
                         ));
@@ -843,7 +795,7 @@ pub mod pilota_name {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {
@@ -861,7 +813,7 @@ pub mod pilota_name {
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
                 let mut ret = None;
@@ -881,7 +833,7 @@ pub mod pilota_name {
                                 protocol.struct_len(&field_ident);
                                 ret = Some(TestServiceTestResultRecv::Ok(field_ident));
                             } else {
-                                return Err(::pilota::thrift::DecodeError::new_protocol(
+                                return Err(::pilota::thrift::new_protocol_exception(
                                     ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received multiple fields for union from remote Message",
                                 ));
@@ -897,7 +849,7 @@ pub mod pilota_name {
                 if let Some(ret) = ret {
                     Ok(ret)
                 } else {
-                    Err(::pilota::thrift::DecodeError::new_protocol(
+                    Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "received empty union from remote Message",
                     ))
@@ -909,7 +861,7 @@ pub mod pilota_name {
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
-                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
                         > + Send
                         + 'a,
                 >,
@@ -934,7 +886,7 @@ pub mod pilota_name {
 
                                     ret = Some(TestServiceTestResultRecv::Ok(field_ident));
                                 } else {
-                                    return Err(::pilota::thrift::DecodeError::new_protocol(
+                                    return Err(::pilota::thrift::new_protocol_exception(
                                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                         "received multiple fields for union from remote Message",
                                     ));
@@ -950,7 +902,7 @@ pub mod pilota_name {
                     if let Some(ret) = ret {
                         Ok(ret)
                     } else {
-                        Err(::pilota::thrift::DecodeError::new_protocol(
+                        Err(::pilota::thrift::new_protocol_exception(
                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "received empty union from remote Message",
                         ))
@@ -1010,7 +962,7 @@ pub mod pilota_name {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::EncodeError> {
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 protocol.write_i32(*self as i32)?;
@@ -1019,12 +971,12 @@ pub mod pilota_name {
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
                 protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::DecodeError> {
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
                 let value = protocol.read_i32()?;
                 Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
-                    ::pilota::thrift::DecodeError::new_protocol(
+                    ::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         format!("invalid enum value for Index, value: {}", value),
                     )
@@ -1036,7 +988,7 @@ pub mod pilota_name {
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
-                            Output = ::std::result::Result<Self, ::pilota::thrift::DecodeError>,
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
                         > + Send
                         + 'a,
                 >,
@@ -1044,7 +996,7 @@ pub mod pilota_name {
                 ::std::boxed::Box::pin(async move {
                     let value = protocol.read_i32().await?;
                     Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
-                        ::pilota::thrift::DecodeError::new_protocol(
+                        ::pilota::thrift::new_protocol_exception(
                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             format!("invalid enum value for Index, value: {}", value),
                         )

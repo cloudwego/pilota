@@ -13,6 +13,12 @@ use std::{
 
 use faststr::FastStr;
 
+/// A Thrift exception.
+///
+/// This type is used to represent errors that occur during Thrift
+/// processing. It is a catch-all for errors that occur in the Thrift
+/// runtime, including errors from the protocol, transport, and application
+/// layers.
 #[derive(Debug)]
 pub enum ThriftException {
     /// Errors encountered within auto-generated code, or when incoming
@@ -32,6 +38,12 @@ pub enum ThriftException {
     ///
     /// These include *connection closed* and *bind failure*.
     Transport(TransportException),
+}
+
+impl From<ApplicationException> for ThriftException {
+    fn from(e: ApplicationException) -> Self {
+        ThriftException::Application(e)
+    }
 }
 
 impl From<TransportException> for ThriftException {
@@ -69,209 +81,41 @@ impl Display for ThriftException {
 
 impl std::error::Error for ThriftException {}
 
-impl From<ApplicationException> for DecodeError {
-    fn from(value: ApplicationException) -> Self {
-        DecodeError::new(DecodeErrorKind::Application(value), "")
-    }
-}
-
-impl From<ProtocolException> for DecodeError {
-    fn from(value: ProtocolException) -> Self {
-        DecodeError::new(DecodeErrorKind::Protocol(value), "")
-    }
-}
-
-impl From<std::io::Error> for DecodeError {
-    fn from(value: std::io::Error) -> Self {
-        DecodeError::new(DecodeErrorKind::Transport(value.into()), "")
-    }
-}
-
-impl From<ProtocolException> for EncodeError {
-    fn from(value: ProtocolException) -> Self {
-        EncodeError::new(EncodeErrorKind::Protocol(value), "")
-    }
-}
-
-#[derive(Debug)]
-pub struct DecodeError {
-    kind: DecodeErrorKind,
-    message: FastStr,
-}
-
-impl Display for DecodeError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.message)?;
-        if matches!(self.kind, DecodeErrorKind::WithContext(_)) {
-            write!(f, ", caused by {}", self.kind)?;
-        } else {
-            write!(f, "{}", self.kind)?;
-        }
-        Ok(())
-    }
-}
-
-#[derive(Debug)]
-pub enum DecodeErrorKind {
-    Application(ApplicationException),
-    Protocol(ProtocolException),
-    Transport(TransportException),
-    WithContext(Box<DecodeError>),
-}
-
-impl Display for DecodeErrorKind {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            DecodeErrorKind::Application(e) => write!(f, "ApplicationException: {}", e),
-            DecodeErrorKind::Protocol(e) => write!(f, "ProtocolException: {}", e),
-            DecodeErrorKind::Transport(e) => write!(f, "TransportException: {}", e),
-            DecodeErrorKind::WithContext(e) => write!(f, "{}", e),
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct EncodeError {
-    kind: EncodeErrorKind,
-    message: FastStr,
-}
-
-#[derive(Debug)]
-pub enum EncodeErrorKind {
-    Protocol(ProtocolException),
-    WithContext(Box<EncodeError>),
-}
-
-impl Display for EncodeError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.message)?;
-        if matches!(self.kind, EncodeErrorKind::WithContext(_)) {
-            write!(f, ", caused by {}", self.kind)?;
-        } else {
-            write!(f, "{}", self.kind)?;
-        }
-        Ok(())
-    }
-}
-
-impl std::error::Error for EncodeError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match &self.kind {
-            EncodeErrorKind::Protocol(e) => Some(e),
-            EncodeErrorKind::WithContext(e) => Some(e.as_ref()),
-        }
-    }
-}
-
-impl std::error::Error for DecodeError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match &self.kind {
-            DecodeErrorKind::Application(e) => Some(e),
-            DecodeErrorKind::Protocol(e) => Some(e),
-            DecodeErrorKind::Transport(e) => Some(e),
-            DecodeErrorKind::WithContext(e) => Some(e.as_ref()),
-        }
-    }
-}
-
-impl Display for EncodeErrorKind {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            EncodeErrorKind::Protocol(e) => write!(f, "Protocol: {}", e),
-            EncodeErrorKind::WithContext(e) => write!(f, "{}", e),
-        }
-    }
-}
-
-pub trait DecodeErrorExt {
-    fn with_msg<S: Into<FastStr>>(self, get_msg: impl FnOnce() -> S) -> Self;
-}
-
-impl<T> DecodeErrorExt for Result<T, DecodeError> {
-    fn with_msg<S: Into<FastStr>>(self, get_msg: impl FnOnce() -> S) -> Self {
-        match self {
-            Ok(v) => Ok(v),
-            Err(e) => Err(DecodeError {
-                kind: DecodeErrorKind::WithContext(Box::new(e)),
-                message: get_msg().into(),
-            }),
-        }
-    }
-}
-
-pub trait EncodeErrorExt {
-    fn with_msg<S: Into<FastStr>>(self, get_msg: impl FnOnce() -> S) -> Self;
-}
-
-impl<T> EncodeErrorExt for Result<T, EncodeError> {
-    fn with_msg<S: Into<FastStr>>(self, get_msg: impl FnOnce() -> S) -> Self {
-        match self {
-            Ok(v) => Ok(v),
-            Err(e) => Err(EncodeError {
-                kind: EncodeErrorKind::WithContext(Box::new(e)),
-                message: get_msg().into(),
-            }),
-        }
-    }
-}
-
-impl DecodeError {
-    pub fn new<S: Into<FastStr>>(kind: DecodeErrorKind, message: S) -> Self {
-        Self {
-            message: message.into(),
-            kind,
-        }
-    }
-
-    pub fn new_protocol<S: Into<FastStr>>(kind: ProtocolExceptionKind, message: S) -> Self {
-        Self::new(
-            DecodeErrorKind::Protocol(ProtocolException::new(kind, message)),
-            "",
-        )
-    }
-
-    pub fn new_application<S: Into<FastStr>>(kind: ApplicationExceptionKind, message: S) -> Self {
-        Self::new(
-            DecodeErrorKind::Application(ApplicationException::new(kind, message)),
-            "",
-        )
-    }
-
-    pub fn kind(&self) -> &DecodeErrorKind {
-        &self.kind
-    }
-
+impl ThriftException {
+    /// Get the error message.
     pub fn message(&self) -> &FastStr {
-        &self.message
-    }
-}
-
-impl EncodeError {
-    pub fn new<S: Into<FastStr>>(kind: EncodeErrorKind, message: S) -> EncodeError {
-        EncodeError {
-            message: message.into(),
-            kind,
+        match self {
+            ThriftException::Application(e) => e.message(),
+            ThriftException::Protocol(e) => e.message(),
+            ThriftException::Transport(e) => e.message(),
         }
     }
 
-    pub fn new_protocol<S: Into<FastStr>>(kind: ProtocolExceptionKind, message: S) -> EncodeError {
-        EncodeError {
-            message: "".into(),
-            kind: EncodeErrorKind::Protocol(ProtocolException::new(kind, message)),
+    /// Append a message to the existing error message.
+    ///
+    /// That means, the new message will be: `old_message` + `message`.
+    pub fn append_msg(&mut self, message: &str) {
+        match self {
+            ThriftException::Application(e) => e.append_msg(message),
+            ThriftException::Protocol(e) => e.append_msg(message),
+            ThriftException::Transport(e) => e.append_msg(message),
         }
     }
 
-    pub fn kind(&self) -> &EncodeErrorKind {
-        &self.kind
-    }
-
-    pub fn message(&self) -> &FastStr {
-        &self.message
+    /// Prepend a message to the existing error message.
+    ///
+    /// That means, the new message will be: `message` + `old_message`.
+    pub fn prepend_msg(&mut self, message: &str) {
+        match self {
+            ThriftException::Application(e) => e.prepend_msg(message),
+            ThriftException::Protocol(e) => e.prepend_msg(message),
+            ThriftException::Transport(e) => e.prepend_msg(message),
+        }
     }
 }
 
-/// Create a new `Error` instance of type `Application` that wraps an
-/// `ApplicationError`.
+/// Create a new `ThriftException` instance of type `Application` that wraps an
+/// `ApplicationException`.
 pub fn new_application_exception<S: Into<FastStr>>(
     kind: ApplicationExceptionKind,
     message: S,
@@ -279,7 +123,7 @@ pub fn new_application_exception<S: Into<FastStr>>(
     ThriftException::Application(ApplicationException::new(kind, message))
 }
 
-/// Create a new `Error` instance of type `Protocol` that wraps a
+/// Create a new `ThriftException` instance of type `Protocol` that wraps a
 /// `ProtocolException`.
 pub fn new_protocol_exception<S: Into<FastStr>>(
     kind: ProtocolExceptionKind,

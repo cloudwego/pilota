@@ -2,7 +2,7 @@ use std::mem;
 
 use bytes::{Buf as _, BufMut, BytesMut};
 
-use super::DecodeError;
+use super::{new_protocol_exception, ThriftException};
 
 #[derive(thiserror::Error, Debug)]
 pub enum IOError {
@@ -10,9 +10,9 @@ pub enum IOError {
     NoRemaining(String),
 }
 
-impl From<IOError> for DecodeError {
+impl From<IOError> for ThriftException {
     fn from(e: IOError) -> Self {
-        DecodeError::new_protocol(super::ProtocolExceptionKind::InvalidData, format!("{}", e))
+        new_protocol_exception(super::ProtocolExceptionKind::InvalidData, format!("{}", e))
     }
 }
 

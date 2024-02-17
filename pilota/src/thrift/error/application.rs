@@ -10,7 +10,9 @@ use crate::thrift::{
     TStructIdentifier, TType,
 };
 
-use super::{DecodeError, EncodeError};
+use super::ThriftException;
+
+// use super::{DecodeError, EncodeError};
 
 const TAPPLICATION_EXCEPTION: TStructIdentifier = TStructIdentifier {
     name: "TApplicationException",
@@ -27,7 +29,7 @@ pub type ApplicationError = ApplicationException;
 ///
 /// This exception will transmit across endpoints and languages, so
 /// it is important to keep it in sync with the standard.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct ApplicationException {
     /// Application error variant.
     ///
@@ -63,10 +65,22 @@ impl ApplicationException {
     }
 
     /// Append a message to the existing error message.
+    ///
+    /// That means, the new message will be: `old_message` + `message`.
     pub fn append_msg(&mut self, message: &str) {
         let mut s = String::with_capacity(self.message.len() + message.len());
         s.push_str(self.message.as_str());
         s.push_str(message);
+        self.message = s.into();
+    }
+
+    /// Prepend a message to the existing error message.
+    ///
+    /// That means, the new message will be: `message` + `old_message`.
+    pub fn prepend_msg(&mut self, message: &str) {
+        let mut s = String::with_capacity(self.message.len() + message.len());
+        s.push_str(message);
+        s.push_str(self.message.as_str());
         self.message = s.into();
     }
 }
@@ -100,7 +114,7 @@ impl Message for ApplicationException {
     ///
     /// Application code **should never** call this method directly.
     #[inline]
-    fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), EncodeError> {
+    fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), ThriftException> {
         protocol.write_struct_begin(&TAPPLICATION_EXCEPTION)?;
 
         protocol.write_field_begin(TType::Binary, 1)?;
@@ -119,7 +133,7 @@ impl Message for ApplicationException {
     }
 
     #[inline]
-    fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, DecodeError> {
+    fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, ThriftException> {
         let mut message = "general remote error".into();
         let mut kind = ApplicationExceptionKind::UNKNOWN;
 
@@ -159,7 +173,7 @@ impl Message for ApplicationException {
         Ok(ApplicationException { kind, message })
     }
 
-    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, DecodeError> {
+    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, ThriftException> {
         let mut message = "general remote error".into();
         let mut kind = ApplicationExceptionKind::UNKNOWN;
 

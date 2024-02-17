@@ -35,7 +35,7 @@ pub mod normal {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -60,12 +60,15 @@ pub mod normal {
                     Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        err.prepend_msg(&format!(
-                            "decode struct `A` field(#{}) failed, caused by: ",
-                            field_id
+                        return Err(::pilota::thrift::ThriftException::new(
+                            ::pilota::thrift::ThriftExceptionKind::WithContext(::std::boxed::Box::new(
+                                err,
+                            )),
+                            format!("decode struct `A` field(#{}) failed", field_id),
                         ));
+                    } else {
+                        return Err(err);
                     }
-                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
@@ -89,7 +92,7 @@ pub mod normal {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let Err(err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -115,12 +118,15 @@ pub mod normal {
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            err.prepend_msg(&format!(
-                                "decode struct `A` field(#{}) failed, caused by: ",
-                                field_id
+                            return Err(::pilota::thrift::ThriftException::new(
+                                ::pilota::thrift::ThriftExceptionKind::WithContext(
+                                    ::std::boxed::Box::new(err),
+                                ),
+                                format!("decode struct `A` field(#{}) failed", field_id),
                             ));
+                        } else {
+                            return Err(err);
                         }
-                        return Err(err);
                     };
                     protocol.read_struct_end().await?;
 
@@ -171,7 +177,7 @@ pub mod normal {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -193,12 +199,18 @@ pub mod normal {
                     Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        err.prepend_msg(&format!(
-                            "decode struct `TestTest123ArgsSend` field(#{}) failed, caused by: ",
-                            field_id
+                        return Err(::pilota::thrift::ThriftException::new(
+                            ::pilota::thrift::ThriftExceptionKind::WithContext(::std::boxed::Box::new(
+                                err,
+                            )),
+                            format!(
+                                "decode struct `TestTest123ArgsSend` field(#{}) failed",
+                                field_id
+                            ),
                         ));
+                    } else {
+                        return Err(err);
                     }
-                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
@@ -220,7 +232,7 @@ pub mod normal {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let Err(err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -241,9 +253,18 @@ pub mod normal {
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            err.prepend_msg(&format!("decode struct `TestTest123ArgsSend` field(#{}) failed, caused by: ", field_id));
+                            return Err(::pilota::thrift::ThriftException::new(
+                                ::pilota::thrift::ThriftExceptionKind::WithContext(
+                                    ::std::boxed::Box::new(err),
+                                ),
+                                format!(
+                                    "decode struct `TestTest123ArgsSend` field(#{}) failed",
+                                    field_id
+                                ),
+                            ));
+                        } else {
+                            return Err(err);
                         }
-                        return Err(err);
                     };
                     protocol.read_struct_end().await?;
 
@@ -345,7 +366,7 @@ pub mod normal {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -423,12 +444,15 @@ pub mod normal {
                     Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        err.prepend_msg(&format!(
-                            "decode struct `ObjReq` field(#{}) failed, caused by: ",
-                            field_id
+                        return Err(::pilota::thrift::ThriftException::new(
+                            ::pilota::thrift::ThriftExceptionKind::WithContext(::std::boxed::Box::new(
+                                err,
+                            )),
+                            format!("decode struct `ObjReq` field(#{}) failed", field_id),
                         ));
+                    } else {
+                        return Err(err);
                     }
-                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
@@ -489,7 +513,7 @@ pub mod normal {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let Err(err) = async {
                     loop {
 
 
@@ -556,9 +580,13 @@ pub mod normal {
                     Ok::<_, ::pilota::thrift::ThriftException>(())
                 }.await {
                 if let Some(field_id) = __pilota_decoding_field_id {
-                    err.prepend_msg(&format!("decode struct `ObjReq` field(#{}) failed, caused by: ", field_id));
+                    return Err(::pilota::thrift::ThriftException::new(
+                        ::pilota::thrift::ThriftExceptionKind::WithContext(::std::boxed::Box::new(err)),
+                        format!("decode struct `ObjReq` field(#{}) failed", field_id),
+                    ));
+                } else {
+                    return Err(err)
                 }
-                return Err(err);
             };
                     protocol.read_struct_end().await?;
 
@@ -668,7 +696,7 @@ pub mod normal {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -695,12 +723,15 @@ pub mod normal {
                     Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        err.prepend_msg(&format!(
-                            "decode struct `b` field(#{}) failed, caused by: ",
-                            field_id
+                        return Err(::pilota::thrift::ThriftException::new(
+                            ::pilota::thrift::ThriftExceptionKind::WithContext(::std::boxed::Box::new(
+                                err,
+                            )),
+                            format!("decode struct `b` field(#{}) failed", field_id),
                         ));
+                    } else {
+                        return Err(err);
                     }
-                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
@@ -724,7 +755,7 @@ pub mod normal {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let Err(err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -754,12 +785,15 @@ pub mod normal {
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            err.prepend_msg(&format!(
-                                "decode struct `b` field(#{}) failed, caused by: ",
-                                field_id
+                            return Err(::pilota::thrift::ThriftException::new(
+                                ::pilota::thrift::ThriftExceptionKind::WithContext(
+                                    ::std::boxed::Box::new(err),
+                                ),
+                                format!("decode struct `b` field(#{}) failed", field_id),
                             ));
+                        } else {
+                            return Err(err);
                         }
-                        return Err(err);
                     };
                     protocol.read_struct_end().await?;
 
@@ -813,7 +847,7 @@ pub mod normal {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -840,9 +874,18 @@ pub mod normal {
                     Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        err.prepend_msg(&format!("decode struct `TestTestExceptionArgsSend` field(#{}) failed, caused by: ", field_id));
+                        return Err(::pilota::thrift::ThriftException::new(
+                            ::pilota::thrift::ThriftExceptionKind::WithContext(::std::boxed::Box::new(
+                                err,
+                            )),
+                            format!(
+                                "decode struct `TestTestExceptionArgsSend` field(#{}) failed",
+                                field_id
+                            ),
+                        ));
+                    } else {
+                        return Err(err);
                     }
-                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
@@ -873,7 +916,7 @@ pub mod normal {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let Err(err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -905,9 +948,18 @@ pub mod normal {
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            err.prepend_msg(&format!("decode struct `TestTestExceptionArgsSend` field(#{}) failed, caused by: ", field_id));
+                            return Err(::pilota::thrift::ThriftException::new(
+                                ::pilota::thrift::ThriftExceptionKind::WithContext(
+                                    ::std::boxed::Box::new(err),
+                                ),
+                                format!(
+                                    "decode struct `TestTestExceptionArgsSend` field(#{}) failed",
+                                    field_id
+                                ),
+                            ));
+                        } else {
+                            return Err(err);
                         }
-                        return Err(err);
                     };
                     protocol.read_struct_end().await?;
 
@@ -962,7 +1014,7 @@ pub mod normal {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -984,12 +1036,18 @@ pub mod normal {
                     Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        err.prepend_msg(&format!(
-                            "decode struct `TestTest123ArgsRecv` field(#{}) failed, caused by: ",
-                            field_id
+                        return Err(::pilota::thrift::ThriftException::new(
+                            ::pilota::thrift::ThriftExceptionKind::WithContext(::std::boxed::Box::new(
+                                err,
+                            )),
+                            format!(
+                                "decode struct `TestTest123ArgsRecv` field(#{}) failed",
+                                field_id
+                            ),
                         ));
+                    } else {
+                        return Err(err);
                     }
-                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
@@ -1011,7 +1069,7 @@ pub mod normal {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let Err(err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1032,9 +1090,18 @@ pub mod normal {
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            err.prepend_msg(&format!("decode struct `TestTest123ArgsRecv` field(#{}) failed, caused by: ", field_id));
+                            return Err(::pilota::thrift::ThriftException::new(
+                                ::pilota::thrift::ThriftExceptionKind::WithContext(
+                                    ::std::boxed::Box::new(err),
+                                ),
+                                format!(
+                                    "decode struct `TestTest123ArgsRecv` field(#{}) failed",
+                                    field_id
+                                ),
+                            ));
+                        } else {
+                            return Err(err);
                         }
-                        return Err(err);
                     };
                     protocol.read_struct_end().await?;
 
@@ -1190,7 +1257,7 @@ pub mod normal {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1217,12 +1284,15 @@ pub mod normal {
                     Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        err.prepend_msg(&format!(
-                            "decode struct `STException` field(#{}) failed, caused by: ",
-                            field_id
+                        return Err(::pilota::thrift::ThriftException::new(
+                            ::pilota::thrift::ThriftExceptionKind::WithContext(::std::boxed::Box::new(
+                                err,
+                            )),
+                            format!("decode struct `STException` field(#{}) failed", field_id),
                         ));
+                    } else {
+                        return Err(err);
                     }
-                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
@@ -1246,7 +1316,7 @@ pub mod normal {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let Err(err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1273,12 +1343,15 @@ pub mod normal {
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            err.prepend_msg(&format!(
-                                "decode struct `STException` field(#{}) failed, caused by: ",
-                                field_id
+                            return Err(::pilota::thrift::ThriftException::new(
+                                ::pilota::thrift::ThriftExceptionKind::WithContext(
+                                    ::std::boxed::Box::new(err),
+                                ),
+                                format!("decode struct `STException` field(#{}) failed", field_id),
                             ));
+                        } else {
+                            return Err(err);
                         }
-                        return Err(err);
                     };
                     protocol.read_struct_end().await?;
 
@@ -1333,7 +1406,7 @@ pub mod normal {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1360,12 +1433,15 @@ pub mod normal {
                     Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        err.prepend_msg(&format!(
-                            "decode struct `SubMessage` field(#{}) failed, caused by: ",
-                            field_id
+                        return Err(::pilota::thrift::ThriftException::new(
+                            ::pilota::thrift::ThriftExceptionKind::WithContext(::std::boxed::Box::new(
+                                err,
+                            )),
+                            format!("decode struct `SubMessage` field(#{}) failed", field_id),
                         ));
+                    } else {
+                        return Err(err);
                     }
-                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
@@ -1389,7 +1465,7 @@ pub mod normal {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let Err(err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1416,12 +1492,15 @@ pub mod normal {
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            err.prepend_msg(&format!(
-                                "decode struct `SubMessage` field(#{}) failed, caused by: ",
-                                field_id
+                            return Err(::pilota::thrift::ThriftException::new(
+                                ::pilota::thrift::ThriftExceptionKind::WithContext(
+                                    ::std::boxed::Box::new(err),
+                                ),
+                                format!("decode struct `SubMessage` field(#{}) failed", field_id),
                             ));
+                        } else {
+                            return Err(err);
                         }
-                        return Err(err);
                     };
                     protocol.read_struct_end().await?;
 
@@ -1476,7 +1555,7 @@ pub mod normal {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1503,9 +1582,18 @@ pub mod normal {
                     Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        err.prepend_msg(&format!("decode struct `TestTestExceptionArgsRecv` field(#{}) failed, caused by: ", field_id));
+                        return Err(::pilota::thrift::ThriftException::new(
+                            ::pilota::thrift::ThriftExceptionKind::WithContext(::std::boxed::Box::new(
+                                err,
+                            )),
+                            format!(
+                                "decode struct `TestTestExceptionArgsRecv` field(#{}) failed",
+                                field_id
+                            ),
+                        ));
+                    } else {
+                        return Err(err);
                     }
-                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
@@ -1536,7 +1624,7 @@ pub mod normal {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let Err(err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1568,9 +1656,18 @@ pub mod normal {
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            err.prepend_msg(&format!("decode struct `TestTestExceptionArgsRecv` field(#{}) failed, caused by: ", field_id));
+                            return Err(::pilota::thrift::ThriftException::new(
+                                ::pilota::thrift::ThriftExceptionKind::WithContext(
+                                    ::std::boxed::Box::new(err),
+                                ),
+                                format!(
+                                    "decode struct `TestTestExceptionArgsRecv` field(#{}) failed",
+                                    field_id
+                                ),
+                            ));
+                        } else {
+                            return Err(err);
                         }
-                        return Err(err);
                     };
                     protocol.read_struct_end().await?;
 
@@ -2250,7 +2347,7 @@ pub mod normal {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let Err(err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -2295,12 +2392,15 @@ pub mod normal {
                     Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
-                        err.prepend_msg(&format!(
-                            "decode struct `Message` field(#{}) failed, caused by: ",
-                            field_id
+                        return Err(::pilota::thrift::ThriftException::new(
+                            ::pilota::thrift::ThriftExceptionKind::WithContext(::std::boxed::Box::new(
+                                err,
+                            )),
+                            format!("decode struct `Message` field(#{}) failed", field_id),
                         ));
+                    } else {
+                        return Err(err);
                     }
-                    return Err(err);
                 };
                 protocol.read_struct_end()?;
 
@@ -2330,7 +2430,7 @@ pub mod normal {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let Err(err) = async {
                     loop {
 
 
@@ -2374,9 +2474,13 @@ pub mod normal {
                     Ok::<_, ::pilota::thrift::ThriftException>(())
                 }.await {
                 if let Some(field_id) = __pilota_decoding_field_id {
-                    err.prepend_msg(&format!("decode struct `Message` field(#{}) failed, caused by: ", field_id));
+                    return Err(::pilota::thrift::ThriftException::new(
+                        ::pilota::thrift::ThriftExceptionKind::WithContext(::std::boxed::Box::new(err)),
+                        format!("decode struct `Message` field(#{}) failed", field_id),
+                    ));
+                } else {
+                    return Err(err)
                 }
-                return Err(err);
             };
                     protocol.read_struct_end().await?;
 
