@@ -5,12 +5,11 @@ use std::{
 
 use faststr::FastStr;
 
+use super::ThriftException;
 use crate::thrift::{
     Message, TAsyncInputProtocol, TInputProtocol, TLengthProtocol, TOutputProtocol,
     TStructIdentifier, TType,
 };
-
-use super::ThriftException;
 
 // use super::{DecodeError, EncodeError};
 

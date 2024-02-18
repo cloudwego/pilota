@@ -108,9 +108,9 @@ impl ThriftBackend {
         //         r#"fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
         //         protocol: &'a mut T,
         //     ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output =
-        //       ::std::result::Result<Self, ::pilota::thrift::ThriftException>> + Send +
-        //       'a>> {{ ::std::boxed::Box::pin(async move {{ {decode_async} }})
-        //     }}"#
+        //       ::std::result::Result<Self, ::pilota::thrift::ThriftException>> + Send
+        // +       'a>> {{ ::std::boxed::Box::pin(async move {{ {decode_async}
+        // }})     }}"#
         //     )
         // } else {
         //     format!(

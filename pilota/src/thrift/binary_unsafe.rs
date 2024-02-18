@@ -6,7 +6,10 @@ use linkedbytes::LinkedBytes;
 use smallvec::SmallVec;
 
 use super::{
-    error::ProtocolExceptionKind, new_protocol_exception, ProtocolException, TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType, ThriftException, BINARY_BASIC_TYPE_FIXED_SIZE, ZERO_COPY_THRESHOLD
+    error::ProtocolExceptionKind, new_protocol_exception, ProtocolException, TFieldIdentifier,
+    TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier, TMessageIdentifier,
+    TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType, ThriftException,
+    BINARY_BASIC_TYPE_FIXED_SIZE, ZERO_COPY_THRESHOLD,
 };
 
 static VERSION_1: u32 = 0x80010000;
@@ -202,7 +205,10 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     type BufMut = BytesMut;
 
     #[inline]
-    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), ThriftException> {
+    fn write_message_begin(
+        &mut self,
+        identifier: &TMessageIdentifier,
+    ) -> Result<(), ThriftException> {
         let msg_type_u8: u8 = identifier.message_type.into();
         let version = (VERSION_1 | msg_type_u8 as u32) as i32;
         self.write_i32(version)?;
@@ -444,7 +450,10 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     type BufMut = LinkedBytes;
 
     #[inline]
-    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), ThriftException> {
+    fn write_message_begin(
+        &mut self,
+        identifier: &TMessageIdentifier,
+    ) -> Result<(), ThriftException> {
         let msg_type_u8: u8 = identifier.message_type.into();
         let version = (VERSION_1 | msg_type_u8 as u32) as i32;
         self.write_i32(version)?;
@@ -975,7 +984,11 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     }
 
     #[inline]
-    fn get_bytes(&mut self, ptr: Option<*const u8>, mut len: usize) -> Result<Bytes, ThriftException> {
+    fn get_bytes(
+        &mut self,
+        ptr: Option<*const u8>,
+        mut len: usize,
+    ) -> Result<Bytes, ThriftException> {
         if ptr.is_none() {
             len -= self.index;
             self.trans.advance(self.index);

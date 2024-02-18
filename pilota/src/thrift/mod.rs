@@ -54,7 +54,9 @@ impl<M: Message> Message for Box<M> {
         Ok(Box::new(M::decode(protocol)?))
     }
 
-    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, ThriftException> {
+    async fn decode_async<T: TAsyncInputProtocol>(
+        protocol: &mut T,
+    ) -> Result<Self, ThriftException> {
         Ok(Box::new(M::decode_async(protocol).await?))
     }
 
@@ -75,7 +77,9 @@ impl<M: Message + Send + Sync> Message for Arc<M> {
         Ok(Arc::new(M::decode(protocol)?))
     }
 
-    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, ThriftException> {
+    async fn decode_async<T: TAsyncInputProtocol>(
+        protocol: &mut T,
+    ) -> Result<Self, ThriftException> {
         Ok(Arc::new(M::decode_async(protocol).await?))
     }
 
@@ -521,7 +525,12 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
     }
 
     #[inline]
-    fn write_list<T, F>(&mut self, el_ttype: TType, els: &[T], encode: F) -> Result<(), ThriftException>
+    fn write_list<T, F>(
+        &mut self,
+        el_ttype: TType,
+        els: &[T],
+        encode: F,
+    ) -> Result<(), ThriftException>
     where
         F: Fn(&mut Self, &T) -> Result<(), ThriftException>,
     {
@@ -645,11 +654,15 @@ pub trait TOutputProtocol: TLengthProtocol {
     type BufMut: BufMut;
 
     /// Write the beginning of a Thrift message.
-    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), ThriftException>;
+    fn write_message_begin(
+        &mut self,
+        identifier: &TMessageIdentifier,
+    ) -> Result<(), ThriftException>;
     /// Write the end of a Thrift message.
     fn write_message_end(&mut self) -> Result<(), ThriftException>;
     /// Write the beginning of a Thrift struct.
-    fn write_struct_begin(&mut self, identifier: &TStructIdentifier) -> Result<(), ThriftException>;
+    fn write_struct_begin(&mut self, identifier: &TStructIdentifier)
+        -> Result<(), ThriftException>;
     /// Write the end of a Thrift struct.
     fn write_struct_end(&mut self) -> Result<(), ThriftException>;
     /// Write the beginning of a Thrift field.
@@ -791,13 +804,20 @@ pub trait TAsyncInputProtocol: Send {
     /// Skip a field with type `field_type` recursively until the default
     /// maximum skip depth is reached.
     #[inline]
-    fn skip(&mut self, field_type: TType) -> impl Future<Output = Result<(), ThriftException>> + Send {
+    fn skip(
+        &mut self,
+        field_type: TType,
+    ) -> impl Future<Output = Result<(), ThriftException>> + Send {
         self.skip_till_depth(field_type, MAXIMUM_SKIP_DEPTH)
     }
 
     /// Skip a field with type `field_type` recursively up to `depth` levels.
     #[async_recursion::async_recursion]
-    async fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<(), ThriftException> {
+    async fn skip_till_depth(
+        &mut self,
+        field_type: TType,
+        depth: i8,
+    ) -> Result<(), ThriftException> {
         // async move {
         if depth == 0 {
             return Err(new_protocol_exception(

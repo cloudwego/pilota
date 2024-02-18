@@ -2,16 +2,15 @@ mod application;
 mod protocol;
 mod transport;
 
-pub use application::*;
-pub use protocol::*;
-pub use transport::*;
-
 use std::{
     fmt::{self, Debug, Display, Formatter},
     string,
 };
 
+pub use application::*;
 use faststr::FastStr;
+pub use protocol::*;
+pub use transport::*;
 
 /// A Thrift exception.
 ///

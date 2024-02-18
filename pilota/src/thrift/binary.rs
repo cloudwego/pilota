@@ -6,7 +6,12 @@ use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
-    error::ProtocolExceptionKind, new_protocol_exception, rw_ext::{ReadExt, WriteExt}, ProtocolException, TAsyncInputProtocol, TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType, ThriftException, ZERO_COPY_THRESHOLD
+    error::ProtocolExceptionKind,
+    new_protocol_exception,
+    rw_ext::{ReadExt, WriteExt},
+    ProtocolException, TAsyncInputProtocol, TFieldIdentifier, TInputProtocol, TLengthProtocol,
+    TListIdentifier, TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol,
+    TSetIdentifier, TStructIdentifier, TType, ThriftException, ZERO_COPY_THRESHOLD,
 };
 
 static VERSION_1: u32 = 0x80010000;
@@ -184,7 +189,10 @@ impl TOutputProtocol for TBinaryProtocol<&mut BytesMut> {
     type BufMut = BytesMut;
 
     #[inline]
-    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), ThriftException> {
+    fn write_message_begin(
+        &mut self,
+        identifier: &TMessageIdentifier,
+    ) -> Result<(), ThriftException> {
         let msg_type_u8: u8 = identifier.message_type.into();
         let version = (VERSION_1 | msg_type_u8 as u32) as i32;
         self.write_i32(version)?;
@@ -364,7 +372,10 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     type BufMut = LinkedBytes;
 
     #[inline]
-    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), ThriftException> {
+    fn write_message_begin(
+        &mut self,
+        identifier: &TMessageIdentifier,
+    ) -> Result<(), ThriftException> {
         let msg_type_u8: u8 = identifier.message_type.into();
         let version = (VERSION_1 | msg_type_u8 as u32) as i32;
         self.write_i32(version)?;
