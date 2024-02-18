@@ -173,7 +173,9 @@ impl Message for ApplicationException {
         Ok(ApplicationException { kind, message })
     }
 
-    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, ThriftException> {
+    async fn decode_async<T: TAsyncInputProtocol>(
+        protocol: &mut T,
+    ) -> Result<Self, ThriftException> {
         let mut message = "general remote error".into();
         let mut kind = ApplicationExceptionKind::UNKNOWN;
 
@@ -276,12 +278,17 @@ impl ApplicationExceptionKind {
     pub fn as_i32(self) -> i32 {
         self.0
     }
+
+    #[inline]
+    pub const fn from_i32(i: i32) -> Self {
+        Self(i)
+    }
 }
 
 impl From<i32> for ApplicationExceptionKind {
     #[inline]
     fn from(from: i32) -> Self {
-        Self(from)
+        Self::from_i32(from)
     }
 }
 
