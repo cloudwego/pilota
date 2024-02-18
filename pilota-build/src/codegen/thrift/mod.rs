@@ -109,7 +109,7 @@ impl ThriftBackend {
         //         protocol: &'a mut T,
         //     ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output =
         //       ::std::result::Result<Self, ::pilota::thrift::ThriftException>> + Send
-        // +       'a>> {{ ::std::boxed::Box::pin(async move {{ {decode_async}
+        // + 'a>> {{ ::std::boxed::Box::pin(async move {{ {decode_async}
         // }})     }}"#
         //     )
         // } else {
