@@ -70,7 +70,7 @@ pub struct Context {
     pub plugin_gen: DashMap<DefLocation, String>,
     pub(crate) dedups: Vec<FastStr>,
     pub(crate) nonstandard_snake_case: bool,
-    pub(crate) common_crate_name: FastStr
+    pub(crate) common_crate_name: FastStr,
 }
 
 impl Clone for Context {
@@ -448,7 +448,7 @@ impl ContextBuilder {
             plugin_gen: Default::default(),
             dedups,
             nonstandard_snake_case,
-            common_crate_name
+            common_crate_name,
         }
     }
 }
