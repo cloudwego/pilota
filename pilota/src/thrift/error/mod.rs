@@ -1,4 +1,5 @@
 mod application;
+mod macros;
 mod protocol;
 mod transport;
 

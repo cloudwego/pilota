@@ -6,10 +6,10 @@ use std::{
 use faststr::FastStr;
 
 use super::ThriftException;
-use crate::thrift::{
+use crate::{msg_impl, thrift::{
     Message, TAsyncInputProtocol, TInputProtocol, TLengthProtocol, TOutputProtocol,
     TStructIdentifier, TType,
-};
+}};
 
 // use super::{DecodeError, EncodeError};
 
@@ -63,25 +63,7 @@ impl ApplicationException {
         &self.message
     }
 
-    /// Append a message to the existing error message.
-    ///
-    /// That means, the new message will be: `old_message` + `message`.
-    pub fn append_msg(&mut self, message: &str) {
-        let mut s = String::with_capacity(self.message.len() + message.len());
-        s.push_str(self.message.as_str());
-        s.push_str(message);
-        self.message = s.into();
-    }
-
-    /// Prepend a message to the existing error message.
-    ///
-    /// That means, the new message will be: `message` + `old_message`.
-    pub fn prepend_msg(&mut self, message: &str) {
-        let mut s = String::with_capacity(self.message.len() + message.len());
-        s.push_str(message);
-        s.push_str(self.message.as_str());
-        self.message = s.into();
-    }
+    msg_impl!();
 }
 
 impl Display for ApplicationException {
@@ -101,7 +83,7 @@ impl Display for ApplicationException {
             _ => "other error",
         };
 
-        write!(f, "{}, msg: {}", error_text, self.message)
+        write!(f, "{}: {}", error_text, self.message)
     }
 }
 
@@ -264,12 +246,12 @@ impl ApplicationExceptionKind {
     pub const PROTOCOL_ERROR: Self = Self(7);
     /// *Unknown*. Included only for compatibility with existing Thrift
     /// implementations.
-    pub const INVALID_TRANSFORM: Self = Self(8); // ??
+    pub const INVALID_TRANSFORM: Self = Self(8);
     /// Thrift endpoint requested, or is using, an unsupported encoding.
-    pub const INVALID_PROTOCOL: Self = Self(9); // ??
+    pub const INVALID_PROTOCOL: Self = Self(9);
     /// Thrift endpoint requested, or is using, an unsupported auto-generated
     /// client type.
-    pub const UNSUPPORTED_CLIENT_TYPE: Self = Self(10); // ??
+    pub const UNSUPPORTED_CLIENT_TYPE: Self = Self(10);
     /// validation failed
     pub const VALIDATION_FAILED: Self = Self(11);
 
