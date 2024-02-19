@@ -14,8 +14,6 @@ use crate::{
     },
 };
 
-// use super::{DecodeError, EncodeError};
-
 const TAPPLICATION_EXCEPTION: TStructIdentifier = TStructIdentifier {
     name: "TApplicationException",
 };
