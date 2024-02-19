@@ -186,7 +186,7 @@ fn read_be_unsafe_optimized(b: Bytes, size: usize) -> Vec<i64> {
 }
 
 #[inline(never)]
-fn write_be(b: &mut BytesMut, v: &Vec<i64>, size: usize) {
+fn write_be(b: &mut BytesMut, v: &Vec<i64>, _size: usize) {
     let mut p = pilota::thrift::binary::TBinaryProtocol::new(b, true);
     for el in v {
         p.write_i64(*el).unwrap();
@@ -194,7 +194,7 @@ fn write_be(b: &mut BytesMut, v: &Vec<i64>, size: usize) {
 }
 
 #[inline(never)]
-fn write_be_unsafe(b: &mut BytesMut, v: &Vec<i64>, size: usize) {
+fn write_be_unsafe(b: &mut BytesMut, v: &Vec<i64>, _size: usize) {
     unsafe {
         let s = std::slice::from_raw_parts_mut(b.as_mut_ptr(), b.len());
         let mut p = pilota::thrift::binary_unsafe::TBinaryUnsafeOutputProtocol::new(b, s, true);

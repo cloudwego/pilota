@@ -3,8 +3,8 @@ use bytes::{Bytes, BytesMut};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use faststr::FastStr;
 use pilota::thrift::{
-    binary_unsafe::TBinaryUnsafeInputProtocol, DecodeError, TInputProtocol, TOutputProtocol,
-    TOutputProtocolExt, TStructIdentifier, TType,
+    binary_unsafe::TBinaryUnsafeInputProtocol, TInputProtocol, TOutputProtocol, TOutputProtocolExt,
+    TStructIdentifier, TType, ThriftException,
 };
 use rand::Rng;
 
@@ -124,7 +124,7 @@ fn generate_struct() -> Bytes {
 }
 
 #[inline(never)]
-fn skip_binary_unsafe(mut b: Bytes, ttype: TType) -> Result<usize, DecodeError> {
+fn skip_binary_unsafe(mut b: Bytes, ttype: TType) -> Result<usize, ThriftException> {
     unsafe {
         let mut p = TBinaryUnsafeInputProtocol::new(&mut b);
         p.skip_till_depth(ttype, 100)

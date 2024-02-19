@@ -32,29 +32,31 @@ lazy_static::lazy_static! {
 }
 
 pub trait Message: Sized + Send {
-    fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), EncodeError>;
+    fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), ThriftException>;
 
-    fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, DecodeError>;
+    fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, ThriftException>;
 
     fn decode_async<T: TAsyncInputProtocol>(
         protocol: &mut T,
-    ) -> impl Future<Output = Result<Self, DecodeError>> + Send;
+    ) -> impl Future<Output = Result<Self, ThriftException>> + Send;
 
     fn size<T: TLengthProtocol>(&self, protocol: &mut T) -> usize;
 }
 
 impl<M: Message> Message for Box<M> {
     #[inline]
-    fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), EncodeError> {
+    fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), ThriftException> {
         self.deref().encode(protocol)
     }
 
     #[inline]
-    fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, DecodeError> {
+    fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, ThriftException> {
         Ok(Box::new(M::decode(protocol)?))
     }
 
-    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, DecodeError> {
+    async fn decode_async<T: TAsyncInputProtocol>(
+        protocol: &mut T,
+    ) -> Result<Self, ThriftException> {
         Ok(Box::new(M::decode_async(protocol).await?))
     }
 
@@ -66,16 +68,18 @@ impl<M: Message> Message for Box<M> {
 
 impl<M: Message + Send + Sync> Message for Arc<M> {
     #[inline]
-    fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), EncodeError> {
+    fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), ThriftException> {
         self.deref().encode(protocol)
     }
 
     #[inline]
-    fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, DecodeError> {
+    fn decode<T: TInputProtocol>(protocol: &mut T) -> Result<Self, ThriftException> {
         Ok(Arc::new(M::decode(protocol)?))
     }
 
-    async fn decode_async<T: TAsyncInputProtocol>(protocol: &mut T) -> Result<Self, DecodeError> {
+    async fn decode_async<T: TAsyncInputProtocol>(
+        protocol: &mut T,
+    ) -> Result<Self, ThriftException> {
         Ok(Arc::new(M::decode_async(protocol).await?))
     }
 
@@ -88,60 +92,60 @@ impl<M: Message + Send + Sync> Message for Arc<M> {
 pub trait TInputProtocol: TLengthProtocol {
     type Buf: Buf;
     /// Read the beginning of a Thrift message.
-    fn read_message_begin(&mut self) -> Result<TMessageIdentifier, DecodeError>;
+    fn read_message_begin(&mut self) -> Result<TMessageIdentifier, ThriftException>;
     /// Read the end of a Thrift message.
-    fn read_message_end(&mut self) -> Result<(), DecodeError>;
+    fn read_message_end(&mut self) -> Result<(), ThriftException>;
     /// Read the beginning of a Thrift struct.
-    fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, DecodeError>;
+    fn read_struct_begin(&mut self) -> Result<Option<TStructIdentifier>, ThriftException>;
     /// Read the end of a Thrift struct.
-    fn read_struct_end(&mut self) -> Result<(), DecodeError>;
+    fn read_struct_end(&mut self) -> Result<(), ThriftException>;
     /// Read the beginning of a Thrift struct field.
-    fn read_field_begin(&mut self) -> Result<TFieldIdentifier, DecodeError>;
+    fn read_field_begin(&mut self) -> Result<TFieldIdentifier, ThriftException>;
     /// Read the end of a Thrift struct field.
-    fn read_field_end(&mut self) -> Result<(), DecodeError>;
+    fn read_field_end(&mut self) -> Result<(), ThriftException>;
     /// Read a bool.
-    fn read_bool(&mut self) -> Result<bool, DecodeError>;
+    fn read_bool(&mut self) -> Result<bool, ThriftException>;
     /// Read a binary.
-    fn read_bytes(&mut self) -> Result<Bytes, DecodeError>;
+    fn read_bytes(&mut self) -> Result<Bytes, ThriftException>;
     /// Read a uuid.
-    fn read_uuid(&mut self) -> Result<[u8; 16], DecodeError>;
+    fn read_uuid(&mut self) -> Result<[u8; 16], ThriftException>;
     /// Read a word.
-    fn read_i8(&mut self) -> Result<i8, DecodeError>;
+    fn read_i8(&mut self) -> Result<i8, ThriftException>;
     /// Read a 16-bit signed integer.
-    fn read_i16(&mut self) -> Result<i16, DecodeError>;
+    fn read_i16(&mut self) -> Result<i16, ThriftException>;
     /// Read a 32-bit signed integer.
-    fn read_i32(&mut self) -> Result<i32, DecodeError>;
+    fn read_i32(&mut self) -> Result<i32, ThriftException>;
     /// Read a 64-bit signed integer.
-    fn read_i64(&mut self) -> Result<i64, DecodeError>;
+    fn read_i64(&mut self) -> Result<i64, ThriftException>;
     /// Read a 64-bit float.
-    fn read_double(&mut self) -> Result<f64, DecodeError>;
+    fn read_double(&mut self) -> Result<f64, ThriftException>;
     /// Read a fixed-length string (not null terminated).
-    fn read_string(&mut self) -> Result<String, DecodeError>;
+    fn read_string(&mut self) -> Result<String, ThriftException>;
     /// Read a faststr.
-    fn read_faststr(&mut self) -> Result<FastStr, DecodeError>;
+    fn read_faststr(&mut self) -> Result<FastStr, ThriftException>;
     /// Read the beginning of a list.
-    fn read_list_begin(&mut self) -> Result<TListIdentifier, DecodeError>;
+    fn read_list_begin(&mut self) -> Result<TListIdentifier, ThriftException>;
     /// Read the end of a list.
-    fn read_list_end(&mut self) -> Result<(), DecodeError>;
+    fn read_list_end(&mut self) -> Result<(), ThriftException>;
     /// Read the beginning of a set.
-    fn read_set_begin(&mut self) -> Result<TSetIdentifier, DecodeError>;
+    fn read_set_begin(&mut self) -> Result<TSetIdentifier, ThriftException>;
     /// Read the end of a set.
-    fn read_set_end(&mut self) -> Result<(), DecodeError>;
+    fn read_set_end(&mut self) -> Result<(), ThriftException>;
     /// Read the beginning of a map.
-    fn read_map_begin(&mut self) -> Result<TMapIdentifier, DecodeError>;
+    fn read_map_begin(&mut self) -> Result<TMapIdentifier, ThriftException>;
     /// Read the end of a map.
-    fn read_map_end(&mut self) -> Result<(), DecodeError>;
+    fn read_map_end(&mut self) -> Result<(), ThriftException>;
     /// Skip a field with type `field_type` recursively until the default
     /// maximum skip depth is reached.
     #[inline]
-    fn skip(&mut self, field_type: TType) -> Result<usize, DecodeError> {
+    fn skip(&mut self, field_type: TType) -> Result<usize, ThriftException> {
         self.skip_till_depth(field_type, MAXIMUM_SKIP_DEPTH)
     }
     /// Skip a field with type `field_type` recursively up to `depth` levels.
-    fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<usize, DecodeError> {
+    fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<usize, ThriftException> {
         if depth == 0 {
-            return Err(DecodeError::new(
-                DecodeErrorKind::DepthLimit,
+            return Err(new_protocol_exception(
+                ProtocolExceptionKind::DepthLimit,
                 format!("cannot parse past {:?}", field_type),
             ));
         }
@@ -238,8 +242,8 @@ pub trait TInputProtocol: TLengthProtocol {
                 len += self.map_end_len();
             }
             u => {
-                return Err(DecodeError::new(
-                    DecodeErrorKind::DepthLimit,
+                return Err(new_protocol_exception(
+                    ProtocolExceptionKind::DepthLimit,
                     format!("cannot skip field type {:?}", &u),
                 ))
             }
@@ -254,12 +258,12 @@ pub trait TInputProtocol: TLengthProtocol {
     /// Read an unsigned byte.
     ///
     /// This method should **never** be used in generated code.
-    fn read_byte(&mut self) -> Result<u8, DecodeError>;
+    fn read_byte(&mut self) -> Result<u8, ThriftException>;
 
     /// Read a Vec<u8>.
-    fn read_bytes_vec(&mut self) -> Result<Vec<u8>, DecodeError>;
+    fn read_bytes_vec(&mut self) -> Result<Vec<u8>, ThriftException>;
 
-    fn get_bytes(&mut self, ptr: Option<*const u8>, len: usize) -> Result<Bytes, DecodeError>;
+    fn get_bytes(&mut self, ptr: Option<*const u8>, len: usize) -> Result<Bytes, ThriftException>;
 
     #[doc(hidden)]
     fn buf(&mut self) -> &mut Self::Buf;
@@ -479,7 +483,7 @@ macro_rules! write_field {
     ($ttype:ty, $name:ident($($k:ident: $t:ty),*)) => {
         paste::paste! {
             #[inline]
-            fn [<write_ $name _field>](&mut self, id: i16, $($k: $t),*) -> Result<(), EncodeError> {
+            fn [<write_ $name _field>](&mut self, id: i16, $($k: $t),*) -> Result<(), ThriftException> {
                 self.write_field_begin($ttype, id)?;
                 self.[<write_ $name>]($($k),*)?;
                 self.write_field_end()?;
@@ -511,9 +515,9 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
         el_ttype: TType,
         els: &[T],
         encode: F,
-    ) -> Result<(), EncodeError>
+    ) -> Result<(), ThriftException>
     where
-        F: Fn(&mut Self, &T) -> Result<(), EncodeError>,
+        F: Fn(&mut Self, &T) -> Result<(), ThriftException>,
     {
         self.write_field_begin(TType::List, id)?;
         self.write_list(el_ttype, els, encode)?;
@@ -521,9 +525,14 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
     }
 
     #[inline]
-    fn write_list<T, F>(&mut self, el_ttype: TType, els: &[T], encode: F) -> Result<(), EncodeError>
+    fn write_list<T, F>(
+        &mut self,
+        el_ttype: TType,
+        els: &[T],
+        encode: F,
+    ) -> Result<(), ThriftException>
     where
-        F: Fn(&mut Self, &T) -> Result<(), EncodeError>,
+        F: Fn(&mut Self, &T) -> Result<(), ThriftException>,
     {
         self.write_list_begin(TListIdentifier {
             element_type: el_ttype,
@@ -542,9 +551,9 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
         el_ttype: TType,
         els: &AHashSet<T>,
         encode: F,
-    ) -> Result<(), EncodeError>
+    ) -> Result<(), ThriftException>
     where
-        F: Fn(&mut Self, &T) -> Result<(), EncodeError>,
+        F: Fn(&mut Self, &T) -> Result<(), ThriftException>,
     {
         self.write_field_begin(TType::Set, id)?;
         self.write_set(el_ttype, els, encode)?;
@@ -557,9 +566,9 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
         el_ttype: TType,
         els: &AHashSet<T>,
         encode: F,
-    ) -> Result<(), EncodeError>
+    ) -> Result<(), ThriftException>
     where
-        F: Fn(&mut Self, &T) -> Result<(), EncodeError>,
+        F: Fn(&mut Self, &T) -> Result<(), ThriftException>,
     {
         self.write_set_begin(TSetIdentifier {
             element_type: el_ttype,
@@ -577,14 +586,14 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
         id: i16,
         m: &M,
         ty: TType,
-    ) -> Result<(), EncodeError> {
+    ) -> Result<(), ThriftException> {
         self.write_field_begin(ty, id)?;
         self.write_struct(m)?;
         self.write_field_end()
     }
 
     #[inline]
-    fn write_struct<M: Message>(&mut self, m: &M) -> Result<(), EncodeError> {
+    fn write_struct<M: Message>(&mut self, m: &M) -> Result<(), ThriftException> {
         m.encode(self)
     }
 
@@ -597,10 +606,10 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
         els: &AHashMap<K, V>,
         key_encode: FK,
         val_encode: FV,
-    ) -> Result<(), EncodeError>
+    ) -> Result<(), ThriftException>
     where
-        FK: Fn(&mut Self, &K) -> Result<(), EncodeError>,
-        FV: Fn(&mut Self, &V) -> Result<(), EncodeError>,
+        FK: Fn(&mut Self, &K) -> Result<(), ThriftException>,
+        FV: Fn(&mut Self, &V) -> Result<(), ThriftException>,
     {
         self.write_field_begin(TType::Map, id)?;
         self.write_map(key_ttype, val_ttype, els, key_encode, val_encode)?;
@@ -615,10 +624,10 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
         els: &AHashMap<K, V>,
         key_encode: FK,
         val_encode: FV,
-    ) -> Result<(), EncodeError>
+    ) -> Result<(), ThriftException>
     where
-        FK: Fn(&mut Self, &K) -> Result<(), EncodeError>,
-        FV: Fn(&mut Self, &V) -> Result<(), EncodeError>,
+        FK: Fn(&mut Self, &K) -> Result<(), ThriftException>,
+        FV: Fn(&mut Self, &V) -> Result<(), ThriftException>,
     {
         self.write_map_begin(TMapIdentifier {
             key_type: key_ttype,
@@ -633,7 +642,7 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
     }
 
     #[inline]
-    fn write_void(&mut self) -> Result<(), EncodeError> {
+    fn write_void(&mut self) -> Result<(), ThriftException> {
         self.write_struct_begin(&crate::thrift::VOID_IDENT)?;
         self.write_struct_end()
     }
@@ -645,59 +654,63 @@ pub trait TOutputProtocol: TLengthProtocol {
     type BufMut: BufMut;
 
     /// Write the beginning of a Thrift message.
-    fn write_message_begin(&mut self, identifier: &TMessageIdentifier) -> Result<(), EncodeError>;
+    fn write_message_begin(
+        &mut self,
+        identifier: &TMessageIdentifier,
+    ) -> Result<(), ThriftException>;
     /// Write the end of a Thrift message.
-    fn write_message_end(&mut self) -> Result<(), EncodeError>;
+    fn write_message_end(&mut self) -> Result<(), ThriftException>;
     /// Write the beginning of a Thrift struct.
-    fn write_struct_begin(&mut self, identifier: &TStructIdentifier) -> Result<(), EncodeError>;
+    fn write_struct_begin(&mut self, identifier: &TStructIdentifier)
+        -> Result<(), ThriftException>;
     /// Write the end of a Thrift struct.
-    fn write_struct_end(&mut self) -> Result<(), EncodeError>;
+    fn write_struct_end(&mut self) -> Result<(), ThriftException>;
     /// Write the beginning of a Thrift field.
-    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), EncodeError>;
+    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), ThriftException>;
     /// Write the end of a Thrift field.
-    fn write_field_end(&mut self) -> Result<(), EncodeError>;
+    fn write_field_end(&mut self) -> Result<(), ThriftException>;
     /// Write a STOP field indicating that all the fields in a struct have been
     /// written.
-    fn write_field_stop(&mut self) -> Result<(), EncodeError>;
+    fn write_field_stop(&mut self) -> Result<(), ThriftException>;
     /// Write a bool.
-    fn write_bool(&mut self, b: bool) -> Result<(), EncodeError>;
+    fn write_bool(&mut self, b: bool) -> Result<(), ThriftException>;
     /// Write a fixed-length byte array.
-    fn write_bytes(&mut self, b: Bytes) -> Result<(), EncodeError>;
-    fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), EncodeError>;
+    fn write_bytes(&mut self, b: Bytes) -> Result<(), ThriftException>;
+    fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), ThriftException>;
     /// Write a uuid.
-    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), EncodeError>;
+    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), ThriftException>;
     /// Write a Vec<u8>.
-    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), EncodeError>;
+    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), ThriftException>;
     /// Write a byte.
-    fn write_byte(&mut self, b: u8) -> Result<(), EncodeError>;
+    fn write_byte(&mut self, b: u8) -> Result<(), ThriftException>;
     /// Write an 8-bit signed integer.
-    fn write_i8(&mut self, i: i8) -> Result<(), EncodeError>;
+    fn write_i8(&mut self, i: i8) -> Result<(), ThriftException>;
     /// Write a 16-bit signed integer.
-    fn write_i16(&mut self, i: i16) -> Result<(), EncodeError>;
+    fn write_i16(&mut self, i: i16) -> Result<(), ThriftException>;
     /// Write a 32-bit signed integer.
-    fn write_i32(&mut self, i: i32) -> Result<(), EncodeError>;
+    fn write_i32(&mut self, i: i32) -> Result<(), ThriftException>;
     /// Write a 64-bit signed integer.
-    fn write_i64(&mut self, i: i64) -> Result<(), EncodeError>;
+    fn write_i64(&mut self, i: i64) -> Result<(), ThriftException>;
     /// Write a 64-bit float.
-    fn write_double(&mut self, d: f64) -> Result<(), EncodeError>;
+    fn write_double(&mut self, d: f64) -> Result<(), ThriftException>;
     /// Write a fixed-length string.
-    fn write_string(&mut self, s: &str) -> Result<(), EncodeError>;
+    fn write_string(&mut self, s: &str) -> Result<(), ThriftException>;
     /// Write a fixed-length faststr.
-    fn write_faststr(&mut self, s: FastStr) -> Result<(), EncodeError>;
+    fn write_faststr(&mut self, s: FastStr) -> Result<(), ThriftException>;
     /// Write the beginning of a list.
-    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), EncodeError>;
+    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), ThriftException>;
     /// Write the end of a list.
-    fn write_list_end(&mut self) -> Result<(), EncodeError>;
+    fn write_list_end(&mut self) -> Result<(), ThriftException>;
     /// Write the beginning of a set.
-    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), EncodeError>;
+    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), ThriftException>;
     /// Write the end of a set.
-    fn write_set_end(&mut self) -> Result<(), EncodeError>;
+    fn write_set_end(&mut self) -> Result<(), ThriftException>;
     /// Write the beginning of a map.
-    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), EncodeError>;
+    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), ThriftException>;
     /// Write the end of a map.
-    fn write_map_end(&mut self) -> Result<(), EncodeError>;
+    fn write_map_end(&mut self) -> Result<(), ThriftException>;
     /// Flush buffered bytes to the underlying transport.
-    fn flush(&mut self) -> Result<(), EncodeError>;
+    fn flush(&mut self) -> Result<(), ThriftException>;
 
     #[doc(hidden)]
     fn buf_mut(&mut self) -> &mut Self::BufMut;
@@ -707,101 +720,108 @@ pub trait TAsyncInputProtocol: Send {
     /// Read the beginning of a Thrift message.
     fn read_message_begin(
         &mut self,
-    ) -> impl Future<Output = Result<TMessageIdentifier, DecodeError>> + Send;
+    ) -> impl Future<Output = Result<TMessageIdentifier, ThriftException>> + Send;
 
     /// Read the end of a Thrift message.
-    fn read_message_end(&mut self) -> impl Future<Output = Result<(), DecodeError>> + Send;
+    fn read_message_end(&mut self) -> impl Future<Output = Result<(), ThriftException>> + Send;
 
     /// Read the beginning of a Thrift struct.
     fn read_struct_begin(
         &mut self,
-    ) -> impl Future<Output = Result<Option<TStructIdentifier>, DecodeError>> + Send;
+    ) -> impl Future<Output = Result<Option<TStructIdentifier>, ThriftException>> + Send;
 
     /// Read the end of a Thrift struct.
-    fn read_struct_end(&mut self) -> impl Future<Output = Result<(), DecodeError>> + Send;
+    fn read_struct_end(&mut self) -> impl Future<Output = Result<(), ThriftException>> + Send;
 
     /// Read the beginning of a Thrift struct field.
     fn read_field_begin(
         &mut self,
-    ) -> impl Future<Output = Result<TFieldIdentifier, DecodeError>> + Send;
+    ) -> impl Future<Output = Result<TFieldIdentifier, ThriftException>> + Send;
 
     /// Read the end of a Thrift struct field.
-    fn read_field_end(&mut self) -> impl Future<Output = Result<(), DecodeError>> + Send;
+    fn read_field_end(&mut self) -> impl Future<Output = Result<(), ThriftException>> + Send;
 
     /// Read a bool.
-    fn read_bool(&mut self) -> impl Future<Output = Result<bool, DecodeError>> + Send;
+    fn read_bool(&mut self) -> impl Future<Output = Result<bool, ThriftException>> + Send;
 
     /// Read a binary.
-    fn read_bytes(&mut self) -> impl Future<Output = Result<Bytes, DecodeError>> + Send;
+    fn read_bytes(&mut self) -> impl Future<Output = Result<Bytes, ThriftException>> + Send;
 
     /// Read a binary, return `Vec<u8>`
-    fn read_bytes_vec(&mut self) -> impl Future<Output = Result<Vec<u8>, DecodeError>> + Send;
+    fn read_bytes_vec(&mut self) -> impl Future<Output = Result<Vec<u8>, ThriftException>> + Send;
 
     /// Read a uuid.
-    fn read_uuid(&mut self) -> impl Future<Output = Result<[u8; 16], DecodeError>> + Send;
+    fn read_uuid(&mut self) -> impl Future<Output = Result<[u8; 16], ThriftException>> + Send;
 
     /// Read a string.
-    fn read_string(&mut self) -> impl Future<Output = Result<String, DecodeError>> + Send;
+    fn read_string(&mut self) -> impl Future<Output = Result<String, ThriftException>> + Send;
 
     /// Read a string, return `FastStr`
-    fn read_faststr(&mut self) -> impl Future<Output = Result<FastStr, DecodeError>> + Send;
+    fn read_faststr(&mut self) -> impl Future<Output = Result<FastStr, ThriftException>> + Send;
 
     /// Read a byte.
-    fn read_byte(&mut self) -> impl Future<Output = Result<u8, DecodeError>> + Send;
+    fn read_byte(&mut self) -> impl Future<Output = Result<u8, ThriftException>> + Send;
 
     /// Read a word.
-    fn read_i8(&mut self) -> impl Future<Output = Result<i8, DecodeError>> + Send;
+    fn read_i8(&mut self) -> impl Future<Output = Result<i8, ThriftException>> + Send;
 
     /// Read a 16-bit signed integer.
-    fn read_i16(&mut self) -> impl Future<Output = Result<i16, DecodeError>> + Send;
+    fn read_i16(&mut self) -> impl Future<Output = Result<i16, ThriftException>> + Send;
 
     /// Read a 32-bit signed integer.
-    fn read_i32(&mut self) -> impl Future<Output = Result<i32, DecodeError>> + Send;
+    fn read_i32(&mut self) -> impl Future<Output = Result<i32, ThriftException>> + Send;
 
     /// Read a 64-bit signed integer.
-    fn read_i64(&mut self) -> impl Future<Output = Result<i64, DecodeError>> + Send;
+    fn read_i64(&mut self) -> impl Future<Output = Result<i64, ThriftException>> + Send;
 
     /// Read a 64-bit float.
-    fn read_double(&mut self) -> impl Future<Output = Result<f64, DecodeError>> + Send;
+    fn read_double(&mut self) -> impl Future<Output = Result<f64, ThriftException>> + Send;
 
     /// Read the beginning of a list.
     fn read_list_begin(
         &mut self,
-    ) -> impl Future<Output = Result<TListIdentifier, DecodeError>> + Send;
+    ) -> impl Future<Output = Result<TListIdentifier, ThriftException>> + Send;
 
     /// Read the end of a list.
-    fn read_list_end(&mut self) -> impl Future<Output = Result<(), DecodeError>> + Send;
+    fn read_list_end(&mut self) -> impl Future<Output = Result<(), ThriftException>> + Send;
 
     /// Read the beginning of a set.
     fn read_set_begin(
         &mut self,
-    ) -> impl Future<Output = Result<TSetIdentifier, DecodeError>> + Send;
+    ) -> impl Future<Output = Result<TSetIdentifier, ThriftException>> + Send;
 
     /// Read the end of a set.
-    fn read_set_end(&mut self) -> impl Future<Output = Result<(), DecodeError>> + Send;
+    fn read_set_end(&mut self) -> impl Future<Output = Result<(), ThriftException>> + Send;
 
     /// Read the beginning of a map.
     fn read_map_begin(
         &mut self,
-    ) -> impl Future<Output = Result<TMapIdentifier, DecodeError>> + Send;
+    ) -> impl Future<Output = Result<TMapIdentifier, ThriftException>> + Send;
 
     /// Read the end of a map.
-    fn read_map_end(&mut self) -> impl Future<Output = Result<(), DecodeError>> + Send;
+    fn read_map_end(&mut self) -> impl Future<Output = Result<(), ThriftException>> + Send;
 
     /// Skip a field with type `field_type` recursively until the default
     /// maximum skip depth is reached.
     #[inline]
-    fn skip(&mut self, field_type: TType) -> impl Future<Output = Result<(), DecodeError>> + Send {
+    fn skip(
+        &mut self,
+        field_type: TType,
+    ) -> impl Future<Output = Result<(), ThriftException>> + Send {
         self.skip_till_depth(field_type, MAXIMUM_SKIP_DEPTH)
     }
 
     /// Skip a field with type `field_type` recursively up to `depth` levels.
     #[async_recursion::async_recursion]
-    async fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<(), DecodeError> {
+    async fn skip_till_depth(
+        &mut self,
+        field_type: TType,
+        depth: i8,
+    ) -> Result<(), ThriftException> {
         // async move {
         if depth == 0 {
-            return Err(DecodeError::new(
-                DecodeErrorKind::DepthLimit,
+            return Err(new_protocol_exception(
+                ProtocolExceptionKind::DepthLimit,
                 format!("cannot parse past {:?}", field_type),
             ));
         }
@@ -852,8 +872,8 @@ pub trait TAsyncInputProtocol: Send {
                 }
                 self.read_map_end().await
             }
-            u => Err(DecodeError::new(
-                DecodeErrorKind::DepthLimit,
+            u => Err(new_protocol_exception(
+                ProtocolExceptionKind::DepthLimit,
                 format!("cannot skip field type {:?}", &u),
             )),
         }
@@ -902,7 +922,7 @@ impl From<TType> for u8 {
 }
 
 impl TryFrom<u8> for TType {
-    type Error = DecodeError;
+    type Error = ThriftException;
 
     #[inline]
     fn try_from(value: u8) -> Result<Self, Self::Error> {
@@ -921,8 +941,8 @@ impl TryFrom<u8> for TType {
             14 => Ok(TType::Set),
             15 => Ok(TType::List),
             16 => Ok(TType::Uuid),
-            _ => Err(DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            _ => Err(new_protocol_exception(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid ttype {}", value),
             )),
         }
@@ -964,7 +984,7 @@ pub enum TMessageType {
 }
 
 impl TryFrom<u8> for TMessageType {
-    type Error = DecodeError;
+    type Error = ThriftException;
 
     #[inline]
     fn try_from(value: u8) -> Result<Self, Self::Error> {
@@ -973,8 +993,8 @@ impl TryFrom<u8> for TMessageType {
             2 => Ok(TMessageType::Reply),
             3 => Ok(TMessageType::Exception),
             4 => Ok(TMessageType::OneWay),
-            _ => Err(DecodeError::new(
-                DecodeErrorKind::InvalidData,
+            _ => Err(new_protocol_exception(
+                ProtocolExceptionKind::InvalidData,
                 format!("invalid tmessage type {}", value),
             )),
         }

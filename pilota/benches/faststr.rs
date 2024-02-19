@@ -1,4 +1,5 @@
 #![allow(clippy::redundant_clone)]
+#![allow(deprecated)]
 use std::{iter::repeat_with, sync::Arc};
 
 use bytes::{Bytes, BytesMut};
