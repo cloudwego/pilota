@@ -6,10 +6,13 @@ use std::{
 use faststr::FastStr;
 
 use super::ThriftException;
-use crate::{msg_impl, thrift::{
-    Message, TAsyncInputProtocol, TInputProtocol, TLengthProtocol, TOutputProtocol,
-    TStructIdentifier, TType,
-}};
+use crate::{
+    msg_impl,
+    thrift::{
+        Message, TAsyncInputProtocol, TInputProtocol, TLengthProtocol, TOutputProtocol,
+        TStructIdentifier, TType,
+    },
+};
 
 // use super::{DecodeError, EncodeError};
 
