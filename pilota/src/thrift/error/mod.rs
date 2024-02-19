@@ -54,7 +54,7 @@ impl From<TransportException> for ThriftException {
 
 impl From<std::io::Error> for ThriftException {
     fn from(e: std::io::Error) -> Self {
-        e.into()
+        ThriftException::Transport(TransportException::from(e))
     }
 }
 
