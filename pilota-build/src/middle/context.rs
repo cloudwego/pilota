@@ -70,6 +70,7 @@ pub struct Context {
     pub plugin_gen: DashMap<DefLocation, String>,
     pub(crate) dedups: Vec<FastStr>,
     pub(crate) nonstandard_snake_case: bool,
+    pub(crate) common_crate_name: FastStr,
 }
 
 impl Clone for Context {
@@ -89,6 +90,7 @@ impl Clone for Context {
             plugin_gen: self.plugin_gen.clone(),
             dedups: self.dedups.clone(),
             nonstandard_snake_case: self.nonstandard_snake_case,
+            common_crate_name: self.common_crate_name.clone(),
         }
     }
 }
@@ -426,6 +428,7 @@ impl ContextBuilder {
         change_case: bool,
         dedups: Vec<FastStr>,
         nonstandard_snake_case: bool,
+        common_crate_name: FastStr,
     ) -> Context {
         Context {
             adjusts: Default::default(),
@@ -445,6 +448,7 @@ impl ContextBuilder {
             plugin_gen: Default::default(),
             dedups,
             nonstandard_snake_case,
+            common_crate_name,
         }
     }
 }
@@ -956,7 +960,7 @@ impl Context {
                             .into()
                     })
             }
-            DefLocation::Dynamic => "common".into(),
+            DefLocation::Dynamic => self.common_crate_name.clone(),
         }
     }
 }
