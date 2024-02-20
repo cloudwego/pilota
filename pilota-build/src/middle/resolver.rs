@@ -123,7 +123,7 @@ impl PathResolver for WorkspacePathResolver {
                 path.extend(prefix.iter().cloned());
                 path
             }
-            super::context::DefLocation::Dynamic => ["common".into()]
+            super::context::DefLocation::Dynamic => [cx.common_crate_name.clone().into()]
                 .iter()
                 .chain(DefaultPathResolver.mod_prefix(cx, def_id).iter())
                 .cloned()
