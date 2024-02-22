@@ -22,7 +22,7 @@ use crate::{
     symbol::{DefId, FileId, IdentName, Symbol},
     tags::{EnumMode, TagId, Tags},
     ty::{AdtDef, AdtKind, CodegenTy, Visitor},
-    Plugin,
+    Plugin, MAX_RESOLVE_DEPTH,
 };
 
 #[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Clone)]
@@ -272,7 +272,6 @@ impl ContextBuilder {
         &self,
         input: &[DefId],
     ) -> FxHashMap<DefId, DefLocation> {
-        const MAX_RECURSION_DEPTH: usize = 64;
         struct PathCollector<'a> {
             map: &'a mut FxHashMap<DefId, DefLocation>,
             cx: &'a ContextBuilder,
@@ -291,7 +290,7 @@ impl ContextBuilder {
             map: &mut FxHashMap<DefId, DefLocation>,
             mut depth: usize,
         ) {
-            if map.contains_key(&def_id) || depth > MAX_RECURSION_DEPTH {
+            if map.contains_key(&def_id) || depth > *MAX_RESOLVE_DEPTH {
                 return;
             }
             depth += 1;
