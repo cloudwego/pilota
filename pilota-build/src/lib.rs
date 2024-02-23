@@ -50,6 +50,13 @@ use salsa::Durability;
 pub use symbol::{DefId, IdentName};
 pub use tags::TagId;
 
+lazy_static::lazy_static! {
+    pub(crate) static ref MAX_RESOLVE_DEPTH: usize = std::env::var("MAX_RESOLVE_DEPTH")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(256);
+}
+
 pub trait MakeBackend: Sized {
     type Target: CodegenBackend;
     fn make_backend(self, context: Context) -> Self::Target;

@@ -12,7 +12,7 @@ use crate::{
     fmt::fmt_file,
     middle::context::{CrateId, DefLocation},
     rir::{self, ItemPath},
-    Codegen, CodegenBackend, Context, DefId,
+    Codegen, CodegenBackend, Context, DefId, MAX_RESOLVE_DEPTH,
 };
 
 #[derive(Clone)]
@@ -161,7 +161,6 @@ where
 
     fn collect_def_ids(&self, input: &[DefId]) -> FxHashMap<DefId, DefLocation> {
         use crate::middle::ty::Visitor;
-        const MAX_RECURSION_DEPTH: usize = 64;
         struct PathCollector<'a> {
             map: &'a mut FxHashMap<DefId, DefLocation>,
             cx: &'a Context,
@@ -180,7 +179,7 @@ where
             map: &mut FxHashMap<DefId, DefLocation>,
             mut depth: usize,
         ) {
-            if map.contains_key(&def_id) || depth > MAX_RECURSION_DEPTH {
+            if map.contains_key(&def_id) || depth > *MAX_RESOLVE_DEPTH {
                 return;
             }
             depth += 1;
