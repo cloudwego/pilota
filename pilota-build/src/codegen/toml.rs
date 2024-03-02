@@ -16,6 +16,8 @@ pub fn merge_tomls(a: &mut toml::Value, b: toml::Value) {
                 a.insert(k, v);
             }
         }),
+        // maybe depend on specific version for testing, don't do anything
+        (toml::Value::Table(_), toml::Value::String(_)) => {}
         pair => panic!("can not merge {pair:?}"),
     }
 }
