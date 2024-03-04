@@ -19,7 +19,7 @@ pub use transport::*;
 /// processing. It is a catch-all for errors that occur in the Thrift
 /// runtime, including errors from the protocol, transport, and application
 /// layers.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ThriftException {
     /// Errors encountered within auto-generated code, or when incoming
     /// or outgoing messages violate the Thrift spec.
