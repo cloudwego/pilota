@@ -79,3 +79,14 @@ impl std::error::Error for TransportException {
         Some(&self.io_error)
     }
 }
+
+impl Clone for TransportException {
+    fn clone(&self) -> Self {
+        Self {
+            // TODO: io::Error doesn't support clone, we can only clone in this way now.
+            // Investigate how to do this in the future.
+            io_error: io::Error::new(self.io_error().kind(), self.io_error().to_string()),
+            message: self.message.clone(),
+        }
+    }
+}
