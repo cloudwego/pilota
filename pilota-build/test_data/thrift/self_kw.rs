@@ -93,6 +93,8 @@ pub mod self_kw {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub r#type: ::pilota::FastStr,
+
+            pub self_: ::pilota::FastStr,
         }
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -105,6 +107,7 @@ pub mod self_kw {
 
                 protocol.write_struct_begin(&struct_ident)?;
                 protocol.write_faststr_field(1, (&self.r#type).clone())?;
+                protocol.write_faststr_field(2, (&self.self_).clone())?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 Ok(())
@@ -117,6 +120,7 @@ pub mod self_kw {
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
                 let mut r#type = None;
+                let mut self_ = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -136,6 +140,11 @@ pub mod self_kw {
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 r#type = Some(protocol.read_faststr()?);
+                            }
+                            Some(2)
+                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                            {
+                                self_ = Some(protocol.read_faststr()?);
                             }
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
@@ -163,8 +172,14 @@ pub mod self_kw {
                         "field r#type is required".to_string(),
                     ));
                 };
+                let Some(self_) = self_ else {
+                    return Err(::pilota::thrift::new_protocol_exception(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                        "field self_ is required".to_string(),
+                    ));
+                };
 
-                let data = Self { r#type };
+                let data = Self { r#type, self_ };
                 Ok(data)
             }
 
@@ -180,6 +195,7 @@ pub mod self_kw {
             > {
                 ::std::boxed::Box::pin(async move {
                     let mut r#type = None;
+                    let mut self_ = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -198,6 +214,12 @@ pub mod self_kw {
                                         == ::pilota::thrift::TType::Binary =>
                                 {
                                     r#type = Some(protocol.read_faststr().await?);
+                                }
+                                Some(2)
+                                    if field_ident.field_type
+                                        == ::pilota::thrift::TType::Binary =>
+                                {
+                                    self_ = Some(protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     protocol.skip(field_ident.field_type).await?;
@@ -226,8 +248,14 @@ pub mod self_kw {
                             "field r#type is required".to_string(),
                         ));
                     };
+                    let Some(self_) = self_ else {
+                        return Err(::pilota::thrift::new_protocol_exception(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                            "field self_ is required".to_string(),
+                        ));
+                    };
 
-                    let data = Self { r#type };
+                    let data = Self { r#type, self_ };
                     Ok(data)
                 })
             }
@@ -237,6 +265,7 @@ pub mod self_kw {
                 use ::pilota::thrift::TLengthProtocolExt;
                 protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
                     + protocol.faststr_field_len(Some(1), &self.r#type)
+                    + protocol.faststr_field_len(Some(2), &self.self_)
                     + protocol.field_stop_len()
                     + protocol.struct_end_len()
             }

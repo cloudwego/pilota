@@ -101,14 +101,21 @@ where
 
 impl std::fmt::Display for Symbol {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        if &**self == "Self" {
-            return write!(f, "Self_");
+        if self.is_path_segment_keyword() {
+            return write!(f, "{}_", &**self);
         }
         if KEYWORDS_SET.contains(self) {
             write!(f, "r#{}", &**self)
         } else {
             write!(f, "{}", &**self)
         }
+    }
+}
+
+impl Symbol {
+    // https://github.com/rust-lang/rust/blob/master/compiler/rustc_span/src/symbol.rs#L2395-L2398
+    fn is_path_segment_keyword(&self) -> bool {
+        ["super", "self", "Self", "crate"].contains(&&**self)
     }
 }
 
