@@ -5,4 +5,5 @@ enum Index {
 
 struct A {
     1: required string type,
+    2: required string self,
 }
