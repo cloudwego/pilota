@@ -479,7 +479,7 @@ impl Parser for ProtobufParser {
     }
 
     fn include_dirs(&mut self, dirs: Vec<std::path::PathBuf>) {
-        self.include_dirs = dirs.clone();
+        self.include_dirs.extend(dirs.clone());
         self.inner.includes(dirs);
     }
 
