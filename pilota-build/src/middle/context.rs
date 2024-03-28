@@ -19,7 +19,7 @@ use super::{
 use crate::{
     db::{RirDatabase, RootDatabase},
     rir::{self, Field, Item, ItemPath, Literal},
-    symbol::{DefId, FileId, IdentName, Symbol},
+    symbol::{DefId, FileId, IdentName, Symbol, SPECIAL_NAMINGS},
     tags::{TagId, Tags},
     ty::{AdtDef, AdtKind, CodegenTy, Visitor},
     Plugin, MAX_RESOLVE_DEPTH,
@@ -69,7 +69,6 @@ pub struct Context {
     pub entry_map: HashMap<DefLocation, Vec<(DefId, DefLocation)>>,
     pub plugin_gen: DashMap<DefLocation, String>,
     pub(crate) dedups: Vec<FastStr>,
-    pub(crate) nonstandard_snake_case: bool,
     pub(crate) common_crate_name: FastStr,
 }
 
@@ -89,7 +88,6 @@ impl Clone for Context {
             entry_map: self.entry_map.clone(),
             plugin_gen: self.plugin_gen.clone(),
             dedups: self.dedups.clone(),
-            nonstandard_snake_case: self.nonstandard_snake_case,
             common_crate_name: self.common_crate_name.clone(),
         }
     }
@@ -426,9 +424,10 @@ impl ContextBuilder {
         source_type: SourceType,
         change_case: bool,
         dedups: Vec<FastStr>,
-        nonstandard_snake_case: bool,
+        special_namings: Vec<FastStr>,
         common_crate_name: FastStr,
     ) -> Context {
+        SPECIAL_NAMINGS.get_or_init(|| special_namings);
         Context {
             adjusts: Default::default(),
             source_type,
@@ -446,7 +445,6 @@ impl ContextBuilder {
             entry_map: self.entry_map,
             plugin_gen: Default::default(),
             dedups,
-            nonstandard_snake_case,
             common_crate_name,
         }
     }
@@ -842,8 +840,8 @@ impl Context {
                 crate::rir::Item::Enum(e) => (&**e.name).enum_ident(),
                 crate::rir::Item::Service(s) => (&**s.name).trait_ident(),
                 crate::rir::Item::NewType(t) => (&**t.name).newtype_ident(),
-                crate::rir::Item::Const(c) => (&**c.name).const_ident(self.nonstandard_snake_case),
-                crate::rir::Item::Mod(m) => (&**m.name).mod_ident(self.nonstandard_snake_case),
+                crate::rir::Item::Const(c) => (&**c.name).const_ident(),
+                crate::rir::Item::Mod(m) => (&**m.name).mod_ident(),
             },
             NodeKind::Variant(v) => {
                 let parent = self.node(def_id).unwrap().parent.unwrap();
@@ -851,7 +849,7 @@ impl Context {
                 match &*item {
                     rir::Item::Enum(e) => {
                         if e.repr.is_some() {
-                            (&**v.name).const_ident(self.nonstandard_snake_case)
+                            (&**v.name).const_ident()
                         } else {
                             (&**v.name).variant_ident()
                         }
@@ -859,9 +857,9 @@ impl Context {
                     _ => unreachable!(),
                 }
             }
-            NodeKind::Field(f) => (&**f.name).field_ident(self.nonstandard_snake_case),
-            NodeKind::Method(m) => (&**m.name).fn_ident(self.nonstandard_snake_case),
-            NodeKind::Arg(a) => (&**a.name).field_ident(self.nonstandard_snake_case),
+            NodeKind::Field(f) => (&**f.name).field_ident(),
+            NodeKind::Method(m) => (&**m.name).fn_ident(),
+            NodeKind::Arg(a) => (&**a.name).field_ident(),
         }
         .into()
     }

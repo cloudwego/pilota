@@ -89,7 +89,7 @@ pub struct Builder<MkB, P> {
     change_case: bool,
     keep_unknown_fields: Vec<std::path::PathBuf>,
     dedups: Vec<FastStr>,
-    nonstandard_snake_case: bool,
+    special_namings: Vec<FastStr>,
     common_crate_name: FastStr,
 }
 
@@ -108,7 +108,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             change_case: true,
             keep_unknown_fields: Vec::default(),
             dedups: Vec::default(),
-            nonstandard_snake_case: false,
+            special_namings: Vec::default(),
             common_crate_name: "common".into(),
         }
     }
@@ -129,7 +129,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             change_case: true,
             keep_unknown_fields: Vec::default(),
             dedups: Vec::default(),
-            nonstandard_snake_case: false,
+            special_namings: Vec::default(),
             common_crate_name: "common".into(),
         }
     }
@@ -141,17 +141,6 @@ where
 {
     pub fn include_dirs(mut self, include_dirs: Vec<PathBuf>) -> Self {
         self.parser.include_dirs(include_dirs);
-        self
-    }
-
-    pub fn nonstandard_snake_case(mut self, flag: bool) -> Self {
-        self.parser.nonstandard_snake_case(flag);
-        self.nonstandard_snake_case = flag;
-        self
-    }
-
-    pub fn common_crate_name(mut self, name: FastStr) -> Self {
-        self.common_crate_name = name;
         self
     }
 }
@@ -168,7 +157,7 @@ impl<MkB, P> Builder<MkB, P> {
             change_case: self.change_case,
             keep_unknown_fields: self.keep_unknown_fields,
             dedups: self.dedups,
-            nonstandard_snake_case: self.nonstandard_snake_case,
+            special_namings: self.special_namings,
             common_crate_name: self.common_crate_name,
         }
     }
@@ -215,6 +204,16 @@ impl<MkB, P> Builder<MkB, P> {
 
     pub fn dedup(mut self, item: impl IntoIterator<Item = FastStr>) -> Self {
         self.dedups.extend(item);
+        self
+    }
+
+    pub fn special_namings(mut self, item: impl IntoIterator<Item = FastStr>) -> Self {
+        self.special_namings.extend(item);
+        self
+    }
+
+    pub fn common_crate_name(mut self, name: FastStr) -> Self {
+        self.common_crate_name = name;
         self
     }
 }
@@ -272,7 +271,7 @@ where
         change_case: bool,
         keep_unknown_fields: Vec<PathBuf>,
         dedups: Vec<FastStr>,
-        nonstandard_snake_case: bool,
+        special_namings: Vec<FastStr>,
         common_crate_name: FastStr,
     ) -> Context {
         let mut db = RootDatabase::default();
@@ -347,7 +346,7 @@ where
             source_type,
             change_case,
             dedups,
-            nonstandard_snake_case,
+            special_namings,
             common_crate_name,
         )
     }
@@ -365,7 +364,7 @@ where
             self.change_case,
             self.keep_unknown_fields,
             self.dedups,
-            self.nonstandard_snake_case,
+            self.special_namings,
             self.common_crate_name,
         );
 
@@ -447,7 +446,7 @@ where
             self.change_case,
             self.keep_unknown_fields,
             self.dedups,
-            self.nonstandard_snake_case,
+            self.special_namings,
             self.common_crate_name,
         );
 

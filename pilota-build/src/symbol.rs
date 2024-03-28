@@ -1,4 +1,4 @@
-use std::{fmt::Display, ops::Deref};
+use std::{fmt::Display, ops::Deref, sync::OnceLock};
 
 use faststr::FastStr;
 use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
@@ -11,6 +11,8 @@ crate::newtype_index! {
 crate::newtype_index! {
     pub struct DefId { .. }
 }
+
+pub static SPECIAL_NAMINGS: OnceLock<Vec<FastStr>> = OnceLock::new();
 
 lazy_static::lazy_static! {
     static ref KEYWORDS_SET: phf::Set<&'static str> = phf_set![
@@ -71,6 +73,7 @@ lazy_static::lazy_static! {
         "await",
         "try"
     ];
+
 }
 
 #[derive(Hash, PartialEq, Eq, Clone, Debug, PartialOrd, Ord)]
@@ -169,21 +172,21 @@ pub trait IdentName {
         self.upper_camel_ident()
     }
 
-    fn mod_ident(&self, nonstandard: bool) -> FastStr {
-        self.snake_ident(nonstandard)
+    fn mod_ident(&self) -> FastStr {
+        self.snake_ident()
     }
 
     fn variant_ident(&self) -> FastStr {
         self.upper_camel_ident()
     }
-    fn fn_ident(&self, nonstandard: bool) -> FastStr {
-        self.snake_ident(nonstandard)
+    fn fn_ident(&self) -> FastStr {
+        self.snake_ident()
     }
-    fn field_ident(&self, nonstandard: bool) -> FastStr {
-        self.snake_ident(nonstandard)
+    fn field_ident(&self) -> FastStr {
+        self.snake_ident()
     }
-    fn const_ident(&self, nonstandard: bool) -> FastStr {
-        self.shouty_snake_case(nonstandard)
+    fn const_ident(&self) -> FastStr {
+        self.shouty_snake_case()
     }
 
     fn trait_ident(&self) -> FastStr {
@@ -195,8 +198,8 @@ pub trait IdentName {
     }
 
     fn upper_camel_ident(&self) -> FastStr;
-    fn snake_ident(&self, nonstandard: bool) -> FastStr;
-    fn shouty_snake_case(&self, nonstandard: bool) -> FastStr;
+    fn snake_ident(&self) -> FastStr;
+    fn shouty_snake_case(&self) -> FastStr;
 }
 
 impl IdentName for &str {
@@ -205,8 +208,8 @@ impl IdentName for &str {
         s.into()
     }
 
-    fn snake_ident(&self, nonstandard: bool) -> FastStr {
-        if nonstandard {
+    fn snake_ident(&self) -> FastStr {
+        if is_common_initialism(self) {
             to_snake_case(self)
         } else {
             self.to_snake_case()
@@ -214,8 +217,8 @@ impl IdentName for &str {
         .into()
     }
 
-    fn shouty_snake_case(&self, nonstandard: bool) -> FastStr {
-        if nonstandard {
+    fn shouty_snake_case(&self) -> FastStr {
+        if is_common_initialism(self) {
             to_snake_case(self).to_uppercase()
         } else {
             self.to_shouty_snake_case()
@@ -229,12 +232,12 @@ impl IdentName for FastStr {
         (&**self).upper_camel_ident()
     }
 
-    fn snake_ident(&self, nonstandard: bool) -> FastStr {
-        (&**self).snake_ident(nonstandard)
+    fn snake_ident(&self) -> FastStr {
+        (&**self).snake_ident()
     }
 
-    fn shouty_snake_case(&self, nonstandard: bool) -> FastStr {
-        (&**self).shouty_snake_case(nonstandard)
+    fn shouty_snake_case(&self) -> FastStr {
+        (&**self).shouty_snake_case()
     }
 }
 
@@ -269,6 +272,15 @@ fn to_snake_case(mut str: &str) -> String {
     words.join("_")
 }
 
+fn is_common_initialism(s: &str) -> bool {
+    for name in SPECIAL_NAMINGS.get().unwrap_or(&Default::default()).iter() {
+        if s.contains(name.as_str()) {
+            return true;
+        }
+    }
+    false
+}
+
 #[cfg(test)]
 mod tests {
     use heck::ToSnakeCase;
@@ -278,6 +290,11 @@ mod tests {
     #[test]
     fn snake_case() {
         assert_eq!("IDs".to_snake_case(), "i_ds");
+        // positive
         assert_eq!(to_snake_case("IDs"), "ids");
+
+        assert_eq!("UIDSecure".to_snake_case(), "uid_secure");
+        // negative
+        assert_eq!(to_snake_case("UIDSecure"), "uidsecure");
     }
 }
