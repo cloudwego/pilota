@@ -9,8 +9,8 @@ pub mod multi {
                     faststr: ::pilota::FastStr::from_static_str("hello world"),
                     string: "test".to_string(),
                     a: Some(false),
-                    test_b: Some(B::Read),
-                    test_b2: Some(B::Write),
+                    test_b: Some(B::READ),
+                    test_b2: Some(B::WRITE),
                     map: Some({
                         let mut map = ::pilota::AHashMap::with_capacity(1);
                         map.insert(
@@ -62,10 +62,10 @@ pub mod multi {
                     protocol.write_bool_field(3, *value)?;
                 }
                 if let Some(value) = self.test_b.as_ref() {
-                    protocol.write_i32_field(4, (*value).into())?;
+                    protocol.write_i32_field(4, (value).inner())?;
                 }
                 if let Some(value) = self.test_b2.as_ref() {
-                    protocol.write_i32_field(5, (*value).into())?;
+                    protocol.write_i32_field(5, (value).inner())?;
                 }
                 if let Some(value) = self.map.as_ref() {
                     protocol.write_map_field(
@@ -106,8 +106,8 @@ pub mod multi {
                 let mut faststr = ::pilota::FastStr::from_static_str("hello world");
                 let mut string = None;
                 let mut a = Some(false);
-                let mut test_b = Some(B::Read);
-                let mut test_b2 = Some(B::Write);
+                let mut test_b = Some(B::READ);
+                let mut test_b2 = Some(B::WRITE);
                 let mut map = None;
                 let mut test_double = Some(1f64);
                 let mut test_double2 = Some(1.2f64);
@@ -235,8 +235,8 @@ pub mod multi {
                     let mut faststr = ::pilota::FastStr::from_static_str("hello world");
                     let mut string = None;
                     let mut a = Some(false);
-                    let mut test_b = Some(B::Read);
-                    let mut test_b2 = Some(B::Write);
+                    let mut test_b = Some(B::READ);
+                    let mut test_b2 = Some(B::WRITE);
                     let mut map = None;
                     let mut test_double = Some(1f64);
                     let mut test_double2 = Some(1.2f64);
@@ -383,11 +383,11 @@ pub mod multi {
                     + self
                         .test_b
                         .as_ref()
-                        .map_or(0, |value| protocol.i32_field_len(Some(4), (*value).into()))
+                        .map_or(0, |value| protocol.i32_field_len(Some(4), (value).inner()))
                     + self
                         .test_b2
                         .as_ref()
-                        .map_or(0, |value| protocol.i32_field_len(Some(5), (*value).into()))
+                        .map_or(0, |value| protocol.i32_field_len(Some(5), (value).inner()))
                     + self.map.as_ref().map_or(0, |value| {
                         protocol.map_field_len(
                             Some(6),
@@ -415,39 +415,26 @@ pub mod multi {
             }
         }
         pub const A_S: &'static str = "string";
-        impl ::std::convert::From<B> for i32 {
-            fn from(e: B) -> Self {
-                e as _
-            }
-        }
-
-        impl ::std::convert::TryFrom<i32> for B {
-            type Error = ::pilota::EnumConvertError<i32>;
-
-            #[allow(non_upper_case_globals)]
-            fn try_from(v: i32) -> ::std::result::Result<Self, ::pilota::EnumConvertError<i32>> {
-                const Read: i32 = B::Read as i32;
-                const Write: i32 = B::Write as i32;
-                match v {
-                    Read => ::std::result::Result::Ok(B::Read),
-                    Write => ::std::result::Result::Ok(B::Write),
-
-                    _ => ::std::result::Result::Err(::pilota::EnumConvertError::InvalidNum(v, "B")),
-                }
-            }
-        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
-        #[repr(i32)]
-        #[derive(Copy)]
-        pub enum B {
-            #[derivative(Default)]
-            Read = 1,
+        #[derive(Clone, PartialEq, Copy)]
+        #[repr(transparent)]
+        pub struct B(i32);
 
-            Write = 2,
+        impl B {
+            pub const READ: Self = Self(1);
+            pub const WRITE: Self = Self(2);
+
+            pub fn inner(&self) -> i32 {
+                self.0
+            }
         }
 
+        impl ::std::convert::From<i32> for B {
+            fn from(value: i32) -> Self {
+                Self(value)
+            }
+        }
         impl ::pilota::thrift::Message for B {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -455,7 +442,7 @@ pub mod multi {
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                protocol.write_i32(*self as i32)?;
+                protocol.write_i32(self.inner())?;
                 Ok(())
             }
 
@@ -497,7 +484,7 @@ pub mod multi {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.i32_len(*self as i32)
+                protocol.i32_len(self.inner())
             }
         }
         impl Default for C {

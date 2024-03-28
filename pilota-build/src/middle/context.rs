@@ -20,7 +20,7 @@ use crate::{
     db::{RirDatabase, RootDatabase},
     rir::{self, Field, Item, ItemPath, Literal},
     symbol::{DefId, FileId, IdentName, Symbol},
-    tags::{EnumMode, TagId, Tags},
+    tags::{TagId, Tags},
     ty::{AdtDef, AdtKind, CodegenTy, Visitor},
     Plugin, MAX_RESOLVE_DEPTH,
 };
@@ -847,18 +847,16 @@ impl Context {
             },
             NodeKind::Variant(v) => {
                 let parent = self.node(def_id).unwrap().parent.unwrap();
-
-                if self
-                    .node_tags(parent)
-                    .unwrap()
-                    .get::<EnumMode>()
-                    .copied()
-                    .unwrap_or(EnumMode::Enum)
-                    == EnumMode::NewType
-                {
-                    (&**v.name).shouty_snake_case(self.nonstandard_snake_case)
-                } else {
-                    (&**v.name).variant_ident()
+                let item = self.expect_item(parent);
+                match &*item {
+                    rir::Item::Enum(e) => {
+                        if e.repr.is_some() {
+                            (&**v.name).const_ident(self.nonstandard_snake_case)
+                        } else {
+                            (&**v.name).variant_ident()
+                        }
+                    }
+                    _ => unreachable!(),
                 }
             }
             NodeKind::Field(f) => (&**f.name).field_ident(self.nonstandard_snake_case),

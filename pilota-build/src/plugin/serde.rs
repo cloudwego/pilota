@@ -1,4 +1,4 @@
-use crate::tags::{EnumMode, SerdeAttribute};
+use crate::tags::SerdeAttribute;
 
 #[derive(Clone, Copy)]
 pub struct SerdePlugin;
@@ -28,17 +28,18 @@ impl crate::Plugin for SerdePlugin {
                         adj.add_attrs(&[attr.into()]);
                     }
                 });
-
-                if cx.node_tags(def_id).unwrap().get::<EnumMode>().copied()
-                    == Some(EnumMode::NewType)
-                {
-                    cx.with_adjust_mut(def_id, |adj| {
-                        adj.add_attrs(&["#[serde(transparent)]".into()]);
-                    })
-                }
             }
             _ => {}
         };
+
+        if let crate::rir::Item::Enum(e) = &*item {
+            if e.repr.is_some() {
+                cx.with_adjust_mut(def_id, |adj| {
+                    adj.add_attrs(&["#[serde(transparent)]".into()]);
+                })
+            }
+        }
+
         crate::plugin::walk_item(self, cx, def_id, item)
     }
 

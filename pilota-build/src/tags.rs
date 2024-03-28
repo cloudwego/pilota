@@ -134,27 +134,6 @@ impl Annotation for PilotaName {
 #[derive(Debug)]
 pub struct RustType(pub FastStr);
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
-pub enum EnumMode {
-    NewType,
-    Enum,
-}
-
-impl FromStr for EnumMode {
-    type Err = std::convert::Infallible;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "new_type" => Self::NewType,
-            _ => Self::Enum,
-        })
-    }
-}
-
-impl Annotation for EnumMode {
-    const KEY: &'static str = "pilota.enum_mode";
-}
-
 impl PartialEq<str> for RustType {
     fn eq(&self, other: &str) -> bool {
         self.0 == other

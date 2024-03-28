@@ -26,7 +26,6 @@ use crate::{
         rir,
     },
     symbol::{DefId, EnumRepr, FileId},
-    tags::EnumMode,
     Context, Symbol,
 };
 
@@ -258,31 +257,11 @@ where
     }
 
     pub fn write_enum(&self, def_id: DefId, stream: &mut String, e: &middle::rir::Enum) {
-        if self
-            .node_tags(def_id)
-            .unwrap()
-            .get::<EnumMode>()
-            .filter(|s| **s == EnumMode::NewType)
-            .is_some()
-        {
+        if e.repr.is_some() {
             return self.write_enum_as_new_type(def_id, stream, e);
         }
         let name = self.rust_name(def_id);
 
-        let mut repr = if e.variants.is_empty() {
-            quote! {}
-        } else {
-            match e.repr {
-                Some(EnumRepr::I32) => quote! {
-                   #[repr(i32)]
-                },
-                None => quote! {},
-            }
-        };
-
-        if e.repr.is_some() {
-            repr.extend(quote! { #[derive(Copy)] })
-        }
         let mut keep = true;
         let mut variants = e
             .variants
@@ -306,21 +285,9 @@ where
                         format!("({fields})")
                     };
 
-                    let discr = v
-                        .discr
-                        .map(|x| {
-                            let x = isize::try_from(x).unwrap();
-                            let x = match e.repr {
-                                Some(EnumRepr::I32) => x as i32,
-                                None => panic!(),
-                            };
-                            format!("={x}")
-                        })
-                        .unwrap_or_default();
-
                     format!(
                         r#"{attrs}
-                        {name} {fields_stream} {discr},"#
+                        {name} {fields_stream},"#
                     )
                 })
             })
@@ -332,7 +299,6 @@ where
         stream.push_str(&format! {
             r#"
             #[derive(Clone, PartialEq)]
-            {repr}
             pub enum {name} {{
                 {variants}
             }}

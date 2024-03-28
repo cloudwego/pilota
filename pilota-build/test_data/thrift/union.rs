@@ -5,7 +5,6 @@ pub mod union {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
         #[derive(Clone, PartialEq)]
-
         pub enum Union {
             #[derivative(Default)]
             A(::pilota::FastStr),
@@ -167,7 +166,6 @@ pub mod union {
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
-
         pub enum Empty {}
 
         impl ::pilota::thrift::Message for Empty {

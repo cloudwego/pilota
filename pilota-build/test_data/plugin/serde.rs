@@ -191,42 +191,29 @@ pub mod serde {
                     + protocol.struct_end_len()
             }
         }
-        impl ::std::convert::From<C> for i32 {
-            fn from(e: C) -> Self {
-                e as _
-            }
-        }
-
-        impl ::std::convert::TryFrom<i32> for C {
-            type Error = ::pilota::EnumConvertError<i32>;
-
-            #[allow(non_upper_case_globals)]
-            fn try_from(v: i32) -> ::std::result::Result<Self, ::pilota::EnumConvertError<i32>> {
-                const D: i32 = C::D as i32;
-                const E: i32 = C::E as i32;
-                match v {
-                    D => ::std::result::Result::Ok(C::D),
-                    E => ::std::result::Result::Ok(C::E),
-
-                    _ => ::std::result::Result::Err(::pilota::EnumConvertError::InvalidNum(v, "C")),
-                }
-            }
-        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
         #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize)]
         #[serde(untagged)]
-        #[derive(Clone, PartialEq)]
-        #[repr(i32)]
-        #[derive(Copy)]
-        pub enum C {
-            #[derivative(Default)]
-            #[serde(rename = "DD")]
-            D = 0,
+        #[serde(transparent)]
+        #[derive(Clone, PartialEq, Copy)]
+        #[repr(transparent)]
+        pub struct C(i32);
 
-            E = 1,
+        impl C {
+            pub const D: Self = Self(0);
+            pub const E: Self = Self(1);
+
+            pub fn inner(&self) -> i32 {
+                self.0
+            }
         }
 
+        impl ::std::convert::From<i32> for C {
+            fn from(value: i32) -> Self {
+                Self(value)
+            }
+        }
         impl ::pilota::thrift::Message for C {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -234,7 +221,7 @@ pub mod serde {
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                protocol.write_i32(*self as i32)?;
+                protocol.write_i32(self.inner())?;
                 Ok(())
             }
 
@@ -276,7 +263,7 @@ pub mod serde {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.i32_len(*self as i32)
+                protocol.i32_len(self.inner())
             }
         }
         #[derive(

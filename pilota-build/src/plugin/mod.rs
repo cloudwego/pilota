@@ -2,15 +2,13 @@ use std::{collections::HashSet, ops::DerefMut, sync::Arc};
 
 use faststr::FastStr;
 use itertools::Itertools;
-use quote::quote;
 use rustc_hash::FxHashMap;
 
 use crate::{
     db::RirDatabase,
     middle::context::tls::CUR_ITEM,
     rir::{EnumVariant, Field, Item, NodeKind},
-    symbol::{DefId, EnumRepr},
-    tags::EnumMode,
+    symbol::DefId,
     ty::{self, Ty, Visitor},
     Context,
 };
@@ -406,80 +404,6 @@ impl Plugin for ImplDefaultPlugin {
                         })
                     }
                 }
-            }
-            _ => {}
-        }
-        walk_item(self, cx, def_id, item)
-    }
-}
-
-pub struct EnumNumPlugin;
-
-impl Plugin for EnumNumPlugin {
-    fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
-        match &*item {
-            Item::Enum(e)
-                if e.repr.is_some()
-                    && cx
-                        .node_tags(def_id)
-                        .unwrap()
-                        .get::<EnumMode>()
-                        .copied()
-                        .unwrap_or(EnumMode::Enum)
-                        == EnumMode::Enum =>
-            {
-                let name_str = &*cx.rust_name(def_id);
-                let name = name_str;
-                let num_ty = match e.repr {
-                    Some(EnumRepr::I32) => quote!(i32),
-                    _ => return,
-                };
-                let variants = e
-                    .variants
-                    .iter()
-                    .map(|v| {
-                        let variant_name_str = cx.rust_name(v.did);
-                        let variant_name = variant_name_str;
-                        format!(
-                            "{variant_name} => ::std::result::Result::Ok({name}::{variant_name}),\n"
-                        )
-                    })
-                    .join("");
-
-                let nums = e
-                    .variants
-                    .iter()
-                    .map(|v| {
-                        let variant_name_str = cx.rust_name(v.did);
-                        let variant_name = variant_name_str;
-                        format!(
-                            "const {variant_name}: {num_ty} = {name}::{variant_name} as {num_ty};"
-                        )
-                    })
-                    .join("\n");
-
-                cx.with_adjust_mut(def_id, |adj| {
-                    adj.add_nested_item(format!(r#"
-                        impl ::std::convert::From<{name}> for {num_ty} {{
-                            fn from(e: {name}) -> Self {{
-                                e as _
-                            }}
-                        }}
-
-                        impl ::std::convert::TryFrom<{num_ty}> for {name} {{
-                            type Error = ::pilota::EnumConvertError<{num_ty}>;
-
-                            #[allow(non_upper_case_globals)]
-                            fn try_from(v: i32) -> ::std::result::Result<Self, ::pilota::EnumConvertError<{num_ty}>> {{
-                                {nums}
-                                match v {{
-                                    {variants}
-                                    _ => ::std::result::Result::Err(::pilota::EnumConvertError::InvalidNum(v, "{name_str}")),
-                                }}
-                            }}
-                        }}"#).into(),
-                    )
-                });
             }
             _ => {}
         }

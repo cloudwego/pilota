@@ -12,7 +12,7 @@ use crate::{
     },
     rir::EnumVariant,
     symbol::{DefId, EnumRepr, Symbol},
-    tags::{thrift::EntryMessage, EnumMode},
+    tags::thrift::EntryMessage,
     ty::TyKind,
 };
 
@@ -503,17 +503,7 @@ impl CodegenBackend for ThriftBackend {
         let keep = self.keep_unknown_fields.contains(&def_id);
         let name = self.rust_name(def_id);
         let is_entry_message = self.node_contains_tag::<EntryMessage>(def_id);
-        let v = match self
-            .cx
-            .node_tags(def_id)
-            .unwrap()
-            .get::<EnumMode>()
-            .copied()
-            .unwrap_or(EnumMode::Enum)
-        {
-            EnumMode::NewType => "self.inner()",
-            EnumMode::Enum => "*self as i32",
-        };
+        let v = "self.inner()";
         match e.repr {
             Some(EnumRepr::I32) => stream.push_str(&self.codegen_impl_message_with_helper(
                 def_id,
