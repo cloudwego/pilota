@@ -84,44 +84,26 @@ pub mod nested_message {
     }
 
     pub mod tt1 {
-
-        impl ::std::convert::From<Label> for i32 {
-            fn from(e: Label) -> Self {
-                e as _
-            }
-        }
-
-        impl ::std::convert::TryFrom<i32> for Label {
-            type Error = ::pilota::EnumConvertError<i32>;
-
-            #[allow(non_upper_case_globals)]
-            fn try_from(v: i32) -> ::std::result::Result<Self, ::pilota::EnumConvertError<i32>> {
-                const LabelOptional: i32 = Label::LabelOptional as i32;
-                const LabelRequired: i32 = Label::LabelRequired as i32;
-                const LabelRepeated: i32 = Label::LabelRepeated as i32;
-                match v {
-                    LabelOptional => ::std::result::Result::Ok(Label::LabelOptional),
-                    LabelRequired => ::std::result::Result::Ok(Label::LabelRequired),
-                    LabelRepeated => ::std::result::Result::Ok(Label::LabelRepeated),
-
-                    _ => ::std::result::Result::Err(::pilota::EnumConvertError::InvalidNum(
-                        v, "Label",
-                    )),
-                }
-            }
-        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
-        #[repr(i32)]
-        #[derive(Copy)]
-        pub enum Label {
-            #[derivative(Default)]
-            LabelOptional = 1,
+        #[derive(Clone, PartialEq, Copy)]
+        #[repr(transparent)]
+        pub struct Label(i32);
 
-            LabelRequired = 2,
+        impl Label {
+            pub const LABEL_OPTIONAL: Self = Self(1);
+            pub const LABEL_REQUIRED: Self = Self(2);
+            pub const LABEL_REPEATED: Self = Self(3);
 
-            LabelRepeated = 3,
+            pub fn inner(&self) -> i32 {
+                self.0
+            }
+        }
+
+        impl ::std::convert::From<i32> for Label {
+            fn from(value: i32) -> Self {
+                Self(value)
+            }
         }
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct T2 {

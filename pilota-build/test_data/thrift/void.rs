@@ -5,7 +5,6 @@ pub mod void {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
         #[derive(Clone, PartialEq)]
-
         pub enum TestTest123ResultRecv {
             #[derivative(Default)]
             Ok(()),
@@ -346,7 +345,6 @@ pub mod void {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
         #[derive(Clone, PartialEq)]
-
         pub enum TestTest123ResultSend {
             #[derivative(Default)]
             Ok(()),

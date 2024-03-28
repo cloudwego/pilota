@@ -478,7 +478,7 @@ impl ThriftLower {
         }
 
         annotations.iter().for_each(
-            |annotation| with_tags!(annotation -> crate::tags::PilotaName | crate::tags::RustType | crate::tags::RustWrapperArc | crate::tags::SerdeAttribute | crate::tags::EnumMode),
+            |annotation| with_tags!(annotation -> crate::tags::PilotaName | crate::tags::RustType | crate::tags::RustWrapperArc | crate::tags::SerdeAttribute),
         );
 
         tags

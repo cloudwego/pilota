@@ -309,7 +309,6 @@ pub mod pilota_name {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
         #[derive(Clone, PartialEq)]
-
         pub enum TestServiceTestResultSend {
             #[derivative(Default)]
             Ok(Test1),
@@ -785,7 +784,6 @@ pub mod pilota_name {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
         #[derive(Clone, PartialEq)]
-
         pub enum TestServiceTestResultRecv {
             #[derivative(Default)]
             Ok(Test1),
@@ -923,41 +921,26 @@ pub mod pilota_name {
                     + protocol.struct_end_len()
             }
         }
-        impl ::std::convert::From<Index> for i32 {
-            fn from(e: Index) -> Self {
-                e as _
-            }
-        }
-
-        impl ::std::convert::TryFrom<i32> for Index {
-            type Error = ::pilota::EnumConvertError<i32>;
-
-            #[allow(non_upper_case_globals)]
-            fn try_from(v: i32) -> ::std::result::Result<Self, ::pilota::EnumConvertError<i32>> {
-                const AA: i32 = Index::AA as i32;
-                const B: i32 = Index::B as i32;
-                match v {
-                    AA => ::std::result::Result::Ok(Index::AA),
-                    B => ::std::result::Result::Ok(Index::B),
-
-                    _ => ::std::result::Result::Err(::pilota::EnumConvertError::InvalidNum(
-                        v, "Index",
-                    )),
-                }
-            }
-        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
-        #[repr(i32)]
-        #[derive(Copy)]
-        pub enum Index {
-            #[derivative(Default)]
-            AA = 0,
+        #[derive(Clone, PartialEq, Copy)]
+        #[repr(transparent)]
+        pub struct Index(i32);
 
-            B = 1,
+        impl Index {
+            pub const AA: Self = Self(0);
+            pub const B: Self = Self(1);
+
+            pub fn inner(&self) -> i32 {
+                self.0
+            }
         }
 
+        impl ::std::convert::From<i32> for Index {
+            fn from(value: i32) -> Self {
+                Self(value)
+            }
+        }
         impl ::pilota::thrift::Message for Index {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
@@ -965,7 +948,7 @@ pub mod pilota_name {
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                protocol.write_i32(*self as i32)?;
+                protocol.write_i32(self.inner())?;
                 Ok(())
             }
 
@@ -1007,7 +990,7 @@ pub mod pilota_name {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.i32_len(*self as i32)
+                protocol.i32_len(self.inner())
             }
         }
     }

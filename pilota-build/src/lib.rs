@@ -40,10 +40,7 @@ pub use middle::{
     rir, ty,
 };
 use parser::{protobuf::ProtobufParser, thrift::ThriftParser, ParseResult, Parser};
-use plugin::{
-    AutoDerivePlugin, BoxedPlugin, EnumNumPlugin, ImplDefaultPlugin, PredicateResult,
-    WithAttrsPlugin,
-};
+use plugin::{AutoDerivePlugin, BoxedPlugin, ImplDefaultPlugin, PredicateResult, WithAttrsPlugin};
 pub use plugin::{BoxClonePlugin, ClonePlugin, Plugin};
 use resolve::{ResolveResult, Resolver};
 use salsa::Durability;
@@ -105,7 +102,6 @@ impl Builder<MkThriftBackend, ThriftParser> {
             plugins: vec![
                 Box::new(WithAttrsPlugin(Arc::from(["#[derive(Debug)]".into()]))),
                 Box::new(ImplDefaultPlugin),
-                Box::new(EnumNumPlugin),
             ],
             touches: Vec::default(),
             ignore_unused: true,
@@ -127,7 +123,6 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             plugins: vec![
                 Box::new(WithAttrsPlugin(Arc::from(["#[derive(Debug)]".into()]))),
                 Box::new(ImplDefaultPlugin),
-                Box::new(EnumNumPlugin),
             ],
             touches: Vec::default(),
             ignore_unused: true,

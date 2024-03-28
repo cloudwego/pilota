@@ -125,7 +125,6 @@ pub mod wrapper_arc {
         #[derive(Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
         #[derive(Clone, PartialEq)]
-
         pub enum TestServiceTestResultRecv {
             #[derivative(Default)]
             Ok(Test),
@@ -415,7 +414,6 @@ pub mod wrapper_arc {
         #[derive(Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
         #[derive(Clone, PartialEq)]
-
         pub enum TestServiceTestResultSend {
             #[derivative(Default)]
             Ok(::std::sync::Arc<Test>),

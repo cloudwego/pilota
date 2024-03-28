@@ -5,7 +5,6 @@ use crate::{
     db::RirDatabase,
     middle::{rir, ty, ty::Ty},
     symbol::EnumRepr,
-    tags::EnumMode,
     DefId,
 };
 
@@ -177,19 +176,7 @@ impl ThriftBackend {
                 .into()
             }
             ty::Path(p) if self.is_i32_enum(p.did) => {
-                let v = match self
-                    .cx
-                    .node_tags(p.did)
-                    .unwrap()
-                    .get::<EnumMode>()
-                    .copied()
-                    .unwrap_or(EnumMode::Enum)
-                {
-                    EnumMode::NewType => format!("({ident}).inner()"),
-                    EnumMode::Enum => format!("(*{ident}).into()"),
-                };
-
-                format!("protocol.write_i32_field({id}, {v})?;").into()
+                format!("protocol.write_i32_field({id}, ({ident}).inner())?;").into()
             }
             ty::Path(p) => match self.cx.expect_item(p.did).as_ref() {
                 rir::Item::NewType(nt) => {
@@ -306,18 +293,7 @@ impl ThriftBackend {
                 format!("protocol.map_field_len(Some({id}), {k_ttype}, {v_ttype}, {ident}, |protocol, key| {{ {add_key} }}, |protocol, val| {{ {add_val} }})").into()
             }
             ty::Path(p) if self.is_i32_enum(p.did) => {
-                let v = match self
-                    .cx
-                    .node_tags(p.did)
-                    .unwrap()
-                    .get::<EnumMode>()
-                    .copied()
-                    .unwrap_or(EnumMode::Enum)
-                {
-                    EnumMode::NewType => format!("({ident}).inner()"),
-                    EnumMode::Enum => format!("(*{ident}).into()"),
-                };
-                format!("protocol.i32_field_len(Some({id}), {v})").into()
+                format!("protocol.i32_field_len(Some({id}), ({ident}).inner())").into()
             }
             ty::Path(_) => format!("protocol.struct_field_len(Some({id}), {ident})").into(),
             ty::Arc(ty) => self.codegen_field_size(ty, id, ident),
