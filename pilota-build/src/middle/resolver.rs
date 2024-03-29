@@ -51,11 +51,7 @@ impl PathResolver for DefaultPathResolver {
                 let file = cx.file(node.file_id).unwrap();
                 let package = &file.package;
                 if package.len() != 1 || !package.first().unwrap().0.is_empty() {
-                    segs.extend(
-                        package
-                            .iter()
-                            .map(|s| (&*s.0).mod_ident(cx.nonstandard_snake_case).into()),
-                    )
+                    segs.extend(package.iter().map(|s| (&*s.0).mod_ident().into()))
                 }
             }
 

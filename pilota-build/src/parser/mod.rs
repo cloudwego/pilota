@@ -28,7 +28,5 @@ pub trait Parser {
 
     fn include_dirs(&mut self, dirs: Vec<PathBuf>);
 
-    fn nonstandard_snake_case(&mut self, _nonstandard: bool) {}
-
     fn parse(self) -> ParseResult;
 }
