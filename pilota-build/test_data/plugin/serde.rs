@@ -214,6 +214,13 @@ pub mod serde {
                 Self(value)
             }
         }
+
+        impl ::std::convert::From<C> for i32 {
+            fn from(value: C) -> i32 {
+                value.0
+            }
+        }
+
         impl ::pilota::thrift::Message for C {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
