@@ -105,6 +105,13 @@ pub mod nested_message {
                 Self(value)
             }
         }
+
+        impl ::std::convert::From<Label> for i32 {
+            fn from(value: Label) -> i32 {
+                value.0
+            }
+        }
+
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct T2 {
             pub t3: t2::Tt3,

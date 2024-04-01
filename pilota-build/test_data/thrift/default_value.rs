@@ -22,6 +22,13 @@ pub mod default_value {
                 Self(value)
             }
         }
+
+        impl ::std::convert::From<B> for i32 {
+            fn from(value: B) -> i32 {
+                value.0
+            }
+        }
+
         impl ::pilota::thrift::Message for B {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,

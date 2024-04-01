@@ -2591,6 +2591,13 @@ pub mod unknown_fields {
                 Self(value)
             }
         }
+
+        impl ::std::convert::From<Index> for i32 {
+            fn from(value: Index) -> i32 {
+                value.0
+            }
+        }
+
         impl ::pilota::thrift::Message for Index {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
