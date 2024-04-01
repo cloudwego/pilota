@@ -250,7 +250,15 @@ where
                 fn from(value: {repr}) -> Self {{
                     Self(value)
                 }}
-            }}"#
+            }}
+
+            impl ::std::convert::From<{name}> for {repr} {{
+                fn from(value: {name}) -> {repr} {{
+                    value.0
+                }}
+            }}
+
+            "#
         });
 
         self.backend.codegen_enum_impl(def_id, stream, e);
@@ -406,6 +414,7 @@ where
                     Self(v)
                 }}
             }}
+            
             "#
         });
         self.backend.codegen_newtype_impl(def_id, stream, t);
