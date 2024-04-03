@@ -22,7 +22,7 @@ pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.11" }
 ahash = "0.8"
 anyhow = "1"
 dashmap = "5"
-heck = "0.4"
+heck = "0.5"
 itertools = "0.12"
 lazy_static = "1"
 normpath = "1"
