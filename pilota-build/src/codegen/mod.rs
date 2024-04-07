@@ -338,25 +338,27 @@ where
     /// get service information for volo-cli init, return path of service and
     /// methods
     pub fn get_init_service(&self, def_id: DefId) -> (String, String) {
-        let service_name = self.rust_name(def_id);
-        let mod_prefix = self.mod_path(def_id);
-        let service_path = format!(
-            "{}::{}",
-            mod_prefix.iter().map(|item| item.to_string()).join("::"),
-            service_name
-        );
-        tracing::debug!("service_path: {}", service_path);
-        let methods = self.service_methods(def_id);
+        CUR_ITEM.set(&def_id, || {
+            let service_name = self.rust_name(def_id);
+            let mod_prefix = self.mod_path(def_id);
+            let service_path = format!(
+                "{}::{}",
+                mod_prefix.iter().map(|item| item.to_string()).join("::"),
+                service_name
+            );
+            tracing::debug!("service_path: {}", service_path);
+            let methods = self.service_methods(def_id);
 
-        let methods = methods
-            .iter()
-            .map(|m| {
-                self.backend
-                    .codegen_service_method_with_global_path(def_id, m)
-            })
-            .join("\n");
+            let methods = methods
+                .iter()
+                .map(|m| {
+                    self.backend
+                        .codegen_service_method_with_global_path(def_id, m)
+                })
+                .join("\n");
 
-        (service_path, methods)
+            (service_path, methods)
+        })
     }
 
     // pick first service as init service from idlservice
@@ -414,7 +416,7 @@ where
                     Self(v)
                 }}
             }}
-            
+
             "#
         });
         self.backend.codegen_newtype_impl(def_id, stream, t);
