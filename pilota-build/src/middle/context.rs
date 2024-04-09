@@ -616,7 +616,7 @@ impl Context {
                     CodegenTy::I8 => "i8",
                     _ => unreachable!(),
                 };
-                (format!("({stream} as {target})").into(), true)
+                (format!("({stream}.inner() as {target})").into(), true)
             }
             _ => panic!("invalid convert {:?} to {:?}", ident_ty, target),
         }
