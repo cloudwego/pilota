@@ -11,6 +11,7 @@ pub mod multi {
                     a: Some(false),
                     test_b: Some(B::READ),
                     test_b2: Some(B::WRITE),
+                    test_b3: Some((B::READ.inner() as i8)),
                     map: Some({
                         let mut map = ::pilota::AHashMap::with_capacity(1);
                         map.insert(
@@ -36,6 +37,8 @@ pub mod multi {
             pub test_b: ::std::option::Option<B>,
 
             pub test_b2: ::std::option::Option<B>,
+
+            pub test_b3: ::std::option::Option<i8>,
 
             pub map:
                 ::std::option::Option<::pilota::AHashMap<::pilota::FastStr, ::pilota::FastStr>>,
@@ -66,6 +69,9 @@ pub mod multi {
                 }
                 if let Some(value) = self.test_b2.as_ref() {
                     protocol.write_i32_field(5, (value).inner())?;
+                }
+                if let Some(value) = self.test_b3.as_ref() {
+                    protocol.write_i8_field(5, *value)?;
                 }
                 if let Some(value) = self.map.as_ref() {
                     protocol.write_map_field(
@@ -108,6 +114,7 @@ pub mod multi {
                 let mut a = Some(false);
                 let mut test_b = Some(B::READ);
                 let mut test_b2 = Some(B::WRITE);
+                let mut test_b3 = Some((B::READ.inner() as i8));
                 let mut map = None;
                 let mut test_double = Some(1f64);
                 let mut test_double2 = Some(1.2f64);
@@ -145,6 +152,9 @@ pub mod multi {
                             }
                             Some(5) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 test_b2 = Some(::pilota::thrift::Message::decode(protocol)?);
+                            }
+                            Some(5) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
+                                test_b3 = Some(protocol.read_i8()?);
                             }
                             Some(6) if field_ident.field_type == ::pilota::thrift::TType::Map => {
                                 map = Some({
@@ -213,6 +223,7 @@ pub mod multi {
                     a,
                     test_b,
                     test_b2,
+                    test_b3,
                     map,
                     test_double,
                     test_double2,
@@ -237,6 +248,7 @@ pub mod multi {
                     let mut a = Some(false);
                     let mut test_b = Some(B::READ);
                     let mut test_b2 = Some(B::WRITE);
+                    let mut test_b3 = Some((B::READ.inner() as i8));
                     let mut map = None;
                     let mut test_double = Some(1f64);
                     let mut test_double2 = Some(1.2f64);
@@ -286,6 +298,11 @@ pub mod multi {
                                         <B as ::pilota::thrift::Message>::decode_async(protocol)
                                             .await?,
                                     );
+                                }
+                                Some(5)
+                                    if field_ident.field_type == ::pilota::thrift::TType::I8 =>
+                                {
+                                    test_b3 = Some(protocol.read_i8().await?);
                                 }
                                 Some(6)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
@@ -361,6 +378,7 @@ pub mod multi {
                         a,
                         test_b,
                         test_b2,
+                        test_b3,
                         map,
                         test_double,
                         test_double2,
@@ -388,6 +406,10 @@ pub mod multi {
                         .test_b2
                         .as_ref()
                         .map_or(0, |value| protocol.i32_field_len(Some(5), (value).inner()))
+                    + self
+                        .test_b3
+                        .as_ref()
+                        .map_or(0, |value| protocol.i8_field_len(Some(5), *value))
                     + self.map.as_ref().map_or(0, |value| {
                         protocol.map_field_len(
                             Some(6),
