@@ -229,20 +229,14 @@ where
                     Some(EnumRepr::I32) => discr as i32,
                     None => panic!(),
                 };
-                (format!("pub const {name}: Self = Self({discr});"), format!("Self({discr}) => stringify!({name}),"))
-            }).collect::<Vec<_>>();
-        let variants_const = variants
-            .iter()
-            .map(|(v, _)| {
-                v
+                (
+                    format!("pub const {name}: Self = Self({discr});"),
+                    format!("Self({discr}) => stringify!({name}),"),
+                )
             })
-            .join("");
-        let variants_as_str_fields = variants
-            .iter()
-            .map(|(_, v)| {
-                v
-            })
-            .join("");
+            .collect::<Vec<_>>();
+        let variants_const = variants.iter().map(|(v, _)| v).join("");
+        let variants_as_str_fields = variants.iter().map(|(_, v)| v).join("");
 
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq, Copy)]
