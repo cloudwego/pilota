@@ -15,6 +15,18 @@ pub mod enum_test {
             pub fn inner(&self) -> i32 {
                 self.0
             }
+
+            pub fn as_str(&self) -> &'static str {
+                match self {
+                    Self(1) => stringify!(A),
+                    Self(16) => stringify!(B),
+                    _ => panic!(
+                        "{} unknown fields val {}",
+                        std::any::type_name::<Self>(),
+                        self.0
+                    ),
+                }
+            }
         }
 
         impl ::std::convert::From<i32> for Index {

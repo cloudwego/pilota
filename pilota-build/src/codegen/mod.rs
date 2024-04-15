@@ -229,7 +229,18 @@ where
                     Some(EnumRepr::I32) => discr as i32,
                     None => panic!(),
                 };
-                format!("pub const {name}: Self = Self({discr});")
+                (format!("pub const {name}: Self = Self({discr});"), format!("Self({discr}) => stringify!({name}),"))
+            }).collect::<Vec<_>>();
+        let variants_const = variants
+            .iter()
+            .map(|(v, _)| {
+                v
+            })
+            .join("");
+        let variants_as_str_fields = variants
+            .iter()
+            .map(|(_, v)| {
+                v
             })
             .join("");
 
@@ -239,10 +250,17 @@ where
             pub struct {name}({repr});
 
             impl {name} {{
-                {variants}
+                {variants_const}
 
                 pub fn inner(&self) -> {repr} {{
                     self.0
+                }}
+
+                pub fn as_str(&self) -> &'static str {{
+                    match self {{
+                        {variants_as_str_fields}
+                        _ => panic!("{{}} unknown fields val {{}}", std::any::type_name::<Self>(), self.0),
+                    }}
                 }}
             }}
 

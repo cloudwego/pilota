@@ -15,6 +15,18 @@ pub mod const_val {
             pub fn inner(&self) -> i32 {
                 self.0
             }
+
+            pub fn as_str(&self) -> &'static str {
+                match self {
+                    Self(0) => stringify!(A),
+                    Self(1) => stringify!(B),
+                    _ => panic!(
+                        "{} unknown fields val {}",
+                        std::any::type_name::<Self>(),
+                        self.0
+                    ),
+                }
+            }
         }
 
         impl ::std::convert::From<i32> for Index {
