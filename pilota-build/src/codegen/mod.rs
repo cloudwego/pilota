@@ -231,7 +231,7 @@ where
                 };
                 (
                     format!("pub const {name}: Self = Self({discr});"),
-                    format!("Self({discr}) => stringify!({name}),"),
+                    format!("Self({discr}) => \"{name}\","),
                 )
             })
             .collect::<Vec<_>>();
@@ -253,7 +253,7 @@ where
                 pub fn as_str(&self) -> &'static str {{
                     match self {{
                         {variants_as_str_fields}
-                        _ => panic!("{{}} unknown fields val {{}}", std::any::type_name::<Self>(), self.0),
+                        Self(val) => val.to_string().as_str(),
                     }}
                 }}
             }}

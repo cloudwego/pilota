@@ -453,13 +453,9 @@ pub mod multi {
 
             pub fn as_str(&self) -> &'static str {
                 match self {
-                    Self(1) => stringify!(READ),
-                    Self(2) => stringify!(WRITE),
-                    _ => panic!(
-                        "{} unknown fields val {}",
-                        std::any::type_name::<Self>(),
-                        self.0
-                    ),
+                    Self(1) => "READ",
+                    Self(2) => "WRITE",
+                    Self(val) => val.to_string().as_str(),
                 }
             }
         }

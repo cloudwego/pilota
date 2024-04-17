@@ -101,14 +101,10 @@ pub mod nested_message {
 
             pub fn as_str(&self) -> &'static str {
                 match self {
-                    Self(1) => stringify!(LABEL_OPTIONAL),
-                    Self(2) => stringify!(LABEL_REQUIRED),
-                    Self(3) => stringify!(LABEL_REPEATED),
-                    _ => panic!(
-                        "{} unknown fields val {}",
-                        std::any::type_name::<Self>(),
-                        self.0
-                    ),
+                    Self(1) => "LABEL_OPTIONAL",
+                    Self(2) => "LABEL_REQUIRED",
+                    Self(3) => "LABEL_REPEATED",
+                    Self(val) => val.to_string().as_str(),
                 }
             }
         }

@@ -18,13 +18,9 @@ pub mod self_kw {
 
             pub fn as_str(&self) -> &'static str {
                 match self {
-                    Self(0) => stringify!(A),
-                    Self(1) => stringify!(SELF),
-                    _ => panic!(
-                        "{} unknown fields val {}",
-                        std::any::type_name::<Self>(),
-                        self.0
-                    ),
+                    Self(0) => "A",
+                    Self(1) => "SELF",
+                    Self(val) => val.to_string().as_str(),
                 }
             }
         }

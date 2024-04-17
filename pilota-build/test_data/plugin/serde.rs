@@ -210,13 +210,9 @@ pub mod serde {
 
             pub fn as_str(&self) -> &'static str {
                 match self {
-                    Self(0) => stringify!(D),
-                    Self(1) => stringify!(E),
-                    _ => panic!(
-                        "{} unknown fields val {}",
-                        std::any::type_name::<Self>(),
-                        self.0
-                    ),
+                    Self(0) => "D",
+                    Self(1) => "E",
+                    Self(val) => val.to_string().as_str(),
                 }
             }
         }

@@ -2587,13 +2587,9 @@ pub mod unknown_fields {
 
             pub fn as_str(&self) -> &'static str {
                 match self {
-                    Self(0) => stringify!(A),
-                    Self(1) => stringify!(B),
-                    _ => panic!(
-                        "{} unknown fields val {}",
-                        std::any::type_name::<Self>(),
-                        self.0
-                    ),
+                    Self(0) => "A",
+                    Self(1) => "B",
+                    Self(val) => val.to_string().as_str(),
                 }
             }
         }
