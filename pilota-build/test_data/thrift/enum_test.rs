@@ -20,7 +20,7 @@ pub mod enum_test {
                 match self {
                     Self(1) => "A",
                     Self(16) => "B",
-                    Self(val) => val.to_string().as_str(),
+                    Self(val) => Box::leak(val.to_string().into_boxed_str()),
                 }
             }
         }

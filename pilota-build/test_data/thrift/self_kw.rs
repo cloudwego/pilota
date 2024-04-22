@@ -20,7 +20,7 @@ pub mod self_kw {
                 match self {
                     Self(0) => "A",
                     Self(1) => "SELF",
-                    Self(val) => val.to_string().as_str(),
+                    Self(val) => Box::leak(val.to_string().into_boxed_str()),
                 }
             }
         }

@@ -455,7 +455,7 @@ pub mod multi {
                 match self {
                     Self(1) => "READ",
                     Self(2) => "WRITE",
-                    Self(val) => val.to_string().as_str(),
+                    Self(val) => Box::leak(val.to_string().into_boxed_str()),
                 }
             }
         }

@@ -939,7 +939,7 @@ pub mod pilota_name {
                 match self {
                     Self(0) => "AA",
                     Self(1) => "B",
-                    Self(val) => val.to_string().as_str(),
+                    Self(val) => Box::leak(val.to_string().into_boxed_str()),
                 }
             }
         }

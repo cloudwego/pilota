@@ -253,7 +253,7 @@ where
                 pub fn as_str(&self) -> &'static str {{
                     match self {{
                         {variants_as_str_fields}
-                        Self(val) => val.to_string().as_str(),
+                        Self(val) => Box::leak(val.to_string().into_boxed_str()),
                     }}
                 }}
             }}

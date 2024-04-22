@@ -104,7 +104,7 @@ pub mod nested_message {
                     Self(1) => "LABEL_OPTIONAL",
                     Self(2) => "LABEL_REQUIRED",
                     Self(3) => "LABEL_REPEATED",
-                    Self(val) => val.to_string().as_str(),
+                    Self(val) => Box::leak(val.to_string().into_boxed_str()),
                 }
             }
         }
