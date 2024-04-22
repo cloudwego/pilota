@@ -258,10 +258,11 @@ where
                 .count();
 
             if paths_can_derive.iter().any(|(_, p)| *p == CanDerive::No) {
-                delayed.iter().for_each(|def_id| {
-                    self.can_derive.insert(*def_id, CanDerive::No);
+                delayed.iter().for_each(|delayed_def_id| {
+                    if cx.workspace_graph().is_nested(*delayed_def_id, def_id) {
+                        self.can_derive.insert(*delayed_def_id, CanDerive::No);
+                    }
                 });
-
                 CanDerive::No
             } else if delayed_count > 0 {
                 delayed.insert(def_id);
