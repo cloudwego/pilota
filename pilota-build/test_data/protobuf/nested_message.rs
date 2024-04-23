@@ -99,12 +99,12 @@ pub mod nested_message {
                 self.0
             }
 
-            pub fn as_str(&self) -> &'static str {
+            pub fn to_string(&self) -> String {
                 match self {
-                    Self(1) => "LABEL_OPTIONAL",
-                    Self(2) => "LABEL_REQUIRED",
-                    Self(3) => "LABEL_REPEATED",
-                    Self(val) => Box::leak(val.to_string().into_boxed_str()),
+                    Self(1) => String::from("LABEL_OPTIONAL"),
+                    Self(2) => String::from("LABEL_REQUIRED"),
+                    Self(3) => String::from("LABEL_REPEATED"),
+                    Self(val) => val.to_string(),
                 }
             }
         }

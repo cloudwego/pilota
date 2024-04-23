@@ -935,11 +935,11 @@ pub mod pilota_name {
                 self.0
             }
 
-            pub fn as_str(&self) -> &'static str {
+            pub fn to_string(&self) -> String {
                 match self {
-                    Self(0) => "AA",
-                    Self(1) => "B",
-                    Self(val) => Box::leak(val.to_string().into_boxed_str()),
+                    Self(0) => String::from("AA"),
+                    Self(1) => String::from("B"),
+                    Self(val) => val.to_string(),
                 }
             }
         }

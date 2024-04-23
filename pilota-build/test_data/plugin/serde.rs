@@ -208,11 +208,11 @@ pub mod serde {
                 self.0
             }
 
-            pub fn as_str(&self) -> &'static str {
+            pub fn to_string(&self) -> String {
                 match self {
-                    Self(0) => "D",
-                    Self(1) => "E",
-                    Self(val) => Box::leak(val.to_string().into_boxed_str()),
+                    Self(0) => String::from("D"),
+                    Self(1) => String::from("E"),
+                    Self(val) => val.to_string(),
                 }
             }
         }

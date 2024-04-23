@@ -231,7 +231,7 @@ where
                 };
                 (
                     format!("pub const {name}: Self = Self({discr});"),
-                    format!("Self({discr}) => \"{name}\","),
+                    format!("Self({discr}) => String::from(\"{name}\"),"),
                 )
             })
             .collect::<Vec<_>>();
@@ -250,10 +250,10 @@ where
                     self.0
                 }}
 
-                pub fn as_str(&self) -> &'static str {{
+                pub fn to_string(&self) -> String {{
                     match self {{
                         {variants_as_str_fields}
-                        Self(val) => Box::leak(val.to_string().into_boxed_str()),
+                        Self(val) => val.to_string(),
                     }}
                 }}
             }}

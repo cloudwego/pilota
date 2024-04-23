@@ -16,11 +16,11 @@ pub mod enum_test {
                 self.0
             }
 
-            pub fn as_str(&self) -> &'static str {
+            pub fn to_string(&self) -> String {
                 match self {
-                    Self(1) => "A",
-                    Self(16) => "B",
-                    Self(val) => Box::leak(val.to_string().into_boxed_str()),
+                    Self(1) => String::from("A"),
+                    Self(16) => String::from("B"),
+                    Self(val) => val.to_string(),
                 }
             }
         }
