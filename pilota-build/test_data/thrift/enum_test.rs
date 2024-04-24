@@ -16,7 +16,7 @@ pub mod enum_test {
                 self.0
             }
 
-            pub fn to_string(&self) -> String {
+            pub fn to_string(&self) -> ::std::string::String {
                 match self {
                     Self(1) => ::std::string::String::from("A"),
                     Self(16) => ::std::string::String::from("B"),

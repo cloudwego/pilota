@@ -250,7 +250,7 @@ where
                     self.0
                 }}
 
-                pub fn to_string(&self) -> String {{
+                pub fn to_string(&self) -> ::std::string::String {{
                     match self {{
                         {variants_as_str_fields}
                         Self(val) => val.to_string(),

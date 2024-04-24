@@ -208,7 +208,7 @@ pub mod serde {
                 self.0
             }
 
-            pub fn to_string(&self) -> String {
+            pub fn to_string(&self) -> ::std::string::String {
                 match self {
                     Self(0) => ::std::string::String::from("D"),
                     Self(1) => ::std::string::String::from("E"),
