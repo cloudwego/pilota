@@ -804,8 +804,8 @@ dependencies = [
  "pilota",
  "pilota-thrift-parser",
  "proc-macro2",
- "protobuf-parse2",
- "protobuf2",
+ "protobuf",
+ "protobuf-parse",
  "quote",
  "rand",
  "rayon",
@@ -899,38 +899,38 @@ dependencies = [
 ]
 
 [[package]]
-name = "protobuf-parse2"
-version = "4.0.0-alpha.4"
+name = "protobuf"
+version = "3.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86ec2b6ab4bc7b91b381a26b6d80c5ff3ba49f3669e593b1e6291f18ff1015be"
+checksum = "58678a64de2fced2bdec6bca052a6716a0efe692d6e3f53d1bda6a1def64cfc0"
+dependencies = [
+ "once_cell",
+ "protobuf-support",
+ "thiserror",
+]
+
+[[package]]
+name = "protobuf-parse"
+version = "3.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96cb37955261126624a25b5e6bda40ae34cf3989d52a783087ca6091b29b5642"
 dependencies = [
  "anyhow",
  "indexmap 1.9.3",
  "log",
- "protobuf-support2",
- "protobuf2",
+ "protobuf",
+ "protobuf-support",
  "tempfile",
  "thiserror",
  "which",
 ]
 
 [[package]]
-name = "protobuf-support2"
-version = "4.0.0-alpha.2"
+name = "protobuf-support"
+version = "3.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c6e937299e45024fae149d242cee9719048e4890dbc28c0d1838ed0aba8c3ec"
+checksum = "e1ed294a835b0f30810e13616b1cd34943c6d1e84a8f3b0dcfe466d256c3e7e7"
 dependencies = [
- "thiserror",
-]
-
-[[package]]
-name = "protobuf2"
-version = "4.0.0-alpha.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc090e26a62f7d66cfc6cd8715ab0973f57287293488a8d05e68fd4d5bb4ad05"
-dependencies = [
- "once_cell",
- "protobuf-support2",
  "thiserror",
 ]
 
