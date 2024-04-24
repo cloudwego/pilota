@@ -231,7 +231,7 @@ where
                 };
                 (
                     format!("pub const {name}: Self = Self({discr});"),
-                    format!("Self({discr}) => String::from(\"{name}\"),"),
+                    format!("Self({discr}) => ::std::string::String::from(\"{name}\"),"),
                 )
             })
             .collect::<Vec<_>>();

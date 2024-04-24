@@ -18,8 +18,8 @@ pub mod self_kw {
 
             pub fn to_string(&self) -> String {
                 match self {
-                    Self(0) => String::from("A"),
-                    Self(1) => String::from("SELF"),
+                    Self(0) => ::std::string::String::from("A"),
+                    Self(1) => ::std::string::String::from("SELF"),
                     Self(val) => val.to_string(),
                 }
             }

@@ -937,8 +937,8 @@ pub mod pilota_name {
 
             pub fn to_string(&self) -> String {
                 match self {
-                    Self(0) => String::from("AA"),
-                    Self(1) => String::from("B"),
+                    Self(0) => ::std::string::String::from("AA"),
+                    Self(1) => ::std::string::String::from("B"),
                     Self(val) => val.to_string(),
                 }
             }

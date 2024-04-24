@@ -210,8 +210,8 @@ pub mod serde {
 
             pub fn to_string(&self) -> String {
                 match self {
-                    Self(0) => String::from("D"),
-                    Self(1) => String::from("E"),
+                    Self(0) => ::std::string::String::from("D"),
+                    Self(1) => ::std::string::String::from("E"),
                     Self(val) => val.to_string(),
                 }
             }

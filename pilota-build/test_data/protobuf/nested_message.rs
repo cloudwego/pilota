@@ -101,9 +101,9 @@ pub mod nested_message {
 
             pub fn to_string(&self) -> String {
                 match self {
-                    Self(1) => String::from("LABEL_OPTIONAL"),
-                    Self(2) => String::from("LABEL_REQUIRED"),
-                    Self(3) => String::from("LABEL_REPEATED"),
+                    Self(1) => ::std::string::String::from("LABEL_OPTIONAL"),
+                    Self(2) => ::std::string::String::from("LABEL_REQUIRED"),
+                    Self(3) => ::std::string::String::from("LABEL_REPEATED"),
                     Self(val) => val.to_string(),
                 }
             }

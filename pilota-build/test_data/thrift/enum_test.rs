@@ -18,8 +18,8 @@ pub mod enum_test {
 
             pub fn to_string(&self) -> String {
                 match self {
-                    Self(1) => String::from("A"),
-                    Self(16) => String::from("B"),
+                    Self(1) => ::std::string::String::from("A"),
+                    Self(16) => ::std::string::String::from("B"),
                     Self(val) => val.to_string(),
                 }
             }

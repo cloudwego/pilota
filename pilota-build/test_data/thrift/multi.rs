@@ -453,8 +453,8 @@ pub mod multi {
 
             pub fn to_string(&self) -> String {
                 match self {
-                    Self(1) => String::from("READ"),
-                    Self(2) => String::from("WRITE"),
+                    Self(1) => ::std::string::String::from("READ"),
+                    Self(2) => ::std::string::String::from("WRITE"),
                     Self(val) => val.to_string(),
                 }
             }
