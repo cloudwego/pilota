@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use petgraph::{graph::NodeIndex, Graph};
+use petgraph::{algo::has_path_connecting, graph::NodeIndex, Graph};
 use rustc_hash::FxHashMap;
 
 use super::{
@@ -76,5 +76,11 @@ impl WorkspaceGraph {
             node_map,
             id_map,
         }
+    }
+
+    pub fn is_nested(&self, a: DefId, b: DefId) -> bool {
+        let a = self.node_map[&a];
+        let b = self.node_map[&b];
+        has_path_connecting(&self.graph, a, b, None)
     }
 }
