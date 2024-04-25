@@ -98,6 +98,15 @@ pub mod nested_message {
             pub fn inner(&self) -> i32 {
                 self.0
             }
+
+            pub fn to_string(&self) -> ::std::string::String {
+                match self {
+                    Self(1) => ::std::string::String::from("LABEL_OPTIONAL"),
+                    Self(2) => ::std::string::String::from("LABEL_REQUIRED"),
+                    Self(3) => ::std::string::String::from("LABEL_REPEATED"),
+                    Self(val) => val.to_string(),
+                }
+            }
         }
 
         impl ::std::convert::From<i32> for Label {

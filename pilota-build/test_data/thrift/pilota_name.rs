@@ -934,6 +934,14 @@ pub mod pilota_name {
             pub fn inner(&self) -> i32 {
                 self.0
             }
+
+            pub fn to_string(&self) -> ::std::string::String {
+                match self {
+                    Self(0) => ::std::string::String::from("AA"),
+                    Self(1) => ::std::string::String::from("B"),
+                    Self(val) => val.to_string(),
+                }
+            }
         }
 
         impl ::std::convert::From<i32> for Index {

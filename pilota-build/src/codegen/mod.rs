@@ -229,9 +229,14 @@ where
                     Some(EnumRepr::I32) => discr as i32,
                     None => panic!(),
                 };
-                format!("pub const {name}: Self = Self({discr});")
+                (
+                    format!("pub const {name}: Self = Self({discr});"),
+                    format!("Self({discr}) => ::std::string::String::from(\"{name}\"),"),
+                )
             })
-            .join("");
+            .collect::<Vec<_>>();
+        let variants_const = variants.iter().map(|(v, _)| v).join("");
+        let variants_as_str_fields = variants.iter().map(|(_, v)| v).join("");
 
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq, Copy)]
@@ -239,10 +244,17 @@ where
             pub struct {name}({repr});
 
             impl {name} {{
-                {variants}
+                {variants_const}
 
                 pub fn inner(&self) -> {repr} {{
                     self.0
+                }}
+
+                pub fn to_string(&self) -> ::std::string::String {{
+                    match self {{
+                        {variants_as_str_fields}
+                        Self(val) => val.to_string(),
+                    }}
                 }}
             }}
 
