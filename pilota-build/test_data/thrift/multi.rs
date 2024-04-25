@@ -186,6 +186,14 @@ pub mod multi {
             pub fn inner(&self) -> i32 {
                 self.0
             }
+
+            pub fn to_string(&self) -> ::std::string::String {
+                match self {
+                    Self(1) => ::std::string::String::from("READ"),
+                    Self(2) => ::std::string::String::from("WRITE"),
+                    Self(val) => val.to_string(),
+                }
+            }
         }
 
         impl ::std::convert::From<i32> for B {
@@ -696,14 +704,6 @@ pub mod multi {
                         off: Some(::pilota::FastStr::from_static_str("off")),
                         test_byte: Default::default(),
                     }),
-                }
-            }
-
-            pub fn to_string(&self) -> ::std::string::String {
-                match self {
-                    Self(1) => ::std::string::String::from("READ"),
-                    Self(2) => ::std::string::String::from("WRITE"),
-                    Self(val) => val.to_string(),
                 }
             }
         }
