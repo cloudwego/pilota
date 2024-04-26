@@ -1,15 +1,14 @@
 use std::{convert::TryInto, ptr, slice, str};
 
-use bytes::{Buf, BufMut, Bytes, BytesMut};
+use bytes::{Buf, Bytes};
 use faststr::FastStr;
-use linkedbytes::LinkedBytes;
 use smallvec::SmallVec;
 
-use super::{
+use crate::thrift::{
     error::ProtocolExceptionKind, new_protocol_exception, ProtocolException, TFieldIdentifier,
     TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier, TMessageIdentifier,
     TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType, ThriftException,
-    BINARY_BASIC_TYPE_FIXED_SIZE, ZERO_COPY_THRESHOLD,
+    BINARY_BASIC_TYPE_FIXED_SIZE,
 };
 
 static VERSION_1: u32 = 0x80010000;
@@ -17,34 +16,15 @@ static VERSION_MASK: u32 = 0xffff0000;
 
 const FIELD_BEGIN_LEN: usize = 3;
 
-pub struct TBinaryUnsafeOutputProtocol<T> {
-    pub(crate) trans: T,
-    pub(crate) buf: &'static mut [u8],
+pub struct TBinaryUnsafeOutputProtocol<'a> {
+    pub(crate) trans: &'a mut [u8],
     pub(crate) index: usize,
-
-    zero_copy: bool,
-    zero_copy_len: usize,
 }
 
-impl<T> TBinaryUnsafeOutputProtocol<T> {
-    /// `zero_copy` only takes effect when `T` is [`BytesMut`] for input and
-    /// [`LinkedBytes`] for output.
-    ///
-    /// # Safety
-    ///
-    /// The 'buf' MUST point to the same area of trans, this is a
-    /// self-referencial struct.
-    ///
-    /// The 'trans' MUST have enough capacity to read from or write to.
+impl<'a> TBinaryUnsafeOutputProtocol<'a> {
     #[inline]
-    pub unsafe fn new(trans: T, buf: &'static mut [u8], zero_copy: bool) -> Self {
-        Self {
-            trans,
-            buf,
-            index: 0,
-            zero_copy,
-            zero_copy_len: 0,
-        }
+    pub fn new(trans: &'a mut [u8]) -> Self {
+        Self { trans, index: 0 }
     }
 
     #[doc(hidden)]
@@ -65,7 +45,7 @@ fn field_type_from_u8(ttype: u8) -> Result<TType, ProtocolException> {
     Ok(ttype)
 }
 
-impl<T> TLengthProtocol for TBinaryUnsafeOutputProtocol<T> {
+impl<'a> TLengthProtocol for TBinaryUnsafeOutputProtocol<'a> {
     #[inline]
     fn message_begin_len(&mut self, identifier: &TMessageIdentifier) -> usize {
         self.i32_len(0) + self.faststr_len(&identifier.name) + self.i32_len(0)
@@ -189,20 +169,10 @@ impl<T> TLengthProtocol for TBinaryUnsafeOutputProtocol<T> {
     fn bytes_vec_len(&mut self, b: &[u8]) -> usize {
         self.i32_len(0) + b.len()
     }
-
-    #[inline]
-    fn zero_copy_len(&mut self) -> usize {
-        self.zero_copy_len
-    }
-
-    #[inline]
-    fn reset(&mut self) {
-        self.zero_copy_len = 0;
-    }
 }
 
-impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
-    type BufMut = BytesMut;
+impl<'a> TOutputProtocol for TBinaryUnsafeOutputProtocol<'a> {
+    type BufMut = &'a mut [u8];
 
     #[inline]
     fn write_message_begin(
@@ -235,9 +205,9 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     #[inline]
     fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), ThriftException> {
         unsafe {
-            *self.buf.get_unchecked_mut(self.index) = field_type as u8;
+            *self.trans.get_unchecked_mut(self.index) = field_type as u8;
             let buf: &mut [u8; 2] = self
-                .buf
+                .trans
                 .get_unchecked_mut(self.index + 1..self.index + 3)
                 .try_into()
                 .unwrap_unchecked();
@@ -275,7 +245,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     #[inline]
     fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), ThriftException> {
         unsafe {
-            ptr::copy_nonoverlapping(b.as_ptr(), self.buf.as_mut_ptr().add(self.index), b.len());
+            ptr::copy_nonoverlapping(b.as_ptr(), self.trans.as_mut_ptr().add(self.index), b.len());
             self.index += b.len();
         }
         Ok(())
@@ -284,7 +254,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     #[inline]
     fn write_byte(&mut self, b: u8) -> Result<(), ThriftException> {
         unsafe {
-            *self.buf.get_unchecked_mut(self.index) = b;
+            *self.trans.get_unchecked_mut(self.index) = b;
             self.index += 1;
         }
         Ok(())
@@ -294,7 +264,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), ThriftException> {
         unsafe {
             let buf: &mut [u8; 16] = self
-                .buf
+                .trans
                 .get_unchecked_mut(self.index..self.index + 16)
                 .try_into()
                 .unwrap_unchecked();
@@ -307,7 +277,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     #[inline]
     fn write_i8(&mut self, i: i8) -> Result<(), ThriftException> {
         unsafe {
-            *self.buf.get_unchecked_mut(self.index) = *i.to_be_bytes().get_unchecked(0);
+            *self.trans.get_unchecked_mut(self.index) = *i.to_be_bytes().get_unchecked(0);
             self.index += 1;
         }
         Ok(())
@@ -373,7 +343,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     fn write_string(&mut self, s: &str) -> Result<(), ThriftException> {
         self.write_i32(s.len() as i32)?;
         unsafe {
-            ptr::copy_nonoverlapping(s.as_ptr(), self.buf.as_mut_ptr().add(self.index), s.len());
+            ptr::copy_nonoverlapping(s.as_ptr(), self.trans.as_mut_ptr().add(self.index), s.len());
             self.index += s.len();
         }
         Ok(())
@@ -383,7 +353,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     fn write_faststr(&mut self, s: FastStr) -> Result<(), ThriftException> {
         self.write_i32(s.len() as i32)?;
         unsafe {
-            ptr::copy_nonoverlapping(s.as_ptr(), self.buf.as_mut_ptr().add(self.index), s.len());
+            ptr::copy_nonoverlapping(s.as_ptr(), self.trans.as_mut_ptr().add(self.index), s.len());
             self.index += s.len();
         }
         Ok(())
@@ -434,7 +404,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), ThriftException> {
         self.write_i32(b.len() as i32)?;
         unsafe {
-            ptr::copy_nonoverlapping(b.as_ptr(), self.buf.as_mut_ptr().add(self.index), b.len());
+            ptr::copy_nonoverlapping(b.as_ptr(), self.trans.as_mut_ptr().add(self.index), b.len());
             self.index += b.len();
         }
         Ok(())
@@ -442,291 +412,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
 
     #[inline]
     fn buf_mut(&mut self) -> &mut Self::BufMut {
-        self.trans
-    }
-}
-
-impl TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
-    #[doc(hidden)]
-    fn advance_mut(&mut self, len: usize) {
-        unsafe {
-            self.trans.bytes_mut().advance_mut(len);
-            self.buf.advance_mut(len);
-        }
-        self.index -= len;
-    }
-}
-
-impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
-    type BufMut = LinkedBytes;
-
-    #[inline]
-    fn write_message_begin(
-        &mut self,
-        identifier: &TMessageIdentifier,
-    ) -> Result<(), ThriftException> {
-        let msg_type_u8: u8 = identifier.message_type.into();
-        let version = (VERSION_1 | msg_type_u8 as u32) as i32;
-        self.write_i32(version)?;
-        self.write_faststr(identifier.name.clone())?;
-        self.write_i32(identifier.sequence_number)?;
-        self.advance_mut(self.index);
-        Ok(())
-    }
-
-    #[inline]
-    fn write_message_end(&mut self) -> Result<(), ThriftException> {
-        Ok(())
-    }
-
-    #[inline]
-    fn write_struct_begin(&mut self, _: &TStructIdentifier) -> Result<(), ThriftException> {
-        Ok(())
-    }
-
-    #[inline]
-    fn write_struct_end(&mut self) -> Result<(), ThriftException> {
-        Ok(())
-    }
-
-    #[inline]
-    fn write_field_begin(&mut self, field_type: TType, id: i16) -> Result<(), ThriftException> {
-        unsafe {
-            *self.buf.get_unchecked_mut(self.index) = field_type as u8;
-            let buf: &mut [u8; 2] = self
-                .buf
-                .get_unchecked_mut(self.index + 1..self.index + 3)
-                .try_into()
-                .unwrap_unchecked();
-            *buf = id.to_be_bytes();
-            self.index += 3;
-            self.advance_mut(self.index);
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn write_field_end(&mut self) -> Result<(), ThriftException> {
-        Ok(())
-    }
-
-    #[inline]
-    fn write_field_stop(&mut self) -> Result<(), ThriftException> {
-        self.write_byte(TType::Stop as u8)
-    }
-
-    #[inline]
-    fn write_bool(&mut self, b: bool) -> Result<(), ThriftException> {
-        if b {
-            self.write_i8(1)
-        } else {
-            self.write_i8(0)
-        }
-    }
-
-    #[inline]
-    fn write_bytes(&mut self, b: Bytes) -> Result<(), ThriftException> {
-        self.write_i32(b.len() as i32)?;
-        self.write_bytes_without_len(b)
-    }
-
-    #[inline]
-    fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), ThriftException> {
-        if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
-            self.zero_copy_len += b.len();
-            self.advance_mut(self.index);
-            self.trans.insert(b);
-            self.buf = unsafe {
-                let l = self.trans.bytes_mut().len();
-                slice::from_raw_parts_mut(
-                    self.trans.bytes_mut().as_mut_ptr().add(l),
-                    self.trans.bytes_mut().capacity() - l,
-                )
-            };
-            return Ok(());
-        }
-        unsafe {
-            ptr::copy_nonoverlapping(b.as_ptr(), self.buf.as_mut_ptr().add(self.index), b.len());
-            self.index += b.len();
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn write_byte(&mut self, b: u8) -> Result<(), ThriftException> {
-        unsafe {
-            *self.buf.get_unchecked_mut(self.index) = b;
-            self.index += 1;
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn write_uuid(&mut self, u: [u8; 16]) -> Result<(), ThriftException> {
-        unsafe {
-            let buf: &mut [u8; 16] = self
-                .buf
-                .get_unchecked_mut(self.index..self.index + 16)
-                .try_into()
-                .unwrap_unchecked();
-            *buf = u;
-            self.index += 16;
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn write_i8(&mut self, i: i8) -> Result<(), ThriftException> {
-        unsafe {
-            *self.buf.get_unchecked_mut(self.index) = *i.to_be_bytes().get_unchecked(0);
-            self.index += 1;
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn write_i16(&mut self, i: i16) -> Result<(), ThriftException> {
-        unsafe {
-            let buf: &mut [u8; 2] = self
-                .buf
-                .get_unchecked_mut(self.index..self.index + 2)
-                .try_into()
-                .unwrap_unchecked();
-            *buf = i.to_be_bytes();
-            self.index += 2;
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn write_i32(&mut self, i: i32) -> Result<(), ThriftException> {
-        unsafe {
-            let buf: &mut [u8; 4] = self
-                .buf
-                .get_unchecked_mut(self.index..self.index + 4)
-                .try_into()
-                .unwrap_unchecked();
-            *buf = i.to_be_bytes();
-            self.index += 4;
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn write_i64(&mut self, i: i64) -> Result<(), ThriftException> {
-        unsafe {
-            let buf: &mut [u8; 8] = self
-                .buf
-                .get_unchecked_mut(self.index..self.index + 8)
-                .try_into()
-                .unwrap_unchecked();
-            *buf = i.to_be_bytes();
-            self.index += 8;
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn write_double(&mut self, d: f64) -> Result<(), ThriftException> {
-        unsafe {
-            let buf: &mut [u8; 8] = self
-                .buf
-                .get_unchecked_mut(self.index..self.index + 8)
-                .try_into()
-                .unwrap_unchecked();
-            *buf = d.to_bits().to_be_bytes();
-            self.index += 8;
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn write_string(&mut self, s: &str) -> Result<(), ThriftException> {
-        self.write_i32(s.len() as i32)?;
-        unsafe {
-            ptr::copy_nonoverlapping(s.as_ptr(), self.buf.as_mut_ptr().add(self.index), s.len());
-            self.index += s.len();
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn write_faststr(&mut self, s: FastStr) -> Result<(), ThriftException> {
-        self.write_i32(s.len() as i32)?;
-        if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
-            self.zero_copy_len += s.len();
-            self.advance_mut(self.index);
-            self.trans.insert_faststr(s);
-            self.buf = unsafe {
-                let l = self.trans.bytes_mut().len();
-                slice::from_raw_parts_mut(
-                    self.trans.bytes_mut().as_mut_ptr().add(l),
-                    self.trans.bytes_mut().capacity() - l,
-                )
-            };
-            return Ok(());
-        }
-        unsafe {
-            ptr::copy_nonoverlapping(s.as_ptr(), self.buf.as_mut_ptr().add(self.index), s.len());
-            self.index += s.len();
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), ThriftException> {
-        self.write_byte(identifier.element_type.into())?;
-        self.write_i32(identifier.size as i32)
-    }
-
-    #[inline]
-    fn write_list_end(&mut self) -> Result<(), ThriftException> {
-        Ok(())
-    }
-
-    #[inline]
-    fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), ThriftException> {
-        self.write_byte(identifier.element_type.into())?;
-        self.write_i32(identifier.size as i32)
-    }
-
-    #[inline]
-    fn write_set_end(&mut self) -> Result<(), ThriftException> {
-        Ok(())
-    }
-
-    #[inline]
-    fn write_map_begin(&mut self, identifier: TMapIdentifier) -> Result<(), ThriftException> {
-        let key_type = identifier.key_type;
-        self.write_byte(key_type.into())?;
-        let val_type = identifier.value_type;
-        self.write_byte(val_type.into())?;
-        self.write_i32(identifier.size as i32)
-    }
-
-    #[inline]
-    fn write_map_end(&mut self) -> Result<(), ThriftException> {
-        Ok(())
-    }
-
-    #[inline]
-    fn flush(&mut self) -> Result<(), ThriftException> {
-        Ok(())
-    }
-
-    #[inline]
-    fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), ThriftException> {
-        self.write_i32(b.len() as i32)?;
-        unsafe {
-            ptr::copy_nonoverlapping(b.as_ptr(), self.buf.as_mut_ptr().add(self.index), b.len());
-            self.index += b.len();
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn buf_mut(&mut self) -> &mut Self::BufMut {
-        self.trans
+        &mut self.trans
     }
 }
 
@@ -753,13 +439,6 @@ impl<'a> TBinaryUnsafeInputProtocol<'a> {
     #[doc(hidden)]
     pub fn index(&self) -> usize {
         self.index
-    }
-
-    #[doc(hidden)]
-    fn advance(&mut self, len: usize) {
-        self.trans.advance(len);
-        self.buf.advance(len);
-        self.index -= len;
     }
 }
 
@@ -936,7 +615,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         let name = self.read_faststr()?;
 
         let sequence_number = self.read_i32()?;
-        self.advance(self.index);
         Ok(TMessageIdentifier::new(name, message_type, sequence_number))
     }
 
@@ -990,10 +668,8 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     #[inline]
     fn read_bytes(&mut self) -> Result<Bytes, ThriftException> {
         let len = self.read_i32()?;
-        self.advance(self.index);
-        // split and freeze it
-        let val = self.trans.split_to(len as usize);
-        self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
+        let val = Bytes::copy_from_slice(&self.buf[self.index..self.index + len as usize]);
+        self.index += len as usize;
         Ok(val)
     }
 
@@ -1005,11 +681,13 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     ) -> Result<Bytes, ThriftException> {
         if ptr.is_none() {
             len -= self.index;
-            self.advance(self.index);
+            self.trans.advance(self.index);
         }
         self.index = 0;
-        let val = self.trans.split_to(len);
+        let val = Bytes::copy_from_slice(&self.buf[self.index..self.index + len]);
+        self.trans.advance(len);
         self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
+
         Ok(val)
     }
 
@@ -1092,10 +770,11 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     fn read_faststr(&mut self) -> Result<FastStr, ThriftException> {
         unsafe {
             let len = self.read_i32().unwrap_unchecked() as usize;
-            self.advance(self.index);
-            let bytes = self.trans.split_to(len);
-            self.buf = slice::from_raw_parts(self.trans.as_ptr(), self.trans.len());
-            Ok(FastStr::from_bytes_unchecked(bytes))
+            let val = FastStr::new(str::from_utf8_unchecked(
+                self.buf.get_unchecked(self.index..self.index + len),
+            ));
+            self.index += len;
+            Ok(val)
         }
     }
 
@@ -1148,9 +827,8 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     #[inline]
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, ThriftException> {
         let len = self.read_i32()? as usize;
-        self.advance(self.index);
-        let val = self.trans.split_to(len).into();
-        self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
+        let val = self.buf[self.index..self.index + len].to_vec();
+        self.index += len;
         Ok(val)
     }
 
@@ -1163,7 +841,8 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     fn skip(&mut self, field_type: TType) -> Result<usize, ThriftException> {
         debug_assert!(self.index >= FIELD_BEGIN_LEN);
 
-        self.advance(self.index - FIELD_BEGIN_LEN);
+        self.trans.advance(self.index - FIELD_BEGIN_LEN);
+        self.index = FIELD_BEGIN_LEN;
         self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
 
         self.skip_till_depth(field_type, crate::thrift::MAXIMUM_SKIP_DEPTH)
