@@ -67,7 +67,7 @@ impl ThriftBackend {
                 format! {
                     r#"protocol.write_list({el_ttype}, &{ident}, |protocol, val| {{
                         {write_el}
-                        Ok(())
+                        ::std::result::Result::Ok(())
                     }})?;"#
                 }
                 .into()
@@ -79,7 +79,7 @@ impl ThriftBackend {
                 format! {
                     r#"protocol.write_set({el_ttype}, &{ident}, |protocol, val| {{
                         {write_el}
-                        Ok(())
+                        ::std::result::Result::Ok(())
                     }})?;"#
                 }
                 .into()
@@ -93,10 +93,10 @@ impl ThriftBackend {
                 format! {
                     r#"protocol.write_map({key_ttype}, {val_ttype}, &{ident}, |protocol, key| {{
                         {write_key}
-                        Ok(())
+                        ::std::result::Result::Ok(())
                     }}, |protocol, val| {{
                         {write_val}
-                        Ok(())
+                        ::std::result::Result::Ok(())
                     }})?;"#
                 }
                 .into()
@@ -141,7 +141,7 @@ impl ThriftBackend {
                 format! {
                     r#"protocol.write_list_field({id}, {el_ttype}, &{ident}, |protocol, val| {{
                         {write_el}
-                        Ok(())
+                        ::std::result::Result::Ok(())
                     }})?;"#
                 }
                 .into()
@@ -153,7 +153,7 @@ impl ThriftBackend {
                 format! {
                     r#"protocol.write_set_field({id}, {el_ttype}, &{ident}, |protocol, val| {{
                         {write_el}
-                        Ok(())
+                        ::std::result::Result::Ok(())
                     }})?;"#
                 }
                 .into()
@@ -167,10 +167,10 @@ impl ThriftBackend {
                 format! {
                     r#"protocol.write_map_field({id}, {key_ttype}, {val_ttype}, &{ident}, |protocol, key| {{
                         {write_key}
-                        Ok(())
+                        ::std::result::Result::Ok(())
                     }}, |protocol, val| {{
                         {write_val}
-                        Ok(())
+                        ::std::result::Result::Ok(())
                     }})?;"#
                 }
                 .into()

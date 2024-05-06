@@ -22,7 +22,7 @@ pub mod path_keyword {
                 protocol.write_bytes_vec_field(2, &self.vec)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -37,7 +37,7 @@ pub mod path_keyword {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let ::std::result::Result::Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -74,25 +74,25 @@ pub mod path_keyword {
                             field_id
                         ));
                     }
-                    return Err(err);
+                    return ::std::result::Result::Err(err);
                 };
                 protocol.read_struct_end()?;
 
                 let Some(bytes) = bytes else {
-                    return Err(::pilota::thrift::new_protocol_exception(
+                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field bytes is required".to_string(),
                     ));
                 };
                 let Some(vec) = vec else {
-                    return Err(::pilota::thrift::new_protocol_exception(
+                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field vec is required".to_string(),
                     ));
                 };
 
                 let data = Self { bytes, vec };
-                Ok(data)
+                ::std::result::Result::Ok(data)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -112,7 +112,7 @@ pub mod path_keyword {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let ::std::result::Result::Err(mut err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -150,25 +150,29 @@ pub mod path_keyword {
                                 field_id
                             ));
                         }
-                        return Err(err);
+                        return ::std::result::Result::Err(err);
                     };
                     protocol.read_struct_end().await?;
 
                     let Some(bytes) = bytes else {
-                        return Err(::pilota::thrift::new_protocol_exception(
-                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                            "field bytes is required".to_string(),
-                        ));
+                        return ::std::result::Result::Err(
+                            ::pilota::thrift::new_protocol_exception(
+                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                "field bytes is required".to_string(),
+                            ),
+                        );
                     };
                     let Some(vec) = vec else {
-                        return Err(::pilota::thrift::new_protocol_exception(
-                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                            "field vec is required".to_string(),
-                        ));
+                        return ::std::result::Result::Err(
+                            ::pilota::thrift::new_protocol_exception(
+                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                "field vec is required".to_string(),
+                            ),
+                        );
                     };
 
                     let data = Self { bytes, vec };
-                    Ok(data)
+                    ::std::result::Result::Ok(data)
                 })
             }
 

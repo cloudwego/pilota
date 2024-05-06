@@ -536,7 +536,7 @@ impl CodegenBackend for ProtobufBackend {
                         {merge}
                         _ => unreachable!(concat!("invalid ", stringify!({name}), " tag: {{}}"), tag),
                     }};
-                    Ok(())
+                    ::core::result::Result::Ok(())
                 }}
             }}"#
         });
