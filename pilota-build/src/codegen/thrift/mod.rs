@@ -277,7 +277,7 @@ impl ThriftBackend {
             .map(|s| {
                 format!(
                     r#"let Some({s}) = {s} else {{
-                return Err(
+                return ::std::result::Result::Err(
                     ::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "field {s} is required".to_string()
@@ -314,11 +314,11 @@ impl ThriftBackend {
             let mut __pilota_decoding_field_id = None;
 
             {read_struct_begin};
-            if let Err(mut err) = {read_fields} {{
+            if let ::std::result::Result::Err(mut err) = {read_fields} {{
                 if let Some(field_id) = __pilota_decoding_field_id {{
                     err.prepend_msg(&format!("{format_msg}, caused by: ", field_id));
                 }}
-                return Err(err);
+                return ::std::result::Result::Err(err);
             }};
             {read_struct_end};
 
@@ -329,7 +329,7 @@ impl ThriftBackend {
             let data = Self {{
                 {fields}
             }};
-            Ok(data)
+            ::std::result::Result::Ok(data)
             "#
         }
     }
@@ -481,7 +481,7 @@ impl CodegenBackend for ThriftBackend {
                 {encode_fields}
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
                 "#
             },
             format! {
@@ -510,7 +510,7 @@ impl CodegenBackend for ThriftBackend {
                 name.clone(),
                 format! {
                     r#"protocol.write_i32({v})?;
-                    Ok(())
+                    ::std::result::Result::Ok(())
                     "#
                 },
                 format!("protocol.i32_len({v})"),
@@ -519,7 +519,7 @@ impl CodegenBackend for ThriftBackend {
                     let err_msg_tmpl = format!("invalid enum value for {}, value: {{}}", name);
                     format! {
                         r#"let value = {read_i32};
-                        Ok(::std::convert::TryFrom::try_from(value).map_err(|err|
+                        ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(|err|
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                 format!("{err_msg_tmpl}", value)
@@ -604,7 +604,7 @@ impl CodegenBackend for ThriftBackend {
                         }}
                         protocol.write_field_stop()?;
                         protocol.write_struct_end()?;
-                        Ok(())"#
+                        ::std::result::Result::Ok(())"#
                     },
                         format! {
                             r#"protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
@@ -665,7 +665,7 @@ impl CodegenBackend for ThriftBackend {
                                         {decode_len}
                                         ret = Some({name}::{variant_name}(field_ident));
                                     }} else {{
-                                        return Err(::pilota::thrift::new_protocol_exception(
+                                        return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                             "received multiple fields for union from remote Message"
                                         ));
@@ -684,7 +684,7 @@ impl CodegenBackend for ThriftBackend {
                                     ret = Some({name}::_UnknownFields(__pilota_linked_bytes));
                                 }}
                             }} else {{
-                                return Err(::pilota::thrift::new_protocol_exception(
+                                return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                                     ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received multiple fields for union from remote Message"
                                 ));
@@ -696,9 +696,9 @@ impl CodegenBackend for ThriftBackend {
 
                         let handle_none_ret: FastStr =
                             if e.variants.first().filter(|v| variant_is_void(v)).is_some() {
-                                format!("Ok({name}::Ok(()))").into()
+                                format!("::std::result::Result::Ok({name}::Ok(()))").into()
                             } else {
-                                r#"Err(::pilota::thrift::new_protocol_exception(
+                                r#"::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                                     ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                     "received empty union from remote Message")
                                 )"#.into()
@@ -727,7 +727,7 @@ impl CodegenBackend for ThriftBackend {
                             {read_field_end};
                             {read_struct_end};
                             if let Some(ret) = ret {{
-                                Ok(ret)
+                                ::std::result::Result::Ok(ret)
                             }} else {{
                                 {handle_none_ret}
                             }}"#
@@ -750,12 +750,12 @@ impl CodegenBackend for ThriftBackend {
             name.clone(),
             format! {
                 r#"{encode}
-                Ok(())"#
+                ::std::result::Result::Ok(())"#
             },
             format!("{encode_size}"),
             |helper| {
                 let decode = self.codegen_decode_ty(helper, &t.ty);
-                format!("Ok({name}({decode}))")
+                format!("::std::result::Result::Ok({name}({decode}))")
             },
         ));
     }

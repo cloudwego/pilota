@@ -34,7 +34,7 @@ pub mod serde {
                 protocol.write_i32_field(2, *&self.b)?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -49,7 +49,7 @@ pub mod serde {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let ::std::result::Result::Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -84,25 +84,25 @@ pub mod serde {
                             field_id
                         ));
                     }
-                    return Err(err);
+                    return ::std::result::Result::Err(err);
                 };
                 protocol.read_struct_end()?;
 
                 let Some(a) = a else {
-                    return Err(::pilota::thrift::new_protocol_exception(
+                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field a is required".to_string(),
                     ));
                 };
                 let Some(b) = b else {
-                    return Err(::pilota::thrift::new_protocol_exception(
+                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field b is required".to_string(),
                     ));
                 };
 
                 let data = Self { a, b };
-                Ok(data)
+                ::std::result::Result::Ok(data)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -122,7 +122,7 @@ pub mod serde {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let ::std::result::Result::Err(mut err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -159,25 +159,29 @@ pub mod serde {
                                 field_id
                             ));
                         }
-                        return Err(err);
+                        return ::std::result::Result::Err(err);
                     };
                     protocol.read_struct_end().await?;
 
                     let Some(a) = a else {
-                        return Err(::pilota::thrift::new_protocol_exception(
-                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                            "field a is required".to_string(),
-                        ));
+                        return ::std::result::Result::Err(
+                            ::pilota::thrift::new_protocol_exception(
+                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                "field a is required".to_string(),
+                            ),
+                        );
                     };
                     let Some(b) = b else {
-                        return Err(::pilota::thrift::new_protocol_exception(
-                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                            "field b is required".to_string(),
-                        ));
+                        return ::std::result::Result::Err(
+                            ::pilota::thrift::new_protocol_exception(
+                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                "field b is required".to_string(),
+                            ),
+                        );
                     };
 
                     let data = Self { a, b };
-                    Ok(data)
+                    ::std::result::Result::Ok(data)
                 })
             }
 
@@ -237,7 +241,7 @@ pub mod serde {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 protocol.write_i32(self.inner())?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -246,12 +250,14 @@ pub mod serde {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
                 let value = protocol.read_i32()?;
-                Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
-                    ::pilota::thrift::new_protocol_exception(
-                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        format!("invalid enum value for C, value: {}", value),
-                    )
-                })?)
+                ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
+                    |err| {
+                        ::pilota::thrift::new_protocol_exception(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                            format!("invalid enum value for C, value: {}", value),
+                        )
+                    },
+                )?)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -266,12 +272,14 @@ pub mod serde {
             > {
                 ::std::boxed::Box::pin(async move {
                     let value = protocol.read_i32().await?;
-                    Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
-                        ::pilota::thrift::new_protocol_exception(
-                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                            format!("invalid enum value for C, value: {}", value),
-                        )
-                    })?)
+                    ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
+                        |err| {
+                            ::pilota::thrift::new_protocol_exception(
+                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                format!("invalid enum value for C, value: {}", value),
+                            )
+                        },
+                    )?)
                 })
             }
 
@@ -317,7 +325,7 @@ pub mod serde {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 protocol.write_i32(*(&**self))?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -325,7 +333,7 @@ pub mod serde {
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
-                Ok(B(protocol.read_i32()?))
+                ::std::result::Result::Ok(B(protocol.read_i32()?))
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -338,7 +346,9 @@ pub mod serde {
                         + 'a,
                 >,
             > {
-                ::std::boxed::Box::pin(async move { Ok(B(protocol.read_i32().await?)) })
+                ::std::boxed::Box::pin(async move {
+                    ::std::result::Result::Ok(B(protocol.read_i32().await?))
+                })
             }
 
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {

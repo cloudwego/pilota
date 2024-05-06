@@ -165,7 +165,7 @@ pub mod oneof {
                     },
                     _ => unreachable!(concat!("invalid ", stringify!(Test), " tag: {}"), tag),
                 };
-                Ok(())
+                ::core::result::Result::Ok(())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
@@ -236,7 +236,7 @@ pub mod oneof {
                     },
                     _ => unreachable!(concat!("invalid ", stringify!(Type), " tag: {}"), tag),
                 };
-                Ok(())
+                ::core::result::Result::Ok(())
             }
         }
     }

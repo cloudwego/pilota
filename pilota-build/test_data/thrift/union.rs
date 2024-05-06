@@ -31,7 +31,7 @@ pub mod union {
                 }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -56,10 +56,12 @@ pub mod union {
                                 protocol.faststr_len(&field_ident);
                                 ret = Some(Union::A(field_ident));
                             } else {
-                                return Err(::pilota::thrift::new_protocol_exception(
-                                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                    "received multiple fields for union from remote Message",
-                                ));
+                                return ::std::result::Result::Err(
+                                    ::pilota::thrift::new_protocol_exception(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                        "received multiple fields for union from remote Message",
+                                    ),
+                                );
                             }
                         }
                         Some(2) => {
@@ -68,10 +70,12 @@ pub mod union {
                                 protocol.bytes_len(&field_ident);
                                 ret = Some(Union::B(field_ident));
                             } else {
-                                return Err(::pilota::thrift::new_protocol_exception(
-                                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                    "received multiple fields for union from remote Message",
-                                ));
+                                return ::std::result::Result::Err(
+                                    ::pilota::thrift::new_protocol_exception(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                        "received multiple fields for union from remote Message",
+                                    ),
+                                );
                             }
                         }
                         _ => {
@@ -82,9 +86,9 @@ pub mod union {
                 protocol.read_field_end()?;
                 protocol.read_struct_end()?;
                 if let Some(ret) = ret {
-                    Ok(ret)
+                    ::std::result::Result::Ok(ret)
                 } else {
-                    Err(::pilota::thrift::new_protocol_exception(
+                    ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "received empty union from remote Message",
                     ))
@@ -117,10 +121,10 @@ pub mod union {
 
                                     ret = Some(Union::A(field_ident));
                                 } else {
-                                    return Err(::pilota::thrift::new_protocol_exception(
-                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                        "received multiple fields for union from remote Message",
-                                    ));
+                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                            "received multiple fields for union from remote Message"
+                                        ));
                                 }
                             }
                             Some(2) => {
@@ -129,10 +133,10 @@ pub mod union {
 
                                     ret = Some(Union::B(field_ident));
                                 } else {
-                                    return Err(::pilota::thrift::new_protocol_exception(
-                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                        "received multiple fields for union from remote Message",
-                                    ));
+                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                            "received multiple fields for union from remote Message"
+                                        ));
                                 }
                             }
                             _ => {
@@ -143,9 +147,9 @@ pub mod union {
                     protocol.read_field_end().await?;
                     protocol.read_struct_end().await?;
                     if let Some(ret) = ret {
-                        Ok(ret)
+                        ::std::result::Result::Ok(ret)
                     } else {
-                        Err(::pilota::thrift::new_protocol_exception(
+                        ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "received empty union from remote Message",
                         ))
@@ -182,7 +186,7 @@ pub mod union {
                 }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -209,9 +213,9 @@ pub mod union {
                 protocol.read_field_end()?;
                 protocol.read_struct_end()?;
                 if let Some(ret) = ret {
-                    Ok(ret)
+                    ::std::result::Result::Ok(ret)
                 } else {
-                    Err(::pilota::thrift::new_protocol_exception(
+                    ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "received empty union from remote Message",
                     ))
@@ -246,9 +250,9 @@ pub mod union {
                     protocol.read_field_end().await?;
                     protocol.read_struct_end().await?;
                     if let Some(ret) = ret {
-                        Ok(ret)
+                        ::std::result::Result::Ok(ret)
                     } else {
-                        Err(::pilota::thrift::new_protocol_exception(
+                        ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                             "received empty union from remote Message",
                         ))
@@ -286,7 +290,7 @@ pub mod union {
                 }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -300,7 +304,7 @@ pub mod union {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let ::std::result::Result::Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -332,12 +336,12 @@ pub mod union {
                             field_id
                         ));
                     }
-                    return Err(err);
+                    return ::std::result::Result::Err(err);
                 };
                 protocol.read_struct_end()?;
 
                 let data = Self { u };
-                Ok(data)
+                ::std::result::Result::Ok(data)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -356,7 +360,7 @@ pub mod union {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let ::std::result::Result::Err(mut err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -393,12 +397,12 @@ pub mod union {
                                 field_id
                             ));
                         }
-                        return Err(err);
+                        return ::std::result::Result::Err(err);
                     };
                     protocol.read_struct_end().await?;
 
                     let data = Self { u };
-                    Ok(data)
+                    ::std::result::Result::Ok(data)
                 })
             }
 

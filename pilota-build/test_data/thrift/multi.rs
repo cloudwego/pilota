@@ -35,7 +35,7 @@ pub mod multi {
                 }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -50,7 +50,7 @@ pub mod multi {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let ::std::result::Result::Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -85,12 +85,12 @@ pub mod multi {
                             field_id
                         ));
                     }
-                    return Err(err);
+                    return ::std::result::Result::Err(err);
                 };
                 protocol.read_struct_end()?;
 
                 let data = Self { off, test_byte };
-                Ok(data)
+                ::std::result::Result::Ok(data)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -110,7 +110,7 @@ pub mod multi {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let ::std::result::Result::Err(mut err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -147,12 +147,12 @@ pub mod multi {
                                 field_id
                             ));
                         }
-                        return Err(err);
+                        return ::std::result::Result::Err(err);
                     };
                     protocol.read_struct_end().await?;
 
                     let data = Self { off, test_byte };
-                    Ok(data)
+                    ::std::result::Result::Ok(data)
                 })
             }
 
@@ -216,7 +216,7 @@ pub mod multi {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 protocol.write_i32(self.inner())?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -225,12 +225,14 @@ pub mod multi {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
                 let value = protocol.read_i32()?;
-                Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
-                    ::pilota::thrift::new_protocol_exception(
-                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        format!("invalid enum value for B, value: {}", value),
-                    )
-                })?)
+                ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
+                    |err| {
+                        ::pilota::thrift::new_protocol_exception(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                            format!("invalid enum value for B, value: {}", value),
+                        )
+                    },
+                )?)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -245,12 +247,14 @@ pub mod multi {
             > {
                 ::std::boxed::Box::pin(async move {
                     let value = protocol.read_i32().await?;
-                    Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
-                        ::pilota::thrift::new_protocol_exception(
-                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                            format!("invalid enum value for B, value: {}", value),
-                        )
-                    })?)
+                    ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
+                        |err| {
+                            ::pilota::thrift::new_protocol_exception(
+                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                format!("invalid enum value for B, value: {}", value),
+                            )
+                        },
+                    )?)
                 })
             }
 
@@ -338,11 +342,11 @@ pub mod multi {
                         &value,
                         |protocol, key| {
                             protocol.write_faststr((key).clone())?;
-                            Ok(())
+                            ::std::result::Result::Ok(())
                         },
                         |protocol, val| {
                             protocol.write_faststr((val).clone())?;
-                            Ok(())
+                            ::std::result::Result::Ok(())
                         },
                     )?;
                 }
@@ -357,7 +361,7 @@ pub mod multi {
                 }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -380,7 +384,7 @@ pub mod multi {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let ::std::result::Result::Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -458,7 +462,7 @@ pub mod multi {
                             field_id
                         ));
                     }
-                    return Err(err);
+                    return ::std::result::Result::Err(err);
                 };
                 protocol.read_struct_end()?;
 
@@ -486,7 +490,7 @@ pub mod multi {
                     test_double2,
                     alias_str,
                 };
-                Ok(data)
+                ::std::result::Result::Ok(data)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -514,7 +518,7 @@ pub mod multi {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let ::std::result::Result::Err(mut err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -613,7 +617,7 @@ pub mod multi {
                                 field_id
                             ));
                         }
-                        return Err(err);
+                        return ::std::result::Result::Err(err);
                     };
                     protocol.read_struct_end().await?;
 
@@ -641,7 +645,7 @@ pub mod multi {
                         test_double2,
                         alias_str,
                     };
-                    Ok(data)
+                    ::std::result::Result::Ok(data)
                 })
             }
 
@@ -726,7 +730,7 @@ pub mod multi {
                 }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -740,7 +744,7 @@ pub mod multi {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let ::std::result::Result::Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -772,7 +776,7 @@ pub mod multi {
                             field_id
                         ));
                     }
-                    return Err(err);
+                    return ::std::result::Result::Err(err);
                 };
                 protocol.read_struct_end()?;
 
@@ -784,7 +788,7 @@ pub mod multi {
                 }
 
                 let data = Self { c };
-                Ok(data)
+                ::std::result::Result::Ok(data)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -803,7 +807,7 @@ pub mod multi {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let ::std::result::Result::Err(mut err) = async {
                     loop {
 
 
@@ -835,7 +839,7 @@ pub mod multi {
                 if let Some(field_id) = __pilota_decoding_field_id {
                     err.prepend_msg(&format!("decode struct `A` field(#{}) failed, caused by: ", field_id));
                 }
-                return Err(err);
+                return ::std::result::Result::Err(err);
             };
                     protocol.read_struct_end().await?;
 
@@ -847,7 +851,7 @@ pub mod multi {
                     }
 
                     let data = Self { c };
-                    Ok(data)
+                    ::std::result::Result::Ok(data)
                 })
             }
 
@@ -887,7 +891,7 @@ pub mod multi {
                 }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -902,7 +906,7 @@ pub mod multi {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let ::std::result::Result::Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -939,12 +943,12 @@ pub mod multi {
                             field_id
                         ));
                     }
-                    return Err(err);
+                    return ::std::result::Result::Err(err);
                 };
                 protocol.read_struct_end()?;
 
                 let data = Self { a, c };
-                Ok(data)
+                ::std::result::Result::Ok(data)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -964,7 +968,7 @@ pub mod multi {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let ::std::result::Result::Err(mut err) = async {
                     loop {
 
 
@@ -999,12 +1003,12 @@ pub mod multi {
                 if let Some(field_id) = __pilota_decoding_field_id {
                     err.prepend_msg(&format!("decode struct `B` field(#{}) failed, caused by: ", field_id));
                 }
-                return Err(err);
+                return ::std::result::Result::Err(err);
             };
                     protocol.read_struct_end().await?;
 
                     let data = Self { a, c };
-                    Ok(data)
+                    ::std::result::Result::Ok(data)
                 })
             }
 
@@ -1048,13 +1052,13 @@ pub mod multi {
                         &value,
                         |protocol, val| {
                             protocol.write_faststr((val).clone())?;
-                            Ok(())
+                            ::std::result::Result::Ok(())
                         },
                     )?;
                 }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -1068,7 +1072,7 @@ pub mod multi {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let ::std::result::Result::Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1107,12 +1111,12 @@ pub mod multi {
                             field_id
                         ));
                     }
-                    return Err(err);
+                    return ::std::result::Result::Err(err);
                 };
                 protocol.read_struct_end()?;
 
                 let data = Self { c };
-                Ok(data)
+                ::std::result::Result::Ok(data)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -1131,7 +1135,7 @@ pub mod multi {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let ::std::result::Result::Err(mut err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1171,12 +1175,12 @@ pub mod multi {
                                 field_id
                             ));
                         }
-                        return Err(err);
+                        return ::std::result::Result::Err(err);
                     };
                     protocol.read_struct_end().await?;
 
                     let data = Self { c };
-                    Ok(data)
+                    ::std::result::Result::Ok(data)
                 })
             }
 
@@ -1220,7 +1224,7 @@ pub mod multi {
                 }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -1235,7 +1239,7 @@ pub mod multi {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let ::std::result::Result::Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1276,12 +1280,12 @@ pub mod multi {
                             field_id
                         ));
                     }
-                    return Err(err);
+                    return ::std::result::Result::Err(err);
                 };
                 protocol.read_struct_end()?;
 
                 let data = Self { a, a_b };
-                Ok(data)
+                ::std::result::Result::Ok(data)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -1301,7 +1305,7 @@ pub mod multi {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let ::std::result::Result::Err(mut err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1345,12 +1349,12 @@ pub mod multi {
                                 field_id
                             ));
                         }
-                        return Err(err);
+                        return ::std::result::Result::Err(err);
                     };
                     protocol.read_struct_end().await?;
 
                     let data = Self { a, a_b };
-                    Ok(data)
+                    ::std::result::Result::Ok(data)
                 })
             }
 
@@ -1389,7 +1393,7 @@ pub mod multi {
                 }
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
-                Ok(())
+                ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
@@ -1403,7 +1407,7 @@ pub mod multi {
                 let mut __pilota_decoding_field_id = None;
 
                 protocol.read_struct_begin()?;
-                if let Err(mut err) = (|| {
+                if let ::std::result::Result::Err(mut err) = (|| {
                     loop {
                         let field_ident = protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1437,12 +1441,12 @@ pub mod multi {
                             field_id
                         ));
                     }
-                    return Err(err);
+                    return ::std::result::Result::Err(err);
                 };
                 protocol.read_struct_end()?;
 
                 let data = Self { b_a };
-                Ok(data)
+                ::std::result::Result::Ok(data)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
@@ -1461,7 +1465,7 @@ pub mod multi {
                     let mut __pilota_decoding_field_id = None;
 
                     protocol.read_struct_begin().await?;
-                    if let Err(mut err) = async {
+                    if let ::std::result::Result::Err(mut err) = async {
                         loop {
                             let field_ident = protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
@@ -1496,12 +1500,12 @@ pub mod multi {
                                 field_id
                             ));
                         }
-                        return Err(err);
+                        return ::std::result::Result::Err(err);
                     };
                     protocol.read_struct_end().await?;
 
                     let data = Self { b_a };
-                    Ok(data)
+                    ::std::result::Result::Ok(data)
                 })
             }
 
