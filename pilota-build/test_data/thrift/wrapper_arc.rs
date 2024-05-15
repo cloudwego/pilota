@@ -48,7 +48,7 @@ pub mod wrapper_arc {
                         protocol.read_field_end()?;
                         protocol.field_end_len();
                     }
-                    Ok::<_, ::pilota::thrift::ThriftException>(())
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
@@ -94,7 +94,7 @@ pub mod wrapper_arc {
 
                             protocol.read_field_end().await?;
                         }
-                        Ok::<_, ::pilota::thrift::ThriftException>(())
+                        ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                     }
                     .await
                     {
@@ -319,7 +319,7 @@ pub mod wrapper_arc {
                         protocol.read_field_end()?;
                         protocol.field_end_len();
                     }
-                    Ok::<_, ::pilota::thrift::ThriftException>(())
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!("decode struct `TestServiceTestArgsRecv` field(#{}) failed, caused by: ", field_id));
@@ -380,7 +380,7 @@ pub mod wrapper_arc {
 
                             protocol.read_field_end().await?;
                         }
-                        Ok::<_, ::pilota::thrift::ThriftException>(())
+                        ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                     }
                     .await
                     {
@@ -712,7 +712,7 @@ pub mod wrapper_arc {
                         protocol.read_field_end()?;
                         protocol.field_end_len();
                     }
-                    Ok::<_, ::pilota::thrift::ThriftException>(())
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
@@ -830,7 +830,7 @@ pub mod wrapper_arc {
 
 
             };
-                    Ok::<_, ::pilota::thrift::ThriftException>(())
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 }.await {
                 if let Some(field_id) = __pilota_decoding_field_id {
                     err.prepend_msg(&format!("decode struct `TEST` field(#{}) failed, caused by: ", field_id));
@@ -963,7 +963,7 @@ pub mod wrapper_arc {
                         protocol.read_field_end()?;
                         protocol.field_end_len();
                     }
-                    Ok::<_, ::pilota::thrift::ThriftException>(())
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!("decode struct `TestServiceTestArgsSend` field(#{}) failed, caused by: ", field_id));
@@ -1024,7 +1024,7 @@ pub mod wrapper_arc {
 
                             protocol.read_field_end().await?;
                         }
-                        Ok::<_, ::pilota::thrift::ThriftException>(())
+                        ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                     }
                     .await
                     {

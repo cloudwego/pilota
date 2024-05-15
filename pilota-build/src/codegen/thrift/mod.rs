@@ -292,14 +292,14 @@ impl ThriftBackend {
             format! {
                 r#"async {{
                     {read_fields}
-                    Ok::<_, ::pilota::thrift::ThriftException>(())
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 }}.await"#
             }
         } else {
             format! {
                 r#"(|| {{
                     {read_fields}
-                    Ok::<_, ::pilota::thrift::ThriftException>(())
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 }})()"#
             }
         };
