@@ -646,7 +646,7 @@ impl super::Parser for ThriftParser {
     }
 
     fn include_dirs(&mut self, dirs: Vec<PathBuf>) {
-        self.include_dirs = dirs;
+        self.include_dirs.extend(dirs);
     }
 
     fn parse(self) -> super::ParseResult {

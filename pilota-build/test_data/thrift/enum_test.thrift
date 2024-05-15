@@ -10,3 +10,7 @@ enum Err {
 enum Ok {
     
 }
+
+service Test {
+   Err test_enum(1: Ok req);
+}

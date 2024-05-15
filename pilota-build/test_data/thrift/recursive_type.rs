@@ -74,7 +74,7 @@ pub mod recursive_type {
                         protocol.read_field_end()?;
                         protocol.field_end_len();
                     }
-                    Ok::<_, ::pilota::thrift::ThriftException>(())
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
@@ -141,7 +141,7 @@ pub mod recursive_type {
 
                             protocol.read_field_end().await?;
                         }
-                        Ok::<_, ::pilota::thrift::ThriftException>(())
+                        ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                     }
                     .await
                     {
@@ -248,7 +248,7 @@ pub mod recursive_type {
                         protocol.read_field_end()?;
                         protocol.field_end_len();
                     }
-                    Ok::<_, ::pilota::thrift::ThriftException>(())
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
@@ -310,7 +310,7 @@ pub mod recursive_type {
 
                             protocol.read_field_end().await?;
                         }
-                        Ok::<_, ::pilota::thrift::ThriftException>(())
+                        ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                     }
                     .await
                     {
@@ -404,7 +404,7 @@ pub mod recursive_type {
                         protocol.read_field_end()?;
                         protocol.field_end_len();
                     }
-                    Ok::<_, ::pilota::thrift::ThriftException>(())
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
@@ -461,7 +461,7 @@ pub mod recursive_type {
 
                             protocol.read_field_end().await?;
                         }
-                        Ok::<_, ::pilota::thrift::ThriftException>(())
+                        ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                     }
                     .await
                     {
