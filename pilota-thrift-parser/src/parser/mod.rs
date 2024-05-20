@@ -22,7 +22,7 @@ use std::sync::Arc;
 use nom::{
     branch::alt,
     bytes::complete::{tag, take_till, take_until},
-    character::complete::{multispace1, one_of},
+    character::complete::{multispace1, one_of, satisfy},
     combinator::{map, opt},
     multi::{many0, many1, separated_list1},
     sequence::{preceded, terminated, tuple},
@@ -62,4 +62,8 @@ fn comment(input: &str) -> IResult<&str, &str> {
 
 pub(crate) fn blank(input: &str) -> IResult<&str, ()> {
     map(many1(alt((comment, multispace1))), |_| ())(input)
+}
+
+pub(crate) fn alphanumeric_or_underscore(input: &str) -> IResult<&str, char> {
+    satisfy(|c: char| c.is_alphanumeric() || c == '_')(input)
 }
