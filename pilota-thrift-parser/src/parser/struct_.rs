@@ -98,4 +98,13 @@ mod tests {
         }"#;
         Struct::parse(str).unwrap();
     }
+
+    #[test]
+    fn test_ty() {
+        let str = r#"struct Test {
+            1: required string(pilota.annotation="test") Service,      // required service
+            2: required bytet_i.Injection Injection,
+        }"#;
+        Struct::parse(str).unwrap();
+    }
 }

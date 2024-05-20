@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
 use nom::{
+    self,
     branch::{alt, permutation},
     bytes::complete::tag,
-    combinator::{map, opt},
+    combinator::{map, not, opt, peek},
     sequence::{preceded, tuple},
     IResult,
 };
@@ -40,17 +41,50 @@ impl Parser for CppType {
 impl Parser for Ty {
     fn parse(input: &str) -> IResult<&str, Ty> {
         alt((
-            map(tag("string"), |_| Ty::String),
-            map(tag("void"), |_| Ty::Void),
-            map(tag("byte"), |_| Ty::Byte),
-            map(tag("bool"), |_| Ty::Bool),
-            map(tag("binary"), |_| Ty::Binary),
-            map(tag("i8"), |_| Ty::I8),
-            map(tag("i16"), |_| Ty::I16),
-            map(tag("i32"), |_| Ty::I32),
-            map(tag("i64"), |_| Ty::I64),
-            map(tag("double"), |_| Ty::Double),
-            map(tag("uuid"), |_| Ty::Uuid),
+            map(
+                tuple((tag("string"), peek(not(alphanumeric_or_underscore)))),
+                |_| Ty::String,
+            ),
+            map(
+                tuple((tag("void"), peek(not(alphanumeric_or_underscore)))),
+                |_| Ty::Void,
+            ),
+            map(
+                tuple((tag("byte"), peek(not(alphanumeric_or_underscore)))),
+                |_| Ty::Byte,
+            ),
+            map(
+                tuple((tag("bool"), peek(not(alphanumeric_or_underscore)))),
+                |_| Ty::Bool,
+            ),
+            map(
+                tuple((tag("binary"), peek(not(alphanumeric_or_underscore)))),
+                |_| Ty::Binary,
+            ),
+            map(
+                tuple((tag("i8"), peek(not(alphanumeric_or_underscore)))),
+                |_| Ty::I8,
+            ),
+            map(
+                tuple((tag("i16"), peek(not(alphanumeric_or_underscore)))),
+                |_| Ty::I16,
+            ),
+            map(
+                tuple((tag("i32"), peek(not(alphanumeric_or_underscore)))),
+                |_| Ty::I32,
+            ),
+            map(
+                tuple((tag("i64"), peek(not(alphanumeric_or_underscore)))),
+                |_| Ty::I64,
+            ),
+            map(
+                tuple((tag("double"), peek(not(alphanumeric_or_underscore)))),
+                |_| Ty::Double,
+            ),
+            map(
+                tuple((tag("uuid"), peek(not(alphanumeric_or_underscore)))),
+                |_| Ty::Uuid,
+            ),
             map(
                 tuple((
                     tag("list"),
