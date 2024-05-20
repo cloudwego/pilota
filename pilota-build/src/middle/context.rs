@@ -725,6 +725,20 @@ impl Context {
 
                 (format! { "::std::vec![{stream}]" }.into(), false)
             }
+            (Literal::List(els), CodegenTy::Set(inner)) => {
+                let stream = els
+                    .iter()
+                    .map(|el| self.lit_into_ty(el, inner))
+                    .try_collect::<_, Vec<_>, _>()?
+                    .into_iter()
+                    .map(|(s, _)| s)
+                    .join(",");
+
+                (
+                    format! { "::pilota::AHashSet::from([{stream}])" }.into(),
+                    false,
+                )
+            }
             (Literal::Bool(b), CodegenTy::Bool) => (format! { "{b}" }.into(), true),
             (Literal::String(s), CodegenTy::Bytes) => {
                 let s = &**s;
