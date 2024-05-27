@@ -967,7 +967,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
             TType::Stop => Ok(0),
             _ => self.read_i16(),
         }?;
-        self.advance(self.index);
         Ok(TFieldIdentifier::new::<Option<&'static str>, i16>(
             None, field_type, id,
         ))
