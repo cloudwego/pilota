@@ -446,6 +446,17 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     }
 }
 
+impl TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
+    #[doc(hidden)]
+    fn advance_mut(&mut self, len: usize) {
+        unsafe {
+            self.trans.bytes_mut().advance_mut(len);
+            self.buf.advance_mut(len);
+        }
+        self.index -= len;
+    }
+}
+
 impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     type BufMut = LinkedBytes;
 
@@ -459,6 +470,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
         self.write_i32(version)?;
         self.write_faststr(identifier.name.clone())?;
         self.write_i32(identifier.sequence_number)?;
+        self.advance_mut(self.index);
         Ok(())
     }
 
@@ -488,6 +500,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
                 .unwrap_unchecked();
             *buf = id.to_be_bytes();
             self.index += 3;
+            self.advance_mut(self.index);
         }
         Ok(())
     }
@@ -521,10 +534,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), ThriftException> {
         if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
             self.zero_copy_len += b.len();
-            unsafe {
-                self.trans.bytes_mut().advance_mut(self.index);
-                self.index = 0;
-            }
+            self.advance_mut(self.index);
             self.trans.insert(b);
             self.buf = unsafe {
                 let l = self.trans.bytes_mut().len();
@@ -645,10 +655,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
         self.write_i32(s.len() as i32)?;
         if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
             self.zero_copy_len += s.len();
-            unsafe {
-                self.trans.bytes_mut().advance_mut(self.index);
-                self.index = 0;
-            }
+            self.advance_mut(self.index);
             self.trans.insert_faststr(s);
             self.buf = unsafe {
                 let l = self.trans.bytes_mut().len();
@@ -746,6 +753,12 @@ impl<'a> TBinaryUnsafeInputProtocol<'a> {
     #[doc(hidden)]
     pub fn index(&self) -> usize {
         self.index
+    }
+
+    #[doc(hidden)]
+    fn advance(&mut self, len: usize) {
+        self.trans.advance(len);
+        self.index -= len;
     }
 }
 
@@ -922,6 +935,7 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         let name = self.read_faststr()?;
 
         let sequence_number = self.read_i32()?;
+        self.advance(self.index);
         Ok(TMessageIdentifier::new(name, message_type, sequence_number))
     }
 
@@ -975,8 +989,7 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     #[inline]
     fn read_bytes(&mut self) -> Result<Bytes, ThriftException> {
         let len = self.read_i32()?;
-        self.trans.advance(self.index);
-        self.index = 0;
+        self.advance(self.index);
         // split and freeze it
         let val = self.trans.split_to(len as usize);
         self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
@@ -991,7 +1004,7 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     ) -> Result<Bytes, ThriftException> {
         if ptr.is_none() {
             len -= self.index;
-            self.trans.advance(self.index);
+            self.advance(self.index);
         }
         self.index = 0;
         let val = self.trans.split_to(len);
@@ -1078,8 +1091,7 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     fn read_faststr(&mut self) -> Result<FastStr, ThriftException> {
         unsafe {
             let len = self.read_i32().unwrap_unchecked() as usize;
-            self.trans.advance(self.index);
-            self.index = 0;
+            self.advance(self.index);
             let bytes = self.trans.split_to(len);
             self.buf = slice::from_raw_parts(self.trans.as_ptr(), self.trans.len());
             Ok(FastStr::from_bytes_unchecked(bytes))
@@ -1135,8 +1147,7 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     #[inline]
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, ThriftException> {
         let len = self.read_i32()? as usize;
-        self.trans.advance(self.index);
-        self.index = 0;
+        self.advance(self.index);
         let val = self.trans.split_to(len).into();
         self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
         Ok(val)
@@ -1151,8 +1162,7 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     fn skip(&mut self, field_type: TType) -> Result<usize, ThriftException> {
         debug_assert!(self.index >= FIELD_BEGIN_LEN);
 
-        self.trans.advance(self.index - FIELD_BEGIN_LEN);
-        self.index = FIELD_BEGIN_LEN;
+        self.advance(self.index - FIELD_BEGIN_LEN);
         self.buf = unsafe { slice::from_raw_parts(self.trans.as_ptr(), self.trans.len()) };
 
         self.skip_till_depth(field_type, crate::thrift::MAXIMUM_SKIP_DEPTH)
