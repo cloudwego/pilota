@@ -451,6 +451,7 @@ impl TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     fn advance_mut(&mut self, len: usize) {
         unsafe {
             self.trans.bytes_mut().advance_mut(len);
+            self.buf.advance_mut(len);
         }
         self.index -= len;
     }
@@ -469,6 +470,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
         self.write_i32(version)?;
         self.write_faststr(identifier.name.clone())?;
         self.write_i32(identifier.sequence_number)?;
+        self.advance_mut(self.index);
         Ok(())
     }
 
@@ -498,6 +500,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
                 .unwrap_unchecked();
             *buf = id.to_be_bytes();
             self.index += 3;
+            self.advance_mut(self.index);
         }
         Ok(())
     }
@@ -1100,7 +1103,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     fn read_list_begin(&mut self) -> Result<TListIdentifier, ThriftException> {
         let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32()?;
-        self.advance(self.index);
         Ok(TListIdentifier::new(element_type, size as usize))
     }
 
@@ -1113,7 +1115,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     fn read_set_begin(&mut self) -> Result<TSetIdentifier, ThriftException> {
         let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32()?;
-        self.advance(self.index);
         Ok(TSetIdentifier::new(element_type, size as usize))
     }
 
@@ -1127,7 +1128,6 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         let key_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let value_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32()?;
-        self.advance(self.index);
         Ok(TMapIdentifier::new(key_type, value_type, size as usize))
     }
 
