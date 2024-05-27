@@ -533,7 +533,6 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), ThriftException> {
         if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
             self.zero_copy_len += b.len();
-            self.advance_mut(self.index);
             self.trans.insert(b);
             self.buf = unsafe {
                 let l = self.trans.bytes_mut().len();
