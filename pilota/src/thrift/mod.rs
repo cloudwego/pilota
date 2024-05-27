@@ -877,7 +877,6 @@ pub trait TAsyncInputProtocol: Send {
                 format!("cannot skip field type {:?}", &u),
             )),
         }
-        // }
     }
 }
 
