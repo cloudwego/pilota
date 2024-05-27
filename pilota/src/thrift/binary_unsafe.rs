@@ -469,7 +469,6 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
         self.write_i32(version)?;
         self.write_faststr(identifier.name.clone())?;
         self.write_i32(identifier.sequence_number)?;
-        self.advance_mut(self.index);
         Ok(())
     }
 
@@ -499,7 +498,6 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
                 .unwrap_unchecked();
             *buf = id.to_be_bytes();
             self.index += 3;
-            self.advance_mut(self.index);
         }
         Ok(())
     }
@@ -533,6 +531,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), ThriftException> {
         if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
             self.zero_copy_len += b.len();
+            self.advance_mut(self.index);
             self.trans.insert(b);
             self.buf = unsafe {
                 let l = self.trans.bytes_mut().len();
@@ -674,9 +673,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     #[inline]
     fn write_list_begin(&mut self, identifier: TListIdentifier) -> Result<(), ThriftException> {
         self.write_byte(identifier.element_type.into())?;
-        self.write_i32(identifier.size as i32)?;
-        self.advance_mut(self.index);
-        Ok(())
+        self.write_i32(identifier.size as i32)
     }
 
     #[inline]
@@ -687,9 +684,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     #[inline]
     fn write_set_begin(&mut self, identifier: TSetIdentifier) -> Result<(), ThriftException> {
         self.write_byte(identifier.element_type.into())?;
-        self.write_i32(identifier.size as i32)?;
-        self.advance_mut(self.index);
-        Ok(())
+        self.write_i32(identifier.size as i32)
     }
 
     #[inline]
@@ -703,9 +698,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
         self.write_byte(key_type.into())?;
         let val_type = identifier.value_type;
         self.write_byte(val_type.into())?;
-        self.write_i32(identifier.size as i32)?;
-        self.advance_mut(self.index);
-        Ok(())
+        self.write_i32(identifier.size as i32)
     }
 
     #[inline]
@@ -721,7 +714,6 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut LinkedBytes> {
     #[inline]
     fn write_bytes_vec(&mut self, b: &[u8]) -> Result<(), ThriftException> {
         self.write_i32(b.len() as i32)?;
-        self.advance_mut(self.index);
         unsafe {
             ptr::copy_nonoverlapping(b.as_ptr(), self.buf.as_mut_ptr().add(self.index), b.len());
             self.index += b.len();
