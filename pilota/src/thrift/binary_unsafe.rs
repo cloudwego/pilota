@@ -758,6 +758,7 @@ impl<'a> TBinaryUnsafeInputProtocol<'a> {
     #[doc(hidden)]
     fn advance(&mut self, len: usize) {
         self.trans.advance(len);
+        self.buf.advance(len);
         self.index -= len;
     }
 }
