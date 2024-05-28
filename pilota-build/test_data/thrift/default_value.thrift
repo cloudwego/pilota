@@ -16,6 +16,7 @@ struct A {
     7: optional double test_double = 1,
     8: optional double test_double2 = 1.2,
     9: optional string alias_str = A_S,
+    10: required binary empty = "",
 }
 
 struct C {

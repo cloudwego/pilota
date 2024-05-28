@@ -284,6 +284,7 @@ pub mod multi {
                     test_double: Some(1f64),
                     test_double2: Some(1.2f64),
                     alias_str: Some(::pilota::FastStr::from_static_str(A_S)),
+                    empty: ::pilota::Bytes::from_static("".as_bytes()),
                 }
             }
         }
@@ -309,6 +310,8 @@ pub mod multi {
             pub test_double2: ::std::option::Option<f64>,
 
             pub alias_str: ::std::option::Option<::pilota::FastStr>,
+
+            pub empty: ::pilota::Bytes,
         }
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -359,6 +362,7 @@ pub mod multi {
                 if let Some(value) = self.alias_str.as_ref() {
                     protocol.write_faststr_field(9, (value).clone())?;
                 }
+                protocol.write_bytes_field(10, (&self.empty).clone())?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 ::std::result::Result::Ok(())
@@ -380,6 +384,7 @@ pub mod multi {
                 let mut test_double = Some(1f64);
                 let mut test_double2 = Some(1.2f64);
                 let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
+                let mut empty = ::pilota::Bytes::from_static("".as_bytes());
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -446,6 +451,11 @@ pub mod multi {
                             {
                                 alias_str = Some(protocol.read_faststr()?);
                             }
+                            Some(10)
+                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                            {
+                                empty = protocol.read_bytes()?;
+                            }
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -489,6 +499,7 @@ pub mod multi {
                     test_double,
                     test_double2,
                     alias_str,
+                    empty,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -514,6 +525,7 @@ pub mod multi {
                     let mut test_double = Some(1f64);
                     let mut test_double2 = Some(1.2f64);
                     let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
+                    let mut empty = ::pilota::Bytes::from_static("".as_bytes());
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -600,6 +612,12 @@ pub mod multi {
                                 {
                                     alias_str = Some(protocol.read_faststr().await?);
                                 }
+                                Some(10)
+                                    if field_ident.field_type
+                                        == ::pilota::thrift::TType::Binary =>
+                                {
+                                    empty = protocol.read_bytes().await?;
+                                }
                                 _ => {
                                     protocol.skip(field_ident.field_type).await?;
                                 }
@@ -644,6 +662,7 @@ pub mod multi {
                         test_double,
                         test_double2,
                         alias_str,
+                        empty,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -693,6 +712,7 @@ pub mod multi {
                         .alias_str
                         .as_ref()
                         .map_or(0, |value| protocol.faststr_field_len(Some(9), value))
+                    + protocol.bytes_field_len(Some(10), &self.empty)
                     + protocol.field_stop_len()
                     + protocol.struct_end_len()
             }
