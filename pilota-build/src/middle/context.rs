@@ -743,7 +743,7 @@ impl Context {
             (Literal::String(s), CodegenTy::Bytes) => {
                 let s = &**s;
                 (
-                    format! { "::bytes::Bytes::from_static({s}.as_bytes())" }.into(),
+                    format! { "::pilota::Bytes::from_static(\"{s}\".as_bytes())" }.into(),
                     true,
                 )
             }
