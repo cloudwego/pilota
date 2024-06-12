@@ -38,6 +38,9 @@ criterion = "0.5"
 proptest = "1"
 rand = "0.8"
 
+[features]
+unstable = []
+
 [[bench]]
 name = "faststr"
 harness = false
@@ -48,4 +51,8 @@ harness = false
 
 [[bench]]
 name = "skip"
+harness = false
+
+[[bench]]
+name = "ttype"
 harness = false
