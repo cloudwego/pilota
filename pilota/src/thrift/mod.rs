@@ -920,26 +920,33 @@ impl From<TType> for u8 {
     }
 }
 
+static TTYPE_LOOKUP: [Option<TType>; 17] = [
+    Some(TType::Stop),
+    Some(TType::Void),
+    Some(TType::Bool),
+    Some(TType::I8),
+    Some(TType::Double),
+    None,
+    Some(TType::I16),
+    None,
+    Some(TType::I32),
+    None,
+    Some(TType::I64),
+    Some(TType::Binary),
+    Some(TType::Struct),
+    Some(TType::Map),
+    Some(TType::Set),
+    Some(TType::List),
+    Some(TType::Uuid),
+];
+
 impl TryFrom<u8> for TType {
     type Error = ThriftException;
 
     #[inline]
     fn try_from(value: u8) -> Result<Self, Self::Error> {
-        match value {
-            0 => Ok(TType::Stop),
-            1 => Ok(TType::Void),
-            2 => Ok(TType::Bool),
-            3 => Ok(TType::I8),
-            4 => Ok(TType::Double),
-            6 => Ok(TType::I16),
-            8 => Ok(TType::I32),
-            10 => Ok(TType::I64),
-            11 => Ok(TType::Binary),
-            12 => Ok(TType::Struct),
-            13 => Ok(TType::Map),
-            14 => Ok(TType::Set),
-            15 => Ok(TType::List),
-            16 => Ok(TType::Uuid),
+        match TTYPE_LOOKUP.get(value as usize) {
+            Some(Some(ttype)) => Ok(*ttype),
             _ => Err(new_protocol_exception(
                 ProtocolExceptionKind::InvalidData,
                 format!("invalid ttype {}", value),
