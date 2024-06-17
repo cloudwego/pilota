@@ -38,17 +38,11 @@ impl WorkspaceGraph {
                     graph.add_edge(idx, node_map[&p.did], ());
                 }
                 ty::Vec(ty) | ty::Set(ty) => {
-                    if let ty::Path(p) = &ty.kind {
-                        graph.add_edge(idx, node_map[&p.did], ());
-                    }
+                    visit(graph, idx, node_map, ty);
                 }
                 ty::Map(ty1, ty2) => {
-                    if let ty::Path(p) = &ty1.kind {
-                        graph.add_edge(idx, node_map[&p.did], ());
-                    }
-                    if let ty::Path(p) = &ty2.kind {
-                        graph.add_edge(idx, node_map[&p.did], ());
-                    }
+                    visit(graph, idx, node_map, ty1);
+                    visit(graph, idx, node_map, ty2);
                 }
                 _ => {}
             }
