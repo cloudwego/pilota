@@ -4,20 +4,172 @@ use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::{
     middle::{
-        rir::{self},
+        context::{CrateId, DefLocation},
+        rir,
         ty::{AdtDef, AdtKind, CodegenTy, TyKind},
         type_graph::TypeGraph,
         workspace_graph::WorkspaceGraph,
     },
     symbol::{DefId, FileId},
     tags::Tags,
-    TagId,
+    TagId, MAX_RESOLVE_DEPTH,
 };
 
 #[derive(Default)]
 #[salsa::database(RirDatabaseStorage)]
 pub struct RootDatabase {
     storage: salsa::Storage<RootDatabase>,
+}
+
+impl RootDatabase {
+    pub fn collect_def_ids(&self, input: &[DefId]) -> FxHashMap<DefId, DefLocation> {
+        use crate::middle::ty::Visitor;
+        struct PathCollector<'a> {
+            map: &'a mut FxHashMap<DefId, DefLocation>,
+            visiting: &'a mut FxHashSet<DefId>,
+            db: &'a RootDatabase,
+            depth: usize,
+        }
+
+        impl crate::ty::Visitor for PathCollector<'_> {
+            fn visit_path(&mut self, path: &crate::rir::Path) {
+                collect(self.db, path.did, self.map, self.visiting, self.depth)
+            }
+        }
+
+        fn collect(
+            db: &RootDatabase,
+            def_id: DefId,
+            map: &mut FxHashMap<DefId, DefLocation>,
+            visiting: &mut FxHashSet<DefId>,
+            depth: usize,
+        ) {
+            if map.contains_key(&def_id) || depth > *MAX_RESOLVE_DEPTH {
+                return;
+            }
+            if !matches!(&*db.item(def_id).unwrap(), rir::Item::Mod(_)) {
+                let file_id = db.node(def_id).unwrap().file_id;
+
+                if db.input_files().contains(&file_id) {
+                    let type_graph = db.workspace_graph();
+                    let node = type_graph.node_map[&def_id];
+                    for from in type_graph
+                        .graph
+                        .neighbors_directed(node, petgraph::Direction::Incoming)
+                    {
+                        let from_def_id = type_graph.id_map[&from];
+                        let from_file_id = db.node(from_def_id).unwrap().file_id;
+
+                        if from_file_id != file_id {
+                            map.insert(def_id, DefLocation::Dynamic);
+                            break;
+                        } else {
+                            if !map.contains_key(&from_def_id) && !visiting.contains(&from_def_id) {
+                                visiting.insert(from_def_id);
+                                collect(db, from_def_id, map, visiting, depth + 1);
+                                visiting.remove(&from_def_id);
+                            }
+                            if map
+                                .get(&from_def_id)
+                                .map(|v| match v {
+                                    DefLocation::Fixed(_, _) => false,
+                                    DefLocation::Dynamic => true,
+                                })
+                                .unwrap_or_default()
+                            {
+                                map.insert(def_id, DefLocation::Dynamic);
+                                break;
+                            }
+                        }
+                    }
+                    map.entry(def_id).or_insert_with(|| {
+                        let file = db.file(file_id).unwrap();
+                        DefLocation::Fixed(CrateId { main_file: file_id }, file.package.clone())
+                    });
+                } else {
+                    map.insert(def_id, DefLocation::Dynamic);
+                }
+            }
+
+            let node = db.node(def_id).unwrap();
+            tracing::trace!("collecting {:?}", node.expect_item().symbol_name());
+
+            node.related_nodes
+                .iter()
+                .for_each(|def_id| collect(db, *def_id, map, visiting, depth));
+
+            let item = node.expect_item();
+
+            match item {
+                rir::Item::Message(m) => m.fields.iter().for_each(|f| {
+                    PathCollector {
+                        db,
+                        map,
+                        visiting,
+                        depth,
+                    }
+                    .visit(&f.ty)
+                }),
+                rir::Item::Enum(e) => e.variants.iter().flat_map(|v| &v.fields).for_each(|ty| {
+                    PathCollector {
+                        db,
+                        map,
+                        visiting,
+                        depth,
+                    }
+                    .visit(ty)
+                }),
+                rir::Item::Service(s) => {
+                    s.extend
+                        .iter()
+                        .for_each(|p| collect(db, p.did, map, visiting, depth));
+                    s.methods
+                        .iter()
+                        .flat_map(|m| m.args.iter().map(|f| &f.ty).chain(std::iter::once(&m.ret)))
+                        .for_each(|ty| {
+                            PathCollector {
+                                db,
+                                map,
+                                visiting,
+                                depth,
+                            }
+                            .visit(ty)
+                        });
+                }
+                rir::Item::NewType(n) => PathCollector {
+                    db,
+                    map,
+                    visiting,
+                    depth,
+                }
+                .visit(&n.ty),
+                rir::Item::Const(c) => {
+                    PathCollector {
+                        db,
+                        map,
+                        visiting,
+                        depth,
+                    }
+                    .visit(&c.ty);
+                }
+                rir::Item::Mod(m) => {
+                    m.items
+                        .iter()
+                        .for_each(|i| collect(db, *i, map, visiting, depth));
+                }
+            }
+        }
+        let mut map = FxHashMap::default();
+        let mut visiting = FxHashSet::default();
+
+        input.iter().for_each(|def_id| {
+            visiting.insert(*def_id);
+            collect(self, *def_id, &mut map, &mut visiting, 0);
+            visiting.remove(def_id);
+        });
+
+        map
+    }
 }
 
 impl fmt::Debug for RootDatabase {

@@ -22,7 +22,7 @@ use crate::{
     symbol::{DefId, FileId, IdentName, Symbol, SPECIAL_NAMINGS},
     tags::{TagId, Tags},
     ty::{AdtDef, AdtKind, CodegenTy, Visitor},
-    Plugin, MAX_RESOLVE_DEPTH,
+    Plugin,
 };
 
 #[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Clone)]
@@ -270,111 +270,7 @@ impl ContextBuilder {
         &self,
         input: &[DefId],
     ) -> FxHashMap<DefId, DefLocation> {
-        struct PathCollector<'a> {
-            map: &'a mut FxHashMap<DefId, DefLocation>,
-            cx: &'a ContextBuilder,
-            depth: usize,
-        }
-
-        impl crate::ty::Visitor for PathCollector<'_> {
-            fn visit_path(&mut self, path: &crate::rir::Path) {
-                collect(self.cx, path.did, self.map, self.depth)
-            }
-        }
-
-        fn collect(
-            cx: &ContextBuilder,
-            def_id: DefId,
-            map: &mut FxHashMap<DefId, DefLocation>,
-            mut depth: usize,
-        ) {
-            if map.contains_key(&def_id) || depth > *MAX_RESOLVE_DEPTH {
-                return;
-            }
-            depth += 1;
-            if !matches!(&*cx.db.item(def_id).unwrap(), rir::Item::Mod(_)) {
-                let file_id = cx.db.node(def_id).unwrap().file_id;
-
-                if cx.db.input_files().contains(&file_id) {
-                    let type_graph = cx.db.workspace_graph();
-                    let node = type_graph.node_map[&def_id];
-                    for from in type_graph
-                        .graph
-                        .neighbors_directed(node, petgraph::Direction::Incoming)
-                    {
-                        let from_def_id = type_graph.id_map[&from];
-                        let from_file_id = cx.db.node(from_def_id).unwrap().file_id;
-                        if from_file_id != file_id {
-                            map.insert(def_id, DefLocation::Dynamic);
-                            break;
-                        } else {
-                            if !map.contains_key(&from_def_id) {
-                                collect(cx, from_def_id, map, depth);
-                            }
-                            if map
-                                .get(&from_def_id)
-                                .map(|v| match v {
-                                    DefLocation::Fixed(_, _) => false,
-                                    DefLocation::Dynamic => true,
-                                })
-                                .unwrap_or_default()
-                            {
-                                map.insert(def_id, DefLocation::Dynamic);
-                                break;
-                            }
-                        }
-                    }
-                    map.entry(def_id).or_insert_with(|| {
-                        let file = cx.db.file(file_id).unwrap();
-                        DefLocation::Fixed(CrateId { main_file: file_id }, file.package.clone())
-                    });
-                } else {
-                    map.insert(def_id, DefLocation::Dynamic);
-                }
-            }
-
-            let node = cx.db.node(def_id).unwrap();
-            tracing::trace!("collecting {:?}", node.expect_item().symbol_name());
-
-            node.related_nodes
-                .iter()
-                .for_each(|def_id| collect(cx, *def_id, map, depth));
-
-            let item = node.expect_item();
-
-            match item {
-                rir::Item::Message(m) => m
-                    .fields
-                    .iter()
-                    .for_each(|f| PathCollector { cx, map, depth }.visit(&f.ty)),
-                rir::Item::Enum(e) => e
-                    .variants
-                    .iter()
-                    .flat_map(|v| &v.fields)
-                    .for_each(|ty| PathCollector { cx, map, depth }.visit(ty)),
-                rir::Item::Service(s) => {
-                    s.extend.iter().for_each(|p| collect(cx, p.did, map, depth));
-                    s.methods
-                        .iter()
-                        .flat_map(|m| m.args.iter().map(|f| &f.ty).chain(std::iter::once(&m.ret)))
-                        .for_each(|ty| PathCollector { cx, map, depth }.visit(ty));
-                }
-                rir::Item::NewType(n) => PathCollector { cx, map, depth }.visit(&n.ty),
-                rir::Item::Const(c) => {
-                    PathCollector { cx, map, depth }.visit(&c.ty);
-                }
-                rir::Item::Mod(m) => {
-                    m.items.iter().for_each(|i| collect(cx, *i, map, depth));
-                }
-            }
-        }
-        let mut map = FxHashMap::default();
-
-        input.iter().for_each(|def_id| {
-            collect(self, *def_id, &mut map, 0);
-        });
-
-        map
+        self.db.collect_def_ids(input)
     }
 
     pub(crate) fn keep(&mut self, keep_unknown_fields: Vec<PathBuf>) {
