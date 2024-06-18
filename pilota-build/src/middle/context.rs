@@ -1,12 +1,15 @@
-use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
+use std::{
+    collections::{HashMap, HashSet},
+    ops::Deref,
+    path::PathBuf,
+    sync::Arc,
+};
 
 use anyhow::Context as _;
 use dashmap::DashMap;
 use faststr::FastStr;
-use heck::ToShoutySnakeCase;
 use itertools::Itertools;
 use normpath::PathExt;
-use quote::format_ident;
 use rustc_hash::{FxHashMap, FxHashSet};
 use salsa::ParallelDatabase;
 
@@ -70,6 +73,7 @@ pub struct Context {
     pub plugin_gen: Arc<DashMap<DefLocation, String>>,
     pub(crate) dedups: Vec<FastStr>,
     pub(crate) common_crate_name: FastStr,
+    pub(crate) names: FxHashSet<DefId>,
 }
 
 impl Clone for Context {
@@ -89,6 +93,7 @@ impl Clone for Context {
             plugin_gen: self.plugin_gen.clone(),
             dedups: self.dedups.clone(),
             common_crate_name: self.common_crate_name.clone(),
+            names: self.names.clone(),
         }
     }
 }
@@ -324,7 +329,7 @@ impl ContextBuilder {
         common_crate_name: FastStr,
     ) -> Context {
         SPECIAL_NAMINGS.get_or_init(|| special_namings);
-        Context {
+        let mut cx = Context {
             adjusts: Default::default(),
             source_type,
             db: self.db.snapshot(),
@@ -342,7 +347,26 @@ impl ContextBuilder {
             plugin_gen: Default::default(),
             dedups,
             common_crate_name,
+            names: Default::default(),
+        };
+        fn collect_names<P: Fn(&crate::rir::Node) -> bool>(cx: &mut Context, p: P) {
+            let mut map: FxHashMap<String, Vec<DefId>> = FxHashMap::default();
+            cx.nodes().iter().for_each(|(def_id, node)| {
+                if p(node) {
+                    let rust_name = cx.item_path(*def_id).join("::");
+                    map.entry(rust_name).or_default().push(*def_id);
+                }
+            });
+            cx.names.extend(
+                map.into_iter()
+                    .filter(|(_, v)| v.len() > 1)
+                    .flat_map(|(_, v)| v)
+                    .collect::<HashSet<DefId>>(),
+            );
         }
+        collect_names(&mut cx, |node| matches!(&node.kind, NodeKind::Item(_)));
+        collect_names(&mut cx, |node| !matches!(&node.kind, NodeKind::Item(_)));
+        cx
     }
 }
 
@@ -717,7 +741,6 @@ impl Context {
         ty: &mut CodegenTy,
     ) -> anyhow::Result<String> {
         let should_lazy_static = ty.should_lazy_static();
-        let name = format_ident!("{}", name.to_shouty_snake_case());
         if let (Literal::List(lit), CodegenTy::Array(_, size)) = (lit, &mut *ty) {
             *size = lit.len()
         }
@@ -744,7 +767,7 @@ impl Context {
             return name.0.into();
         }
 
-        if !self.change_case {
+        if !self.change_case || self.names.contains(&def_id) {
             return node.name().0.into();
         }
 
