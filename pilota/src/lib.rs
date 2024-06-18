@@ -13,6 +13,7 @@ pub use bytes::*;
 pub use derivative;
 pub use faststr::FastStr;
 pub use lazy_static;
+pub use ordered_float::OrderedFloat;
 pub use serde;
 pub use thiserror::Error as ThisError;
 pub use tokio::io::AsyncRead;

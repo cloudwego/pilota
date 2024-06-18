@@ -217,6 +217,9 @@ mod tests {
 
         let err = A::decode(&mut TBinaryProtocol::new(&mut data, false)).unwrap_err();
 
-        assert_eq!(err.to_string(), "Protocol(ProtocolException { kind: InvalidData, message: \"decode struct `A` field(#1) failed, caused by: decode struct `B` field(#1) failed, caused by: invalid ttype 100\" })")
+        assert_eq!(
+            err.to_string(),
+            "Protocol(ProtocolException { kind: InvalidData, message: \"decode struct `A` field(#1) failed, caused by: decode struct `B` field(#1) failed, caused by: invalid ttype 100\" })"
+        )
     }
 }

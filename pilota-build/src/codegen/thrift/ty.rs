@@ -20,7 +20,7 @@ impl ThriftBackend {
             ty::I16 => "::pilota::thrift::TType::I16".into(),
             ty::I32 => "::pilota::thrift::TType::I32".into(),
             ty::I64 => "::pilota::thrift::TType::I64".into(),
-            ty::F64 => "::pilota::thrift::TType::Double".into(),
+            ty::F64 | ty::OrderedF64 => "::pilota::thrift::TType::Double".into(),
             ty::Uuid => "::pilota::thrift::TType::Uuid".into(),
             ty::Vec(_) => "::pilota::thrift::TType::List".into(),
             ty::Set(_) => "::pilota::thrift::TType::Set".into(),
@@ -59,6 +59,7 @@ impl ThriftBackend {
             ty::I32 => format!("protocol.write_i32(*{ident})?;").into(),
             ty::I64 => format!("protocol.write_i64(*{ident})?;").into(),
             ty::F64 => format!("protocol.write_double(*{ident})?;").into(),
+            ty::OrderedF64 => format!("protocol.write_double({ident}.0)?;").into(),
             ty::Uuid => format!("protocol.write_uuid({ident})?;").into(),
             ty::Vec(ty) => {
                 let el_ttype = self.ttype(ty);
@@ -133,6 +134,7 @@ impl ThriftBackend {
             ty::I32 => format!("protocol.write_i32_field({id}, *{ident})?;").into(),
             ty::I64 => format!("protocol.write_i64_field({id}, *{ident})?;").into(),
             ty::F64 => format!("protocol.write_double_field({id}, *{ident})?;").into(),
+            ty::OrderedF64 => format!("protocol.write_double_field({id}, {ident}.0)?;").into(),
             ty::Uuid => format!("protocol.write_uuid_field({id}, *{ident})?;").into(),
             ty::Vec(ty) => {
                 let el_ttype = self.ttype(ty);
@@ -207,6 +209,7 @@ impl ThriftBackend {
             ty::I32 => format!("protocol.i32_len(*{ident})").into(),
             ty::I64 => format!("protocol.i64_len(*{ident})").into(),
             ty::F64 => format!("protocol.double_len(*{ident})").into(),
+            ty::OrderedF64 => format!("protocol.double_len({ident}.0)").into(),
             ty::Uuid => format!("protocol.uuid_len(*{ident})").into(),
             ty::Vec(el) => {
                 let add_el = self.codegen_ty_size(el, "el".into());
@@ -263,6 +266,7 @@ impl ThriftBackend {
             ty::I32 => format!("protocol.i32_field_len(Some({id}), *{ident})").into(),
             ty::I64 => format!("protocol.i64_field_len(Some({id}), *{ident})").into(),
             ty::F64 => format!("protocol.double_field_len(Some({id}), *{ident}) ").into(),
+            ty::OrderedF64 => format!("protocol.double_field_len(Some({id}), {ident}.0) ").into(),
             ty::Uuid => format!("protocol.uuid_field_len(Some({id}), *{ident}) ").into(),
             ty::Vec(el) => {
                 let add_el = self.codegen_ty_size(el, "el".into());
@@ -326,6 +330,10 @@ impl ThriftBackend {
             ty::I32 => helper.codegen_read_i32(),
             ty::I64 => helper.codegen_read_i64(),
             ty::F64 => helper.codegen_read_double(),
+            ty::OrderedF64 => {
+                let read_double = helper.codegen_read_double();
+                format!("::pilota::OrderedFloat({read_double})").into()
+            }
             ty::Uuid => helper.codegen_read_uuid(),
             ty::Vec(ty) => {
                 let read_list_begin = helper.codegen_read_list_begin();
