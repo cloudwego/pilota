@@ -25,6 +25,7 @@ pub enum TyKind {
     UInt64,
     F32,
     F64,
+    OrderedF64,
     Uuid,
     Vec(Arc<Ty>),
     Set(Arc<Ty>),
@@ -68,6 +69,7 @@ pub enum CodegenTy {
     UInt64,
     F32,
     F64,
+    OrderedF64,
     Uuid,
     Bytes,
     LazyStaticRef(Arc<CodegenTy>),
@@ -111,6 +113,7 @@ impl CodegenTy {
             CodegenTy::I32 => "i32".into(),
             CodegenTy::I64 => "i64".into(),
             CodegenTy::F64 => "f64".into(),
+            CodegenTy::OrderedF64 => "::pilota::OrderedFloat<f64>".into(),
             CodegenTy::UInt32 => "u32".into(),
             CodegenTy::UInt64 => "u64".into(),
             CodegenTy::F32 => "f32".into(),
@@ -174,6 +177,7 @@ impl Display for CodegenTy {
             CodegenTy::I32 => f.write_str("i32"),
             CodegenTy::I64 => f.write_str("i64"),
             CodegenTy::F64 => f.write_str("f64"),
+            CodegenTy::OrderedF64 => f.write_str("::pilota::OrderedFloat<f64>"),
             CodegenTy::UInt32 => f.write_str("u32"),
             CodegenTy::UInt64 => f.write_str("u64"),
             CodegenTy::F32 => f.write_str("f32"),
@@ -298,6 +302,11 @@ pub trait TyTransformer {
     }
 
     #[inline]
+    fn ordered_f64(&self) -> CodegenTy {
+        CodegenTy::OrderedF64
+    }
+
+    #[inline]
     fn f32(&self) -> CodegenTy {
         CodegenTy::F32
     }
@@ -356,6 +365,7 @@ pub trait TyTransformer {
             I32 => self.i32(),
             I64 => self.i64(),
             F64 => self.f64(),
+            OrderedF64 => self.ordered_f64(),
             Uuid => self.uuid(),
             Vec(ty) => self.vec(ty),
             Set(ty) => self.set(ty),
@@ -467,6 +477,7 @@ pub(crate) fn fold_ty<F: Folder>(f: &mut F, ty: &Ty) -> Ty {
         I32 => TyKind::I32,
         I64 => TyKind::I64,
         F64 => TyKind::F64,
+        OrderedF64 => TyKind::OrderedF64,
         Uuid => TyKind::Uuid,
         Vec(ty) => TyKind::Vec(f.fold_ty(ty).into()),
         Set(ty) => TyKind::Set(f.fold_ty(ty).into()),

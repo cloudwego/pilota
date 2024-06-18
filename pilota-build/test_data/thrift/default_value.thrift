@@ -17,6 +17,8 @@ struct A {
     8: optional double test_double2 = 1.2,
     9: optional string alias_str = A_S,
     10: required binary empty = "",
+    11: required map<double, double> test_map = {1.0: 2.0},
+    12: required set<double> test_set = [1.0],
 }
 
 struct C {

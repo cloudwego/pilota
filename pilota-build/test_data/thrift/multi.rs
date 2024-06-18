@@ -285,6 +285,12 @@ pub mod multi {
                     test_double2: Some(1.2f64),
                     alias_str: Some(::pilota::FastStr::from_static_str(A_S)),
                     empty: ::pilota::Bytes::from_static("".as_bytes()),
+                    test_map: {
+                        let mut map = ::pilota::AHashMap::with_capacity(1);
+                        map.insert(::pilota::OrderedFloat(1f64), 2f64);
+                        map
+                    },
+                    test_set: ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)]),
                 }
             }
         }
@@ -312,6 +318,10 @@ pub mod multi {
             pub alias_str: ::std::option::Option<::pilota::FastStr>,
 
             pub empty: ::pilota::Bytes,
+
+            pub test_map: ::pilota::AHashMap<::pilota::OrderedFloat<f64>, f64>,
+
+            pub test_set: ::pilota::AHashSet<::pilota::OrderedFloat<f64>>,
         }
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -363,6 +373,29 @@ pub mod multi {
                     protocol.write_faststr_field(9, (value).clone())?;
                 }
                 protocol.write_bytes_field(10, (&self.empty).clone())?;
+                protocol.write_map_field(
+                    11,
+                    ::pilota::thrift::TType::Double,
+                    ::pilota::thrift::TType::Double,
+                    &&self.test_map,
+                    |protocol, key| {
+                        protocol.write_double(key.0)?;
+                        ::std::result::Result::Ok(())
+                    },
+                    |protocol, val| {
+                        protocol.write_double(*val)?;
+                        ::std::result::Result::Ok(())
+                    },
+                )?;
+                protocol.write_set_field(
+                    12,
+                    ::pilota::thrift::TType::Double,
+                    &&self.test_set,
+                    |protocol, val| {
+                        protocol.write_double(val.0)?;
+                        ::std::result::Result::Ok(())
+                    },
+                )?;
                 protocol.write_field_stop()?;
                 protocol.write_struct_end()?;
                 ::std::result::Result::Ok(())
@@ -385,6 +418,8 @@ pub mod multi {
                 let mut test_double2 = Some(1.2f64);
                 let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
                 let mut empty = ::pilota::Bytes::from_static("".as_bytes());
+                let mut test_map = None;
+                let mut test_set = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -456,6 +491,32 @@ pub mod multi {
                             {
                                 empty = protocol.read_bytes()?;
                             }
+                            Some(11) if field_ident.field_type == ::pilota::thrift::TType::Map => {
+                                test_map = Some({
+                                    let map_ident = protocol.read_map_begin()?;
+                                    let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                                    for _ in 0..map_ident.size {
+                                        val.insert(
+                                            ::pilota::OrderedFloat(protocol.read_double()?),
+                                            protocol.read_double()?,
+                                        );
+                                    }
+                                    protocol.read_map_end()?;
+                                    val
+                                });
+                            }
+                            Some(12) if field_ident.field_type == ::pilota::thrift::TType::Set => {
+                                test_set = Some({
+                                    let list_ident = protocol.read_set_begin()?;
+                                    let mut val =
+                                        ::pilota::AHashSet::with_capacity(list_ident.size);
+                                    for _ in 0..list_ident.size {
+                                        val.insert(::pilota::OrderedFloat(protocol.read_double()?));
+                                    }
+                                    protocol.read_set_end()?;
+                                    val
+                                });
+                            }
                             _ => {
                                 protocol.skip(field_ident.field_type)?;
                             }
@@ -487,6 +548,13 @@ pub mod multi {
                         map
                     });
                 }
+                let test_map = test_map.unwrap_or_else(|| {
+                    let mut map = ::pilota::AHashMap::with_capacity(1);
+                    map.insert(::pilota::OrderedFloat(1f64), 2f64);
+                    map
+                });
+                let test_set = test_set
+                    .unwrap_or_else(|| ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)]));
 
                 let data = Self {
                     faststr,
@@ -500,6 +568,8 @@ pub mod multi {
                     test_double2,
                     alias_str,
                     empty,
+                    test_map,
+                    test_set,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -526,6 +596,8 @@ pub mod multi {
                     let mut test_double2 = Some(1.2f64);
                     let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
                     let mut empty = ::pilota::Bytes::from_static("".as_bytes());
+                    let mut test_map = None;
+                    let mut test_set = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -618,6 +690,41 @@ pub mod multi {
                                 {
                                     empty = protocol.read_bytes().await?;
                                 }
+                                Some(11)
+                                    if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                                {
+                                    test_map = Some({
+                                        let map_ident = protocol.read_map_begin().await?;
+                                        let mut val =
+                                            ::pilota::AHashMap::with_capacity(map_ident.size);
+                                        for _ in 0..map_ident.size {
+                                            val.insert(
+                                                ::pilota::OrderedFloat(
+                                                    protocol.read_double().await?,
+                                                ),
+                                                protocol.read_double().await?,
+                                            );
+                                        }
+                                        protocol.read_map_end().await?;
+                                        val
+                                    });
+                                }
+                                Some(12)
+                                    if field_ident.field_type == ::pilota::thrift::TType::Set =>
+                                {
+                                    test_set = Some({
+                                        let list_ident = protocol.read_set_begin().await?;
+                                        let mut val =
+                                            ::pilota::AHashSet::with_capacity(list_ident.size);
+                                        for _ in 0..list_ident.size {
+                                            val.insert(::pilota::OrderedFloat(
+                                                protocol.read_double().await?,
+                                            ));
+                                        }
+                                        protocol.read_set_end().await?;
+                                        val
+                                    });
+                                }
                                 _ => {
                                     protocol.skip(field_ident.field_type).await?;
                                 }
@@ -650,6 +757,14 @@ pub mod multi {
                             map
                         });
                     }
+                    let test_map = test_map.unwrap_or_else(|| {
+                        let mut map = ::pilota::AHashMap::with_capacity(1);
+                        map.insert(::pilota::OrderedFloat(1f64), 2f64);
+                        map
+                    });
+                    let test_set = test_set.unwrap_or_else(|| {
+                        ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)])
+                    });
 
                     let data = Self {
                         faststr,
@@ -663,6 +778,8 @@ pub mod multi {
                         test_double2,
                         alias_str,
                         empty,
+                        test_map,
+                        test_set,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -713,6 +830,20 @@ pub mod multi {
                         .as_ref()
                         .map_or(0, |value| protocol.faststr_field_len(Some(9), value))
                     + protocol.bytes_field_len(Some(10), &self.empty)
+                    + protocol.map_field_len(
+                        Some(11),
+                        ::pilota::thrift::TType::Double,
+                        ::pilota::thrift::TType::Double,
+                        &self.test_map,
+                        |protocol, key| protocol.double_len(key.0),
+                        |protocol, val| protocol.double_len(*val),
+                    )
+                    + protocol.set_field_len(
+                        Some(12),
+                        ::pilota::thrift::TType::Double,
+                        &self.test_set,
+                        |protocol, el| protocol.double_len(el.0),
+                    )
                     + protocol.field_stop_len()
                     + protocol.struct_end_len()
             }

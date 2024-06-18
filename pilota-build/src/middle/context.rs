@@ -64,10 +64,10 @@ pub struct Context {
     pub(crate) codegen_items: Arc<[DefId]>,
     pub(crate) path_resolver: Arc<dyn PathResolver>,
     pub(crate) mode: Arc<Mode>,
-    pub(crate) keep_unknown_fields: FxHashSet<DefId>,
-    pub location_map: FxHashMap<DefId, DefLocation>,
-    pub entry_map: HashMap<DefLocation, Vec<(DefId, DefLocation)>>,
-    pub plugin_gen: DashMap<DefLocation, String>,
+    pub(crate) keep_unknown_fields: Arc<FxHashSet<DefId>>,
+    pub location_map: Arc<FxHashMap<DefId, DefLocation>>,
+    pub entry_map: Arc<HashMap<DefLocation, Vec<(DefId, DefLocation)>>>,
+    pub plugin_gen: Arc<DashMap<DefLocation, String>>,
     pub(crate) dedups: Vec<FastStr>,
     pub(crate) common_crate_name: FastStr,
 }
@@ -336,9 +336,9 @@ impl ContextBuilder {
                 Mode::SingleFile { .. } => Arc::new(DefaultPathResolver),
             },
             mode: Arc::new(self.mode),
-            keep_unknown_fields: self.keep_unknown_fields,
-            location_map: self.location_map,
-            entry_map: self.entry_map,
+            keep_unknown_fields: Arc::new(self.keep_unknown_fields),
+            location_map: Arc::new(self.location_map),
+            entry_map: Arc::new(self.entry_map),
             plugin_gen: Default::default(),
             dedups,
             common_crate_name,
@@ -574,6 +574,10 @@ impl Context {
                 let f = f.parse::<f64>().unwrap();
                 (format! { "{f}f64" }.into(), true)
             }
+            (Literal::Float(f), CodegenTy::OrderedF64) => {
+                let f = f.parse::<f64>().unwrap();
+                (format! { "::pilota::OrderedFloat({f}f64)" }.into(), true)
+            }
             (
                 l,
                 CodegenTy::Adt(AdtDef {
@@ -741,7 +745,7 @@ impl Context {
         }
 
         if !self.change_case {
-            return self.node(def_id).unwrap().name().0.into();
+            return node.name().0.into();
         }
 
         match self.node(def_id).unwrap().kind {

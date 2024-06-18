@@ -374,9 +374,40 @@ impl Resolver {
             ir::TyKind::F64 => ty::F64,
             ir::TyKind::Uuid => ty::Uuid,
             ir::TyKind::Vec(ty) => ty::Vec(Arc::from(self.lower_type(ty, false))),
-            ir::TyKind::Set(ty) => ty::Set(Arc::from(self.lower_type(ty, false))),
+            ir::TyKind::Set(ty) => ty::Set(Arc::from(self.lower_type_for_hash_key(ty, false))),
             ir::TyKind::Map(k, v) => ty::Map(
-                Arc::from(self.lower_type(k, false)),
+                Arc::from(self.lower_type_for_hash_key(k, false)),
+                Arc::from(self.lower_type(v, false)),
+            ),
+            ir::TyKind::Path(p) => ty::Path(self.lower_path(p, Namespace::Ty, is_args)),
+            ir::TyKind::UInt64 => ty::UInt64,
+            ir::TyKind::UInt32 => ty::UInt32,
+            ir::TyKind::F32 => ty::F32,
+        };
+        let tags_id = self.tags_id_counter.inc_one();
+
+        self.tags.insert(tags_id, ty.tags.clone());
+
+        Ty { kind, tags_id }
+    }
+
+    fn lower_type_for_hash_key(&mut self, ty: &ir::Ty, is_args: bool) -> Ty {
+        let kind = match &ty.kind {
+            ir::TyKind::String => ty::FastStr,
+            ir::TyKind::Void => ty::Void,
+            ir::TyKind::U8 => ty::U8,
+            ir::TyKind::Bool => ty::Bool,
+            ir::TyKind::Bytes => ty::Bytes,
+            ir::TyKind::I8 => ty::I8,
+            ir::TyKind::I16 => ty::I16,
+            ir::TyKind::I32 => ty::I32,
+            ir::TyKind::I64 => ty::I64,
+            ir::TyKind::F64 => ty::OrderedF64,
+            ir::TyKind::Uuid => ty::Uuid,
+            ir::TyKind::Vec(ty) => ty::Vec(Arc::from(self.lower_type_for_hash_key(ty, false))),
+            ir::TyKind::Set(ty) => ty::Set(Arc::from(self.lower_type_for_hash_key(ty, false))),
+            ir::TyKind::Map(k, v) => ty::Map(
+                Arc::from(self.lower_type_for_hash_key(k, false)),
                 Arc::from(self.lower_type(v, false)),
             ),
             ir::TyKind::Path(p) => ty::Path(self.lower_path(p, Namespace::Ty, is_args)),
