@@ -7,12 +7,12 @@ use crate::{db::RirDatabase, rir::NodeKind, symbol::Symbol, Context, DefId, Iden
 
 pub trait PathResolver: Sync + Send {
     fn path_for_def_id(&self, cx: &Context, def_id: DefId) -> Arc<[Symbol]> {
-        fn calc_item_path(cx: &Context, def_id: DefId, segs: &mut Vec<Symbol>) {
+        fn calc_node_path(cx: &Context, def_id: DefId, segs: &mut Vec<Symbol>) {
             let node = cx.node(def_id).unwrap();
 
             match node.kind {
                 NodeKind::Item(_) => {}
-                _ => calc_item_path(cx, node.parent.unwrap(), segs),
+                _ => calc_node_path(cx, node.parent.unwrap(), segs),
             }
 
             let name = match node.kind {
@@ -20,8 +20,7 @@ pub trait PathResolver: Sync + Send {
                     crate::rir::Item::Mod(_) => return,
                     _ => cx.rust_name(def_id),
                 },
-                NodeKind::Variant(_) => cx.rust_name(def_id),
-                _ => panic!(),
+                _ => cx.rust_name(def_id),
             };
 
             segs.push(name);
@@ -29,7 +28,7 @@ pub trait PathResolver: Sync + Send {
 
         let mut segs = Vec::from(&*self.mod_prefix(cx, def_id));
 
-        calc_item_path(cx, def_id, &mut segs);
+        calc_node_path(cx, def_id, &mut segs);
 
         Arc::from(segs)
     }
