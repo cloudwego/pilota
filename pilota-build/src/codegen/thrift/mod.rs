@@ -123,7 +123,7 @@ impl ThriftBackend {
         // };
         let decode_async_fn = format!(
             r#"fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-            protocol: &'a mut T,
+            __protocol: &'a mut T,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>> + Send + 'a>> {{
             ::std::boxed::Box::pin(async move {{
                 {decode_async}
@@ -134,7 +134,7 @@ impl ThriftBackend {
             impl ::pilota::thrift::Message for {name} {{
                 fn encode<T: ::pilota::thrift::TOutputProtocol>(
                     &self,
-                    protocol: &mut T,
+                    __protocol: &mut T,
                 ) -> ::std::result::Result<(),::pilota::thrift::ThriftException> {{
                     #[allow(unused_imports)]
                     use ::pilota::thrift::TOutputProtocolExt;
@@ -142,7 +142,7 @@ impl ThriftBackend {
                 }}
 
                 fn decode<T: ::pilota::thrift::TInputProtocol>(
-                    protocol: &mut T,
+                    __protocol: &mut T,
                 ) -> ::std::result::Result<Self,::pilota::thrift::ThriftException>  {{
                     #[allow(unused_imports)]
                     use ::pilota::{{thrift::TLengthProtocolExt, Buf}};
@@ -151,7 +151,7 @@ impl ThriftBackend {
 
                 {decode_async_fn}
 
-                fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {{
+                fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {{
                     #[allow(unused_imports)]
                     use ::pilota::thrift::TLengthProtocolExt;
                     {size}
@@ -355,7 +355,7 @@ impl ThriftBackend {
     ) -> String {
         let record_ptr = if keep && !helper.is_async {
             r#"let mut __pilota_offset = 0;
-            let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();"#
+            let __pilota_begin_ptr = __protocol.buf().chunk().as_ptr();"#
         } else {
             ""
         };
@@ -402,7 +402,7 @@ impl ThriftBackend {
         }
 
         let write_unknown_field = if keep && !helper.is_async {
-            "_unknown_fields.push_back(protocol.get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?);"
+            "_unknown_fields.push_back(__protocol.get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?);"
         } else {
             ""
         };
@@ -413,8 +413,8 @@ impl ThriftBackend {
 
         let skip_all = if keep && !helper.is_async && is_arg {
             "if __pilota_fields_num == 0 {
-                let __pilota_remaining = protocol.buf().remaining();
-                _unknown_fields.push_back(protocol.get_bytes(None, __pilota_remaining - 2)?);
+                let __pilota_remaining = __protocol.buf().remaining();
+                _unknown_fields.push_back(__protocol.get_bytes(None, __pilota_remaining - 2)?);
                 break;
             }"
         } else {
@@ -458,7 +458,7 @@ impl CodegenBackend for ThriftBackend {
         if keep {
             encode_fields.push_str(
                 r#"for bytes in self._unknown_fields.list.iter() {
-                                protocol.write_bytes_without_len(bytes.clone());
+                                __protocol.write_bytes_without_len(bytes.clone());
                             }"#,
             );
         }
@@ -477,17 +477,17 @@ impl CodegenBackend for ThriftBackend {
                     name: "{name_str}",
                 }};
 
-                protocol.write_struct_begin(&struct_ident)?;
+                __protocol.write_struct_begin(&struct_ident)?;
                 {encode_fields}
-                protocol.write_field_stop()?;
-                protocol.write_struct_end()?;
+                __protocol.write_field_stop()?;
+                __protocol.write_struct_end()?;
                 ::std::result::Result::Ok(())
                 "#
             },
             format! {
-                r#"protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
+                r#"__protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
                     name: "{name_str}",
-                }}) + {encode_fields_size} protocol.field_stop_len() + protocol.struct_end_len()"#
+                }}) + {encode_fields_size} __protocol.field_stop_len() + __protocol.struct_end_len()"#
             },
             |helper| self.codegen_decode(helper, s, keep, self.is_arg(def_id)),
         ));
@@ -509,11 +509,11 @@ impl CodegenBackend for ThriftBackend {
                 def_id,
                 name.clone(),
                 format! {
-                    r#"protocol.write_i32({v})?;
+                    r#"__protocol.write_i32({v})?;
                     ::std::result::Result::Ok(())
                     "#
                 },
-                format!("protocol.i32_len({v})"),
+                format!("__protocol.i32_len({v})"),
                 |helper| {
                     let read_i32 = helper.codegen_read_i32();
                     let err_msg_tmpl = format!("invalid enum value for {}, value: {{}}", name);
@@ -551,7 +551,7 @@ impl CodegenBackend for ThriftBackend {
                     encode_variants.push_str(&format! {
                         "{name}::_UnknownFields(ref value) => {{
                                         for bytes in value.list.iter() {{
-                                            protocol.write_bytes_without_len(bytes.clone());
+                                            __protocol.write_bytes_without_len(bytes.clone());
                                         }}
                                     }}",
                     });
@@ -596,27 +596,27 @@ impl CodegenBackend for ThriftBackend {
                 stream.push_str(&self.codegen_impl_message_with_helper(def_id,
                     name.clone(),
                     format! {
-                        r#"protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {{
+                        r#"__protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {{
                             name: "{name_str}",
                         }})?;
                         match self {{
                             {encode_variants}
                         }}
-                        protocol.write_field_stop()?;
-                        protocol.write_struct_end()?;
+                        __protocol.write_field_stop()?;
+                        __protocol.write_struct_end()?;
                         ::std::result::Result::Ok(())"#
                     },
                         format! {
-                            r#"protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
+                            r#"__protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
                                 name: "{name_str}",
                             }}) + match self {{
                                 {variants_size}
-                            }} +  protocol.field_stop_len() + protocol.struct_end_len()"#
+                            }} +  __protocol.field_stop_len() + __protocol.struct_end_len()"#
                         },
                     |helper| {
                         let record_ptr = if keep && !helper.is_async {
                             r#"let mut __pilota_offset = 0;
-                            let __pilota_begin_ptr = protocol.buf().chunk().as_ptr();"#
+                            let __pilota_begin_ptr = __protocol.buf().chunk().as_ptr();"#
                         } else {
                             ""
                         };
@@ -680,7 +680,7 @@ impl CodegenBackend for ThriftBackend {
                                 r#"if ret.is_none() {{
                                 unsafe {{
                                     let mut __pilota_linked_bytes = ::pilota::LinkedBytes::new();
-                                    __pilota_linked_bytes.push_back(protocol.get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?);
+                                    __pilota_linked_bytes.push_back(__protocol.get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?);
                                     ret = Some({name}::_UnknownFields(__pilota_linked_bytes));
                                 }}
                             }} else {{

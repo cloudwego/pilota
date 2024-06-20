@@ -40,20 +40,20 @@ pub mod const_val {
         impl ::pilota::thrift::Message for Index {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
-                protocol: &mut T,
+                __protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                protocol.write_i32(self.inner())?;
+                __protocol.write_i32(self.inner())?;
                 ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
-                protocol: &mut T,
+                __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
-                let value = protocol.read_i32()?;
+                let value = __protocol.read_i32()?;
                 ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
                     |err| {
                         ::pilota::thrift::new_protocol_exception(
@@ -65,7 +65,7 @@ pub mod const_val {
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &'a mut T,
+                __protocol: &'a mut T,
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
@@ -75,7 +75,7 @@ pub mod const_val {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let value = protocol.read_i32().await?;
+                    let value = __protocol.read_i32().await?;
                     ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
                         |err| {
                             ::pilota::thrift::new_protocol_exception(
@@ -87,10 +87,10 @@ pub mod const_val {
                 })
             }
 
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.i32_len(self.inner())
+                __protocol.i32_len(self.inner())
             }
         }
         ::pilota::lazy_static::lazy_static! {

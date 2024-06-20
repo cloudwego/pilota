@@ -6,7 +6,7 @@ use itertools::Itertools;
 use normpath::PathExt;
 use pilota_thrift_parser as thrift_parser;
 use pilota_thrift_parser::parser::Parser as _;
-use rustc_hash::FxHashMap;
+use rustc_hash::{FxHashMap, FxHashSet};
 use salsa::ParallelDatabase;
 use thrift_parser::Annotations;
 
@@ -134,6 +134,18 @@ impl ThriftLower {
 
         let mut related_items = Vec::default();
 
+        let mut seen = FxHashSet::default();
+        let mut duplicate_function_names = FxHashSet::default();
+        for name in service
+            .functions
+            .iter()
+            .map(|f| f.name.to_upper_camel_case())
+        {
+            if !seen.insert(name.clone()) {
+                duplicate_function_names.insert(name);
+            }
+        }
+
         service.functions.iter().for_each(|f| {
             let exception = f
                 .throws
@@ -160,15 +172,17 @@ impl ThriftLower {
 
             let method_name = tags
                 .get::<PilotaName>()
-                .map(|name| &*name.0)
-                .unwrap_or_else(|| &*f.name);
+                .map(|name| name.0.to_string())
+                .unwrap_or_else(|| {
+                    let method_name = f.name.to_upper_camel_case();
+                    if duplicate_function_names.contains(&method_name) {
+                        f.name.to_string()
+                    } else {
+                        method_name
+                    }
+                });
 
-            let name: Ident = format!(
-                "{}{}ResultRecv",
-                service.name.as_str(),
-                method_name.to_upper_camel_case()
-            )
-            .into();
+            let name: Ident = format!("{}{}ResultRecv", service.name.as_str(), method_name).into();
 
             let mut tags = self.extract_tags(&f.result_type.1);
             tags.remove::<RustWrapperArc>();
@@ -190,12 +204,7 @@ impl ThriftLower {
             tags.insert(crate::tags::KeepUnknownFields(false));
             result.push(self.mk_item(kind, tags.into()));
 
-            let name: Ident = format!(
-                "{}{}ResultSend",
-                service.name.as_str(),
-                method_name.to_upper_camel_case()
-            )
-            .into();
+            let name: Ident = format!("{}{}ResultSend", service.name.as_str(), method_name).into();
             let kind = ir::ItemKind::Enum(ir::Enum {
                 name: name.clone(),
                 variants: std::iter::once(ir::EnumVariant {
@@ -218,7 +227,7 @@ impl ThriftLower {
                 let name: Ident = format!(
                     "{}{}Exception",
                     service.name.to_upper_camel_case().as_str(),
-                    f.name.as_str().to_upper_camel_case()
+                    method_name
                 )
                 .into();
                 let kind = ir::ItemKind::Enum(ir::Enum {
@@ -235,7 +244,7 @@ impl ThriftLower {
             let name: Ident = format!(
                 "{}{}ArgsSend",
                 service.name.to_upper_camel_case().as_str(),
-                method_name.to_upper_camel_case()
+                method_name
             )
             .into();
             let kind = ir::ItemKind::Message(ir::Message {
@@ -250,7 +259,7 @@ impl ThriftLower {
             let name: Ident = format!(
                 "{}{}ArgsRecv",
                 service.name.to_upper_camel_case().as_str(),
-                method_name.to_upper_camel_case()
+                method_name
             )
             .into();
             let kind = ir::ItemKind::Message(ir::Message {

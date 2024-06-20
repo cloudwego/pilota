@@ -18,4 +18,5 @@ enum Index {
 
 service TestService {
     Test test(1: TEST req);
+    Test Test(1: TEST Req);
 }

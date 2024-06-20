@@ -5,6 +5,7 @@ use pilota::{
 };
 
 include!("../test_data/thrift/default_value.rs");
+include!("../test_data/thrift/auto_name.rs");
 
 fn decode(bytes: &[u8]) {
     let _a =
