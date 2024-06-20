@@ -47,26 +47,26 @@ impl ThriftBackend {
 
     pub(crate) fn codegen_encode_ty(&self, ty: &Ty, ident: FastStr) -> FastStr {
         match &ty.kind {
-            ty::String => format!("protocol.write_string({ident})?;").into(),
-            ty::FastStr => format!("protocol.write_faststr(({ident}).clone())?;").into(),
-            ty::Void => r#"protocol.write_struct_begin(&*::pilota::thrift::VOID_IDENT)?;protocol.write_struct_end()?;"#.into(),
-            ty::U8 => format!("protocol.write_byte(*{ident})?;").into(),
-            ty::Bool => format!("protocol.write_bool(*{ident})?;").into(),
-            ty::BytesVec => format!("protocol.write_bytes_vec({ident})?;").into(),
-            ty::Bytes => format!("protocol.write_bytes({ident}.clone())?;").into(),
-            ty::I8 => format!("protocol.write_i8(*{ident})?;").into(),
-            ty::I16 => format!("protocol.write_i16(*{ident})?;").into(),
-            ty::I32 => format!("protocol.write_i32(*{ident})?;").into(),
-            ty::I64 => format!("protocol.write_i64(*{ident})?;").into(),
-            ty::F64 => format!("protocol.write_double(*{ident})?;").into(),
-            ty::OrderedF64 => format!("protocol.write_double({ident}.0)?;").into(),
-            ty::Uuid => format!("protocol.write_uuid({ident})?;").into(),
+            ty::String => format!("__protocol.write_string({ident})?;").into(),
+            ty::FastStr => format!("__protocol.write_faststr(({ident}).clone())?;").into(),
+            ty::Void => r#"__protocol.write_struct_begin(&*::pilota::thrift::VOID_IDENT)?;__protocol.write_struct_end()?;"#.into(),
+            ty::U8 => format!("__protocol.write_byte(*{ident})?;").into(),
+            ty::Bool => format!("__protocol.write_bool(*{ident})?;").into(),
+            ty::BytesVec => format!("__protocol.write_bytes_vec({ident})?;").into(),
+            ty::Bytes => format!("__protocol.write_bytes({ident}.clone())?;").into(),
+            ty::I8 => format!("__protocol.write_i8(*{ident})?;").into(),
+            ty::I16 => format!("__protocol.write_i16(*{ident})?;").into(),
+            ty::I32 => format!("__protocol.write_i32(*{ident})?;").into(),
+            ty::I64 => format!("__protocol.write_i64(*{ident})?;").into(),
+            ty::F64 => format!("__protocol.write_double(*{ident})?;").into(),
+            ty::OrderedF64 => format!("__protocol.write_double({ident}.0)?;").into(),
+            ty::Uuid => format!("__protocol.write_uuid({ident})?;").into(),
             ty::Vec(ty) => {
                 let el_ttype = self.ttype(ty);
                 let write_el = self.codegen_encode_ty(ty, "val".into());
 
                 format! {
-                    r#"protocol.write_list({el_ttype}, &{ident}, |protocol, val| {{
+                    r#"__protocol.write_list({el_ttype}, &{ident}, |__protocol, val| {{
                         {write_el}
                         ::std::result::Result::Ok(())
                     }})?;"#
@@ -78,7 +78,7 @@ impl ThriftBackend {
                 let el_ttype = self.ttype(ty);
 
                 format! {
-                    r#"protocol.write_set({el_ttype}, &{ident}, |protocol, val| {{
+                    r#"__protocol.write_set({el_ttype}, &{ident}, |__protocol, val| {{
                         {write_el}
                         ::std::result::Result::Ok(())
                     }})?;"#
@@ -92,17 +92,17 @@ impl ThriftBackend {
                 let write_val = self.codegen_encode_ty(v, "val".into());
 
                 format! {
-                    r#"protocol.write_map({key_ttype}, {val_ttype}, &{ident}, |protocol, key| {{
+                    r#"__protocol.write_map({key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
                         {write_key}
                         ::std::result::Result::Ok(())
-                    }}, |protocol, val| {{
+                    }}, |__protocol, val| {{
                         {write_val}
                         ::std::result::Result::Ok(())
                     }})?;"#
                 }
                 .into()
             }
-            ty::Path(_) => format!("protocol.write_struct({ident})?;").into(),
+            ty::Path(_) => format!("__protocol.write_struct({ident})?;").into(),
             ty::Arc(ty) => self.codegen_encode_ty(ty, ident),
             _ => unimplemented!(),
         }
@@ -120,28 +120,28 @@ impl ThriftBackend {
 
     pub(crate) fn codegen_encode_field(&self, id: i16, ty: &Ty, ident: FastStr) -> FastStr {
         match &ty.kind {
-            ty::String => format!("protocol.write_string_field({id}, {ident})?;").into(),
+            ty::String => format!("__protocol.write_string_field({id}, {ident})?;").into(),
             ty::FastStr => {
-                format!("protocol.write_faststr_field({id}, ({ident}).clone())?;").into()
+                format!("__protocol.write_faststr_field({id}, ({ident}).clone())?;").into()
             }
             ty::Void => "".into(),
-            ty::U8 => format!("protocol.write_byte_field({id}, *{ident})?;").into(),
-            ty::Bool => format!("protocol.write_bool_field({id}, *{ident})?;").into(),
-            ty::BytesVec => format!("protocol.write_bytes_vec_field({id}, {ident})?;").into(),
-            ty::Bytes => format!("protocol.write_bytes_field({id}, ({ident}).clone())?;").into(),
-            ty::I8 => format!("protocol.write_i8_field({id}, *{ident})?;").into(),
-            ty::I16 => format!("protocol.write_i16_field({id}, *{ident})?;").into(),
-            ty::I32 => format!("protocol.write_i32_field({id}, *{ident})?;").into(),
-            ty::I64 => format!("protocol.write_i64_field({id}, *{ident})?;").into(),
-            ty::F64 => format!("protocol.write_double_field({id}, *{ident})?;").into(),
-            ty::OrderedF64 => format!("protocol.write_double_field({id}, {ident}.0)?;").into(),
-            ty::Uuid => format!("protocol.write_uuid_field({id}, *{ident})?;").into(),
+            ty::U8 => format!("__protocol.write_byte_field({id}, *{ident})?;").into(),
+            ty::Bool => format!("__protocol.write_bool_field({id}, *{ident})?;").into(),
+            ty::BytesVec => format!("__protocol.write_bytes_vec_field({id}, {ident})?;").into(),
+            ty::Bytes => format!("__protocol.write_bytes_field({id}, ({ident}).clone())?;").into(),
+            ty::I8 => format!("__protocol.write_i8_field({id}, *{ident})?;").into(),
+            ty::I16 => format!("__protocol.write_i16_field({id}, *{ident})?;").into(),
+            ty::I32 => format!("__protocol.write_i32_field({id}, *{ident})?;").into(),
+            ty::I64 => format!("__protocol.write_i64_field({id}, *{ident})?;").into(),
+            ty::F64 => format!("__protocol.write_double_field({id}, *{ident})?;").into(),
+            ty::OrderedF64 => format!("__protocol.write_double_field({id}, {ident}.0)?;").into(),
+            ty::Uuid => format!("__protocol.write_uuid_field({id}, *{ident})?;").into(),
             ty::Vec(ty) => {
                 let el_ttype = self.ttype(ty);
                 let write_el = self.codegen_encode_ty(ty, "val".into());
 
                 format! {
-                    r#"protocol.write_list_field({id}, {el_ttype}, &{ident}, |protocol, val| {{
+                    r#"__protocol.write_list_field({id}, {el_ttype}, &{ident}, |__protocol, val| {{
                         {write_el}
                         ::std::result::Result::Ok(())
                     }})?;"#
@@ -153,7 +153,7 @@ impl ThriftBackend {
                 let el_ttype = self.ttype(ty);
 
                 format! {
-                    r#"protocol.write_set_field({id}, {el_ttype}, &{ident}, |protocol, val| {{
+                    r#"__protocol.write_set_field({id}, {el_ttype}, &{ident}, |__protocol, val| {{
                         {write_el}
                         ::std::result::Result::Ok(())
                     }})?;"#
@@ -167,10 +167,10 @@ impl ThriftBackend {
                 let write_val = self.codegen_encode_ty(v, "val".into());
 
                 format! {
-                    r#"protocol.write_map_field({id}, {key_ttype}, {val_ttype}, &{ident}, |protocol, key| {{
+                    r#"__protocol.write_map_field({id}, {key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
                         {write_key}
                         ::std::result::Result::Ok(())
-                    }}, |protocol, val| {{
+                    }}, |__protocol, val| {{
                         {write_val}
                         ::std::result::Result::Ok(())
                     }})?;"#
@@ -178,15 +178,15 @@ impl ThriftBackend {
                 .into()
             }
             ty::Path(p) if self.is_i32_enum(p.did) => {
-                format!("protocol.write_i32_field({id}, ({ident}).inner())?;").into()
+                format!("__protocol.write_i32_field({id}, ({ident}).inner())?;").into()
             }
             ty::Path(p) => match self.cx.expect_item(p.did).as_ref() {
                 rir::Item::NewType(nt) => {
                     let ttype = self.ttype(&nt.ty);
-                    format!("protocol.write_struct_field({id}, {ident}, {ttype})?;").into()
+                    format!("__protocol.write_struct_field({id}, {ident}, {ttype})?;").into()
                 }
                 _ => format!(
-                    "protocol.write_struct_field({id}, {ident}, ::pilota::thrift::TType::Struct)?;"
+                    "__protocol.write_struct_field({id}, {ident}, ::pilota::thrift::TType::Struct)?;"
                 )
                 .into(),
             },
@@ -197,25 +197,25 @@ impl ThriftBackend {
 
     pub(crate) fn codegen_ty_size(&self, ty: &Ty, ident: FastStr) -> FastStr {
         match &ty.kind {
-            ty::String => format!("protocol.string_len({ident})").into(),
-            ty::FastStr => format!("protocol.faststr_len({ident})").into(),
-            ty::Void => "protocol.void_len()".into(),
-            ty::U8 => format!("protocol.byte_len(*{ident})").into(),
-            ty::Bool => format!("protocol.bool_len(*{ident})").into(),
-            ty::BytesVec => format!("protocol.bytes_vec_len({ident})").into(),
-            ty::Bytes => format!("protocol.bytes_len({ident})").into(),
-            ty::I8 => format!("protocol.i8_len(*{ident})").into(),
-            ty::I16 => format!("protocol.i16_len(*{ident})").into(),
-            ty::I32 => format!("protocol.i32_len(*{ident})").into(),
-            ty::I64 => format!("protocol.i64_len(*{ident})").into(),
-            ty::F64 => format!("protocol.double_len(*{ident})").into(),
-            ty::OrderedF64 => format!("protocol.double_len({ident}.0)").into(),
-            ty::Uuid => format!("protocol.uuid_len(*{ident})").into(),
+            ty::String => format!("__protocol.string_len({ident})").into(),
+            ty::FastStr => format!("__protocol.faststr_len({ident})").into(),
+            ty::Void => "__protocol.void_len()".into(),
+            ty::U8 => format!("__protocol.byte_len(*{ident})").into(),
+            ty::Bool => format!("__protocol.bool_len(*{ident})").into(),
+            ty::BytesVec => format!("__protocol.bytes_vec_len({ident})").into(),
+            ty::Bytes => format!("__protocol.bytes_len({ident})").into(),
+            ty::I8 => format!("__protocol.i8_len(*{ident})").into(),
+            ty::I16 => format!("__protocol.i16_len(*{ident})").into(),
+            ty::I32 => format!("__protocol.i32_len(*{ident})").into(),
+            ty::I64 => format!("__protocol.i64_len(*{ident})").into(),
+            ty::F64 => format!("__protocol.double_len(*{ident})").into(),
+            ty::OrderedF64 => format!("__protocol.double_len({ident}.0)").into(),
+            ty::Uuid => format!("__protocol.uuid_len(*{ident})").into(),
             ty::Vec(el) => {
                 let add_el = self.codegen_ty_size(el, "el".into());
                 let el_ttype = self.ttype(el);
                 format! {
-                    r#"protocol.list_len({el_ttype}, {ident}, |protocol, el| {{
+                    r#"__protocol.list_len({el_ttype}, {ident}, |__protocol, el| {{
                         {add_el}
                     }})"#
                 }
@@ -225,7 +225,7 @@ impl ThriftBackend {
                 let add_el = self.codegen_ty_size(el, "el".into());
                 let el_ttype = self.ttype(el);
                 format! {
-                    r#"protocol.set_len({el_ttype}, {ident}, |protocol, el| {{
+                    r#"__protocol.set_len({el_ttype}, {ident}, |__protocol, el| {{
                         {add_el}
                     }})"#
                 }
@@ -238,15 +238,15 @@ impl ThriftBackend {
                 let v_ttype = self.ttype(v);
 
                 format! {
-                    r#"protocol.map_len({k_ttype}, {v_ttype}, {ident}, |protocol, key| {{
+                    r#"__protocol.map_len({k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{
                         {add_key}
-                    }}, |protocol, val| {{
+                    }}, |__protocol, val| {{
                         {add_val}
                     }})"#
                 }
                 .into()
             }
-            ty::Path(_) => format!("protocol.struct_len({ident})").into(),
+            ty::Path(_) => format!("__protocol.struct_len({ident})").into(),
             ty::Arc(ty) => self.codegen_ty_size(ty, ident),
             _ => unimplemented!(),
         }
@@ -254,25 +254,25 @@ impl ThriftBackend {
 
     pub(crate) fn codegen_field_size(&self, ty: &Ty, id: i16, ident: FastStr) -> FastStr {
         match &ty.kind {
-            ty::String => format!("protocol.string_field_len(Some({id}), &{ident})").into(),
-            ty::FastStr => format!("protocol.faststr_field_len(Some({id}), {ident})").into(),
+            ty::String => format!("__protocol.string_field_len(Some({id}), &{ident})").into(),
+            ty::FastStr => format!("__protocol.faststr_field_len(Some({id}), {ident})").into(),
             ty::Void => "0".into(),
-            ty::U8 => format!("protocol.byte_field_len(Some({id}), *{ident})").into(),
-            ty::Bool => format!("protocol.bool_field_len(Some({id}), *{ident})").into(),
-            ty::BytesVec => format!("protocol.bytes_vec_field_len(Some({id}), {ident})").into(),
-            ty::Bytes => format!("protocol.bytes_field_len(Some({id}), {ident})").into(),
-            ty::I8 => format!("protocol.i8_field_len(Some({id}), *{ident})").into(),
-            ty::I16 => format!("protocol.i16_field_len(Some({id}), *{ident})").into(),
-            ty::I32 => format!("protocol.i32_field_len(Some({id}), *{ident})").into(),
-            ty::I64 => format!("protocol.i64_field_len(Some({id}), *{ident})").into(),
-            ty::F64 => format!("protocol.double_field_len(Some({id}), *{ident}) ").into(),
-            ty::OrderedF64 => format!("protocol.double_field_len(Some({id}), {ident}.0) ").into(),
-            ty::Uuid => format!("protocol.uuid_field_len(Some({id}), *{ident}) ").into(),
+            ty::U8 => format!("__protocol.byte_field_len(Some({id}), *{ident})").into(),
+            ty::Bool => format!("__protocol.bool_field_len(Some({id}), *{ident})").into(),
+            ty::BytesVec => format!("__protocol.bytes_vec_field_len(Some({id}), {ident})").into(),
+            ty::Bytes => format!("__protocol.bytes_field_len(Some({id}), {ident})").into(),
+            ty::I8 => format!("__protocol.i8_field_len(Some({id}), *{ident})").into(),
+            ty::I16 => format!("__protocol.i16_field_len(Some({id}), *{ident})").into(),
+            ty::I32 => format!("__protocol.i32_field_len(Some({id}), *{ident})").into(),
+            ty::I64 => format!("__protocol.i64_field_len(Some({id}), *{ident})").into(),
+            ty::F64 => format!("__protocol.double_field_len(Some({id}), *{ident}) ").into(),
+            ty::OrderedF64 => format!("__protocol.double_field_len(Some({id}), {ident}.0) ").into(),
+            ty::Uuid => format!("__protocol.uuid_field_len(Some({id}), *{ident}) ").into(),
             ty::Vec(el) => {
                 let add_el = self.codegen_ty_size(el, "el".into());
                 let el_ttype = self.ttype(el);
                 format! {
-                    r#"protocol.list_field_len(Some({id}), {el_ttype}, {ident}, |protocol, el| {{
+                    r#"__protocol.list_field_len(Some({id}), {el_ttype}, {ident}, |__protocol, el| {{
                         {add_el}
                     }})"#
                 }
@@ -282,7 +282,7 @@ impl ThriftBackend {
                 let add_el = self.codegen_ty_size(el, "el".into());
                 let el_ttype = self.ttype(el);
                 format! {
-                    r#"protocol.set_field_len(Some({id}), {el_ttype}, {ident}, |protocol, el| {{
+                    r#"__protocol.set_field_len(Some({id}), {el_ttype}, {ident}, |__protocol, el| {{
                         {add_el}
                     }})"#
                 }
@@ -294,12 +294,12 @@ impl ThriftBackend {
                 let k_ttype = self.ttype(k);
                 let v_ttype = self.ttype(v);
 
-                format!("protocol.map_field_len(Some({id}), {k_ttype}, {v_ttype}, {ident}, |protocol, key| {{ {add_key} }}, |protocol, val| {{ {add_val} }})").into()
+                format!("__protocol.map_field_len(Some({id}), {k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{ {add_key} }}, |__protocol, val| {{ {add_val} }})").into()
             }
             ty::Path(p) if self.is_i32_enum(p.did) => {
-                format!("protocol.i32_field_len(Some({id}), ({ident}).inner())").into()
+                format!("__protocol.i32_field_len(Some({id}), ({ident}).inner())").into()
             }
-            ty::Path(_) => format!("protocol.struct_field_len(Some({id}), {ident})").into(),
+            ty::Path(_) => format!("__protocol.struct_field_len(Some({id}), {ident})").into(),
             ty::Arc(ty) => self.codegen_field_size(ty, id, ident),
             _ => unimplemented!(),
         }

@@ -73,7 +73,7 @@ pub struct Context {
     pub plugin_gen: Arc<DashMap<DefLocation, String>>,
     pub(crate) dedups: Vec<FastStr>,
     pub(crate) common_crate_name: FastStr,
-    pub(crate) names: FxHashSet<DefId>,
+    pub names: FxHashSet<DefId>,
 }
 
 impl Clone for Context {

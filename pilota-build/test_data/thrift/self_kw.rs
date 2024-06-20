@@ -40,20 +40,20 @@ pub mod self_kw {
         impl ::pilota::thrift::Message for Index {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
-                protocol: &mut T,
+                __protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                protocol.write_i32(self.inner())?;
+                __protocol.write_i32(self.inner())?;
                 ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
-                protocol: &mut T,
+                __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
-                let value = protocol.read_i32()?;
+                let value = __protocol.read_i32()?;
                 ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
                     |err| {
                         ::pilota::thrift::new_protocol_exception(
@@ -65,7 +65,7 @@ pub mod self_kw {
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &'a mut T,
+                __protocol: &'a mut T,
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
@@ -75,7 +75,7 @@ pub mod self_kw {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let value = protocol.read_i32().await?;
+                    let value = __protocol.read_i32().await?;
                     ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
                         |err| {
                             ::pilota::thrift::new_protocol_exception(
@@ -87,10 +87,10 @@ pub mod self_kw {
                 })
             }
 
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.i32_len(self.inner())
+                __protocol.i32_len(self.inner())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -98,64 +98,73 @@ pub mod self_kw {
             pub r#type: ::pilota::FastStr,
 
             pub self_: ::pilota::FastStr,
+
+            pub protocol: ::pilota::FastStr,
         }
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
-                protocol: &mut T,
+                __protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
 
-                protocol.write_struct_begin(&struct_ident)?;
-                protocol.write_faststr_field(1, (&self.r#type).clone())?;
-                protocol.write_faststr_field(2, (&self.self_).clone())?;
-                protocol.write_field_stop()?;
-                protocol.write_struct_end()?;
+                __protocol.write_struct_begin(&struct_ident)?;
+                __protocol.write_faststr_field(1, (&self.r#type).clone())?;
+                __protocol.write_faststr_field(2, (&self.self_).clone())?;
+                __protocol.write_faststr_field(3, (&self.protocol).clone())?;
+                __protocol.write_field_stop()?;
+                __protocol.write_struct_end()?;
                 ::std::result::Result::Ok(())
             }
 
             fn decode<T: ::pilota::thrift::TInputProtocol>(
-                protocol: &mut T,
+                __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
                 let mut r#type = None;
                 let mut self_ = None;
+                let mut protocol = None;
 
                 let mut __pilota_decoding_field_id = None;
 
-                protocol.read_struct_begin()?;
+                __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
                     loop {
-                        let field_ident = protocol.read_field_begin()?;
+                        let field_ident = __protocol.read_field_begin()?;
                         if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            protocol.field_stop_len();
+                            __protocol.field_stop_len();
                             break;
                         } else {
-                            protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                            __protocol.field_begin_len(field_ident.field_type, field_ident.id);
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                r#type = Some(protocol.read_faststr()?);
+                                r#type = Some(__protocol.read_faststr()?);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                self_ = Some(protocol.read_faststr()?);
+                                self_ = Some(__protocol.read_faststr()?);
+                            }
+                            Some(3)
+                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                            {
+                                protocol = Some(__protocol.read_faststr()?);
                             }
                             _ => {
-                                protocol.skip(field_ident.field_type)?;
+                                __protocol.skip(field_ident.field_type)?;
                             }
                         }
 
-                        protocol.read_field_end()?;
-                        protocol.field_end_len();
+                        __protocol.read_field_end()?;
+                        __protocol.field_end_len();
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
@@ -167,7 +176,7 @@ pub mod self_kw {
                     }
                     return ::std::result::Result::Err(err);
                 };
-                protocol.read_struct_end()?;
+                __protocol.read_struct_end()?;
 
                 let Some(r#type) = r#type else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
@@ -181,13 +190,23 @@ pub mod self_kw {
                         "field self_ is required".to_string(),
                     ));
                 };
+                let Some(protocol) = protocol else {
+                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                        "field protocol is required".to_string(),
+                    ));
+                };
 
-                let data = Self { r#type, self_ };
+                let data = Self {
+                    r#type,
+                    self_,
+                    protocol,
+                };
                 ::std::result::Result::Ok(data)
             }
 
             fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                protocol: &'a mut T,
+                __protocol: &'a mut T,
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
@@ -199,13 +218,14 @@ pub mod self_kw {
                 ::std::boxed::Box::pin(async move {
                     let mut r#type = None;
                     let mut self_ = None;
+                    let mut protocol = None;
 
                     let mut __pilota_decoding_field_id = None;
 
-                    protocol.read_struct_begin().await?;
+                    __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
                         loop {
-                            let field_ident = protocol.read_field_begin().await?;
+                            let field_ident = __protocol.read_field_begin().await?;
                             if field_ident.field_type == ::pilota::thrift::TType::Stop {
                                 break;
                             } else {
@@ -216,20 +236,26 @@ pub mod self_kw {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    r#type = Some(protocol.read_faststr().await?);
+                                    r#type = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    self_ = Some(protocol.read_faststr().await?);
+                                    self_ = Some(__protocol.read_faststr().await?);
+                                }
+                                Some(3)
+                                    if field_ident.field_type
+                                        == ::pilota::thrift::TType::Binary =>
+                                {
+                                    protocol = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
-                                    protocol.skip(field_ident.field_type).await?;
+                                    __protocol.skip(field_ident.field_type).await?;
                                 }
                             }
 
-                            protocol.read_field_end().await?;
+                            __protocol.read_field_end().await?;
                         }
                         ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                     }
@@ -243,7 +269,7 @@ pub mod self_kw {
                         }
                         return ::std::result::Result::Err(err);
                     };
-                    protocol.read_struct_end().await?;
+                    __protocol.read_struct_end().await?;
 
                     let Some(r#type) = r#type else {
                         return ::std::result::Result::Err(
@@ -261,20 +287,33 @@ pub mod self_kw {
                             ),
                         );
                     };
+                    let Some(protocol) = protocol else {
+                        return ::std::result::Result::Err(
+                            ::pilota::thrift::new_protocol_exception(
+                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                "field protocol is required".to_string(),
+                            ),
+                        );
+                    };
 
-                    let data = Self { r#type, self_ };
+                    let data = Self {
+                        r#type,
+                        self_,
+                        protocol,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
 
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, protocol: &mut T) -> usize {
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + protocol.faststr_field_len(Some(1), &self.r#type)
-                    + protocol.faststr_field_len(Some(2), &self.self_)
-                    + protocol.field_stop_len()
-                    + protocol.struct_end_len()
+                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
+                    + __protocol.faststr_field_len(Some(1), &self.r#type)
+                    + __protocol.faststr_field_len(Some(2), &self.self_)
+                    + __protocol.faststr_field_len(Some(3), &self.protocol)
+                    + __protocol.field_stop_len()
+                    + __protocol.struct_end_len()
             }
         }
     }

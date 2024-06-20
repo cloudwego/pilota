@@ -17,9 +17,9 @@ macro_rules! protocol_method {
             #[inline]
             pub fn [<codegen_ $m>](&self) -> faststr::FastStr {
                 if self.is_async {
-                    format!("protocol.{}().await?", stringify!($m)).into()
+                    format!("__protocol.{}().await?", stringify!($m)).into()
                 } else {
-                    format!("protocol.{}()?", stringify!($m)).into()
+                    format!("__protocol.{}()?", stringify!($m)).into()
                 }
             }
         }
@@ -35,9 +35,9 @@ macro_rules! protocol_len {
                     Default::default()
                 } else {
                     if keep {
-                        format!("__pilota_offset += protocol.{}();", stringify!($m)).into()
+                        format!("__pilota_offset += __protocol.{}();", stringify!($m)).into()
                     } else {
-                        format!("protocol.{}();", stringify!($m)).into()
+                        format!("__protocol.{}();", stringify!($m)).into()
                     }
                 }
             }
@@ -74,21 +74,21 @@ impl DecodeHelper {
 
     pub fn codegen_skip_ttype(&self, tt: FastStr) -> String {
         if self.is_async {
-            format!("protocol.skip({tt}).await?")
+            format!("__protocol.skip({tt}).await?")
         } else {
-            format!("protocol.skip({tt})?")
+            format!("__protocol.skip({tt})?")
         }
     }
 
     pub fn codegen_item_decode(&self, name: FastStr) -> FastStr {
         if self.is_async {
             format!(
-                "<{} as ::pilota::thrift::Message>::decode_async(protocol).await?",
+                "<{} as ::pilota::thrift::Message>::decode_async(__protocol).await?",
                 name
             )
             .into()
         } else {
-            "::pilota::thrift::Message::decode(protocol)?".into()
+            "::pilota::thrift::Message::decode(__protocol)?".into()
         }
     }
 
@@ -96,10 +96,10 @@ impl DecodeHelper {
         if self.is_async {
             Default::default()
         } else if keep {
-            "__pilota_offset += protocol.field_begin_len(field_ident.field_type, field_ident.id);"
+            "__pilota_offset += __protocol.field_begin_len(field_ident.field_type, field_ident.id);"
                 .into()
         } else {
-            "protocol.field_begin_len(field_ident.field_type, field_ident.id);".into()
+            "__protocol.field_begin_len(field_ident.field_type, field_ident.id);".into()
         }
     }
 }
