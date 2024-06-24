@@ -84,43 +84,6 @@ pub mod nested_message {
     }
 
     pub mod tt1 {
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq, Copy)]
-        #[repr(transparent)]
-        pub struct Label(i32);
-
-        impl Label {
-            pub const LABEL_OPTIONAL: Self = Self(1);
-            pub const LABEL_REQUIRED: Self = Self(2);
-            pub const LABEL_REPEATED: Self = Self(3);
-
-            pub fn inner(&self) -> i32 {
-                self.0
-            }
-
-            pub fn to_string(&self) -> ::std::string::String {
-                match self {
-                    Self(1) => ::std::string::String::from("LABEL_OPTIONAL"),
-                    Self(2) => ::std::string::String::from("LABEL_REQUIRED"),
-                    Self(3) => ::std::string::String::from("LABEL_REPEATED"),
-                    Self(val) => val.to_string(),
-                }
-            }
-        }
-
-        impl ::std::convert::From<i32> for Label {
-            fn from(value: i32) -> Self {
-                Self(value)
-            }
-        }
-
-        impl ::std::convert::From<Label> for i32 {
-            fn from(value: Label) -> i32 {
-                value.0
-            }
-        }
-
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct T2 {
             pub t3: t2::Tt3,
@@ -167,6 +130,42 @@ pub mod nested_message {
                     }
                     _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
                 }
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
+        #[derivative(Default)]
+        #[derive(Clone, PartialEq, Copy)]
+        #[repr(transparent)]
+        pub struct Label(i32);
+
+        impl Label {
+            pub const LABEL_OPTIONAL: Self = Self(1);
+            pub const LABEL_REQUIRED: Self = Self(2);
+            pub const LABEL_REPEATED: Self = Self(3);
+
+            pub fn inner(&self) -> i32 {
+                self.0
+            }
+
+            pub fn to_string(&self) -> ::std::string::String {
+                match self {
+                    Self(1) => ::std::string::String::from("LABEL_OPTIONAL"),
+                    Self(2) => ::std::string::String::from("LABEL_REQUIRED"),
+                    Self(3) => ::std::string::String::from("LABEL_REPEATED"),
+                    Self(val) => val.to_string(),
+                }
+            }
+        }
+
+        impl ::std::convert::From<i32> for Label {
+            fn from(value: i32) -> Self {
+                Self(value)
+            }
+        }
+
+        impl ::std::convert::From<Label> for i32 {
+            fn from(value: Label) -> i32 {
+                value.0
             }
         }
 

@@ -97,12 +97,12 @@ pub mod enum_test {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
         #[derivative(Default)]
         #[derive(Clone, PartialEq)]
-        pub enum TestTestEnumResultRecv {
+        pub enum TestTestEnumResultSend {
             #[derivative(Default)]
             Ok(Err),
         }
 
-        impl ::pilota::thrift::Message for TestTestEnumResultRecv {
+        impl ::pilota::thrift::Message for TestTestEnumResultSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 __protocol: &mut T,
@@ -110,10 +110,10 @@ pub mod enum_test {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 __protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {
-                    name: "TestTestEnumResultRecv",
+                    name: "TestTestEnumResultSend",
                 })?;
                 match self {
-                    TestTestEnumResultRecv::Ok(ref value) => {
+                    TestTestEnumResultSend::Ok(ref value) => {
                         __protocol.write_i32_field(0, (value).inner())?;
                     }
                 }
@@ -142,7 +142,7 @@ pub mod enum_test {
                             if ret.is_none() {
                                 let field_ident = ::pilota::thrift::Message::decode(__protocol)?;
                                 __protocol.struct_len(&field_ident);
-                                ret = Some(TestTestEnumResultRecv::Ok(field_ident));
+                                ret = Some(TestTestEnumResultSend::Ok(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -197,7 +197,7 @@ pub mod enum_test {
                                         )
                                         .await?;
 
-                                    ret = Some(TestTestEnumResultRecv::Ok(field_ident));
+                                    ret = Some(TestTestEnumResultSend::Ok(field_ident));
                                 } else {
                                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -227,13 +227,97 @@ pub mod enum_test {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
-                    name: "TestTestEnumResultRecv",
+                    name: "TestTestEnumResultSend",
                 }) + match self {
-                    TestTestEnumResultRecv::Ok(ref value) => {
+                    TestTestEnumResultSend::Ok(ref value) => {
                         __protocol.i32_field_len(Some(0), (value).inner())
                     }
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq, Copy)]
+        #[repr(transparent)]
+        pub struct Err(i32);
+
+        impl Err {
+            pub fn inner(&self) -> i32 {
+                self.0
+            }
+
+            pub fn to_string(&self) -> ::std::string::String {
+                match self {
+                    Self(val) => val.to_string(),
+                }
+            }
+        }
+
+        impl ::std::convert::From<i32> for Err {
+            fn from(value: i32) -> Self {
+                Self(value)
+            }
+        }
+
+        impl ::std::convert::From<Err> for i32 {
+            fn from(value: Err) -> i32 {
+                value.0
+            }
+        }
+
+        impl ::pilota::thrift::Message for Err {
+            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                &self,
+                __protocol: &mut T,
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TOutputProtocolExt;
+                __protocol.write_i32(self.inner())?;
+                ::std::result::Result::Ok(())
+            }
+
+            fn decode<T: ::pilota::thrift::TInputProtocol>(
+                __protocol: &mut T,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                let value = __protocol.read_i32()?;
+                ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
+                    |err| {
+                        ::pilota::thrift::new_protocol_exception(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                            format!("invalid enum value for Err, value: {}", value),
+                        )
+                    },
+                )?)
+            }
+
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                __protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
+                ::std::boxed::Box::pin(async move {
+                    let value = __protocol.read_i32().await?;
+                    ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
+                        |err| {
+                            ::pilota::thrift::new_protocol_exception(
+                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                format!("invalid enum value for Err, value: {}", value),
+                            )
+                        },
+                    )?)
+                })
+            }
+
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TLengthProtocolExt;
+                __protocol.i32_len(self.inner())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -389,232 +473,6 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
-        pub enum TestTestEnumResultSend {
-            #[derivative(Default)]
-            Ok(Err),
-        }
-
-        impl ::pilota::thrift::Message for TestTestEnumResultSend {
-            fn encode<T: ::pilota::thrift::TOutputProtocol>(
-                &self,
-                __protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
-                #[allow(unused_imports)]
-                use ::pilota::thrift::TOutputProtocolExt;
-                __protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {
-                    name: "TestTestEnumResultSend",
-                })?;
-                match self {
-                    TestTestEnumResultSend::Ok(ref value) => {
-                        __protocol.write_i32_field(0, (value).inner())?;
-                    }
-                }
-                __protocol.write_field_stop()?;
-                __protocol.write_struct_end()?;
-                ::std::result::Result::Ok(())
-            }
-
-            fn decode<T: ::pilota::thrift::TInputProtocol>(
-                __protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
-                #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
-                let mut ret = None;
-                __protocol.read_struct_begin()?;
-                loop {
-                    let field_ident = __protocol.read_field_begin()?;
-                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                        __protocol.field_stop_len();
-                        break;
-                    } else {
-                        __protocol.field_begin_len(field_ident.field_type, field_ident.id);
-                    }
-                    match field_ident.id {
-                        Some(0) => {
-                            if ret.is_none() {
-                                let field_ident = ::pilota::thrift::Message::decode(__protocol)?;
-                                __protocol.struct_len(&field_ident);
-                                ret = Some(TestTestEnumResultSend::Ok(field_ident));
-                            } else {
-                                return ::std::result::Result::Err(
-                                    ::pilota::thrift::new_protocol_exception(
-                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                        "received multiple fields for union from remote Message",
-                                    ),
-                                );
-                            }
-                        }
-                        _ => {
-                            __protocol.skip(field_ident.field_type)?;
-                        }
-                    }
-                }
-                __protocol.read_field_end()?;
-                __protocol.read_struct_end()?;
-                if let Some(ret) = ret {
-                    ::std::result::Result::Ok(ret)
-                } else {
-                    ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
-                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "received empty union from remote Message",
-                    ))
-                }
-            }
-
-            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                __protocol: &'a mut T,
-            ) -> ::std::pin::Pin<
-                ::std::boxed::Box<
-                    dyn ::std::future::Future<
-                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
-                        > + Send
-                        + 'a,
-                >,
-            > {
-                ::std::boxed::Box::pin(async move {
-                    let mut ret = None;
-                    __protocol.read_struct_begin().await?;
-                    loop {
-                        let field_ident = __protocol.read_field_begin().await?;
-                        if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                            break;
-                        } else {
-                        }
-                        match field_ident.id {
-                            Some(0) => {
-                                if ret.is_none() {
-                                    let field_ident =
-                                        <Err as ::pilota::thrift::Message>::decode_async(
-                                            __protocol,
-                                        )
-                                        .await?;
-
-                                    ret = Some(TestTestEnumResultSend::Ok(field_ident));
-                                } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
-                                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
-                                }
-                            }
-                            _ => {
-                                __protocol.skip(field_ident.field_type).await?;
-                            }
-                        }
-                    }
-                    __protocol.read_field_end().await?;
-                    __protocol.read_struct_end().await?;
-                    if let Some(ret) = ret {
-                        ::std::result::Result::Ok(ret)
-                    } else {
-                        ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
-                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                            "received empty union from remote Message",
-                        ))
-                    }
-                })
-            }
-
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
-                #[allow(unused_imports)]
-                use ::pilota::thrift::TLengthProtocolExt;
-                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
-                    name: "TestTestEnumResultSend",
-                }) + match self {
-                    TestTestEnumResultSend::Ok(ref value) => {
-                        __protocol.i32_field_len(Some(0), (value).inner())
-                    }
-                } + __protocol.field_stop_len()
-                    + __protocol.struct_end_len()
-            }
-        }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq, Copy)]
-        #[repr(transparent)]
-        pub struct Ok(i32);
-
-        impl Ok {
-            pub fn inner(&self) -> i32 {
-                self.0
-            }
-
-            pub fn to_string(&self) -> ::std::string::String {
-                match self {
-                    Self(val) => val.to_string(),
-                }
-            }
-        }
-
-        impl ::std::convert::From<i32> for Ok {
-            fn from(value: i32) -> Self {
-                Self(value)
-            }
-        }
-
-        impl ::std::convert::From<Ok> for i32 {
-            fn from(value: Ok) -> i32 {
-                value.0
-            }
-        }
-
-        impl ::pilota::thrift::Message for Ok {
-            fn encode<T: ::pilota::thrift::TOutputProtocol>(
-                &self,
-                __protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
-                #[allow(unused_imports)]
-                use ::pilota::thrift::TOutputProtocolExt;
-                __protocol.write_i32(self.inner())?;
-                ::std::result::Result::Ok(())
-            }
-
-            fn decode<T: ::pilota::thrift::TInputProtocol>(
-                __protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
-                #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
-                let value = __protocol.read_i32()?;
-                ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
-                    |err| {
-                        ::pilota::thrift::new_protocol_exception(
-                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                            format!("invalid enum value for Ok, value: {}", value),
-                        )
-                    },
-                )?)
-            }
-
-            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                __protocol: &'a mut T,
-            ) -> ::std::pin::Pin<
-                ::std::boxed::Box<
-                    dyn ::std::future::Future<
-                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
-                        > + Send
-                        + 'a,
-                >,
-            > {
-                ::std::boxed::Box::pin(async move {
-                    let value = __protocol.read_i32().await?;
-                    ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
-                        |err| {
-                            ::pilota::thrift::new_protocol_exception(
-                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                format!("invalid enum value for Ok, value: {}", value),
-                            )
-                        },
-                    )?)
-                })
-            }
-
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
-                #[allow(unused_imports)]
-                use ::pilota::thrift::TLengthProtocolExt;
-                __protocol.i32_len(self.inner())
-            }
-        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestTestEnumArgsSend {
             pub req: Ok,
@@ -768,11 +626,153 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
+        #[derivative(Default)]
+        #[derive(Clone, PartialEq)]
+        pub enum TestTestEnumResultRecv {
+            #[derivative(Default)]
+            Ok(Err),
+        }
+
+        impl ::pilota::thrift::Message for TestTestEnumResultRecv {
+            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                &self,
+                __protocol: &mut T,
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TOutputProtocolExt;
+                __protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {
+                    name: "TestTestEnumResultRecv",
+                })?;
+                match self {
+                    TestTestEnumResultRecv::Ok(ref value) => {
+                        __protocol.write_i32_field(0, (value).inner())?;
+                    }
+                }
+                __protocol.write_field_stop()?;
+                __protocol.write_struct_end()?;
+                ::std::result::Result::Ok(())
+            }
+
+            fn decode<T: ::pilota::thrift::TInputProtocol>(
+                __protocol: &mut T,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                let mut ret = None;
+                __protocol.read_struct_begin()?;
+                loop {
+                    let field_ident = __protocol.read_field_begin()?;
+                    if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                        __protocol.field_stop_len();
+                        break;
+                    } else {
+                        __protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                    }
+                    match field_ident.id {
+                        Some(0) => {
+                            if ret.is_none() {
+                                let field_ident = ::pilota::thrift::Message::decode(__protocol)?;
+                                __protocol.struct_len(&field_ident);
+                                ret = Some(TestTestEnumResultRecv::Ok(field_ident));
+                            } else {
+                                return ::std::result::Result::Err(
+                                    ::pilota::thrift::new_protocol_exception(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                        "received multiple fields for union from remote Message",
+                                    ),
+                                );
+                            }
+                        }
+                        _ => {
+                            __protocol.skip(field_ident.field_type)?;
+                        }
+                    }
+                }
+                __protocol.read_field_end()?;
+                __protocol.read_struct_end()?;
+                if let Some(ret) = ret {
+                    ::std::result::Result::Ok(ret)
+                } else {
+                    ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                        "received empty union from remote Message",
+                    ))
+                }
+            }
+
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                __protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
+                ::std::boxed::Box::pin(async move {
+                    let mut ret = None;
+                    __protocol.read_struct_begin().await?;
+                    loop {
+                        let field_ident = __protocol.read_field_begin().await?;
+                        if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                            break;
+                        } else {
+                        }
+                        match field_ident.id {
+                            Some(0) => {
+                                if ret.is_none() {
+                                    let field_ident =
+                                        <Err as ::pilota::thrift::Message>::decode_async(
+                                            __protocol,
+                                        )
+                                        .await?;
+
+                                    ret = Some(TestTestEnumResultRecv::Ok(field_ident));
+                                } else {
+                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                            "received multiple fields for union from remote Message"
+                                        ));
+                                }
+                            }
+                            _ => {
+                                __protocol.skip(field_ident.field_type).await?;
+                            }
+                        }
+                    }
+                    __protocol.read_field_end().await?;
+                    __protocol.read_struct_end().await?;
+                    if let Some(ret) = ret {
+                        ::std::result::Result::Ok(ret)
+                    } else {
+                        ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                            "received empty union from remote Message",
+                        ))
+                    }
+                })
+            }
+
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TLengthProtocolExt;
+                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
+                    name: "TestTestEnumResultRecv",
+                }) + match self {
+                    TestTestEnumResultRecv::Ok(ref value) => {
+                        __protocol.i32_field_len(Some(0), (value).inner())
+                    }
+                } + __protocol.field_stop_len()
+                    + __protocol.struct_end_len()
+            }
+        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq, Copy)]
         #[repr(transparent)]
-        pub struct Err(i32);
+        pub struct Ok(i32);
 
-        impl Err {
+        impl Ok {
             pub fn inner(&self) -> i32 {
                 self.0
             }
@@ -784,19 +784,19 @@ pub mod enum_test {
             }
         }
 
-        impl ::std::convert::From<i32> for Err {
+        impl ::std::convert::From<i32> for Ok {
             fn from(value: i32) -> Self {
                 Self(value)
             }
         }
 
-        impl ::std::convert::From<Err> for i32 {
-            fn from(value: Err) -> i32 {
+        impl ::std::convert::From<Ok> for i32 {
+            fn from(value: Ok) -> i32 {
                 value.0
             }
         }
 
-        impl ::pilota::thrift::Message for Err {
+        impl ::pilota::thrift::Message for Ok {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 __protocol: &mut T,
@@ -817,7 +817,7 @@ pub mod enum_test {
                     |err| {
                         ::pilota::thrift::new_protocol_exception(
                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                            format!("invalid enum value for Err, value: {}", value),
+                            format!("invalid enum value for Ok, value: {}", value),
                         )
                     },
                 )?)
@@ -839,7 +839,7 @@ pub mod enum_test {
                         |err| {
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                format!("invalid enum value for Err, value: {}", value),
+                                format!("invalid enum value for Ok, value: {}", value),
                             )
                         },
                     )?)

@@ -1,6 +1,6 @@
 [package]
 name = "pilota-build"
-version = "0.11.11"
+version = "0.11.12"
 edition = "2021"
 description = "Compile thrift and protobuf idl into rust code at compile-time."
 documentation = "https://docs.rs/pilota-build"
@@ -32,7 +32,7 @@ phf = { version = "0.11", features = ["macros"] }
 proc-macro2 = "1"
 quote = "1"
 rayon = "1"
-rustc-hash = "1"
+rustc-hash = "2"
 salsa = { version = "0.17.0-pre.2" }
 scoped-tls = "1"
 serde = { version = "1", features = ["derive"] }
