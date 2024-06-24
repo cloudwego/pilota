@@ -136,11 +136,13 @@ impl ThriftLower {
 
         let mut seen = FxHashSet::default();
         let mut duplicate_function_names = FxHashSet::default();
-        for name in service
-            .functions
-            .iter()
-            .map(|f| f.name.to_upper_camel_case())
-        {
+        for name in service.functions.iter().map(|f| {
+            self.extract_tags(&f.annotations)
+                .get::<PilotaName>()
+                .map(|name| &*name.0)
+                .unwrap_or_else(|| &*f.name)
+                .to_upper_camel_case()
+        }) {
             if !seen.insert(name.clone()) {
                 duplicate_function_names.insert(name);
             }
@@ -172,7 +174,7 @@ impl ThriftLower {
 
             let method_name = tags
                 .get::<PilotaName>()
-                .map(|name| name.0.to_string())
+                .map(|name| name.0.to_upper_camel_case())
                 .unwrap_or_else(|| {
                     let method_name = f.name.to_upper_camel_case();
                     if duplicate_function_names.contains(&method_name) {
