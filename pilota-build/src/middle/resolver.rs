@@ -111,18 +111,28 @@ impl PathResolver for WorkspacePathResolver {
         }
 
         let info = cx.workspace_info();
-        let prefix = match &info.location_map[&item_def_id] {
-            location @ super::context::DefLocation::Fixed(_, prefix) => {
+        let prefix = match info.location_map.get(&item_def_id) {
+            location @ Some(super::context::DefLocation::Fixed(_, prefix)) => {
                 let mut path = Vec::with_capacity(prefix.len() + 1);
-                path.push(cx.crate_name(location).into());
+                path.push(cx.crate_name(location.unwrap()).into());
                 path.extend(prefix.iter().cloned());
                 path
             }
-            super::context::DefLocation::Dynamic => [cx.common_crate_name.clone().into()]
+            Some(super::context::DefLocation::Dynamic) => [cx.common_crate_name.clone().into()]
                 .iter()
                 .chain(DefaultPathResolver.mod_prefix(cx, def_id).iter())
                 .cloned()
                 .collect_vec(),
+            None => {
+                panic!(
+                    "no location found for \"{}\" in file \"{}\"",
+                    cx.rust_name(item_def_id),
+                    cx.file(cx.node(item_def_id).unwrap().file_id)
+                        .unwrap()
+                        .package
+                        .join("/")
+                )
+            }
         };
 
         Arc::from(prefix)

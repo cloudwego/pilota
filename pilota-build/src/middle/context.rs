@@ -352,6 +352,11 @@ impl ContextBuilder {
         fn collect_names<P: Fn(&crate::rir::Node) -> bool>(cx: &mut Context, p: P) {
             let mut map: FxHashMap<String, Vec<DefId>> = FxHashMap::default();
             cx.nodes().iter().for_each(|(def_id, node)| {
+                if let Mode::Workspace(_) = &*cx.mode {
+                    if !cx.location_map.contains_key(def_id) {
+                        return;
+                    }
+                }
                 if p(node) {
                     let rust_name = cx.item_path(*def_id).join("::");
                     map.entry(rust_name).or_default().push(*def_id);
