@@ -353,7 +353,11 @@ impl ContextBuilder {
             let mut map: FxHashMap<String, Vec<DefId>> = FxHashMap::default();
             cx.nodes().iter().for_each(|(def_id, node)| {
                 if let Mode::Workspace(_) = &*cx.mode {
-                    if !cx.location_map.contains_key(def_id) {
+                    let mut item_def_id = *def_id;
+                    while !matches!(cx.node(item_def_id).unwrap().kind, NodeKind::Item(_)) {
+                        item_def_id = cx.node(item_def_id).unwrap().parent.unwrap()
+                    }
+                    if !cx.location_map.contains_key(&item_def_id) {
                         return;
                     }
                 }
