@@ -673,6 +673,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a76df7075c7d4d01fdcb46c912dd17fba5b60c78ea480b475f2b6ab6f666584e"
 dependencies = [
  "num-traits",
+ "rand",
+ "serde",
 ]
 
 [[package]]
@@ -779,7 +781,7 @@ dependencies = [
 
 [[package]]
 name = "pilota"
-version = "0.11.2"
+version = "0.11.3"
 dependencies = [
  "ahash",
  "anyhow",
@@ -803,7 +805,7 @@ dependencies = [
 
 [[package]]
 name = "pilota-build"
-version = "0.11.11"
+version = "0.11.12"
 dependencies = [
  "ahash",
  "anyhow",
@@ -977,6 +979,7 @@ dependencies = [
  "libc",
  "rand_chacha",
  "rand_core",
+ "serde",
 ]
 
 [[package]]
@@ -996,6 +999,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 dependencies = [
  "getrandom",
+ "serde",
 ]
 
 [[package]]

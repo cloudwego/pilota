@@ -1,6 +1,6 @@
 [package]
 name = "pilota"
-version = "0.11.2"
+version = "0.11.3"
 edition = "2021"
 description = "Pilota is a thrift and protobuf implementation in pure rust with high performance and extensibility."
 documentation = "https://docs.rs/pilota"
@@ -32,7 +32,7 @@ faststr = { version = "0.2", features = ["serde"] }
 integer-encoding = { version = "4", features = ["tokio", "tokio_async"] }
 serde = { version = "1", features = ["derive"] }
 smallvec = "1"
-ordered-float = "4"
+ordered-float = { version = "4", features = ["serde"] }
 
 [dev-dependencies]
 criterion = "0.5"

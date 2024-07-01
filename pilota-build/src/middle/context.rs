@@ -349,32 +349,36 @@ impl ContextBuilder {
             common_crate_name,
             names: Default::default(),
         };
-        fn collect_names<P: Fn(&crate::rir::Node) -> bool>(cx: &mut Context, p: P) {
-            let mut map: FxHashMap<String, Vec<DefId>> = FxHashMap::default();
-            cx.nodes().iter().for_each(|(def_id, node)| {
-                if let Mode::Workspace(_) = &*cx.mode {
+        let mut map: FxHashMap<(Option<DefId>, String), Vec<DefId>> = FxHashMap::default();
+        cx.nodes()
+            .iter()
+            .for_each(|(def_id, node)| match node.kind {
+                NodeKind::Item(_) => {
+                    if let Mode::Workspace(_) = &*cx.mode {
+                        if !cx.location_map.contains_key(def_id) {
+                            return;
+                        }
+                    }
+                    let rust_name = cx.item_path(*def_id).join("::");
+                    map.entry((None, rust_name)).or_default().push(*def_id);
+                }
+                _ => {
                     let mut item_def_id = *def_id;
                     while !matches!(cx.node(item_def_id).unwrap().kind, NodeKind::Item(_)) {
                         item_def_id = cx.node(item_def_id).unwrap().parent.unwrap()
                     }
-                    if !cx.location_map.contains_key(&item_def_id) {
-                        return;
-                    }
-                }
-                if p(node) {
-                    let rust_name = cx.item_path(*def_id).join("::");
-                    map.entry(rust_name).or_default().push(*def_id);
+                    let rust_name = cx.rust_name(*def_id).to_string();
+                    map.entry((Some(item_def_id), rust_name))
+                        .or_default()
+                        .push(*def_id);
                 }
             });
-            cx.names.extend(
-                map.into_iter()
-                    .filter(|(_, v)| v.len() > 1)
-                    .flat_map(|(_, v)| v)
-                    .collect::<HashSet<DefId>>(),
-            );
-        }
-        collect_names(&mut cx, |node| matches!(&node.kind, NodeKind::Item(_)));
-        collect_names(&mut cx, |node| !matches!(&node.kind, NodeKind::Item(_)));
+        cx.names.extend(
+            map.into_iter()
+                .filter(|(_, v)| v.len() > 1)
+                .flat_map(|(_, v)| v)
+                .collect::<HashSet<DefId>>(),
+        );
         cx
     }
 }
