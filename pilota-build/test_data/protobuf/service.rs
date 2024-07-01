@@ -50,8 +50,6 @@ pub mod service {
                 }
             }
         }
-
-        pub trait Echo {}
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct EchoResponse {
             pub message: ::pilota::FastStr,
@@ -100,5 +98,7 @@ pub mod service {
                 }
             }
         }
+
+        pub trait Echo {}
     }
 }

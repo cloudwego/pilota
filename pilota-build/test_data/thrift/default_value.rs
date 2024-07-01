@@ -93,6 +93,7 @@ pub mod default_value {
                 __protocol.i32_len(self.inner())
             }
         }
+        pub const A_S: &'static str = "string";
         impl Default for C {
             fn default() -> Self {
                 C {
@@ -846,6 +847,5 @@ pub mod default_value {
                     + __protocol.struct_end_len()
             }
         }
-        pub const A_S: &'static str = "string";
     }
 }
