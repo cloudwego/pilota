@@ -491,6 +491,10 @@ impl Context {
                 _ => panic!("invalid map type {:?}", map),
             },
             (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => (mk_map(m, k_ty, v_ty)?, false),
+            (Literal::List(m), CodegenTy::Map(_, _) | CodegenTy::LazyStaticRef(_)) => {
+                assert!(m.is_empty());
+                ("::pilota::AHashMap::new()".into(), false)
+            }
             _ => self.lit_into_ty(lit, ty)?,
         })
     }
@@ -677,6 +681,10 @@ impl Context {
                 )
             }
             (Literal::Bool(b), CodegenTy::Bool) => (format! { "{b}" }.into(), true),
+            (Literal::Int(i), CodegenTy::Bool) => {
+                let b = *i != 0;
+                (format! { "{b}" }.into(), true)
+            }
             (Literal::String(s), CodegenTy::Bytes) => {
                 let s = &**s;
                 (

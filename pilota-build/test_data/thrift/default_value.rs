@@ -289,6 +289,8 @@ pub mod default_value {
                         map
                     },
                     test_set: ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)]),
+                    a2: Some(true),
+                    map2: Some(::pilota::AHashMap::new()),
                 }
             }
         }
@@ -320,6 +322,11 @@ pub mod default_value {
             pub test_map: ::pilota::AHashMap<::pilota::OrderedFloat<f64>, f64>,
 
             pub test_set: ::pilota::AHashSet<::pilota::OrderedFloat<f64>>,
+
+            pub a2: ::std::option::Option<bool>,
+
+            pub map2:
+                ::std::option::Option<::pilota::AHashMap<::pilota::FastStr, ::pilota::FastStr>>,
         }
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -394,6 +401,25 @@ pub mod default_value {
                         ::std::result::Result::Ok(())
                     },
                 )?;
+                if let Some(value) = self.a2.as_ref() {
+                    __protocol.write_bool_field(13, *value)?;
+                }
+                if let Some(value) = self.map2.as_ref() {
+                    __protocol.write_map_field(
+                        14,
+                        ::pilota::thrift::TType::Binary,
+                        ::pilota::thrift::TType::Binary,
+                        &value,
+                        |__protocol, key| {
+                            __protocol.write_faststr((key).clone())?;
+                            ::std::result::Result::Ok(())
+                        },
+                        |__protocol, val| {
+                            __protocol.write_faststr((val).clone())?;
+                            ::std::result::Result::Ok(())
+                        },
+                    )?;
+                }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
                 ::std::result::Result::Ok(())
@@ -418,6 +444,8 @@ pub mod default_value {
                 let mut empty = ::pilota::Bytes::from_static("".as_bytes());
                 let mut test_map = None;
                 let mut test_set = None;
+                let mut a2 = Some(true);
+                let mut map2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -517,6 +545,23 @@ pub mod default_value {
                                     val
                                 });
                             }
+                            Some(13) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
+                                a2 = Some(__protocol.read_bool()?);
+                            }
+                            Some(14) if field_ident.field_type == ::pilota::thrift::TType::Map => {
+                                map2 = Some({
+                                    let map_ident = __protocol.read_map_begin()?;
+                                    let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                                    for _ in 0..map_ident.size {
+                                        val.insert(
+                                            __protocol.read_faststr()?,
+                                            __protocol.read_faststr()?,
+                                        );
+                                    }
+                                    __protocol.read_map_end()?;
+                                    val
+                                });
+                            }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
                             }
@@ -555,6 +600,9 @@ pub mod default_value {
                 });
                 let test_set = test_set
                     .unwrap_or_else(|| ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)]));
+                if map2.is_none() {
+                    map2 = Some(::pilota::AHashMap::new());
+                }
 
                 let data = Self {
                     faststr,
@@ -570,6 +618,8 @@ pub mod default_value {
                     empty,
                     test_map,
                     test_set,
+                    a2,
+                    map2,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -598,6 +648,8 @@ pub mod default_value {
                     let mut empty = ::pilota::Bytes::from_static("".as_bytes());
                     let mut test_map = None;
                     let mut test_set = None;
+                    let mut a2 = Some(true);
+                    let mut map2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -725,6 +777,28 @@ pub mod default_value {
                                         val
                                     });
                                 }
+                                Some(13)
+                                    if field_ident.field_type == ::pilota::thrift::TType::Bool =>
+                                {
+                                    a2 = Some(__protocol.read_bool().await?);
+                                }
+                                Some(14)
+                                    if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                                {
+                                    map2 = Some({
+                                        let map_ident = __protocol.read_map_begin().await?;
+                                        let mut val =
+                                            ::pilota::AHashMap::with_capacity(map_ident.size);
+                                        for _ in 0..map_ident.size {
+                                            val.insert(
+                                                __protocol.read_faststr().await?,
+                                                __protocol.read_faststr().await?,
+                                            );
+                                        }
+                                        __protocol.read_map_end().await?;
+                                        val
+                                    });
+                                }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
                                 }
@@ -765,6 +839,9 @@ pub mod default_value {
                     let test_set = test_set.unwrap_or_else(|| {
                         ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)])
                     });
+                    if map2.is_none() {
+                        map2 = Some(::pilota::AHashMap::new());
+                    }
 
                     let data = Self {
                         faststr,
@@ -780,6 +857,8 @@ pub mod default_value {
                         empty,
                         test_map,
                         test_set,
+                        a2,
+                        map2,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -842,6 +921,20 @@ pub mod default_value {
                         &self.test_set,
                         |__protocol, el| __protocol.double_len(el.0),
                     )
+                    + self
+                        .a2
+                        .as_ref()
+                        .map_or(0, |value| __protocol.bool_field_len(Some(13), *value))
+                    + self.map2.as_ref().map_or(0, |value| {
+                        __protocol.map_field_len(
+                            Some(14),
+                            ::pilota::thrift::TType::Binary,
+                            ::pilota::thrift::TType::Binary,
+                            value,
+                            |__protocol, key| __protocol.faststr_len(key),
+                            |__protocol, val| __protocol.faststr_len(val),
+                        )
+                    })
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }

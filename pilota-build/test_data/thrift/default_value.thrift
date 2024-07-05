@@ -19,7 +19,9 @@ struct A {
     10: required binary empty = "",
     11: required map<double, double> test_map = {1.0: 2.0},
     12: required set<double> test_set = [1.0],
-}
+    13: bool a2 = 3,
+    14: map<string, string> map2 = [],
+ }
 
 struct C {
     1: string off = "off",
