@@ -291,6 +291,7 @@ pub mod multi {
                         map
                     },
                     test_set: ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)]),
+                    a2: Some(true),
                 }
             }
         }
@@ -322,6 +323,8 @@ pub mod multi {
             pub test_map: ::pilota::AHashMap<::pilota::OrderedFloat<f64>, f64>,
 
             pub test_set: ::pilota::AHashSet<::pilota::OrderedFloat<f64>>,
+
+            pub a2: ::std::option::Option<bool>,
         }
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -396,6 +399,9 @@ pub mod multi {
                         ::std::result::Result::Ok(())
                     },
                 )?;
+                if let Some(value) = self.a2.as_ref() {
+                    __protocol.write_bool_field(13, *value)?;
+                }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
                 ::std::result::Result::Ok(())
@@ -420,6 +426,7 @@ pub mod multi {
                 let mut empty = ::pilota::Bytes::from_static("".as_bytes());
                 let mut test_map = None;
                 let mut test_set = None;
+                let mut a2 = Some(true);
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -519,6 +526,9 @@ pub mod multi {
                                     val
                                 });
                             }
+                            Some(13) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
+                                a2 = Some(__protocol.read_bool()?);
+                            }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
                             }
@@ -572,6 +582,7 @@ pub mod multi {
                     empty,
                     test_map,
                     test_set,
+                    a2,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -600,6 +611,7 @@ pub mod multi {
                     let mut empty = ::pilota::Bytes::from_static("".as_bytes());
                     let mut test_map = None;
                     let mut test_set = None;
+                    let mut a2 = Some(true);
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -727,6 +739,11 @@ pub mod multi {
                                         val
                                     });
                                 }
+                                Some(13)
+                                    if field_ident.field_type == ::pilota::thrift::TType::Bool =>
+                                {
+                                    a2 = Some(__protocol.read_bool().await?);
+                                }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
                                 }
@@ -782,6 +799,7 @@ pub mod multi {
                         empty,
                         test_map,
                         test_set,
+                        a2,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -844,6 +862,10 @@ pub mod multi {
                         &self.test_set,
                         |__protocol, el| __protocol.double_len(el.0),
                     )
+                    + self
+                        .a2
+                        .as_ref()
+                        .map_or(0, |value| __protocol.bool_field_len(Some(13), *value))
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }

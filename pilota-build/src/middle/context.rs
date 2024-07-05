@@ -677,6 +677,10 @@ impl Context {
                 )
             }
             (Literal::Bool(b), CodegenTy::Bool) => (format! { "{b}" }.into(), true),
+            (Literal::Int(i), CodegenTy::Bool) => {
+                let b = *i != 0;
+                (format! { "{b}" }.into(), true)
+            }
             (Literal::String(s), CodegenTy::Bytes) => {
                 let s = &**s;
                 (
