@@ -287,7 +287,7 @@ pub mod multi {
                     empty: ::pilota::Bytes::from_static("".as_bytes()),
                     test_map: {
                         let mut map = ::pilota::AHashMap::with_capacity(1);
-                        map.insert(::pilota::OrderedFloat(1f64).clone(), 2f64.clone());
+                        map.insert(::pilota::OrderedFloat(1f64), 2f64);
                         map
                     },
                     test_set: ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)]),
@@ -597,7 +597,7 @@ pub mod multi {
                 }
                 let test_map = test_map.unwrap_or_else(|| {
                     let mut map = ::pilota::AHashMap::with_capacity(1);
-                    map.insert(::pilota::OrderedFloat(1f64).clone(), 2f64.clone());
+                    map.insert(::pilota::OrderedFloat(1f64), 2f64);
                     map
                 });
                 let test_set = test_set
@@ -835,7 +835,7 @@ pub mod multi {
                     }
                     let test_map = test_map.unwrap_or_else(|| {
                         let mut map = ::pilota::AHashMap::with_capacity(1);
-                        map.insert(::pilota::OrderedFloat(1f64).clone(), 2f64.clone());
+                        map.insert(::pilota::OrderedFloat(1f64), 2f64);
                         map
                     });
                     let test_set = test_set.unwrap_or_else(|| {

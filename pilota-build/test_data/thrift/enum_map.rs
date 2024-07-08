@@ -70,7 +70,7 @@ pub mod enum_map {
         ::pilota::lazy_static::lazy_static! {
             pub static ref TYPE_A_MAP: ::pilota::AHashMap<TypeB, TypeA> = {
             let mut map = ::pilota::AHashMap::with_capacity(2);
-            map.insert(TYPE_B1.clone(), TYPE_A1.clone());map.insert(TYPE_B2.clone(), TYPE_A2.clone());
+            map.insert(TYPE_B1, TYPE_A1.clone());map.insert(TYPE_B2, TYPE_A2.clone());
             map
         };
         }
