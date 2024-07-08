@@ -471,7 +471,7 @@ impl Context {
                 .map(|(k, v)| {
                     let k = self.lit_into_ty(k, k_ty)?.0;
                     let v = self.lit_into_ty(v, v_ty)?.0;
-                    anyhow::Ok(format!("map.insert({k}, {v});"))
+                    anyhow::Ok(format!("map.insert({k}.clone(), {v}.clone());"))
                 })
                 .try_collect::<_, Vec<_>, _>()?
                 .join("");
