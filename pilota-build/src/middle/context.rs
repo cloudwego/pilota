@@ -471,24 +471,7 @@ impl Context {
                 .map(|(k, v)| {
                     let k = self.lit_into_ty(k, k_ty)?.0;
                     let v = self.lit_into_ty(v, v_ty)?.0;
-                    let clone_if_needed = |ty: &CodegenTy| {
-                        if let CodegenTy::Adt(AdtDef {
-                            did: _,
-                            kind: AdtKind::NewType(inner),
-                        }) = ty
-                        {
-                            if inner.should_lazy_static() {
-                                return ".clone()";
-                            }
-                        }
-                        ""
-                    };
-
-                    anyhow::Ok(format!(
-                        "map.insert({k}{}, {v}{});",
-                        clone_if_needed(k_ty),
-                        clone_if_needed(v_ty),
-                    ))
+                    anyhow::Ok(format!("map.insert({k}, {v});"))
                 })
                 .try_collect::<_, Vec<_>, _>()?
                 .join("");
