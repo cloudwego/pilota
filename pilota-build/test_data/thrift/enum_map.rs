@@ -59,18 +59,14 @@ pub mod enum_map {
                 __protocol.i32_len(*&**self)
             }
         }
-        ::pilota::lazy_static::lazy_static! {
-            pub static ref TYPE_A2: TypeA = TypeA(::pilota::FastStr::from_static_str("a2"));
-        }
+        pub const TYPE_A2: TypeA = TypeA(::pilota::FastStr::from_static_str("a2"));
         pub const TYPE_B2: TypeB = TypeB(2i32);
-        ::pilota::lazy_static::lazy_static! {
-            pub static ref TYPE_A1: TypeA = TypeA(::pilota::FastStr::from_static_str("a1"));
-        }
+        pub const TYPE_A1: TypeA = TypeA(::pilota::FastStr::from_static_str("a1"));
         pub const TYPE_B1: TypeB = TypeB(1i32);
         ::pilota::lazy_static::lazy_static! {
             pub static ref TYPE_A_MAP: ::pilota::AHashMap<TypeB, TypeA> = {
             let mut map = ::pilota::AHashMap::with_capacity(2);
-            map.insert(TYPE_B1, TYPE_A1.clone());map.insert(TYPE_B2, TYPE_A2.clone());
+            map.insert(TYPE_B1, TYPE_A1);map.insert(TYPE_B2, TYPE_A2);
             map
         };
         }

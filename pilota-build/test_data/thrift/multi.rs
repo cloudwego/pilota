@@ -276,8 +276,8 @@ pub mod multi {
                     map: Some({
                         let mut map = ::pilota::AHashMap::with_capacity(1);
                         map.insert(
-                            ::pilota::FastStr::from_static_str("hello").clone(),
-                            ::pilota::FastStr::from_static_str("world").clone(),
+                            ::pilota::FastStr::from_static_str("hello"),
+                            ::pilota::FastStr::from_static_str("world"),
                         );
                         map
                     }),
@@ -589,8 +589,8 @@ pub mod multi {
                     map = Some({
                         let mut map = ::pilota::AHashMap::with_capacity(1);
                         map.insert(
-                            ::pilota::FastStr::from_static_str("hello").clone(),
-                            ::pilota::FastStr::from_static_str("world").clone(),
+                            ::pilota::FastStr::from_static_str("hello"),
+                            ::pilota::FastStr::from_static_str("world"),
                         );
                         map
                     });
@@ -827,8 +827,8 @@ pub mod multi {
                         map = Some({
                             let mut map = ::pilota::AHashMap::with_capacity(1);
                             map.insert(
-                                ::pilota::FastStr::from_static_str("hello").clone(),
-                                ::pilota::FastStr::from_static_str("world").clone(),
+                                ::pilota::FastStr::from_static_str("hello"),
+                                ::pilota::FastStr::from_static_str("world"),
                             );
                             map
                         });

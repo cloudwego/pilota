@@ -86,7 +86,6 @@ impl CodegenTy {
     pub fn should_lazy_static(&self) -> bool {
         match self {
             CodegenTy::String
-            | CodegenTy::FastStr
             | CodegenTy::LazyStaticRef(_)
             | CodegenTy::StaticRef(_)
             | CodegenTy::Vec(_)
