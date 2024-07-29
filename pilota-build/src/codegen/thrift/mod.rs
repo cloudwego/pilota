@@ -450,6 +450,8 @@ impl ThriftBackend {
 }
 
 impl CodegenBackend for ThriftBackend {
+    const PROTOCOL: &'static str = "thrift";
+
     fn codegen_struct_impl(&self, def_id: DefId, stream: &mut String, s: &Message) {
         let keep = self.keep_unknown_fields.contains(&def_id);
         let name = self.cx.rust_name(def_id);

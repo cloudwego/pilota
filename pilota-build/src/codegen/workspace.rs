@@ -101,7 +101,14 @@ where
     pilota = "*"
     anyhow = "1"
     volo = "*"
-    volo-thrift = "*""#
+    volo-{} = "*""#,
+                if B::PROTOCOL == "thrift" {
+                    "thrift"
+                } else if B::PROTOCOL == "protobuf" {
+                    "grpc"
+                } else {
+                    panic!("unknown protocol")
+                }
             ))
             .unwrap(),
         );
