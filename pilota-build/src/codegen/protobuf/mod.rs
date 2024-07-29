@@ -350,6 +350,8 @@ impl ProtobufBackend {
 }
 
 impl CodegenBackend for ProtobufBackend {
+    const PROTOCOL: &'static str = "protobuf";
+
     fn codegen_struct_impl(&self, def_id: DefId, stream: &mut String, s: &rir::Message) {
         let name = self.cx.rust_name(def_id);
         let encoded_len = s

@@ -5,6 +5,8 @@ use crate::{
 };
 
 pub trait CodegenBackend: Clone {
+    const PROTOCOL: &'static str;
+
     fn cx(&self) -> &Context;
     fn codegen_struct_impl(&self, _def_id: DefId, _stream: &mut String, _s: &rir::Message) {}
     fn codegen_service_impl(&self, _def_id: DefId, _stream: &mut String, _s: &rir::Service) {}
