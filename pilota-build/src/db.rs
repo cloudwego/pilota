@@ -12,7 +12,7 @@ use crate::{
     },
     symbol::{DefId, FileId},
     tags::Tags,
-    TagId, MAX_RESOLVE_DEPTH,
+    TagId,
 };
 
 #[derive(Default)]
@@ -44,7 +44,7 @@ impl RootDatabase {
             visiting: &mut FxHashSet<DefId>,
             depth: usize,
         ) {
-            if map.contains_key(&def_id) || depth > *MAX_RESOLVE_DEPTH {
+            if map.contains_key(&def_id) {
                 return;
             }
             if !matches!(&*db.item(def_id).unwrap(), rir::Item::Mod(_)) {
@@ -75,7 +75,7 @@ impl RootDatabase {
                                     DefLocation::Fixed(_, _) => false,
                                     DefLocation::Dynamic => true,
                                 })
-                                .unwrap_or_default()
+                                .unwrap_or(true)
                             {
                                 map.insert(def_id, DefLocation::Dynamic);
                                 break;
