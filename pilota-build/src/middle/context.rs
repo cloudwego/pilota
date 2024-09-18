@@ -275,7 +275,7 @@ impl ContextBuilder {
         &self,
         input: &[DefId],
     ) -> FxHashMap<DefId, DefLocation> {
-        self.db.collect_def_ids(input)
+        self.db.collect_def_ids(input, None)
     }
 
     pub(crate) fn keep(&mut self, keep_unknown_fields: Vec<PathBuf>) {
