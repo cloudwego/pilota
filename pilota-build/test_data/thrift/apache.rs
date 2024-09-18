@@ -192,16 +192,16 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut b1 = None;
-                let mut b10 = None;
-                let mut b100 = None;
-                let mut check_true = None;
-                let mut b1000 = None;
-                let mut check_false = None;
-                let mut vertwo2000 = None;
-                let mut a_set2500 = None;
-                let mut vertwo3000 = None;
-                let mut big_numbers = None;
+                let mut var_1 = None;
+                let mut var_10 = None;
+                let mut var_100 = None;
+                let mut var_500 = None;
+                let mut var_1000 = None;
+                let mut var_1500 = None;
+                let mut var_2000 = None;
+                let mut var_2500 = None;
+                let mut var_3000 = None;
+                let mut var_4000 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -220,42 +220,42 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                b1 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(10)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                b10 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_10 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(100)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                b100 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_100 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(500)
                                 if field_ident.field_type == ::pilota::thrift::TType::Bool =>
                             {
-                                check_true = Some(__protocol.read_bool()?);
+                                var_500 = Some(__protocol.read_bool()?);
                             }
                             Some(1000)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                b1000 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1000 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(1500)
                                 if field_ident.field_type == ::pilota::thrift::TType::Bool =>
                             {
-                                check_false = Some(__protocol.read_bool()?);
+                                var_1500 = Some(__protocol.read_bool()?);
                             }
                             Some(2000)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                vertwo2000 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_2000 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(2500)
                                 if field_ident.field_type == ::pilota::thrift::TType::Set =>
                             {
-                                a_set2500 = Some({
+                                var_2500 = Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val =
                                         ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -269,12 +269,12 @@ pub mod apache {
                             Some(3000)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                vertwo3000 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_3000 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(4000)
                                 if field_ident.field_type == ::pilota::thrift::TType::List =>
                             {
-                                big_numbers = Some(unsafe {
+                                var_4000 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<i32> = Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
@@ -308,16 +308,16 @@ pub mod apache {
                 __protocol.read_struct_end()?;
 
                 let data = Self {
-                    b1,
-                    b10,
-                    b100,
-                    check_true,
-                    b1000,
-                    check_false,
-                    vertwo2000,
-                    a_set2500,
-                    vertwo3000,
-                    big_numbers,
+                    b1: var_1,
+                    b10: var_10,
+                    b100: var_100,
+                    check_true: var_500,
+                    b1000: var_1000,
+                    check_false: var_1500,
+                    vertwo2000: var_2000,
+                    a_set2500: var_2500,
+                    vertwo3000: var_3000,
+                    big_numbers: var_4000,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -333,16 +333,16 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut b1 = None;
-                    let mut b10 = None;
-                    let mut b100 = None;
-                    let mut check_true = None;
-                    let mut b1000 = None;
-                    let mut check_false = None;
-                    let mut vertwo2000 = None;
-                    let mut a_set2500 = None;
-                    let mut vertwo3000 = None;
-                    let mut big_numbers = None;
+                    let mut var_1 = None;
+                    let mut var_10 = None;
+                    let mut var_100 = None;
+                    let mut var_500 = None;
+                    let mut var_1000 = None;
+                    let mut var_1500 = None;
+                    let mut var_2000 = None;
+                    let mut var_2500 = None;
+                    let mut var_3000 = None;
+                    let mut var_4000 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -361,28 +361,28 @@ pub mod apache {
                 __pilota_decoding_field_id = field_ident.id;
                 match field_ident.id {
                     Some(1) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    b1 = Some(<Bools as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                    var_1 = Some(<Bools as ::pilota::thrift::Message>::decode_async(__protocol).await?);
 
                 },Some(10) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    b10 = Some(<Bools as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                    var_10 = Some(<Bools as ::pilota::thrift::Message>::decode_async(__protocol).await?);
 
                 },Some(100) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    b100 = Some(<Bools as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                    var_100 = Some(<Bools as ::pilota::thrift::Message>::decode_async(__protocol).await?);
 
                 },Some(500) if field_ident.field_type == ::pilota::thrift::TType::Bool  => {
-                    check_true = Some(__protocol.read_bool().await?);
+                    var_500 = Some(__protocol.read_bool().await?);
 
                 },Some(1000) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    b1000 = Some(<Bools as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                    var_1000 = Some(<Bools as ::pilota::thrift::Message>::decode_async(__protocol).await?);
 
                 },Some(1500) if field_ident.field_type == ::pilota::thrift::TType::Bool  => {
-                    check_false = Some(__protocol.read_bool().await?);
+                    var_1500 = Some(__protocol.read_bool().await?);
 
                 },Some(2000) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    vertwo2000 = Some(<VersioningTestV2 as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                    var_2000 = Some(<VersioningTestV2 as ::pilota::thrift::Message>::decode_async(__protocol).await?);
 
                 },Some(2500) if field_ident.field_type == ::pilota::thrift::TType::Set  => {
-                    a_set2500 = Some({let list_ident = __protocol.read_set_begin().await?;
+                    var_2500 = Some({let list_ident = __protocol.read_set_begin().await?;
                     let mut val = ::pilota::AHashSet::with_capacity(list_ident.size);
                     for _ in 0..list_ident.size {
                         val.insert(__protocol.read_faststr().await?);
@@ -391,10 +391,10 @@ pub mod apache {
                     val});
 
                 },Some(3000) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    vertwo3000 = Some(<VersioningTestV2 as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                    var_3000 = Some(<VersioningTestV2 as ::pilota::thrift::Message>::decode_async(__protocol).await?);
 
                 },Some(4000) if field_ident.field_type == ::pilota::thrift::TType::List  => {
-                    big_numbers = Some({
+                    var_4000 = Some({
                             let list_ident = __protocol.read_list_begin().await?;
                             let mut val = Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
@@ -425,16 +425,16 @@ pub mod apache {
                     __protocol.read_struct_end().await?;
 
                     let data = Self {
-                        b1,
-                        b10,
-                        b100,
-                        check_true,
-                        b1000,
-                        check_false,
-                        vertwo2000,
-                        a_set2500,
-                        vertwo3000,
-                        big_numbers,
+                        b1: var_1,
+                        b10: var_10,
+                        b100: var_100,
+                        check_true: var_500,
+                        b1000: var_1000,
+                        check_false: var_1500,
+                        vertwo2000: var_2000,
+                        a_set2500: var_2500,
+                        vertwo3000: var_3000,
+                        big_numbers: var_4000,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -525,7 +525,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -542,7 +542,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                thing = Some(__protocol.read_i32()?);
+                                var_1 = Some(__protocol.read_i32()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -561,14 +561,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -583,7 +583,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -600,7 +600,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    thing = Some(__protocol.read_i32().await?);
+                                    var_1 = Some(__protocol.read_i32().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -620,16 +620,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -680,7 +680,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -697,7 +697,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                thing = Some({
+                                var_1 = Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val =
                                         ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -725,14 +725,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -747,7 +747,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -764,7 +764,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    thing = Some({
+                                    var_1 = Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val =
                                             ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -793,16 +793,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -1151,7 +1151,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1170,7 +1170,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                thing = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -1189,14 +1189,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -1211,7 +1211,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -1229,7 +1229,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    thing = Some(
+                                    var_1 = Some(
                                         <Xtruct as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -1254,16 +1254,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -1447,7 +1447,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut s = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1466,7 +1466,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                s = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -1488,14 +1488,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(s) = s else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field s is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { s };
+                let data = Self { s: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -1510,7 +1510,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut s = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -1528,7 +1528,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    s = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -1551,16 +1551,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(s) = s else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field s is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { s };
+                    let data = Self { s: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -1603,7 +1603,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1620,7 +1620,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                thing = Some(__protocol.read_i64()?);
+                                var_1 = Some(__protocol.read_i64()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -1639,14 +1639,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -1661,7 +1661,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -1678,7 +1678,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    thing = Some(__protocol.read_i64().await?);
+                                    var_1 = Some(__protocol.read_i64().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -1698,16 +1698,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -1994,7 +1994,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -2013,7 +2013,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                thing = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -2032,14 +2032,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -2054,7 +2054,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -2072,7 +2072,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    thing = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -2092,16 +2092,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -2341,10 +2341,10 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut string_thing = None;
-                let mut changed = None;
-                let mut i32_thing = None;
-                let mut i64_thing = None;
+                let mut var_1 = None;
+                let mut var_4 = None;
+                let mut var_9 = None;
+                let mut var_11 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -2363,16 +2363,16 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                string_thing = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             Some(4) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                changed = Some(__protocol.read_i32()?);
+                                var_4 = Some(__protocol.read_i32()?);
                             }
                             Some(9) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                i32_thing = Some(__protocol.read_i32()?);
+                                var_9 = Some(__protocol.read_i32()?);
                             }
                             Some(11) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                i64_thing = Some(__protocol.read_i64()?);
+                                var_11 = Some(__protocol.read_i64()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -2395,10 +2395,10 @@ pub mod apache {
                 __protocol.read_struct_end()?;
 
                 let data = Self {
-                    string_thing,
-                    changed,
-                    i32_thing,
-                    i64_thing,
+                    string_thing: var_1,
+                    changed: var_4,
+                    i32_thing: var_9,
+                    i64_thing: var_11,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -2414,10 +2414,10 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut string_thing = None;
-                    let mut changed = None;
-                    let mut i32_thing = None;
-                    let mut i64_thing = None;
+                    let mut var_1 = None;
+                    let mut var_4 = None;
+                    let mut var_9 = None;
+                    let mut var_11 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -2435,22 +2435,22 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    string_thing = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(4)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    changed = Some(__protocol.read_i32().await?);
+                                    var_4 = Some(__protocol.read_i32().await?);
                                 }
                                 Some(9)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    i32_thing = Some(__protocol.read_i32().await?);
+                                    var_9 = Some(__protocol.read_i32().await?);
                                 }
                                 Some(11)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    i64_thing = Some(__protocol.read_i64().await?);
+                                    var_11 = Some(__protocol.read_i64().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -2474,10 +2474,10 @@ pub mod apache {
                     __protocol.read_struct_end().await?;
 
                     let data = Self {
-                        string_thing,
-                        changed,
-                        i32_thing,
-                        i64_thing,
+                        string_thing: var_1,
+                        changed: var_4,
+                        i32_thing: var_9,
+                        i64_thing: var_11,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -2953,7 +2953,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut arg = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -2972,7 +2972,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                arg = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -2991,14 +2991,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(arg) = arg else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { arg };
+                let data = Self { arg: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -3013,7 +3013,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut arg = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -3031,7 +3031,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    arg = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -3051,16 +3051,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(arg) = arg else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { arg };
+                    let data = Self { arg: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -3350,8 +3350,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut myints = None;
-                let mut hello = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -3368,7 +3368,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                myints = Some(unsafe {
+                                var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<i32> = Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
@@ -3384,7 +3384,7 @@ pub mod apache {
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                hello = Some(__protocol.read_faststr()?);
+                                var_2 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -3406,7 +3406,10 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { myints, hello };
+                let data = Self {
+                    myints: var_1,
+                    hello: var_2,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -3421,8 +3424,8 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut myints = None;
-                    let mut hello = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -3439,7 +3442,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    myints = Some({
+                                    var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
@@ -3453,7 +3456,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    hello = Some(__protocol.read_faststr().await?);
+                                    var_2 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -3473,7 +3476,10 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { myints, hello };
+                    let data = Self {
+                        myints: var_1,
+                        hello: var_2,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -3847,7 +3853,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut bonk = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -3864,7 +3870,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                bonk = Some(unsafe {
+                                var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<Bonk> = Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
@@ -3897,7 +3903,7 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { bonk };
+                let data = Self { bonk: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -3912,7 +3918,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut bonk = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -3929,7 +3935,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    bonk = Some({
+                                    var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
@@ -3965,7 +3971,7 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { bonk };
+                    let data = Self { bonk: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -4156,8 +4162,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut arg0 = None;
-                let mut arg1 = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -4176,12 +4182,12 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                arg0 = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                arg1 = Some(__protocol.read_faststr()?);
+                                var_2 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -4200,20 +4206,23 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(arg0) = arg0 else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg0 is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
-                let Some(arg1) = arg1 else {
+                let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg1 is required".to_string(),
+                        "field var_2 is required".to_string(),
                     ));
                 };
 
-                let data = Self { arg0, arg1 };
+                let data = Self {
+                    arg0: var_1,
+                    arg1: var_2,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -4228,8 +4237,8 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut arg0 = None;
-                    let mut arg1 = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -4247,13 +4256,13 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    arg0 = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    arg1 = Some(__protocol.read_faststr().await?);
+                                    var_2 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -4273,24 +4282,27 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(arg0) = arg0 else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg0 is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
-                    let Some(arg1) = arg1 else {
+                    let Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg1 is required".to_string(),
+                                "field var_2 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { arg0, arg1 };
+                    let data = Self {
+                        arg0: var_1,
+                        arg1: var_2,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -4500,12 +4512,12 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut arg0 = None;
-                let mut arg1 = None;
-                let mut arg2 = None;
-                let mut arg3 = None;
-                let mut arg4 = None;
-                let mut arg5 = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
+                let mut var_3 = None;
+                let mut var_4 = None;
+                let mut var_5 = None;
+                let mut var_6 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -4522,16 +4534,16 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
-                                arg0 = Some(__protocol.read_i8()?);
+                                var_1 = Some(__protocol.read_i8()?);
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                arg1 = Some(__protocol.read_i32()?);
+                                var_2 = Some(__protocol.read_i32()?);
                             }
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                arg2 = Some(__protocol.read_i64()?);
+                                var_3 = Some(__protocol.read_i64()?);
                             }
                             Some(4) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                arg3 = Some({
+                                var_4 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -4545,10 +4557,10 @@ pub mod apache {
                                 });
                             }
                             Some(5) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                arg4 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_5 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(6) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                arg5 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_6 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -4567,50 +4579,50 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(arg0) = arg0 else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg0 is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
-                let Some(arg1) = arg1 else {
+                let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg1 is required".to_string(),
+                        "field var_2 is required".to_string(),
                     ));
                 };
-                let Some(arg2) = arg2 else {
+                let Some(var_3) = var_3 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg2 is required".to_string(),
+                        "field var_3 is required".to_string(),
                     ));
                 };
-                let Some(arg3) = arg3 else {
+                let Some(var_4) = var_4 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg3 is required".to_string(),
+                        "field var_4 is required".to_string(),
                     ));
                 };
-                let Some(arg4) = arg4 else {
+                let Some(var_5) = var_5 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg4 is required".to_string(),
+                        "field var_5 is required".to_string(),
                     ));
                 };
-                let Some(arg5) = arg5 else {
+                let Some(var_6) = var_6 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg5 is required".to_string(),
+                        "field var_6 is required".to_string(),
                     ));
                 };
 
                 let data = Self {
-                    arg0,
-                    arg1,
-                    arg2,
-                    arg3,
-                    arg4,
-                    arg5,
+                    arg0: var_1,
+                    arg1: var_2,
+                    arg2: var_3,
+                    arg3: var_4,
+                    arg4: var_5,
+                    arg5: var_6,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -4626,12 +4638,12 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut arg0 = None;
-                    let mut arg1 = None;
-                    let mut arg2 = None;
-                    let mut arg3 = None;
-                    let mut arg4 = None;
-                    let mut arg5 = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
+                    let mut var_3 = None;
+                    let mut var_4 = None;
+                    let mut var_5 = None;
+                    let mut var_6 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -4648,22 +4660,22 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I8 =>
                                 {
-                                    arg0 = Some(__protocol.read_i8().await?);
+                                    var_1 = Some(__protocol.read_i8().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    arg1 = Some(__protocol.read_i32().await?);
+                                    var_2 = Some(__protocol.read_i32().await?);
                                 }
                                 Some(3)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    arg2 = Some(__protocol.read_i64().await?);
+                                    var_3 = Some(__protocol.read_i64().await?);
                                 }
                                 Some(4)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    arg3 = Some({
+                                    var_4 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -4680,7 +4692,7 @@ pub mod apache {
                                 Some(5)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    arg4 = Some(
+                                    var_5 = Some(
                                         <Numberz as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -4690,7 +4702,7 @@ pub mod apache {
                                 Some(6)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    arg5 = Some(
+                                    var_6 = Some(
                                         <UserId as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -4715,62 +4727,62 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(arg0) = arg0 else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg0 is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
-                    let Some(arg1) = arg1 else {
+                    let Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg1 is required".to_string(),
+                                "field var_2 is required".to_string(),
                             ),
                         );
                     };
-                    let Some(arg2) = arg2 else {
+                    let Some(var_3) = var_3 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg2 is required".to_string(),
+                                "field var_3 is required".to_string(),
                             ),
                         );
                     };
-                    let Some(arg3) = arg3 else {
+                    let Some(var_4) = var_4 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg3 is required".to_string(),
+                                "field var_4 is required".to_string(),
                             ),
                         );
                     };
-                    let Some(arg4) = arg4 else {
+                    let Some(var_5) = var_5 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg4 is required".to_string(),
+                                "field var_5 is required".to_string(),
                             ),
                         );
                     };
-                    let Some(arg5) = arg5 else {
+                    let Some(var_6) = var_6 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg5 is required".to_string(),
+                                "field var_6 is required".to_string(),
                             ),
                         );
                     };
 
                     let data = Self {
-                        arg0,
-                        arg1,
-                        arg2,
-                        arg3,
-                        arg4,
-                        arg5,
+                        arg0: var_1,
+                        arg1: var_2,
+                        arg2: var_3,
+                        arg3: var_4,
+                        arg4: var_5,
+                        arg5: var_6,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -4831,8 +4843,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut im_true = None;
-                let mut im_false = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -4849,10 +4861,10 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
-                                im_true = Some(__protocol.read_bool()?);
+                                var_1 = Some(__protocol.read_bool()?);
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
-                                im_false = Some(__protocol.read_bool()?);
+                                var_2 = Some(__protocol.read_bool()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -4874,7 +4886,10 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { im_true, im_false };
+                let data = Self {
+                    im_true: var_1,
+                    im_false: var_2,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -4889,8 +4904,8 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut im_true = None;
-                    let mut im_false = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -4907,12 +4922,12 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Bool =>
                                 {
-                                    im_true = Some(__protocol.read_bool().await?);
+                                    var_1 = Some(__protocol.read_bool().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type == ::pilota::thrift::TType::Bool =>
                                 {
-                                    im_false = Some(__protocol.read_bool().await?);
+                                    var_2 = Some(__protocol.read_bool().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -4935,7 +4950,10 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { im_true, im_false };
+                    let data = Self {
+                        im_true: var_1,
+                        im_false: var_2,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -4984,7 +5002,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -5001,7 +5019,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                thing = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -5020,14 +5038,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -5042,7 +5060,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -5059,7 +5077,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    thing = Some(
+                                    var_1 = Some(
                                         <Numberz as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -5084,16 +5102,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -5150,7 +5168,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -5167,7 +5185,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                thing = Some({
+                                var_1 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -5194,14 +5212,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -5216,7 +5234,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -5233,7 +5251,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    thing = Some({
+                                    var_1 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -5265,16 +5283,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -5323,7 +5341,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -5342,7 +5360,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                thing = Some(__protocol.read_bytes()?);
+                                var_1 = Some(__protocol.read_bytes()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -5361,14 +5379,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -5383,7 +5401,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -5401,7 +5419,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    thing = Some(__protocol.read_bytes().await?);
+                                    var_1 = Some(__protocol.read_bytes().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -5421,16 +5439,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -5473,7 +5491,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -5490,7 +5508,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                thing = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -5509,14 +5527,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -5531,7 +5549,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -5548,7 +5566,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    thing = Some(
+                                    var_1 = Some(
                                         <UserId as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -5573,16 +5591,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -5626,7 +5644,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -5643,7 +5661,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
-                                thing = Some(__protocol.read_i8()?);
+                                var_1 = Some(__protocol.read_i8()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -5662,14 +5680,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -5684,7 +5702,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -5701,7 +5719,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I8 =>
                                 {
-                                    thing = Some(__protocol.read_i8().await?);
+                                    var_1 = Some(__protocol.read_i8().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -5721,16 +5739,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -5786,7 +5804,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -5803,7 +5821,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                thing = Some({
+                                var_1 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -5833,14 +5851,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -5855,7 +5873,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -5872,7 +5890,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    thing = Some({
+                                    var_1 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -5904,16 +5922,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -6084,7 +6102,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -6101,7 +6119,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Uuid => {
-                                thing = Some(__protocol.read_uuid()?);
+                                var_1 = Some(__protocol.read_uuid()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -6120,14 +6138,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -6142,7 +6160,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -6159,7 +6177,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Uuid =>
                                 {
-                                    thing = Some(__protocol.read_uuid().await?);
+                                    var_1 = Some(__protocol.read_uuid().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -6179,16 +6197,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -6483,7 +6501,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut integerlist = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -6500,7 +6518,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                integerlist = Some(unsafe {
+                                var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<::std::vec::Vec<i32>> =
                                         Vec::with_capacity(list_ident.size);
@@ -6544,7 +6562,7 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { integerlist };
+                let data = Self { integerlist: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -6559,7 +6577,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut integerlist = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -6576,7 +6594,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    integerlist = Some({
+                                    var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
@@ -6616,7 +6634,7 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { integerlist };
+                    let data = Self { integerlist: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -6671,7 +6689,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -6688,7 +6706,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                thing = Some(__protocol.read_i32()?);
+                                var_1 = Some(__protocol.read_i32()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -6707,14 +6725,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -6729,7 +6747,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -6746,7 +6764,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    thing = Some(__protocol.read_i32().await?);
+                                    var_1 = Some(__protocol.read_i32().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -6766,16 +6784,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -7308,8 +7326,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut aa = None;
-                let mut ab = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -7328,12 +7346,12 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                aa = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                ab = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_2 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -7355,14 +7373,17 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(ab) = ab else {
+                let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field ab is required".to_string(),
+                        "field var_2 is required".to_string(),
                     ));
                 };
 
-                let data = Self { aa, ab };
+                let data = Self {
+                    aa: var_1,
+                    ab: var_2,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -7377,8 +7398,8 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut aa = None;
-                    let mut ab = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -7396,7 +7417,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    aa = Some(
+                                    var_1 = Some(
                                         <StructA as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -7407,7 +7428,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    ab = Some(
+                                    var_2 = Some(
                                         <StructA as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -7435,16 +7456,19 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(ab) = ab else {
+                    let Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field ab is required".to_string(),
+                                "field var_2 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { aa, ab };
+                    let data = Self {
+                        aa: var_1,
+                        ab: var_2,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -7793,8 +7817,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut user_map = None;
-                let mut xtructs = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -7811,7 +7835,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                user_map = Some({
+                                var_1 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -7825,7 +7849,7 @@ pub mod apache {
                                 });
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                xtructs = Some(unsafe {
+                                var_2 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<Xtruct> = Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
@@ -7858,7 +7882,10 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { user_map, xtructs };
+                let data = Self {
+                    user_map: var_1,
+                    xtructs: var_2,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -7873,8 +7900,8 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut user_map = None;
-                    let mut xtructs = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -7893,7 +7920,7 @@ pub mod apache {
                 __pilota_decoding_field_id = field_ident.id;
                 match field_ident.id {
                     Some(1) if field_ident.field_type == ::pilota::thrift::TType::Map  => {
-                    user_map = Some({
+                    var_1 = Some({
                         let map_ident = __protocol.read_map_begin().await?;
                         let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                         for _ in 0..map_ident.size {
@@ -7904,7 +7931,7 @@ pub mod apache {
                     });
 
                 },Some(2) if field_ident.field_type == ::pilota::thrift::TType::List  => {
-                    xtructs = Some({
+                    var_2 = Some({
                             let list_ident = __protocol.read_list_begin().await?;
                             let mut val = Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
@@ -7934,7 +7961,10 @@ pub mod apache {
             };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { user_map, xtructs };
+                    let data = Self {
+                        user_map: var_1,
+                        xtructs: var_2,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -8321,7 +8351,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut arg = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -8340,7 +8370,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                arg = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -8359,14 +8389,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(arg) = arg else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { arg };
+                let data = Self { arg: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -8381,7 +8411,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut arg = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -8399,7 +8429,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    arg = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -8419,16 +8449,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(arg) = arg else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { arg };
+                    let data = Self { arg: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -8624,8 +8654,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut strings = None;
-                let mut hello = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -8642,7 +8672,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                strings = Some(unsafe {
+                                var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<::pilota::FastStr> =
                                         Vec::with_capacity(list_ident.size);
@@ -8659,7 +8689,7 @@ pub mod apache {
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                hello = Some(__protocol.read_faststr()?);
+                                var_2 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -8681,7 +8711,10 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { strings, hello };
+                let data = Self {
+                    strings: var_1,
+                    hello: var_2,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -8696,8 +8729,8 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut strings = None;
-                    let mut hello = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -8714,7 +8747,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    strings = Some({
+                                    var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
@@ -8728,7 +8761,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    hello = Some(__protocol.read_faststr().await?);
+                                    var_2 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -8748,7 +8781,10 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { strings, hello };
+                    let data = Self {
+                        strings: var_1,
+                        hello: var_2,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -9045,7 +9081,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut argument = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -9064,7 +9100,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                argument = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -9083,14 +9119,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(argument) = argument else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field argument is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { argument };
+                let data = Self { argument: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -9105,7 +9141,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut argument = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -9123,7 +9159,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    argument = Some(
+                                    var_1 = Some(
                                         <Insanity as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -9148,16 +9184,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(argument) = argument else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field argument is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { argument };
+                    let data = Self { argument: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -9225,7 +9261,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut bonk = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -9242,7 +9278,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                bonk = Some(unsafe {
+                                var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<::std::vec::Vec<::std::vec::Vec<Bonk>>> =
                                         Vec::with_capacity(list_ident.size);
@@ -9299,7 +9335,7 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { bonk };
+                let data = Self { bonk: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -9314,7 +9350,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut bonk = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -9333,7 +9369,7 @@ pub mod apache {
                 __pilota_decoding_field_id = field_ident.id;
                 match field_ident.id {
                     Some(1) if field_ident.field_type == ::pilota::thrift::TType::List  => {
-                    bonk = Some({
+                    var_1 = Some({
                             let list_ident = __protocol.read_list_begin().await?;
                             let mut val = Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
@@ -9379,7 +9415,7 @@ pub mod apache {
             };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { bonk };
+                    let data = Self { bonk: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -9448,7 +9484,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -9465,7 +9501,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                thing = Some(unsafe {
+                                var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<i32> = Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
@@ -9495,14 +9531,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -9517,7 +9553,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -9534,7 +9570,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    thing = Some({
+                                    var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
@@ -9562,16 +9598,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -9720,7 +9756,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -9739,7 +9775,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                thing = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -9758,14 +9794,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -9780,7 +9816,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -9798,7 +9834,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    thing = Some(
+                                    var_1 = Some(
                                         <Xtruct2 as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -9823,16 +9859,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -9903,12 +9939,12 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut arg0 = None;
-                let mut arg1 = None;
-                let mut arg2 = None;
-                let mut arg3 = None;
-                let mut arg4 = None;
-                let mut arg5 = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
+                let mut var_3 = None;
+                let mut var_4 = None;
+                let mut var_5 = None;
+                let mut var_6 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -9925,16 +9961,16 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
-                                arg0 = Some(__protocol.read_i8()?);
+                                var_1 = Some(__protocol.read_i8()?);
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                arg1 = Some(__protocol.read_i32()?);
+                                var_2 = Some(__protocol.read_i32()?);
                             }
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                arg2 = Some(__protocol.read_i64()?);
+                                var_3 = Some(__protocol.read_i64()?);
                             }
                             Some(4) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                arg3 = Some({
+                                var_4 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -9948,10 +9984,10 @@ pub mod apache {
                                 });
                             }
                             Some(5) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                arg4 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_5 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(6) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                arg5 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_6 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -9970,50 +10006,50 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(arg0) = arg0 else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg0 is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
-                let Some(arg1) = arg1 else {
+                let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg1 is required".to_string(),
+                        "field var_2 is required".to_string(),
                     ));
                 };
-                let Some(arg2) = arg2 else {
+                let Some(var_3) = var_3 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg2 is required".to_string(),
+                        "field var_3 is required".to_string(),
                     ));
                 };
-                let Some(arg3) = arg3 else {
+                let Some(var_4) = var_4 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg3 is required".to_string(),
+                        "field var_4 is required".to_string(),
                     ));
                 };
-                let Some(arg4) = arg4 else {
+                let Some(var_5) = var_5 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg4 is required".to_string(),
+                        "field var_5 is required".to_string(),
                     ));
                 };
-                let Some(arg5) = arg5 else {
+                let Some(var_6) = var_6 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg5 is required".to_string(),
+                        "field var_6 is required".to_string(),
                     ));
                 };
 
                 let data = Self {
-                    arg0,
-                    arg1,
-                    arg2,
-                    arg3,
-                    arg4,
-                    arg5,
+                    arg0: var_1,
+                    arg1: var_2,
+                    arg2: var_3,
+                    arg3: var_4,
+                    arg4: var_5,
+                    arg5: var_6,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -10029,12 +10065,12 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut arg0 = None;
-                    let mut arg1 = None;
-                    let mut arg2 = None;
-                    let mut arg3 = None;
-                    let mut arg4 = None;
-                    let mut arg5 = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
+                    let mut var_3 = None;
+                    let mut var_4 = None;
+                    let mut var_5 = None;
+                    let mut var_6 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -10051,22 +10087,22 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I8 =>
                                 {
-                                    arg0 = Some(__protocol.read_i8().await?);
+                                    var_1 = Some(__protocol.read_i8().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    arg1 = Some(__protocol.read_i32().await?);
+                                    var_2 = Some(__protocol.read_i32().await?);
                                 }
                                 Some(3)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    arg2 = Some(__protocol.read_i64().await?);
+                                    var_3 = Some(__protocol.read_i64().await?);
                                 }
                                 Some(4)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    arg3 = Some({
+                                    var_4 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -10083,7 +10119,7 @@ pub mod apache {
                                 Some(5)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    arg4 = Some(
+                                    var_5 = Some(
                                         <Numberz as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -10093,7 +10129,7 @@ pub mod apache {
                                 Some(6)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    arg5 = Some(
+                                    var_6 = Some(
                                         <UserId as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -10118,62 +10154,62 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(arg0) = arg0 else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg0 is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
-                    let Some(arg1) = arg1 else {
+                    let Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg1 is required".to_string(),
+                                "field var_2 is required".to_string(),
                             ),
                         );
                     };
-                    let Some(arg2) = arg2 else {
+                    let Some(var_3) = var_3 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg2 is required".to_string(),
+                                "field var_3 is required".to_string(),
                             ),
                         );
                     };
-                    let Some(arg3) = arg3 else {
+                    let Some(var_4) = var_4 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg3 is required".to_string(),
+                                "field var_4 is required".to_string(),
                             ),
                         );
                     };
-                    let Some(arg4) = arg4 else {
+                    let Some(var_5) = var_5 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg4 is required".to_string(),
+                                "field var_5 is required".to_string(),
                             ),
                         );
                     };
-                    let Some(arg5) = arg5 else {
+                    let Some(var_6) = var_6 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg5 is required".to_string(),
+                                "field var_6 is required".to_string(),
                             ),
                         );
                     };
 
                     let data = Self {
-                        arg0,
-                        arg1,
-                        arg2,
-                        arg3,
-                        arg4,
-                        arg5,
+                        arg0: var_1,
+                        arg1: var_2,
+                        arg2: var_3,
+                        arg3: var_4,
+                        arg4: var_5,
+                        arg5: var_6,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -10244,10 +10280,10 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut string_thing = None;
-                let mut byte_thing = None;
-                let mut i32_thing = None;
-                let mut i64_thing = None;
+                let mut var_1 = None;
+                let mut var_4 = None;
+                let mut var_9 = None;
+                let mut var_11 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -10266,16 +10302,16 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                string_thing = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             Some(4) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
-                                byte_thing = Some(__protocol.read_i8()?);
+                                var_4 = Some(__protocol.read_i8()?);
                             }
                             Some(9) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                i32_thing = Some(__protocol.read_i32()?);
+                                var_9 = Some(__protocol.read_i32()?);
                             }
                             Some(11) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                i64_thing = Some(__protocol.read_i64()?);
+                                var_11 = Some(__protocol.read_i64()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -10298,10 +10334,10 @@ pub mod apache {
                 __protocol.read_struct_end()?;
 
                 let data = Self {
-                    string_thing,
-                    byte_thing,
-                    i32_thing,
-                    i64_thing,
+                    string_thing: var_1,
+                    byte_thing: var_4,
+                    i32_thing: var_9,
+                    i64_thing: var_11,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -10317,10 +10353,10 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut string_thing = None;
-                    let mut byte_thing = None;
-                    let mut i32_thing = None;
-                    let mut i64_thing = None;
+                    let mut var_1 = None;
+                    let mut var_4 = None;
+                    let mut var_9 = None;
+                    let mut var_11 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -10338,22 +10374,22 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    string_thing = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(4)
                                     if field_ident.field_type == ::pilota::thrift::TType::I8 =>
                                 {
-                                    byte_thing = Some(__protocol.read_i8().await?);
+                                    var_4 = Some(__protocol.read_i8().await?);
                                 }
                                 Some(9)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    i32_thing = Some(__protocol.read_i32().await?);
+                                    var_9 = Some(__protocol.read_i32().await?);
                                 }
                                 Some(11)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    i64_thing = Some(__protocol.read_i64().await?);
+                                    var_11 = Some(__protocol.read_i64().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -10377,10 +10413,10 @@ pub mod apache {
                     __protocol.read_struct_end().await?;
 
                     let data = Self {
-                        string_thing,
-                        byte_thing,
-                        i32_thing,
-                        i64_thing,
+                        string_thing: var_1,
+                        byte_thing: var_4,
+                        i32_thing: var_9,
+                        i64_thing: var_11,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -10438,7 +10474,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -10457,7 +10493,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Double =>
                             {
-                                thing = Some(__protocol.read_double()?);
+                                var_1 = Some(__protocol.read_double()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -10476,14 +10512,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -10498,7 +10534,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -10516,7 +10552,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Double =>
                                 {
-                                    thing = Some(__protocol.read_double().await?);
+                                    var_1 = Some(__protocol.read_double().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -10536,16 +10572,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -10588,7 +10624,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -10605,7 +10641,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                thing = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -10624,14 +10660,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -10646,7 +10682,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -10663,7 +10699,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    thing = Some(
+                                    var_1 = Some(
                                         <Numberz as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -10688,16 +10724,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -10881,7 +10917,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -10898,7 +10934,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
-                                thing = Some(__protocol.read_bool()?);
+                                var_1 = Some(__protocol.read_bool()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -10917,14 +10953,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -10939,7 +10975,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -10956,7 +10992,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Bool =>
                                 {
-                                    thing = Some(__protocol.read_bool().await?);
+                                    var_1 = Some(__protocol.read_bool().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -10976,16 +11012,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -11041,7 +11077,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -11058,7 +11094,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                thing = Some({
+                                var_1 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -11085,14 +11121,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -11107,7 +11143,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -11124,7 +11160,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    thing = Some({
+                                    var_1 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -11156,16 +11192,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -11356,7 +11392,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -11375,7 +11411,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                thing = Some(__protocol.read_bytes()?);
+                                var_1 = Some(__protocol.read_bytes()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -11394,14 +11430,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -11416,7 +11452,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -11434,7 +11470,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    thing = Some(__protocol.read_bytes().await?);
+                                    var_1 = Some(__protocol.read_bytes().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -11454,16 +11490,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -11750,9 +11786,9 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut begin_in_both = None;
-                let mut old_string = None;
-                let mut end_in_both = None;
+                let mut var_1 = None;
+                let mut var_3 = None;
+                let mut var_12 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -11769,15 +11805,15 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                begin_in_both = Some(__protocol.read_i32()?);
+                                var_1 = Some(__protocol.read_i32()?);
                             }
                             Some(3)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                old_string = Some(__protocol.read_faststr()?);
+                                var_3 = Some(__protocol.read_faststr()?);
                             }
                             Some(12) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                end_in_both = Some(__protocol.read_i32()?);
+                                var_12 = Some(__protocol.read_i32()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -11800,9 +11836,9 @@ pub mod apache {
                 __protocol.read_struct_end()?;
 
                 let data = Self {
-                    begin_in_both,
-                    old_string,
-                    end_in_both,
+                    begin_in_both: var_1,
+                    old_string: var_3,
+                    end_in_both: var_12,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -11818,9 +11854,9 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut begin_in_both = None;
-                    let mut old_string = None;
-                    let mut end_in_both = None;
+                    let mut var_1 = None;
+                    let mut var_3 = None;
+                    let mut var_12 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -11837,18 +11873,18 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    begin_in_both = Some(__protocol.read_i32().await?);
+                                    var_1 = Some(__protocol.read_i32().await?);
                                 }
                                 Some(3)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    old_string = Some(__protocol.read_faststr().await?);
+                                    var_3 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(12)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    end_in_both = Some(__protocol.read_i32().await?);
+                                    var_12 = Some(__protocol.read_i32().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -11872,9 +11908,9 @@ pub mod apache {
                     __protocol.read_struct_end().await?;
 
                     let data = Self {
-                        begin_in_both,
-                        old_string,
-                        end_in_both,
+                        begin_in_both: var_1,
+                        old_string: var_3,
+                        end_in_both: var_12,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -11929,7 +11965,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -11946,7 +11982,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
-                                thing = Some(__protocol.read_i8()?);
+                                var_1 = Some(__protocol.read_i8()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -11965,14 +12001,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -11987,7 +12023,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -12004,7 +12040,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I8 =>
                                 {
-                                    thing = Some(__protocol.read_i8().await?);
+                                    var_1 = Some(__protocol.read_i8().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -12024,16 +12060,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -12247,7 +12283,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut field = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -12266,7 +12302,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                field = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -12288,7 +12324,7 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { field };
+                let data = Self { field: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -12303,7 +12339,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut field = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -12321,7 +12357,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    field = Some(
+                                    var_1 = Some(
                                         <EmptyStruct as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -12349,7 +12385,7 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { field };
+                    let data = Self { field: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -12562,7 +12598,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut integerlist = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -12579,7 +12615,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                integerlist = Some(unsafe {
+                                var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<::std::vec::Vec<::std::vec::Vec<i32>>> =
                                         Vec::with_capacity(list_ident.size);
@@ -12634,7 +12670,7 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { integerlist };
+                let data = Self { integerlist: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -12649,7 +12685,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut integerlist = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -12666,7 +12702,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    integerlist = Some({
+                                    var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
@@ -12716,7 +12752,7 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { integerlist };
+                    let data = Self { integerlist: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -13200,8 +13236,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut message = None;
-                let mut r#type = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -13220,10 +13256,10 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                message = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                r#type = Some(__protocol.read_i32()?);
+                                var_2 = Some(__protocol.read_i32()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -13245,7 +13281,10 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { message, r#type };
+                let data = Self {
+                    message: var_1,
+                    r#type: var_2,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -13260,8 +13299,8 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut message = None;
-                    let mut r#type = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -13279,12 +13318,12 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    message = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    r#type = Some(__protocol.read_i32().await?);
+                                    var_2 = Some(__protocol.read_i32().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -13307,7 +13346,10 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { message, r#type };
+                    let data = Self {
+                        message: var_1,
+                        r#type: var_2,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -13375,7 +13417,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut with_default = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -13392,7 +13434,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                with_default = Some({
+                                var_1 = Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val =
                                         ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -13423,13 +13465,15 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                if with_default.is_none() {
-                    with_default = Some(::pilota::AHashSet::from([
+                if var_1.is_none() {
+                    var_1 = Some(::pilota::AHashSet::from([
                         ::pilota::FastStr::from_static_str("test"),
                     ]));
                 }
 
-                let data = Self { with_default };
+                let data = Self {
+                    with_default: var_1,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -13444,7 +13488,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut with_default = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -13461,7 +13505,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    with_default = Some({
+                                    var_1 = Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val =
                                             ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -13490,13 +13534,15 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    if with_default.is_none() {
-                        with_default = Some(::pilota::AHashSet::from([
+                    if var_1.is_none() {
+                        var_1 = Some(::pilota::AHashSet::from([
                             ::pilota::FastStr::from_static_str("test"),
                         ]));
                     }
 
-                    let data = Self { with_default };
+                    let data = Self {
+                        with_default: var_1,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -13687,7 +13733,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut seconds_to_sleep = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -13704,7 +13750,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                seconds_to_sleep = Some(__protocol.read_i32()?);
+                                var_1 = Some(__protocol.read_i32()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -13723,14 +13769,16 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(seconds_to_sleep) = seconds_to_sleep else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field seconds_to_sleep is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { seconds_to_sleep };
+                let data = Self {
+                    seconds_to_sleep: var_1,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -13745,7 +13793,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut seconds_to_sleep = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -13762,7 +13810,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    seconds_to_sleep = Some(__protocol.read_i32().await?);
+                                    var_1 = Some(__protocol.read_i32().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -13782,16 +13830,18 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(seconds_to_sleep) = seconds_to_sleep else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field seconds_to_sleep is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { seconds_to_sleep };
+                    let data = Self {
+                        seconds_to_sleep: var_1,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -14261,11 +14311,11 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut string_field = None;
-                let mut set_field = None;
-                let mut list_field = None;
-                let mut binary_field = None;
-                let mut uuid_field = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
+                let mut var_3 = None;
+                let mut var_4 = None;
+                let mut var_5 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -14284,10 +14334,10 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                string_field = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                set_field = Some({
+                                var_2 = Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val =
                                         ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -14299,7 +14349,7 @@ pub mod apache {
                                 });
                             }
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                list_field = Some(unsafe {
+                                var_3 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<
                                         ::pilota::AHashMap<
@@ -14373,10 +14423,10 @@ pub mod apache {
                             Some(4)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                binary_field = Some(__protocol.read_bytes()?);
+                                var_4 = Some(__protocol.read_bytes()?);
                             }
                             Some(5) if field_ident.field_type == ::pilota::thrift::TType::Uuid => {
-                                uuid_field = Some(__protocol.read_uuid()?);
+                                var_5 = Some(__protocol.read_uuid()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -14398,19 +14448,19 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(list_field) = list_field else {
+                let Some(var_3) = var_3 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field list_field is required".to_string(),
+                        "field var_3 is required".to_string(),
                     ));
                 };
 
                 let data = Self {
-                    string_field,
-                    set_field,
-                    list_field,
-                    binary_field,
-                    uuid_field,
+                    string_field: var_1,
+                    set_field: var_2,
+                    list_field: var_3,
+                    binary_field: var_4,
+                    uuid_field: var_5,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -14426,11 +14476,11 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut string_field = None;
-                    let mut set_field = None;
-                    let mut list_field = None;
-                    let mut binary_field = None;
-                    let mut uuid_field = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
+                    let mut var_3 = None;
+                    let mut var_4 = None;
+                    let mut var_5 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -14449,10 +14499,10 @@ pub mod apache {
                 __pilota_decoding_field_id = field_ident.id;
                 match field_ident.id {
                     Some(1) if field_ident.field_type == ::pilota::thrift::TType::Binary  => {
-                    string_field = Some(__protocol.read_faststr().await?);
+                    var_1 = Some(__protocol.read_faststr().await?);
 
                 },Some(2) if field_ident.field_type == ::pilota::thrift::TType::Set  => {
-                    set_field = Some({let list_ident = __protocol.read_set_begin().await?;
+                    var_2 = Some({let list_ident = __protocol.read_set_begin().await?;
                     let mut val = ::pilota::AHashSet::with_capacity(list_ident.size);
                     for _ in 0..list_ident.size {
                         val.insert(<Insanity as ::pilota::thrift::Message>::decode_async(__protocol).await?);
@@ -14461,7 +14511,7 @@ pub mod apache {
                     val});
 
                 },Some(3) if field_ident.field_type == ::pilota::thrift::TType::List  => {
-                    list_field = Some({
+                    var_3 = Some({
                             let list_ident = __protocol.read_list_begin().await?;
                             let mut val = Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
@@ -14516,10 +14566,10 @@ pub mod apache {
                         });
 
                 },Some(4) if field_ident.field_type == ::pilota::thrift::TType::Binary  => {
-                    binary_field = Some(__protocol.read_bytes().await?);
+                    var_4 = Some(__protocol.read_bytes().await?);
 
                 },Some(5) if field_ident.field_type == ::pilota::thrift::TType::Uuid  => {
-                    uuid_field = Some(__protocol.read_uuid().await?);
+                    var_5 = Some(__protocol.read_uuid().await?);
 
                 },
                     _ => {
@@ -14541,21 +14591,21 @@ pub mod apache {
             };
                     __protocol.read_struct_end().await?;
 
-                    let Some(list_field) = list_field else {
+                    let Some(var_3) = var_3 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field list_field is required".to_string(),
+                                "field var_3 is required".to_string(),
                             ),
                         );
                     };
 
                     let data = Self {
-                        string_field,
-                        set_field,
-                        list_field,
-                        binary_field,
-                        uuid_field,
+                        string_field: var_1,
+                        set_field: var_2,
+                        list_field: var_3,
+                        binary_field: var_4,
+                        uuid_field: var_5,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -14808,7 +14858,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -14827,7 +14877,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                thing = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -14846,14 +14896,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -14868,7 +14918,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -14886,7 +14936,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    thing = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -14906,16 +14956,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -15327,8 +15377,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut error_code = None;
-                let mut message = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -15345,12 +15395,12 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                error_code = Some(__protocol.read_i32()?);
+                                var_1 = Some(__protocol.read_i32()?);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                message = Some(__protocol.read_faststr()?);
+                                var_2 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -15373,8 +15423,8 @@ pub mod apache {
                 __protocol.read_struct_end()?;
 
                 let data = Self {
-                    error_code,
-                    message,
+                    error_code: var_1,
+                    message: var_2,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -15390,8 +15440,8 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut error_code = None;
-                    let mut message = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -15408,13 +15458,13 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    error_code = Some(__protocol.read_i32().await?);
+                                    var_1 = Some(__protocol.read_i32().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    message = Some(__protocol.read_faststr().await?);
+                                    var_2 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -15438,8 +15488,8 @@ pub mod apache {
                     __protocol.read_struct_end().await?;
 
                     let data = Self {
-                        error_code,
-                        message,
+                        error_code: var_1,
+                        message: var_2,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -15490,7 +15540,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut hello = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -15507,7 +15557,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                hello = Some(__protocol.read_i32()?);
+                                var_1 = Some(__protocol.read_i32()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -15526,14 +15576,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(hello) = hello else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field hello is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { hello };
+                let data = Self { hello: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -15548,7 +15598,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut hello = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -15565,7 +15615,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    hello = Some(__protocol.read_i32().await?);
+                                    var_1 = Some(__protocol.read_i32().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -15585,16 +15635,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(hello) = hello else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field hello is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { hello };
+                    let data = Self { hello: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -15653,7 +15703,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut map_field = None;
+                let mut var_7 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -15670,7 +15720,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(7) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                map_field = Some({
+                                var_7 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -15703,7 +15753,7 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { map_field };
+                let data = Self { map_field: var_7 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -15718,7 +15768,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut map_field = None;
+                    let mut var_7 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -15735,7 +15785,7 @@ pub mod apache {
                                 Some(7)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    map_field = Some({
+                                    var_7 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -15767,7 +15817,7 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { map_field };
+                    let data = Self { map_field: var_7 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -15826,7 +15876,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -15843,7 +15893,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                thing = Some({
+                                var_1 = Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val =
                                         ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -15871,14 +15921,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -15893,7 +15943,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -15910,7 +15960,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    thing = Some({
+                                    var_1 = Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val =
                                             ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -15939,16 +15989,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -15995,7 +16045,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -16014,7 +16064,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                thing = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -16033,14 +16083,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -16055,7 +16105,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -16073,7 +16123,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    thing = Some(
+                                    var_1 = Some(
                                         <Xtruct as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -16098,16 +16148,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -16154,7 +16204,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut argument = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -16173,7 +16223,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                argument = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -16192,14 +16242,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(argument) = argument else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field argument is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { argument };
+                let data = Self { argument: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -16214,7 +16264,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut argument = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -16232,7 +16282,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    argument = Some(
+                                    var_1 = Some(
                                         <Insanity as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -16257,16 +16307,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(argument) = argument else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field argument is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { argument };
+                    let data = Self { argument: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -16322,8 +16372,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut b = Some(true);
-                let mut s = Some(::pilota::FastStr::from_static_str("true"));
+                let mut var_1 = Some(true);
+                let mut var_2 = Some(::pilota::FastStr::from_static_str("true"));
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -16340,12 +16390,12 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
-                                b = Some(__protocol.read_bool()?);
+                                var_1 = Some(__protocol.read_bool()?);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                s = Some(__protocol.read_faststr()?);
+                                var_2 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -16367,7 +16417,7 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { b, s };
+                let data = Self { b: var_1, s: var_2 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -16382,8 +16432,8 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut b = Some(true);
-                    let mut s = Some(::pilota::FastStr::from_static_str("true"));
+                    let mut var_1 = Some(true);
+                    let mut var_2 = Some(::pilota::FastStr::from_static_str("true"));
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -16400,13 +16450,13 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Bool =>
                                 {
-                                    b = Some(__protocol.read_bool().await?);
+                                    var_1 = Some(__protocol.read_bool().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    s = Some(__protocol.read_faststr().await?);
+                                    var_2 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -16429,7 +16479,7 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { b, s };
+                    let data = Self { b: var_1, s: var_2 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -16479,7 +16529,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -16496,7 +16546,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                thing = Some(__protocol.read_i64()?);
+                                var_1 = Some(__protocol.read_i64()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -16515,14 +16565,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -16537,7 +16587,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -16554,7 +16604,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    thing = Some(__protocol.read_i64().await?);
+                                    var_1 = Some(__protocol.read_i64().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -16574,16 +16624,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -16634,7 +16684,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -16651,7 +16701,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                thing = Some(unsafe {
+                                var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<i32> = Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
@@ -16681,14 +16731,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -16703,7 +16753,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -16720,7 +16770,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    thing = Some({
+                                    var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
@@ -16748,16 +16798,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -16804,7 +16854,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -16823,7 +16873,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                thing = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -16842,14 +16892,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -16864,7 +16914,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -16882,7 +16932,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    thing = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -16902,16 +16952,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -16954,7 +17004,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -16973,7 +17023,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                thing = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -16992,14 +17042,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -17014,7 +17064,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -17032,7 +17082,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    thing = Some(
+                                    var_1 = Some(
                                         <Xtruct2 as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -17057,16 +17107,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -17260,9 +17310,9 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut byte_thing = None;
-                let mut struct_thing = None;
-                let mut i32_thing = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
+                let mut var_3 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -17279,15 +17329,15 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
-                                byte_thing = Some(__protocol.read_i8()?);
+                                var_1 = Some(__protocol.read_i8()?);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                struct_thing = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_2 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                i32_thing = Some(__protocol.read_i32()?);
+                                var_3 = Some(__protocol.read_i32()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -17310,9 +17360,9 @@ pub mod apache {
                 __protocol.read_struct_end()?;
 
                 let data = Self {
-                    byte_thing,
-                    struct_thing,
-                    i32_thing,
+                    byte_thing: var_1,
+                    struct_thing: var_2,
+                    i32_thing: var_3,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -17328,9 +17378,9 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut byte_thing = None;
-                    let mut struct_thing = None;
-                    let mut i32_thing = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
+                    let mut var_3 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -17347,13 +17397,13 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I8 =>
                                 {
-                                    byte_thing = Some(__protocol.read_i8().await?);
+                                    var_1 = Some(__protocol.read_i8().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    struct_thing = Some(
+                                    var_2 = Some(
                                         <Xtruct as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -17363,7 +17413,7 @@ pub mod apache {
                                 Some(3)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    i32_thing = Some(__protocol.read_i32().await?);
+                                    var_3 = Some(__protocol.read_i32().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -17387,9 +17437,9 @@ pub mod apache {
                     __protocol.read_struct_end().await?;
 
                     let data = Self {
-                        byte_thing,
-                        struct_thing,
-                        i32_thing,
+                        byte_thing: var_1,
+                        struct_thing: var_2,
+                        i32_thing: var_3,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -17444,7 +17494,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -17463,7 +17513,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Double =>
                             {
-                                thing = Some(__protocol.read_double()?);
+                                var_1 = Some(__protocol.read_double()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -17482,14 +17532,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -17504,7 +17554,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -17522,7 +17572,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Double =>
                                 {
-                                    thing = Some(__protocol.read_double().await?);
+                                    var_1 = Some(__protocol.read_double().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -17542,16 +17592,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -17736,7 +17786,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -17753,7 +17803,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
-                                thing = Some(__protocol.read_bool()?);
+                                var_1 = Some(__protocol.read_bool()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -17772,14 +17822,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -17794,7 +17844,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -17811,7 +17861,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Bool =>
                                 {
-                                    thing = Some(__protocol.read_bool().await?);
+                                    var_1 = Some(__protocol.read_bool().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -17831,16 +17881,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -18292,18 +18342,18 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut begin_in_both = None;
-                let mut newint = None;
-                let mut newbyte = None;
-                let mut newshort = None;
-                let mut newlong = None;
-                let mut newdouble = None;
-                let mut newstruct = None;
-                let mut newlist = None;
-                let mut newset = None;
-                let mut newmap = None;
-                let mut newstring = None;
-                let mut end_in_both = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
+                let mut var_3 = None;
+                let mut var_4 = None;
+                let mut var_5 = None;
+                let mut var_6 = None;
+                let mut var_7 = None;
+                let mut var_8 = None;
+                let mut var_9 = None;
+                let mut var_10 = None;
+                let mut var_11 = None;
+                let mut var_12 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -18320,32 +18370,32 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                begin_in_both = Some(__protocol.read_i32()?);
+                                var_1 = Some(__protocol.read_i32()?);
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                newint = Some(__protocol.read_i32()?);
+                                var_2 = Some(__protocol.read_i32()?);
                             }
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
-                                newbyte = Some(__protocol.read_i8()?);
+                                var_3 = Some(__protocol.read_i8()?);
                             }
                             Some(4) if field_ident.field_type == ::pilota::thrift::TType::I16 => {
-                                newshort = Some(__protocol.read_i16()?);
+                                var_4 = Some(__protocol.read_i16()?);
                             }
                             Some(5) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                newlong = Some(__protocol.read_i64()?);
+                                var_5 = Some(__protocol.read_i64()?);
                             }
                             Some(6)
                                 if field_ident.field_type == ::pilota::thrift::TType::Double =>
                             {
-                                newdouble = Some(__protocol.read_double()?);
+                                var_6 = Some(__protocol.read_double()?);
                             }
                             Some(7)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                newstruct = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_7 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(8) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                newlist = Some(unsafe {
+                                var_8 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<i32> = Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
@@ -18359,7 +18409,7 @@ pub mod apache {
                                 });
                             }
                             Some(9) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                newset = Some({
+                                var_9 = Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val =
                                         ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -18371,7 +18421,7 @@ pub mod apache {
                                 });
                             }
                             Some(10) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                newmap = Some({
+                                var_10 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -18384,10 +18434,10 @@ pub mod apache {
                             Some(11)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                newstring = Some(__protocol.read_faststr()?);
+                                var_11 = Some(__protocol.read_faststr()?);
                             }
                             Some(12) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                end_in_both = Some(__protocol.read_i32()?);
+                                var_12 = Some(__protocol.read_i32()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -18410,18 +18460,18 @@ pub mod apache {
                 __protocol.read_struct_end()?;
 
                 let data = Self {
-                    begin_in_both,
-                    newint,
-                    newbyte,
-                    newshort,
-                    newlong,
-                    newdouble,
-                    newstruct,
-                    newlist,
-                    newset,
-                    newmap,
-                    newstring,
-                    end_in_both,
+                    begin_in_both: var_1,
+                    newint: var_2,
+                    newbyte: var_3,
+                    newshort: var_4,
+                    newlong: var_5,
+                    newdouble: var_6,
+                    newstruct: var_7,
+                    newlist: var_8,
+                    newset: var_9,
+                    newmap: var_10,
+                    newstring: var_11,
+                    end_in_both: var_12,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -18437,18 +18487,18 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut begin_in_both = None;
-                    let mut newint = None;
-                    let mut newbyte = None;
-                    let mut newshort = None;
-                    let mut newlong = None;
-                    let mut newdouble = None;
-                    let mut newstruct = None;
-                    let mut newlist = None;
-                    let mut newset = None;
-                    let mut newmap = None;
-                    let mut newstring = None;
-                    let mut end_in_both = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
+                    let mut var_3 = None;
+                    let mut var_4 = None;
+                    let mut var_5 = None;
+                    let mut var_6 = None;
+                    let mut var_7 = None;
+                    let mut var_8 = None;
+                    let mut var_9 = None;
+                    let mut var_10 = None;
+                    let mut var_11 = None;
+                    let mut var_12 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -18465,39 +18515,39 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    begin_in_both = Some(__protocol.read_i32().await?);
+                                    var_1 = Some(__protocol.read_i32().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    newint = Some(__protocol.read_i32().await?);
+                                    var_2 = Some(__protocol.read_i32().await?);
                                 }
                                 Some(3)
                                     if field_ident.field_type == ::pilota::thrift::TType::I8 =>
                                 {
-                                    newbyte = Some(__protocol.read_i8().await?);
+                                    var_3 = Some(__protocol.read_i8().await?);
                                 }
                                 Some(4)
                                     if field_ident.field_type == ::pilota::thrift::TType::I16 =>
                                 {
-                                    newshort = Some(__protocol.read_i16().await?);
+                                    var_4 = Some(__protocol.read_i16().await?);
                                 }
                                 Some(5)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    newlong = Some(__protocol.read_i64().await?);
+                                    var_5 = Some(__protocol.read_i64().await?);
                                 }
                                 Some(6)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Double =>
                                 {
-                                    newdouble = Some(__protocol.read_double().await?);
+                                    var_6 = Some(__protocol.read_double().await?);
                                 }
                                 Some(7)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    newstruct = Some(
+                                    var_7 = Some(
                                         <Bonk as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -18507,7 +18557,7 @@ pub mod apache {
                                 Some(8)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    newlist = Some({
+                                    var_8 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
@@ -18520,7 +18570,7 @@ pub mod apache {
                                 Some(9)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    newset = Some({
+                                    var_9 = Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val =
                                             ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -18534,7 +18584,7 @@ pub mod apache {
                                 Some(10)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    newmap = Some({
+                                    var_10 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -18552,12 +18602,12 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    newstring = Some(__protocol.read_faststr().await?);
+                                    var_11 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(12)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    end_in_both = Some(__protocol.read_i32().await?);
+                                    var_12 = Some(__protocol.read_i32().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -18581,18 +18631,18 @@ pub mod apache {
                     __protocol.read_struct_end().await?;
 
                     let data = Self {
-                        begin_in_both,
-                        newint,
-                        newbyte,
-                        newshort,
-                        newlong,
-                        newdouble,
-                        newstruct,
-                        newlist,
-                        newset,
-                        newmap,
-                        newstring,
-                        end_in_both,
+                        begin_in_both: var_1,
+                        newint: var_2,
+                        newbyte: var_3,
+                        newshort: var_4,
+                        newlong: var_5,
+                        newdouble: var_6,
+                        newstruct: var_7,
+                        newlist: var_8,
+                        newset: var_9,
+                        newmap: var_10,
+                        newstring: var_11,
+                        end_in_both: var_12,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -19476,9 +19526,9 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut int_set_list = None;
-                let mut map_int_strset = None;
-                let mut map_int_strset_list = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
+                let mut var_3 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -19495,7 +19545,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                int_set_list = Some(unsafe {
+                                var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<::pilota::AHashSet<i32>> =
                                         Vec::with_capacity(list_ident.size);
@@ -19517,7 +19567,7 @@ pub mod apache {
                                 });
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                map_int_strset = Some({
+                                var_2 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -19537,7 +19587,7 @@ pub mod apache {
                                 });
                             }
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                map_int_strset_list = Some(unsafe {
+                                var_3 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<
                                         ::pilota::AHashMap<
@@ -19593,9 +19643,9 @@ pub mod apache {
                 __protocol.read_struct_end()?;
 
                 let data = Self {
-                    int_set_list,
-                    map_int_strset,
-                    map_int_strset_list,
+                    int_set_list: var_1,
+                    map_int_strset: var_2,
+                    map_int_strset_list: var_3,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -19611,9 +19661,9 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut int_set_list = None;
-                    let mut map_int_strset = None;
-                    let mut map_int_strset_list = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
+                    let mut var_3 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -19630,7 +19680,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    int_set_list = Some({
+                                    var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
@@ -19654,7 +19704,7 @@ pub mod apache {
                                 Some(2)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    map_int_strset = Some({
+                                    var_2 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -19679,7 +19729,7 @@ pub mod apache {
                                 Some(3)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    map_int_strset_list = Some({
+                                    var_3 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
@@ -19735,9 +19785,9 @@ pub mod apache {
                     __protocol.read_struct_end().await?;
 
                     let data = Self {
-                        int_set_list,
-                        map_int_strset,
-                        map_int_strset_list,
+                        int_set_list: var_1,
+                        map_int_strset: var_2,
+                        map_int_strset_list: var_3,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -20004,8 +20054,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut arg0 = None;
-                let mut arg1 = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -20024,12 +20074,12 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                arg0 = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                arg1 = Some(__protocol.read_faststr()?);
+                                var_2 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -20048,20 +20098,23 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(arg0) = arg0 else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg0 is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
-                let Some(arg1) = arg1 else {
+                let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field arg1 is required".to_string(),
+                        "field var_2 is required".to_string(),
                     ));
                 };
 
-                let data = Self { arg0, arg1 };
+                let data = Self {
+                    arg0: var_1,
+                    arg1: var_2,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -20076,8 +20129,8 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut arg0 = None;
-                    let mut arg1 = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -20095,13 +20148,13 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    arg0 = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    arg1 = Some(__protocol.read_faststr().await?);
+                                    var_2 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -20121,24 +20174,27 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(arg0) = arg0 else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg0 is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
-                    let Some(arg1) = arg1 else {
+                    let Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field arg1 is required".to_string(),
+                                "field var_2 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { arg0, arg1 };
+                    let data = Self {
+                        arg0: var_1,
+                        arg1: var_2,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -20448,7 +20504,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut bin_map = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -20465,7 +20521,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                bin_map = Some({
+                                var_2 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -20498,15 +20554,15 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                if bin_map.is_none() {
-                    bin_map = Some({
+                if var_2.is_none() {
+                    var_2 = Some({
                         let mut map = ::pilota::AHashMap::with_capacity(0);
 
                         map
                     });
                 }
 
-                let data = Self { bin_map };
+                let data = Self { bin_map: var_2 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -20521,7 +20577,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut bin_map = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -20538,7 +20594,7 @@ pub mod apache {
                                 Some(2)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    bin_map = Some({
+                                    var_2 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -20573,15 +20629,15 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    if bin_map.is_none() {
-                        bin_map = Some({
+                    if var_2.is_none() {
+                        var_2 = Some({
                             let mut map = ::pilota::AHashMap::with_capacity(0);
 
                             map
                         });
                     }
 
-                    let data = Self { bin_map };
+                    let data = Self { bin_map: var_2 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -20770,7 +20826,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut seconds_to_sleep = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -20787,7 +20843,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                seconds_to_sleep = Some(__protocol.read_i32()?);
+                                var_1 = Some(__protocol.read_i32()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -20806,14 +20862,16 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(seconds_to_sleep) = seconds_to_sleep else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field seconds_to_sleep is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { seconds_to_sleep };
+                let data = Self {
+                    seconds_to_sleep: var_1,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -20828,7 +20886,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut seconds_to_sleep = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -20845,7 +20903,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    seconds_to_sleep = Some(__protocol.read_i32().await?);
+                                    var_1 = Some(__protocol.read_i32().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -20865,16 +20923,18 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(seconds_to_sleep) = seconds_to_sleep else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field seconds_to_sleep is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { seconds_to_sleep };
+                    let data = Self {
+                        seconds_to_sleep: var_1,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -21380,7 +21440,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -21397,7 +21457,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                thing = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -21416,14 +21476,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -21438,7 +21498,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -21455,7 +21515,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    thing = Some(
+                                    var_1 = Some(
                                         <UserId as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -21480,16 +21540,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -21532,7 +21592,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -21551,7 +21611,7 @@ pub mod apache {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                thing = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -21570,14 +21630,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -21592,7 +21652,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -21610,7 +21670,7 @@ pub mod apache {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    thing = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -21630,16 +21690,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -21695,7 +21755,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -21712,7 +21772,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                thing = Some({
+                                var_1 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -21742,14 +21802,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -21764,7 +21824,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -21781,7 +21841,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    thing = Some({
+                                    var_1 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -21813,16 +21873,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -21876,8 +21936,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut error_code = None;
-                let mut struct_thing = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -21894,12 +21954,12 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                error_code = Some(__protocol.read_i32()?);
+                                var_1 = Some(__protocol.read_i32()?);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                struct_thing = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_2 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -21922,8 +21982,8 @@ pub mod apache {
                 __protocol.read_struct_end()?;
 
                 let data = Self {
-                    error_code,
-                    struct_thing,
+                    error_code: var_1,
+                    struct_thing: var_2,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -21939,8 +21999,8 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut error_code = None;
-                    let mut struct_thing = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -21957,13 +22017,13 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    error_code = Some(__protocol.read_i32().await?);
+                                    var_1 = Some(__protocol.read_i32().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    struct_thing = Some(
+                                    var_2 = Some(
                                         <Xtruct as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -21992,8 +22052,8 @@ pub mod apache {
                     __protocol.read_struct_end().await?;
 
                     let data = Self {
-                        error_code,
-                        struct_thing,
+                        error_code: var_1,
+                        struct_thing: var_2,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -22044,7 +22104,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut thing = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -22061,7 +22121,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Uuid => {
-                                thing = Some(__protocol.read_uuid()?);
+                                var_1 = Some(__protocol.read_uuid()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -22080,14 +22140,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(thing) = thing else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field thing is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { thing };
+                let data = Self { thing: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -22102,7 +22162,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut thing = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -22119,7 +22179,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Uuid =>
                                 {
-                                    thing = Some(__protocol.read_uuid().await?);
+                                    var_1 = Some(__protocol.read_uuid().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -22139,16 +22199,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(thing) = thing else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field thing is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { thing };
+                    let data = Self { thing: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -22191,7 +22251,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut hello = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -22208,7 +22268,7 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                hello = Some(__protocol.read_i32()?);
+                                var_1 = Some(__protocol.read_i32()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -22227,14 +22287,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(hello) = hello else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field hello is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { hello };
+                let data = Self { hello: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -22249,7 +22309,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut hello = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -22266,7 +22326,7 @@ pub mod apache {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    hello = Some(__protocol.read_i32().await?);
+                                    var_1 = Some(__protocol.read_i32().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -22286,16 +22346,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(hello) = hello else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field hello is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { hello };
+                    let data = Self { hello: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }

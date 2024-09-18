@@ -83,6 +83,10 @@ impl Field {
     pub fn is_optional(&self) -> bool {
         matches!(self.kind, FieldKind::Optional)
     }
+
+    pub fn local_var_name(&self) -> String {
+        format!("var_{}", self.id)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

@@ -186,26 +186,6 @@ impl ThriftBackend {
         keep: bool,
         is_arg: bool,
     ) -> String {
-        let mut fields = s.fields.iter().map(|f| self.rust_name(f.did)).join(",");
-
-        if keep {
-            if !fields.is_empty() {
-                fields.push_str(", ");
-            }
-            if !helper.is_async {
-                fields.push_str("_unknown_fields");
-            } else {
-                fields.push_str("_unknown_fields: ::pilota::LinkedBytes::new()");
-            }
-        }
-
-        let required_without_default_fields = s
-            .fields
-            .iter()
-            .filter(|f| !f.is_optional() && self.default_val(f).is_none())
-            .map(|f| self.rust_name(f.did))
-            .collect_vec();
-
         let def_fields_num = if keep && is_arg && !helper.is_async {
             "let mut __pilota_fields_num = 0;"
         } else {
@@ -216,7 +196,7 @@ impl ThriftBackend {
             .fields
             .iter()
             .map(|f| {
-                let field_name = self.rust_name(f.did);
+                let field_name = f.local_var_name();
                 let mut v = "None".into();
 
                 if let Some((default, is_const)) = self.cx.default_val(f) {
@@ -245,7 +225,7 @@ impl ThriftBackend {
             .fields
             .iter()
             .filter_map(|f| {
-                let field_name = self.rust_name(f.did);
+                let field_name = f.local_var_name();
                 if let Some((default, is_const)) = self.cx.default_val(f) {
                     if !is_const {
                         if f.is_optional() {
@@ -271,6 +251,13 @@ impl ThriftBackend {
         let read_struct_begin = helper.codegen_read_struct_begin();
         let read_struct_end = helper.codegen_read_struct_end();
         let read_fields = self.codegen_decode_fields(helper, &s.fields, keep, is_arg);
+
+        let required_without_default_fields = s
+            .fields
+            .iter()
+            .filter(|f| !f.is_optional() && self.default_val(f).is_none())
+            .map(|f| f.local_var_name())
+            .collect_vec();
 
         let verify_required_fields = required_without_default_fields
             .iter()
@@ -305,6 +292,23 @@ impl ThriftBackend {
         };
 
         let format_msg = format!("decode struct `{}` field(#{{}}) failed", s.name);
+
+        let mut fields = s
+            .fields
+            .iter()
+            .map(|f| format!("{}: {}", self.rust_name(f.did), f.local_var_name()))
+            .join(",");
+
+        if keep {
+            if !fields.is_empty() {
+                fields.push_str(", ");
+            }
+            if !helper.is_async {
+                fields.push_str("_unknown_fields");
+            } else {
+                fields.push_str("_unknown_fields: ::pilota::LinkedBytes::new()");
+            }
+        }
 
         format! {
             r#"
@@ -364,7 +368,7 @@ impl ThriftBackend {
         let match_fields = fields
             .iter()
             .map(|f| {
-                let field_ident = self.rust_name(f.did);
+                let field_ident = f.local_var_name();
                 let ttype = self.ttype(&f.ty);
                 let mut read_field = self.codegen_decode_ty(helper, &f.ty);
                 let field_id = f.id as i16;

@@ -28,7 +28,7 @@ pub mod decode_error {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut b = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -47,7 +47,7 @@ pub mod decode_error {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                b = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -69,14 +69,14 @@ pub mod decode_error {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(b) = b else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field b is required".to_string(),
+                        "field var_1 is required".to_string(),
                     ));
                 };
 
-                let data = Self { b };
+                let data = Self { b: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -91,7 +91,7 @@ pub mod decode_error {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut b = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -109,7 +109,7 @@ pub mod decode_error {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    b = Some(
+                                    var_1 = Some(
                                         <B as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     );
@@ -135,16 +135,16 @@ pub mod decode_error {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(b) = b else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field b is required".to_string(),
+                                "field var_1 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { b };
+                    let data = Self { b: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -184,7 +184,7 @@ pub mod decode_error {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut a = None;
+                let mut var_3 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -203,7 +203,7 @@ pub mod decode_error {
                             Some(3)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                a = Some(__protocol.read_faststr()?);
+                                var_3 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -225,14 +225,14 @@ pub mod decode_error {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(a) = a else {
+                let Some(var_3) = var_3 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field a is required".to_string(),
+                        "field var_3 is required".to_string(),
                     ));
                 };
 
-                let data = Self { a };
+                let data = Self { a: var_3 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -247,7 +247,7 @@ pub mod decode_error {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut a = None;
+                    let mut var_3 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -265,7 +265,7 @@ pub mod decode_error {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    a = Some(__protocol.read_faststr().await?);
+                                    var_3 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -288,16 +288,16 @@ pub mod decode_error {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(a) = a else {
+                    let Some(var_3) = var_3 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field a is required".to_string(),
+                                "field var_3 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { a };
+                    let data = Self { a: var_3 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -337,7 +337,7 @@ pub mod decode_error {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut c = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -356,7 +356,7 @@ pub mod decode_error {
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                c = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_2 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -378,14 +378,14 @@ pub mod decode_error {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(c) = c else {
+                let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field c is required".to_string(),
+                        "field var_2 is required".to_string(),
                     ));
                 };
 
-                let data = Self { c };
+                let data = Self { c: var_2 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -400,7 +400,7 @@ pub mod decode_error {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut c = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -418,7 +418,7 @@ pub mod decode_error {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    c = Some(
+                                    var_2 = Some(
                                         <C as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     );
@@ -444,16 +444,16 @@ pub mod decode_error {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(c) = c else {
+                    let Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field c is required".to_string(),
+                                "field var_2 is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self { c };
+                    let data = Self { c: var_2 };
                     ::std::result::Result::Ok(data)
                 })
             }
