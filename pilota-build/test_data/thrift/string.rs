@@ -31,8 +31,8 @@ pub mod string {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut faststr = None;
-                let mut string = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -51,12 +51,12 @@ pub mod string {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                faststr = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                string = Some(__protocol.read_string()?);
+                                var_2 = Some(__protocol.read_string()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -78,20 +78,23 @@ pub mod string {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(faststr) = faststr else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field faststr is required".to_string(),
                     ));
                 };
-                let Some(string) = string else {
+                let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field string is required".to_string(),
                     ));
                 };
 
-                let data = Self { faststr, string };
+                let data = Self {
+                    faststr: var_1,
+                    string: var_2,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -106,8 +109,8 @@ pub mod string {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut faststr = None;
-                    let mut string = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -125,13 +128,13 @@ pub mod string {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    faststr = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    string = Some(__protocol.read_string().await?);
+                                    var_2 = Some(__protocol.read_string().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -154,7 +157,7 @@ pub mod string {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(faststr) = faststr else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -162,7 +165,7 @@ pub mod string {
                             ),
                         );
                     };
-                    let Some(string) = string else {
+                    let Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -171,7 +174,10 @@ pub mod string {
                         );
                     };
 
-                    let data = Self { faststr, string };
+                    let data = Self {
+                        faststr: var_1,
+                        string: var_2,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }

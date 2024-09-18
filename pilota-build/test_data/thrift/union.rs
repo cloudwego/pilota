@@ -299,7 +299,7 @@ pub mod union {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut u = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -318,7 +318,7 @@ pub mod union {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                u = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -340,7 +340,7 @@ pub mod union {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { u };
+                let data = Self { u: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -355,7 +355,7 @@ pub mod union {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut u = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -373,7 +373,7 @@ pub mod union {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    u = Some(
+                                    var_1 = Some(
                                         <Union as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -401,7 +401,7 @@ pub mod union {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { u };
+                    let data = Self { u: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }

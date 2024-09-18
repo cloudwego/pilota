@@ -43,8 +43,8 @@ pub mod serde {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut a = None;
-                let mut b = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -63,10 +63,10 @@ pub mod serde {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                a = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                b = Some(__protocol.read_i32()?);
+                                var_2 = Some(__protocol.read_i32()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -88,20 +88,20 @@ pub mod serde {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(a) = a else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field a is required".to_string(),
                     ));
                 };
-                let Some(b) = b else {
+                let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field b is required".to_string(),
                     ));
                 };
 
-                let data = Self { a, b };
+                let data = Self { a: var_1, b: var_2 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -116,8 +116,8 @@ pub mod serde {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut a = None;
-                    let mut b = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -135,12 +135,12 @@ pub mod serde {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    a = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    b = Some(__protocol.read_i32().await?);
+                                    var_2 = Some(__protocol.read_i32().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -163,7 +163,7 @@ pub mod serde {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(a) = a else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -171,7 +171,7 @@ pub mod serde {
                             ),
                         );
                     };
-                    let Some(b) = b else {
+                    let Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -180,7 +180,7 @@ pub mod serde {
                         );
                     };
 
-                    let data = Self { a, b };
+                    let data = Self { a: var_1, b: var_2 };
                     ::std::result::Result::Ok(data)
                 })
             }

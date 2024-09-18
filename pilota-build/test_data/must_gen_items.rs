@@ -30,7 +30,7 @@ pub mod must_gen_items {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut a = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -47,7 +47,7 @@ pub mod must_gen_items {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                a = Some(__protocol.read_i32()?);
+                                var_1 = Some(__protocol.read_i32()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -69,7 +69,7 @@ pub mod must_gen_items {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { a };
+                let data = Self { a: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -84,7 +84,7 @@ pub mod must_gen_items {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut a = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -101,7 +101,7 @@ pub mod must_gen_items {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    a = Some(__protocol.read_i32().await?);
+                                    var_1 = Some(__protocol.read_i32().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -124,7 +124,7 @@ pub mod must_gen_items {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { a };
+                    let data = Self { a: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }

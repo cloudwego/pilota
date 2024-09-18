@@ -125,9 +125,9 @@ pub mod self_kw {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut r#type = None;
-                let mut self_ = None;
-                let mut protocol = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
+                let mut var_3 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -146,17 +146,17 @@ pub mod self_kw {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                r#type = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                self_ = Some(__protocol.read_faststr()?);
+                                var_2 = Some(__protocol.read_faststr()?);
                             }
                             Some(3)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                protocol = Some(__protocol.read_faststr()?);
+                                var_3 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -178,19 +178,19 @@ pub mod self_kw {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(r#type) = r#type else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field r#type is required".to_string(),
                     ));
                 };
-                let Some(self_) = self_ else {
+                let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field self_ is required".to_string(),
                     ));
                 };
-                let Some(protocol) = protocol else {
+                let Some(var_3) = var_3 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field protocol is required".to_string(),
@@ -198,9 +198,9 @@ pub mod self_kw {
                 };
 
                 let data = Self {
-                    r#type,
-                    self_,
-                    protocol,
+                    r#type: var_1,
+                    self_: var_2,
+                    protocol: var_3,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -216,9 +216,9 @@ pub mod self_kw {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut r#type = None;
-                    let mut self_ = None;
-                    let mut protocol = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
+                    let mut var_3 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -236,19 +236,19 @@ pub mod self_kw {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    r#type = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    self_ = Some(__protocol.read_faststr().await?);
+                                    var_2 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(3)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    protocol = Some(__protocol.read_faststr().await?);
+                                    var_3 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -271,7 +271,7 @@ pub mod self_kw {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(r#type) = r#type else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -279,7 +279,7 @@ pub mod self_kw {
                             ),
                         );
                     };
-                    let Some(self_) = self_ else {
+                    let Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -287,7 +287,7 @@ pub mod self_kw {
                             ),
                         );
                     };
-                    let Some(protocol) = protocol else {
+                    let Some(var_3) = var_3 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -297,9 +297,9 @@ pub mod self_kw {
                     };
 
                     let data = Self {
-                        r#type,
-                        self_,
-                        protocol,
+                        r#type: var_1,
+                        self_: var_2,
+                        protocol: var_3,
                     };
                     ::std::result::Result::Ok(data)
                 })

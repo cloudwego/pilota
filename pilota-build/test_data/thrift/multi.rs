@@ -44,8 +44,8 @@ pub mod multi {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut off = Some(::pilota::FastStr::from_static_str("off"));
-                let mut test_byte = Some(0i8);
+                let mut var_1 = Some(::pilota::FastStr::from_static_str("off"));
+                let mut var_2 = Some(0i8);
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -64,10 +64,10 @@ pub mod multi {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                off = Some(__protocol.read_faststr()?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
-                                test_byte = Some(__protocol.read_i8()?);
+                                var_2 = Some(__protocol.read_i8()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -89,7 +89,10 @@ pub mod multi {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { off, test_byte };
+                let data = Self {
+                    off: var_1,
+                    test_byte: var_2,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -104,8 +107,8 @@ pub mod multi {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut off = Some(::pilota::FastStr::from_static_str("off"));
-                    let mut test_byte = Some(0i8);
+                    let mut var_1 = Some(::pilota::FastStr::from_static_str("off"));
+                    let mut var_2 = Some(0i8);
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -123,12 +126,12 @@ pub mod multi {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    off = Some(__protocol.read_faststr().await?);
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type == ::pilota::thrift::TType::I8 =>
                                 {
-                                    test_byte = Some(__protocol.read_i8().await?);
+                                    var_2 = Some(__protocol.read_i8().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -151,7 +154,10 @@ pub mod multi {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { off, test_byte };
+                    let data = Self {
+                        off: var_1,
+                        test_byte: var_2,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -352,11 +358,11 @@ pub mod multi {
                     __protocol.write_i32_field(5, (value).inner())?;
                 }
                 if let Some(value) = self.test_b3.as_ref() {
-                    __protocol.write_i8_field(5, *value)?;
+                    __protocol.write_i8_field(6, *value)?;
                 }
                 if let Some(value) = self.map.as_ref() {
                     __protocol.write_map_field(
-                        6,
+                        7,
                         ::pilota::thrift::TType::Binary,
                         ::pilota::thrift::TType::Binary,
                         &value,
@@ -371,17 +377,17 @@ pub mod multi {
                     )?;
                 }
                 if let Some(value) = self.test_double.as_ref() {
-                    __protocol.write_double_field(7, *value)?;
-                }
-                if let Some(value) = self.test_double2.as_ref() {
                     __protocol.write_double_field(8, *value)?;
                 }
-                if let Some(value) = self.alias_str.as_ref() {
-                    __protocol.write_faststr_field(9, (value).clone())?;
+                if let Some(value) = self.test_double2.as_ref() {
+                    __protocol.write_double_field(9, *value)?;
                 }
-                __protocol.write_bytes_field(10, (&self.empty).clone())?;
+                if let Some(value) = self.alias_str.as_ref() {
+                    __protocol.write_faststr_field(10, (value).clone())?;
+                }
+                __protocol.write_bytes_field(11, (&self.empty).clone())?;
                 __protocol.write_map_field(
-                    11,
+                    12,
                     ::pilota::thrift::TType::Double,
                     ::pilota::thrift::TType::Double,
                     &&self.test_map,
@@ -395,7 +401,7 @@ pub mod multi {
                     },
                 )?;
                 __protocol.write_set_field(
-                    12,
+                    13,
                     ::pilota::thrift::TType::Double,
                     &&self.test_set,
                     |__protocol, val| {
@@ -404,11 +410,11 @@ pub mod multi {
                     },
                 )?;
                 if let Some(value) = self.a2.as_ref() {
-                    __protocol.write_bool_field(13, *value)?;
+                    __protocol.write_bool_field(14, *value)?;
                 }
                 if let Some(value) = self.map2.as_ref() {
                     __protocol.write_map_field(
-                        14,
+                        15,
                         ::pilota::thrift::TType::Binary,
                         ::pilota::thrift::TType::Binary,
                         &value,
@@ -433,21 +439,21 @@ pub mod multi {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut faststr = ::pilota::FastStr::from_static_str("hello world");
-                let mut string = None;
-                let mut a = Some(false);
-                let mut test_b = Some(B::READ);
-                let mut test_b2 = Some(B::WRITE);
-                let mut test_b3 = Some((B::READ.inner() as i8));
-                let mut map = None;
-                let mut test_double = Some(1f64);
-                let mut test_double2 = Some(1.2f64);
-                let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
-                let mut empty = ::pilota::Bytes::from_static("".as_bytes());
-                let mut test_map = None;
-                let mut test_set = None;
-                let mut a2 = Some(true);
-                let mut map2 = None;
+                let mut var_1 = ::pilota::FastStr::from_static_str("hello world");
+                let mut var_2 = None;
+                let mut var_3 = Some(false);
+                let mut var_4 = Some(B::READ);
+                let mut var_5 = Some(B::WRITE);
+                let mut var_6 = Some((B::READ.inner() as i8));
+                let mut var_7 = None;
+                let mut var_8 = Some(1f64);
+                let mut var_9 = Some(1.2f64);
+                let mut var_10 = Some(::pilota::FastStr::from_static_str(A_S));
+                let mut var_11 = ::pilota::Bytes::from_static("".as_bytes());
+                let mut var_12 = None;
+                let mut var_13 = None;
+                let mut var_14 = Some(true);
+                let mut var_15 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -466,27 +472,27 @@ pub mod multi {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                faststr = __protocol.read_faststr()?;
+                                var_1 = __protocol.read_faststr()?;
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                string = Some(__protocol.read_string()?);
+                                var_2 = Some(__protocol.read_string()?);
                             }
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
-                                a = Some(__protocol.read_bool()?);
+                                var_3 = Some(__protocol.read_bool()?);
                             }
                             Some(4) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                test_b = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_4 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(5) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                test_b2 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_5 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
-                            Some(5) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
-                                test_b3 = Some(__protocol.read_i8()?);
+                            Some(6) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
+                                var_6 = Some(__protocol.read_i8()?);
                             }
-                            Some(6) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                map = Some({
+                            Some(7) if field_ident.field_type == ::pilota::thrift::TType::Map => {
+                                var_7 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -499,28 +505,28 @@ pub mod multi {
                                     val
                                 });
                             }
-                            Some(7)
-                                if field_ident.field_type == ::pilota::thrift::TType::Double =>
-                            {
-                                test_double = Some(__protocol.read_double()?);
-                            }
                             Some(8)
                                 if field_ident.field_type == ::pilota::thrift::TType::Double =>
                             {
-                                test_double2 = Some(__protocol.read_double()?);
+                                var_8 = Some(__protocol.read_double()?);
                             }
                             Some(9)
-                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                                if field_ident.field_type == ::pilota::thrift::TType::Double =>
                             {
-                                alias_str = Some(__protocol.read_faststr()?);
+                                var_9 = Some(__protocol.read_double()?);
                             }
                             Some(10)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                empty = __protocol.read_bytes()?;
+                                var_10 = Some(__protocol.read_faststr()?);
                             }
-                            Some(11) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                test_map = Some({
+                            Some(11)
+                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                            {
+                                var_11 = __protocol.read_bytes()?;
+                            }
+                            Some(12) if field_ident.field_type == ::pilota::thrift::TType::Map => {
+                                var_12 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -533,8 +539,8 @@ pub mod multi {
                                     val
                                 });
                             }
-                            Some(12) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                test_set = Some({
+                            Some(13) if field_ident.field_type == ::pilota::thrift::TType::Set => {
+                                var_13 = Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val =
                                         ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -547,11 +553,11 @@ pub mod multi {
                                     val
                                 });
                             }
-                            Some(13) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
-                                a2 = Some(__protocol.read_bool()?);
+                            Some(14) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
+                                var_14 = Some(__protocol.read_bool()?);
                             }
-                            Some(14) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                map2 = Some({
+                            Some(15) if field_ident.field_type == ::pilota::thrift::TType::Map => {
+                                var_15 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -584,9 +590,9 @@ pub mod multi {
                 };
                 __protocol.read_struct_end()?;
 
-                let string = string.unwrap_or_else(|| "test".to_string());
-                if map.is_none() {
-                    map = Some({
+                let var_2 = var_2.unwrap_or_else(|| "test".to_string());
+                if var_7.is_none() {
+                    var_7 = Some({
                         let mut map = ::pilota::AHashMap::with_capacity(1);
                         map.insert(
                             ::pilota::FastStr::from_static_str("hello"),
@@ -595,33 +601,33 @@ pub mod multi {
                         map
                     });
                 }
-                let test_map = test_map.unwrap_or_else(|| {
+                let var_12 = var_12.unwrap_or_else(|| {
                     let mut map = ::pilota::AHashMap::with_capacity(1);
                     map.insert(::pilota::OrderedFloat(1f64), 2f64);
                     map
                 });
-                let test_set = test_set
+                let var_13 = var_13
                     .unwrap_or_else(|| ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)]));
-                if map2.is_none() {
-                    map2 = Some(::pilota::AHashMap::new());
+                if var_15.is_none() {
+                    var_15 = Some(::pilota::AHashMap::new());
                 }
 
                 let data = Self {
-                    faststr,
-                    string,
-                    a,
-                    test_b,
-                    test_b2,
-                    test_b3,
-                    map,
-                    test_double,
-                    test_double2,
-                    alias_str,
-                    empty,
-                    test_map,
-                    test_set,
-                    a2,
-                    map2,
+                    faststr: var_1,
+                    string: var_2,
+                    a: var_3,
+                    test_b: var_4,
+                    test_b2: var_5,
+                    test_b3: var_6,
+                    map: var_7,
+                    test_double: var_8,
+                    test_double2: var_9,
+                    alias_str: var_10,
+                    empty: var_11,
+                    test_map: var_12,
+                    test_set: var_13,
+                    a2: var_14,
+                    map2: var_15,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -637,21 +643,21 @@ pub mod multi {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut faststr = ::pilota::FastStr::from_static_str("hello world");
-                    let mut string = None;
-                    let mut a = Some(false);
-                    let mut test_b = Some(B::READ);
-                    let mut test_b2 = Some(B::WRITE);
-                    let mut test_b3 = Some((B::READ.inner() as i8));
-                    let mut map = None;
-                    let mut test_double = Some(1f64);
-                    let mut test_double2 = Some(1.2f64);
-                    let mut alias_str = Some(::pilota::FastStr::from_static_str(A_S));
-                    let mut empty = ::pilota::Bytes::from_static("".as_bytes());
-                    let mut test_map = None;
-                    let mut test_set = None;
-                    let mut a2 = Some(true);
-                    let mut map2 = None;
+                    let mut var_1 = ::pilota::FastStr::from_static_str("hello world");
+                    let mut var_2 = None;
+                    let mut var_3 = Some(false);
+                    let mut var_4 = Some(B::READ);
+                    let mut var_5 = Some(B::WRITE);
+                    let mut var_6 = Some((B::READ.inner() as i8));
+                    let mut var_7 = None;
+                    let mut var_8 = Some(1f64);
+                    let mut var_9 = Some(1.2f64);
+                    let mut var_10 = Some(::pilota::FastStr::from_static_str(A_S));
+                    let mut var_11 = ::pilota::Bytes::from_static("".as_bytes());
+                    let mut var_12 = None;
+                    let mut var_13 = None;
+                    let mut var_14 = Some(true);
+                    let mut var_15 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -669,23 +675,23 @@ pub mod multi {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    faststr = __protocol.read_faststr().await?;
+                                    var_1 = __protocol.read_faststr().await?;
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    string = Some(__protocol.read_string().await?);
+                                    var_2 = Some(__protocol.read_string().await?);
                                 }
                                 Some(3)
                                     if field_ident.field_type == ::pilota::thrift::TType::Bool =>
                                 {
-                                    a = Some(__protocol.read_bool().await?);
+                                    var_3 = Some(__protocol.read_bool().await?);
                                 }
                                 Some(4)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    test_b = Some(
+                                    var_4 = Some(
                                         <B as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     );
@@ -693,20 +699,20 @@ pub mod multi {
                                 Some(5)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    test_b2 = Some(
+                                    var_5 = Some(
                                         <B as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     );
                                 }
-                                Some(5)
+                                Some(6)
                                     if field_ident.field_type == ::pilota::thrift::TType::I8 =>
                                 {
-                                    test_b3 = Some(__protocol.read_i8().await?);
+                                    var_6 = Some(__protocol.read_i8().await?);
                                 }
-                                Some(6)
+                                Some(7)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    map = Some({
+                                    var_7 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -720,34 +726,34 @@ pub mod multi {
                                         val
                                     });
                                 }
-                                Some(7)
-                                    if field_ident.field_type
-                                        == ::pilota::thrift::TType::Double =>
-                                {
-                                    test_double = Some(__protocol.read_double().await?);
-                                }
                                 Some(8)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Double =>
                                 {
-                                    test_double2 = Some(__protocol.read_double().await?);
+                                    var_8 = Some(__protocol.read_double().await?);
                                 }
                                 Some(9)
                                     if field_ident.field_type
-                                        == ::pilota::thrift::TType::Binary =>
+                                        == ::pilota::thrift::TType::Double =>
                                 {
-                                    alias_str = Some(__protocol.read_faststr().await?);
+                                    var_9 = Some(__protocol.read_double().await?);
                                 }
                                 Some(10)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    empty = __protocol.read_bytes().await?;
+                                    var_10 = Some(__protocol.read_faststr().await?);
                                 }
                                 Some(11)
+                                    if field_ident.field_type
+                                        == ::pilota::thrift::TType::Binary =>
+                                {
+                                    var_11 = __protocol.read_bytes().await?;
+                                }
+                                Some(12)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    test_map = Some({
+                                    var_12 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -763,10 +769,10 @@ pub mod multi {
                                         val
                                     });
                                 }
-                                Some(12)
+                                Some(13)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    test_set = Some({
+                                    var_13 = Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val =
                                             ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -779,15 +785,15 @@ pub mod multi {
                                         val
                                     });
                                 }
-                                Some(13)
+                                Some(14)
                                     if field_ident.field_type == ::pilota::thrift::TType::Bool =>
                                 {
-                                    a2 = Some(__protocol.read_bool().await?);
+                                    var_14 = Some(__protocol.read_bool().await?);
                                 }
-                                Some(14)
+                                Some(15)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    map2 = Some({
+                                    var_15 = Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -822,9 +828,9 @@ pub mod multi {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let string = string.unwrap_or_else(|| "test".to_string());
-                    if map.is_none() {
-                        map = Some({
+                    let var_2 = var_2.unwrap_or_else(|| "test".to_string());
+                    if var_7.is_none() {
+                        var_7 = Some({
                             let mut map = ::pilota::AHashMap::with_capacity(1);
                             map.insert(
                                 ::pilota::FastStr::from_static_str("hello"),
@@ -833,34 +839,34 @@ pub mod multi {
                             map
                         });
                     }
-                    let test_map = test_map.unwrap_or_else(|| {
+                    let var_12 = var_12.unwrap_or_else(|| {
                         let mut map = ::pilota::AHashMap::with_capacity(1);
                         map.insert(::pilota::OrderedFloat(1f64), 2f64);
                         map
                     });
-                    let test_set = test_set.unwrap_or_else(|| {
+                    let var_13 = var_13.unwrap_or_else(|| {
                         ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)])
                     });
-                    if map2.is_none() {
-                        map2 = Some(::pilota::AHashMap::new());
+                    if var_15.is_none() {
+                        var_15 = Some(::pilota::AHashMap::new());
                     }
 
                     let data = Self {
-                        faststr,
-                        string,
-                        a,
-                        test_b,
-                        test_b2,
-                        test_b3,
-                        map,
-                        test_double,
-                        test_double2,
-                        alias_str,
-                        empty,
-                        test_map,
-                        test_set,
-                        a2,
-                        map2,
+                        faststr: var_1,
+                        string: var_2,
+                        a: var_3,
+                        test_b: var_4,
+                        test_b2: var_5,
+                        test_b3: var_6,
+                        map: var_7,
+                        test_double: var_8,
+                        test_double2: var_9,
+                        alias_str: var_10,
+                        empty: var_11,
+                        test_map: var_12,
+                        test_set: var_13,
+                        a2: var_14,
+                        map2: var_15,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -885,10 +891,10 @@ pub mod multi {
                     + self
                         .test_b3
                         .as_ref()
-                        .map_or(0, |value| __protocol.i8_field_len(Some(5), *value))
+                        .map_or(0, |value| __protocol.i8_field_len(Some(6), *value))
                     + self.map.as_ref().map_or(0, |value| {
                         __protocol.map_field_len(
-                            Some(6),
+                            Some(7),
                             ::pilota::thrift::TType::Binary,
                             ::pilota::thrift::TType::Binary,
                             value,
@@ -899,18 +905,18 @@ pub mod multi {
                     + self
                         .test_double
                         .as_ref()
-                        .map_or(0, |value| __protocol.double_field_len(Some(7), *value))
+                        .map_or(0, |value| __protocol.double_field_len(Some(8), *value))
                     + self
                         .test_double2
                         .as_ref()
-                        .map_or(0, |value| __protocol.double_field_len(Some(8), *value))
+                        .map_or(0, |value| __protocol.double_field_len(Some(9), *value))
                     + self
                         .alias_str
                         .as_ref()
-                        .map_or(0, |value| __protocol.faststr_field_len(Some(9), value))
-                    + __protocol.bytes_field_len(Some(10), &self.empty)
+                        .map_or(0, |value| __protocol.faststr_field_len(Some(10), value))
+                    + __protocol.bytes_field_len(Some(11), &self.empty)
                     + __protocol.map_field_len(
-                        Some(11),
+                        Some(12),
                         ::pilota::thrift::TType::Double,
                         ::pilota::thrift::TType::Double,
                         &self.test_map,
@@ -918,7 +924,7 @@ pub mod multi {
                         |__protocol, val| __protocol.double_len(*val),
                     )
                     + __protocol.set_field_len(
-                        Some(12),
+                        Some(13),
                         ::pilota::thrift::TType::Double,
                         &self.test_set,
                         |__protocol, el| __protocol.double_len(el.0),
@@ -926,10 +932,10 @@ pub mod multi {
                     + self
                         .a2
                         .as_ref()
-                        .map_or(0, |value| __protocol.bool_field_len(Some(13), *value))
+                        .map_or(0, |value| __protocol.bool_field_len(Some(14), *value))
                     + self.map2.as_ref().map_or(0, |value| {
                         __protocol.map_field_len(
-                            Some(14),
+                            Some(15),
                             ::pilota::thrift::TType::Binary,
                             ::pilota::thrift::TType::Binary,
                             value,
@@ -983,7 +989,7 @@ pub mod multi {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut c = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1002,7 +1008,7 @@ pub mod multi {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                c = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -1024,14 +1030,14 @@ pub mod multi {
                 };
                 __protocol.read_struct_end()?;
 
-                if c.is_none() {
-                    c = Some(super::default_value::C {
+                if var_1.is_none() {
+                    var_1 = Some(super::default_value::C {
                         off: Some(::pilota::FastStr::from_static_str("off")),
                         test_byte: Default::default(),
                     });
                 }
 
-                let data = Self { c };
+                let data = Self { c: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -1046,7 +1052,7 @@ pub mod multi {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut c = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -1065,7 +1071,7 @@ pub mod multi {
                 __pilota_decoding_field_id = field_ident.id;
                 match field_ident.id {
                     Some(1) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    c = Some(<super::default_value::C as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                    var_1 = Some(<super::default_value::C as ::pilota::thrift::Message>::decode_async(__protocol).await?);
 
                 },
                     _ => {
@@ -1087,14 +1093,14 @@ pub mod multi {
             };
                     __protocol.read_struct_end().await?;
 
-                    if c.is_none() {
-                        c = Some(super::default_value::C {
+                    if var_1.is_none() {
+                        var_1 = Some(super::default_value::C {
                             off: Some(::pilota::FastStr::from_static_str("off")),
                             test_byte: Default::default(),
                         });
                     }
 
-                    let data = Self { c };
+                    let data = Self { c: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -1144,8 +1150,8 @@ pub mod multi {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut a = None;
-                let mut c = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1164,12 +1170,12 @@ pub mod multi {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                a = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                c = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_2 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -1191,7 +1197,7 @@ pub mod multi {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { a, c };
+                let data = Self { a: var_1, c: var_2 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -1206,8 +1212,8 @@ pub mod multi {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut a = None;
-                    let mut c = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -1226,10 +1232,10 @@ pub mod multi {
                 __pilota_decoding_field_id = field_ident.id;
                 match field_ident.id {
                     Some(1) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    a = Some(<super::recursive_type::A as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                    var_1 = Some(<super::recursive_type::A as ::pilota::thrift::Message>::decode_async(__protocol).await?);
 
                 },Some(2) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    c = Some(<super::recursive_type::C as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                    var_2 = Some(<super::recursive_type::C as ::pilota::thrift::Message>::decode_async(__protocol).await?);
 
                 },
                     _ => {
@@ -1251,7 +1257,7 @@ pub mod multi {
             };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { a, c };
+                    let data = Self { a: var_1, c: var_2 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -1311,7 +1317,7 @@ pub mod multi {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut c = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1328,7 +1334,7 @@ pub mod multi {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                c = Some({
+                                var_1 = Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val =
                                         ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -1359,7 +1365,7 @@ pub mod multi {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { c };
+                let data = Self { c: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -1374,7 +1380,7 @@ pub mod multi {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut c = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -1391,7 +1397,7 @@ pub mod multi {
                                 Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    c = Some({
+                                    var_1 = Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val =
                                             ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -1423,7 +1429,7 @@ pub mod multi {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { c };
+                    let data = Self { c: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -1477,8 +1483,8 @@ pub mod multi {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut a = None;
-                let mut a_b = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1497,14 +1503,14 @@ pub mod multi {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                a = Some(::std::boxed::Box::new(
+                                var_1 = Some(::std::boxed::Box::new(
                                     ::pilota::thrift::Message::decode(__protocol)?,
                                 ));
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                a_b = Some(::std::boxed::Box::new(
+                                var_2 = Some(::std::boxed::Box::new(
                                     ::pilota::thrift::Message::decode(__protocol)?,
                                 ));
                             }
@@ -1528,7 +1534,10 @@ pub mod multi {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { a, a_b };
+                let data = Self {
+                    a: var_1,
+                    a_b: var_2,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -1543,8 +1552,8 @@ pub mod multi {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut a = None;
-                    let mut a_b = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -1562,7 +1571,7 @@ pub mod multi {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    a = Some(::std::boxed::Box::new(
+                                    var_1 = Some(::std::boxed::Box::new(
                                         <A as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     ));
@@ -1571,7 +1580,7 @@ pub mod multi {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    a_b = Some(::std::boxed::Box::new(
+                                    var_2 = Some(::std::boxed::Box::new(
                                         <B as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     ));
@@ -1597,7 +1606,10 @@ pub mod multi {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { a, a_b };
+                    let data = Self {
+                        a: var_1,
+                        a_b: var_2,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -1646,7 +1658,7 @@ pub mod multi {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut b_a = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1665,7 +1677,7 @@ pub mod multi {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                b_a = Some(::std::boxed::Box::new(
+                                var_1 = Some(::std::boxed::Box::new(
                                     ::pilota::thrift::Message::decode(__protocol)?,
                                 ));
                             }
@@ -1689,7 +1701,7 @@ pub mod multi {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { b_a };
+                let data = Self { b_a: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -1704,7 +1716,7 @@ pub mod multi {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut b_a = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -1722,7 +1734,7 @@ pub mod multi {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    b_a = Some(::std::boxed::Box::new(
+                                    var_1 = Some(::std::boxed::Box::new(
                                         <A as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     ));
@@ -1748,7 +1760,7 @@ pub mod multi {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { b_a };
+                    let data = Self { b_a: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }

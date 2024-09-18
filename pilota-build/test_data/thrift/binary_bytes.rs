@@ -31,8 +31,8 @@ pub mod binary_bytes {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut bytes = None;
-                let mut vec = None;
+                let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -51,12 +51,12 @@ pub mod binary_bytes {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                bytes = Some(__protocol.read_bytes()?);
+                                var_1 = Some(__protocol.read_bytes()?);
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                vec = Some(__protocol.read_bytes_vec()?);
+                                var_2 = Some(__protocol.read_bytes_vec()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -78,20 +78,23 @@ pub mod binary_bytes {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(bytes) = bytes else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field bytes is required".to_string(),
                     ));
                 };
-                let Some(vec) = vec else {
+                let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field vec is required".to_string(),
                     ));
                 };
 
-                let data = Self { bytes, vec };
+                let data = Self {
+                    bytes: var_1,
+                    vec: var_2,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -106,8 +109,8 @@ pub mod binary_bytes {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut bytes = None;
-                    let mut vec = None;
+                    let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -125,13 +128,13 @@ pub mod binary_bytes {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    bytes = Some(__protocol.read_bytes().await?);
+                                    var_1 = Some(__protocol.read_bytes().await?);
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    vec = Some(__protocol.read_bytes_vec().await?);
+                                    var_2 = Some(__protocol.read_bytes_vec().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -154,7 +157,7 @@ pub mod binary_bytes {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(bytes) = bytes else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -162,7 +165,7 @@ pub mod binary_bytes {
                             ),
                         );
                     };
-                    let Some(vec) = vec else {
+                    let Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -171,7 +174,10 @@ pub mod binary_bytes {
                         );
                     };
 
-                    let data = Self { bytes, vec };
+                    let data = Self {
+                        bytes: var_1,
+                        vec: var_2,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
