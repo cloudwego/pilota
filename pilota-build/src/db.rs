@@ -22,18 +22,22 @@ pub struct RootDatabase {
 }
 
 impl RootDatabase {
-    pub fn collect_def_ids(&self, input: &[DefId]) -> FxHashMap<DefId, DefLocation> {
+    pub fn collect_def_ids(
+        &self,
+        input: &[DefId],
+        locations: Option<&FxHashMap<DefId, DefLocation>>,
+    ) -> FxHashMap<DefId, DefLocation> {
         use crate::middle::ty::Visitor;
         struct PathCollector<'a> {
             map: &'a mut FxHashMap<DefId, DefLocation>,
             visiting: &'a mut FxHashSet<DefId>,
             db: &'a RootDatabase,
-            depth: usize,
+            locations: Option<&'a FxHashMap<DefId, DefLocation>>,
         }
 
         impl crate::ty::Visitor for PathCollector<'_> {
             fn visit_path(&mut self, path: &crate::rir::Path) {
-                collect(self.db, path.did, self.map, self.visiting, self.depth)
+                collect(self.db, path.did, self.map, self.visiting, self.locations)
             }
         }
 
@@ -42,12 +46,14 @@ impl RootDatabase {
             def_id: DefId,
             map: &mut FxHashMap<DefId, DefLocation>,
             visiting: &mut FxHashSet<DefId>,
-            depth: usize,
+            locations: Option<&FxHashMap<DefId, DefLocation>>,
         ) {
             if map.contains_key(&def_id) {
                 return;
             }
-            if !matches!(&*db.item(def_id).unwrap(), rir::Item::Mod(_)) {
+            if let Some(locations) = locations {
+                map.insert(def_id, locations[&def_id].clone());
+            } else if !matches!(&*db.item(def_id).unwrap(), rir::Item::Mod(_)) {
                 let file_id = db.node(def_id).unwrap().file_id;
 
                 if db.input_files().contains(&file_id) {
@@ -66,7 +72,7 @@ impl RootDatabase {
                         } else {
                             if !map.contains_key(&from_def_id) && !visiting.contains(&from_def_id) {
                                 visiting.insert(from_def_id);
-                                collect(db, from_def_id, map, visiting, depth + 1);
+                                collect(db, from_def_id, map, visiting, locations);
                                 visiting.remove(&from_def_id);
                             }
                             if map
@@ -96,7 +102,7 @@ impl RootDatabase {
 
             node.related_nodes
                 .iter()
-                .for_each(|def_id| collect(db, *def_id, map, visiting, depth));
+                .for_each(|def_id| collect(db, *def_id, map, visiting, locations));
 
             let item = node.expect_item();
 
@@ -106,7 +112,7 @@ impl RootDatabase {
                         db,
                         map,
                         visiting,
-                        depth,
+                        locations,
                     }
                     .visit(&f.ty)
                 }),
@@ -115,14 +121,14 @@ impl RootDatabase {
                         db,
                         map,
                         visiting,
-                        depth,
+                        locations,
                     }
                     .visit(ty)
                 }),
                 rir::Item::Service(s) => {
                     s.extend
                         .iter()
-                        .for_each(|p| collect(db, p.did, map, visiting, depth));
+                        .for_each(|p| collect(db, p.did, map, visiting, locations));
                     s.methods
                         .iter()
                         .flat_map(|m| m.args.iter().map(|f| &f.ty).chain(std::iter::once(&m.ret)))
@@ -131,7 +137,7 @@ impl RootDatabase {
                                 db,
                                 map,
                                 visiting,
-                                depth,
+                                locations,
                             }
                             .visit(ty)
                         });
@@ -140,7 +146,7 @@ impl RootDatabase {
                     db,
                     map,
                     visiting,
-                    depth,
+                    locations,
                 }
                 .visit(&n.ty),
                 rir::Item::Const(c) => {
@@ -148,14 +154,14 @@ impl RootDatabase {
                         db,
                         map,
                         visiting,
-                        depth,
+                        locations,
                     }
                     .visit(&c.ty);
                 }
                 rir::Item::Mod(m) => {
                     m.items
                         .iter()
-                        .for_each(|i| collect(db, *i, map, visiting, depth));
+                        .for_each(|i| collect(db, *i, map, visiting, locations));
                 }
             }
         }
@@ -164,7 +170,7 @@ impl RootDatabase {
 
         input.iter().for_each(|def_id| {
             visiting.insert(*def_id);
-            collect(self, *def_id, &mut map, &mut visiting, 0);
+            collect(self, *def_id, &mut map, &mut visiting, locations);
             visiting.remove(def_id);
         });
 

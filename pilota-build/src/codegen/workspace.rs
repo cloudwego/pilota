@@ -54,14 +54,17 @@ where
     }
 
     pub fn group_defs(&self, entry_def_ids: &[DefId]) -> Result<(), anyhow::Error> {
-        let location_map = self.collect_def_ids(entry_def_ids);
+        let location_map = self.collect_def_ids(entry_def_ids, None);
         let entry_map = location_map.iter().into_group_map_by(|item| item.1);
 
         let entry_deps = entry_map
             .iter()
             .map(|(k, v)| {
                 let def_ids = v.iter().map(|i| i.0).copied().collect_vec();
-                let deps = self.collect_def_ids(&def_ids).into_iter().collect_vec();
+                let deps = self
+                    .collect_def_ids(&def_ids, Some(&location_map))
+                    .into_iter()
+                    .collect_vec();
                 (k, deps)
             })
             .collect::<FxHashMap<_, _>>();
@@ -163,8 +166,12 @@ where
         Ok(())
     }
 
-    fn collect_def_ids(&self, input: &[DefId]) -> FxHashMap<DefId, DefLocation> {
-        self.cg.db.collect_def_ids(input)
+    fn collect_def_ids(
+        &self,
+        input: &[DefId],
+        locations: Option<&FxHashMap<DefId, DefLocation>>,
+    ) -> FxHashMap<DefId, DefLocation> {
+        self.cg.db.collect_def_ids(input, locations)
     }
 
     fn create_crate(
