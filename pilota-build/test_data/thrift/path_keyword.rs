@@ -81,13 +81,13 @@ pub mod path_keyword {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field bytes is required".to_string(),
                     ));
                 };
                 let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_2 is required".to_string(),
+                        "field vec is required".to_string(),
                     ));
                 };
 
@@ -161,7 +161,7 @@ pub mod path_keyword {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field bytes is required".to_string(),
                             ),
                         );
                     };
@@ -169,7 +169,7 @@ pub mod path_keyword {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_2 is required".to_string(),
+                                "field vec is required".to_string(),
                             ),
                         );
                     };

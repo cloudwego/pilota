@@ -256,14 +256,14 @@ impl ThriftBackend {
             .fields
             .iter()
             .filter(|f| !f.is_optional() && self.default_val(f).is_none())
-            .map(|f| f.local_var_name())
+            .map(|f| (self.rust_name(f.did), f.local_var_name()))
             .collect_vec();
 
         let verify_required_fields = required_without_default_fields
             .iter()
-            .map(|s| {
+            .map(|(s, v)| {
                 format!(
-                    r#"let Some({s}) = {s} else {{
+                    r#"let Some({v}) = {v} else {{
                 return ::std::result::Result::Err(
                     ::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,

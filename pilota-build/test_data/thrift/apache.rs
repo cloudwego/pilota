@@ -564,7 +564,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -624,7 +624,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -728,7 +728,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -797,7 +797,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -1192,7 +1192,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -1258,7 +1258,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -1491,7 +1491,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field s is required".to_string(),
                     ));
                 };
 
@@ -1555,7 +1555,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field s is required".to_string(),
                             ),
                         );
                     };
@@ -1642,7 +1642,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -1702,7 +1702,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -2035,7 +2035,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -2096,7 +2096,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -2994,7 +2994,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field arg is required".to_string(),
                     ));
                 };
 
@@ -3055,7 +3055,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field arg is required".to_string(),
                             ),
                         );
                     };
@@ -4209,13 +4209,13 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field arg0 is required".to_string(),
                     ));
                 };
                 let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_2 is required".to_string(),
+                        "field arg1 is required".to_string(),
                     ));
                 };
 
@@ -4286,7 +4286,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field arg0 is required".to_string(),
                             ),
                         );
                     };
@@ -4294,7 +4294,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_2 is required".to_string(),
+                                "field arg1 is required".to_string(),
                             ),
                         );
                     };
@@ -4582,37 +4582,37 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field arg0 is required".to_string(),
                     ));
                 };
                 let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_2 is required".to_string(),
+                        "field arg1 is required".to_string(),
                     ));
                 };
                 let Some(var_3) = var_3 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_3 is required".to_string(),
+                        "field arg2 is required".to_string(),
                     ));
                 };
                 let Some(var_4) = var_4 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_4 is required".to_string(),
+                        "field arg3 is required".to_string(),
                     ));
                 };
                 let Some(var_5) = var_5 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_5 is required".to_string(),
+                        "field arg4 is required".to_string(),
                     ));
                 };
                 let Some(var_6) = var_6 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_6 is required".to_string(),
+                        "field arg5 is required".to_string(),
                     ));
                 };
 
@@ -4731,7 +4731,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field arg0 is required".to_string(),
                             ),
                         );
                     };
@@ -4739,7 +4739,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_2 is required".to_string(),
+                                "field arg1 is required".to_string(),
                             ),
                         );
                     };
@@ -4747,7 +4747,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_3 is required".to_string(),
+                                "field arg2 is required".to_string(),
                             ),
                         );
                     };
@@ -4755,7 +4755,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_4 is required".to_string(),
+                                "field arg3 is required".to_string(),
                             ),
                         );
                     };
@@ -4763,7 +4763,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_5 is required".to_string(),
+                                "field arg4 is required".to_string(),
                             ),
                         );
                     };
@@ -4771,7 +4771,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_6 is required".to_string(),
+                                "field arg5 is required".to_string(),
                             ),
                         );
                     };
@@ -5041,7 +5041,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -5106,7 +5106,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -5215,7 +5215,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -5287,7 +5287,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -5382,7 +5382,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -5443,7 +5443,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -5530,7 +5530,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -5595,7 +5595,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -5683,7 +5683,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -5743,7 +5743,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -5854,7 +5854,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -5926,7 +5926,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -6141,7 +6141,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -6201,7 +6201,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -6728,7 +6728,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -6788,7 +6788,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -7376,7 +7376,7 @@ pub mod apache {
                 let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_2 is required".to_string(),
+                        "field ab is required".to_string(),
                     ));
                 };
 
@@ -7460,7 +7460,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_2 is required".to_string(),
+                                "field ab is required".to_string(),
                             ),
                         );
                     };
@@ -8392,7 +8392,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field arg is required".to_string(),
                     ));
                 };
 
@@ -8453,7 +8453,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field arg is required".to_string(),
                             ),
                         );
                     };
@@ -9122,7 +9122,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field argument is required".to_string(),
                     ));
                 };
 
@@ -9188,7 +9188,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field argument is required".to_string(),
                             ),
                         );
                     };
@@ -9534,7 +9534,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -9602,7 +9602,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -9797,7 +9797,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -9863,7 +9863,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -10009,37 +10009,37 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field arg0 is required".to_string(),
                     ));
                 };
                 let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_2 is required".to_string(),
+                        "field arg1 is required".to_string(),
                     ));
                 };
                 let Some(var_3) = var_3 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_3 is required".to_string(),
+                        "field arg2 is required".to_string(),
                     ));
                 };
                 let Some(var_4) = var_4 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_4 is required".to_string(),
+                        "field arg3 is required".to_string(),
                     ));
                 };
                 let Some(var_5) = var_5 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_5 is required".to_string(),
+                        "field arg4 is required".to_string(),
                     ));
                 };
                 let Some(var_6) = var_6 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_6 is required".to_string(),
+                        "field arg5 is required".to_string(),
                     ));
                 };
 
@@ -10158,7 +10158,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field arg0 is required".to_string(),
                             ),
                         );
                     };
@@ -10166,7 +10166,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_2 is required".to_string(),
+                                "field arg1 is required".to_string(),
                             ),
                         );
                     };
@@ -10174,7 +10174,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_3 is required".to_string(),
+                                "field arg2 is required".to_string(),
                             ),
                         );
                     };
@@ -10182,7 +10182,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_4 is required".to_string(),
+                                "field arg3 is required".to_string(),
                             ),
                         );
                     };
@@ -10190,7 +10190,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_5 is required".to_string(),
+                                "field arg4 is required".to_string(),
                             ),
                         );
                     };
@@ -10198,7 +10198,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_6 is required".to_string(),
+                                "field arg5 is required".to_string(),
                             ),
                         );
                     };
@@ -10515,7 +10515,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -10576,7 +10576,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -10663,7 +10663,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -10728,7 +10728,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -10956,7 +10956,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -11016,7 +11016,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -11124,7 +11124,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -11196,7 +11196,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -11433,7 +11433,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -11494,7 +11494,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -12004,7 +12004,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -12064,7 +12064,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -13772,7 +13772,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field seconds_to_sleep is required".to_string(),
                     ));
                 };
 
@@ -13834,7 +13834,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field seconds_to_sleep is required".to_string(),
                             ),
                         );
                     };
@@ -14451,7 +14451,7 @@ pub mod apache {
                 let Some(var_3) = var_3 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_3 is required".to_string(),
+                        "field list_field is required".to_string(),
                     ));
                 };
 
@@ -14595,7 +14595,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_3 is required".to_string(),
+                                "field list_field is required".to_string(),
                             ),
                         );
                     };
@@ -14899,7 +14899,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -14960,7 +14960,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -15579,7 +15579,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field hello is required".to_string(),
                     ));
                 };
 
@@ -15639,7 +15639,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field hello is required".to_string(),
                             ),
                         );
                     };
@@ -15924,7 +15924,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -15993,7 +15993,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -16086,7 +16086,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -16152,7 +16152,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -16245,7 +16245,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field argument is required".to_string(),
                     ));
                 };
 
@@ -16311,7 +16311,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field argument is required".to_string(),
                             ),
                         );
                     };
@@ -16568,7 +16568,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -16628,7 +16628,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -16734,7 +16734,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -16802,7 +16802,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -16895,7 +16895,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -16956,7 +16956,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -17045,7 +17045,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -17111,7 +17111,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -17535,7 +17535,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -17596,7 +17596,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -17825,7 +17825,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -17885,7 +17885,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -20101,13 +20101,13 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field arg0 is required".to_string(),
                     ));
                 };
                 let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_2 is required".to_string(),
+                        "field arg1 is required".to_string(),
                     ));
                 };
 
@@ -20178,7 +20178,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field arg0 is required".to_string(),
                             ),
                         );
                     };
@@ -20186,7 +20186,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_2 is required".to_string(),
+                                "field arg1 is required".to_string(),
                             ),
                         );
                     };
@@ -20865,7 +20865,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field seconds_to_sleep is required".to_string(),
                     ));
                 };
 
@@ -20927,7 +20927,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field seconds_to_sleep is required".to_string(),
                             ),
                         );
                     };
@@ -21479,7 +21479,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -21544,7 +21544,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -21633,7 +21633,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -21694,7 +21694,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -21805,7 +21805,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -21877,7 +21877,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -22143,7 +22143,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field thing is required".to_string(),
                     ));
                 };
 
@@ -22203,7 +22203,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field thing is required".to_string(),
                             ),
                         );
                     };
@@ -22290,7 +22290,7 @@ pub mod apache {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field hello is required".to_string(),
                     ));
                 };
 
@@ -22350,7 +22350,7 @@ pub mod apache {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field hello is required".to_string(),
                             ),
                         );
                     };

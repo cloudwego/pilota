@@ -181,19 +181,19 @@ pub mod self_kw {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field r#type is required".to_string(),
                     ));
                 };
                 let Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_2 is required".to_string(),
+                        "field self_ is required".to_string(),
                     ));
                 };
                 let Some(var_3) = var_3 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_3 is required".to_string(),
+                        "field protocol is required".to_string(),
                     ));
                 };
 
@@ -275,7 +275,7 @@ pub mod self_kw {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field r#type is required".to_string(),
                             ),
                         );
                     };
@@ -283,7 +283,7 @@ pub mod self_kw {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_2 is required".to_string(),
+                                "field self_ is required".to_string(),
                             ),
                         );
                     };
@@ -291,7 +291,7 @@ pub mod self_kw {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_3 is required".to_string(),
+                                "field protocol is required".to_string(),
                             ),
                         );
                     };

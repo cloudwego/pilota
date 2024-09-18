@@ -162,7 +162,7 @@ pub mod enum_test {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field req is required".to_string(),
                     ));
                 };
 
@@ -228,7 +228,7 @@ pub mod enum_test {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field req is required".to_string(),
                             ),
                         );
                     };
@@ -318,7 +318,7 @@ pub mod enum_test {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field req is required".to_string(),
                     ));
                 };
 
@@ -381,7 +381,7 @@ pub mod enum_test {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field req is required".to_string(),
                             ),
                         );
                     };
@@ -554,7 +554,7 @@ pub mod enum_test {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field req is required".to_string(),
                     ));
                 };
 
@@ -620,7 +620,7 @@ pub mod enum_test {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field req is required".to_string(),
                             ),
                         );
                     };
@@ -856,7 +856,7 @@ pub mod enum_test {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field req is required".to_string(),
                     ));
                 };
 
@@ -919,7 +919,7 @@ pub mod enum_test {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field req is required".to_string(),
                             ),
                         );
                     };
@@ -1158,7 +1158,7 @@ pub mod enum_test {
                 let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field var_1 is required".to_string(),
+                        "field Index is required".to_string(),
                     ));
                 };
 
@@ -1240,7 +1240,7 @@ pub mod enum_test {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field var_1 is required".to_string(),
+                                "field Index is required".to_string(),
                             ),
                         );
                     };
