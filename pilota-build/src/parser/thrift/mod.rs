@@ -226,12 +226,8 @@ impl ThriftLower {
             result.push(self.mk_item(kind, tags.into()));
 
             if !exception.is_empty() {
-                let name: Ident = format!(
-                    "{}{}Exception",
-                    service.name.to_upper_camel_case().as_str(),
-                    method_name
-                )
-                .into();
+                let name: Ident =
+                    format!("{}{}Exception", service.name.as_str(), method_name).into();
                 let kind = ir::ItemKind::Enum(ir::Enum {
                     name: name.clone(),
                     variants: exception,
@@ -243,12 +239,7 @@ impl ThriftLower {
                 result.push(self.mk_item(kind, tags.into()));
             }
 
-            let name: Ident = format!(
-                "{}{}ArgsSend",
-                service.name.to_upper_camel_case().as_str(),
-                method_name
-            )
-            .into();
+            let name: Ident = format!("{}{}ArgsSend", service.name.as_str(), method_name).into();
             let kind = ir::ItemKind::Message(ir::Message {
                 name: name.clone(),
                 fields: f.arguments.iter().map(|a| self.lower_field(a)).collect(),
@@ -258,12 +249,7 @@ impl ThriftLower {
             tags.insert(crate::tags::KeepUnknownFields(false));
             result.push(self.mk_item(kind, tags.into()));
 
-            let name: Ident = format!(
-                "{}{}ArgsRecv",
-                service.name.to_upper_camel_case().as_str(),
-                method_name
-            )
-            .into();
+            let name: Ident = format!("{}{}ArgsRecv", service.name.as_str(), method_name).into();
             let kind = ir::ItemKind::Message(ir::Message {
                 name: name.clone(),
                 fields: f
