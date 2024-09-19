@@ -349,7 +349,7 @@ impl ContextBuilder {
             common_crate_name,
             names: Default::default(),
         };
-        let mut map: FxHashMap<(Option<DefId>, String), Vec<DefId>> = FxHashMap::default();
+        let mut map: FxHashMap<(Vec<DefId>, String), Vec<DefId>> = FxHashMap::default();
         cx.nodes()
             .iter()
             .for_each(|(def_id, node)| match node.kind {
@@ -360,15 +360,17 @@ impl ContextBuilder {
                         }
                     }
                     let rust_name = cx.item_path(*def_id).join("::");
-                    map.entry((None, rust_name)).or_default().push(*def_id);
+                    map.entry((vec![], rust_name)).or_default().push(*def_id);
                 }
                 _ => {
+                    let mut item_def_ids = vec![];
                     let mut item_def_id = *def_id;
                     while !matches!(cx.node(item_def_id).unwrap().kind, NodeKind::Item(_)) {
-                        item_def_id = cx.node(item_def_id).unwrap().parent.unwrap()
+                        item_def_id = cx.node(item_def_id).unwrap().parent.unwrap();
+                        item_def_ids.push(item_def_id);
                     }
                     let rust_name = cx.rust_name(*def_id).to_string();
-                    map.entry((Some(item_def_id), rust_name))
+                    map.entry((item_def_ids, rust_name))
                         .or_default()
                         .push(*def_id);
                 }

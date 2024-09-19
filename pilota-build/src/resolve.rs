@@ -610,6 +610,7 @@ impl Resolver {
                     let def_id = self.did_counter.inc_one();
                     let tags_id = self.tags_id_counter.inc_one();
                     self.tags.insert(tags_id, m.tags.clone());
+                    let old_parent = self.parent_node.replace(def_id);
                     let method = Arc::from(Method {
                         def_id,
                         source: MethodSource::Own,
@@ -642,6 +643,7 @@ impl Resolver {
                             .as_ref()
                             .map(|p| self.lower_path(p, Namespace::Ty, true)),
                     });
+                    self.parent_node = old_parent;
                     self.nodes.insert(
                         def_id,
                         self.mk_node(NodeKind::Method(method.clone()), tags_id),
