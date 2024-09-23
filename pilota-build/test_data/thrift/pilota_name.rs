@@ -13,7 +13,7 @@ pub mod pilota_name {
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "TEST" };
+                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "Test2" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
                 __protocol.write_faststr_field(1, (&self.id).clone())?;
@@ -61,7 +61,7 @@ pub mod pilota_name {
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
-                            "decode struct `TEST` field(#{}) failed, caused by: ",
+                            "decode struct `Test2` field(#{}) failed, caused by: ",
                             field_id
                         ));
                     }
@@ -124,7 +124,7 @@ pub mod pilota_name {
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
-                                "decode struct `TEST` field(#{}) failed, caused by: ",
+                                "decode struct `Test2` field(#{}) failed, caused by: ",
                                 field_id
                             ));
                         }
@@ -149,7 +149,7 @@ pub mod pilota_name {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "TEST" })
+                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Test2" })
                     + __protocol.faststr_field_len(Some(1), &self.id)
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
@@ -465,7 +465,7 @@ pub mod pilota_name {
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "Test" };
+                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "Test1" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
                 __protocol.write_faststr_field(1, (&self.id).clone())?;
@@ -520,7 +520,7 @@ pub mod pilota_name {
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
-                            "decode struct `Test` field(#{}) failed, caused by: ",
+                            "decode struct `Test1` field(#{}) failed, caused by: ",
                             field_id
                         ));
                     }
@@ -599,7 +599,7 @@ pub mod pilota_name {
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
-                                "decode struct `Test` field(#{}) failed, caused by: ",
+                                "decode struct `Test1` field(#{}) failed, caused by: ",
                                 field_id
                             ));
                         }
@@ -635,7 +635,7 @@ pub mod pilota_name {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Test" })
+                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Test1" })
                     + __protocol.faststr_field_len(Some(1), &self.id)
                     + __protocol.faststr_field_len(Some(2), &self.hello)
                     + __protocol.field_stop_len()

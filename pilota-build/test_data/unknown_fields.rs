@@ -194,7 +194,7 @@ pub mod unknown_fields {
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "b" };
+                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "B" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
                 if let Some(value) = self.a.as_ref() {
@@ -255,7 +255,7 @@ pub mod unknown_fields {
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
-                            "decode struct `b` field(#{}) failed, caused by: ",
+                            "decode struct `B` field(#{}) failed, caused by: ",
                             field_id
                         ));
                     }
@@ -317,7 +317,7 @@ pub mod unknown_fields {
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
-                                "decode struct `b` field(#{}) failed, caused by: ",
+                                "decode struct `B` field(#{}) failed, caused by: ",
                                 field_id
                             ));
                         }
@@ -336,7 +336,7 @@ pub mod unknown_fields {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "b" })
+                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "B" })
                     + self
                         .a
                         .as_ref()
@@ -1362,7 +1362,7 @@ pub mod unknown_fields {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier {
-                    name: "STException",
+                    name: "StException",
                 };
 
                 __protocol.write_struct_begin(&struct_ident)?;
@@ -1424,7 +1424,7 @@ pub mod unknown_fields {
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
-                            "decode struct `STException` field(#{}) failed, caused by: ",
+                            "decode struct `StException` field(#{}) failed, caused by: ",
                             field_id
                         ));
                     }
@@ -1483,7 +1483,7 @@ pub mod unknown_fields {
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
-                                "decode struct `STException` field(#{}) failed, caused by: ",
+                                "decode struct `StException` field(#{}) failed, caused by: ",
                                 field_id
                             ));
                         }
@@ -1503,7 +1503,7 @@ pub mod unknown_fields {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
-                    name: "STException",
+                    name: "StException",
                 }) + self
                     .message
                     .as_ref()

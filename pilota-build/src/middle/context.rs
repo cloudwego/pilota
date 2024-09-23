@@ -791,7 +791,7 @@ impl Context {
         }
 
         if !self.change_case || self.names.contains(&def_id) {
-            return node.name().0.into();
+            return node.name();
         }
 
         match self.node(def_id).unwrap().kind {

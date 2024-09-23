@@ -72,6 +72,7 @@ pub struct ThriftLower {
     file_ids_map: FxHashMap<Arc<PathBuf>, FileId>,
     include_dirs: Vec<PathBuf>,
     packages: FxHashMap<Path, Vec<Arc<PathBuf>>>,
+    service_name_duplicates: FxHashSet<String>,
 }
 
 impl ThriftLower {
@@ -84,6 +85,7 @@ impl ThriftLower {
             file_ids_map: FxHashMap::default(),
             include_dirs,
             packages: Default::default(),
+            service_name_duplicates: Default::default(),
         }
     }
 
@@ -115,6 +117,33 @@ impl ThriftLower {
     }
 
     fn lower_service(&self, service: &thrift_parser::Service) -> Vec<ir::Item> {
+        let service_name = if self
+            .service_name_duplicates
+            .contains(&service.name.to_upper_camel_case())
+        {
+            service.name.to_string()
+        } else {
+            service.name.to_upper_camel_case()
+        };
+
+        let mut function_names: FxHashMap<String, Vec<String>> = FxHashMap::default();
+        service.functions.iter().for_each(|func| {
+            let name = self
+                .extract_tags(&func.annotations)
+                .get::<PilotaName>()
+                .map(|name| name.0.to_string())
+                .unwrap_or_else(|| func.name.to_string());
+            function_names
+                .entry(name.to_upper_camel_case())
+                .or_default()
+                .push(name);
+        });
+        let function_name_duplicates = function_names
+            .iter()
+            .filter(|(_, v)| v.len() > 1)
+            .map(|(k, _)| k)
+            .collect::<FxHashSet<_>>();
+
         let kind = ir::ItemKind::Service(ir::Service {
             name: self.lower_ident(&service.name),
             extend: service
@@ -126,27 +155,13 @@ impl ThriftLower {
             methods: service
                 .functions
                 .iter()
-                .map(|f| self.lower_method(service, f))
+                .map(|f| self.lower_method(&service_name, f, &function_name_duplicates))
                 .collect(),
         });
         let mut service_item = self.mk_item(kind, Default::default());
         let mut result = vec![];
 
         let mut related_items = Vec::default();
-
-        let mut seen = FxHashSet::default();
-        let mut duplicate_function_names = FxHashSet::default();
-        for name in service.functions.iter().map(|f| {
-            self.extract_tags(&f.annotations)
-                .get::<PilotaName>()
-                .map(|name| &*name.0)
-                .unwrap_or_else(|| &*f.name)
-                .to_upper_camel_case()
-        }) {
-            if !seen.insert(name.clone()) {
-                duplicate_function_names.insert(name);
-            }
-        }
 
         service.functions.iter().for_each(|f| {
             let exception = f
@@ -171,21 +186,17 @@ impl ThriftLower {
                 .collect::<Vec<_>>();
 
             let tags = self.extract_tags(&f.annotations);
-
-            let method_name = tags
+            let name = tags
                 .get::<PilotaName>()
-                .map(|name| name.0.to_upper_camel_case())
-                .unwrap_or_else(|| {
-                    let method_name = f.name.to_upper_camel_case();
-                    if duplicate_function_names.contains(&method_name) {
-                        f.name.to_string()
-                    } else {
-                        method_name
-                    }
-                });
+                .map(|name| name.0.to_string())
+                .unwrap_or_else(|| f.name.to_string());
+            let method_name = if function_name_duplicates.contains(&name.to_upper_camel_case()) {
+                name
+            } else {
+                name.to_upper_camel_case()
+            };
 
-            let name: Ident = format!("{}{}ResultRecv", service.name.as_str(), method_name).into();
-
+            let name: Ident = format!("{}{}ResultRecv", service_name, method_name).into();
             let mut tags = self.extract_tags(&f.result_type.1);
             tags.remove::<RustWrapperArc>();
             let kind = ir::ItemKind::Enum(ir::Enum {
@@ -201,12 +212,13 @@ impl ThriftLower {
                 .collect(),
                 repr: None,
             });
-            related_items.push(name);
+            related_items.push(name.clone());
             let mut tags = Tags::default();
             tags.insert(crate::tags::KeepUnknownFields(false));
+            tags.insert(crate::tags::PilotaName(name.sym.0));
             result.push(self.mk_item(kind, tags.into()));
 
-            let name: Ident = format!("{}{}ResultSend", service.name.as_str(), method_name).into();
+            let name: Ident = format!("{}{}ResultSend", service_name, method_name).into();
             let kind = ir::ItemKind::Enum(ir::Enum {
                 name: name.clone(),
                 variants: std::iter::once(ir::EnumVariant {
@@ -220,36 +232,38 @@ impl ThriftLower {
                 .collect(),
                 repr: None,
             });
-            related_items.push(name);
+            related_items.push(name.clone());
             let mut tags = Tags::default();
             tags.insert(crate::tags::KeepUnknownFields(false));
+            tags.insert(crate::tags::PilotaName(name.sym.0));
             result.push(self.mk_item(kind, tags.into()));
 
             if !exception.is_empty() {
-                let name: Ident =
-                    format!("{}{}Exception", service.name.as_str(), method_name).into();
+                let name: Ident = format!("{}{}Exception", service_name, method_name).into();
                 let kind = ir::ItemKind::Enum(ir::Enum {
                     name: name.clone(),
                     variants: exception,
                     repr: None,
                 });
-                related_items.push(name);
+                related_items.push(name.clone());
                 let mut tags = Tags::default();
                 tags.insert(crate::tags::KeepUnknownFields(false));
+                tags.insert(crate::tags::PilotaName(name.sym.0));
                 result.push(self.mk_item(kind, tags.into()));
             }
 
-            let name: Ident = format!("{}{}ArgsSend", service.name.as_str(), method_name).into();
+            let name: Ident = format!("{}{}ArgsSend", service_name, method_name).into();
             let kind = ir::ItemKind::Message(ir::Message {
                 name: name.clone(),
                 fields: f.arguments.iter().map(|a| self.lower_field(a)).collect(),
             });
-            related_items.push(name);
+            related_items.push(name.clone());
             let mut tags = Tags::default();
             tags.insert(crate::tags::KeepUnknownFields(false));
+            tags.insert(crate::tags::PilotaName(name.sym.0));
             result.push(self.mk_item(kind, tags.into()));
 
-            let name: Ident = format!("{}{}ArgsRecv", service.name.as_str(), method_name).into();
+            let name: Ident = format!("{}{}ArgsRecv", service_name, method_name).into();
             let kind = ir::ItemKind::Message(ir::Message {
                 name: name.clone(),
                 fields: f
@@ -262,9 +276,10 @@ impl ThriftLower {
                     })
                     .collect(),
             });
-            related_items.push(name);
+            related_items.push(name.clone());
             let mut tags: Tags = Tags::default();
             tags.insert(crate::tags::KeepUnknownFields(false));
+            tags.insert(crate::tags::PilotaName(name.sym.0));
             result.push(self.mk_item(kind, tags.into()));
         });
 
@@ -275,9 +290,21 @@ impl ThriftLower {
 
     fn lower_method(
         &self,
-        service: &thrift_parser::Service,
+        service_name: &String,
         method: &thrift_parser::Function,
+        function_name_duplicates: &FxHashSet<&String>,
     ) -> ir::Method {
+        let tags = self.extract_tags(&method.annotations);
+        let name = tags
+            .get::<PilotaName>()
+            .map(|name| name.0.to_string())
+            .unwrap_or_else(|| method.name.to_string());
+        let method_name = if function_name_duplicates.contains(&name.to_upper_camel_case()) {
+            name
+        } else {
+            name.to_upper_camel_case()
+        };
+
         ir::Method {
             name: self.lower_ident(&method.name),
             args: method
@@ -292,15 +319,14 @@ impl ThriftLower {
                 .collect(),
             ret: self.lower_ty(&method.result_type),
             oneway: method.oneway,
-            tags: self.extract_tags(&method.annotations).into(),
+            tags: tags.into(),
             exceptions: if method.throws.is_empty() {
                 None
             } else {
                 Some(Path {
                     segments: Arc::from([Ident::from(format!(
                         "{}{}Exception",
-                        service.name.to_upper_camel_case().as_str(),
-                        method.name.to_upper_camel_case(),
+                        service_name, method_name,
                     ))]),
                 })
             },
@@ -596,7 +622,23 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                 .or_default()
                 .push(f.path.clone());
 
-            ir::File {
+            let mut service_names: FxHashMap<String, Vec<String>> = FxHashMap::default();
+            f.items.iter().for_each(|item| {
+                if let thrift_parser::Item::Service(service) = item {
+                    service_names
+                        .entry(service.name.to_upper_camel_case())
+                        .or_default()
+                        .push(service.name.to_string());
+                }
+            });
+            this.service_name_duplicates.extend(
+                service_names
+                    .into_iter()
+                    .filter(|(_, v)| v.len() > 1)
+                    .map(|(k, _)| k),
+            );
+
+            let ret = ir::File {
                 package: file_package,
                 items: f
                     .items
@@ -607,7 +649,10 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                     .collect(),
                 id: file_id,
                 uses,
-            }
+            };
+
+            this.service_name_duplicates.clear();
+            ret
         });
 
         file.id

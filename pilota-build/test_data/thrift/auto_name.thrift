@@ -16,14 +16,18 @@ enum Index {
     a,
 }
 
-service TestService {
-    Test test(1: TEST req);
-    Test Test(1: TEST Req);
+struct TestException {
+
+}
+
+service Service {
+    Test test(1: TEST req, 2: TEST Req) throws (1: TestException e);
+    Test Test(1: TEST Req) throws (1: TestException e);
     Test Test2(1: TEST type);
 }
 
-service testService {
-    Test test(1: TEST req);
-    Test Test(1: TEST Req);
+service service {
+    Test test(1: TEST req) throws (1: TestException e);
+    Test Test(1: TEST Req) throws (1: TestException e);
     Test Test2(1: TEST self);
 }
