@@ -78,6 +78,7 @@ pub struct Builder<MkB, P> {
     parser: P,
     plugins: Vec<Box<dyn Plugin>>,
     ignore_unused: bool,
+    split: bool,
     touches: Vec<(std::path::PathBuf, Vec<String>)>,
     change_case: bool,
     keep_unknown_fields: Vec<std::path::PathBuf>,
@@ -103,6 +104,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             dedups: Vec::default(),
             special_namings: Vec::default(),
             common_crate_name: "common".into(),
+            split: false,
         }
     }
 }
@@ -124,6 +126,7 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             dedups: Vec::default(),
             special_namings: Vec::default(),
             common_crate_name: "common".into(),
+            split: false,
         }
     }
 }
@@ -152,12 +155,18 @@ impl<MkB, P> Builder<MkB, P> {
             dedups: self.dedups,
             special_namings: self.special_namings,
             common_crate_name: self.common_crate_name,
+            split: self.split,
         }
     }
 
     pub fn plugin<Plu: Plugin + 'static>(mut self, p: Plu) -> Self {
         self.plugins.push(Box::new(p));
 
+        self
+    }
+
+    pub fn with_split(mut self) -> Self {
+        self.split = true;
         self
     }
 
@@ -266,6 +275,7 @@ where
         dedups: Vec<FastStr>,
         special_namings: Vec<FastStr>,
         common_crate_name: FastStr,
+        split: bool,
     ) -> Context {
         let mut db = RootDatabase::default();
         parser.inputs(services.iter().map(|s| &s.path));
@@ -341,6 +351,7 @@ where
             dedups,
             special_namings,
             common_crate_name,
+            split,
         )
     }
 
@@ -359,6 +370,7 @@ where
             self.dedups,
             self.special_namings,
             self.common_crate_name,
+            self.split,
         );
 
         cx.exec_plugin(BoxedPlugin);
@@ -441,6 +453,7 @@ where
             self.dedups,
             self.special_namings,
             self.common_crate_name,
+            self.split,
         );
 
         std::thread::scope(|_scope| {

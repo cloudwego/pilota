@@ -246,6 +246,7 @@ where
                     def_id,
                     kind: super::CodegenKind::RePub,
                 })),
+            base_dir.as_ref(),
         );
         if let Some(main_mod_path) = info.main_mod_path {
             gen_rs_stream.push_str(&format!(
