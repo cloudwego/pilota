@@ -183,6 +183,7 @@ impl ThriftBackend {
         &self,
         helper: &DecodeHelper,
         s: &rir::Message,
+        name: Symbol,
         keep: bool,
         is_arg: bool,
     ) -> String {
@@ -291,7 +292,7 @@ impl ThriftBackend {
             }
         };
 
-        let format_msg = format!("decode struct `{}` field(#{{}}) failed", s.name);
+        let format_msg = format!("decode struct `{}` field(#{{}}) failed", name);
 
         let mut fields = s
             .fields
@@ -459,7 +460,6 @@ impl CodegenBackend for ThriftBackend {
     fn codegen_struct_impl(&self, def_id: DefId, stream: &mut String, s: &Message) {
         let keep = self.keep_unknown_fields.contains(&def_id);
         let name = self.cx.rust_name(def_id);
-        let name_str = &**s.name;
         let mut encode_fields = self.codegen_encode_fields(&s.fields).join("");
         if keep {
             encode_fields.push_str(
@@ -477,10 +477,10 @@ impl CodegenBackend for ThriftBackend {
         }
         stream.push_str(&self.codegen_impl_message_with_helper(
             def_id,
-            name,
+            name.clone(),
             format! {
                 r#"let struct_ident =::pilota::thrift::TStructIdentifier {{
-                    name: "{name_str}",
+                    name: "{name}",
                 }};
 
                 __protocol.write_struct_begin(&struct_ident)?;
@@ -492,10 +492,10 @@ impl CodegenBackend for ThriftBackend {
             },
             format! {
                 r#"__protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
-                    name: "{name_str}",
+                    name: "{name}",
                 }}) + {encode_fields_size} __protocol.field_stop_len() + __protocol.struct_end_len()"#
             },
-            |helper| self.codegen_decode(helper, s, keep, self.is_arg(def_id)),
+            |helper| self.codegen_decode(helper, s, name.clone(), keep, self.is_arg(def_id)),
         ));
     }
 
@@ -536,7 +536,6 @@ impl CodegenBackend for ThriftBackend {
             None if is_entry_message => self.codegen_entry_enum(def_id, stream, e),
             None => {
                 let name = self.rust_name(def_id);
-                let name_str = &**e.name;
                 let mut encode_variants = e
                     .variants
                     .iter()
@@ -603,7 +602,7 @@ impl CodegenBackend for ThriftBackend {
                     name.clone(),
                     format! {
                         r#"__protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {{
-                            name: "{name_str}",
+                            name: "{name}",
                         }})?;
                         match self {{
                             {encode_variants}
@@ -614,7 +613,7 @@ impl CodegenBackend for ThriftBackend {
                     },
                         format! {
                             r#"__protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
-                                name: "{name_str}",
+                                name: "{name}",
                             }}) + match self {{
                                 {variants_size}
                             }} +  __protocol.field_stop_len() + __protocol.struct_end_len()"#
