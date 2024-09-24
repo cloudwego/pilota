@@ -16,6 +16,7 @@ use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use traits::CodegenBackend;
 
 use self::workspace::Workspace;
+use crate::rir::{Item, NodeKind};
 use crate::{
     db::RirDatabase,
     dedup::def_id_equal,
@@ -481,7 +482,21 @@ where
                 if this.split {
                     let mut item_stream = String::new();
                     let node = this.db.node(def_id.def_id).unwrap();
-                    let file_name = format!("{}.rs", node.name());
+                    let name_prefix = match node.kind {
+                        NodeKind::Item(ref item) => match item.as_ref() {
+                            Item::Message(_) => "message",
+                            Item::Enum(_) => "enum",
+                            Item::Service(_) => "service",
+                            Item::NewType(_) => "new_type",
+                            Item::Const(_) => "const",
+                            Item::Mod(_) => "mod",
+                        },
+                        NodeKind::Variant(_) => "variant",
+                        NodeKind::Field(_) => "field",
+                        NodeKind::Method(_) => "method",
+                        NodeKind::Arg(_) => "arg",
+                    };
+                    let file_name = format!("{}_{}.rs", name_prefix, node.name());
                     this.write_item(&mut item_stream, *def_id, &mut dup);
 
                     let full_path = base_dir.join(file_name.clone());
@@ -495,8 +510,7 @@ where
                     let base_dir_local_path = base_dir.iter().last().unwrap().to_str().unwrap();
 
                     stream.push_str(
-                        format!("\ninclude!(\"{}/{}\");\n", base_dir_local_path, file_name)
-                            .as_str(),
+                        format!("include!(\"{}/{}\");\n", base_dir_local_path, file_name).as_str(),
                     );
                 } else {
                     this.write_item(&mut stream, *def_id, &mut dup)

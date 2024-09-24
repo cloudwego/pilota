@@ -13,7 +13,7 @@ impl ::pilota::thrift::Message for Test {
     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
         #[allow(unused_imports)]
         use ::pilota::thrift::TOutputProtocolExt;
-        let struct_ident = ::pilota::thrift::TStructIdentifier { name: "TEST" };
+        let struct_ident = ::pilota::thrift::TStructIdentifier { name: "Test" };
 
         __protocol.write_struct_begin(&struct_ident)?;
         __protocol.write_faststr_field(1, (&self.id).clone())?;
@@ -150,7 +150,7 @@ impl ::pilota::thrift::Message for Test {
         })() {
             if let Some(field_id) = __pilota_decoding_field_id {
                 err.prepend_msg(&format!(
-                    "decode struct `TEST` field(#{}) failed, caused by: ",
+                    "decode struct `Test` field(#{}) failed, caused by: ",
                     field_id
                 ));
             }
@@ -276,7 +276,7 @@ impl ::pilota::thrift::Message for Test {
             {
                 if let Some(field_id) = __pilota_decoding_field_id {
                     err.prepend_msg(&format!(
-                        "decode struct `TEST` field(#{}) failed, caused by: ",
+                        "decode struct `Test` field(#{}) failed, caused by: ",
                         field_id
                     ));
                 }
@@ -315,7 +315,7 @@ impl ::pilota::thrift::Message for Test {
     fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
         #[allow(unused_imports)]
         use ::pilota::thrift::TLengthProtocolExt;
-        __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "TEST" })
+        __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Test" })
             + __protocol.faststr_field_len(Some(1), &self.id)
             + __protocol.list_field_len(
                 Some(2),
