@@ -16,7 +16,6 @@ use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use traits::CodegenBackend;
 
 use self::workspace::Workspace;
-use crate::rir::{Item, NodeKind};
 use crate::{
     db::RirDatabase,
     dedup::def_id_equal,
@@ -26,6 +25,7 @@ use crate::{
         context::{tls::CUR_ITEM, Mode},
         rir,
     },
+    rir::{Item, NodeKind},
     symbol::{DefId, EnumRepr, FileId},
     Context, Symbol,
 };
