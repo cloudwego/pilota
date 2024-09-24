@@ -165,8 +165,8 @@ impl<MkB, P> Builder<MkB, P> {
         self
     }
 
-    pub fn with_split(mut self) -> Self {
-        self.split = true;
+    pub fn split_generated_files(mut self, split: bool) -> Self {
+        self.split = split;
         self
     }
 

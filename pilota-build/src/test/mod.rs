@@ -133,7 +133,7 @@ fn test_thrift_with_split(
     test_with_split_builder(source, target, gen_dir, |source, target| {
         crate::Builder::thrift()
             .ignore_unused(false)
-            .with_split()
+            .split_generated_files(true)
             .compile_with_config(
                 vec![IdlService::from_path(source.to_owned())],
                 crate::Output::File(target.into()),
