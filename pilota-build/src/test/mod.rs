@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 use std::{fs, path::Path};
-
+use std::fs::File;
 use tempfile::tempdir;
 
 use crate::{plugin::SerdePlugin, IdlService};
@@ -45,7 +45,14 @@ fn diff_dir(old: impl AsRef<Path>, new: impl AsRef<Path>) {
         if !corresponding_new_file.exists() {
             panic!("File {:?} does not exist in the new directory", file_name);
         }
-        diff_file(old_file, corresponding_new_file);
+        
+        if old_file.is_file() && corresponding_new_file.is_file() {
+            diff_file(old_file, corresponding_new_file);
+        } else if !old_file.is_file() && !corresponding_new_file.is_file() {
+            diff_dir(old_file, corresponding_new_file)
+        } else {
+            panic!("{} and {} are not both files or directories", old_file.to_str().unwrap(), corresponding_new_file.to_str().unwrap());
+        }
     }
 }
 
@@ -85,6 +92,41 @@ fn test_with_builder<F: FnOnce(&Path, &Path)>(
     }
 }
 
+fn test_with_builder_workspace<F: FnOnce(&Path, &Path)>(
+    source: impl AsRef<Path>,
+    target: impl AsRef<Path>,
+    f: F,
+) {
+    if std::env::var("UPDATE_TEST_DATA").as_deref() == Ok("1") {
+        fs::remove_dir(&target);
+        fs::create_dir_all(&target).unwrap();
+        let cargo_toml_path = target.as_ref().join("Cargo.toml");
+        File::create(cargo_toml_path).unwrap();
+
+        f(source.as_ref(), target.as_ref());
+    } else {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join(
+            target
+                .as_ref()
+                .file_name()
+                .and_then(|s| s.to_str())
+                .unwrap(),
+        );
+        let mut base_dir_tmp = path.clone();
+        base_dir_tmp.pop();
+        base_dir_tmp.push(path.file_stem().unwrap());
+        println!("{path:?}");
+
+        fs::create_dir_all(&path).unwrap();
+        let cargo_toml_path = path.join("Cargo.toml");
+        File::create(cargo_toml_path).unwrap();
+
+        f(source.as_ref(), &path);
+        diff_dir(target, &base_dir_tmp);
+    }
+}
+
 fn test_with_split_builder<F: FnOnce(&Path, &Path)>(
     source: impl AsRef<Path>,
     target: impl AsRef<Path>,
@@ -121,6 +163,35 @@ fn test_thrift(source: impl AsRef<Path>, target: impl AsRef<Path>) {
             .compile_with_config(
                 vec![IdlService::from_path(source.to_owned())],
                 crate::Output::File(target.into()),
+            )
+    });
+}
+
+fn test_thrift_workspace(input_dir: impl AsRef<Path>, output_dir: impl AsRef<Path>, service_names: Vec<&str>) {
+    let services: Vec<IdlService> = service_names.iter()
+        .map(|name| IdlService::from_path(input_dir.as_ref().join(format!("{}.thrift", name))))
+        .collect();
+    test_with_builder_workspace(input_dir, output_dir, |source, target| {
+        crate::Builder::thrift()
+            .ignore_unused(false)
+            .compile_with_config(
+                services,
+                crate::Output::Workspace(target.into()),
+            )
+    });
+}
+
+fn test_thrift_workspace_with_split(input_dir: impl AsRef<Path>, output_dir: impl AsRef<Path>, service_names: Vec<&str>) {
+    let services: Vec<IdlService> = service_names.iter()
+        .map(|name| IdlService::from_path(input_dir.as_ref().join(format!("{}.thrift", name))))
+        .collect();
+    test_with_builder_workspace(input_dir, output_dir, |source, target| {
+        crate::Builder::thrift()
+            .ignore_unused(false)
+            .split_generated_files(true)
+            .compile_with_config(
+                services,
+                crate::Output::Workspace(target.into()),
             )
     });
 }
@@ -184,6 +255,30 @@ fn test_thrift_gen() {
             }
         }
     });
+}
+
+#[test]
+fn test_thrift_workspace_gen() {
+    let test_data_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("thrift_workspace");
+
+    let input_dir = test_data_dir.join("input");
+    let output_dir = test_data_dir.join("output");
+
+    test_thrift_workspace(input_dir, output_dir, vec!["article", "author", "image"]);
+}
+
+#[test]
+fn test_thrift_workspace_with_split_gen() {
+    let test_data_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("thrift_workspace_with_split");
+
+    let input_dir = test_data_dir.join("input");
+    let output_dir = test_data_dir.join("output");
+
+    test_thrift_workspace_with_split(input_dir, output_dir, vec!["article", "author", "image"]);
 }
 
 #[test]
