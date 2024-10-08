@@ -14,67 +14,14 @@ crate::newtype_index! {
 
 pub static SPECIAL_NAMINGS: OnceLock<Vec<FastStr>> = OnceLock::new();
 
-lazy_static::lazy_static! {
-    static ref KEYWORDS_SET: phf::Set<&'static str> = phf_set![
-        "as",
-        "use",
-        "break",
-        "const",
-        "continue",
-        "crate",
-        "else",
-        "if",
-        "enum",
-        "extern",
-        "false",
-        "fn",
-        "for",
-        "impl",
-        "in",
-        "let",
-        "loop",
-        "match",
-        "mod",
-        "move",
-        "mut",
-        "pub",
-        "ref",
-        "return",
-        "Self",
-        "self",
-        "static",
-        "struct",
-        "super",
-        "trait",
-        "true",
-        "type",
-        "unsafe",
-        "where",
-        "while",
-        "abstract",
-        "alignof",
-        "become",
-        "box",
-        "do",
-        "final",
-        "macro",
-        "offsetof",
-        "override",
-        "priv",
-        "proc",
-        "pure",
-        "sizeof",
-        "typeof",
-        "unsized",
-        "virtual",
-        "yield",
-        "dyn",
-        "async",
-        "await",
-        "try"
-    ];
-
-}
+static KEYWORDS_SET: phf::Set<&'static str> = phf_set![
+    "as", "use", "break", "const", "continue", "crate", "else", "if", "enum", "extern", "false",
+    "fn", "for", "impl", "in", "let", "loop", "match", "mod", "move", "mut", "pub", "ref",
+    "return", "Self", "self", "static", "struct", "super", "trait", "true", "type", "unsafe",
+    "where", "while", "abstract", "alignof", "become", "box", "do", "final", "macro", "offsetof",
+    "override", "priv", "proc", "pure", "sizeof", "typeof", "unsized", "virtual", "yield", "dyn",
+    "async", "await", "try"
+];
 
 #[derive(Hash, PartialEq, Eq, Clone, Debug, PartialOrd, Ord)]
 pub struct Symbol(pub FastStr);

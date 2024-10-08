@@ -733,6 +733,8 @@ impl Context {
                                 v = format!("Some({v})").into()
                             }
                             anyhow::Ok((format!("{name}: {v}"), is_const))
+                        } else if f.is_optional() {
+                            anyhow::Ok((format!("{name}: None"), true))
                         } else {
                             anyhow::Ok((format!("{name}: Default::default()"), false))
                         }
@@ -770,13 +772,21 @@ impl Context {
         Ok(if should_lazy_static {
             let lit = self.lit_as_rvalue(lit, ty)?.0;
             format! {r#"
-                ::pilota::lazy_static::lazy_static! {{
-                    pub static ref {name}: {ty} = {lit};
-                }}
+                pub static {name}: ::std::sync::LazyLock<{ty}> = ::std::sync::LazyLock::new(|| {{
+                    {lit}
+                }});
             "#}
         } else {
-            let lit = self.lit_into_ty(lit, ty)?.0;
-            format!(r#"pub const {name}: {ty} = {lit};"#)
+            let (lit, is_const) = self.lit_into_ty(lit, ty)?;
+            if is_const {
+                format!(r#"pub const {name}: {ty} = {lit};"#)
+            } else {
+                format! {r#"
+                pub static {name}: ::std::sync::LazyLock<{ty}> = ::std::sync::LazyLock::new(|| {{
+                    {lit}
+                }});
+            "#}
+            }
         })
     }
 

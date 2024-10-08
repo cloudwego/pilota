@@ -27,9 +27,7 @@ const ZERO_COPY_THRESHOLD: usize = 1024;
 // While 4KB is better for other platforms (mainly amd64 linux).
 const ZERO_COPY_THRESHOLD: usize = 4 * 1024;
 
-lazy_static::lazy_static! {
-    pub static ref VOID_IDENT: TStructIdentifier = TStructIdentifier { name: "void" };
-}
+pub static VOID_IDENT: TStructIdentifier = TStructIdentifier { name: "void" };
 
 pub trait Message: Sized + Send {
     fn encode<T: TOutputProtocol>(&self, protocol: &mut T) -> Result<(), ThriftException>;
