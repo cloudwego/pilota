@@ -956,7 +956,7 @@ pub mod multi {
                 A {
                     c: Some(super::default_value::C {
                         off: Some(::pilota::FastStr::from_static_str("off")),
-                        test_byte: Default::default(),
+                        test_byte: None,
                     }),
                 }
             }
@@ -989,7 +989,10 @@ pub mod multi {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut var_1 = None;
+                let mut var_1 = Some(super::default_value::C {
+                    off: Some(::pilota::FastStr::from_static_str("off")),
+                    test_byte: None,
+                });
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1030,13 +1033,6 @@ pub mod multi {
                 };
                 __protocol.read_struct_end()?;
 
-                if var_1.is_none() {
-                    var_1 = Some(super::default_value::C {
-                        off: Some(::pilota::FastStr::from_static_str("off")),
-                        test_byte: Default::default(),
-                    });
-                }
-
                 let data = Self { c: var_1 };
                 ::std::result::Result::Ok(data)
             }
@@ -1052,7 +1048,10 @@ pub mod multi {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
+                    let mut var_1 = Some(super::default_value::C {
+                        off: Some(::pilota::FastStr::from_static_str("off")),
+                        test_byte: None,
+                    });
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -1092,13 +1091,6 @@ pub mod multi {
                 return ::std::result::Result::Err(err);
             };
                     __protocol.read_struct_end().await?;
-
-                    if var_1.is_none() {
-                        var_1 = Some(super::default_value::C {
-                            off: Some(::pilota::FastStr::from_static_str("off")),
-                            test_byte: Default::default(),
-                        });
-                    }
 
                     let data = Self { c: var_1 };
                     ::std::result::Result::Ok(data)
