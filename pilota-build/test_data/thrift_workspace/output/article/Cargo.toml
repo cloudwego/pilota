@@ -1,0 +1,19 @@
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.common]
+path = "../common"
+
+[dependencies.pilota]
+workspace = true
+
+[dependencies.volo]
+workspace = true
+
+[dependencies.volo-thrift]
+workspace = true
+
+[package]
+edition = "2021"
+name = "article"
+version = "0.1.0"
