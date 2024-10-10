@@ -507,9 +507,21 @@ where
                     file.flush().unwrap();
                     fmt_file(full_path);
 
-                    stream.push_str(
-                        format!("include!(\"{}\");\n", file_name).as_str(),
-                    );
+                    match &*this.mode {
+                        Mode::Workspace(_) => {
+                            stream.push_str(
+                                format!("include!(\"{}\");\n", file_name).as_str(),
+                            );
+                        },
+                        
+                        Mode::SingleFile { .. } => {
+                            let base_dir_local_path = base_dir.iter().last().unwrap().to_str().unwrap();
+
+                            stream.push_str(
+                                format!("include!(\"{}/{}\");\n", base_dir_local_path, file_name).as_str(),
+                            );
+                        }
+                    }
                 } else {
                     this.write_item(&mut stream, *def_id, &mut dup)
                 }
