@@ -4,19 +4,19 @@ pub mod gen {
     pub mod article {
 
         pub mod image {
-            include!("message_Image.rs");
+            include!("article/image/message_Image.rs");
 
             pub mod cdn {
-                include!("message_CDN.rs");
+                include!("article/image/cdn/message_CDN.rs");
             }
         }
     }
 
     pub mod author {
-        include!("message_Author.rs");
+        include!("author/message_Author.rs");
     }
 
     pub mod common {
-        include!("message_CommonData.rs");
+        include!("common/message_CommonData.rs");
     }
 }

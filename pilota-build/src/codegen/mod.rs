@@ -496,32 +496,25 @@ where
                         NodeKind::Method(_) => "method",
                         NodeKind::Arg(_) => "arg",
                     };
+
+                    let base_mod_name = p.iter().map(|s| s.to_string()).join("/");
+                    let mod_dir = base_dir.join(base_mod_name.clone());
+
                     let file_name = format!("{}_{}.rs", name_prefix, node.name());
                     this.write_item(&mut item_stream, *def_id, &mut dup);
 
-                    let full_path = base_dir.join(file_name.clone());
-                    std::fs::create_dir_all(base_dir).unwrap();
+                    let full_path = mod_dir.join(file_name.clone());
+                    std::fs::create_dir_all(mod_dir).unwrap();
+
                     let mut file =
                         std::io::BufWriter::new(std::fs::File::create(full_path.clone()).unwrap());
                     file.write_all(item_stream.as_bytes()).unwrap();
                     file.flush().unwrap();
                     fmt_file(full_path);
 
-                    match &*this.mode {
-                        Mode::Workspace(_) => {
-                            stream.push_str(
-                                format!("include!(\"{}\");\n", file_name).as_str(),
-                            );
-                        },
-                        
-                        Mode::SingleFile { .. } => {
-                            let base_dir_local_path = base_dir.iter().last().unwrap().to_str().unwrap();
-
-                            stream.push_str(
-                                format!("include!(\"{}/{}\");\n", base_dir_local_path, file_name).as_str(),
-                            );
-                        }
-                    }
+                    stream.push_str(
+                        format!("include!(\"{}/{}\");\n", base_mod_name, file_name).as_str(),
+                    );
                 } else {
                     this.write_item(&mut stream, *def_id, &mut dup)
                 }
@@ -570,7 +563,7 @@ where
         self.write_items(
             &mut stream,
             self.codegen_items.iter().map(|def_id| (*def_id).into()),
-            base_dir.join(ns_name.to_string()).as_path(),
+            base_dir,
         );
 
         stream = format! {r#"pub mod {ns_name} {{

@@ -4,27 +4,27 @@ pub mod gen {
     pub mod article {
 
         pub mod image {
-            include!("message_Image.rs");
+            include!("article/image/message_Image.rs");
 
             pub mod cdn {
-                include!("message_CDN.rs");
+                include!("article/image/cdn/message_CDN.rs");
             }
         }
     }
 
     pub mod author {
-        include!("service_AuthorService.rs");
-        include!("enum_AuthorServiceGetAuthorResultRecv.rs");
-        include!("message_AuthorServiceGetAuthorArgsRecv.rs");
-        include!("enum_AuthorServiceGetAuthorResultSend.rs");
-        include!("message_GetAuthorResponse.rs");
-        include!("message_AuthorServiceGetAuthorArgsSend.rs");
-        include!("message_GetAuthorRequest.rs");
-        include!("message_Author.rs");
+        include!("author/service_AuthorService.rs");
+        include!("author/enum_AuthorServiceGetAuthorResultRecv.rs");
+        include!("author/message_AuthorServiceGetAuthorArgsRecv.rs");
+        include!("author/enum_AuthorServiceGetAuthorResultSend.rs");
+        include!("author/message_GetAuthorResponse.rs");
+        include!("author/message_AuthorServiceGetAuthorArgsSend.rs");
+        include!("author/message_GetAuthorRequest.rs");
+        include!("author/message_Author.rs");
     }
 
     pub mod common {
-        include!("message_CommonData.rs");
+        include!("common/message_CommonData.rs");
     }
     pub use author::*;
 }

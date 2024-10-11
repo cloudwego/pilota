@@ -4,23 +4,23 @@ pub mod gen {
     pub mod article {
 
         pub mod image {
-            include!("message_ImageServiceGetImageArgsRecv.rs");
-            include!("enum_ImageServiceGetImageResultSend.rs");
-            include!("message_GetImageResponse.rs");
-            include!("message_ImageServiceGetImageArgsSend.rs");
-            include!("message_GetImageRequest.rs");
-            include!("service_ImageService.rs");
-            include!("enum_ImageServiceGetImageResultRecv.rs");
-            include!("message_Image.rs");
+            include!("article/image/message_ImageServiceGetImageArgsRecv.rs");
+            include!("article/image/enum_ImageServiceGetImageResultSend.rs");
+            include!("article/image/message_GetImageResponse.rs");
+            include!("article/image/message_ImageServiceGetImageArgsSend.rs");
+            include!("article/image/message_GetImageRequest.rs");
+            include!("article/image/service_ImageService.rs");
+            include!("article/image/enum_ImageServiceGetImageResultRecv.rs");
+            include!("article/image/message_Image.rs");
 
             pub mod cdn {
-                include!("message_CDN.rs");
+                include!("article/image/cdn/message_CDN.rs");
             }
         }
     }
 
     pub mod common {
-        include!("message_CommonData.rs");
+        include!("common/message_CommonData.rs");
     }
     pub use article::image::*;
 }

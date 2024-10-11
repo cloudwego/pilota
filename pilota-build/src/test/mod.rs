@@ -1,7 +1,7 @@
 #![cfg(test)]
 
-use std::{fs, path::Path};
 use std::fs::File;
+use std::{fs, path::Path};
 use tempfile::tempdir;
 
 use crate::{plugin::SerdePlugin, IdlService};
@@ -45,13 +45,17 @@ fn diff_dir(old: impl AsRef<Path>, new: impl AsRef<Path>) {
         if !corresponding_new_file.exists() {
             panic!("File {:?} does not exist in the new directory", file_name);
         }
-        
+
         if old_file.is_file() && corresponding_new_file.is_file() {
             diff_file(old_file, corresponding_new_file);
         } else if !old_file.is_file() && !corresponding_new_file.is_file() {
             diff_dir(old_file, corresponding_new_file)
         } else {
-            panic!("{} and {} are not both files or directories", old_file.to_str().unwrap(), corresponding_new_file.to_str().unwrap());
+            panic!(
+                "{} and {} are not both files or directories",
+                old_file.to_str().unwrap(),
+                corresponding_new_file.to_str().unwrap()
+            );
         }
     }
 }
@@ -167,32 +171,36 @@ fn test_thrift(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     });
 }
 
-fn test_thrift_workspace(input_dir: impl AsRef<Path>, output_dir: impl AsRef<Path>, service_names: Vec<&str>) {
-    let services: Vec<IdlService> = service_names.iter()
+fn test_thrift_workspace(
+    input_dir: impl AsRef<Path>,
+    output_dir: impl AsRef<Path>,
+    service_names: Vec<&str>,
+) {
+    let services: Vec<IdlService> = service_names
+        .iter()
         .map(|name| IdlService::from_path(input_dir.as_ref().join(format!("{}.thrift", name))))
         .collect();
     test_with_builder_workspace(input_dir, output_dir, |source, target| {
         crate::Builder::thrift()
             .ignore_unused(false)
-            .compile_with_config(
-                services,
-                crate::Output::Workspace(target.into()),
-            )
+            .compile_with_config(services, crate::Output::Workspace(target.into()));
     });
 }
 
-fn test_thrift_workspace_with_split(input_dir: impl AsRef<Path>, output_dir: impl AsRef<Path>, service_names: Vec<&str>) {
-    let services: Vec<IdlService> = service_names.iter()
+fn test_thrift_workspace_with_split(
+    input_dir: impl AsRef<Path>,
+    output_dir: impl AsRef<Path>,
+    service_names: Vec<&str>,
+) {
+    let services: Vec<IdlService> = service_names
+        .iter()
         .map(|name| IdlService::from_path(input_dir.as_ref().join(format!("{}.thrift", name))))
         .collect();
     test_with_builder_workspace(input_dir, output_dir, |source, target| {
         crate::Builder::thrift()
             .ignore_unused(false)
             .split_generated_files(true)
-            .compile_with_config(
-                services,
-                crate::Output::Workspace(target.into()),
-            )
+            .compile_with_config(services, crate::Output::Workspace(target.into()))
     });
 }
 
