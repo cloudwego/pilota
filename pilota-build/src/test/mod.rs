@@ -2,6 +2,7 @@
 
 use std::fs::File;
 use std::{fs, path::Path};
+use std::process::Command;
 use tempfile::tempdir;
 
 use crate::{plugin::SerdePlugin, IdlService};
@@ -60,6 +61,49 @@ fn diff_dir(old: impl AsRef<Path>, new: impl AsRef<Path>) {
     }
 }
 
+fn check_cargo_build(target: impl AsRef<Path>) {
+    let tmp_dir = tempdir().unwrap();
+    let tmp_target = tmp_dir.path().join(target.as_ref().file_name().unwrap());
+
+    fn copy_dir_recursively(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> std::io::Result<()> {
+        fs::create_dir_all(&dst)?;
+        for entry in fs::read_dir(src)? {
+            let entry = entry?;
+            let path = entry.path();
+            let dst_path = dst.as_ref().join(entry.file_name());
+            if path.is_dir() {
+                copy_dir_recursively(path, dst_path)?;
+            } else {
+                fs::copy(path, dst_path)?;
+            }
+        }
+        Ok(())
+    }
+
+    // `cargo build` produces the `target` directory and the `Cargo.lock` file
+    // To not pollute the test data, copy the directory to a temporary one
+    copy_dir_recursively(&target, &tmp_target).unwrap();
+    
+    println!("Running cargo build in {}", tmp_target.display());
+
+    let result = Command::new(std::env::var("CARGO").unwrap_or_else(|_| "cargo".to_owned()))
+        .current_dir(&tmp_target)
+        .arg("build")
+        .output();
+    
+    match result {
+        Ok(status) => {
+            if !status.status.success() {
+                eprintln!("{}", String::from_utf8_lossy(&status.stderr));
+                panic!("cargo build returned non-zero exit code for {}. See above for more details", tmp_target.display());
+            }
+        }
+        Err(_) => {
+            panic!("cargo build failed for {}", tmp_target.display());
+        }
+    }
+}
+
 fn test_protobuf(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     test_with_builder(source, target, |source, target| {
         crate::Builder::protobuf()
@@ -108,6 +152,8 @@ fn test_with_builder_workspace<F: FnOnce(&Path, &Path)>(
         File::create(cargo_toml_path).unwrap();
 
         f(source.as_ref(), target.as_ref());
+        
+        check_cargo_build(target)
     } else {
         let dir = tempdir().unwrap();
         let path = dir.path().join(
@@ -127,7 +173,9 @@ fn test_with_builder_workspace<F: FnOnce(&Path, &Path)>(
         File::create(cargo_toml_path).unwrap();
 
         f(source.as_ref(), &path);
-        diff_dir(target, &base_dir_tmp);
+        diff_dir(&target, &base_dir_tmp);
+        
+        check_cargo_build(target)
     }
 }
 
