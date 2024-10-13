@@ -1,8 +1,7 @@
 #![cfg(test)]
 
-use std::fs::File;
-use std::process::Command;
-use std::{fs, path::Path};
+use std::{fs, fs::File, path::Path, process::Command};
+
 use tempfile::tempdir;
 
 use crate::{plugin::SerdePlugin, IdlService};

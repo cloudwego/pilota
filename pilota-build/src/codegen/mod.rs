@@ -6,8 +6,7 @@ use std::{
 };
 
 use ahash::AHashMap;
-use dashmap::mapref::one::RefMut;
-use dashmap::DashMap;
+use dashmap::{mapref::one::RefMut, DashMap};
 use faststr::FastStr;
 use itertools::Itertools;
 use normpath::PathExt;
