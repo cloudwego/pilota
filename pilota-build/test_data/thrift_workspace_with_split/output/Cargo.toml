@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "article",
+    "author", "common",
+    "image",
+]
+
+[workspace.dependencies]
+anyhow = "1"
+pilota = "*"
+volo = "*"
+volo-thrift = "*"

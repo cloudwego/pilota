@@ -67,6 +67,7 @@ pub struct Context {
     pub(crate) codegen_items: Arc<[DefId]>,
     pub(crate) path_resolver: Arc<dyn PathResolver>,
     pub(crate) mode: Arc<Mode>,
+    pub(crate) split: bool,
     pub(crate) keep_unknown_fields: Arc<FxHashSet<DefId>>,
     pub location_map: Arc<FxHashMap<DefId, DefLocation>>,
     pub entry_map: Arc<HashMap<DefLocation, Vec<(DefId, DefLocation)>>>,
@@ -86,6 +87,7 @@ impl Clone for Context {
             codegen_items: self.codegen_items.clone(),
             path_resolver: self.path_resolver.clone(),
             mode: self.mode.clone(),
+            split: self.split,
             services: self.services.clone(),
             keep_unknown_fields: self.keep_unknown_fields.clone(),
             location_map: self.location_map.clone(),
@@ -327,6 +329,7 @@ impl ContextBuilder {
         dedups: Vec<FastStr>,
         special_namings: Vec<FastStr>,
         common_crate_name: FastStr,
+        split: bool,
     ) -> Context {
         SPECIAL_NAMINGS.get_or_init(|| special_namings);
         let mut cx = Context {
@@ -341,6 +344,7 @@ impl ContextBuilder {
                 Mode::SingleFile { .. } => Arc::new(DefaultPathResolver),
             },
             mode: Arc::new(self.mode),
+            split,
             keep_unknown_fields: Arc::new(self.keep_unknown_fields),
             location_map: Arc::new(self.location_map),
             entry_map: Arc::new(self.entry_map),

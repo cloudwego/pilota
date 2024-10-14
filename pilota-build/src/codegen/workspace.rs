@@ -85,6 +85,7 @@ where
                     None
                 }
             })
+            .sorted()
             .join(",\n");
 
         let mut cargo_toml = toml::from_str::<toml::Value>(&unsafe {
@@ -184,6 +185,8 @@ where
                 Command::new("cargo")
                     .arg("init")
                     .arg("--lib")
+                    .arg("--vcs")
+                    .arg("none")
                     .current_dir(base_dir.as_ref())
                     .arg(&*info.name),
             )?;
@@ -246,6 +249,7 @@ where
                     def_id,
                     kind: super::CodegenKind::RePub,
                 })),
+            base_dir.as_ref().join(&*info.name).join("src").as_path(),
         );
         if let Some(main_mod_path) = info.main_mod_path {
             gen_rs_stream.push_str(&format!(

@@ -6,7 +6,7 @@ use std::{
 };
 
 use ahash::AHashMap;
-use dashmap::DashMap;
+use dashmap::{mapref::one::RefMut, DashMap};
 use faststr::FastStr;
 use itertools::Itertools;
 use normpath::PathExt;
@@ -25,6 +25,7 @@ use crate::{
         context::{tls::CUR_ITEM, Mode},
         rir,
     },
+    rir::{Item, NodeKind},
     symbol::{DefId, EnumRepr, FileId},
     Context, Symbol,
 };
@@ -447,8 +448,12 @@ where
         ws.write_crates()
     }
 
-    pub fn write_items(&self, stream: &mut String, items: impl Iterator<Item = CodegenItem>)
-    where
+    pub fn write_items(
+        &self,
+        stream: &mut String,
+        items: impl Iterator<Item = CodegenItem>,
+        base_dir: &Path,
+    ) where
         B: Send,
     {
         let mods = items.into_group_map_by(|CodegenItem { def_id, .. }| {
@@ -473,8 +478,13 @@ where
 
             let _enter = span.enter();
             let mut dup = AHashMap::default();
-            for def_id in def_ids.iter() {
-                this.write_item(&mut stream, *def_id, &mut dup)
+
+            if this.split {
+                Self::write_split_mod(this, base_dir, p, def_ids, &mut stream, &mut dup);
+            } else {
+                for def_id in def_ids.iter() {
+                    this.write_item(&mut stream, *def_id, &mut dup)
+                }
             }
         });
 
@@ -514,11 +524,69 @@ where
         write_stream(&mut pkgs, stream, &pkg_node);
     }
 
+    fn write_split_mod(
+        this: &mut Codegen<B>,
+        base_dir: &Path,
+        p: &Arc<[FastStr]>,
+        def_ids: &Vec<CodegenItem>,
+        stream: &mut RefMut<Arc<[FastStr]>, String>,
+        mut dup: &mut AHashMap<FastStr, Vec<DefId>>,
+    ) {
+        let base_mod_name = p.iter().map(|s| s.to_string()).join("/");
+        let mod_file_name = format!("{}/mod.rs", base_mod_name);
+        let mut mod_stream = String::new();
+
+        for def_id in def_ids.iter() {
+            let mut item_stream = String::new();
+            let node = this.db.node(def_id.def_id).unwrap();
+            let name_prefix = match node.kind {
+                NodeKind::Item(ref item) => match item.as_ref() {
+                    Item::Message(_) => "message",
+                    Item::Enum(_) => "enum",
+                    Item::Service(_) => "service",
+                    Item::NewType(_) => "new_type",
+                    Item::Const(_) => "const",
+                    Item::Mod(_) => "mod",
+                },
+                NodeKind::Variant(_) => "variant",
+                NodeKind::Field(_) => "field",
+                NodeKind::Method(_) => "method",
+                NodeKind::Arg(_) => "arg",
+            };
+
+            let mod_dir = base_dir.join(base_mod_name.clone());
+
+            let file_name = format!("{}_{}.rs", name_prefix, node.name());
+            this.write_item(&mut item_stream, *def_id, &mut dup);
+
+            let full_path = mod_dir.join(file_name.clone());
+            std::fs::create_dir_all(mod_dir).unwrap();
+
+            let mut file =
+                std::io::BufWriter::new(std::fs::File::create(full_path.clone()).unwrap());
+            file.write_all(item_stream.as_bytes()).unwrap();
+            file.flush().unwrap();
+            fmt_file(full_path);
+
+            mod_stream.push_str(format!("include!(\"{}\");\n", file_name).as_str());
+        }
+
+        let mod_path = base_dir.join(&mod_file_name);
+        let mut mod_file = std::io::BufWriter::new(std::fs::File::create(&mod_path).unwrap());
+        mod_file.write_all(mod_stream.as_bytes()).unwrap();
+        mod_file.flush().unwrap();
+        fmt_file(&mod_path);
+
+        stream.push_str(format!("include!(\"{}\");\n", mod_file_name).as_str());
+    }
+
     pub fn write_file(self, ns_name: Symbol, file_name: impl AsRef<Path>) {
+        let base_dir = file_name.as_ref().parent().unwrap();
         let mut stream = String::default();
         self.write_items(
             &mut stream,
             self.codegen_items.iter().map(|def_id| (*def_id).into()),
+            base_dir,
         );
 
         stream = format! {r#"pub mod {ns_name} {{
