@@ -94,29 +94,29 @@ impl ::pilota::thrift::Message for GetAuthorResponse {
             __protocol.read_struct_begin().await?;
             if let ::std::result::Result::Err(mut err) = async {
                     loop {
-                
-                
+
+
                 let field_ident = __protocol.read_field_begin().await?;
                 if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                    
+
                     break;
                 } else {
-                    
+
                 }
                 __pilota_decoding_field_id = field_ident.id;
                 match field_ident.id {
                     Some(1) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
                     var_1 = Some(<::common::author::Author as ::pilota::thrift::Message>::decode_async(__protocol).await?);
-                    
+
                 },
                     _ => {
                         __protocol.skip(field_ident.field_type).await?;
-                        
+
                     },
                 }
 
                 __protocol.read_field_end().await?;
-                
+
 
             };
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())

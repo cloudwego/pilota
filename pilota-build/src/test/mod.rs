@@ -118,6 +118,23 @@ fn test_protobuf(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     });
 }
 
+fn test_protobuf_with_split(
+    source: impl AsRef<Path>,
+    target: impl AsRef<Path>,
+    gen_dir: impl AsRef<Path>,
+) {
+    test_with_split_builder(source, target, gen_dir, |source, target| {
+        crate::Builder::protobuf()
+            .ignore_unused(false)
+            .split_generated_files(true)
+            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            )
+    });
+}
+
 fn test_with_builder<F: FnOnce(&Path, &Path)>(
     source: impl AsRef<Path>,
     target: impl AsRef<Path>,
@@ -148,7 +165,7 @@ fn test_with_builder_workspace<F: FnOnce(&Path, &Path)>(
     f: F,
 ) {
     if std::env::var("UPDATE_TEST_DATA").as_deref() == Ok("1") {
-        fs::remove_dir(&target);
+        _ = fs::remove_dir(&target);
         fs::create_dir_all(&target).unwrap();
         let cargo_toml_path = target.as_ref().join("Cargo.toml");
         File::create(cargo_toml_path).unwrap();
@@ -230,7 +247,7 @@ fn test_thrift_workspace(
         .iter()
         .map(|name| IdlService::from_path(input_dir.as_ref().join(format!("{}.thrift", name))))
         .collect();
-    test_with_builder_workspace(input_dir, output_dir, |source, target| {
+    test_with_builder_workspace(input_dir, output_dir, |_, target| {
         crate::Builder::thrift()
             .ignore_unused(false)
             .compile_with_config(services, crate::Output::Workspace(target.into()));
@@ -246,7 +263,7 @@ fn test_thrift_workspace_with_split(
         .iter()
         .map(|name| IdlService::from_path(input_dir.as_ref().join(format!("{}.thrift", name))))
         .collect();
-    test_with_builder_workspace(input_dir, output_dir, |source, target| {
+    test_with_builder_workspace(input_dir, output_dir, |_, target| {
         crate::Builder::thrift()
             .ignore_unused(false)
             .split_generated_files(true)
@@ -381,6 +398,32 @@ fn test_protobuf_gen() {
                 let mut rs_path = path.clone();
                 rs_path.set_extension("rs");
                 test_protobuf(path, rs_path);
+            }
+        }
+    });
+}
+
+#[test]
+fn test_protobuf_gen_with_split() {
+    let test_data_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("protobuf_with_split");
+
+    test_data_dir.read_dir().unwrap().for_each(|f| {
+        let f = f.unwrap();
+
+        let path = f.path();
+
+        if let Some(ext) = path.extension() {
+            if ext == "proto" {
+                let mut rs_path = path.clone();
+                rs_path.set_extension("rs");
+
+                let mut gen_dir = path.clone();
+                gen_dir.pop();
+                gen_dir.push(rs_path.file_stem().unwrap());
+
+                test_protobuf_with_split(path, rs_path, gen_dir.as_path());
             }
         }
     });
