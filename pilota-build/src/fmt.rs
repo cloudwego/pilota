@@ -24,8 +24,8 @@ pub fn fmt_file<P: AsRef<Path>>(file: P) {
         Err(e) => eprintln!("{}", e),
         Ok(output) => {
             if !output.status.success() {
-                eprintln!("rustfmt failed to format {}", file.display());
                 std::io::stderr().write_all(&output.stderr).unwrap();
+                exit(output.status.code().unwrap_or(1))
             }
         }
     }
