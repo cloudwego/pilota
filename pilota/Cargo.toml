@@ -41,6 +41,7 @@ rand = "0.8"
 
 [features]
 unstable = []
+pb-encode-zero-value = []
 
 [[bench]]
 name = "faststr"

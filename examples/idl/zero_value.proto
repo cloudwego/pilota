@@ -1,0 +1,4 @@
+message A {
+    map<string, string> str_map = 1;
+    map<string, int32> int_map = 2;
+}
