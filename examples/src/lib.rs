@@ -20,10 +20,7 @@ fn test_pb_encode_zero_value() {
             pilota_build::Output::File(out_path.into()),
         );
 
-    let mut a = zero_value::zero_value::A {
-        str_map: Default::default(),
-        int_map: Default::default(),
-    };
+    let mut a = zero_value::zero_value::A::default();
 
     a.str_map.insert("key1".into(), "value".into());
     a.str_map.insert("key2".into(), "".into());

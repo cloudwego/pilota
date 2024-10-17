@@ -15,7 +15,7 @@ keywords = ["serialization", "thrift", "protobuf", "volo"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-pilota = { path = "../pilota", features = ["pb-encode-zero-value"] }
+pilota = { path = "../pilota", features = ["pb-encode-default-value"] }
 pilota-build = { path = "../pilota-build" }
 pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.11" }
 
