@@ -1579,8 +1579,14 @@ macro_rules! map {
             VL: Fn(u32, &V) -> usize,
         {
             for (key, val) in values.iter() {
-                let skip_key = key == &K::default();
-                let skip_val = val == val_default;
+                let mut skip_key = key == &K::default();
+                let mut skip_val = val == val_default;
+
+                #[cfg(feature = "pb-encode-zero-value")]
+                {
+                    skip_key = false;
+                    skip_val = false;
+                }
 
                 let len = (if skip_key { 0 } else { key_encoded_len(1, key) })
                     + (if skip_val { 0 } else { val_encoded_len(2, val) });
