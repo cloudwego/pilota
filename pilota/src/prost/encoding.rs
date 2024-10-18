@@ -1582,7 +1582,7 @@ macro_rules! map {
                 let mut skip_key = key == &K::default();
                 let mut skip_val = val == val_default;
 
-                #[cfg(feature = "pb-encode-zero-value")]
+                #[cfg(feature = "pb-encode-default-value")]
                 {
                     skip_key = false;
                     skip_val = false;
