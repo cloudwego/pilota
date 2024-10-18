@@ -29,5 +29,8 @@ fn test_pb_encode_zero_value() {
     a.encode(&mut buf).unwrap();
 
     println!("{:?}", buf);
-    println!("{:?}", buf.freeze().as_ref());
+    // println!("{:?}", buf.freeze().as_ref());
+
+    let parsed_a = zero_value::zero_value::A::decode(buf).unwrap();
+    println!("{:?}", parsed_a);
 }
