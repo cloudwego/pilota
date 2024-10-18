@@ -1658,10 +1658,10 @@ macro_rules! map {
             KL: Fn(u32, &K) -> usize,
             VL: Fn(u32, &V) -> usize,
         {
-            let mut skip_default_value = false;
+            let mut skip_default_value = true;
             #[cfg(feature = "pb-encode-default-value")]
             {
-                skip_default_value = true;
+                skip_default_value = false;
             }
 
             key_len(tag) * values.len()
