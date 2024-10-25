@@ -151,26 +151,37 @@ pub trait IdentName {
 
 impl IdentName for &str {
     fn upper_camel_ident(&self) -> FastStr {
-        let s = self.to_upper_camel_case();
-        s.into()
+        if let Some(index) = self.find(|c: char| c != '_') {
+            let s = self[index..].to_upper_camel_case();
+            return format!("{}{}", &self[0..index], s).into();
+        }
+        self.to_string().into()
     }
 
     fn snake_ident(&self) -> FastStr {
-        if is_common_initialism(self) {
-            to_snake_case(self)
-        } else {
-            self.to_snake_case()
+        if let Some(index) = self.find(|c: char| c != '_') {
+            let s = &self[index..];
+            let s = if is_common_initialism(s) {
+                to_snake_case(s)
+            } else {
+                s.to_snake_case()
+            };
+            return format!("{}{}", &self[0..index], s).into();
         }
-        .into()
+        self.to_string().into()
     }
 
     fn shouty_snake_case(&self) -> FastStr {
-        if is_common_initialism(self) {
-            to_snake_case(self).to_uppercase()
-        } else {
-            self.to_shouty_snake_case()
+        if let Some(index) = self.find(|c: char| c != '_') {
+            let s = &self[index..];
+            let s = if is_common_initialism(s) {
+                to_snake_case(s).to_uppercase()
+            } else {
+                s.to_shouty_snake_case()
+            };
+            return format!("{}{}", &self[0..index], s).into();
         }
-        .into()
+        self.to_string().into()
     }
 }
 

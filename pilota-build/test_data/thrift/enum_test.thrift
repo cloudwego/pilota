@@ -10,9 +10,15 @@ enum Err {
 enum Ok {
 }
 
+enum _Enum {
+    _1 = 1,
+    _2 = 2
+}
+
 struct Request {
     1: required Index Index,
     2: Index index,
+    3: _Enum _enum,
 }
 service Test {
    Err test_enum(1: Ok req);

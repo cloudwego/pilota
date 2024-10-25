@@ -1,9 +1,6 @@
 use nom::{
-    bytes::complete::take_while,
-    character::complete::{char as cchar, satisfy},
-    combinator::recognize,
-    sequence::tuple,
-    IResult,
+    bytes::complete::take_while, character::complete::satisfy, combinator::recognize,
+    sequence::tuple, IResult,
 };
 
 use super::super::{descriptor::Ident, parser::*};
@@ -15,8 +12,7 @@ impl Parser for Ident {
     fn parse(input: &str) -> IResult<&str, Ident> {
         map(
             recognize(tuple((
-                many0(cchar('_')),
-                satisfy(|c| c.is_ascii_alphabetic()),
+                satisfy(|c| c.is_ascii_alphabetic() || c == '_'),
                 take_while(|c: char| c.is_ascii_alphanumeric() || c == '_'),
             ))),
             |ident: &str| -> Ident { Ident(ident.into()) },
@@ -42,8 +38,8 @@ mod test {
 
         assert_eq!(Ident::parse("_ihciah,").unwrap().1, "_ihciah");
         assert_eq!(Ident::parse("ihciah,").unwrap().1, "ihciah");
-        assert!(Ident::parse("_123").is_err());
-        assert!(Ident::parse("_").is_err());
+        assert_eq!(Ident::parse("_123").unwrap().1, "_123");
+        assert_eq!(Ident::parse("_").unwrap().1, "_");
         assert!(Ident::parse("123").is_err());
     }
 
