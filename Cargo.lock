@@ -845,7 +845,7 @@ dependencies = [
 
 [[package]]
 name = "pilota-build"
-version = "0.11.21"
+version = "0.11.22"
 dependencies = [
  "ahash",
  "anyhow",
@@ -884,7 +884,7 @@ dependencies = [
 
 [[package]]
 name = "pilota-thrift-parser"
-version = "0.11.1"
+version = "0.11.2"
 dependencies = [
  "nom",
 ]
