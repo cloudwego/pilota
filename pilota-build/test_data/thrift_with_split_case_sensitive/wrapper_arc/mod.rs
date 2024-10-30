@@ -1,0 +1,12 @@
+include!("message_A.rs");
+include!("message_testServiceTestArgsRecv.rs");
+include!("enum_testServiceTestResultSend.rs");
+include!("service_TestService.rs");
+include!("enum_TestServiceTestResultRecv.rs");
+include!("message_testServiceTestArgsSend.rs");
+include!("message_TestServiceTestArgsRecv_2.rs");
+include!("enum_TestServiceTestResultSend_2.rs");
+include!("message_TEST.rs");
+include!("service_testService_2.rs");
+include!("enum_testServiceTestResultRecv_2.rs");
+include!("message_TestServiceTestArgsSend_2.rs");

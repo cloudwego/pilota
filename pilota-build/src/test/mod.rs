@@ -148,7 +148,7 @@ fn test_with_builder_workspace<F: FnOnce(&Path, &Path)>(
     f: F,
 ) {
     if std::env::var("UPDATE_TEST_DATA").as_deref() == Ok("1") {
-        fs::remove_dir(&target);
+        fs::remove_dir_all(&target).unwrap();
         fs::create_dir_all(&target).unwrap();
         let cargo_toml_path = target.as_ref().join("Cargo.toml");
         File::create(cargo_toml_path).unwrap();
@@ -337,6 +337,32 @@ fn test_thrift_workspace_with_split_gen() {
     let output_dir = test_data_dir.join("output");
 
     test_thrift_workspace_with_split(input_dir, output_dir, vec!["article", "author", "image"]);
+}
+
+#[test]
+fn test_thrift_gen_with_split_case_sensitive() {
+    let test_data_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("thrift_with_split_case_sensitive");
+
+    test_data_dir.read_dir().unwrap().for_each(|f| {
+        let f = f.unwrap();
+
+        let path = f.path();
+
+        if let Some(ext) = path.extension() {
+            if ext == "thrift" {
+                let mut rs_path = path.clone();
+                rs_path.set_extension("rs");
+
+                let mut gen_dir = path.clone();
+                gen_dir.pop();
+                gen_dir.push(rs_path.file_stem().unwrap());
+
+                test_thrift_with_split(path, rs_path, gen_dir.as_path());
+            }
+        }
+    });
 }
 
 #[test]

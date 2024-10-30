@@ -4,8 +4,8 @@ use std::{
     path::{Path, PathBuf},
     sync::Arc,
 };
-
-use ahash::AHashMap;
+use std::collections::HashSet;
+use ahash::{AHashMap};
 use dashmap::{mapref::one::RefMut, DashMap};
 use faststr::FastStr;
 use itertools::Itertools;
@@ -535,6 +535,8 @@ where
         let base_mod_name = p.iter().map(|s| s.to_string()).join("/");
         let mod_file_name = format!("{}/mod.rs", base_mod_name);
         let mut mod_stream = String::new();
+        
+        let mut existing_file_names: HashSet<String> = HashSet::new();
 
         for def_id in def_ids.iter() {
             let mut item_stream = String::new();
@@ -556,7 +558,10 @@ where
 
             let mod_dir = base_dir.join(base_mod_name.clone());
 
-            let file_name = format!("{}_{}.rs", name_prefix, node.name());
+            let simple_name = format!("{}_{}", name_prefix, node.name());
+            let unique_name = Self::generate_unique_name(&existing_file_names, simple_name);
+            existing_file_names.insert(unique_name.to_ascii_lowercase().clone());
+            let file_name = format!("{}.rs", unique_name);
             this.write_item(&mut item_stream, *def_id, &mut dup);
 
             let full_path = mod_dir.join(file_name.clone());
@@ -578,6 +583,21 @@ where
         fmt_file(&mod_path);
 
         stream.push_str(format!("include!(\"{}\");\n", mod_file_name).as_str());
+    }
+    
+    /**
+        On Windows, files names are case-insensitive
+        To avoid problems when generating files for services with similar names, e.g. 
+        testService and TestService, such names are de-duplicated by adding a number to their name
+    */
+    fn generate_unique_name(existing_names: &HashSet<String>, simple_name: String) -> String {
+        let mut counter = 1;
+        let mut name = simple_name.clone();
+        while existing_names.contains(name.to_ascii_lowercase().as_str()) {
+            counter += 1;
+            name = format!("{}_{}", simple_name.clone(), counter)
+        }
+        name
     }
 
     pub fn write_file(self, ns_name: Symbol, file_name: impl AsRef<Path>) {
