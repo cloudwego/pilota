@@ -165,7 +165,7 @@ fn test_with_builder_workspace<F: FnOnce(&Path, &Path)>(
     f: F,
 ) {
     if std::env::var("UPDATE_TEST_DATA").as_deref() == Ok("1") {
-        _ = fs::remove_dir(&target);
+        fs::remove_dir_all(&target).unwrap();
         fs::create_dir_all(&target).unwrap();
         let cargo_toml_path = target.as_ref().join("Cargo.toml");
         File::create(cargo_toml_path).unwrap();

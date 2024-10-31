@@ -11,3 +11,7 @@ struct TEST {
 service TestService {
     TEST(pilota.rust_wrapper_arc="true") test(1: TEST req(pilota.rust_wrapper_arc="true"));
 }
+
+service testService {
+    TEST(pilota.rust_wrapper_arc="true") test(1: TEST req(pilota.rust_wrapper_arc="true"));
+}
