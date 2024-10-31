@@ -586,9 +586,9 @@ where
     }
     
     /**
-        On Windows, files names are case-insensitive
+        On Windows and macOS, files names are case-insensitive
         To avoid problems when generating files for services with similar names, e.g. 
-        testService and TestService, such names are de-duplicated by adding a number to their name
+        testService and TestService, such names are de-duplicated by adding a number to their nam5e
     */
     fn generate_unique_name(existing_names: &HashSet<String>, simple_name: String) -> String {
         let mut counter = 1;
