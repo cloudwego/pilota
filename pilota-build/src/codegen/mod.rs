@@ -4,8 +4,7 @@ use std::{
     path::{Path, PathBuf},
     sync::Arc,
 };
-use std::collections::HashSet;
-use ahash::{AHashMap};
+use ahash::{AHashMap, AHashSet};
 use dashmap::{mapref::one::RefMut, DashMap};
 use faststr::FastStr;
 use itertools::Itertools;
@@ -536,7 +535,7 @@ where
         let mod_file_name = format!("{}/mod.rs", base_mod_name);
         let mut mod_stream = String::new();
         
-        let mut existing_file_names: HashSet<String> = HashSet::new();
+        let mut existing_file_names: AHashSet<String> = AHashSet::new();
 
         for def_id in def_ids.iter() {
             let mut item_stream = String::new();
@@ -559,7 +558,7 @@ where
             let mod_dir = base_dir.join(base_mod_name.clone());
 
             let simple_name = format!("{}_{}", name_prefix, node.name());
-            let unique_name = Self::generate_unique_name(&existing_file_names, simple_name);
+            let unique_name = Self::generate_unique_name(&existing_file_names, &simple_name);
             existing_file_names.insert(unique_name.to_ascii_lowercase().clone());
             let file_name = format!("{}.rs", unique_name);
             this.write_item(&mut item_stream, *def_id, &mut dup);
@@ -590,7 +589,7 @@ where
         To avoid problems when generating files for services with similar names, e.g. 
         testService and TestService, such names are de-duplicated by adding a number to their nam5e
     */
-    fn generate_unique_name(existing_names: &HashSet<String>, simple_name: String) -> String {
+    fn generate_unique_name(existing_names: &AHashSet<String>, simple_name: &String) -> String {
         let mut counter = 1;
         let mut name = simple_name.clone();
         while existing_names.contains(name.to_ascii_lowercase().as_str()) {
