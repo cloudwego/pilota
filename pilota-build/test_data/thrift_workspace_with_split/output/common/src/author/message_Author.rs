@@ -154,41 +154,41 @@ impl ::pilota::thrift::Message for Author {
             __protocol.read_struct_begin().await?;
             if let ::std::result::Result::Err(mut err) = async {
                     loop {
-                
-                
+
+
                 let field_ident = __protocol.read_field_begin().await?;
                 if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                    
+
                     break;
                 } else {
-                    
+
                 }
                 __pilota_decoding_field_id = field_ident.id;
                 match field_ident.id {
                     Some(1) if field_ident.field_type == ::pilota::thrift::TType::I64  => {
                     var_1 = Some(__protocol.read_i64().await?);
-                    
+
                 },Some(2) if field_ident.field_type == ::pilota::thrift::TType::Binary  => {
                     var_2 = Some(__protocol.read_faststr().await?);
-                    
+
                 },Some(3) if field_ident.field_type == ::pilota::thrift::TType::Binary  => {
                     var_3 = Some(__protocol.read_faststr().await?);
-                    
+
                 },Some(4) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
                     var_4 = Some(<super::article::image::Image as ::pilota::thrift::Message>::decode_async(__protocol).await?);
-                    
+
                 },Some(5) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
                     var_5 = Some(<super::common::CommonData as ::pilota::thrift::Message>::decode_async(__protocol).await?);
-                    
+
                 },
                     _ => {
                         __protocol.skip(field_ident.field_type).await?;
-                        
+
                     },
                 }
 
                 __protocol.read_field_end().await?;
-                
+
 
             };
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())

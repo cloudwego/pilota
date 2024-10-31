@@ -527,14 +527,14 @@ where
         this: &mut Codegen<B>,
         base_dir: &Path,
         p: &Arc<[FastStr]>,
-        def_ids: &Vec<CodegenItem>,
+        def_ids: &[CodegenItem],
         stream: &mut RefMut<Arc<[FastStr]>, String>,
-        mut dup: &mut AHashMap<FastStr, Vec<DefId>>,
+        dup: &mut AHashMap<FastStr, Vec<DefId>>,
     ) {
         let base_mod_name = p.iter().map(|s| s.to_string()).join("/");
         let mod_file_name = format!("{}/mod.rs", base_mod_name);
         let mut mod_stream = String::new();
-        
+
         let mut existing_file_names: AHashSet<String> = AHashSet::new();
 
         for def_id in def_ids.iter() {
@@ -561,11 +561,12 @@ where
             let unique_name = Self::generate_unique_name(&existing_file_names, &simple_name);
             existing_file_names.insert(unique_name.to_ascii_lowercase().clone());
             let file_name = format!("{}.rs", unique_name);
-            this.write_item(&mut item_stream, *def_id, &mut dup);
+            this.write_item(&mut item_stream, *def_id, dup);
 
             let full_path = mod_dir.join(file_name.clone());
             std::fs::create_dir_all(mod_dir).unwrap();
 
+            let item_stream = item_stream.lines().map(|s| s.trim_end()).join("\n");
             let mut file =
                 std::io::BufWriter::new(std::fs::File::create(full_path.clone()).unwrap());
             file.write_all(item_stream.as_bytes()).unwrap();
@@ -576,6 +577,7 @@ where
         }
 
         let mod_path = base_dir.join(&mod_file_name);
+        let mod_stream = mod_stream.lines().map(|s| s.trim_end()).join("\n");
         let mut mod_file = std::io::BufWriter::new(std::fs::File::create(&mod_path).unwrap());
         mod_file.write_all(mod_stream.as_bytes()).unwrap();
         mod_file.flush().unwrap();
@@ -583,10 +585,10 @@ where
 
         stream.push_str(format!("include!(\"{}\");\n", mod_file_name).as_str());
     }
-    
+
     /**
         On Windows and macOS, files names are case-insensitive
-        To avoid problems when generating files for services with similar names, e.g. 
+        To avoid problems when generating files for services with similar names, e.g.
         testService and TestService, such names are de-duplicated by adding a number to their nam5e
     */
     fn generate_unique_name(existing_names: &AHashSet<String>, simple_name: &String) -> String {

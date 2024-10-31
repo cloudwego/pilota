@@ -77,14 +77,11 @@ where
 
         let members = entry_map
             .keys()
-            .filter_map(|k| {
-                if let DefLocation::Fixed(..) = k {
-                    let name = self.cx().crate_name(k);
-                    Some(format!("    \"{name}\""))
-                } else {
-                    None
-                }
+            .map(|k| {
+                let name = self.cx().crate_name(k);
+                format!("    \"{name}\"")
             })
+            .dedup()
             .sorted()
             .join(",\n");
 

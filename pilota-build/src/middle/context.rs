@@ -897,24 +897,14 @@ impl Context {
     // }
 
     pub fn config(&self, crate_id: &CrateId) -> &serde_yaml::Value {
-        let main_file = crate_id.main_file;
-        let service = self
-            .services
-            .iter()
-            .find(|s| self.file_id(s.path.clone()).unwrap() == main_file)
-            .unwrap();
-        &service.config
+        &self.find_service(crate_id.main_file).config
     }
 
     pub(crate) fn crate_name(&self, location: &DefLocation) -> FastStr {
         match location {
             DefLocation::Fixed(crate_id, _) => {
                 let main_file = crate_id.main_file;
-                let service = self
-                    .services
-                    .iter()
-                    .find(|s| self.file_id(s.path.clone()).unwrap() == main_file)
-                    .unwrap();
+                let service = self.find_service(main_file);
                 self.config(crate_id)
                     .get("crate_name")
                     .and_then(|s| s.as_str().map(FastStr::new))
@@ -931,6 +921,28 @@ impl Context {
             }
             DefLocation::Dynamic => self.common_crate_name.clone(),
         }
+    }
+
+    fn find_service(&self, file_id: FileId) -> &crate::IdlService {
+        self.services
+            .iter()
+            .find(|s| {
+                let path = s
+                    .path
+                    .normalize()
+                    .unwrap_or_else(|err| {
+                        panic!("normalize path {} failed: {:?}", s.path.display(), err)
+                    })
+                    .into_path_buf();
+                self.file_id(path.clone()).unwrap_or_else(|| {
+                    panic!(
+                        "file_id not found for path {} in file_ids_map {:?}",
+                        path.display(),
+                        self.file_ids_map()
+                    )
+                }) == file_id
+            })
+            .unwrap()
     }
 }
 

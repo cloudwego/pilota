@@ -1,7 +1,8 @@
 [workspace]
 members = [
     "article",
-    "author", "common",
+    "author",
+    "common",
     "image",
 ]
 

@@ -1,10 +1,8 @@
 [package]
-name = "pilota-build"
-version = "0.11.22"
+name = "examples"
+version = "0.1.0"
 edition = "2021"
 description = "Compile thrift and protobuf idl into rust code at compile-time."
-documentation = "https://docs.rs/pilota-build"
-readme = "README.md"
 homepage = "https://cloudwego.io/docs/pilota/"
 repository = "https://github.com/cloudwego/pilota"
 license = "MIT OR Apache-2.0"
@@ -17,6 +15,8 @@ keywords = ["serialization", "thrift", "protobuf", "volo"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
+pilota = { path = "../pilota", features = ["pb-encode-default-value"] }
+pilota-build = { path = "../pilota-build" }
 pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.11" }
 
 ahash = "0.8"
@@ -48,7 +48,7 @@ protobuf = { package = "protobuf2", version = "4.0.0-alpha.2" }
 faststr = "0.2"
 
 [dev-dependencies]
-pilota = { path = "../pilota" }
+
 tokio = { version = "1", features = ["io-util"] }
 derivative = "2"
 tempfile = "3"
@@ -56,11 +56,3 @@ diffy = "0.4"
 criterion = { version = "0.5", features = ["html_reports"] }
 rand = "0.8"
 linkedbytes = "0.1"
-
-[[bench]]
-name = "codegen"
-harness = false
-
-[[bench]]
-name = "unknown"
-harness = false

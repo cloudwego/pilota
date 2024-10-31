@@ -1,0 +1,5 @@
+message A {
+    map<string, string> str_map = 1;
+    required string s1 = 2;
+    optional string s2 = 3;
+}

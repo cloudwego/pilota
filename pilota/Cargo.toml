@@ -1,6 +1,6 @@
 [package]
 name = "pilota"
-version = "0.11.3"
+version = "0.11.7"
 edition = "2021"
 description = "Pilota is a thrift and protobuf implementation in pure rust with high performance and extensibility."
 documentation = "https://docs.rs/pilota"
@@ -41,6 +41,7 @@ rand = "0.8"
 
 [features]
 unstable = []
+pb-encode-default-value = []
 
 [[bench]]
 name = "faststr"

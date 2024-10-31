@@ -1086,6 +1086,8 @@ pub mod enum_test {
             pub Index: Index,
 
             pub index: ::std::option::Option<Index>,
+
+            pub _enum: ::std::option::Option<_Enum>,
         }
         impl ::pilota::thrift::Message for Request {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -1101,6 +1103,9 @@ pub mod enum_test {
                 if let Some(value) = self.index.as_ref() {
                     __protocol.write_i32_field(2, (value).inner())?;
                 }
+                if let Some(value) = self._enum.as_ref() {
+                    __protocol.write_i32_field(3, (value).inner())?;
+                }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
                 ::std::result::Result::Ok(())
@@ -1114,6 +1119,7 @@ pub mod enum_test {
 
                 let mut var_1 = None;
                 let mut var_2 = None;
+                let mut var_3 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1134,6 +1140,9 @@ pub mod enum_test {
                             }
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                                 var_2 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                            }
+                            Some(3) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
+                                var_3 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -1165,6 +1174,7 @@ pub mod enum_test {
                 let data = Self {
                     Index: var_1,
                     index: var_2,
+                    _enum: var_3,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -1182,6 +1192,7 @@ pub mod enum_test {
                 ::std::boxed::Box::pin(async move {
                     let mut var_1 = None;
                     let mut var_2 = None;
+                    let mut var_3 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -1210,6 +1221,16 @@ pub mod enum_test {
                                 {
                                     var_2 = Some(
                                         <Index as ::pilota::thrift::Message>::decode_async(
+                                            __protocol,
+                                        )
+                                        .await?,
+                                    );
+                                }
+                                Some(3)
+                                    if field_ident.field_type == ::pilota::thrift::TType::I32 =>
+                                {
+                                    var_3 = Some(
+                                        <_Enum as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
@@ -1248,6 +1269,7 @@ pub mod enum_test {
                     let data = Self {
                         Index: var_1,
                         index: var_2,
+                        _enum: var_3,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -1262,8 +1284,102 @@ pub mod enum_test {
                     + self.index.as_ref().map_or(0, |value| {
                         __protocol.i32_field_len(Some(2), (value).inner())
                     })
+                    + self._enum.as_ref().map_or(0, |value| {
+                        __protocol.i32_field_len(Some(3), (value).inner())
+                    })
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
+        #[derivative(Default)]
+        #[derive(Clone, PartialEq, Copy)]
+        #[repr(transparent)]
+        pub struct _Enum(i32);
+
+        impl _Enum {
+            pub const _1: Self = Self(1);
+            pub const _2: Self = Self(2);
+
+            pub fn inner(&self) -> i32 {
+                self.0
+            }
+
+            pub fn to_string(&self) -> ::std::string::String {
+                match self {
+                    Self(1) => ::std::string::String::from("_1"),
+                    Self(2) => ::std::string::String::from("_2"),
+                    Self(val) => val.to_string(),
+                }
+            }
+        }
+
+        impl ::std::convert::From<i32> for _Enum {
+            fn from(value: i32) -> Self {
+                Self(value)
+            }
+        }
+
+        impl ::std::convert::From<_Enum> for i32 {
+            fn from(value: _Enum) -> i32 {
+                value.0
+            }
+        }
+
+        impl ::pilota::thrift::Message for _Enum {
+            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                &self,
+                __protocol: &mut T,
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TOutputProtocolExt;
+                __protocol.write_i32(self.inner())?;
+                ::std::result::Result::Ok(())
+            }
+
+            fn decode<T: ::pilota::thrift::TInputProtocol>(
+                __protocol: &mut T,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                let value = __protocol.read_i32()?;
+                ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
+                    |err| {
+                        ::pilota::thrift::new_protocol_exception(
+                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                            format!("invalid enum value for _Enum, value: {}", value),
+                        )
+                    },
+                )?)
+            }
+
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                __protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
+                ::std::boxed::Box::pin(async move {
+                    let value = __protocol.read_i32().await?;
+                    ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
+                        |err| {
+                            ::pilota::thrift::new_protocol_exception(
+                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                format!("invalid enum value for _Enum, value: {}", value),
+                            )
+                        },
+                    )?)
+                })
+            }
+
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TLengthProtocolExt;
+                __protocol.i32_len(self.inner())
             }
         }
         pub trait Test {}
