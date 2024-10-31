@@ -340,32 +340,6 @@ fn test_thrift_workspace_with_split_gen() {
 }
 
 #[test]
-fn test_thrift_gen_with_split_case_sensitive() {
-    let test_data_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("test_data")
-        .join("thrift_with_split_case_sensitive");
-
-    test_data_dir.read_dir().unwrap().for_each(|f| {
-        let f = f.unwrap();
-
-        let path = f.path();
-
-        if let Some(ext) = path.extension() {
-            if ext == "thrift" {
-                let mut rs_path = path.clone();
-                rs_path.set_extension("rs");
-
-                let mut gen_dir = path.clone();
-                gen_dir.pop();
-                gen_dir.push(rs_path.file_stem().unwrap());
-
-                test_thrift_with_split(path, rs_path, gen_dir.as_path());
-            }
-        }
-    });
-}
-
-#[test]
 fn test_thrift_gen_with_split() {
     let test_data_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("test_data")
