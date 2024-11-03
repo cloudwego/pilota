@@ -49,7 +49,7 @@ impl Parser for Path {
 }
 
 pub(crate) fn list_separator(input: &str) -> IResult<&str, char> {
-    one_of(",;")(input)
+    map(tuple((one_of(",;"), opt(blank))), |(sep, _)| sep)(input)
 }
 
 fn comment(input: &str) -> IResult<&str, &str> {
