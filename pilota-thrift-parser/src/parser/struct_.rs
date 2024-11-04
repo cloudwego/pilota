@@ -95,14 +95,8 @@ mod tests {
         let str = r#"struct ImMsgContent {
             1: string user_id (go.tag = 'json:\"user_id,omitempty\"'),
             2: string __files (go.tag = 'json:\"__files,omitempty\"'),
-        }
-        (
-        cpp.type = "DenseFoo",
-        python.type = "DenseFoo",
-        java.final = "",
-        )"#;
-        let (remain, _) = Struct::parse(str).unwrap();
-        assert!(remain.is_empty());
+        }"#;
+        Struct::parse(str).unwrap();
     }
 
     #[test]

@@ -51,5 +51,14 @@ mod tests {
     #[test]
     fn test_annotations() {
         let _a = Annotations::parse(r#"(go.tag = "json:\"Ids\" split:\"type=tenant\"")"#).unwrap();
+
+        let input = r#"(
+            cpp.type = "DenseFoo",
+            python.type = "DenseFoo",
+            java.final = "",
+            )"#;
+        let (remain, a) = Annotations::parse(input).unwrap();
+        assert!(remain.is_empty());
+        assert_eq!(a.len(), 3);
     }
 }
