@@ -1,7 +1,7 @@
-pub mod seperator {
+pub mod separator {
     #![allow(warnings, clippy::all)]
 
-    pub mod seperator {
+    pub mod separator {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct MyInt32(pub i32);
 
