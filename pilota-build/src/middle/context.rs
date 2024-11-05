@@ -48,7 +48,7 @@ pub enum CollectMode {
 
 #[derive(Debug)]
 pub struct WorkspaceInfo {
-    pub(crate) dir: PathBuf,
+    pub dir: PathBuf,
     pub(crate) location_map: FxHashMap<DefId, DefLocation>,
 }
 
