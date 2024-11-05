@@ -21,8 +21,9 @@ impl Parser for Typedef {
                 Ident::parse,
                 opt(blank),
                 opt(Annotations::parse),
+                opt(list_separator),
             )),
-            |(_, _, r#type, _, alias, _, annotations)| Typedef {
+            |(_, _, r#type, _, alias, _, annotations, _)| Typedef {
                 r#type,
                 alias,
                 annotations: annotations.unwrap_or_default(),

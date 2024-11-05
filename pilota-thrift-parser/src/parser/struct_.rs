@@ -50,8 +50,9 @@ impl Parser for StructLike {
                 tag("}"),
                 opt(blank),
                 opt(Annotations::parse),
+                opt(list_separator),
             )),
-            |(name, _, _, fields, _, _, _, annotations)| StructLike {
+            |(name, _, _, fields, _, _, _, annotations, _)| StructLike {
                 name,
                 fields,
                 annotations: annotations.unwrap_or_default(),
