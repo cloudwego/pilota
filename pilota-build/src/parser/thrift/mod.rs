@@ -126,16 +126,15 @@ impl ThriftLower {
             service.name.to_upper_camel_case()
         };
 
-        let mut function_names: FxHashMap<String, Vec<String>> = FxHashMap::default();
+        let mut function_names: FxHashMap<FastStr, Vec<String>> = FxHashMap::default();
         service.functions.iter().for_each(|func| {
             let name = self
                 .extract_tags(&func.annotations)
                 .get::<PilotaName>()
                 .map(|name| name.0.to_string())
                 .unwrap_or_else(|| func.name.to_string());
-            let ident = Ident::from(name.clone());
             function_names
-                .entry(ident.to_upper_camel_case())
+                .entry(name.as_str().upper_camel_ident())
                 .or_default()
                 .push(name);
         });
@@ -192,7 +191,7 @@ impl ThriftLower {
                 .map(|name| name.0.clone())
                 .unwrap_or_else(|| FastStr::new(f.name.0.clone()));
 
-            let upper_camel_ident = f.name.as_str().upper_camel_ident();
+            let upper_camel_ident = name.as_str().upper_camel_ident();
             let method_name = if function_name_duplicates.contains(upper_camel_ident.as_str()) {
                 name
             } else {
@@ -303,7 +302,7 @@ impl ThriftLower {
             .map(|name| name.0.clone())
             .unwrap_or_else(|| FastStr::new(method.name.0.clone()));
 
-        let upper_camel_ident = method.name.as_str().upper_camel_ident();
+        let upper_camel_ident = name.as_str().upper_camel_ident();
         let method_name = if function_name_duplicates.contains(upper_camel_ident.as_str()) {
             name
         } else {
