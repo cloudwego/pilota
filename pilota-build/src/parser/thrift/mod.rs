@@ -12,11 +12,11 @@ use thrift_parser::Annotations;
 
 use crate::{
     index::Idx,
-    ir,
-    ir::{Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path},
+    ir::{self, Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path},
     symbol::{EnumRepr, FileId, Ident},
     tags::{Annotation, PilotaName, RustWrapperArc, Tags},
     util::error_abort,
+    IdentName,
 };
 
 #[salsa::query_group(SourceDatabaseStorage)]
@@ -133,15 +133,16 @@ impl ThriftLower {
                 .get::<PilotaName>()
                 .map(|name| name.0.to_string())
                 .unwrap_or_else(|| func.name.to_string());
+            let ident = Ident::from(name.clone());
             function_names
-                .entry(name.to_upper_camel_case())
+                .entry(ident.to_upper_camel_case())
                 .or_default()
                 .push(name);
         });
         let function_name_duplicates = function_names
             .iter()
             .filter(|(_, v)| v.len() > 1)
-            .map(|(k, _)| k)
+            .map(|(k, _)| k.as_str())
             .collect::<FxHashSet<_>>();
 
         let kind = ir::ItemKind::Service(ir::Service {
@@ -188,12 +189,14 @@ impl ThriftLower {
             let tags = self.extract_tags(&f.annotations);
             let name = tags
                 .get::<PilotaName>()
-                .map(|name| name.0.to_string())
-                .unwrap_or_else(|| f.name.to_string());
-            let method_name = if function_name_duplicates.contains(&name.to_upper_camel_case()) {
+                .map(|name| name.0.clone())
+                .unwrap_or_else(|| FastStr::new(f.name.0.clone()));
+
+            let upper_camel_ident = f.name.as_str().upper_camel_ident();
+            let method_name = if function_name_duplicates.contains(upper_camel_ident.as_str()) {
                 name
             } else {
-                name.to_upper_camel_case()
+                upper_camel_ident
             };
 
             let name: Ident = format!("{}{}ResultRecv", service_name, method_name).into();
@@ -292,17 +295,19 @@ impl ThriftLower {
         &self,
         service_name: &String,
         method: &thrift_parser::Function,
-        function_name_duplicates: &FxHashSet<&String>,
+        function_name_duplicates: &FxHashSet<&str>,
     ) -> ir::Method {
         let tags = self.extract_tags(&method.annotations);
         let name = tags
             .get::<PilotaName>()
-            .map(|name| name.0.to_string())
-            .unwrap_or_else(|| method.name.to_string());
-        let method_name = if function_name_duplicates.contains(&name.to_upper_camel_case()) {
+            .map(|name| name.0.clone())
+            .unwrap_or_else(|| FastStr::new(method.name.0.clone()));
+
+        let upper_camel_ident = method.name.as_str().upper_camel_ident();
+        let method_name = if function_name_duplicates.contains(upper_camel_ident.as_str()) {
             name
         } else {
-            name.to_upper_camel_case()
+            upper_camel_ident
         };
 
         ir::Method {
