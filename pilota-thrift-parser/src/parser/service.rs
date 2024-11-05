@@ -28,8 +28,9 @@ impl Parser for Service {
                 tag("}"),
                 opt(blank),
                 opt(Annotations::parse),
+                opt(list_separator),
             )),
-            |(_, _, name, extends, _, _, functions, _, _, _, annotations)| Service {
+            |(_, _, name, extends, _, _, functions, _, _, _, annotations, _)| Service {
                 name,
                 extends,
                 functions,
