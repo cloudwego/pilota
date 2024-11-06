@@ -99,7 +99,7 @@ impl CodegenTy {
     }
 
     /// get the global path for ty.
-    pub fn global_path(&self) -> faststr::FastStr {
+    pub fn global_path(&self, adt_prefix: &str) -> faststr::FastStr {
         match self {
             CodegenTy::String => "::std::string::String".into(),
             CodegenTy::FastStr => "::pilota::FastStr".into(),
@@ -119,27 +119,27 @@ impl CodegenTy {
             CodegenTy::Uuid => "[u8; 16]".into(),
             CodegenTy::StaticRef(ty) => {
                 let ty = &**ty;
-                format!("&'static {}", ty.global_path()).into()
+                format!("&'static {}", ty.global_path(adt_prefix)).into()
             }
             CodegenTy::Vec(ty) => {
                 let ty = &**ty;
-                format!("::std::vec::Vec<{}>", ty.global_path()).into()
+                format!("::std::vec::Vec<{}>", ty.global_path(adt_prefix)).into()
             }
             CodegenTy::Array(ty, size) => {
                 let ty = &**ty;
-                format!("[{}; {}]", ty.global_path(), size).into()
+                format!("[{}; {}]", ty.global_path(adt_prefix), size).into()
             }
             CodegenTy::Set(ty) => {
                 let ty = &**ty;
-                format!("::pilota::AHashSet<{}>", ty.global_path()).into()
+                format!("::pilota::AHashSet<{}>", ty.global_path(adt_prefix)).into()
             }
             CodegenTy::Map(k, v) => {
                 let k = &**k;
                 let v = &**v;
                 format!(
                     "::pilota::AHashMap<{}, {}>",
-                    k.global_path(),
-                    v.global_path()
+                    k.global_path(adt_prefix),
+                    v.global_path(adt_prefix)
                 )
                 .into()
             }
@@ -150,13 +150,13 @@ impl CodegenTy {
                     .map(|item| item.to_string())
                     .join("::");
 
-                format!("::{path}").into()
+                format!("{adt_prefix}::{path}").into()
             }),
             CodegenTy::Arc(ty) => {
                 let ty = &**ty;
-                format!("::std::sync::Arc<{}>", ty.global_path()).into()
+                format!("::std::sync::Arc<{}>", ty.global_path(adt_prefix)).into()
             }
-            CodegenTy::LazyStaticRef(ty) => ty.global_path(),
+            CodegenTy::LazyStaticRef(ty) => ty.global_path(adt_prefix),
             CodegenTy::Bytes => "::pilota::Bytes".into(),
         }
     }
@@ -502,5 +502,51 @@ pub(crate) fn walk_ty<V: Visitor>(v: &mut V, ty: &Ty) {
         Path(p) => v.visit_path(p),
         Arc(p) => v.visit(p),
         _ => {}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_global_path() {
+        use super::CodegenTy::*;
+        let ty = Vec(std::sync::Arc::new(U8).into());
+        assert_eq!(ty.global_path("adt_prefix"), "::std::vec::Vec<u8>");
+
+        let ty = Set(std::sync::Arc::new(U8));
+        assert_eq!(ty.global_path("adt_prefix"), "::pilota::AHashSet<u8>");
+
+        let ty = Map(std::sync::Arc::new(U8), std::sync::Arc::new(U8));
+        assert_eq!(ty.global_path("adt_prefix"), "::pilota::AHashMap<u8, u8>");
+
+        let ty = Arc(std::sync::Arc::new(U8));
+        assert_eq!(ty.global_path("adt_prefix"), "::std::sync::Arc<u8>");
+
+        let ty = Arc(std::sync::Arc::new(Vec(std::sync::Arc::new(U8))));
+        assert_eq!(
+            ty.global_path("adt_prefix"),
+            "::std::sync::Arc<::std::vec::Vec<u8>>"
+        );
+
+        let ty = Arc(std::sync::Arc::new(Map(
+            std::sync::Arc::new(U8),
+            std::sync::Arc::new(U8),
+        )));
+        assert_eq!(
+            ty.global_path("adt_prefix"),
+            "::std::sync::Arc<::pilota::AHashMap<u8, u8>>"
+        );
+
+        let ty = Arc(std::sync::Arc::new(Set(std::sync::Arc::new(U8))));
+        assert_eq!(
+            ty.global_path("adt_prefix"),
+            "::std::sync::Arc<::pilota::AHashSet<u8>>"
+        );
+
+        let ty = Arc(std::sync::Arc::new(Arc(std::sync::Arc::new(U8))));
+        assert_eq!(
+            ty.global_path("adt_prefix"),
+            "::std::sync::Arc<::std::sync::Arc<u8>>"
+        );
     }
 }
