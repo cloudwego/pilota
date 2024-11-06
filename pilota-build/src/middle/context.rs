@@ -67,7 +67,7 @@ pub struct Context {
     pub(crate) codegen_items: Arc<[DefId]>,
     pub(crate) path_resolver: Arc<dyn PathResolver>,
     pub mode: Arc<Mode>,
-    pub(crate) split: bool,
+    pub split: bool,
     pub(crate) keep_unknown_fields: Arc<FxHashSet<DefId>>,
     pub location_map: Arc<FxHashMap<DefId, DefLocation>>,
     pub entry_map: Arc<HashMap<DefLocation, Vec<(DefId, DefLocation)>>>,
