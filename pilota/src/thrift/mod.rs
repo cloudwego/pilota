@@ -7,7 +7,12 @@ pub mod rw_ext;
 pub mod unknown;
 pub mod varint_ext;
 
-use std::{future::Future, ops::Deref, sync::Arc};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    future::Future,
+    ops::Deref,
+    sync::Arc,
+};
 
 use bytes::{Buf, BufMut, Bytes};
 pub use error::*;
@@ -278,6 +283,63 @@ macro_rules! field_len {
     };
 }
 
+macro_rules! set_field_len {
+    ($name:ident($t:ty)) => {
+        paste::paste! {
+            #[inline]
+            fn [<$name _field_len>]<T, F>(&mut self, id: Option<i16>, el_ttype: TType, els: &$t<T>, el_len: F,) -> usize
+            where
+                F: Fn(&mut Self, &T) -> usize,
+            {
+                self.field_begin_len(TType::Set, id)
+                    + self.[<$name _len>](el_ttype, els, el_len)
+                    + self.field_end_len()
+            }
+
+            #[inline]
+            fn [<$name _len>]<T, F>(&mut self, el_ttype: TType, els: &$t<T>, el_len: F) -> usize
+            where
+                F: Fn(&mut Self, &T) -> usize,
+            {
+                self.set_begin_len(TSetIdentifier {
+                    element_type: el_ttype,
+                    size: els.len(),
+                }) + els.iter().map(|el| el_len(self, el)).sum::<usize>() + self.set_end_len()
+            }
+        }
+    };
+}
+
+macro_rules! map_field_len {
+    ($name:ident($t:ty)) => {
+        paste::paste! {
+            #[inline]
+            fn [<$name _field_len>]<K, V, FK, FV>(&mut self, id: Option<i16>, key_ttype: TType, val_ttype: TType, els: &$t<K, V>, key_len: FK, val_len: FV,) -> usize
+            where
+                FK: Fn(&mut Self, &K) -> usize,
+                FV: Fn(&mut Self, &V) -> usize,
+            {
+                self.field_begin_len(TType::Map, id)
+                    + self.[<$name _len>](key_ttype, val_ttype, els, key_len, val_len)
+                    + self.field_end_len()
+            }
+
+            #[inline]
+            fn [<$name _len>]<K, V, FK, FV>(&mut self, key_ttype: TType, val_ttype: TType, els: &$t<K, V>, key_len: FK, val_len: FV,) -> usize
+            where
+                FK: Fn(&mut Self, &K) -> usize,
+                FV: Fn(&mut Self, &V) -> usize,
+            {
+                self.map_begin_len(TMapIdentifier {
+                    key_type: key_ttype,
+                    value_type: val_ttype,
+                    size: els.len(),
+                }) + els.iter().map(|(k, v)| key_len(self, k) + val_len(self, v)).sum::<usize>() + self.map_end_len()
+            }
+        }
+    };
+}
+
 pub trait TLengthProtocolExt: TLengthProtocol + Sized {
     field_len!(TType::Bool, bool(b: bool));
     field_len!(TType::I8, i8(i: i8));
@@ -321,81 +383,16 @@ pub trait TLengthProtocolExt: TLengthProtocol + Sized {
             + self.list_end_len()
     }
 
-    #[inline]
-    fn set_field_len<T, F>(
-        &mut self,
-        id: Option<i16>,
-        el_ttype: TType,
-        els: &AHashSet<T>,
-        el_len: F,
-    ) -> usize
-    where
-        F: Fn(&mut Self, &T) -> usize,
-    {
-        self.field_begin_len(TType::Set, id)
-            + self.set_len(el_ttype, els, el_len)
-            + self.field_end_len()
-    }
-
-    #[inline]
-    fn set_len<T, F>(&mut self, el_ttype: TType, els: &AHashSet<T>, el_len: F) -> usize
-    where
-        F: Fn(&mut Self, &T) -> usize,
-    {
-        self.set_begin_len(TSetIdentifier {
-            element_type: el_ttype,
-            size: els.len(),
-        }) + els.iter().map(|el| el_len(self, el)).sum::<usize>()
-            + self.set_end_len()
-    }
+    set_field_len!(set(AHashSet));
+    set_field_len!(btree_set(BTreeSet));
 
     #[inline]
     fn message_len<M: Message>(&mut self, id: Option<i16>, m: &M) -> usize {
         self.field_begin_len(TType::Struct, id) + m.size(self) + self.field_end_len()
     }
 
-    #[inline]
-    fn map_field_len<K, V, FK, FV>(
-        &mut self,
-        id: Option<i16>,
-        key_ttype: TType,
-        val_ttype: TType,
-        els: &AHashMap<K, V>,
-        key_len: FK,
-        val_len: FV,
-    ) -> usize
-    where
-        FK: Fn(&mut Self, &K) -> usize,
-        FV: Fn(&mut Self, &V) -> usize,
-    {
-        self.field_begin_len(TType::Map, id)
-            + self.map_len(key_ttype, val_ttype, els, key_len, val_len)
-            + self.field_end_len()
-    }
-
-    #[inline]
-    fn map_len<K, V, FK, FV>(
-        &mut self,
-        key_ttype: TType,
-        val_ttype: TType,
-        els: &AHashMap<K, V>,
-        key_len: FK,
-        val_len: FV,
-    ) -> usize
-    where
-        FK: Fn(&mut Self, &K) -> usize,
-        FV: Fn(&mut Self, &V) -> usize,
-    {
-        self.map_begin_len(TMapIdentifier {
-            key_type: key_ttype,
-            value_type: val_ttype,
-            size: els.len(),
-        }) + els
-            .iter()
-            .map(|(k, v)| key_len(self, k) + val_len(self, v))
-            .sum::<usize>()
-            + self.map_end_len()
-    }
+    map_field_len!(map(AHashMap));
+    map_field_len!(btree_map(BTreeMap));
 
     #[inline]
     fn void_len(&mut self) -> usize {
@@ -491,6 +488,72 @@ macro_rules! write_field {
     };
 }
 
+macro_rules! write_set_field {
+    ($name:ident($t:ty)) => {
+        paste::paste! {
+            #[inline]
+            fn [<write_ $name _field>]<T, F>(&mut self, id: i16, el_ttype: TType, els: &$t<T>, encode: F,) -> Result<(), ThriftException>
+            where
+                F: Fn(&mut Self, &T) -> Result<(), ThriftException>,
+            {
+                self.write_field_begin(TType::Set, id)?;
+                self.[<write_ $name>](el_ttype, els, encode)?;
+                self.write_field_end()
+            }
+
+            #[inline]
+            fn [<write_ $name>]<T, F>(&mut self, el_ttype: TType, els: &$t<T>, encode: F,) -> Result<(), ThriftException>
+            where
+                F: Fn(&mut Self, &T) -> Result<(), ThriftException>,
+            {
+                self.write_set_begin(TSetIdentifier {
+                    element_type: el_ttype,
+                    size: els.len(),
+                })?;
+                for el in els {
+                    encode(self, el)?;
+                }
+                self.write_set_end()
+            }
+        }
+    };
+}
+
+macro_rules! write_map_field {
+    ($name:ident($t:ty)) => {
+        paste::paste! {
+            #[inline]
+            fn [<write_ $name _field>]<K, V, FK, FV>(&mut self, id: i16, key_ttype: TType, val_ttype: TType, els: &$t<K, V>, key_encode: FK, val_encode: FV,) -> Result<(), ThriftException>
+            where
+                FK: Fn(&mut Self, &K) -> Result<(), ThriftException>,
+                FV: Fn(&mut Self, &V) -> Result<(), ThriftException>,
+            {
+                self.write_field_begin(TType::Map, id)?;
+                self.[<write_ $name>](key_ttype, val_ttype, els, key_encode, val_encode)?;
+                self.write_field_end()
+            }
+
+            #[inline]
+            fn [<write_ $name>]<K, V, FK, FV>(&mut self, key_ttype: TType, val_ttype: TType, els: &$t<K, V>, key_encode: FK, val_encode: FV,) -> Result<(), ThriftException>
+            where
+                FK: Fn(&mut Self, &K) -> Result<(), ThriftException>,
+                FV: Fn(&mut Self, &V) -> Result<(), ThriftException>,
+            {
+                self.write_map_begin(TMapIdentifier {
+                    key_type: key_ttype,
+                    value_type: val_ttype,
+                    size: els.len(),
+                })?;
+                for (k, v) in els {
+                    key_encode(self, k)?;
+                    val_encode(self, v)?;
+                }
+                self.write_map_end()
+            }
+        }
+    };
+}
+
 pub trait TOutputProtocolExt: TOutputProtocol + Sized {
     write_field!(TType::Bool, bool(b: bool));
     write_field!(TType::I8, i8(i: i8));
@@ -542,41 +605,8 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
         self.write_list_end()
     }
 
-    #[inline]
-    fn write_set_field<T, F>(
-        &mut self,
-        id: i16,
-        el_ttype: TType,
-        els: &AHashSet<T>,
-        encode: F,
-    ) -> Result<(), ThriftException>
-    where
-        F: Fn(&mut Self, &T) -> Result<(), ThriftException>,
-    {
-        self.write_field_begin(TType::Set, id)?;
-        self.write_set(el_ttype, els, encode)?;
-        self.write_field_end()
-    }
-
-    #[inline]
-    fn write_set<T, F>(
-        &mut self,
-        el_ttype: TType,
-        els: &AHashSet<T>,
-        encode: F,
-    ) -> Result<(), ThriftException>
-    where
-        F: Fn(&mut Self, &T) -> Result<(), ThriftException>,
-    {
-        self.write_set_begin(TSetIdentifier {
-            element_type: el_ttype,
-            size: els.len(),
-        })?;
-        for el in els {
-            encode(self, el)?
-        }
-        self.write_set_end()
-    }
+    write_set_field!(set(AHashSet));
+    write_set_field!(btree_set(BTreeSet));
 
     #[inline]
     fn write_struct_field<M: Message>(
@@ -595,49 +625,8 @@ pub trait TOutputProtocolExt: TOutputProtocol + Sized {
         m.encode(self)
     }
 
-    #[inline]
-    fn write_map_field<K, V, FK, FV>(
-        &mut self,
-        id: i16,
-        key_ttype: TType,
-        val_ttype: TType,
-        els: &AHashMap<K, V>,
-        key_encode: FK,
-        val_encode: FV,
-    ) -> Result<(), ThriftException>
-    where
-        FK: Fn(&mut Self, &K) -> Result<(), ThriftException>,
-        FV: Fn(&mut Self, &V) -> Result<(), ThriftException>,
-    {
-        self.write_field_begin(TType::Map, id)?;
-        self.write_map(key_ttype, val_ttype, els, key_encode, val_encode)?;
-        self.write_field_end()
-    }
-
-    #[inline]
-    fn write_map<K, V, FK, FV>(
-        &mut self,
-        key_ttype: TType,
-        val_ttype: TType,
-        els: &AHashMap<K, V>,
-        key_encode: FK,
-        val_encode: FV,
-    ) -> Result<(), ThriftException>
-    where
-        FK: Fn(&mut Self, &K) -> Result<(), ThriftException>,
-        FV: Fn(&mut Self, &V) -> Result<(), ThriftException>,
-    {
-        self.write_map_begin(TMapIdentifier {
-            key_type: key_ttype,
-            value_type: val_ttype,
-            size: els.len(),
-        })?;
-        for (k, v) in els {
-            key_encode(self, k)?;
-            val_encode(self, v)?;
-        }
-        self.write_map_end()
-    }
+    write_map_field!(map(AHashMap));
+    write_map_field!(btree_map(BTreeMap));
 
     #[inline]
     fn write_void(&mut self) -> Result<(), ThriftException> {

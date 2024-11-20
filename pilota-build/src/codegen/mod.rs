@@ -592,12 +592,12 @@ where
         To avoid problems when generating files for services with similar names, e.g.
         testService and TestService, such names are de-duplicated by adding a number to their nam5e
     */
-    fn generate_unique_name(existing_names: &AHashSet<String>, simple_name: &String) -> String {
+    fn generate_unique_name(existing_names: &AHashSet<String>, simple_name: &str) -> String {
         let mut counter = 1;
-        let mut name = simple_name.clone();
+        let mut name = simple_name.to_string();
         while existing_names.contains(name.to_ascii_lowercase().as_str()) {
             counter += 1;
-            name = format!("{}_{}", simple_name.clone(), counter)
+            name = format!("{}_{}", simple_name, counter)
         }
         name
     }
