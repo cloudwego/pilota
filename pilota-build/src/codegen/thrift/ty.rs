@@ -23,8 +23,8 @@ impl ThriftBackend {
             ty::F64 | ty::OrderedF64 => "::pilota::thrift::TType::Double".into(),
             ty::Uuid => "::pilota::thrift::TType::Uuid".into(),
             ty::Vec(_) => "::pilota::thrift::TType::List".into(),
-            ty::Set(_) => "::pilota::thrift::TType::Set".into(),
-            ty::Map(_, _) => "::pilota::thrift::TType::Map".into(),
+            ty::Set(_) | ty::BTreeSet(_) => "::pilota::thrift::TType::Set".into(),
+            ty::Map(_, _) | ty::BTreeMap(_, _) => "::pilota::thrift::TType::Map".into(),
             ty::Path(path) => {
                 let item = self.expect_item(path.did);
                 match &*item {
@@ -73,39 +73,54 @@ impl ThriftBackend {
                 }
                 .into()
             }
-            ty::Set(ty) => {
-                let write_el = self.codegen_encode_ty(ty, "val".into());
-                let el_ttype = self.ttype(ty);
-
-                format! {
-                    r#"__protocol.write_set({el_ttype}, &{ident}, |__protocol, val| {{
-                        {write_el}
-                        ::std::result::Result::Ok(())
-                    }})?;"#
-                }
-                .into()
+            ty::Set(k) => {
+                self.encode_set(k, ident, "set")
+            }
+            ty::BTreeSet(k) => {
+                self.encode_set(k, ident, "btree_set")
             }
             ty::Map(k, v) => {
-                let key_ttype = self.ttype(k);
-                let val_ttype = self.ttype(v);
-                let write_key = self.codegen_encode_ty(k, "key".into());
-                let write_val = self.codegen_encode_ty(v, "val".into());
-
-                format! {
-                    r#"__protocol.write_map({key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
-                        {write_key}
-                        ::std::result::Result::Ok(())
-                    }}, |__protocol, val| {{
-                        {write_val}
-                        ::std::result::Result::Ok(())
-                    }})?;"#
-                }
-                .into()
+                self.encode_map(k, v, ident, "map")
+            }
+            ty::BTreeMap(k, v) => {
+                self.encode_map(k, v, ident, "btree_map")
             }
             ty::Path(_) => format!("__protocol.write_struct({ident})?;").into(),
             ty::Arc(ty) => self.codegen_encode_ty(ty, ident),
             _ => unimplemented!(),
         }
+    }
+
+    #[inline]
+    fn encode_set(&self, ty: &Ty, ident: FastStr, name: &str) -> FastStr {
+        let write_el = self.codegen_encode_ty(ty, "val".into());
+        let el_ttype = self.ttype(ty);
+        format! {
+            r#"__protocol.write_{name}({el_ttype}, &{ident}, |__protocol, val| {{
+                {write_el}
+                ::std::result::Result::Ok(())
+            }})?;"#
+        }
+        .into()
+    }
+
+    #[inline]
+    fn encode_map(&self, k: &Ty, v: &Ty, ident: FastStr, name: &str) -> FastStr {
+        let key_ttype = self.ttype(k);
+        let val_ttype = self.ttype(v);
+        let write_key = self.codegen_encode_ty(k, "key".into());
+        let write_val = self.codegen_encode_ty(v, "val".into());
+
+        format! {
+            r#"__protocol.write_{name}({key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
+                {write_key}
+                ::std::result::Result::Ok(())
+            }}, |__protocol, val| {{
+                {write_val}
+                ::std::result::Result::Ok(())
+            }})?;"#
+        }
+        .into()
     }
 
     fn is_i32_enum(&self, def_id: DefId) -> bool {
@@ -148,34 +163,17 @@ impl ThriftBackend {
                 }
                 .into()
             }
-            ty::Set(ty) => {
-                let write_el = self.codegen_encode_ty(ty, "val".into());
-                let el_ttype = self.ttype(ty);
-
-                format! {
-                    r#"__protocol.write_set_field({id}, {el_ttype}, &{ident}, |__protocol, val| {{
-                        {write_el}
-                        ::std::result::Result::Ok(())
-                    }})?;"#
-                }
-                .into()
+            ty::Set(k) => {
+                self.encode_set_field(k, id, ident, "set")
+            }
+            ty::BTreeSet(k) => {
+                self.encode_set_field(k, id, ident, "btree_set")
             }
             ty::Map(k, v) => {
-                let key_ttype = self.ttype(k);
-                let val_ttype = self.ttype(v);
-                let write_key = self.codegen_encode_ty(k, "key".into());
-                let write_val = self.codegen_encode_ty(v, "val".into());
-
-                format! {
-                    r#"__protocol.write_map_field({id}, {key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
-                        {write_key}
-                        ::std::result::Result::Ok(())
-                    }}, |__protocol, val| {{
-                        {write_val}
-                        ::std::result::Result::Ok(())
-                    }})?;"#
-                }
-                .into()
+                self.encode_map_field(k, v, id, ident, "map")
+            }
+            ty::BTreeMap(k, v) => {
+                self.encode_map_field(k, v, id, ident, "btree_map")
             }
             ty::Path(p) if self.is_i32_enum(p.did) => {
                 format!("__protocol.write_i32_field({id}, ({ident}).inner())?;").into()
@@ -193,6 +191,38 @@ impl ThriftBackend {
             ty::Arc(ty) => self.codegen_encode_field(id, ty, ident),
             _ => unimplemented!(),
         }
+    }
+
+    #[inline]
+    fn encode_set_field(&self, ty: &Ty, id: i16, ident: FastStr, name: &str) -> FastStr {
+        let write_el = self.codegen_encode_ty(ty, "val".into());
+        let el_ttype = self.ttype(ty);
+        format! {
+            r#"__protocol.write_{name}_field({id}, {el_ttype}, &{ident}, |__protocol, val| {{
+                {write_el}
+                ::std::result::Result::Ok(())
+            }})?;"#
+        }
+        .into()
+    }
+
+    #[inline]
+    fn encode_map_field(&self, k: &Ty, v: &Ty, id: i16, ident: FastStr, name: &str) -> FastStr {
+        let key_ttype = self.ttype(k);
+        let val_ttype = self.ttype(v);
+        let write_key = self.codegen_encode_ty(k, "key".into());
+        let write_val = self.codegen_encode_ty(v, "val".into());
+
+        format! {
+            r#"__protocol.write_{name}_field({id}, {key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
+                {write_key}
+                ::std::result::Result::Ok(())
+            }}, |__protocol, val| {{
+                {write_val}
+                ::std::result::Result::Ok(())
+            }})?;"#
+        }
+        .into()
     }
 
     pub(crate) fn codegen_ty_size(&self, ty: &Ty, ident: FastStr) -> FastStr {
@@ -221,35 +251,43 @@ impl ThriftBackend {
                 }
                 .into()
             }
-            ty::Set(el) => {
-                let add_el = self.codegen_ty_size(el, "el".into());
-                let el_ttype = self.ttype(el);
-                format! {
-                    r#"__protocol.set_len({el_ttype}, {ident}, |__protocol, el| {{
-                        {add_el}
-                    }})"#
-                }
-                .into()
-            }
-            ty::Map(k, v) => {
-                let add_key = self.codegen_ty_size(k, "key".into());
-                let add_val = self.codegen_ty_size(v, "val".into());
-                let k_ttype = self.ttype(k);
-                let v_ttype = self.ttype(v);
-
-                format! {
-                    r#"__protocol.map_len({k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{
-                        {add_key}
-                    }}, |__protocol, val| {{
-                        {add_val}
-                    }})"#
-                }
-                .into()
-            }
+            ty::Set(k) => self.set_size(k, ident, "set"),
+            ty::BTreeSet(k) => self.set_size(k, ident, "btree_set"),
+            ty::Map(k, v) => self.map_size(k, v, ident, "map"),
+            ty::BTreeMap(k, v) => self.map_size(k, v, ident, "btree_map"),
             ty::Path(_) => format!("__protocol.struct_len({ident})").into(),
             ty::Arc(ty) => self.codegen_ty_size(ty, ident),
             _ => unimplemented!(),
         }
+    }
+
+    #[inline]
+    fn set_size(&self, ty: &Ty, ident: FastStr, name: &str) -> FastStr {
+        let add_el = self.codegen_ty_size(ty, "el".into());
+        let el_ttype = self.ttype(ty);
+        format! {
+            r#"__protocol.{name}_len({el_ttype}, {ident}, |__protocol, el| {{
+                {add_el}
+            }})"#
+        }
+        .into()
+    }
+
+    #[inline]
+    fn map_size(&self, k: &Ty, v: &Ty, ident: FastStr, name: &str) -> FastStr {
+        let add_key = self.codegen_ty_size(k, "key".into());
+        let add_val = self.codegen_ty_size(v, "val".into());
+        let k_ttype = self.ttype(k);
+        let v_ttype = self.ttype(v);
+
+        format! {
+            r#"__protocol.{name}_len({k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{
+                {add_key}
+            }}, |__protocol, val| {{
+                {add_val}
+            }})"#
+        }
+        .into()
     }
 
     pub(crate) fn codegen_field_size(&self, ty: &Ty, id: i16, ident: FastStr) -> FastStr {
@@ -278,24 +316,10 @@ impl ThriftBackend {
                 }
                 .into()
             }
-            ty::Set(el) => {
-                let add_el = self.codegen_ty_size(el, "el".into());
-                let el_ttype = self.ttype(el);
-                format! {
-                    r#"__protocol.set_field_len(Some({id}), {el_ttype}, {ident}, |__protocol, el| {{
-                        {add_el}
-                    }})"#
-                }
-                .into()
-            }
-            ty::Map(k, v) => {
-                let add_key = self.codegen_ty_size(k, "key".into());
-                let add_val = self.codegen_ty_size(v, "val".into());
-                let k_ttype = self.ttype(k);
-                let v_ttype = self.ttype(v);
-
-                format!("__protocol.map_field_len(Some({id}), {k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{ {add_key} }}, |__protocol, val| {{ {add_val} }})").into()
-            }
+            ty::Set(k) => self.set_field_size(k, id, ident, "set"),
+            ty::BTreeSet(k) => self.set_field_size(k, id, ident, "btree_set"),
+            ty::Map(k, v) => self.map_field_size(k, v, id, ident, "map"),
+            ty::BTreeMap(k, v) => self.map_field_size(k, v, id, ident, "btree_map"),
             ty::Path(p) if self.is_i32_enum(p.did) => {
                 format!("__protocol.i32_field_len(Some({id}), ({ident}).inner())").into()
             }
@@ -303,6 +327,35 @@ impl ThriftBackend {
             ty::Arc(ty) => self.codegen_field_size(ty, id, ident),
             _ => unimplemented!(),
         }
+    }
+
+    #[inline]
+    fn set_field_size(&self, ty: &Ty, id: i16, ident: FastStr, name: &str) -> FastStr {
+        let add_el = self.codegen_ty_size(ty, "el".into());
+        let el_ttype = self.ttype(ty);
+        format! {
+            r#"__protocol.{name}_field_len(Some({id}), {el_ttype}, {ident}, |__protocol, el| {{
+                {add_el}
+            }})"#
+        }
+        .into()
+    }
+
+    #[inline]
+    fn map_field_size(&self, k: &Ty, v: &Ty, id: i16, ident: FastStr, name: &str) -> FastStr {
+        let add_key = self.codegen_ty_size(k, "key".into());
+        let add_val = self.codegen_ty_size(v, "val".into());
+        let k_ttype = self.ttype(k);
+        let v_ttype = self.ttype(v);
+
+        format! {
+            r#"__protocol.{name}_field_len(Some({id}), {k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{
+                {add_key}
+            }}, |__protocol, val| {{
+                {add_val}
+            }})"#
+        }
+        .into()
     }
 
     pub(crate) fn codegen_decode_ty(&self, helper: &DecodeHelper, ty: &Ty) -> FastStr {
@@ -369,39 +422,24 @@ impl ThriftBackend {
                     .into()
                 }
             }
-            ty::Set(ty) => {
-                let read_set_begin = helper.codegen_read_set_begin();
-                let read_set_end = helper.codegen_read_set_end();
-                let read_el = self.codegen_decode_ty(helper, ty);
-                format! {r#"{{let list_ident = {read_set_begin};
-                    let mut val = ::pilota::AHashSet::with_capacity(list_ident.size);
-                    for _ in 0..list_ident.size {{
-                        val.insert({read_el});
-                    }};
-                    {read_set_end};
-                    val}}"#}
-                .into()
-            }
-            ty::Map(key_ty, val_ty) => {
-                let read_el_key = self.codegen_decode_ty(helper, key_ty);
-                let read_el_val = self.codegen_decode_ty(helper, val_ty);
-
-                let read_map_begin = helper.codegen_read_map_begin();
-                let read_map_end = helper.codegen_read_map_end();
-
-                format! {
-                    r#"{{
-                        let map_ident = {read_map_begin};
-                        let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
-                        for _ in 0..map_ident.size {{
-                            val.insert({read_el_key}, {read_el_val});
-                        }}
-                        {read_map_end};
-                        val
-                    }}"#
-                }
-                .into()
-            }
+            ty::Set(ty) => self.decode_set(
+                ty,
+                helper,
+                "::pilota::AHashSet::with_capacity(list_ident.size)",
+            ),
+            ty::BTreeSet(ty) => self.decode_set(ty, helper, "::std::collections::BTreeSet::new()"),
+            ty::Map(key_ty, val_ty) => self.decode_map(
+                key_ty,
+                val_ty,
+                helper,
+                "::pilota::AHashMap::with_capacity(map_ident.size)",
+            ),
+            ty::BTreeMap(key_ty, val_ty) => self.decode_map(
+                key_ty,
+                val_ty,
+                helper,
+                "::std::collections::BTreeMap::new()",
+            ),
             ty::Path(_) => helper
                 .codegen_item_decode(format!("{}", self.codegen_item_ty(ty.kind.clone())).into()),
             ty::Arc(ty) => {
@@ -410,5 +448,40 @@ impl ThriftBackend {
             }
             _ => unimplemented!(),
         }
+    }
+
+    #[inline]
+    fn decode_set(&self, ty: &Ty, helper: &DecodeHelper, new: &str) -> FastStr {
+        let read_set_begin = helper.codegen_read_set_begin();
+        let read_set_end = helper.codegen_read_set_end();
+        let read_el = self.codegen_decode_ty(helper, ty);
+        format! {r#"{{let list_ident = {read_set_begin};
+                    let mut val = {new};
+                    for _ in 0..list_ident.size {{
+                        val.insert({read_el});
+                    }};
+                    {read_set_end};
+                    val}}"#}
+        .into()
+    }
+
+    #[inline]
+    fn decode_map(&self, key_ty: &Ty, val_ty: &Ty, helper: &DecodeHelper, new: &str) -> FastStr {
+        let read_el_key = self.codegen_decode_ty(helper, key_ty);
+        let read_el_val = self.codegen_decode_ty(helper, val_ty);
+        let read_map_begin = helper.codegen_read_map_begin();
+        let read_map_end = helper.codegen_read_map_end();
+        format! {
+                    r#"{{
+                        let map_ident = {read_map_begin};
+                        let mut val = {new};
+                        for _ in 0..map_ident.size {{
+                            val.insert({read_el_key}, {read_el_val});
+                        }}
+                        {read_map_end};
+                        val
+                    }}"#
+        }
+        .into()
     }
 }
