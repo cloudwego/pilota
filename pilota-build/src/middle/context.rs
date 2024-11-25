@@ -468,7 +468,10 @@ impl Context {
         lit: &Literal,
         ty: &CodegenTy,
     ) -> anyhow::Result<(FastStr, bool /* const? */)> {
-        let mk_map = |m: &Vec<(Literal, Literal)>, k_ty: &Arc<CodegenTy>, v_ty: &Arc<CodegenTy>| {
+        let mk_map = |m: &Vec<(Literal, Literal)>,
+                      k_ty: &Arc<CodegenTy>,
+                      v_ty: &Arc<CodegenTy>,
+                      btree: bool| {
             let k_ty = &**k_ty;
             let v_ty = &**v_ty;
             let len = m.len();
@@ -481,9 +484,14 @@ impl Context {
                 })
                 .try_collect::<_, Vec<_>, _>()?
                 .join("");
+            let new = if btree {
+                "::std::collections::BTreeMap::new()".to_string()
+            } else {
+                format!("::pilota::AHashMap::with_capacity({len})")
+            };
             anyhow::Ok(
                 format! {r#"{{
-                    let mut map = ::pilota::AHashMap::with_capacity({len});
+                    let mut map = {new};
                     {kvs}
                     map
                 }}"#}
@@ -493,13 +501,31 @@ impl Context {
 
         anyhow::Ok(match (lit, ty) {
             (Literal::Map(m), CodegenTy::LazyStaticRef(map)) => match &**map {
-                CodegenTy::Map(k_ty, v_ty) => (mk_map(m, k_ty, v_ty)?, false),
+                CodegenTy::Map(k_ty, v_ty) => (mk_map(m, k_ty, v_ty, false)?, false),
+                CodegenTy::BTreeMap(k_ty, v_ty) => (mk_map(m, k_ty, v_ty, true)?, false),
                 _ => panic!("invalid map type {:?}", map),
             },
-            (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => (mk_map(m, k_ty, v_ty)?, false),
-            (Literal::List(m), CodegenTy::Map(_, _) | CodegenTy::LazyStaticRef(_)) => {
-                assert!(m.is_empty());
+            (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => (mk_map(m, k_ty, v_ty, false)?, false),
+            (Literal::Map(m), CodegenTy::BTreeMap(k_ty, v_ty)) => {
+                (mk_map(m, k_ty, v_ty, true)?, false)
+            }
+            (Literal::List(l), CodegenTy::LazyStaticRef(map)) => {
+                assert!(l.is_empty());
+                match &**map {
+                    CodegenTy::Map(_, _) => ("::pilota::AHashMap::new()".into(), false),
+                    CodegenTy::BTreeMap(_, _) => {
+                        ("::std::collections::BTreeMap::new()".into(), false)
+                    }
+                    _ => panic!("invalid map type {:?}", map),
+                }
+            }
+            (Literal::List(l), CodegenTy::Map(_, _)) => {
+                assert!(l.is_empty());
                 ("::pilota::AHashMap::new()".into(), false)
+            }
+            (Literal::List(l), CodegenTy::BTreeMap(_, _)) => {
+                assert!(l.is_empty());
+                ("::std::collections::BTreeMap::new()".into(), false)
             }
             _ => self.lit_into_ty(lit, ty)?,
         })
@@ -637,7 +663,7 @@ impl Context {
                 (format! { "{ident}({stream})" }.into(), is_const)
             }
             (Literal::Map(_), CodegenTy::StaticRef(map)) => match &**map {
-                CodegenTy::Map(_, _) => {
+                CodegenTy::Map(_, _) | CodegenTy::BTreeMap(_, _) => {
                     let lazy_map =
                         self.def_lit("INNER_MAP", lit, &mut CodegenTy::LazyStaticRef(map.clone()))?;
                     let stream = format! {
@@ -662,27 +688,20 @@ impl Context {
                 (format! {"[{stream}]" }.into(), is_const)
             }
             (Literal::List(els), CodegenTy::Vec(inner)) => {
-                let stream = els
-                    .iter()
-                    .map(|el| self.lit_into_ty(el, inner))
-                    .try_collect::<_, Vec<_>, _>()?
-                    .into_iter()
-                    .map(|(s, _)| s)
-                    .join(",");
-
+                let stream = self.list_stream(els, inner)?;
                 (format! { "::std::vec![{stream}]" }.into(), false)
             }
             (Literal::List(els), CodegenTy::Set(inner)) => {
-                let stream = els
-                    .iter()
-                    .map(|el| self.lit_into_ty(el, inner))
-                    .try_collect::<_, Vec<_>, _>()?
-                    .into_iter()
-                    .map(|(s, _)| s)
-                    .join(",");
-
+                let stream = self.list_stream(els, inner)?;
                 (
                     format! { "::pilota::AHashSet::from([{stream}])" }.into(),
+                    false,
+                )
+            }
+            (Literal::List(els), CodegenTy::BTreeSet(inner)) => {
+                let stream = self.list_stream(els, inner)?;
+                (
+                    format! { "::std::collections::BTreeSet::from([{stream}])" }.into(),
                     false,
                 )
             }
@@ -761,6 +780,17 @@ impl Context {
             }
             _ => panic!("unexpected literal {:?} with ty {:?}", lit, ty),
         })
+    }
+
+    #[inline]
+    fn list_stream(&self, els: &[Literal], inner: &Arc<CodegenTy>) -> anyhow::Result<String> {
+        Ok(els
+            .iter()
+            .map(|el| self.lit_into_ty(el, inner))
+            .try_collect::<_, Vec<_>, _>()?
+            .into_iter()
+            .map(|(s, _)| s)
+            .join(","))
     }
 
     pub(crate) fn def_lit(

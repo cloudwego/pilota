@@ -46,7 +46,7 @@ pub struct CollectDef<'a> {
 }
 
 impl<'a> CollectDef<'a> {
-    pub fn new(resolver: &'a mut Resolver) -> CollectDef {
+    pub fn new(resolver: &'a mut Resolver) -> Self {
         CollectDef {
             resolver,
             parent: None,
@@ -295,6 +295,34 @@ impl Resolver {
             _ => {}
         }
 
+        if let Some(repr) = tags.get::<RustType>() {
+            if repr == "btree" {
+                struct BTreeFolder<'a>(&'a mut Resolver);
+                impl Folder for BTreeFolder<'_> {
+                    fn fold_ty(&mut self, ty: &Ty) -> Ty {
+                        let kind = match &ty.kind {
+                            TyKind::Vec(inner) => {
+                                TyKind::Vec(Arc::new(self.fold_ty(inner.as_ref())))
+                            }
+                            TyKind::Set(inner) => {
+                                TyKind::BTreeSet(Arc::new(self.fold_ty(inner.as_ref())))
+                            }
+                            TyKind::Map(k, v) => TyKind::BTreeMap(
+                                Arc::new(self.fold_ty(k.as_ref())),
+                                Arc::new(self.fold_ty(v.as_ref())),
+                            ),
+                            kind => kind.clone(),
+                        };
+                        Ty {
+                            kind,
+                            tags_id: self.0.tags_id_counter.inc_one(),
+                        }
+                    }
+                }
+                ty = BTreeFolder(self).fold_ty(&ty);
+            }
+        };
+
         if let Some(RustWrapperArc(true)) = tags.get::<RustWrapperArc>() {
             struct ArcFolder<'a>(&'a mut Resolver);
             impl Folder for ArcFolder<'_> {
@@ -302,8 +330,14 @@ impl Resolver {
                     let kind = match &ty.kind {
                         TyKind::Vec(inner) => TyKind::Vec(Arc::new(self.fold_ty(inner.as_ref()))),
                         TyKind::Set(inner) => TyKind::Set(Arc::new(self.fold_ty(inner.as_ref()))),
+                        TyKind::BTreeSet(inner) => {
+                            TyKind::BTreeSet(Arc::new(self.fold_ty(inner.as_ref())))
+                        }
                         TyKind::Map(k, v) => {
                             TyKind::Map(k.clone(), Arc::new(self.fold_ty(v.as_ref())))
+                        }
+                        TyKind::BTreeMap(k, v) => {
+                            TyKind::BTreeMap(k.clone(), Arc::new(self.fold_ty(v.as_ref())))
                         }
                         TyKind::Path(_) | TyKind::String | TyKind::BytesVec => {
                             TyKind::Arc(Arc::new(ty.clone()))
@@ -660,10 +694,13 @@ impl Resolver {
         }
     }
 
-    fn lower_type_alias(&mut self, t: &ir::NewType) -> NewType {
+    fn lower_type_alias(&mut self, t: &ir::NewType, tags: &Tags) -> NewType {
         NewType {
             name: t.name.clone(),
-            ty: self.lower_type(&t.ty, false),
+            ty: {
+                let ty = self.lower_type(&t.ty, false);
+                self.modify_ty_by_tags(ty, tags)
+            },
         }
     }
 
@@ -683,10 +720,13 @@ impl Resolver {
         }
     }
 
-    fn lower_const(&mut self, c: &ir::Const) -> Const {
+    fn lower_const(&mut self, c: &ir::Const, tags: &Tags) -> Const {
         Const {
             name: c.name.clone(),
-            ty: self.lower_type(&c.ty, false),
+            ty: {
+                let ty = self.lower_type(&c.ty, false);
+                self.modify_ty_by_tags(ty, tags)
+            },
             lit: self.lower_lit(&c.lit),
         }
     }
@@ -734,8 +774,8 @@ impl Resolver {
             ir::ItemKind::Message(s) => Item::Message(self.lower_message(s)),
             ir::ItemKind::Enum(e) => Item::Enum(self.lower_enum(e)),
             ir::ItemKind::Service(s) => Item::Service(self.lower_service(s)),
-            ir::ItemKind::NewType(t) => Item::NewType(self.lower_type_alias(t)),
-            ir::ItemKind::Const(c) => Item::Const(self.lower_const(c)),
+            ir::ItemKind::NewType(t) => Item::NewType(self.lower_type_alias(t, tags)),
+            ir::ItemKind::Const(c) => Item::Const(self.lower_const(c, tags)),
             ir::ItemKind::Mod(m) => Item::Mod(self.lower_mod(m, def_id)),
             ir::ItemKind::Use(_) => unreachable!(),
         });

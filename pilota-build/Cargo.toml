@@ -1,6 +1,6 @@
 [package]
 name = "pilota-build"
-version = "0.11.24"
+version = "0.11.26"
 edition = "2021"
 description = "Compile thrift and protobuf idl into rust code at compile-time."
 documentation = "https://docs.rs/pilota-build"
@@ -21,7 +21,7 @@ pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.11" }
 
 ahash = "0.8"
 anyhow = "1"
-dashmap = "5"
+dashmap = "6"
 heck = "0.5"
 itertools = "0.13"
 normpath = "1"

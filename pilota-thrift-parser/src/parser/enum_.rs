@@ -23,8 +23,9 @@ impl Parser for EnumValue {
                 opt(blank),
                 opt(Annotations::parse),
                 opt(list_separator),
+                opt(blank),
             )),
-            |(name, _, value, _, annotations, _)| EnumValue {
+            |(name, _, value, _, annotations, _, _)| EnumValue {
                 name,
                 value,
                 annotations: annotations.unwrap_or_default(),
@@ -66,7 +67,7 @@ mod tests {
         let (_remain, _e) = Enum::parse(
             r#"enum Sex {
                 UNKNOWN = 0,
-                MALE = 1,
+                MALE = 1 (pilota.key="male") // male
                 FEMALE = 2,
             }"#,
         )

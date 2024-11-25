@@ -29,7 +29,9 @@ pub enum TyKind {
     Uuid,
     Vec(Arc<Ty>),
     Set(Arc<Ty>),
+    BTreeSet(Arc<Ty>),
     Map(Arc<Ty>, Arc<Ty>),
+    BTreeMap(Arc<Ty>, Arc<Ty>),
     Arc(Arc<Ty>),
     Path(Path),
 }
@@ -77,7 +79,9 @@ pub enum CodegenTy {
     Vec(Arc<CodegenTy>),
     Array(Arc<CodegenTy>, usize),
     Set(Arc<CodegenTy>),
+    BTreeSet(Arc<CodegenTy>),
     Map(Arc<CodegenTy>, Arc<CodegenTy>),
+    BTreeMap(Arc<CodegenTy>, Arc<CodegenTy>),
     Adt(AdtDef),
     Arc(Arc<CodegenTy>),
 }
@@ -89,7 +93,8 @@ impl CodegenTy {
             | CodegenTy::LazyStaticRef(_)
             | CodegenTy::StaticRef(_)
             | CodegenTy::Vec(_)
-            | CodegenTy::Map(_, _) => true,
+            | CodegenTy::Map(_, _)
+            | CodegenTy::BTreeMap(_, _) => true,
             CodegenTy::Adt(AdtDef {
                 did: _,
                 kind: AdtKind::NewType(inner),
@@ -99,7 +104,7 @@ impl CodegenTy {
     }
 
     /// get the global path for ty.
-    pub fn global_path(&self) -> faststr::FastStr {
+    pub fn global_path(&self, adt_prefix: &str) -> faststr::FastStr {
         match self {
             CodegenTy::String => "::std::string::String".into(),
             CodegenTy::FastStr => "::pilota::FastStr".into(),
@@ -119,27 +124,45 @@ impl CodegenTy {
             CodegenTy::Uuid => "[u8; 16]".into(),
             CodegenTy::StaticRef(ty) => {
                 let ty = &**ty;
-                format!("&'static {}", ty.global_path()).into()
+                format!("&'static {}", ty.global_path(adt_prefix)).into()
             }
             CodegenTy::Vec(ty) => {
                 let ty = &**ty;
-                format!("::std::vec::Vec<{}>", ty.global_path()).into()
+                format!("::std::vec::Vec<{}>", ty.global_path(adt_prefix)).into()
             }
             CodegenTy::Array(ty, size) => {
                 let ty = &**ty;
-                format!("[{}; {}]", ty.global_path(), size).into()
+                format!("[{}; {}]", ty.global_path(adt_prefix), size).into()
             }
             CodegenTy::Set(ty) => {
                 let ty = &**ty;
-                format!("::pilota::AHashSet<{}>", ty.global_path()).into()
+                format!("::pilota::AHashSet<{}>", ty.global_path(adt_prefix)).into()
+            }
+            CodegenTy::BTreeSet(ty) => {
+                let ty = &**ty;
+                format!(
+                    "::std::collections::BTreeSet<{}>",
+                    ty.global_path(adt_prefix)
+                )
+                .into()
             }
             CodegenTy::Map(k, v) => {
                 let k = &**k;
                 let v = &**v;
                 format!(
                     "::pilota::AHashMap<{}, {}>",
-                    k.global_path(),
-                    v.global_path()
+                    k.global_path(adt_prefix),
+                    v.global_path(adt_prefix)
+                )
+                .into()
+            }
+            CodegenTy::BTreeMap(k, v) => {
+                let k = &**k;
+                let v = &**v;
+                format!(
+                    "::std::collections::BTreeMap<{}, {}>",
+                    k.global_path(adt_prefix),
+                    v.global_path(adt_prefix)
                 )
                 .into()
             }
@@ -150,13 +173,13 @@ impl CodegenTy {
                     .map(|item| item.to_string())
                     .join("::");
 
-                format!("::{path}").into()
+                format!("{adt_prefix}::{path}").into()
             }),
             CodegenTy::Arc(ty) => {
                 let ty = &**ty;
-                format!("::std::sync::Arc<{}>", ty.global_path()).into()
+                format!("::std::sync::Arc<{}>", ty.global_path(adt_prefix)).into()
             }
-            CodegenTy::LazyStaticRef(ty) => ty.global_path(),
+            CodegenTy::LazyStaticRef(ty) => ty.global_path(adt_prefix),
             CodegenTy::Bytes => "::pilota::Bytes".into(),
         }
     }
@@ -197,10 +220,19 @@ impl Display for CodegenTy {
                 let ty = &**ty;
                 write!(f, "::pilota::AHashSet<{ty}>")
             }
+            CodegenTy::BTreeSet(ty) => {
+                let ty = &**ty;
+                write!(f, "::std::collections::BTreeSet<{ty}>")
+            }
             CodegenTy::Map(k, v) => {
                 let k = &**k;
                 let v = &**v;
                 write!(f, "::pilota::AHashMap<{k}, {v}>")
+            }
+            CodegenTy::BTreeMap(k, v) => {
+                let k = &**k;
+                let v = &**v;
+                write!(f, "::std::collections::BTreeMap<{k}, {v}>")
             }
             CodegenTy::Adt(def) => with_cx(|cx| {
                 let path = cx.cur_related_item_path(def.did);
@@ -331,10 +363,22 @@ pub trait TyTransformer {
     }
 
     #[inline]
+    fn btree_set(&self, ty: &Ty) -> CodegenTy {
+        CodegenTy::BTreeSet(Arc::from(self.codegen_item_ty(&ty.kind)))
+    }
+
+    #[inline]
     fn map(&self, key: &Ty, value: &Ty) -> CodegenTy {
         let key = self.codegen_item_ty(&key.kind);
         let value = self.codegen_item_ty(&value.kind);
         CodegenTy::Map(Arc::from(key), Arc::from(value))
+    }
+
+    #[inline]
+    fn btree_map(&self, key: &Ty, value: &Ty) -> CodegenTy {
+        let key = self.codegen_item_ty(&key.kind);
+        let value = self.codegen_item_ty(&value.kind);
+        CodegenTy::BTreeMap(Arc::from(key), Arc::from(value))
     }
 
     #[inline]
@@ -368,7 +412,9 @@ pub trait TyTransformer {
             Uuid => self.uuid(),
             Vec(ty) => self.vec(ty),
             Set(ty) => self.set(ty),
+            BTreeSet(ty) => self.btree_set(ty),
             Map(k, v) => self.map(k, v),
+            BTreeMap(k, v) => self.btree_map(k, v),
             Path(path) => self.path(path),
             UInt32 => self.uint32(),
             UInt64 => self.uint64(),
@@ -424,10 +470,27 @@ impl TyTransformer for ConstTyTransformer<'_> {
     }
 
     #[inline]
+    fn btree_set(&self, ty: &Ty) -> CodegenTy {
+        CodegenTy::StaticRef(Arc::from(CodegenTy::BTreeSet(Arc::from(
+            self.dyn_codegen_item_ty(&ty.kind),
+        ))))
+    }
+
+    #[inline]
     fn map(&self, key: &Ty, value: &Ty) -> CodegenTy {
         let key = self.dyn_codegen_item_ty(&key.kind);
         let value = self.dyn_codegen_item_ty(&value.kind);
         CodegenTy::StaticRef(Arc::from(CodegenTy::Map(Arc::from(key), Arc::from(value))))
+    }
+
+    #[inline]
+    fn btree_map(&self, key: &Ty, value: &Ty) -> CodegenTy {
+        let key = self.dyn_codegen_item_ty(&key.kind);
+        let value = self.dyn_codegen_item_ty(&value.kind);
+        CodegenTy::StaticRef(Arc::from(CodegenTy::BTreeMap(
+            Arc::from(key),
+            Arc::from(value),
+        )))
     }
 
     fn get_db(&self) -> &dyn RirDatabase {
@@ -446,7 +509,16 @@ pub(crate) trait Visitor: Sized {
         self.visit(el)
     }
 
+    fn visit_btree_set(&mut self, el: &Ty) {
+        self.visit(el)
+    }
+
     fn visit_map(&mut self, k: &Ty, v: &Ty) {
+        self.visit(k);
+        self.visit(v);
+    }
+
+    fn visit_btree_map(&mut self, k: &Ty, v: &Ty) {
         self.visit(k);
         self.visit(v);
     }
@@ -480,7 +552,9 @@ pub(crate) fn fold_ty<F: Folder>(f: &mut F, ty: &Ty) -> Ty {
         Uuid => TyKind::Uuid,
         Vec(ty) => TyKind::Vec(f.fold_ty(ty).into()),
         Set(ty) => TyKind::Set(f.fold_ty(ty).into()),
+        BTreeSet(ty) => TyKind::BTreeSet(f.fold_ty(ty).into()),
         Map(k, v) => TyKind::Map(fold_ty(f, k).into(), fold_ty(f, v).into()),
+        BTreeMap(k, v) => TyKind::BTreeMap(fold_ty(f, k).into(), fold_ty(f, v).into()),
         Path(path) => TyKind::Path(path.clone()),
         UInt32 => TyKind::UInt32,
         UInt64 => TyKind::UInt64,
@@ -498,9 +572,57 @@ pub(crate) fn walk_ty<V: Visitor>(v: &mut V, ty: &Ty) {
     match &ty.kind {
         Vec(el) => v.visit_vec(el),
         Set(el) => v.visit_set(el),
+        BTreeSet(el) => v.visit_btree_set(el),
         Map(key, value) => v.visit_map(key, value),
+        BTreeMap(key, value) => v.visit_btree_map(key, value),
         Path(p) => v.visit_path(p),
         Arc(p) => v.visit(p),
         _ => {}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_global_path() {
+        use super::CodegenTy::*;
+        let ty = Vec(std::sync::Arc::new(U8));
+        assert_eq!(ty.global_path("adt_prefix"), "::std::vec::Vec<u8>");
+
+        let ty = Set(std::sync::Arc::new(U8));
+        assert_eq!(ty.global_path("adt_prefix"), "::pilota::AHashSet<u8>");
+
+        let ty = Map(std::sync::Arc::new(U8), std::sync::Arc::new(U8));
+        assert_eq!(ty.global_path("adt_prefix"), "::pilota::AHashMap<u8, u8>");
+
+        let ty = Arc(std::sync::Arc::new(U8));
+        assert_eq!(ty.global_path("adt_prefix"), "::std::sync::Arc<u8>");
+
+        let ty = Arc(std::sync::Arc::new(Vec(std::sync::Arc::new(U8))));
+        assert_eq!(
+            ty.global_path("adt_prefix"),
+            "::std::sync::Arc<::std::vec::Vec<u8>>"
+        );
+
+        let ty = Arc(std::sync::Arc::new(Map(
+            std::sync::Arc::new(U8),
+            std::sync::Arc::new(U8),
+        )));
+        assert_eq!(
+            ty.global_path("adt_prefix"),
+            "::std::sync::Arc<::pilota::AHashMap<u8, u8>>"
+        );
+
+        let ty = Arc(std::sync::Arc::new(Set(std::sync::Arc::new(U8))));
+        assert_eq!(
+            ty.global_path("adt_prefix"),
+            "::std::sync::Arc<::pilota::AHashSet<u8>>"
+        );
+
+        let ty = Arc(std::sync::Arc::new(Arc(std::sync::Arc::new(U8))));
+        assert_eq!(
+            ty.global_path("adt_prefix"),
+            "::std::sync::Arc<::std::sync::Arc<u8>>"
+        );
     }
 }
