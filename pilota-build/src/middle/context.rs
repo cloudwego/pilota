@@ -48,7 +48,7 @@ pub enum CollectMode {
 
 #[derive(Debug)]
 pub struct WorkspaceInfo {
-    pub(crate) dir: PathBuf,
+    pub dir: PathBuf,
     pub(crate) location_map: FxHashMap<DefId, DefLocation>,
 }
 
@@ -67,14 +67,14 @@ pub struct Context {
     pub(crate) codegen_items: Arc<[DefId]>,
     pub(crate) path_resolver: Arc<dyn PathResolver>,
     pub mode: Arc<Mode>,
-    pub(crate) split: bool,
+    pub split: bool,
     pub(crate) keep_unknown_fields: Arc<FxHashSet<DefId>>,
     pub location_map: Arc<FxHashMap<DefId, DefLocation>>,
     pub entry_map: Arc<HashMap<DefLocation, Vec<(DefId, DefLocation)>>>,
     pub plugin_gen: Arc<DashMap<DefLocation, String>>,
     pub(crate) dedups: Vec<FastStr>,
     pub(crate) common_crate_name: FastStr,
-    pub names: FxHashSet<DefId>,
+    pub names: FxHashMap<DefId, usize>,
 }
 
 impl Clone for Context {
@@ -382,8 +382,9 @@ impl ContextBuilder {
         cx.names.extend(
             map.into_iter()
                 .filter(|(_, v)| v.len() > 1)
-                .flat_map(|(_, v)| v)
-                .collect::<HashSet<DefId>>(),
+                .map(|(_, v)| v)
+                .flat_map(|v| v.into_iter().enumerate().map(|(i, def_id)| (def_id, i)))
+                .collect::<HashMap<DefId, usize>>(),
         );
         cx
     }
@@ -834,7 +835,7 @@ impl Context {
             return name.0.into();
         }
 
-        if !self.change_case || self.names.contains(&def_id) {
+        if !self.change_case || self.names.contains_key(&def_id) {
             return node.name();
         }
 

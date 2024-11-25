@@ -9,7 +9,7 @@ mod util;
 pub mod codegen;
 pub mod db;
 pub(crate) mod errors;
-mod fmt;
+pub mod fmt;
 mod index;
 mod ir;
 pub mod middle;
