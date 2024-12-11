@@ -1,9 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    ops::Deref,
-    path::PathBuf,
-    sync::Arc,
-};
+use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
 
 use anyhow::Context as _;
 use dashmap::DashMap;

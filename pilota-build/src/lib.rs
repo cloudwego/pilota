@@ -378,10 +378,10 @@ where
         cx.exec_plugin(AutoDerivePlugin::new(
             Arc::from(["#[derive(PartialOrd)]".into()]),
             |ty| {
-                let ty = match &ty.kind {
-                    ty::Vec(ty) => ty,
-                    _ => ty,
-                };
+                let mut ty = ty;
+                while let ty::Vec(_ty) = &ty.kind {
+                    ty = _ty;
+                }
                 if matches!(ty.kind, ty::Map(_, _) | ty::Set(_)) {
                     PredicateResult::No
                 } else {
@@ -393,10 +393,10 @@ where
         cx.exec_plugin(AutoDerivePlugin::new(
             Arc::from(["#[derive(Hash, Eq, Ord)]".into()]),
             |ty| {
-                let ty = match &ty.kind {
-                    ty::Vec(ty) => ty,
-                    _ => ty,
-                };
+                let mut ty = ty;
+                while let ty::Vec(_ty) = &ty.kind {
+                    ty = _ty;
+                }
                 if matches!(ty.kind, ty::Map(_, _) | ty::Set(_) | ty::F64 | ty::F32) {
                     PredicateResult::No
                 } else {

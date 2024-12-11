@@ -102,7 +102,7 @@ struct Xtruct3
 
 struct Insanity
 {
-  1: map<Numberz, UserId> userMap,
+  1: map<Numberz, UserId> userMap(pilota.rust_type = "btree"),
   2: list<Xtruct> xtructs
 } (python.immutable= "")
 
@@ -110,7 +110,7 @@ struct CrazyNesting {
   1: string string_field,
   2: optional set<Insanity> set_field,
   // Do not insert line break as test/go/Makefile.am is removing this line with pattern match
-  3: required list<map<set<i32> (python.immutable = ""), map<i32,set<list<map<Insanity,string>(python.immutable = "")> (python.immutable = "")>>>> list_field,
+  3: required list<map<set<i32> (python.immutable = ""), map<i32,set<list<map<Insanity,string>(python.immutable = "")> (python.immutable = "")>>>> list_field(pilota.rust_type = "btree"),
   4: binary binary_field
   5: uuid uuid_field
 }
@@ -389,6 +389,9 @@ struct NestedListsI32x2 {
 }
 struct NestedListsI32x3 {
   1: list<list<list<i32>>> integerlist
+}
+struct NestedListsDoublex2 {
+  1: list<list<double>> doublelist
 }
 struct NestedMixedx2 {
   1: list<set<i32>> int_set_list
