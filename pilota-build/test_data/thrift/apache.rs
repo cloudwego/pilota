@@ -1421,21 +1421,36 @@ pub mod apache {
             }
         }
         pub const MY_NUMBERZ: Numberz = Numberz::ONE;
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
-        pub struct StructA {
-            pub s: ::pilota::FastStr,
+        impl Default for BoolTest {
+            fn default() -> Self {
+                BoolTest {
+                    b: Some(true),
+                    s: Some(::pilota::FastStr::from_static_str("true")),
+                }
+            }
         }
-        impl ::pilota::thrift::Message for StructA {
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
+        pub struct BoolTest {
+            pub b: ::std::option::Option<bool>,
+
+            pub s: ::std::option::Option<::pilota::FastStr>,
+        }
+        impl ::pilota::thrift::Message for BoolTest {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 __protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "StructA" };
+                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "BoolTest" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                __protocol.write_faststr_field(1, (&self.s).clone())?;
+                if let Some(value) = self.b.as_ref() {
+                    __protocol.write_bool_field(1, *value)?;
+                }
+                if let Some(value) = self.s.as_ref() {
+                    __protocol.write_faststr_field(2, (value).clone())?;
+                }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
                 ::std::result::Result::Ok(())
@@ -1447,7 +1462,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut var_1 = None;
+                let mut var_1 = Some(true);
+                let mut var_2 = Some(::pilota::FastStr::from_static_str("true"));
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1463,10 +1479,13 @@ pub mod apache {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1)
+                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
+                                var_1 = Some(__protocol.read_bool()?);
+                            }
+                            Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_1 = Some(__protocol.read_faststr()?);
+                                var_2 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -1480,7 +1499,7 @@ pub mod apache {
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
-                            "decode struct `StructA` field(#{}) failed, caused by: ",
+                            "decode struct `BoolTest` field(#{}) failed, caused by: ",
                             field_id
                         ));
                     }
@@ -1488,14 +1507,7 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(var_1) = var_1 else {
-                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
-                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field s is required".to_string(),
-                    ));
-                };
-
-                let data = Self { s: var_1 };
+                let data = Self { b: var_1, s: var_2 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -1510,7 +1522,8 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
+                    let mut var_1 = Some(true);
+                    let mut var_2 = Some(::pilota::FastStr::from_static_str("true"));
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -1525,10 +1538,15 @@ pub mod apache {
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
                                 Some(1)
+                                    if field_ident.field_type == ::pilota::thrift::TType::Bool =>
+                                {
+                                    var_1 = Some(__protocol.read_bool().await?);
+                                }
+                                Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_1 = Some(__protocol.read_faststr().await?);
+                                    var_2 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -1543,7 +1561,7 @@ pub mod apache {
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
-                                "decode struct `StructA` field(#{}) failed, caused by: ",
+                                "decode struct `BoolTest` field(#{}) failed, caused by: ",
                                 field_id
                             ));
                         }
@@ -1551,16 +1569,7 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(var_1) = var_1 else {
-                        return ::std::result::Result::Err(
-                            ::pilota::thrift::new_protocol_exception(
-                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field s is required".to_string(),
-                            ),
-                        );
-                    };
-
-                    let data = Self { s: var_1 };
+                    let data = Self { b: var_1, s: var_2 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -1569,8 +1578,15 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol
-                    .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "StructA" })
-                    + __protocol.faststr_field_len(Some(1), &self.s)
+                    .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "BoolTest" })
+                    + self
+                        .b
+                        .as_ref()
+                        .map_or(0, |value| __protocol.bool_field_len(Some(1), *value))
+                    + self
+                        .s
+                        .as_ref()
+                        .map_or(0, |value| __protocol.faststr_field_len(Some(2), value))
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -3817,27 +3833,97 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
-        pub struct ListBonks {
-            pub bonk: ::std::option::Option<::std::vec::Vec<Bonk>>,
+        #[derive(Debug, Default, Clone, PartialEq)]
+        pub struct NestedMixedx2 {
+            pub int_set_list: ::std::option::Option<::std::vec::Vec<::pilota::AHashSet<i32>>>,
+
+            pub map_int_strset: ::std::option::Option<
+                ::pilota::AHashMap<i32, ::pilota::AHashSet<::pilota::FastStr>>,
+            >,
+
+            pub map_int_strset_list: ::std::option::Option<
+                ::std::vec::Vec<::pilota::AHashMap<i32, ::pilota::AHashSet<::pilota::FastStr>>>,
+            >,
         }
-        impl ::pilota::thrift::Message for ListBonks {
+        impl ::pilota::thrift::Message for NestedMixedx2 {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 __protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "ListBonks" };
+                let struct_ident = ::pilota::thrift::TStructIdentifier {
+                    name: "NestedMixedx2",
+                };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.bonk.as_ref() {
+                if let Some(value) = self.int_set_list.as_ref() {
                     __protocol.write_list_field(
                         1,
-                        ::pilota::thrift::TType::Struct,
+                        ::pilota::thrift::TType::Set,
                         &value,
                         |__protocol, val| {
-                            __protocol.write_struct(val)?;
+                            __protocol.write_set(
+                                ::pilota::thrift::TType::I32,
+                                &val,
+                                |__protocol, val| {
+                                    __protocol.write_i32(*val)?;
+                                    ::std::result::Result::Ok(())
+                                },
+                            )?;
+                            ::std::result::Result::Ok(())
+                        },
+                    )?;
+                }
+                if let Some(value) = self.map_int_strset.as_ref() {
+                    __protocol.write_map_field(
+                        2,
+                        ::pilota::thrift::TType::I32,
+                        ::pilota::thrift::TType::Set,
+                        &value,
+                        |__protocol, key| {
+                            __protocol.write_i32(*key)?;
+                            ::std::result::Result::Ok(())
+                        },
+                        |__protocol, val| {
+                            __protocol.write_set(
+                                ::pilota::thrift::TType::Binary,
+                                &val,
+                                |__protocol, val| {
+                                    __protocol.write_faststr((val).clone())?;
+                                    ::std::result::Result::Ok(())
+                                },
+                            )?;
+                            ::std::result::Result::Ok(())
+                        },
+                    )?;
+                }
+                if let Some(value) = self.map_int_strset_list.as_ref() {
+                    __protocol.write_list_field(
+                        3,
+                        ::pilota::thrift::TType::Map,
+                        &value,
+                        |__protocol, val| {
+                            __protocol.write_map(
+                                ::pilota::thrift::TType::I32,
+                                ::pilota::thrift::TType::Set,
+                                &val,
+                                |__protocol, key| {
+                                    __protocol.write_i32(*key)?;
+                                    ::std::result::Result::Ok(())
+                                },
+                                |__protocol, val| {
+                                    __protocol.write_set(
+                                        ::pilota::thrift::TType::Binary,
+                                        &val,
+                                        |__protocol, val| {
+                                            __protocol.write_faststr((val).clone())?;
+                                            ::std::result::Result::Ok(())
+                                        },
+                                    )?;
+                                    ::std::result::Result::Ok(())
+                                },
+                            )?;
                             ::std::result::Result::Ok(())
                         },
                     )?;
@@ -3854,6 +3940,8 @@ pub mod apache {
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
                 let mut var_1 = None;
+                let mut var_2 = None;
+                let mut var_3 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -3872,11 +3960,75 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<Bonk> = Vec::with_capacity(list_ident.size);
+                                    let mut val: Vec<::pilota::AHashSet<i32>> =
+                                        Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
-                                        val.as_mut_ptr()
-                                            .offset(i as isize)
-                                            .write(::pilota::thrift::Message::decode(__protocol)?);
+                                        val.as_mut_ptr().offset(i as isize).write({
+                                            let list_ident = __protocol.read_set_begin()?;
+                                            let mut val =
+                                                ::pilota::AHashSet::with_capacity(list_ident.size);
+                                            for _ in 0..list_ident.size {
+                                                val.insert(__protocol.read_i32()?);
+                                            }
+                                            __protocol.read_set_end()?;
+                                            val
+                                        });
+                                    }
+                                    val.set_len(list_ident.size);
+                                    __protocol.read_list_end()?;
+                                    val
+                                });
+                            }
+                            Some(2) if field_ident.field_type == ::pilota::thrift::TType::Map => {
+                                var_2 = Some({
+                                    let map_ident = __protocol.read_map_begin()?;
+                                    let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                                    for _ in 0..map_ident.size {
+                                        val.insert(__protocol.read_i32()?, {
+                                            let list_ident = __protocol.read_set_begin()?;
+                                            let mut val =
+                                                ::pilota::AHashSet::with_capacity(list_ident.size);
+                                            for _ in 0..list_ident.size {
+                                                val.insert(__protocol.read_faststr()?);
+                                            }
+                                            __protocol.read_set_end()?;
+                                            val
+                                        });
+                                    }
+                                    __protocol.read_map_end()?;
+                                    val
+                                });
+                            }
+                            Some(3) if field_ident.field_type == ::pilota::thrift::TType::List => {
+                                var_3 = Some(unsafe {
+                                    let list_ident = __protocol.read_list_begin()?;
+                                    let mut val: Vec<
+                                        ::pilota::AHashMap<
+                                            i32,
+                                            ::pilota::AHashSet<::pilota::FastStr>,
+                                        >,
+                                    > = Vec::with_capacity(list_ident.size);
+                                    for i in 0..list_ident.size {
+                                        val.as_mut_ptr().offset(i as isize).write({
+                                            let map_ident = __protocol.read_map_begin()?;
+                                            let mut val =
+                                                ::pilota::AHashMap::with_capacity(map_ident.size);
+                                            for _ in 0..map_ident.size {
+                                                val.insert(__protocol.read_i32()?, {
+                                                    let list_ident = __protocol.read_set_begin()?;
+                                                    let mut val = ::pilota::AHashSet::with_capacity(
+                                                        list_ident.size,
+                                                    );
+                                                    for _ in 0..list_ident.size {
+                                                        val.insert(__protocol.read_faststr()?);
+                                                    }
+                                                    __protocol.read_set_end()?;
+                                                    val
+                                                });
+                                            }
+                                            __protocol.read_map_end()?;
+                                            val
+                                        });
                                     }
                                     val.set_len(list_ident.size);
                                     __protocol.read_list_end()?;
@@ -3895,7 +4047,7 @@ pub mod apache {
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
-                            "decode struct `ListBonks` field(#{}) failed, caused by: ",
+                            "decode struct `NestedMixedx2` field(#{}) failed, caused by: ",
                             field_id
                         ));
                     }
@@ -3903,7 +4055,11 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { bonk: var_1 };
+                let data = Self {
+                    int_set_list: var_1,
+                    map_int_strset: var_2,
+                    map_int_strset_list: var_3,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -3919,6 +4075,8 @@ pub mod apache {
             > {
                 ::std::boxed::Box::pin(async move {
                     let mut var_1 = None;
+                    let mut var_2 = None;
+                    let mut var_3 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -3939,12 +4097,80 @@ pub mod apache {
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val = Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
-                                            val.push(
-                                                <Bonk as ::pilota::thrift::Message>::decode_async(
-                                                    __protocol,
-                                                )
-                                                .await?,
-                                            );
+                                            val.push({
+                                                let list_ident =
+                                                    __protocol.read_set_begin().await?;
+                                                let mut val = ::pilota::AHashSet::with_capacity(
+                                                    list_ident.size,
+                                                );
+                                                for _ in 0..list_ident.size {
+                                                    val.insert(__protocol.read_i32().await?);
+                                                }
+                                                __protocol.read_set_end().await?;
+                                                val
+                                            });
+                                        }
+                                        __protocol.read_list_end().await?;
+                                        val
+                                    });
+                                }
+                                Some(2)
+                                    if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                                {
+                                    var_2 = Some({
+                                        let map_ident = __protocol.read_map_begin().await?;
+                                        let mut val =
+                                            ::pilota::AHashMap::with_capacity(map_ident.size);
+                                        for _ in 0..map_ident.size {
+                                            val.insert(__protocol.read_i32().await?, {
+                                                let list_ident =
+                                                    __protocol.read_set_begin().await?;
+                                                let mut val = ::pilota::AHashSet::with_capacity(
+                                                    list_ident.size,
+                                                );
+                                                for _ in 0..list_ident.size {
+                                                    val.insert(__protocol.read_faststr().await?);
+                                                }
+                                                __protocol.read_set_end().await?;
+                                                val
+                                            });
+                                        }
+                                        __protocol.read_map_end().await?;
+                                        val
+                                    });
+                                }
+                                Some(3)
+                                    if field_ident.field_type == ::pilota::thrift::TType::List =>
+                                {
+                                    var_3 = Some({
+                                        let list_ident = __protocol.read_list_begin().await?;
+                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        for _ in 0..list_ident.size {
+                                            val.push({
+                                                let map_ident = __protocol.read_map_begin().await?;
+                                                let mut val = ::pilota::AHashMap::with_capacity(
+                                                    map_ident.size,
+                                                );
+                                                for _ in 0..map_ident.size {
+                                                    val.insert(__protocol.read_i32().await?, {
+                                                        let list_ident =
+                                                            __protocol.read_set_begin().await?;
+                                                        let mut val =
+                                                            ::pilota::AHashSet::with_capacity(
+                                                                list_ident.size,
+                                                            );
+                                                        for _ in 0..list_ident.size {
+                                                            val.insert(
+                                                                __protocol.read_faststr().await?,
+                                                            );
+                                                        }
+                                                        __protocol.read_set_end().await?;
+                                                        val
+                                                    });
+                                                }
+                                                __protocol.read_map_end().await?;
+                                                val
+                                            });
                                         }
                                         __protocol.read_list_end().await?;
                                         val
@@ -3963,7 +4189,7 @@ pub mod apache {
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
-                                "decode struct `ListBonks` field(#{}) failed, caused by: ",
+                                "decode struct `NestedMixedx2` field(#{}) failed, caused by: ",
                                 field_id
                             ));
                         }
@@ -3971,7 +4197,11 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { bonk: var_1 };
+                    let data = Self {
+                        int_set_list: var_1,
+                        map_int_strset: var_2,
+                        map_int_strset_list: var_3,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -3979,17 +4209,58 @@ pub mod apache {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                __protocol
-                    .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "ListBonks" })
-                    + self.bonk.as_ref().map_or(0, |value| {
-                        __protocol.list_field_len(
-                            Some(1),
-                            ::pilota::thrift::TType::Struct,
-                            value,
-                            |__protocol, el| __protocol.struct_len(el),
-                        )
-                    })
-                    + __protocol.field_stop_len()
+                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
+                    name: "NestedMixedx2",
+                }) + self.int_set_list.as_ref().map_or(0, |value| {
+                    __protocol.list_field_len(
+                        Some(1),
+                        ::pilota::thrift::TType::Set,
+                        value,
+                        |__protocol, el| {
+                            __protocol.set_len(
+                                ::pilota::thrift::TType::I32,
+                                el,
+                                |__protocol, el| __protocol.i32_len(*el),
+                            )
+                        },
+                    )
+                }) + self.map_int_strset.as_ref().map_or(0, |value| {
+                    __protocol.map_field_len(
+                        Some(2),
+                        ::pilota::thrift::TType::I32,
+                        ::pilota::thrift::TType::Set,
+                        value,
+                        |__protocol, key| __protocol.i32_len(*key),
+                        |__protocol, val| {
+                            __protocol.set_len(
+                                ::pilota::thrift::TType::Binary,
+                                val,
+                                |__protocol, el| __protocol.faststr_len(el),
+                            )
+                        },
+                    )
+                }) + self.map_int_strset_list.as_ref().map_or(0, |value| {
+                    __protocol.list_field_len(
+                        Some(3),
+                        ::pilota::thrift::TType::Map,
+                        value,
+                        |__protocol, el| {
+                            __protocol.map_len(
+                                ::pilota::thrift::TType::I32,
+                                ::pilota::thrift::TType::Set,
+                                el,
+                                |__protocol, key| __protocol.i32_len(*key),
+                                |__protocol, val| {
+                                    __protocol.set_len(
+                                        ::pilota::thrift::TType::Binary,
+                                        val,
+                                        |__protocol, el| __protocol.faststr_len(el),
+                                    )
+                                },
+                            )
+                        },
+                    )
+                }) + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
         }
@@ -4971,6 +5242,216 @@ pub mod apache {
                         .as_ref()
                         .map_or(0, |value| __protocol.bool_field_len(Some(2), *value))
                     + __protocol.field_stop_len()
+                    + __protocol.struct_end_len()
+            }
+        }
+        impl Default for OptionalBinary {
+            fn default() -> Self {
+                OptionalBinary {
+                    bin_map: Some({
+                        let mut map = ::pilota::AHashMap::with_capacity(0);
+
+                        map
+                    }),
+                }
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
+        pub struct OptionalBinary {
+            pub bin_map: ::std::option::Option<::pilota::AHashMap<::pilota::Bytes, i32>>,
+        }
+        impl ::pilota::thrift::Message for OptionalBinary {
+            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                &self,
+                __protocol: &mut T,
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TOutputProtocolExt;
+                let struct_ident = ::pilota::thrift::TStructIdentifier {
+                    name: "OptionalBinary",
+                };
+
+                __protocol.write_struct_begin(&struct_ident)?;
+                if let Some(value) = self.bin_map.as_ref() {
+                    __protocol.write_map_field(
+                        2,
+                        ::pilota::thrift::TType::Binary,
+                        ::pilota::thrift::TType::I32,
+                        &value,
+                        |__protocol, key| {
+                            __protocol.write_bytes(key.clone())?;
+                            ::std::result::Result::Ok(())
+                        },
+                        |__protocol, val| {
+                            __protocol.write_i32(*val)?;
+                            ::std::result::Result::Ok(())
+                        },
+                    )?;
+                }
+                __protocol.write_field_stop()?;
+                __protocol.write_struct_end()?;
+                ::std::result::Result::Ok(())
+            }
+
+            fn decode<T: ::pilota::thrift::TInputProtocol>(
+                __protocol: &mut T,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
+                #[allow(unused_imports)]
+                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+
+                let mut var_2 = None;
+
+                let mut __pilota_decoding_field_id = None;
+
+                __protocol.read_struct_begin()?;
+                if let ::std::result::Result::Err(mut err) = (|| {
+                    loop {
+                        let field_ident = __protocol.read_field_begin()?;
+                        if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                            __protocol.field_stop_len();
+                            break;
+                        } else {
+                            __protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        }
+                        __pilota_decoding_field_id = field_ident.id;
+                        match field_ident.id {
+                            Some(2) if field_ident.field_type == ::pilota::thrift::TType::Map => {
+                                var_2 = Some({
+                                    let map_ident = __protocol.read_map_begin()?;
+                                    let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                                    for _ in 0..map_ident.size {
+                                        val.insert(
+                                            __protocol.read_bytes()?,
+                                            __protocol.read_i32()?,
+                                        );
+                                    }
+                                    __protocol.read_map_end()?;
+                                    val
+                                });
+                            }
+                            _ => {
+                                __protocol.skip(field_ident.field_type)?;
+                            }
+                        }
+
+                        __protocol.read_field_end()?;
+                        __protocol.field_end_len();
+                    }
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
+                })() {
+                    if let Some(field_id) = __pilota_decoding_field_id {
+                        err.prepend_msg(&format!(
+                            "decode struct `OptionalBinary` field(#{}) failed, caused by: ",
+                            field_id
+                        ));
+                    }
+                    return ::std::result::Result::Err(err);
+                };
+                __protocol.read_struct_end()?;
+
+                if var_2.is_none() {
+                    var_2 = Some({
+                        let mut map = ::pilota::AHashMap::with_capacity(0);
+
+                        map
+                    });
+                }
+
+                let data = Self { bin_map: var_2 };
+                ::std::result::Result::Ok(data)
+            }
+
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                __protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
+                ::std::boxed::Box::pin(async move {
+                    let mut var_2 = None;
+
+                    let mut __pilota_decoding_field_id = None;
+
+                    __protocol.read_struct_begin().await?;
+                    if let ::std::result::Result::Err(mut err) = async {
+                        loop {
+                            let field_ident = __protocol.read_field_begin().await?;
+                            if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                                break;
+                            } else {
+                            }
+                            __pilota_decoding_field_id = field_ident.id;
+                            match field_ident.id {
+                                Some(2)
+                                    if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                                {
+                                    var_2 = Some({
+                                        let map_ident = __protocol.read_map_begin().await?;
+                                        let mut val =
+                                            ::pilota::AHashMap::with_capacity(map_ident.size);
+                                        for _ in 0..map_ident.size {
+                                            val.insert(
+                                                __protocol.read_bytes().await?,
+                                                __protocol.read_i32().await?,
+                                            );
+                                        }
+                                        __protocol.read_map_end().await?;
+                                        val
+                                    });
+                                }
+                                _ => {
+                                    __protocol.skip(field_ident.field_type).await?;
+                                }
+                            }
+
+                            __protocol.read_field_end().await?;
+                        }
+                        ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
+                    }
+                    .await
+                    {
+                        if let Some(field_id) = __pilota_decoding_field_id {
+                            err.prepend_msg(&format!(
+                                "decode struct `OptionalBinary` field(#{}) failed, caused by: ",
+                                field_id
+                            ));
+                        }
+                        return ::std::result::Result::Err(err);
+                    };
+                    __protocol.read_struct_end().await?;
+
+                    if var_2.is_none() {
+                        var_2 = Some({
+                            let mut map = ::pilota::AHashMap::with_capacity(0);
+
+                            map
+                        });
+                    }
+
+                    let data = Self { bin_map: var_2 };
+                    ::std::result::Result::Ok(data)
+                })
+            }
+
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TLengthProtocolExt;
+                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
+                    name: "OptionalBinary",
+                }) + self.bin_map.as_ref().map_or(0, |value| {
+                    __protocol.map_field_len(
+                        Some(2),
+                        ::pilota::thrift::TType::Binary,
+                        ::pilota::thrift::TType::I32,
+                        value,
+                        |__protocol, key| __protocol.bytes_len(key),
+                        |__protocol, val| __protocol.i32_len(*val),
+                    )
+                }) + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
         }
@@ -7296,25 +7777,20 @@ pub mod apache {
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
-        pub struct StructB {
-            pub aa: ::std::option::Option<StructA>,
-
-            pub ab: StructA,
+        pub struct StructA {
+            pub s: ::pilota::FastStr,
         }
-        impl ::pilota::thrift::Message for StructB {
+        impl ::pilota::thrift::Message for StructA {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 __protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "StructB" };
+                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "StructA" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.aa.as_ref() {
-                    __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
-                }
-                __protocol.write_struct_field(2, &self.ab, ::pilota::thrift::TType::Struct)?;
+                __protocol.write_faststr_field(1, (&self.s).clone())?;
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
                 ::std::result::Result::Ok(())
@@ -7327,7 +7803,6 @@ pub mod apache {
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
                 let mut var_1 = None;
-                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -7344,14 +7819,9 @@ pub mod apache {
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
                             Some(1)
-                                if field_ident.field_type == ::pilota::thrift::TType::Struct =>
+                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
-                            }
-                            Some(2)
-                                if field_ident.field_type == ::pilota::thrift::TType::Struct =>
-                            {
-                                var_2 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -7365,7 +7835,7 @@ pub mod apache {
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
-                            "decode struct `StructB` field(#{}) failed, caused by: ",
+                            "decode struct `StructA` field(#{}) failed, caused by: ",
                             field_id
                         ));
                     }
@@ -7373,17 +7843,14 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(var_2) = var_2 else {
+                let Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field ab is required".to_string(),
+                        "field s is required".to_string(),
                     ));
                 };
 
-                let data = Self {
-                    aa: var_1,
-                    ab: var_2,
-                };
+                let data = Self { s: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -7399,7 +7866,6 @@ pub mod apache {
             > {
                 ::std::boxed::Box::pin(async move {
                     let mut var_1 = None;
-                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -7415,25 +7881,9 @@ pub mod apache {
                             match field_ident.id {
                                 Some(1)
                                     if field_ident.field_type
-                                        == ::pilota::thrift::TType::Struct =>
+                                        == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_1 = Some(
-                                        <StructA as ::pilota::thrift::Message>::decode_async(
-                                            __protocol,
-                                        )
-                                        .await?,
-                                    );
-                                }
-                                Some(2)
-                                    if field_ident.field_type
-                                        == ::pilota::thrift::TType::Struct =>
-                                {
-                                    var_2 = Some(
-                                        <StructA as ::pilota::thrift::Message>::decode_async(
-                                            __protocol,
-                                        )
-                                        .await?,
-                                    );
+                                    var_1 = Some(__protocol.read_faststr().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -7448,7 +7898,7 @@ pub mod apache {
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
-                                "decode struct `StructB` field(#{}) failed, caused by: ",
+                                "decode struct `StructA` field(#{}) failed, caused by: ",
                                 field_id
                             ));
                         }
@@ -7456,19 +7906,16 @@ pub mod apache {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(var_2) = var_2 else {
+                    let Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field ab is required".to_string(),
+                                "field s is required".to_string(),
                             ),
                         );
                     };
 
-                    let data = Self {
-                        aa: var_1,
-                        ab: var_2,
-                    };
+                    let data = Self { s: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -7477,12 +7924,8 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol
-                    .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "StructB" })
-                    + self
-                        .aa
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(1), value))
-                    + __protocol.struct_field_len(Some(2), &self.ab)
+                    .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "StructA" })
+                    + __protocol.faststr_field_len(Some(1), &self.s)
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -7763,9 +8206,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, Default, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Insanity {
-            pub user_map: ::std::option::Option<::pilota::AHashMap<Numberz, UserId>>,
+            pub user_map: ::std::option::Option<::std::collections::BTreeMap<Numberz, UserId>>,
 
             pub xtructs: ::std::option::Option<::std::vec::Vec<Xtruct>>,
         }
@@ -7780,7 +8223,7 @@ pub mod apache {
 
                 __protocol.write_struct_begin(&struct_ident)?;
                 if let Some(value) = self.user_map.as_ref() {
-                    __protocol.write_map_field(
+                    __protocol.write_btree_map_field(
                         1,
                         ::pilota::thrift::TType::I32,
                         ::pilota::thrift::TType::I64,
@@ -7837,7 +8280,7 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::Map => {
                                 var_1 = Some({
                                     let map_ident = __protocol.read_map_begin()?;
-                                    let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                                    let mut val = ::std::collections::BTreeMap::new();
                                     for _ in 0..map_ident.size {
                                         val.insert(
                                             ::pilota::thrift::Message::decode(__protocol)?,
@@ -7922,7 +8365,7 @@ pub mod apache {
                     Some(1) if field_ident.field_type == ::pilota::thrift::TType::Map  => {
                     var_1 = Some({
                         let map_ident = __protocol.read_map_begin().await?;
-                        let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                        let mut val = ::std::collections::BTreeMap::new();
                         for _ in 0..map_ident.size {
                             val.insert(<Numberz as ::pilota::thrift::Message>::decode_async(__protocol).await?, <UserId as ::pilota::thrift::Message>::decode_async(__protocol).await?);
                         }
@@ -7975,7 +8418,7 @@ pub mod apache {
                 __protocol
                     .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Insanity" })
                     + self.user_map.as_ref().map_or(0, |value| {
-                        __protocol.map_field_len(
+                        __protocol.btree_map_field_len(
                             Some(1),
                             ::pilota::thrift::TType::I32,
                             ::pilota::thrift::TType::I64,
@@ -9049,7 +9492,7 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, Default, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct ThriftTestTestInsanityArgsSend {
             pub argument: Insanity,
         }
@@ -9209,43 +9652,26 @@ pub mod apache {
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
-        pub struct NestedListsBonk {
-            pub bonk:
-                ::std::option::Option<::std::vec::Vec<::std::vec::Vec<::std::vec::Vec<Bonk>>>>,
+        pub struct ListBonks {
+            pub bonk: ::std::option::Option<::std::vec::Vec<Bonk>>,
         }
-        impl ::pilota::thrift::Message for NestedListsBonk {
+        impl ::pilota::thrift::Message for ListBonks {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 __protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                let struct_ident = ::pilota::thrift::TStructIdentifier {
-                    name: "NestedListsBonk",
-                };
+                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "ListBonks" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
                 if let Some(value) = self.bonk.as_ref() {
                     __protocol.write_list_field(
                         1,
-                        ::pilota::thrift::TType::List,
+                        ::pilota::thrift::TType::Struct,
                         &value,
                         |__protocol, val| {
-                            __protocol.write_list(
-                                ::pilota::thrift::TType::List,
-                                &val,
-                                |__protocol, val| {
-                                    __protocol.write_list(
-                                        ::pilota::thrift::TType::Struct,
-                                        &val,
-                                        |__protocol, val| {
-                                            __protocol.write_struct(val)?;
-                                            ::std::result::Result::Ok(())
-                                        },
-                                    )?;
-                                    ::std::result::Result::Ok(())
-                                },
-                            )?;
+                            __protocol.write_struct(val)?;
                             ::std::result::Result::Ok(())
                         },
                     )?;
@@ -9280,35 +9706,11 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<::std::vec::Vec<::std::vec::Vec<Bonk>>> =
-                                        Vec::with_capacity(list_ident.size);
+                                    let mut val: Vec<Bonk> = Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
-                                        val.as_mut_ptr().offset(i as isize).write(unsafe {
-                                            let list_ident = __protocol.read_list_begin()?;
-                                            let mut val: Vec<::std::vec::Vec<Bonk>> =
-                                                Vec::with_capacity(list_ident.size);
-                                            for i in 0..list_ident.size {
-                                                val.as_mut_ptr().offset(i as isize).write(unsafe {
-                                                    let list_ident =
-                                                        __protocol.read_list_begin()?;
-                                                    let mut val: Vec<Bonk> =
-                                                        Vec::with_capacity(list_ident.size);
-                                                    for i in 0..list_ident.size {
-                                                        val.as_mut_ptr().offset(i as isize).write(
-                                                            ::pilota::thrift::Message::decode(
-                                                                __protocol,
-                                                            )?,
-                                                        );
-                                                    }
-                                                    val.set_len(list_ident.size);
-                                                    __protocol.read_list_end()?;
-                                                    val
-                                                });
-                                            }
-                                            val.set_len(list_ident.size);
-                                            __protocol.read_list_end()?;
-                                            val
-                                        });
+                                        val.as_mut_ptr()
+                                            .offset(i as isize)
+                                            .write(::pilota::thrift::Message::decode(__protocol)?);
                                     }
                                     val.set_len(list_ident.size);
                                     __protocol.read_list_end()?;
@@ -9327,7 +9729,7 @@ pub mod apache {
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
-                            "decode struct `NestedListsBonk` field(#{}) failed, caused by: ",
+                            "decode struct `ListBonks` field(#{}) failed, caused by: ",
                             field_id
                         ));
                     }
@@ -9356,63 +9758,51 @@ pub mod apache {
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
-                    loop {
+                        loop {
+                            let field_ident = __protocol.read_field_begin().await?;
+                            if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                                break;
+                            } else {
+                            }
+                            __pilota_decoding_field_id = field_ident.id;
+                            match field_ident.id {
+                                Some(1)
+                                    if field_ident.field_type == ::pilota::thrift::TType::List =>
+                                {
+                                    var_1 = Some({
+                                        let list_ident = __protocol.read_list_begin().await?;
+                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        for _ in 0..list_ident.size {
+                                            val.push(
+                                                <Bonk as ::pilota::thrift::Message>::decode_async(
+                                                    __protocol,
+                                                )
+                                                .await?,
+                                            );
+                                        }
+                                        __protocol.read_list_end().await?;
+                                        val
+                                    });
+                                }
+                                _ => {
+                                    __protocol.skip(field_ident.field_type).await?;
+                                }
+                            }
 
-
-                let field_ident = __protocol.read_field_begin().await?;
-                if field_ident.field_type == ::pilota::thrift::TType::Stop {
-
-                    break;
-                } else {
-
-                }
-                __pilota_decoding_field_id = field_ident.id;
-                match field_ident.id {
-                    Some(1) if field_ident.field_type == ::pilota::thrift::TType::List  => {
-                    var_1 = Some({
-                            let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
-                            for _ in 0..list_ident.size {
-                                val.push({
-                            let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
-                            for _ in 0..list_ident.size {
-                                val.push({
-                            let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
-                            for _ in 0..list_ident.size {
-                                val.push(<Bonk as ::pilota::thrift::Message>::decode_async(__protocol).await?);
-                            };
-                            __protocol.read_list_end().await?;
-                            val
-                        });
-                            };
-                            __protocol.read_list_end().await?;
-                            val
-                        });
-                            };
-                            __protocol.read_list_end().await?;
-                            val
-                        });
-
-                },
-                    _ => {
-                        __protocol.skip(field_ident.field_type).await?;
-
-                    },
-                }
-
-                __protocol.read_field_end().await?;
-
-
-            };
-                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
-                }.await {
-                if let Some(field_id) = __pilota_decoding_field_id {
-                    err.prepend_msg(&format!("decode struct `NestedListsBonk` field(#{}) failed, caused by: ", field_id));
-                }
-                return ::std::result::Result::Err(err);
-            };
+                            __protocol.read_field_end().await?;
+                        }
+                        ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
+                    }
+                    .await
+                    {
+                        if let Some(field_id) = __pilota_decoding_field_id {
+                            err.prepend_msg(&format!(
+                                "decode struct `ListBonks` field(#{}) failed, caused by: ",
+                                field_id
+                            ));
+                        }
+                        return ::std::result::Result::Err(err);
+                    };
                     __protocol.read_struct_end().await?;
 
                     let data = Self { bonk: var_1 };
@@ -9423,28 +9813,17 @@ pub mod apache {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
-                    name: "NestedListsBonk",
-                }) + self.bonk.as_ref().map_or(0, |value| {
-                    __protocol.list_field_len(
-                        Some(1),
-                        ::pilota::thrift::TType::List,
-                        value,
-                        |__protocol, el| {
-                            __protocol.list_len(
-                                ::pilota::thrift::TType::List,
-                                el,
-                                |__protocol, el| {
-                                    __protocol.list_len(
-                                        ::pilota::thrift::TType::Struct,
-                                        el,
-                                        |__protocol, el| __protocol.struct_len(el),
-                                    )
-                                },
-                            )
-                        },
-                    )
-                }) + __protocol.field_stop_len()
+                __protocol
+                    .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "ListBonks" })
+                    + self.bonk.as_ref().map_or(0, |value| {
+                        __protocol.list_field_len(
+                            Some(1),
+                            ::pilota::thrift::TType::Struct,
+                            value,
+                            |__protocol, el| __protocol.struct_len(el),
+                        )
+                    })
+                    + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
         }
@@ -13370,42 +13749,26 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for OptionalSetDefaultTest {
-            fn default() -> Self {
-                OptionalSetDefaultTest {
-                    with_default: Some(::pilota::AHashSet::from([
-                        ::pilota::FastStr::from_static_str("test"),
-                    ])),
-                }
-            }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        pub struct StructB {
+            pub aa: ::std::option::Option<StructA>,
+
+            pub ab: StructA,
         }
-        #[derive(Debug, Clone, PartialEq)]
-        pub struct OptionalSetDefaultTest {
-            pub with_default: ::std::option::Option<::pilota::AHashSet<::pilota::FastStr>>,
-        }
-        impl ::pilota::thrift::Message for OptionalSetDefaultTest {
+        impl ::pilota::thrift::Message for StructB {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 __protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                let struct_ident = ::pilota::thrift::TStructIdentifier {
-                    name: "OptionalSetDefaultTest",
-                };
+                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "StructB" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.with_default.as_ref() {
-                    __protocol.write_set_field(
-                        1,
-                        ::pilota::thrift::TType::Binary,
-                        &value,
-                        |__protocol, val| {
-                            __protocol.write_faststr((val).clone())?;
-                            ::std::result::Result::Ok(())
-                        },
-                    )?;
+                if let Some(value) = self.aa.as_ref() {
+                    __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                 }
+                __protocol.write_struct_field(2, &self.ab, ::pilota::thrift::TType::Struct)?;
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
                 ::std::result::Result::Ok(())
@@ -13418,6 +13781,7 @@ pub mod apache {
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
                 let mut var_1 = None;
+                let mut var_2 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -13433,17 +13797,15 @@ pub mod apache {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                var_1 = Some({
-                                    let list_ident = __protocol.read_set_begin()?;
-                                    let mut val =
-                                        ::pilota::AHashSet::with_capacity(list_ident.size);
-                                    for _ in 0..list_ident.size {
-                                        val.insert(__protocol.read_faststr()?);
-                                    }
-                                    __protocol.read_set_end()?;
-                                    val
-                                });
+                            Some(1)
+                                if field_ident.field_type == ::pilota::thrift::TType::Struct =>
+                            {
+                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                            }
+                            Some(2)
+                                if field_ident.field_type == ::pilota::thrift::TType::Struct =>
+                            {
+                                var_2 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -13457,7 +13819,7 @@ pub mod apache {
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
-                            "decode struct `OptionalSetDefaultTest` field(#{}) failed, caused by: ",
+                            "decode struct `StructB` field(#{}) failed, caused by: ",
                             field_id
                         ));
                     }
@@ -13465,14 +13827,16 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                if var_1.is_none() {
-                    var_1 = Some(::pilota::AHashSet::from([
-                        ::pilota::FastStr::from_static_str("test"),
-                    ]));
-                }
+                let Some(var_2) = var_2 else {
+                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                        "field ab is required".to_string(),
+                    ));
+                };
 
                 let data = Self {
-                    with_default: var_1,
+                    aa: var_1,
+                    ab: var_2,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -13489,6 +13853,7 @@ pub mod apache {
             > {
                 ::std::boxed::Box::pin(async move {
                     let mut var_1 = None;
+                    let mut var_2 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -13503,18 +13868,26 @@ pub mod apache {
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
                                 Some(1)
-                                    if field_ident.field_type == ::pilota::thrift::TType::Set =>
+                                    if field_ident.field_type
+                                        == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_1 = Some({
-                                        let list_ident = __protocol.read_set_begin().await?;
-                                        let mut val =
-                                            ::pilota::AHashSet::with_capacity(list_ident.size);
-                                        for _ in 0..list_ident.size {
-                                            val.insert(__protocol.read_faststr().await?);
-                                        }
-                                        __protocol.read_set_end().await?;
-                                        val
-                                    });
+                                    var_1 = Some(
+                                        <StructA as ::pilota::thrift::Message>::decode_async(
+                                            __protocol,
+                                        )
+                                        .await?,
+                                    );
+                                }
+                                Some(2)
+                                    if field_ident.field_type
+                                        == ::pilota::thrift::TType::Struct =>
+                                {
+                                    var_2 = Some(
+                                        <StructA as ::pilota::thrift::Message>::decode_async(
+                                            __protocol,
+                                        )
+                                        .await?,
+                                    );
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -13528,20 +13901,27 @@ pub mod apache {
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            err.prepend_msg(&format!("decode struct `OptionalSetDefaultTest` field(#{}) failed, caused by: ", field_id));
+                            err.prepend_msg(&format!(
+                                "decode struct `StructB` field(#{}) failed, caused by: ",
+                                field_id
+                            ));
                         }
                         return ::std::result::Result::Err(err);
                     };
                     __protocol.read_struct_end().await?;
 
-                    if var_1.is_none() {
-                        var_1 = Some(::pilota::AHashSet::from([
-                            ::pilota::FastStr::from_static_str("test"),
-                        ]));
-                    }
+                    let Some(var_2) = var_2 else {
+                        return ::std::result::Result::Err(
+                            ::pilota::thrift::new_protocol_exception(
+                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                "field ab is required".to_string(),
+                            ),
+                        );
+                    };
 
                     let data = Self {
-                        with_default: var_1,
+                        aa: var_1,
+                        ab: var_2,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -13550,16 +13930,14 @@ pub mod apache {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
-                    name: "OptionalSetDefaultTest",
-                }) + self.with_default.as_ref().map_or(0, |value| {
-                    __protocol.set_field_len(
-                        Some(1),
-                        ::pilota::thrift::TType::Binary,
-                        value,
-                        |__protocol, el| __protocol.faststr_len(el),
-                    )
-                }) + __protocol.field_stop_len()
+                __protocol
+                    .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "StructB" })
+                    + self
+                        .aa
+                        .as_ref()
+                        .map_or(0, |value| __protocol.struct_field_len(Some(1), value))
+                    + __protocol.struct_field_len(Some(2), &self.ab)
+                    + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
         }
@@ -14186,12 +14564,14 @@ pub mod apache {
             pub set_field: ::std::option::Option<::pilota::AHashSet<Insanity>>,
 
             pub list_field: ::std::vec::Vec<
-                ::pilota::AHashMap<
-                    ::pilota::AHashSet<i32>,
-                    ::pilota::AHashMap<
+                ::std::collections::BTreeMap<
+                    ::std::collections::BTreeSet<i32>,
+                    ::std::collections::BTreeMap<
                         i32,
-                        ::pilota::AHashSet<
-                            ::std::vec::Vec<::pilota::AHashMap<Insanity, ::pilota::FastStr>>,
+                        ::std::collections::BTreeSet<
+                            ::std::vec::Vec<
+                                ::std::collections::BTreeMap<Insanity, ::pilota::FastStr>,
+                            >,
                         >,
                     >,
                 >,
@@ -14232,12 +14612,12 @@ pub mod apache {
                     ::pilota::thrift::TType::Map,
                     &&self.list_field,
                     |__protocol, val| {
-                        __protocol.write_map(
+                        __protocol.write_btree_map(
                             ::pilota::thrift::TType::Set,
                             ::pilota::thrift::TType::Map,
                             &val,
                             |__protocol, key| {
-                                __protocol.write_set(
+                                __protocol.write_btree_set(
                                     ::pilota::thrift::TType::I32,
                                     &key,
                                     |__protocol, val| {
@@ -14248,7 +14628,7 @@ pub mod apache {
                                 ::std::result::Result::Ok(())
                             },
                             |__protocol, val| {
-                                __protocol.write_map(
+                                __protocol.write_btree_map(
                                     ::pilota::thrift::TType::I32,
                                     ::pilota::thrift::TType::Set,
                                     &val,
@@ -14257,7 +14637,7 @@ pub mod apache {
                                         ::std::result::Result::Ok(())
                                     },
                                     |__protocol, val| {
-                                        __protocol.write_set(
+                                        __protocol.write_btree_set(
                                             ::pilota::thrift::TType::List,
                                             &val,
                                             |__protocol, val| {
@@ -14265,7 +14645,7 @@ pub mod apache {
                                                     ::pilota::thrift::TType::Map,
                                                     &val,
                                                     |__protocol, val| {
-                                                        __protocol.write_map(
+                                                        __protocol.write_btree_map(
                                                             ::pilota::thrift::TType::Struct,
                                                             ::pilota::thrift::TType::Binary,
                                                             &val,
@@ -14352,13 +14732,13 @@ pub mod apache {
                                 var_3 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: Vec<
-                                        ::pilota::AHashMap<
-                                            ::pilota::AHashSet<i32>,
-                                            ::pilota::AHashMap<
+                                        ::std::collections::BTreeMap<
+                                            ::std::collections::BTreeSet<i32>,
+                                            ::std::collections::BTreeMap<
                                                 i32,
-                                                ::pilota::AHashSet<
+                                                ::std::collections::BTreeSet<
                                                     ::std::vec::Vec<
-                                                        ::pilota::AHashMap<
+                                                        ::std::collections::BTreeMap<
                                                             Insanity,
                                                             ::pilota::FastStr,
                                                         >,
@@ -14370,28 +14750,28 @@ pub mod apache {
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr().offset(i as isize).write({
                         let map_ident = __protocol.read_map_begin()?;
-                        let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                        let mut val = ::std::collections::BTreeMap::new();
                         for _ in 0..map_ident.size {
                             val.insert({let list_ident = __protocol.read_set_begin()?;
-                    let mut val = ::pilota::AHashSet::with_capacity(list_ident.size);
+                    let mut val = ::std::collections::BTreeSet::new();
                     for _ in 0..list_ident.size {
                         val.insert(__protocol.read_i32()?);
                     };
                     __protocol.read_set_end()?;
                     val}, {
                         let map_ident = __protocol.read_map_begin()?;
-                        let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                        let mut val = ::std::collections::BTreeMap::new();
                         for _ in 0..map_ident.size {
                             val.insert(__protocol.read_i32()?, {let list_ident = __protocol.read_set_begin()?;
-                    let mut val = ::pilota::AHashSet::with_capacity(list_ident.size);
+                    let mut val = ::std::collections::BTreeSet::new();
                     for _ in 0..list_ident.size {
                         val.insert(unsafe {
                             let list_ident = __protocol.read_list_begin()?;
-                            let mut val: Vec<::pilota::AHashMap<Insanity, ::pilota::FastStr>> = Vec::with_capacity(list_ident.size);
+                            let mut val: Vec<::std::collections::BTreeMap<Insanity, ::pilota::FastStr>> = Vec::with_capacity(list_ident.size);
                             for i in 0..list_ident.size {
                                 val.as_mut_ptr().offset(i as isize).write({
                         let map_ident = __protocol.read_map_begin()?;
-                        let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                        let mut val = ::std::collections::BTreeMap::new();
                         for _ in 0..map_ident.size {
                             val.insert(::pilota::thrift::Message::decode(__protocol)?, __protocol.read_faststr()?);
                         }
@@ -14517,20 +14897,20 @@ pub mod apache {
                             for _ in 0..list_ident.size {
                                 val.push({
                         let map_ident = __protocol.read_map_begin().await?;
-                        let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                        let mut val = ::std::collections::BTreeMap::new();
                         for _ in 0..map_ident.size {
                             val.insert({let list_ident = __protocol.read_set_begin().await?;
-                    let mut val = ::pilota::AHashSet::with_capacity(list_ident.size);
+                    let mut val = ::std::collections::BTreeSet::new();
                     for _ in 0..list_ident.size {
                         val.insert(__protocol.read_i32().await?);
                     };
                     __protocol.read_set_end().await?;
                     val}, {
                         let map_ident = __protocol.read_map_begin().await?;
-                        let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                        let mut val = ::std::collections::BTreeMap::new();
                         for _ in 0..map_ident.size {
                             val.insert(__protocol.read_i32().await?, {let list_ident = __protocol.read_set_begin().await?;
-                    let mut val = ::pilota::AHashSet::with_capacity(list_ident.size);
+                    let mut val = ::std::collections::BTreeSet::new();
                     for _ in 0..list_ident.size {
                         val.insert({
                             let list_ident = __protocol.read_list_begin().await?;
@@ -14538,7 +14918,7 @@ pub mod apache {
                             for _ in 0..list_ident.size {
                                 val.push({
                         let map_ident = __protocol.read_map_begin().await?;
-                        let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                        let mut val = ::std::collections::BTreeMap::new();
                         for _ in 0..map_ident.size {
                             val.insert(<Insanity as ::pilota::thrift::Message>::decode_async(__protocol).await?, __protocol.read_faststr().await?);
                         }
@@ -14633,25 +15013,25 @@ pub mod apache {
                         ::pilota::thrift::TType::Map,
                         &self.list_field,
                         |__protocol, el| {
-                            __protocol.map_len(
+                            __protocol.btree_map_len(
                                 ::pilota::thrift::TType::Set,
                                 ::pilota::thrift::TType::Map,
                                 el,
                                 |__protocol, key| {
-                                    __protocol.set_len(
+                                    __protocol.btree_set_len(
                                         ::pilota::thrift::TType::I32,
                                         key,
                                         |__protocol, el| __protocol.i32_len(*el),
                                     )
                                 },
                                 |__protocol, val| {
-                                    __protocol.map_len(
+                                    __protocol.btree_map_len(
                                         ::pilota::thrift::TType::I32,
                                         ::pilota::thrift::TType::Set,
                                         val,
                                         |__protocol, key| __protocol.i32_len(*key),
                                         |__protocol, val| {
-                                            __protocol.set_len(
+                                            __protocol.btree_set_len(
                                                 ::pilota::thrift::TType::List,
                                                 val,
                                                 |__protocol, el| {
@@ -14659,7 +15039,7 @@ pub mod apache {
                                                         ::pilota::thrift::TType::Map,
                                                         el,
                                                         |__protocol, el| {
-                                                            __protocol.map_len(
+                                                            __protocol.btree_map_len(
                                                                 ::pilota::thrift::TType::Struct,
                                                                 ::pilota::thrift::TType::Binary,
                                                                 el,
@@ -16172,7 +16552,7 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, Default, Clone, PartialEq)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct ThriftTestTestInsanityArgsRecv {
             pub argument: Insanity,
         }
@@ -16331,35 +16711,47 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for BoolTest {
-            fn default() -> Self {
-                BoolTest {
-                    b: Some(true),
-                    s: Some(::pilota::FastStr::from_static_str("true")),
-                }
-            }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        pub struct NestedListsBonk {
+            pub bonk:
+                ::std::option::Option<::std::vec::Vec<::std::vec::Vec<::std::vec::Vec<Bonk>>>>,
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
-        pub struct BoolTest {
-            pub b: ::std::option::Option<bool>,
-
-            pub s: ::std::option::Option<::pilota::FastStr>,
-        }
-        impl ::pilota::thrift::Message for BoolTest {
+        impl ::pilota::thrift::Message for NestedListsBonk {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 __protocol: &mut T,
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "BoolTest" };
+                let struct_ident = ::pilota::thrift::TStructIdentifier {
+                    name: "NestedListsBonk",
+                };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.b.as_ref() {
-                    __protocol.write_bool_field(1, *value)?;
-                }
-                if let Some(value) = self.s.as_ref() {
-                    __protocol.write_faststr_field(2, (value).clone())?;
+                if let Some(value) = self.bonk.as_ref() {
+                    __protocol.write_list_field(
+                        1,
+                        ::pilota::thrift::TType::List,
+                        &value,
+                        |__protocol, val| {
+                            __protocol.write_list(
+                                ::pilota::thrift::TType::List,
+                                &val,
+                                |__protocol, val| {
+                                    __protocol.write_list(
+                                        ::pilota::thrift::TType::Struct,
+                                        &val,
+                                        |__protocol, val| {
+                                            __protocol.write_struct(val)?;
+                                            ::std::result::Result::Ok(())
+                                        },
+                                    )?;
+                                    ::std::result::Result::Ok(())
+                                },
+                            )?;
+                            ::std::result::Result::Ok(())
+                        },
+                    )?;
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -16372,8 +16764,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut var_1 = Some(true);
-                let mut var_2 = Some(::pilota::FastStr::from_static_str("true"));
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -16389,13 +16780,43 @@ pub mod apache {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
-                                var_1 = Some(__protocol.read_bool()?);
-                            }
-                            Some(2)
-                                if field_ident.field_type == ::pilota::thrift::TType::Binary =>
-                            {
-                                var_2 = Some(__protocol.read_faststr()?);
+                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
+                                var_1 = Some(unsafe {
+                                    let list_ident = __protocol.read_list_begin()?;
+                                    let mut val: Vec<::std::vec::Vec<::std::vec::Vec<Bonk>>> =
+                                        Vec::with_capacity(list_ident.size);
+                                    for i in 0..list_ident.size {
+                                        val.as_mut_ptr().offset(i as isize).write(unsafe {
+                                            let list_ident = __protocol.read_list_begin()?;
+                                            let mut val: Vec<::std::vec::Vec<Bonk>> =
+                                                Vec::with_capacity(list_ident.size);
+                                            for i in 0..list_ident.size {
+                                                val.as_mut_ptr().offset(i as isize).write(unsafe {
+                                                    let list_ident =
+                                                        __protocol.read_list_begin()?;
+                                                    let mut val: Vec<Bonk> =
+                                                        Vec::with_capacity(list_ident.size);
+                                                    for i in 0..list_ident.size {
+                                                        val.as_mut_ptr().offset(i as isize).write(
+                                                            ::pilota::thrift::Message::decode(
+                                                                __protocol,
+                                                            )?,
+                                                        );
+                                                    }
+                                                    val.set_len(list_ident.size);
+                                                    __protocol.read_list_end()?;
+                                                    val
+                                                });
+                                            }
+                                            val.set_len(list_ident.size);
+                                            __protocol.read_list_end()?;
+                                            val
+                                        });
+                                    }
+                                    val.set_len(list_ident.size);
+                                    __protocol.read_list_end()?;
+                                    val
+                                });
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -16409,7 +16830,7 @@ pub mod apache {
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
-                            "decode struct `BoolTest` field(#{}) failed, caused by: ",
+                            "decode struct `NestedListsBonk` field(#{}) failed, caused by: ",
                             field_id
                         ));
                     }
@@ -16417,7 +16838,7 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self { b: var_1, s: var_2 };
+                let data = Self { bonk: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -16432,54 +16853,72 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = Some(true);
-                    let mut var_2 = Some(::pilota::FastStr::from_static_str("true"));
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
-                        loop {
-                            let field_ident = __protocol.read_field_begin().await?;
-                            if field_ident.field_type == ::pilota::thrift::TType::Stop {
-                                break;
-                            } else {
-                            }
-                            __pilota_decoding_field_id = field_ident.id;
-                            match field_ident.id {
-                                Some(1)
-                                    if field_ident.field_type == ::pilota::thrift::TType::Bool =>
-                                {
-                                    var_1 = Some(__protocol.read_bool().await?);
-                                }
-                                Some(2)
-                                    if field_ident.field_type
-                                        == ::pilota::thrift::TType::Binary =>
-                                {
-                                    var_2 = Some(__protocol.read_faststr().await?);
-                                }
-                                _ => {
-                                    __protocol.skip(field_ident.field_type).await?;
-                                }
-                            }
+                    loop {
 
-                            __protocol.read_field_end().await?;
-                        }
-                        ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
-                    }
-                    .await
-                    {
-                        if let Some(field_id) = __pilota_decoding_field_id {
-                            err.prepend_msg(&format!(
-                                "decode struct `BoolTest` field(#{}) failed, caused by: ",
-                                field_id
-                            ));
-                        }
-                        return ::std::result::Result::Err(err);
-                    };
+
+                let field_ident = __protocol.read_field_begin().await?;
+                if field_ident.field_type == ::pilota::thrift::TType::Stop {
+
+                    break;
+                } else {
+
+                }
+                __pilota_decoding_field_id = field_ident.id;
+                match field_ident.id {
+                    Some(1) if field_ident.field_type == ::pilota::thrift::TType::List  => {
+                    var_1 = Some({
+                            let list_ident = __protocol.read_list_begin().await?;
+                            let mut val = Vec::with_capacity(list_ident.size);
+                            for _ in 0..list_ident.size {
+                                val.push({
+                            let list_ident = __protocol.read_list_begin().await?;
+                            let mut val = Vec::with_capacity(list_ident.size);
+                            for _ in 0..list_ident.size {
+                                val.push({
+                            let list_ident = __protocol.read_list_begin().await?;
+                            let mut val = Vec::with_capacity(list_ident.size);
+                            for _ in 0..list_ident.size {
+                                val.push(<Bonk as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                            };
+                            __protocol.read_list_end().await?;
+                            val
+                        });
+                            };
+                            __protocol.read_list_end().await?;
+                            val
+                        });
+                            };
+                            __protocol.read_list_end().await?;
+                            val
+                        });
+
+                },
+                    _ => {
+                        __protocol.skip(field_ident.field_type).await?;
+
+                    },
+                }
+
+                __protocol.read_field_end().await?;
+
+
+            };
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
+                }.await {
+                if let Some(field_id) = __pilota_decoding_field_id {
+                    err.prepend_msg(&format!("decode struct `NestedListsBonk` field(#{}) failed, caused by: ", field_id));
+                }
+                return ::std::result::Result::Err(err);
+            };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self { b: var_1, s: var_2 };
+                    let data = Self { bonk: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -16487,17 +16926,28 @@ pub mod apache {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                __protocol
-                    .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "BoolTest" })
-                    + self
-                        .b
-                        .as_ref()
-                        .map_or(0, |value| __protocol.bool_field_len(Some(1), *value))
-                    + self
-                        .s
-                        .as_ref()
-                        .map_or(0, |value| __protocol.faststr_field_len(Some(2), value))
-                    + __protocol.field_stop_len()
+                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
+                    name: "NestedListsBonk",
+                }) + self.bonk.as_ref().map_or(0, |value| {
+                    __protocol.list_field_len(
+                        Some(1),
+                        ::pilota::thrift::TType::List,
+                        value,
+                        |__protocol, el| {
+                            __protocol.list_len(
+                                ::pilota::thrift::TType::List,
+                                el,
+                                |__protocol, el| {
+                                    __protocol.list_len(
+                                        ::pilota::thrift::TType::Struct,
+                                        el,
+                                        |__protocol, el| __protocol.struct_len(el),
+                                    )
+                                },
+                            )
+                        },
+                    )
+                }) + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
         }
@@ -19420,19 +19870,11 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, Default, Clone, PartialEq)]
-        pub struct NestedMixedx2 {
-            pub int_set_list: ::std::option::Option<::std::vec::Vec<::pilota::AHashSet<i32>>>,
-
-            pub map_int_strset: ::std::option::Option<
-                ::pilota::AHashMap<i32, ::pilota::AHashSet<::pilota::FastStr>>,
-            >,
-
-            pub map_int_strset_list: ::std::option::Option<
-                ::std::vec::Vec<::pilota::AHashMap<i32, ::pilota::AHashSet<::pilota::FastStr>>>,
-            >,
+        #[derive(PartialOrd, Debug, Default, Clone, PartialEq)]
+        pub struct NestedListsDoublex2 {
+            pub doublelist: ::std::option::Option<::std::vec::Vec<::std::vec::Vec<f64>>>,
         }
-        impl ::pilota::thrift::Message for NestedMixedx2 {
+        impl ::pilota::thrift::Message for NestedListsDoublex2 {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 __protocol: &mut T,
@@ -19440,74 +19882,21 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier {
-                    name: "NestedMixedx2",
+                    name: "NestedListsDoublex2",
                 };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.int_set_list.as_ref() {
+                if let Some(value) = self.doublelist.as_ref() {
                     __protocol.write_list_field(
                         1,
-                        ::pilota::thrift::TType::Set,
+                        ::pilota::thrift::TType::List,
                         &value,
                         |__protocol, val| {
-                            __protocol.write_set(
-                                ::pilota::thrift::TType::I32,
+                            __protocol.write_list(
+                                ::pilota::thrift::TType::Double,
                                 &val,
                                 |__protocol, val| {
-                                    __protocol.write_i32(*val)?;
-                                    ::std::result::Result::Ok(())
-                                },
-                            )?;
-                            ::std::result::Result::Ok(())
-                        },
-                    )?;
-                }
-                if let Some(value) = self.map_int_strset.as_ref() {
-                    __protocol.write_map_field(
-                        2,
-                        ::pilota::thrift::TType::I32,
-                        ::pilota::thrift::TType::Set,
-                        &value,
-                        |__protocol, key| {
-                            __protocol.write_i32(*key)?;
-                            ::std::result::Result::Ok(())
-                        },
-                        |__protocol, val| {
-                            __protocol.write_set(
-                                ::pilota::thrift::TType::Binary,
-                                &val,
-                                |__protocol, val| {
-                                    __protocol.write_faststr((val).clone())?;
-                                    ::std::result::Result::Ok(())
-                                },
-                            )?;
-                            ::std::result::Result::Ok(())
-                        },
-                    )?;
-                }
-                if let Some(value) = self.map_int_strset_list.as_ref() {
-                    __protocol.write_list_field(
-                        3,
-                        ::pilota::thrift::TType::Map,
-                        &value,
-                        |__protocol, val| {
-                            __protocol.write_map(
-                                ::pilota::thrift::TType::I32,
-                                ::pilota::thrift::TType::Set,
-                                &val,
-                                |__protocol, key| {
-                                    __protocol.write_i32(*key)?;
-                                    ::std::result::Result::Ok(())
-                                },
-                                |__protocol, val| {
-                                    __protocol.write_set(
-                                        ::pilota::thrift::TType::Binary,
-                                        &val,
-                                        |__protocol, val| {
-                                            __protocol.write_faststr((val).clone())?;
-                                            ::std::result::Result::Ok(())
-                                        },
-                                    )?;
+                                    __protocol.write_double(*val)?;
                                     ::std::result::Result::Ok(())
                                 },
                             )?;
@@ -19527,8 +19916,6 @@ pub mod apache {
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
                 let mut var_1 = None;
-                let mut var_2 = None;
-                let mut var_3 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -19547,73 +19934,20 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<::pilota::AHashSet<i32>> =
+                                    let mut val: Vec<::std::vec::Vec<f64>> =
                                         Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
-                                        val.as_mut_ptr().offset(i as isize).write({
-                                            let list_ident = __protocol.read_set_begin()?;
-                                            let mut val =
-                                                ::pilota::AHashSet::with_capacity(list_ident.size);
-                                            for _ in 0..list_ident.size {
-                                                val.insert(__protocol.read_i32()?);
+                                        val.as_mut_ptr().offset(i as isize).write(unsafe {
+                                            let list_ident = __protocol.read_list_begin()?;
+                                            let mut val: Vec<f64> =
+                                                Vec::with_capacity(list_ident.size);
+                                            for i in 0..list_ident.size {
+                                                val.as_mut_ptr()
+                                                    .offset(i as isize)
+                                                    .write(__protocol.read_double()?);
                                             }
-                                            __protocol.read_set_end()?;
-                                            val
-                                        });
-                                    }
-                                    val.set_len(list_ident.size);
-                                    __protocol.read_list_end()?;
-                                    val
-                                });
-                            }
-                            Some(2) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_2 = Some({
-                                    let map_ident = __protocol.read_map_begin()?;
-                                    let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
-                                    for _ in 0..map_ident.size {
-                                        val.insert(__protocol.read_i32()?, {
-                                            let list_ident = __protocol.read_set_begin()?;
-                                            let mut val =
-                                                ::pilota::AHashSet::with_capacity(list_ident.size);
-                                            for _ in 0..list_ident.size {
-                                                val.insert(__protocol.read_faststr()?);
-                                            }
-                                            __protocol.read_set_end()?;
-                                            val
-                                        });
-                                    }
-                                    __protocol.read_map_end()?;
-                                    val
-                                });
-                            }
-                            Some(3) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                var_3 = Some(unsafe {
-                                    let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<
-                                        ::pilota::AHashMap<
-                                            i32,
-                                            ::pilota::AHashSet<::pilota::FastStr>,
-                                        >,
-                                    > = Vec::with_capacity(list_ident.size);
-                                    for i in 0..list_ident.size {
-                                        val.as_mut_ptr().offset(i as isize).write({
-                                            let map_ident = __protocol.read_map_begin()?;
-                                            let mut val =
-                                                ::pilota::AHashMap::with_capacity(map_ident.size);
-                                            for _ in 0..map_ident.size {
-                                                val.insert(__protocol.read_i32()?, {
-                                                    let list_ident = __protocol.read_set_begin()?;
-                                                    let mut val = ::pilota::AHashSet::with_capacity(
-                                                        list_ident.size,
-                                                    );
-                                                    for _ in 0..list_ident.size {
-                                                        val.insert(__protocol.read_faststr()?);
-                                                    }
-                                                    __protocol.read_set_end()?;
-                                                    val
-                                                });
-                                            }
-                                            __protocol.read_map_end()?;
+                                            val.set_len(list_ident.size);
+                                            __protocol.read_list_end()?;
                                             val
                                         });
                                     }
@@ -19634,7 +19968,7 @@ pub mod apache {
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
-                            "decode struct `NestedMixedx2` field(#{}) failed, caused by: ",
+                            "decode struct `NestedListsDoublex2` field(#{}) failed, caused by: ",
                             field_id
                         ));
                     }
@@ -19642,11 +19976,7 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                let data = Self {
-                    int_set_list: var_1,
-                    map_int_strset: var_2,
-                    map_int_strset_list: var_3,
-                };
+                let data = Self { doublelist: var_1 };
                 ::std::result::Result::Ok(data)
             }
 
@@ -19662,8 +19992,6 @@ pub mod apache {
             > {
                 ::std::boxed::Box::pin(async move {
                     let mut var_1 = None;
-                    let mut var_2 = None;
-                    let mut var_3 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -19686,76 +20014,12 @@ pub mod apache {
                                         for _ in 0..list_ident.size {
                                             val.push({
                                                 let list_ident =
-                                                    __protocol.read_set_begin().await?;
-                                                let mut val = ::pilota::AHashSet::with_capacity(
-                                                    list_ident.size,
-                                                );
+                                                    __protocol.read_list_begin().await?;
+                                                let mut val = Vec::with_capacity(list_ident.size);
                                                 for _ in 0..list_ident.size {
-                                                    val.insert(__protocol.read_i32().await?);
+                                                    val.push(__protocol.read_double().await?);
                                                 }
-                                                __protocol.read_set_end().await?;
-                                                val
-                                            });
-                                        }
-                                        __protocol.read_list_end().await?;
-                                        val
-                                    });
-                                }
-                                Some(2)
-                                    if field_ident.field_type == ::pilota::thrift::TType::Map =>
-                                {
-                                    var_2 = Some({
-                                        let map_ident = __protocol.read_map_begin().await?;
-                                        let mut val =
-                                            ::pilota::AHashMap::with_capacity(map_ident.size);
-                                        for _ in 0..map_ident.size {
-                                            val.insert(__protocol.read_i32().await?, {
-                                                let list_ident =
-                                                    __protocol.read_set_begin().await?;
-                                                let mut val = ::pilota::AHashSet::with_capacity(
-                                                    list_ident.size,
-                                                );
-                                                for _ in 0..list_ident.size {
-                                                    val.insert(__protocol.read_faststr().await?);
-                                                }
-                                                __protocol.read_set_end().await?;
-                                                val
-                                            });
-                                        }
-                                        __protocol.read_map_end().await?;
-                                        val
-                                    });
-                                }
-                                Some(3)
-                                    if field_ident.field_type == ::pilota::thrift::TType::List =>
-                                {
-                                    var_3 = Some({
-                                        let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
-                                        for _ in 0..list_ident.size {
-                                            val.push({
-                                                let map_ident = __protocol.read_map_begin().await?;
-                                                let mut val = ::pilota::AHashMap::with_capacity(
-                                                    map_ident.size,
-                                                );
-                                                for _ in 0..map_ident.size {
-                                                    val.insert(__protocol.read_i32().await?, {
-                                                        let list_ident =
-                                                            __protocol.read_set_begin().await?;
-                                                        let mut val =
-                                                            ::pilota::AHashSet::with_capacity(
-                                                                list_ident.size,
-                                                            );
-                                                        for _ in 0..list_ident.size {
-                                                            val.insert(
-                                                                __protocol.read_faststr().await?,
-                                                            );
-                                                        }
-                                                        __protocol.read_set_end().await?;
-                                                        val
-                                                    });
-                                                }
-                                                __protocol.read_map_end().await?;
+                                                __protocol.read_list_end().await?;
                                                 val
                                             });
                                         }
@@ -19775,20 +20039,13 @@ pub mod apache {
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            err.prepend_msg(&format!(
-                                "decode struct `NestedMixedx2` field(#{}) failed, caused by: ",
-                                field_id
-                            ));
+                            err.prepend_msg(&format!("decode struct `NestedListsDoublex2` field(#{}) failed, caused by: ", field_id));
                         }
                         return ::std::result::Result::Err(err);
                     };
                     __protocol.read_struct_end().await?;
 
-                    let data = Self {
-                        int_set_list: var_1,
-                        map_int_strset: var_2,
-                        map_int_strset_list: var_3,
-                    };
+                    let data = Self { doublelist: var_1 };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -19797,53 +20054,17 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
-                    name: "NestedMixedx2",
-                }) + self.int_set_list.as_ref().map_or(0, |value| {
+                    name: "NestedListsDoublex2",
+                }) + self.doublelist.as_ref().map_or(0, |value| {
                     __protocol.list_field_len(
                         Some(1),
-                        ::pilota::thrift::TType::Set,
+                        ::pilota::thrift::TType::List,
                         value,
                         |__protocol, el| {
-                            __protocol.set_len(
-                                ::pilota::thrift::TType::I32,
+                            __protocol.list_len(
+                                ::pilota::thrift::TType::Double,
                                 el,
-                                |__protocol, el| __protocol.i32_len(*el),
-                            )
-                        },
-                    )
-                }) + self.map_int_strset.as_ref().map_or(0, |value| {
-                    __protocol.map_field_len(
-                        Some(2),
-                        ::pilota::thrift::TType::I32,
-                        ::pilota::thrift::TType::Set,
-                        value,
-                        |__protocol, key| __protocol.i32_len(*key),
-                        |__protocol, val| {
-                            __protocol.set_len(
-                                ::pilota::thrift::TType::Binary,
-                                val,
-                                |__protocol, el| __protocol.faststr_len(el),
-                            )
-                        },
-                    )
-                }) + self.map_int_strset_list.as_ref().map_or(0, |value| {
-                    __protocol.list_field_len(
-                        Some(3),
-                        ::pilota::thrift::TType::Map,
-                        value,
-                        |__protocol, el| {
-                            __protocol.map_len(
-                                ::pilota::thrift::TType::I32,
-                                ::pilota::thrift::TType::Set,
-                                el,
-                                |__protocol, key| __protocol.i32_len(*key),
-                                |__protocol, val| {
-                                    __protocol.set_len(
-                                        ::pilota::thrift::TType::Binary,
-                                        val,
-                                        |__protocol, el| __protocol.faststr_len(el),
-                                    )
-                                },
+                                |__protocol, el| __protocol.double_len(*el),
                             )
                         },
                     )
@@ -20450,22 +20671,20 @@ pub mod apache {
                 )
             }
         }
-        impl Default for OptionalBinary {
+        impl Default for OptionalSetDefaultTest {
             fn default() -> Self {
-                OptionalBinary {
-                    bin_map: Some({
-                        let mut map = ::pilota::AHashMap::with_capacity(0);
-
-                        map
-                    }),
+                OptionalSetDefaultTest {
+                    with_default: Some(::pilota::AHashSet::from([
+                        ::pilota::FastStr::from_static_str("test"),
+                    ])),
                 }
             }
         }
         #[derive(Debug, Clone, PartialEq)]
-        pub struct OptionalBinary {
-            pub bin_map: ::std::option::Option<::pilota::AHashMap<::pilota::Bytes, i32>>,
+        pub struct OptionalSetDefaultTest {
+            pub with_default: ::std::option::Option<::pilota::AHashSet<::pilota::FastStr>>,
         }
-        impl ::pilota::thrift::Message for OptionalBinary {
+        impl ::pilota::thrift::Message for OptionalSetDefaultTest {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
                 &self,
                 __protocol: &mut T,
@@ -20473,22 +20692,17 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
                 let struct_ident = ::pilota::thrift::TStructIdentifier {
-                    name: "OptionalBinary",
+                    name: "OptionalSetDefaultTest",
                 };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.bin_map.as_ref() {
-                    __protocol.write_map_field(
-                        2,
+                if let Some(value) = self.with_default.as_ref() {
+                    __protocol.write_set_field(
+                        1,
                         ::pilota::thrift::TType::Binary,
-                        ::pilota::thrift::TType::I32,
                         &value,
-                        |__protocol, key| {
-                            __protocol.write_bytes(key.clone())?;
-                            ::std::result::Result::Ok(())
-                        },
                         |__protocol, val| {
-                            __protocol.write_i32(*val)?;
+                            __protocol.write_faststr((val).clone())?;
                             ::std::result::Result::Ok(())
                         },
                     )?;
@@ -20504,7 +20718,7 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::{thrift::TLengthProtocolExt, Buf};
 
-                let mut var_2 = None;
+                let mut var_1 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -20520,17 +20734,15 @@ pub mod apache {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(2) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_2 = Some({
-                                    let map_ident = __protocol.read_map_begin()?;
-                                    let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
-                                    for _ in 0..map_ident.size {
-                                        val.insert(
-                                            __protocol.read_bytes()?,
-                                            __protocol.read_i32()?,
-                                        );
+                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::Set => {
+                                var_1 = Some({
+                                    let list_ident = __protocol.read_set_begin()?;
+                                    let mut val =
+                                        ::pilota::AHashSet::with_capacity(list_ident.size);
+                                    for _ in 0..list_ident.size {
+                                        val.insert(__protocol.read_faststr()?);
                                     }
-                                    __protocol.read_map_end()?;
+                                    __protocol.read_set_end()?;
                                     val
                                 });
                             }
@@ -20546,7 +20758,7 @@ pub mod apache {
                 })() {
                     if let Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
-                            "decode struct `OptionalBinary` field(#{}) failed, caused by: ",
+                            "decode struct `OptionalSetDefaultTest` field(#{}) failed, caused by: ",
                             field_id
                         ));
                     }
@@ -20554,15 +20766,15 @@ pub mod apache {
                 };
                 __protocol.read_struct_end()?;
 
-                if var_2.is_none() {
-                    var_2 = Some({
-                        let mut map = ::pilota::AHashMap::with_capacity(0);
-
-                        map
-                    });
+                if var_1.is_none() {
+                    var_1 = Some(::pilota::AHashSet::from([
+                        ::pilota::FastStr::from_static_str("test"),
+                    ]));
                 }
 
-                let data = Self { bin_map: var_2 };
+                let data = Self {
+                    with_default: var_1,
+                };
                 ::std::result::Result::Ok(data)
             }
 
@@ -20577,7 +20789,7 @@ pub mod apache {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_2 = None;
+                    let mut var_1 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -20591,20 +20803,17 @@ pub mod apache {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(2)
-                                    if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                                Some(1)
+                                    if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    var_2 = Some({
-                                        let map_ident = __protocol.read_map_begin().await?;
+                                    var_1 = Some({
+                                        let list_ident = __protocol.read_set_begin().await?;
                                         let mut val =
-                                            ::pilota::AHashMap::with_capacity(map_ident.size);
-                                        for _ in 0..map_ident.size {
-                                            val.insert(
-                                                __protocol.read_bytes().await?,
-                                                __protocol.read_i32().await?,
-                                            );
+                                            ::pilota::AHashSet::with_capacity(list_ident.size);
+                                        for _ in 0..list_ident.size {
+                                            val.insert(__protocol.read_faststr().await?);
                                         }
-                                        __protocol.read_map_end().await?;
+                                        __protocol.read_set_end().await?;
                                         val
                                     });
                                 }
@@ -20620,24 +20829,21 @@ pub mod apache {
                     .await
                     {
                         if let Some(field_id) = __pilota_decoding_field_id {
-                            err.prepend_msg(&format!(
-                                "decode struct `OptionalBinary` field(#{}) failed, caused by: ",
-                                field_id
-                            ));
+                            err.prepend_msg(&format!("decode struct `OptionalSetDefaultTest` field(#{}) failed, caused by: ", field_id));
                         }
                         return ::std::result::Result::Err(err);
                     };
                     __protocol.read_struct_end().await?;
 
-                    if var_2.is_none() {
-                        var_2 = Some({
-                            let mut map = ::pilota::AHashMap::with_capacity(0);
-
-                            map
-                        });
+                    if var_1.is_none() {
+                        var_1 = Some(::pilota::AHashSet::from([
+                            ::pilota::FastStr::from_static_str("test"),
+                        ]));
                     }
 
-                    let data = Self { bin_map: var_2 };
+                    let data = Self {
+                        with_default: var_1,
+                    };
                     ::std::result::Result::Ok(data)
                 })
             }
@@ -20646,15 +20852,13 @@ pub mod apache {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
-                    name: "OptionalBinary",
-                }) + self.bin_map.as_ref().map_or(0, |value| {
-                    __protocol.map_field_len(
-                        Some(2),
+                    name: "OptionalSetDefaultTest",
+                }) + self.with_default.as_ref().map_or(0, |value| {
+                    __protocol.set_field_len(
+                        Some(1),
                         ::pilota::thrift::TType::Binary,
-                        ::pilota::thrift::TType::I32,
                         value,
-                        |__protocol, key| __protocol.bytes_len(key),
-                        |__protocol, val| __protocol.i32_len(*val),
+                        |__protocol, el| __protocol.faststr_len(el),
                     )
                 }) + __protocol.field_stop_len()
                     + __protocol.struct_end_len()

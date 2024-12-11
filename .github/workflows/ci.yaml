@@ -1,4 +1,4 @@
-name: 'CI'
+name: "CI"
 on:
   pull_request:
   push:
@@ -26,22 +26,22 @@ jobs:
     runs-on: [self-hosted, X64]
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@nightly
-      with:
-        components: rustfmt, clippy
-    # - uses: Swatinem/rust-cache@v1
-    - name: Run tests
-      run: |
-        cargo check
-        cargo test
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      # - uses: Swatinem/rust-cache@v1
+      - name: Run tests
+        run: |
+          cargo check
+          cargo test
 
   # test-linux-aarch64:
   #   runs-on: [self-hosted, arm]
 
   #   steps:
   #   - uses: actions/checkout@v3
-  #   - uses: dtolnay/rust-toolchain@nightly
+  #   - uses: dtolnay/rust-toolchain@stable
   #     with:
   #       components: rustfmt, clippy
   #   # - uses: Swatinem/rust-cache@v1
@@ -54,29 +54,29 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@nightly
-      with:
-        components: rustfmt, clippy
-    - uses: Swatinem/rust-cache@v1
-    - name: Run tests
-      run: |
-        cargo check
-        cargo test
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v1
+      - name: Run tests
+        run: |
+          cargo check
+          cargo test
 
   test-windows:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@nightly
-      with:
-        components: rustfmt, clippy
-    - uses: Swatinem/rust-cache@v1
-    - name: Run tests
-      run: |
-        cargo check
-        cargo test
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v1
+      - name: Run tests
+        run: |
+          cargo check
+          cargo test
 
   lint:
     runs-on: [self-hosted, X64]
@@ -87,14 +87,14 @@ jobs:
           - nightly
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@nightly
-      with:
-        components: rustfmt, clippy
-    # - uses: Swatinem/rust-cache@v1
-    - uses: actions-rs/clippy-check@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Format check
-      run: |
-        cargo fmt -- --check
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+      # - uses: Swatinem/rust-cache@v1
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Format check
+        run: |
+          cargo fmt -- --check

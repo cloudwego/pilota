@@ -865,7 +865,7 @@ dependencies = [
 
 [[package]]
 name = "pilota-build"
-version = "0.11.27"
+version = "0.11.28"
 dependencies = [
  "ahash",
  "anyhow",
