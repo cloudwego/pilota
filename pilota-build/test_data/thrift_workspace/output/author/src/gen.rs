@@ -15,9 +15,9 @@ pub mod gen {
 
         pub trait AuthorService {}
 
-        impl Default for AuthorServiceGetAuthorResultRecv {
+        impl ::std::default::Default for AuthorServiceGetAuthorResultRecv {
             fn default() -> Self {
-                AuthorServiceGetAuthorResultRecv::Ok(Default::default())
+                AuthorServiceGetAuthorResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -308,9 +308,9 @@ pub mod gen {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for AuthorServiceGetAuthorResultSend {
+        impl ::std::default::Default for AuthorServiceGetAuthorResultSend {
             fn default() -> Self {
-                AuthorServiceGetAuthorResultSend::Ok(Default::default())
+                AuthorServiceGetAuthorResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]

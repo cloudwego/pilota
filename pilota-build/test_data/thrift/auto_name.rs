@@ -157,9 +157,9 @@ pub mod auto_name {
         }
         pub trait service {}
 
-        impl Default for serviceTest2ResultRecv {
+        impl ::std::default::Default for serviceTest2ResultRecv {
             fn default() -> Self {
-                serviceTest2ResultRecv::Ok(Default::default())
+                serviceTest2ResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -740,9 +740,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for servicetestResultSend {
+        impl ::std::default::Default for servicetestResultSend {
             fn default() -> Self {
-                servicetestResultSend::Ok(Default::default())
+                servicetestResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -1238,9 +1238,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ServicetestException {
+        impl ::std::default::Default for ServicetestException {
             fn default() -> Self {
-                ServicetestException::E(Default::default())
+                ServicetestException::E(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -1382,9 +1382,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ServicetestResultRecv {
+        impl ::std::default::Default for ServicetestResultRecv {
             fn default() -> Self {
-                ServicetestResultRecv::Ok(Default::default())
+                ServicetestResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -1565,9 +1565,9 @@ pub mod auto_name {
             }
         }
         pub const IP: &'static str = "IP";
-        impl Default for serviceTest2ResultSend {
+        impl ::std::default::Default for serviceTest2ResultSend {
             fn default() -> Self {
-                serviceTest2ResultSend::Ok(Default::default())
+                serviceTest2ResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -1709,9 +1709,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for serviceTestException {
+        impl ::std::default::Default for serviceTestException {
             fn default() -> Self {
-                serviceTestException::E(Default::default())
+                serviceTestException::E(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -1853,9 +1853,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for serviceTestResultRecv {
+        impl ::std::default::Default for serviceTestResultRecv {
             fn default() -> Self {
-                serviceTestResultRecv::Ok(Default::default())
+                serviceTestResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -2351,9 +2351,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ServiceTestResultSend {
+        impl ::std::default::Default for ServiceTestResultSend {
             fn default() -> Self {
-                ServiceTestResultSend::Ok(Default::default())
+                ServiceTestResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -2725,9 +2725,9 @@ pub mod auto_name {
         }
         pub trait Service {}
 
-        impl Default for ServiceTest2ResultRecv {
+        impl ::std::default::Default for ServiceTest2ResultRecv {
             fn default() -> Self {
-                ServiceTest2ResultRecv::Ok(Default::default())
+                ServiceTest2ResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -3474,9 +3474,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for servicetestException {
+        impl ::std::default::Default for servicetestException {
             fn default() -> Self {
-                servicetestException::E(Default::default())
+                servicetestException::E(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -3618,9 +3618,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for servicetestResultRecv {
+        impl ::std::default::Default for servicetestResultRecv {
             fn default() -> Self {
-                servicetestResultRecv::Ok(Default::default())
+                servicetestResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -4000,9 +4000,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ServicetestResultSend {
+        impl ::std::default::Default for ServicetestResultSend {
             fn default() -> Self {
-                ServicetestResultSend::Ok(Default::default())
+                ServicetestResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -4498,9 +4498,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for serviceTestResultSend {
+        impl ::std::default::Default for serviceTestResultSend {
             fn default() -> Self {
-                serviceTestResultSend::Ok(Default::default())
+                serviceTestResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -4680,9 +4680,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ServiceTest2ResultSend {
+        impl ::std::default::Default for ServiceTest2ResultSend {
             fn default() -> Self {
-                ServiceTest2ResultSend::Ok(Default::default())
+                ServiceTest2ResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -4824,9 +4824,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ServiceTestException {
+        impl ::std::default::Default for ServiceTestException {
             fn default() -> Self {
-                ServiceTestException::E(Default::default())
+                ServiceTestException::E(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -4968,9 +4968,9 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ServiceTestResultRecv {
+        impl ::std::default::Default for ServiceTestResultRecv {
             fn default() -> Self {
-                ServiceTestResultRecv::Ok(Default::default())
+                ServiceTestResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]

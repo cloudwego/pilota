@@ -3,9 +3,9 @@ pub mod void {
 
     pub mod void {
 
-        impl Default for TestTest123ResultRecv {
+        impl ::std::default::Default for TestTest123ResultRecv {
             fn default() -> Self {
-                TestTest123ResultRecv::Ok(Default::default())
+                TestTest123ResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -345,9 +345,9 @@ pub mod void {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for TestTest123ResultSend {
+        impl ::std::default::Default for TestTest123ResultSend {
             fn default() -> Self {
-                TestTest123ResultSend::Ok(Default::default())
+                TestTest123ResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]

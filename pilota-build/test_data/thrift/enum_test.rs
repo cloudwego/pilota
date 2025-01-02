@@ -638,9 +638,9 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for TestTestEnumVarTypeNameConflictResultSend {
+        impl ::std::default::Default for TestTestEnumVarTypeNameConflictResultSend {
             fn default() -> Self {
-                TestTestEnumVarTypeNameConflictResultSend::Ok(Default::default())
+                TestTestEnumVarTypeNameConflictResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -939,9 +939,9 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for TestTestEnumResultSend {
+        impl ::std::default::Default for TestTestEnumResultSend {
             fn default() -> Self {
-                TestTestEnumResultSend::Ok(Default::default())
+                TestTestEnumResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -1384,9 +1384,9 @@ pub mod enum_test {
         }
         pub trait Test {}
 
-        impl Default for TestTestEnumVarTypeNameConflictResultRecv {
+        impl ::std::default::Default for TestTestEnumVarTypeNameConflictResultRecv {
             fn default() -> Self {
-                TestTestEnumVarTypeNameConflictResultRecv::Ok(Default::default())
+                TestTestEnumVarTypeNameConflictResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -1532,9 +1532,9 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for TestTestEnumResultRecv {
+        impl ::std::default::Default for TestTestEnumResultRecv {
             fn default() -> Self {
-                TestTestEnumResultRecv::Ok(Default::default())
+                TestTestEnumResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]

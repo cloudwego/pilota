@@ -1,7 +1,7 @@
 
-impl Default for ArticleServiceGetArticleResultRecv {
+impl ::std::default::Default for ArticleServiceGetArticleResultRecv {
     fn default() -> Self {
-        ArticleServiceGetArticleResultRecv::Ok(Default::default())
+        ArticleServiceGetArticleResultRecv::Ok(::std::default::Default::default())
     }
 }
 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]

@@ -3,9 +3,9 @@ pub mod underscore {
 
     pub mod underscore {
 
-        impl Default for Test_UnderscoredResultRecv {
+        impl ::std::default::Default for Test_UnderscoredResultRecv {
             fn default() -> Self {
-                Test_UnderscoredResultRecv::Ok(Default::default())
+                Test_UnderscoredResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -443,9 +443,9 @@ pub mod underscore {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for Test_UnderscoredResultSend {
+        impl ::std::default::Default for Test_UnderscoredResultSend {
             fn default() -> Self {
-                Test_UnderscoredResultSend::Ok(Default::default())
+                Test_UnderscoredResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]

@@ -819,9 +819,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestMultiExceptionException {
+        impl ::std::default::Default for ThriftTestTestMultiExceptionException {
             fn default() -> Self {
-                ThriftTestTestMultiExceptionException::Err1(Default::default())
+                ThriftTestTestMultiExceptionException::Err1(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -1278,9 +1278,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestMultiResultRecv {
+        impl ::std::default::Default for ThriftTestTestMultiResultRecv {
             fn default() -> Self {
-                ThriftTestTestMultiResultRecv::Ok(Default::default())
+                ThriftTestTestMultiResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -1740,9 +1740,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestEnumResultRecv {
+        impl ::std::default::Default for ThriftTestTestEnumResultRecv {
             fn default() -> Self {
-                ThriftTestTestEnumResultRecv::Ok(Default::default())
+                ThriftTestTestEnumResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -1884,9 +1884,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestOnewayResultSend {
+        impl ::std::default::Default for ThriftTestTestOnewayResultSend {
             fn default() -> Self {
-                ThriftTestTestOnewayResultSend::Ok(Default::default())
+                ThriftTestTestOnewayResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -2138,9 +2138,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestMapResultRecv {
+        impl ::std::default::Default for ThriftTestTestMapResultRecv {
             fn default() -> Self {
-                ThriftTestTestMapResultRecv::Ok(Default::default())
+                ThriftTestTestMapResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]
@@ -2532,9 +2532,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestBinaryResultRecv {
+        impl ::std::default::Default for ThriftTestTestBinaryResultRecv {
             fn default() -> Self {
-                ThriftTestTestBinaryResultRecv::Ok(Default::default())
+                ThriftTestTestBinaryResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -2672,9 +2672,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for SecondServiceSecondtestStringResultSend {
+        impl ::std::default::Default for SecondServiceSecondtestStringResultSend {
             fn default() -> Self {
-                SecondServiceSecondtestStringResultSend::Ok(Default::default())
+                SecondServiceSecondtestStringResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -2815,9 +2815,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestByteResultRecv {
+        impl ::std::default::Default for ThriftTestTestByteResultRecv {
             fn default() -> Self {
-                ThriftTestTestByteResultRecv::Ok(Default::default())
+                ThriftTestTestByteResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -3105,9 +3105,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestMapMapResultSend {
+        impl ::std::default::Default for ThriftTestTestMapMapResultSend {
             fn default() -> Self {
-                ThriftTestTestMapMapResultSend::Ok(Default::default())
+                ThriftTestTestMapMapResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]
@@ -3536,9 +3536,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestSetResultSend {
+        impl ::std::default::Default for ThriftTestTestSetResultSend {
             fn default() -> Self {
-                ThriftTestTestSetResultSend::Ok(Default::default())
+                ThriftTestTestSetResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]
@@ -3709,9 +3709,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestStructResultSend {
+        impl ::std::default::Default for ThriftTestTestStructResultSend {
             fn default() -> Self {
-                ThriftTestTestStructResultSend::Ok(Default::default())
+                ThriftTestTestStructResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -4284,9 +4284,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestI64ResultSend {
+        impl ::std::default::Default for ThriftTestTestI64ResultSend {
             fn default() -> Self {
-                ThriftTestTestI64ResultSend::Ok(Default::default())
+                ThriftTestTestI64ResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -4611,9 +4611,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestStringResultSend {
+        impl ::std::default::Default for ThriftTestTestStringResultSend {
             fn default() -> Self {
-                ThriftTestTestStringResultSend::Ok(Default::default())
+                ThriftTestTestStringResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -6726,9 +6726,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestInsanityResultRecv {
+        impl ::std::default::Default for ThriftTestTestInsanityResultRecv {
             fn default() -> Self {
-                ThriftTestTestInsanityResultRecv::Ok(Default::default())
+                ThriftTestTestInsanityResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]
@@ -7315,9 +7315,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestListResultRecv {
+        impl ::std::default::Default for ThriftTestTestListResultRecv {
             fn default() -> Self {
-                ThriftTestTestListResultRecv::Ok(Default::default())
+                ThriftTestTestListResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -7605,9 +7605,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestNestResultRecv {
+        impl ::std::default::Default for ThriftTestTestNestResultRecv {
             fn default() -> Self {
-                ThriftTestTestNestResultRecv::Ok(Default::default())
+                ThriftTestTestNestResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -7960,9 +7960,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestDoubleResultRecv {
+        impl ::std::default::Default for ThriftTestTestDoubleResultRecv {
             fn default() -> Self {
-                ThriftTestTestDoubleResultRecv::Ok(Default::default())
+                ThriftTestTestDoubleResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Debug, Clone, PartialEq)]
@@ -8100,9 +8100,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestBoolResultRecv {
+        impl ::std::default::Default for ThriftTestTestBoolResultRecv {
             fn default() -> Self {
-                ThriftTestTestBoolResultRecv::Ok(Default::default())
+                ThriftTestTestBoolResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -8473,9 +8473,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestTypedefResultSend {
+        impl ::std::default::Default for ThriftTestTestTypedefResultSend {
             fn default() -> Self {
-                ThriftTestTestTypedefResultSend::Ok(Default::default())
+                ThriftTestTestTypedefResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -8617,9 +8617,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestStringMapResultSend {
+        impl ::std::default::Default for ThriftTestTestStringMapResultSend {
             fn default() -> Self {
-                ThriftTestTestStringMapResultSend::Ok(Default::default())
+                ThriftTestTestStringMapResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]
@@ -8954,9 +8954,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestUuidResultSend {
+        impl ::std::default::Default for ThriftTestTestUuidResultSend {
             fn default() -> Self {
-                ThriftTestTestUuidResultSend::Ok(Default::default())
+                ThriftTestTestUuidResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -9292,9 +9292,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestI32ResultSend {
+        impl ::std::default::Default for ThriftTestTestI32ResultSend {
             fn default() -> Self {
-                ThriftTestTestI32ResultSend::Ok(Default::default())
+                ThriftTestTestI32ResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -9432,9 +9432,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestVoidResultSend {
+        impl ::std::default::Default for ThriftTestTestVoidResultSend {
             fn default() -> Self {
-                ThriftTestTestVoidResultSend::Ok(Default::default())
+                ThriftTestTestVoidResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -10049,9 +10049,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestOnewayResultRecv {
+        impl ::std::default::Default for ThriftTestTestOnewayResultRecv {
             fn default() -> Self {
-                ThriftTestTestOnewayResultRecv::Ok(Default::default())
+                ThriftTestTestOnewayResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -11173,9 +11173,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for SecondServiceSecondtestStringResultRecv {
+        impl ::std::default::Default for SecondServiceSecondtestStringResultRecv {
             fn default() -> Self {
-                SecondServiceSecondtestStringResultRecv::Ok(Default::default())
+                SecondServiceSecondtestStringResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -11649,9 +11649,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestExceptionException {
+        impl ::std::default::Default for ThriftTestTestExceptionException {
             fn default() -> Self {
-                ThriftTestTestExceptionException::Err1(Default::default())
+                ThriftTestTestExceptionException::Err1(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -11943,9 +11943,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestMapMapResultRecv {
+        impl ::std::default::Default for ThriftTestTestMapMapResultRecv {
             fn default() -> Self {
-                ThriftTestTestMapMapResultRecv::Ok(Default::default())
+                ThriftTestTestMapMapResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]
@@ -12515,9 +12515,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestSetResultRecv {
+        impl ::std::default::Default for ThriftTestTestSetResultRecv {
             fn default() -> Self {
-                ThriftTestTestSetResultRecv::Ok(Default::default())
+                ThriftTestTestSetResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]
@@ -12836,9 +12836,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestStructResultRecv {
+        impl ::std::default::Default for ThriftTestTestStructResultRecv {
             fn default() -> Self {
-                ThriftTestTestStructResultRecv::Ok(Default::default())
+                ThriftTestTestStructResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -13220,9 +13220,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestI64ResultRecv {
+        impl ::std::default::Default for ThriftTestTestI64ResultRecv {
             fn default() -> Self {
-                ThriftTestTestI64ResultRecv::Ok(Default::default())
+                ThriftTestTestI64ResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -13360,9 +13360,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestStringResultRecv {
+        impl ::std::default::Default for ThriftTestTestStringResultRecv {
             fn default() -> Self {
-                ThriftTestTestStringResultRecv::Ok(Default::default())
+                ThriftTestTestStringResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -13500,9 +13500,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestMultiResultSend {
+        impl ::std::default::Default for ThriftTestTestMultiResultSend {
             fn default() -> Self {
-                ThriftTestTestMultiResultSend::Ok(Default::default())
+                ThriftTestTestMultiResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -14003,9 +14003,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestEnumResultSend {
+        impl ::std::default::Default for ThriftTestTestEnumResultSend {
             fn default() -> Self {
-                ThriftTestTestEnumResultSend::Ok(Default::default())
+                ThriftTestTestEnumResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -14298,9 +14298,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestMapResultSend {
+        impl ::std::default::Default for ThriftTestTestMapResultSend {
             fn default() -> Self {
-                ThriftTestTestMapResultSend::Ok(Default::default())
+                ThriftTestTestMapResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]
@@ -14482,9 +14482,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestExceptionResultSend {
+        impl ::std::default::Default for ThriftTestTestExceptionResultSend {
             fn default() -> Self {
-                ThriftTestTestExceptionResultSend::Ok(Default::default())
+                ThriftTestTestExceptionResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -15140,9 +15140,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestBinaryResultSend {
+        impl ::std::default::Default for ThriftTestTestBinaryResultSend {
             fn default() -> Self {
-                ThriftTestTestBinaryResultSend::Ok(Default::default())
+                ThriftTestTestBinaryResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -15430,9 +15430,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestByteResultSend {
+        impl ::std::default::Default for ThriftTestTestByteResultSend {
             fn default() -> Self {
-                ThriftTestTestByteResultSend::Ok(Default::default())
+                ThriftTestTestByteResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -15570,9 +15570,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestMultiExceptionResultRecv {
+        impl ::std::default::Default for ThriftTestTestMultiExceptionResultRecv {
             fn default() -> Self {
-                ThriftTestTestMultiExceptionResultRecv::Ok(Default::default())
+                ThriftTestTestMultiExceptionResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -17655,9 +17655,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestExceptionResultRecv {
+        impl ::std::default::Default for ThriftTestTestExceptionResultRecv {
             fn default() -> Self {
-                ThriftTestTestExceptionResultRecv::Ok(Default::default())
+                ThriftTestTestExceptionResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -18142,9 +18142,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestTypedefResultRecv {
+        impl ::std::default::Default for ThriftTestTestTypedefResultRecv {
             fn default() -> Self {
-                ThriftTestTestTypedefResultRecv::Ok(Default::default())
+                ThriftTestTestTypedefResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -18433,9 +18433,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestStringMapResultRecv {
+        impl ::std::default::Default for ThriftTestTestStringMapResultRecv {
             fn default() -> Self {
-                ThriftTestTestStringMapResultRecv::Ok(Default::default())
+                ThriftTestTestStringMapResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]
@@ -18620,9 +18620,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestUuidResultRecv {
+        impl ::std::default::Default for ThriftTestTestUuidResultRecv {
             fn default() -> Self {
-                ThriftTestTestUuidResultRecv::Ok(Default::default())
+                ThriftTestTestUuidResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -19251,9 +19251,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestI32ResultRecv {
+        impl ::std::default::Default for ThriftTestTestI32ResultRecv {
             fn default() -> Self {
-                ThriftTestTestI32ResultRecv::Ok(Default::default())
+                ThriftTestTestI32ResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -19391,9 +19391,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestMultiExceptionResultSend {
+        impl ::std::default::Default for ThriftTestTestMultiExceptionResultSend {
             fn default() -> Self {
-                ThriftTestTestMultiExceptionResultSend::Ok(Default::default())
+                ThriftTestTestMultiExceptionResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -19619,9 +19619,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestVoidResultRecv {
+        impl ::std::default::Default for ThriftTestTestVoidResultRecv {
             fn default() -> Self {
-                ThriftTestTestVoidResultRecv::Ok(Default::default())
+                ThriftTestTestVoidResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -19723,9 +19723,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestInsanityResultSend {
+        impl ::std::default::Default for ThriftTestTestInsanityResultSend {
             fn default() -> Self {
-                ThriftTestTestInsanityResultSend::Ok(Default::default())
+                ThriftTestTestInsanityResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]
@@ -20162,9 +20162,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestListResultSend {
+        impl ::std::default::Default for ThriftTestTestListResultSend {
             fn default() -> Self {
-                ThriftTestTestListResultSend::Ok(Default::default())
+                ThriftTestTestListResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -20523,9 +20523,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestNestResultSend {
+        impl ::std::default::Default for ThriftTestTestNestResultSend {
             fn default() -> Self {
-                ThriftTestTestNestResultSend::Ok(Default::default())
+                ThriftTestTestNestResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -20958,9 +20958,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestDoubleResultSend {
+        impl ::std::default::Default for ThriftTestTestDoubleResultSend {
             fn default() -> Self {
-                ThriftTestTestDoubleResultSend::Ok(Default::default())
+                ThriftTestTestDoubleResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Debug, Clone, PartialEq)]
@@ -21249,9 +21249,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ThriftTestTestBoolResultSend {
+        impl ::std::default::Default for ThriftTestTestBoolResultSend {
             fn default() -> Self {
-                ThriftTestTestBoolResultSend::Ok(Default::default())
+                ThriftTestTestBoolResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -21389,9 +21389,9 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for SomeUnion {
+        impl ::std::default::Default for SomeUnion {
             fn default() -> Self {
-                SomeUnion::MapThing(Default::default())
+                SomeUnion::MapThing(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]

@@ -410,14 +410,14 @@ impl Plugin for ImplDefaultPlugin {
                         let fields = first_variant
                             .fields
                             .iter()
-                            .map(|_| "Default::default()".to_string())
+                            .map(|_| "::std::default::Default::default()".to_string())
                             .join(",\n");
 
                         cx.with_adjust_mut(def_id, |adj| {
                             adj.add_nested_item(
                                 format!(
                                     r#"
-                                    impl Default for {enum_name} {{
+                                    impl ::std::default::Default for {enum_name} {{
                                         fn default() -> Self {{
                                             {enum_name}::{variant_name} ({fields})
                                         }}

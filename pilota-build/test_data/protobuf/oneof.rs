@@ -98,9 +98,9 @@ pub mod oneof {
 
     pub mod test {
 
-        impl Default for Test {
+        impl ::std::default::Default for Test {
             fn default() -> Self {
-                Test::A(Default::default())
+                Test::A(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -171,9 +171,9 @@ pub mod oneof {
                 ::core::result::Result::Ok(())
             }
         }
-        impl Default for Type {
+        impl ::std::default::Default for Type {
             fn default() -> Self {
-                Type::S(Default::default())
+                Type::S(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]

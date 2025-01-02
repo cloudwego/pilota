@@ -123,9 +123,9 @@ pub mod wrapper_arc {
         }
         pub trait TestService {}
 
-        impl Default for TestServiceTestResultRecv {
+        impl ::std::default::Default for TestServiceTestResultRecv {
             fn default() -> Self {
-                TestServiceTestResultRecv::Ok(Default::default())
+                TestServiceTestResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]
@@ -422,9 +422,9 @@ pub mod wrapper_arc {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for TestServiceTestResultSend {
+        impl ::std::default::Default for TestServiceTestResultSend {
             fn default() -> Self {
-                TestServiceTestResultSend::Ok(Default::default())
+                TestServiceTestResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(Debug, Clone, PartialEq)]

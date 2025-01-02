@@ -244,9 +244,9 @@ pub mod gen {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for ArticleServiceGetArticleResultSend {
+        impl ::std::default::Default for ArticleServiceGetArticleResultSend {
             fn default() -> Self {
-                ArticleServiceGetArticleResultSend::Ok(Default::default())
+                ArticleServiceGetArticleResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -853,9 +853,9 @@ pub mod gen {
         }
         pub trait ArticleService {}
 
-        impl Default for ArticleServiceGetArticleResultRecv {
+        impl ::std::default::Default for ArticleServiceGetArticleResultRecv {
             fn default() -> Self {
-                ArticleServiceGetArticleResultRecv::Ok(Default::default())
+                ArticleServiceGetArticleResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]

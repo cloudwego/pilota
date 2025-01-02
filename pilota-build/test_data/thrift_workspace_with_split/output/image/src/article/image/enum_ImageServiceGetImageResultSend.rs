@@ -1,7 +1,7 @@
 
-impl Default for ImageServiceGetImageResultSend {
+impl ::std::default::Default for ImageServiceGetImageResultSend {
     fn default() -> Self {
-        ImageServiceGetImageResultSend::Ok(Default::default())
+        ImageServiceGetImageResultSend::Ok(::std::default::Default::default())
     }
 }
 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]

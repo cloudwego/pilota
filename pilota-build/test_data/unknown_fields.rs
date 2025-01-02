@@ -1980,9 +1980,9 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for TestUnion {
+        impl ::std::default::Default for TestUnion {
             fn default() -> Self {
-                TestUnion::A(Default::default())
+                TestUnion::A(::std::default::Default::default())
             }
         }
         #[derive(
@@ -2192,9 +2192,9 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for TestTestExceptionException {
+        impl ::std::default::Default for TestTestExceptionException {
             fn default() -> Self {
-                TestTestExceptionException::StException(Default::default())
+                TestTestExceptionException::StException(::std::default::Default::default())
             }
         }
         #[derive(
@@ -2347,9 +2347,9 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for TestTestExceptionResultRecv {
+        impl ::std::default::Default for TestTestExceptionResultRecv {
             fn default() -> Self {
-                TestTestExceptionResultRecv::Ok(Default::default())
+                TestTestExceptionResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(
@@ -2540,9 +2540,9 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for TestTest123ResultRecv {
+        impl ::std::default::Default for TestTest123ResultRecv {
             fn default() -> Self {
-                TestTest123ResultRecv::Ok(Default::default())
+                TestTest123ResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(
@@ -3073,9 +3073,9 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for TestTest123ResultSend {
+        impl ::std::default::Default for TestTest123ResultSend {
             fn default() -> Self {
-                TestTest123ResultSend::Ok(Default::default())
+                TestTest123ResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(
@@ -3477,9 +3477,9 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for TestTestExceptionResultSend {
+        impl ::std::default::Default for TestTestExceptionResultSend {
             fn default() -> Self {
-                TestTestExceptionResultSend::Ok(Default::default())
+                TestTestExceptionResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(
@@ -3683,9 +3683,9 @@ pub mod unknown_fields {
 
         pub trait Test {}
 
-        impl Default for TestTest123ResultRecv {
+        impl ::std::default::Default for TestTest123ResultRecv {
             fn default() -> Self {
-                TestTest123ResultRecv::Ok(Default::default())
+                TestTest123ResultRecv::Ok(::std::default::Default::default())
             }
         }
         #[derive(
@@ -3797,9 +3797,9 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for TestTest123ResultSend {
+        impl ::std::default::Default for TestTest123ResultSend {
             fn default() -> Self {
-                TestTest123ResultSend::Ok(Default::default())
+                TestTest123ResultSend::Ok(::std::default::Default::default())
             }
         }
         #[derive(

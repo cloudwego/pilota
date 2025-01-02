@@ -1,7 +1,7 @@
 
-impl Default for testServiceTestResultRecv {
+impl ::std::default::Default for testServiceTestResultRecv {
     fn default() -> Self {
-        testServiceTestResultRecv::Ok(Default::default())
+        testServiceTestResultRecv::Ok(::std::default::Default::default())
     }
 }
 #[derive(Debug, Clone, PartialEq)]

@@ -164,9 +164,9 @@ pub mod gen {
                         + __protocol.struct_end_len()
                 }
             }
-            impl Default for ImageServiceGetImageResultSend {
+            impl ::std::default::Default for ImageServiceGetImageResultSend {
                 fn default() -> Self {
-                    ImageServiceGetImageResultSend::Ok(Default::default())
+                    ImageServiceGetImageResultSend::Ok(::std::default::Default::default())
                 }
             }
             #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
@@ -799,9 +799,9 @@ pub mod gen {
             }
             pub trait ImageService {}
 
-            impl Default for ImageServiceGetImageResultRecv {
+            impl ::std::default::Default for ImageServiceGetImageResultRecv {
                 fn default() -> Self {
-                    ImageServiceGetImageResultRecv::Ok(Default::default())
+                    ImageServiceGetImageResultRecv::Ok(::std::default::Default::default())
                 }
             }
             #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]

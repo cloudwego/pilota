@@ -1,7 +1,7 @@
 
-impl Default for AuthorServiceGetAuthorResultRecv {
+impl ::std::default::Default for AuthorServiceGetAuthorResultRecv {
     fn default() -> Self {
-        AuthorServiceGetAuthorResultRecv::Ok(Default::default())
+        AuthorServiceGetAuthorResultRecv::Ok(::std::default::Default::default())
     }
 }
 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]

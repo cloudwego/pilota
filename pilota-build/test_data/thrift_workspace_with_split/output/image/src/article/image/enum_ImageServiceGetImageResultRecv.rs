@@ -1,7 +1,7 @@
 
-impl Default for ImageServiceGetImageResultRecv {
+impl ::std::default::Default for ImageServiceGetImageResultRecv {
     fn default() -> Self {
-        ImageServiceGetImageResultRecv::Ok(Default::default())
+        ImageServiceGetImageResultRecv::Ok(::std::default::Default::default())
     }
 }
 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]

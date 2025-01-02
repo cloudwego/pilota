@@ -10,3 +10,5 @@ struct A {
 union Empty {
 
 }
+
+struct Default {}
