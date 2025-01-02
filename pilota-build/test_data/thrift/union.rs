@@ -2,11 +2,14 @@ pub mod union {
     #![allow(warnings, clippy::all)]
 
     pub mod union {
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+
+        impl Default for Union {
+            fn default() -> Self {
+                Union::A(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum Union {
-            #[derivative(Default)]
             A(::pilota::FastStr),
 
             B(::pilota::Bytes),

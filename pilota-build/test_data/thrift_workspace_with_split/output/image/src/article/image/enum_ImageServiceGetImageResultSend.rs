@@ -1,8 +1,11 @@
-#[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-#[derivative(Default)]
-#[derive(Clone, PartialEq)]
+
+impl Default for ImageServiceGetImageResultSend {
+    fn default() -> Self {
+        ImageServiceGetImageResultSend::Ok(Default::default())
+    }
+}
+#[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
 pub enum ImageServiceGetImageResultSend {
-    #[derivative(Default)]
     Ok(GetImageResponse),
 }
 

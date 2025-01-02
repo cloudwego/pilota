@@ -9,7 +9,7 @@ use crate::{
     middle::context::tls::CUR_ITEM,
     rir::{EnumVariant, Field, Item, NodeKind},
     symbol::DefId,
-    ty::{self, Ty, Visitor},
+    ty::{self, Ty, TyKind, Visitor},
     Context,
 };
 
@@ -391,18 +391,42 @@ impl Plugin for ImplDefaultPlugin {
                 cx.with_adjust_mut(def_id, |adj| adj.add_attrs(&["#[derive(Default)]".into()]))
             }
             Item::Enum(e) => {
-                if !e.variants.is_empty() {
-                    cx.with_adjust_mut(def_id, |adj| {
-                        adj.add_attrs(&[
-                            "#[derive(::pilota::derivative::Derivative)]".into(),
-                            "#[derivative(Default)]".into(),
-                        ]);
-                    });
+                if let Some(first_variant) = e.variants.first() {
+                    let is_unit_variant = first_variant.fields.is_empty();
+                    if is_unit_variant {
+                        cx.with_adjust_mut(def_id, |adj| {
+                            adj.add_attrs(&["#[derive(Default)]".into()]);
+                        });
 
-                    if let Some(v) = e.variants.first() {
-                        cx.with_adjust_mut(v.did, |adj| {
-                            adj.add_attrs(&["#[derivative(Default)]".into()]);
-                        })
+                        if let Some(v) = e.variants.first() {
+                            cx.with_adjust_mut(v.did, |adj| {
+                                adj.add_attrs(&["#[default]".into()]);
+                            })
+                        }
+                    } else {
+                        // for non unit variant, we need to impl Default for the enum
+                        let enum_name = cx.rust_name(def_id);
+                        let variant_name = cx.rust_name(first_variant.did);
+                        let fields = first_variant
+                            .fields
+                            .iter()
+                            .map(|_| "Default::default()".to_string())
+                            .join(",\n");
+
+                        cx.with_adjust_mut(def_id, |adj| {
+                            adj.add_nested_item(
+                                format!(
+                                    r#"
+                                    impl Default for {enum_name} {{
+                                        fn default() -> Self {{
+                                            {enum_name}::{variant_name} ({fields})
+                                        }}
+                                    }}
+                                "#
+                                )
+                                .into(),
+                            )
+                        });
                     }
                 }
             }

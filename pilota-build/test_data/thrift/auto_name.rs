@@ -156,11 +156,14 @@ pub mod auto_name {
             }
         }
         pub trait service {}
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+
+        impl Default for serviceTest2ResultRecv {
+            fn default() -> Self {
+                serviceTest2ResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum serviceTest2ResultRecv {
-            #[derivative(Default)]
             Ok(Test),
         }
 
@@ -737,11 +740,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for servicetestResultSend {
+            fn default() -> Self {
+                servicetestResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum servicetestResultSend {
-            #[derivative(Default)]
             Ok(Test),
 
             E(TestException),
@@ -1233,11 +1238,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for ServicetestException {
+            fn default() -> Self {
+                ServicetestException::E(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServicetestException {
-            #[derivative(Default)]
             E(TestException),
         }
 
@@ -1375,11 +1382,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for ServicetestResultRecv {
+            fn default() -> Self {
+                ServicetestResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServicetestResultRecv {
-            #[derivative(Default)]
             Ok(Test),
 
             E(TestException),
@@ -1556,11 +1565,13 @@ pub mod auto_name {
             }
         }
         pub const IP: &'static str = "IP";
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for serviceTest2ResultSend {
+            fn default() -> Self {
+                serviceTest2ResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum serviceTest2ResultSend {
-            #[derivative(Default)]
             Ok(Test),
         }
 
@@ -1698,11 +1709,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for serviceTestException {
+            fn default() -> Self {
+                serviceTestException::E(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum serviceTestException {
-            #[derivative(Default)]
             E(TestException),
         }
 
@@ -1840,11 +1853,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for serviceTestResultRecv {
+            fn default() -> Self {
+                serviceTestResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum serviceTestResultRecv {
-            #[derivative(Default)]
             Ok(Test),
 
             E(TestException),
@@ -2336,11 +2351,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for ServiceTestResultSend {
+            fn default() -> Self {
+                ServiceTestResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServiceTestResultSend {
-            #[derivative(Default)]
             Ok(Test),
 
             E(TestException),
@@ -2707,11 +2724,14 @@ pub mod auto_name {
             }
         }
         pub trait Service {}
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+
+        impl Default for ServiceTest2ResultRecv {
+            fn default() -> Self {
+                ServiceTest2ResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServiceTest2ResultRecv {
-            #[derivative(Default)]
             Ok(Test),
         }
 
@@ -3049,9 +3069,7 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq, Copy)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Index(i32);
 
@@ -3456,11 +3474,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for servicetestException {
+            fn default() -> Self {
+                servicetestException::E(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum servicetestException {
-            #[derivative(Default)]
             E(TestException),
         }
 
@@ -3598,11 +3618,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for servicetestResultRecv {
+            fn default() -> Self {
+                servicetestResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum servicetestResultRecv {
-            #[derivative(Default)]
             Ok(Test),
 
             E(TestException),
@@ -3978,11 +4000,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for ServicetestResultSend {
+            fn default() -> Self {
+                ServicetestResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServicetestResultSend {
-            #[derivative(Default)]
             Ok(Test),
 
             E(TestException),
@@ -4474,11 +4498,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for serviceTestResultSend {
+            fn default() -> Self {
+                serviceTestResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum serviceTestResultSend {
-            #[derivative(Default)]
             Ok(Test),
 
             E(TestException),
@@ -4654,11 +4680,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for ServiceTest2ResultSend {
+            fn default() -> Self {
+                ServiceTest2ResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServiceTest2ResultSend {
-            #[derivative(Default)]
             Ok(Test),
         }
 
@@ -4796,11 +4824,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for ServiceTestException {
+            fn default() -> Self {
+                ServiceTestException::E(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServiceTestException {
-            #[derivative(Default)]
             E(TestException),
         }
 
@@ -4938,11 +4968,13 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for ServiceTestResultRecv {
+            fn default() -> Self {
+                ServiceTestResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServiceTestResultRecv {
-            #[derivative(Default)]
             Ok(Test),
 
             E(TestException),

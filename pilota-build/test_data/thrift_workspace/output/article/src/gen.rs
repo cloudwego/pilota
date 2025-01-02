@@ -2,9 +2,7 @@ pub mod gen {
     #![allow(warnings, clippy::all)]
 
     pub mod article {
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq, Copy)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Status(i32);
 
@@ -246,11 +244,13 @@ pub mod gen {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for ArticleServiceGetArticleResultSend {
+            fn default() -> Self {
+                ArticleServiceGetArticleResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ArticleServiceGetArticleResultSend {
-            #[derivative(Default)]
             Ok(GetArticleResponse),
         }
 
@@ -852,11 +852,14 @@ pub mod gen {
             }
         }
         pub trait ArticleService {}
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+
+        impl Default for ArticleServiceGetArticleResultRecv {
+            fn default() -> Self {
+                ArticleServiceGetArticleResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ArticleServiceGetArticleResultRecv {
-            #[derivative(Default)]
             Ok(GetArticleResponse),
         }
 

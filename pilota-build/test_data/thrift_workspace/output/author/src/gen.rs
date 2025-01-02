@@ -14,11 +14,14 @@ pub mod gen {
     pub mod author {
 
         pub trait AuthorService {}
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+
+        impl Default for AuthorServiceGetAuthorResultRecv {
+            fn default() -> Self {
+                AuthorServiceGetAuthorResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum AuthorServiceGetAuthorResultRecv {
-            #[derivative(Default)]
             Ok(GetAuthorResponse),
         }
 
@@ -305,11 +308,13 @@ pub mod gen {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for AuthorServiceGetAuthorResultSend {
+            fn default() -> Self {
+                AuthorServiceGetAuthorResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum AuthorServiceGetAuthorResultSend {
-            #[derivative(Default)]
             Ok(GetAuthorResponse),
         }
 

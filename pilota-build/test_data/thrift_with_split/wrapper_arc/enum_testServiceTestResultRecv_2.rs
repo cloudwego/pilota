@@ -1,8 +1,11 @@
-#[derive(Debug, ::pilota::derivative::Derivative)]
-#[derivative(Default)]
-#[derive(Clone, PartialEq)]
+
+impl Default for testServiceTestResultRecv {
+    fn default() -> Self {
+        testServiceTestResultRecv::Ok(Default::default())
+    }
+}
+#[derive(Debug, Clone, PartialEq)]
 pub enum testServiceTestResultRecv {
-    #[derivative(Default)]
     Ok(Test),
 }
 

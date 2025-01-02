@@ -1980,11 +1980,23 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
+        impl Default for TestUnion {
+            fn default() -> Self {
+                TestUnion::A(Default::default())
+            }
+        }
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub enum TestUnion {
-            #[derivative(Default)]
             A(A),
 
             B(B),
@@ -2180,11 +2192,23 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
+        impl Default for TestTestExceptionException {
+            fn default() -> Self {
+                TestTestExceptionException::StException(Default::default())
+            }
+        }
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub enum TestTestExceptionException {
-            #[derivative(Default)]
             StException(StException),
         }
 
@@ -2323,11 +2347,23 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
+        impl Default for TestTestExceptionResultRecv {
+            fn default() -> Self {
+                TestTestExceptionResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub enum TestTestExceptionResultRecv {
-            #[derivative(Default)]
             Ok(ObjReq),
 
             StException(StException),
@@ -2504,11 +2540,23 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
+        impl Default for TestTest123ResultRecv {
+            fn default() -> Self {
+                TestTest123ResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub enum TestTest123ResultRecv {
-            #[derivative(Default)]
             Ok(()),
         }
 
@@ -2606,9 +2654,16 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+        )]
         #[serde(transparent)]
         #[derive(Clone, PartialEq, Copy)]
         #[repr(transparent)]
@@ -3018,11 +3073,23 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
+        impl Default for TestTest123ResultSend {
+            fn default() -> Self {
+                TestTest123ResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub enum TestTest123ResultSend {
-            #[derivative(Default)]
             Ok(()),
         }
 
@@ -3410,11 +3477,23 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
+        impl Default for TestTestExceptionResultSend {
+            fn default() -> Self {
+                TestTestExceptionResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub enum TestTestExceptionResultSend {
-            #[derivative(Default)]
             Ok(ObjReq),
 
             StException(StException),
@@ -3603,11 +3682,24 @@ pub mod unknown_fields {
     pub mod void {
 
         pub trait Test {}
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
+
+        impl Default for TestTest123ResultRecv {
+            fn default() -> Self {
+                TestTest123ResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub enum TestTest123ResultRecv {
-            #[derivative(Default)]
             Ok(()),
         }
 
@@ -3705,11 +3797,23 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize, Clone, PartialEq)]
+        impl Default for TestTest123ResultSend {
+            fn default() -> Self {
+                TestTest123ResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+            Clone,
+            PartialEq,
+        )]
         pub enum TestTest123ResultSend {
-            #[derivative(Default)]
             Ok(()),
         }
 

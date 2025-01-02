@@ -97,11 +97,14 @@ pub mod oneof {
     }
 
     pub mod test {
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+
+        impl Default for Test {
+            fn default() -> Self {
+                Test::A(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum Test {
-            #[derivative(Default)]
             A(::pilota::FastStr),
 
             B(i32),
@@ -168,11 +171,13 @@ pub mod oneof {
                 ::core::result::Result::Ok(())
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for Type {
+            fn default() -> Self {
+                Type::S(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum Type {
-            #[derivative(Default)]
             S(::pilota::FastStr),
 
             I(i32),

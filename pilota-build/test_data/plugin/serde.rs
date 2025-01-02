@@ -195,9 +195,16 @@ pub mod serde {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(::pilota::serde::Serialize, ::pilota::serde::Deserialize)]
+        #[derive(
+            PartialOrd,
+            Hash,
+            Eq,
+            Ord,
+            Debug,
+            Default,
+            ::pilota::serde::Serialize,
+            ::pilota::serde::Deserialize,
+        )]
         #[serde(untagged)]
         #[serde(transparent)]
         #[derive(Clone, PartialEq, Copy)]

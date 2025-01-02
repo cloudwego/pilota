@@ -2,9 +2,7 @@ pub mod enum_test {
     #![allow(warnings, clippy::all)]
 
     pub mod enum_test {
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq, Copy)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Index(i32);
 
@@ -640,11 +638,13 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for TestTestEnumVarTypeNameConflictResultSend {
+            fn default() -> Self {
+                TestTestEnumVarTypeNameConflictResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum TestTestEnumVarTypeNameConflictResultSend {
-            #[derivative(Default)]
             Ok(Err),
         }
 
@@ -939,11 +939,13 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for TestTestEnumResultSend {
+            fn default() -> Self {
+                TestTestEnumResultSend::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum TestTestEnumResultSend {
-            #[derivative(Default)]
             Ok(Err),
         }
 
@@ -1291,9 +1293,7 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq, Copy)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct _Enum(i32);
 
@@ -1383,11 +1383,14 @@ pub mod enum_test {
             }
         }
         pub trait Test {}
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+
+        impl Default for TestTestEnumVarTypeNameConflictResultRecv {
+            fn default() -> Self {
+                TestTestEnumVarTypeNameConflictResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum TestTestEnumVarTypeNameConflictResultRecv {
-            #[derivative(Default)]
             Ok(Err),
         }
 
@@ -1529,11 +1532,13 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl Default for TestTestEnumResultRecv {
+            fn default() -> Self {
+                TestTestEnumResultRecv::Ok(Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum TestTestEnumResultRecv {
-            #[derivative(Default)]
             Ok(Err),
         }
 

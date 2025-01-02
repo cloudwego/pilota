@@ -1,8 +1,11 @@
-#[derive(Debug, ::pilota::derivative::Derivative)]
-#[derivative(Default)]
-#[derive(Clone, PartialEq)]
+
+impl Default for TestServiceTestResultSend {
+    fn default() -> Self {
+        TestServiceTestResultSend::Ok(Default::default())
+    }
+}
+#[derive(Debug, Clone, PartialEq)]
 pub enum TestServiceTestResultSend {
-    #[derivative(Default)]
     Ok(::std::sync::Arc<Test>),
 }
 
