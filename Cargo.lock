@@ -308,28 +308,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "derivative"
-version = "2.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fcc3dd5e9e9c0b295d6e1e4d811fb6f157d5ffd784b8d202fc62eac8035a770b"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "derive-where"
-version = "1.2.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62d671cc41a825ebabc75757b62d3d168c577f9149b2d49ece1dad1f72119d25"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.87",
-]
-
-[[package]]
 name = "diffy"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -368,8 +346,6 @@ dependencies = [
  "anyhow",
  "criterion",
  "dashmap 5.5.3",
- "derivative",
- "derive-where",
  "diffy",
  "faststr",
  "heck 0.5.0",
@@ -860,7 +836,6 @@ dependencies = [
  "async-recursion",
  "bytes",
  "criterion",
- "derivative",
  "faststr",
  "integer-encoding",
  "lazy_static",
@@ -883,8 +858,6 @@ dependencies = [
  "anyhow",
  "criterion",
  "dashmap 6.1.0",
- "derivative",
- "derive-where",
  "diffy",
  "faststr",
  "heck 0.5.0",

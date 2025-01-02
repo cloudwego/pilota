@@ -9,7 +9,7 @@ use crate::{
     middle::context::tls::CUR_ITEM,
     rir::{EnumVariant, Field, Item, NodeKind},
     symbol::DefId,
-    ty::{self, Ty, TyKind, Visitor},
+    ty::{self, Ty, Visitor},
     Context,
 };
 
