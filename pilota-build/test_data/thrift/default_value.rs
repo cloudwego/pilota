@@ -91,7 +91,7 @@ pub mod default_value {
                 __protocol.i32_len(self.inner())
             }
         }
-        impl Default for C {
+        impl ::std::default::Default for C {
             fn default() -> Self {
                 C {
                     off: Some(::pilota::FastStr::from_static_str("off")),
@@ -266,7 +266,7 @@ pub mod default_value {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for A {
+        impl ::std::default::Default for A {
             fn default() -> Self {
                 A {
                     faststr: ::pilota::FastStr::from_static_str("hello world"),

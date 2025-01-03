@@ -357,7 +357,7 @@ impl Plugin for ImplDefaultPlugin {
                                 }
                                 format!("{name}: {val}")
                             } else {
-                                format!("{name}: Default::default()")
+                                format!("{name}: ::std::default::Default::default()")
                             }
                         })
                         .join(",\n");
@@ -373,7 +373,7 @@ impl Plugin for ImplDefaultPlugin {
                         adj.add_nested_item(
                             format!(
                                 r#"
-                                impl Default for {name} {{
+                                impl ::std::default::Default for {name} {{
                                     fn default() -> Self {{
                                         {name} {{
                                             {fields}
