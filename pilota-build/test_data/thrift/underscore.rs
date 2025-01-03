@@ -2,11 +2,14 @@ pub mod underscore {
     #![allow(warnings, clippy::all)]
 
     pub mod underscore {
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+
+        impl ::std::default::Default for Test_UnderscoredResultRecv {
+            fn default() -> Self {
+                Test_UnderscoredResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum Test_UnderscoredResultRecv {
-            #[derivative(Default)]
             Ok(::pilota::FastStr),
         }
 
@@ -440,11 +443,13 @@ pub mod underscore {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for Test_UnderscoredResultSend {
+            fn default() -> Self {
+                Test_UnderscoredResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum Test_UnderscoredResultSend {
-            #[derivative(Default)]
             Ok(::pilota::FastStr),
         }
 

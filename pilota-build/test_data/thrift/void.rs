@@ -2,11 +2,14 @@ pub mod void {
     #![allow(warnings, clippy::all)]
 
     pub mod void {
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+
+        impl ::std::default::Default for TestTest123ResultRecv {
+            fn default() -> Self {
+                TestTest123ResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum TestTest123ResultRecv {
-            #[derivative(Default)]
             Ok(()),
         }
 
@@ -342,11 +345,13 @@ pub mod void {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for TestTest123ResultSend {
+            fn default() -> Self {
+                TestTest123ResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum TestTest123ResultSend {
-            #[derivative(Default)]
             Ok(()),
         }
 

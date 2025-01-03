@@ -1062,11 +1062,13 @@ pub mod normal {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for TestTest123ResultSend {
+            fn default() -> Self {
+                TestTest123ResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum TestTest123ResultSend {
-            #[derivative(Default)]
             Ok(()),
         }
 
@@ -1607,11 +1609,13 @@ pub mod normal {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for TestTestExceptionException {
+            fn default() -> Self {
+                TestTestExceptionException::StException(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum TestTestExceptionException {
-            #[derivative(Default)]
             StException(StException),
         }
 
@@ -1750,11 +1754,13 @@ pub mod normal {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for TestTestExceptionResultSend {
+            fn default() -> Self {
+                TestTestExceptionResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum TestTestExceptionResultSend {
-            #[derivative(Default)]
             Ok(ObjReq),
 
             StException(StException),
@@ -1931,11 +1937,13 @@ pub mod normal {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for TestTestExceptionResultRecv {
+            fn default() -> Self {
+                TestTestExceptionResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum TestTestExceptionResultRecv {
-            #[derivative(Default)]
             Ok(ObjReq),
 
             StException(StException),
@@ -2112,11 +2120,13 @@ pub mod normal {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for TestTest123ResultRecv {
+            fn default() -> Self {
+                TestTest123ResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum TestTest123ResultRecv {
-            #[derivative(Default)]
             Ok(()),
         }
 

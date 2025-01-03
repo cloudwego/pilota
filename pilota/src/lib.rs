@@ -10,7 +10,6 @@ pub mod thrift;
 pub use ahash::{AHashMap, AHashSet};
 pub use async_recursion;
 pub use bytes::*;
-pub use derivative;
 pub use faststr::FastStr;
 pub use lazy_static;
 pub use ordered_float::OrderedFloat;

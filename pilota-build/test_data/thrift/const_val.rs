@@ -2,9 +2,7 @@ pub mod const_val {
     #![allow(warnings, clippy::all)]
 
     pub mod const_val {
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq, Copy)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Index(i32);
 

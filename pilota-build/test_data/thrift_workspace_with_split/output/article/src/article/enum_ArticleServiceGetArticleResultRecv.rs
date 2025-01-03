@@ -1,8 +1,11 @@
-#[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-#[derivative(Default)]
-#[derive(Clone, PartialEq)]
+
+impl ::std::default::Default for ArticleServiceGetArticleResultRecv {
+    fn default() -> Self {
+        ArticleServiceGetArticleResultRecv::Ok(::std::default::Default::default())
+    }
+}
+#[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
 pub enum ArticleServiceGetArticleResultRecv {
-    #[derivative(Default)]
     Ok(GetArticleResponse),
 }
 

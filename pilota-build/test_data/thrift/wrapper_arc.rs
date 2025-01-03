@@ -122,11 +122,14 @@ pub mod wrapper_arc {
             }
         }
         pub trait TestService {}
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+
+        impl ::std::default::Default for TestServiceTestResultRecv {
+            fn default() -> Self {
+                TestServiceTestResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum TestServiceTestResultRecv {
-            #[derivative(Default)]
             Ok(Test),
         }
 
@@ -419,11 +422,13 @@ pub mod wrapper_arc {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for TestServiceTestResultSend {
+            fn default() -> Self {
+                TestServiceTestResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum TestServiceTestResultSend {
-            #[derivative(Default)]
             Ok(::std::sync::Arc<Test>),
         }
 

@@ -50,7 +50,6 @@ faststr = "0.2"
 [dev-dependencies]
 
 tokio = { version = "1", features = ["io-util"] }
-derivative = "2"
 tempfile = "3"
 diffy = "0.4"
 criterion = { version = "0.5", features = ["html_reports"] }

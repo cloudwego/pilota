@@ -310,11 +310,13 @@ pub mod pilota_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for TestServiceTestResultSend {
+            fn default() -> Self {
+                TestServiceTestResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum TestServiceTestResultSend {
-            #[derivative(Default)]
             Ok(Test1),
         }
 
@@ -799,11 +801,14 @@ pub mod pilota_name {
         }
         pub const LANG_ID: &'static str = "id";
         pub trait TestService {}
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+
+        impl ::std::default::Default for TestServiceTestResultRecv {
+            fn default() -> Self {
+                TestServiceTestResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum TestServiceTestResultRecv {
-            #[derivative(Default)]
             Ok(Test1),
         }
 
@@ -941,9 +946,7 @@ pub mod pilota_name {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq, Copy)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Index(i32);
 

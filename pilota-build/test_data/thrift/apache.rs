@@ -2,9 +2,7 @@ pub mod apache {
     #![allow(warnings, clippy::all)]
 
     pub mod apache {
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq, Copy)]
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Numberz(i32);
 
@@ -821,11 +819,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestMultiExceptionException {
+            fn default() -> Self {
+                ThriftTestTestMultiExceptionException::Err1(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestMultiExceptionException {
-            #[derivative(Default)]
             Err1(Xception),
 
             Err2(Xception2),
@@ -1278,11 +1278,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestMultiResultRecv {
+            fn default() -> Self {
+                ThriftTestTestMultiResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestMultiResultRecv {
-            #[derivative(Default)]
             Ok(Xtruct),
         }
 
@@ -1738,11 +1740,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestEnumResultRecv {
+            fn default() -> Self {
+                ThriftTestTestEnumResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestEnumResultRecv {
-            #[derivative(Default)]
             Ok(Numberz),
         }
 
@@ -1880,11 +1884,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestOnewayResultSend {
+            fn default() -> Self {
+                ThriftTestTestOnewayResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestOnewayResultSend {
-            #[derivative(Default)]
             Ok(()),
         }
 
@@ -2132,11 +2138,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestMapResultRecv {
+            fn default() -> Self {
+                ThriftTestTestMapResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum ThriftTestTestMapResultRecv {
-            #[derivative(Default)]
             Ok(::pilota::AHashMap<i32, i32>),
         }
 
@@ -2524,11 +2532,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestBinaryResultRecv {
+            fn default() -> Self {
+                ThriftTestTestBinaryResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestBinaryResultRecv {
-            #[derivative(Default)]
             Ok(::pilota::Bytes),
         }
 
@@ -2662,11 +2672,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for SecondServiceSecondtestStringResultSend {
+            fn default() -> Self {
+                SecondServiceSecondtestStringResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum SecondServiceSecondtestStringResultSend {
-            #[derivative(Default)]
             Ok(::pilota::FastStr),
         }
 
@@ -2803,11 +2815,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestByteResultRecv {
+            fn default() -> Self {
+                ThriftTestTestByteResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestByteResultRecv {
-            #[derivative(Default)]
             Ok(i8),
         }
 
@@ -3091,11 +3105,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestMapMapResultSend {
+            fn default() -> Self {
+                ThriftTestTestMapMapResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum ThriftTestTestMapMapResultSend {
-            #[derivative(Default)]
             Ok(::pilota::AHashMap<i32, ::pilota::AHashMap<i32, i32>>),
         }
 
@@ -3520,11 +3536,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestSetResultSend {
+            fn default() -> Self {
+                ThriftTestTestSetResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum ThriftTestTestSetResultSend {
-            #[derivative(Default)]
             Ok(::pilota::AHashSet<i32>),
         }
 
@@ -3691,11 +3709,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestStructResultSend {
+            fn default() -> Self {
+                ThriftTestTestStructResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestStructResultSend {
-            #[derivative(Default)]
             Ok(Xtruct),
         }
 
@@ -4264,11 +4284,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestI64ResultSend {
+            fn default() -> Self {
+                ThriftTestTestI64ResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestI64ResultSend {
-            #[derivative(Default)]
             Ok(i64),
         }
 
@@ -4589,11 +4611,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestStringResultSend {
+            fn default() -> Self {
+                ThriftTestTestStringResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestStringResultSend {
-            #[derivative(Default)]
             Ok(::pilota::FastStr),
         }
 
@@ -6702,11 +6726,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestInsanityResultRecv {
+            fn default() -> Self {
+                ThriftTestTestInsanityResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum ThriftTestTestInsanityResultRecv {
-            #[derivative(Default)]
             Ok(::pilota::AHashMap<UserId, ::pilota::AHashMap<Numberz, Insanity>>),
         }
 
@@ -7289,11 +7315,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestListResultRecv {
+            fn default() -> Self {
+                ThriftTestTestListResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestListResultRecv {
-            #[derivative(Default)]
             Ok(::std::vec::Vec<i32>),
         }
 
@@ -7577,11 +7605,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestNestResultRecv {
+            fn default() -> Self {
+                ThriftTestTestNestResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestNestResultRecv {
-            #[derivative(Default)]
             Ok(Xtruct2),
         }
 
@@ -7930,11 +7960,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestDoubleResultRecv {
+            fn default() -> Self {
+                ThriftTestTestDoubleResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestDoubleResultRecv {
-            #[derivative(Default)]
             Ok(f64),
         }
 
@@ -8068,11 +8100,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestBoolResultRecv {
+            fn default() -> Self {
+                ThriftTestTestBoolResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestBoolResultRecv {
-            #[derivative(Default)]
             Ok(bool),
         }
 
@@ -8439,11 +8473,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestTypedefResultSend {
+            fn default() -> Self {
+                ThriftTestTestTypedefResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestTypedefResultSend {
-            #[derivative(Default)]
             Ok(UserId),
         }
 
@@ -8581,11 +8617,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestStringMapResultSend {
+            fn default() -> Self {
+                ThriftTestTestStringMapResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum ThriftTestTestStringMapResultSend {
-            #[derivative(Default)]
             Ok(::pilota::AHashMap<::pilota::FastStr, ::pilota::FastStr>),
         }
 
@@ -8916,11 +8954,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestUuidResultSend {
+            fn default() -> Self {
+                ThriftTestTestUuidResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestUuidResultSend {
-            #[derivative(Default)]
             Ok([u8; 16]),
         }
 
@@ -9252,11 +9292,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestI32ResultSend {
+            fn default() -> Self {
+                ThriftTestTestI32ResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestI32ResultSend {
-            #[derivative(Default)]
             Ok(i32),
         }
 
@@ -9390,11 +9432,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestVoidResultSend {
+            fn default() -> Self {
+                ThriftTestTestVoidResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestVoidResultSend {
-            #[derivative(Default)]
             Ok(()),
         }
 
@@ -10005,11 +10049,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestOnewayResultRecv {
+            fn default() -> Self {
+                ThriftTestTestOnewayResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestOnewayResultRecv {
-            #[derivative(Default)]
             Ok(()),
         }
 
@@ -11127,11 +11173,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for SecondServiceSecondtestStringResultRecv {
+            fn default() -> Self {
+                SecondServiceSecondtestStringResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum SecondServiceSecondtestStringResultRecv {
-            #[derivative(Default)]
             Ok(::pilota::FastStr),
         }
 
@@ -11601,11 +11649,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestExceptionException {
+            fn default() -> Self {
+                ThriftTestTestExceptionException::Err1(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestExceptionException {
-            #[derivative(Default)]
             Err1(Xception),
         }
 
@@ -11893,11 +11943,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestMapMapResultRecv {
+            fn default() -> Self {
+                ThriftTestTestMapMapResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum ThriftTestTestMapMapResultRecv {
-            #[derivative(Default)]
             Ok(::pilota::AHashMap<i32, ::pilota::AHashMap<i32, i32>>),
         }
 
@@ -12463,11 +12515,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestSetResultRecv {
+            fn default() -> Self {
+                ThriftTestTestSetResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum ThriftTestTestSetResultRecv {
-            #[derivative(Default)]
             Ok(::pilota::AHashSet<i32>),
         }
 
@@ -12782,11 +12836,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestStructResultRecv {
+            fn default() -> Self {
+                ThriftTestTestStructResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestStructResultRecv {
-            #[derivative(Default)]
             Ok(Xtruct),
         }
 
@@ -13164,11 +13220,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestI64ResultRecv {
+            fn default() -> Self {
+                ThriftTestTestI64ResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestI64ResultRecv {
-            #[derivative(Default)]
             Ok(i64),
         }
 
@@ -13302,11 +13360,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestStringResultRecv {
+            fn default() -> Self {
+                ThriftTestTestStringResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestStringResultRecv {
-            #[derivative(Default)]
             Ok(::pilota::FastStr),
         }
 
@@ -13440,11 +13500,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestMultiResultSend {
+            fn default() -> Self {
+                ThriftTestTestMultiResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestMultiResultSend {
-            #[derivative(Default)]
             Ok(Xtruct),
         }
 
@@ -13941,11 +14003,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestEnumResultSend {
+            fn default() -> Self {
+                ThriftTestTestEnumResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestEnumResultSend {
-            #[derivative(Default)]
             Ok(Numberz),
         }
 
@@ -14234,11 +14298,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestMapResultSend {
+            fn default() -> Self {
+                ThriftTestTestMapResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum ThriftTestTestMapResultSend {
-            #[derivative(Default)]
             Ok(::pilota::AHashMap<i32, i32>),
         }
 
@@ -14416,11 +14482,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestExceptionResultSend {
+            fn default() -> Self {
+                ThriftTestTestExceptionResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestExceptionResultSend {
-            #[derivative(Default)]
             Ok(()),
 
             Err1(Xception),
@@ -15072,11 +15140,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestBinaryResultSend {
+            fn default() -> Self {
+                ThriftTestTestBinaryResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestBinaryResultSend {
-            #[derivative(Default)]
             Ok(::pilota::Bytes),
         }
 
@@ -15360,11 +15430,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestByteResultSend {
+            fn default() -> Self {
+                ThriftTestTestByteResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestByteResultSend {
-            #[derivative(Default)]
             Ok(i8),
         }
 
@@ -15498,11 +15570,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestMultiExceptionResultRecv {
+            fn default() -> Self {
+                ThriftTestTestMultiExceptionResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestMultiExceptionResultRecv {
-            #[derivative(Default)]
             Ok(Xtruct),
 
             Err1(Xception),
@@ -17581,11 +17655,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestExceptionResultRecv {
+            fn default() -> Self {
+                ThriftTestTestExceptionResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestExceptionResultRecv {
-            #[derivative(Default)]
             Ok(()),
 
             Err1(Xception),
@@ -18066,11 +18142,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestTypedefResultRecv {
+            fn default() -> Self {
+                ThriftTestTestTypedefResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestTypedefResultRecv {
-            #[derivative(Default)]
             Ok(UserId),
         }
 
@@ -18355,11 +18433,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestStringMapResultRecv {
+            fn default() -> Self {
+                ThriftTestTestStringMapResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum ThriftTestTestStringMapResultRecv {
-            #[derivative(Default)]
             Ok(::pilota::AHashMap<::pilota::FastStr, ::pilota::FastStr>),
         }
 
@@ -18540,11 +18620,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestUuidResultRecv {
+            fn default() -> Self {
+                ThriftTestTestUuidResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestUuidResultRecv {
-            #[derivative(Default)]
             Ok([u8; 16]),
         }
 
@@ -19169,11 +19251,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestI32ResultRecv {
+            fn default() -> Self {
+                ThriftTestTestI32ResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestI32ResultRecv {
-            #[derivative(Default)]
             Ok(i32),
         }
 
@@ -19307,11 +19391,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestMultiExceptionResultSend {
+            fn default() -> Self {
+                ThriftTestTestMultiExceptionResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestMultiExceptionResultSend {
-            #[derivative(Default)]
             Ok(Xtruct),
 
             Err1(Xception),
@@ -19533,11 +19619,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestVoidResultRecv {
+            fn default() -> Self {
+                ThriftTestTestVoidResultRecv::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestVoidResultRecv {
-            #[derivative(Default)]
             Ok(()),
         }
 
@@ -19635,11 +19723,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestInsanityResultSend {
+            fn default() -> Self {
+                ThriftTestTestInsanityResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum ThriftTestTestInsanityResultSend {
-            #[derivative(Default)]
             Ok(::pilota::AHashMap<UserId, ::pilota::AHashMap<Numberz, Insanity>>),
         }
 
@@ -20072,11 +20162,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestListResultSend {
+            fn default() -> Self {
+                ThriftTestTestListResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestListResultSend {
-            #[derivative(Default)]
             Ok(::std::vec::Vec<i32>),
         }
 
@@ -20431,11 +20523,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestNestResultSend {
+            fn default() -> Self {
+                ThriftTestTestNestResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestNestResultSend {
-            #[derivative(Default)]
             Ok(Xtruct2),
         }
 
@@ -20864,11 +20958,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestDoubleResultSend {
+            fn default() -> Self {
+                ThriftTestTestDoubleResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestDoubleResultSend {
-            #[derivative(Default)]
             Ok(f64),
         }
 
@@ -21153,11 +21249,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(PartialOrd, Hash, Eq, Ord, Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for ThriftTestTestBoolResultSend {
+            fn default() -> Self {
+                ThriftTestTestBoolResultSend::Ok(::std::default::Default::default())
+            }
+        }
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ThriftTestTestBoolResultSend {
-            #[derivative(Default)]
             Ok(bool),
         }
 
@@ -21291,11 +21389,13 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        #[derive(Debug, ::pilota::derivative::Derivative)]
-        #[derivative(Default)]
-        #[derive(Clone, PartialEq)]
+        impl ::std::default::Default for SomeUnion {
+            fn default() -> Self {
+                SomeUnion::MapThing(::std::default::Default::default())
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub enum SomeUnion {
-            #[derivative(Default)]
             MapThing(::pilota::AHashMap<Numberz, UserId>),
 
             StringThing(::pilota::FastStr),
