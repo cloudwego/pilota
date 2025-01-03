@@ -3,7 +3,7 @@ pub mod multi {
 
     pub mod default_value {
 
-        impl Default for C {
+        impl ::std::default::Default for C {
             fn default() -> Self {
                 C {
                     off: Some(::pilota::FastStr::from_static_str("off")),
@@ -268,7 +268,7 @@ pub mod multi {
                 __protocol.i32_len(self.inner())
             }
         }
-        impl Default for A {
+        impl ::std::default::Default for A {
             fn default() -> Self {
                 A {
                     faststr: ::pilota::FastStr::from_static_str("hello world"),
@@ -949,7 +949,7 @@ pub mod multi {
 
     pub mod multi {
 
-        impl Default for A {
+        impl ::std::default::Default for A {
             fn default() -> Self {
                 A {
                     c: Some(super::default_value::C {

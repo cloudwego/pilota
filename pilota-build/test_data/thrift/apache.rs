@@ -1423,7 +1423,7 @@ pub mod apache {
             }
         }
         pub const MY_NUMBERZ: Numberz = Numberz::ONE;
-        impl Default for BoolTest {
+        impl ::std::default::Default for BoolTest {
             fn default() -> Self {
                 BoolTest {
                     b: Some(true),
@@ -5269,7 +5269,7 @@ pub mod apache {
                     + __protocol.struct_end_len()
             }
         }
-        impl Default for OptionalBinary {
+        impl ::std::default::Default for OptionalBinary {
             fn default() -> Self {
                 OptionalBinary {
                     bin_map: Some({
@@ -20765,7 +20765,7 @@ pub mod apache {
                 )
             }
         }
-        impl Default for OptionalSetDefaultTest {
+        impl ::std::default::Default for OptionalSetDefaultTest {
             fn default() -> Self {
                 OptionalSetDefaultTest {
                     with_default: Some(::pilota::AHashSet::from([
