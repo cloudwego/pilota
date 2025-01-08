@@ -23,3 +23,7 @@ const map<Index, string> TEST_MAP = {
 }(pilota.rust_type = "btree")
 
 typedef map<set<i32>, string> TypeA(pilota.rust_type = "btree")
+
+struct Vec {
+    
+}

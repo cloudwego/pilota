@@ -274,7 +274,8 @@ pub mod apache {
                             {
                                 var_4000 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<i32> = Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<i32> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -394,7 +395,7 @@ pub mod apache {
                 },Some(4000) if field_ident.field_type == ::pilota::thrift::TType::List  => {
                     var_4000 = Some({
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push(__protocol.read_i32().await?);
                             };
@@ -3402,7 +3403,8 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<i32> = Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<i32> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -3476,7 +3478,8 @@ pub mod apache {
                                 {
                                     var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push(__protocol.read_i32().await?);
                                         }
@@ -3980,8 +3983,8 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<::pilota::AHashSet<i32>> =
-                                        Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<::pilota::AHashSet<i32>> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr().offset(i as isize).write({
                                             let list_ident = __protocol.read_set_begin()?;
@@ -4022,12 +4025,12 @@ pub mod apache {
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_3 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<
+                                    let mut val: ::std::vec::Vec<
                                         ::pilota::AHashMap<
                                             i32,
                                             ::pilota::AHashSet<::pilota::FastStr>,
                                         >,
-                                    > = Vec::with_capacity(list_ident.size);
+                                    > = ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr().offset(i as isize).write({
                                             let map_ident = __protocol.read_map_begin()?;
@@ -4115,7 +4118,8 @@ pub mod apache {
                                 {
                                     var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push({
                                                 let list_ident =
@@ -4164,7 +4168,8 @@ pub mod apache {
                                 {
                                     var_3 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push({
                                                 let map_ident = __protocol.read_map_begin().await?;
@@ -7027,13 +7032,13 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<::std::vec::Vec<i32>> =
-                                        Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<::std::vec::Vec<i32>> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr().offset(i as isize).write(unsafe {
                                             let list_ident = __protocol.read_list_begin()?;
-                                            let mut val: Vec<i32> =
-                                                Vec::with_capacity(list_ident.size);
+                                            let mut val: ::std::vec::Vec<i32> =
+                                                ::std::vec::Vec::with_capacity(list_ident.size);
                                             for i in 0..list_ident.size {
                                                 val.as_mut_ptr()
                                                     .offset(i as isize)
@@ -7103,12 +7108,14 @@ pub mod apache {
                                 {
                                     var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push({
                                                 let list_ident =
                                                     __protocol.read_list_begin().await?;
-                                                let mut val = Vec::with_capacity(list_ident.size);
+                                                let mut val =
+                                                    ::std::vec::Vec::with_capacity(list_ident.size);
                                                 for _ in 0..list_ident.size {
                                                     val.push(__protocol.read_i32().await?);
                                                 }
@@ -7373,7 +7380,8 @@ pub mod apache {
                             if ret.is_none() {
                                 let field_ident = unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<i32> = Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<i32> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -7439,7 +7447,8 @@ pub mod apache {
                                 if ret.is_none() {
                                     let field_ident = {
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push(__protocol.read_i32().await?);
                                         }
@@ -8328,7 +8337,8 @@ pub mod apache {
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_2 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<Xtruct> = Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<Xtruct> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -8410,7 +8420,7 @@ pub mod apache {
                 },Some(2) if field_ident.field_type == ::pilota::thrift::TType::List  => {
                     var_2 = Some({
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push(<Xtruct as ::pilota::thrift::Message>::decode_async(__protocol).await?);
                             };
@@ -9157,8 +9167,8 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<::pilota::FastStr> =
-                                        Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<::pilota::FastStr> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -9232,7 +9242,8 @@ pub mod apache {
                                 {
                                     var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push(__protocol.read_faststr().await?);
                                         }
@@ -9750,7 +9761,8 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<Bonk> = Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<Bonk> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -9815,7 +9827,8 @@ pub mod apache {
                                 {
                                     var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push(
                                                 <Bonk as ::pilota::thrift::Message>::decode_async(
@@ -9926,7 +9939,8 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<i32> = Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<i32> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -9995,7 +10009,8 @@ pub mod apache {
                                 {
                                     var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push(__protocol.read_i32().await?);
                                         }
@@ -13052,19 +13067,22 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<::std::vec::Vec<::std::vec::Vec<i32>>> =
-                                        Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<
+                                        ::std::vec::Vec<::std::vec::Vec<i32>>,
+                                    > = ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr().offset(i as isize).write(unsafe {
                                             let list_ident = __protocol.read_list_begin()?;
-                                            let mut val: Vec<::std::vec::Vec<i32>> =
-                                                Vec::with_capacity(list_ident.size);
+                                            let mut val: ::std::vec::Vec<::std::vec::Vec<i32>> =
+                                                ::std::vec::Vec::with_capacity(list_ident.size);
                                             for i in 0..list_ident.size {
                                                 val.as_mut_ptr().offset(i as isize).write(unsafe {
                                                     let list_ident =
                                                         __protocol.read_list_begin()?;
-                                                    let mut val: Vec<i32> =
-                                                        Vec::with_capacity(list_ident.size);
+                                                    let mut val: ::std::vec::Vec<i32> =
+                                                        ::std::vec::Vec::with_capacity(
+                                                            list_ident.size,
+                                                        );
                                                     for i in 0..list_ident.size {
                                                         val.as_mut_ptr()
                                                             .offset(i as isize)
@@ -13139,18 +13157,22 @@ pub mod apache {
                                 {
                                     var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push({
                                                 let list_ident =
                                                     __protocol.read_list_begin().await?;
-                                                let mut val = Vec::with_capacity(list_ident.size);
+                                                let mut val =
+                                                    ::std::vec::Vec::with_capacity(list_ident.size);
                                                 for _ in 0..list_ident.size {
                                                     val.push({
                                                         let list_ident =
                                                             __protocol.read_list_begin().await?;
                                                         let mut val =
-                                                            Vec::with_capacity(list_ident.size);
+                                                            ::std::vec::Vec::with_capacity(
+                                                                list_ident.size,
+                                                            );
                                                         for _ in 0..list_ident.size {
                                                             val.push(__protocol.read_i32().await?);
                                                         }
@@ -14799,7 +14821,7 @@ pub mod apache {
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_3 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<
+                                    let mut val: ::std::vec::Vec<
                                         ::std::collections::BTreeMap<
                                             ::std::collections::BTreeSet<i32>,
                                             ::std::collections::BTreeMap<
@@ -14814,7 +14836,7 @@ pub mod apache {
                                                 >,
                                             >,
                                         >,
-                                    > = Vec::with_capacity(list_ident.size);
+                                    > = ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr().offset(i as isize).write({
                         let map_ident = __protocol.read_map_begin()?;
@@ -14835,7 +14857,7 @@ pub mod apache {
                     for _ in 0..list_ident.size {
                         val.insert(unsafe {
                             let list_ident = __protocol.read_list_begin()?;
-                            let mut val: Vec<::std::collections::BTreeMap<Insanity, ::pilota::FastStr>> = Vec::with_capacity(list_ident.size);
+                            let mut val: ::std::vec::Vec<::std::collections::BTreeMap<Insanity, ::pilota::FastStr>> = ::std::vec::Vec::with_capacity(list_ident.size);
                             for i in 0..list_ident.size {
                                 val.as_mut_ptr().offset(i as isize).write({
                         let map_ident = __protocol.read_map_begin()?;
@@ -14961,7 +14983,7 @@ pub mod apache {
                 },Some(3) if field_ident.field_type == ::pilota::thrift::TType::List  => {
                     var_3 = Some({
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push({
                         let map_ident = __protocol.read_map_begin().await?;
@@ -14982,7 +15004,7 @@ pub mod apache {
                     for _ in 0..list_ident.size {
                         val.insert({
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push({
                         let map_ident = __protocol.read_map_begin().await?;
@@ -16857,19 +16879,22 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<::std::vec::Vec<::std::vec::Vec<Bonk>>> =
-                                        Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<
+                                        ::std::vec::Vec<::std::vec::Vec<Bonk>>,
+                                    > = ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr().offset(i as isize).write(unsafe {
                                             let list_ident = __protocol.read_list_begin()?;
-                                            let mut val: Vec<::std::vec::Vec<Bonk>> =
-                                                Vec::with_capacity(list_ident.size);
+                                            let mut val: ::std::vec::Vec<::std::vec::Vec<Bonk>> =
+                                                ::std::vec::Vec::with_capacity(list_ident.size);
                                             for i in 0..list_ident.size {
                                                 val.as_mut_ptr().offset(i as isize).write(unsafe {
                                                     let list_ident =
                                                         __protocol.read_list_begin()?;
-                                                    let mut val: Vec<Bonk> =
-                                                        Vec::with_capacity(list_ident.size);
+                                                    let mut val: ::std::vec::Vec<Bonk> =
+                                                        ::std::vec::Vec::with_capacity(
+                                                            list_ident.size,
+                                                        );
                                                     for i in 0..list_ident.size {
                                                         val.as_mut_ptr().offset(i as isize).write(
                                                             ::pilota::thrift::Message::decode(
@@ -16948,15 +16973,15 @@ pub mod apache {
                     Some(1) if field_ident.field_type == ::pilota::thrift::TType::List  => {
                     var_1 = Some({
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push({
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push({
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push(<Bonk as ::pilota::thrift::Message>::decode_async(__protocol).await?);
                             };
@@ -17227,7 +17252,8 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<i32> = Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<i32> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -17296,7 +17322,8 @@ pub mod apache {
                                 {
                                     var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push(__protocol.read_i32().await?);
                                         }
@@ -18929,7 +18956,8 @@ pub mod apache {
                             Some(8) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_8 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<i32> = Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<i32> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -19091,7 +19119,8 @@ pub mod apache {
                                 {
                                     var_8 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push(__protocol.read_i32().await?);
                                         }
@@ -20024,13 +20053,13 @@ pub mod apache {
                             Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_1 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<::std::vec::Vec<f64>> =
-                                        Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<::std::vec::Vec<f64>> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr().offset(i as isize).write(unsafe {
                                             let list_ident = __protocol.read_list_begin()?;
-                                            let mut val: Vec<f64> =
-                                                Vec::with_capacity(list_ident.size);
+                                            let mut val: ::std::vec::Vec<f64> =
+                                                ::std::vec::Vec::with_capacity(list_ident.size);
                                             for i in 0..list_ident.size {
                                                 val.as_mut_ptr()
                                                     .offset(i as isize)
@@ -20100,12 +20129,14 @@ pub mod apache {
                                 {
                                     var_1 = Some({
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push({
                                                 let list_ident =
                                                     __protocol.read_list_begin().await?;
-                                                let mut val = Vec::with_capacity(list_ident.size);
+                                                let mut val =
+                                                    ::std::vec::Vec::with_capacity(list_ident.size);
                                                 for _ in 0..list_ident.size {
                                                     val.push(__protocol.read_double().await?);
                                                 }
@@ -20220,7 +20251,8 @@ pub mod apache {
                             if ret.is_none() {
                                 let field_ident = unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<i32> = Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<i32> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -20286,7 +20318,8 @@ pub mod apache {
                                 if ret.is_none() {
                                     let field_ident = {
                                         let list_ident = __protocol.read_list_begin().await?;
-                                        let mut val = Vec::with_capacity(list_ident.size);
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
                                         for _ in 0..list_ident.size {
                                             val.push(__protocol.read_i32().await?);
                                         }

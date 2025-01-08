@@ -378,8 +378,8 @@ pub mod normal {
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_3 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<SubMessage> =
-                                        Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<SubMessage> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -519,7 +519,7 @@ pub mod normal {
                 },Some(3) if field_ident.field_type == ::pilota::thrift::TType::List  => {
                     var_3 = Some({
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push(<SubMessage as ::pilota::thrift::Message>::decode_async(__protocol).await?);
                             };
@@ -2299,8 +2299,8 @@ pub mod normal {
                             Some(3) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_3 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<SubMessage> =
-                                        Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<SubMessage> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -2379,7 +2379,7 @@ pub mod normal {
                 },Some(3) if field_ident.field_type == ::pilota::thrift::TType::List  => {
                     var_3 = Some({
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push(<SubMessage as ::pilota::thrift::Message>::decode_async(__protocol).await?);
                             };
