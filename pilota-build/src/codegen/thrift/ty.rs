@@ -397,7 +397,7 @@ impl ThriftBackend {
                     format! {
                         r#"unsafe {{
                             let list_ident = {read_list_begin};
-                            let mut val: Vec<{ty_rust_name}> = Vec::with_capacity(list_ident.size);
+                            let mut val: ::std::vec::Vec<{ty_rust_name}> = ::std::vec::Vec::with_capacity(list_ident.size);
                             for i in 0..list_ident.size {{
                                 val.as_mut_ptr().offset(i as isize).write({read_el});
                             }};
@@ -411,7 +411,7 @@ impl ThriftBackend {
                     format! {
                         r#"{{
                             let list_ident = {read_list_begin};
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {{
                                 val.push({read_el});
                             }};

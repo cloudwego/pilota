@@ -662,13 +662,14 @@ pub mod wrapper_arc {
                             Some(2) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_2 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<::std::vec::Vec<::std::sync::Arc<A>>> =
-                                        Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<
+                                        ::std::vec::Vec<::std::sync::Arc<A>>,
+                                    > = ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr().offset(i as isize).write(unsafe {
                                             let list_ident = __protocol.read_list_begin()?;
-                                            let mut val: Vec<::std::sync::Arc<A>> =
-                                                Vec::with_capacity(list_ident.size);
+                                            let mut val: ::std::vec::Vec<::std::sync::Arc<A>> =
+                                                ::std::vec::Vec::with_capacity(list_ident.size);
                                             for i in 0..list_ident.size {
                                                 val.as_mut_ptr().offset(i as isize).write(
                                                     ::std::sync::Arc::new(
@@ -695,8 +696,8 @@ pub mod wrapper_arc {
                                     for _ in 0..map_ident.size {
                                         val.insert(__protocol.read_i32()?, unsafe {
                                             let list_ident = __protocol.read_list_begin()?;
-                                            let mut val: Vec<::std::sync::Arc<A>> =
-                                                Vec::with_capacity(list_ident.size);
+                                            let mut val: ::std::vec::Vec<::std::sync::Arc<A>> =
+                                                ::std::vec::Vec::with_capacity(list_ident.size);
                                             for i in 0..list_ident.size {
                                                 val.as_mut_ptr().offset(i as isize).write(
                                                     ::std::sync::Arc::new(
@@ -799,11 +800,11 @@ pub mod wrapper_arc {
                 },Some(2) if field_ident.field_type == ::pilota::thrift::TType::List  => {
                     var_2 = Some({
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push({
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push(::std::sync::Arc::new(<A as ::pilota::thrift::Message>::decode_async(__protocol).await?));
                             };
@@ -822,7 +823,7 @@ pub mod wrapper_arc {
                         for _ in 0..map_ident.size {
                             val.insert(__protocol.read_i32().await?, {
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push(::std::sync::Arc::new(<A as ::pilota::thrift::Message>::decode_async(__protocol).await?));
                             };

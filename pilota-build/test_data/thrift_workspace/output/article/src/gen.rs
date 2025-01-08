@@ -1095,8 +1095,8 @@ pub mod gen {
                             Some(6) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_6 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: Vec<::common::article::image::Image> =
-                                        Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<::common::article::image::Image> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
                                         val.as_mut_ptr()
                                             .offset(i as isize)
@@ -1240,7 +1240,7 @@ pub mod gen {
                 },Some(6) if field_ident.field_type == ::pilota::thrift::TType::List  => {
                     var_6 = Some({
                             let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = Vec::with_capacity(list_ident.size);
+                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
                                 val.push(<::common::article::image::Image as ::pilota::thrift::Message>::decode_async(__protocol).await?);
                             };
