@@ -24,6 +24,7 @@ pub struct Arg {
     pub name: Ident,
     pub id: i32,
     pub tags_id: TagId,
+    pub kind: FieldKind,
 }
 
 #[derive(Clone, Debug)]

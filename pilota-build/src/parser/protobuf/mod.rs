@@ -392,6 +392,7 @@ impl Lower {
                                     &Default::default(),
                                 ),
                                 tags: Arc::new(Tags::default()),
+                                attribute: FieldKind::Required,
                             }],
                             oneway: false,
                             ret: self.lower_ty(None, m.output_type.as_deref(), &Default::default()),

@@ -194,7 +194,6 @@ impl FromStr for KeepUnknownFields {
 }
 
 pub mod protobuf {
-
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum ProstType {
         SInt32,

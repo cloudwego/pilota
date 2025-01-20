@@ -47,7 +47,9 @@ impl Parser for Function {
             |(oneway, r#type, _, name, _, _, arguments, _, _, _, throws, _, annotations, _)| {
                 let mut args = arguments.unwrap_or_default();
                 args.iter_mut().for_each(|f| {
-                    f.attribute = Attribute::Required;
+                    if f.attribute == Attribute::Default {
+                        f.attribute = Attribute::Required
+                    }
                 });
                 Function {
                     name,
