@@ -1,6 +1,6 @@
 [workspace]
 members = ["pilota", "pilota-build", "pilota-thrift-parser", "examples"]
-resolver = "2"
+resolver = "3"
 
 [profile.bench]
 opt-level = 3

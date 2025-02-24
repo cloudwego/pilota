@@ -145,7 +145,7 @@ pub mod oneof {
             {
                 match tag {
                     6 => match field {
-                        ::core::option::Option::Some(Test::A(ref mut value)) => {
+                        ::core::option::Option::Some(Test::A(value)) => {
                             ::pilota::prost::encoding::faststr::merge(wire_type, value, buf, ctx)?;
                         }
                         _ => {
@@ -156,7 +156,7 @@ pub mod oneof {
                         }
                     },
                     8 => match field {
-                        ::core::option::Option::Some(Test::B(ref mut value)) => {
+                        ::core::option::Option::Some(Test::B(value)) => {
                             ::pilota::prost::encoding::int32::merge(wire_type, value, buf, ctx)?;
                         }
                         _ => {
@@ -218,7 +218,7 @@ pub mod oneof {
             {
                 match tag {
                     2 => match field {
-                        ::core::option::Option::Some(Type::S(ref mut value)) => {
+                        ::core::option::Option::Some(Type::S(value)) => {
                             ::pilota::prost::encoding::faststr::merge(wire_type, value, buf, ctx)?;
                         }
                         _ => {
@@ -229,7 +229,7 @@ pub mod oneof {
                         }
                     },
                     4 => match field {
-                        ::core::option::Option::Some(Type::I(ref mut value)) => {
+                        ::core::option::Option::Some(Type::I(value)) => {
                             ::pilota::prost::encoding::int32::merge(wire_type, value, buf, ctx)?;
                         }
                         _ => {

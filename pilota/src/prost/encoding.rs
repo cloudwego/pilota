@@ -431,7 +431,7 @@ macro_rules! encode_repeated {
 /// Helper macro which emits a `merge_repeated` function for the numeric type.
 macro_rules! merge_repeated_numeric {
     ($ty:ty,
-     $wire_type:expr,
+     $wire_type:expr_2021,
      $merge:ident,
      $merge_repeated:ident) => {
         pub fn $merge_repeated<B>(
@@ -476,8 +476,8 @@ macro_rules! varint {
 
     ($ty:ty,
      $proto_ty:ident,
-     to_uint64($to_uint64_value:ident) $to_uint64:expr,
-     from_uint64($from_uint64_value:ident) $from_uint64:expr) => (
+     to_uint64($to_uint64_value:ident) $to_uint64:expr_2021,
+     from_uint64($from_uint64_value:ident) $from_uint64:expr_2021) => (
 
          pub mod $proto_ty {
             use crate::prost::encoding::*;
@@ -719,8 +719,8 @@ from_uint64(value) {
 /// fixed width numeric type.
 macro_rules! fixed_width {
     ($ty:ty,
-     $width:expr,
-     $wire_type:expr,
+     $width:expr_2021,
+     $wire_type:expr_2021,
      $proto_ty:ident,
      $put:ident,
      $get:ident) => {

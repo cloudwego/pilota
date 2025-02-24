@@ -41,7 +41,7 @@ macro_rules! io_read_impl {
             return Ok($typ::$conv(buf));
         }
     }};
-    (le => $this:ident, $typ:tt, $len_to_read:expr) => {{
+    (le => $this:ident, $typ:tt, $len_to_read:expr_2021) => {{
         debug_assert!(mem::size_of::<$typ>() >= $len_to_read);
 
         // The same trick as above does not improve the best case speed.
@@ -50,7 +50,7 @@ macro_rules! io_read_impl {
         $this.copy_to_slice(&mut buf[..($len_to_read)]);
         return Ok($typ::from_le_bytes(buf));
     }};
-    (be => $this:ident, $typ:tt, $len_to_read:expr) => {{
+    (be => $this:ident, $typ:tt, $len_to_read:expr_2021) => {{
         debug_assert!(mem::size_of::<$typ>() >= $len_to_read);
 
         let mut buf = [0; (mem::size_of::<$typ>())];
@@ -61,7 +61,7 @@ macro_rules! io_read_impl {
 
 #[macro_export]
 macro_rules! assert_remaining {
-    ($cond: expr, $($arg:tt)+) => {
+    ($cond: expr_2021, $($arg:tt)+) => {
         #[cfg(not(feature = "unstable"))]
         if !$cond {
             return Err(IOError::NoRemaining(format!($($arg)+)))?;
@@ -71,7 +71,7 @@ macro_rules! assert_remaining {
             return Err(IOError::NoRemaining(format!($($arg)+)))?;
         }
     };
-    ($cond: expr) => {
+    ($cond: expr_2021) => {
         #[cfg(not(feature = "unstable"))]
         if !$cond {
             return Err(IOError::NoRemaining(String::new()))?;

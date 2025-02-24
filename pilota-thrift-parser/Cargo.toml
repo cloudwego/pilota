@@ -1,7 +1,7 @@
 [package]
 name = "pilota-thrift-parser"
-version = "0.11.5"
-edition = "2021"
+version = "0.11.6"
+edition = "2024"
 description = "Pilota thrift Parser."
 documentation = "https://docs.rs/pilota"
 readme = "README.md"

@@ -295,11 +295,11 @@ where
 
         db.set_files_with_durability(Arc::new(files), Durability::HIGH);
         let items = nodes.iter().filter_map(|(k, v)| {
-            if let NodeKind::Item(item) = &v.kind {
+            match &v.kind { NodeKind::Item(item) => {
                 Some((*k, item.clone()))
-            } else {
+            } _ => {
                 None
-            }
+            }}
         });
 
         let type_graph = Arc::from(TypeGraph::from_items(items.clone()));
@@ -429,7 +429,7 @@ where
 
             pool.install(move || {
                 let cg = Codegen::new(self.mk_backend.make_backend(cx));
-                cg.gen().unwrap();
+                cg.r#gen().unwrap();
             });
 
             Ok::<_, rayon::ThreadPoolBuildError>(())

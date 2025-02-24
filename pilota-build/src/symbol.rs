@@ -20,7 +20,7 @@ static KEYWORDS_SET: phf::Set<&'static str> = phf_set![
     "return", "Self", "self", "static", "struct", "super", "trait", "true", "type", "unsafe",
     "where", "while", "abstract", "alignof", "become", "box", "do", "final", "macro", "offsetof",
     "override", "priv", "proc", "pure", "sizeof", "typeof", "unsized", "virtual", "yield", "dyn",
-    "async", "await", "try"
+    "async", "await", "try", "gen"
 ];
 
 #[derive(Hash, PartialEq, Eq, Clone, Debug, PartialOrd, Ord)]

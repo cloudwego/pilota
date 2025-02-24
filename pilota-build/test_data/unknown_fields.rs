@@ -2017,13 +2017,13 @@ pub mod unknown_fields {
                     name: "TestUnion",
                 })?;
                 match self {
-                    TestUnion::A(ref value) => {
+                    TestUnion::A(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    TestUnion::B(ref value) => {
+                    TestUnion::B(value) => {
                         __protocol.write_struct_field(2, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    TestUnion::_UnknownFields(ref value) => {
+                    TestUnion::_UnknownFields(value) => {
                         for bytes in value.list.iter() {
                             __protocol.write_bytes_without_len(bytes.clone());
                         }
@@ -2187,9 +2187,9 @@ pub mod unknown_fields {
                 __protocol
                     .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "TestUnion" })
                     + match self {
-                        TestUnion::A(ref value) => __protocol.struct_field_len(Some(1), value),
-                        TestUnion::B(ref value) => __protocol.struct_field_len(Some(2), value),
-                        TestUnion::_UnknownFields(ref value) => value.size(),
+                        TestUnion::A(value) => __protocol.struct_field_len(Some(1), value),
+                        TestUnion::B(value) => __protocol.struct_field_len(Some(2), value),
+                        TestUnion::_UnknownFields(value) => value.size(),
                     }
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
@@ -2226,7 +2226,7 @@ pub mod unknown_fields {
                     name: "TestTestExceptionException",
                 })?;
                 match self {
-                    TestTestExceptionException::StException(ref value) => {
+                    TestTestExceptionException::StException(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -2343,7 +2343,7 @@ pub mod unknown_fields {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestExceptionException",
                 }) + match self {
-                    TestTestExceptionException::StException(ref value) => {
+                    TestTestExceptionException::StException(value) => {
                         __protocol.struct_field_len(Some(1), value)
                     }
                 } + __protocol.field_stop_len()
@@ -2383,10 +2383,10 @@ pub mod unknown_fields {
                     name: "TestTestExceptionResultRecv",
                 })?;
                 match self {
-                    TestTestExceptionResultRecv::Ok(ref value) => {
+                    TestTestExceptionResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    TestTestExceptionResultRecv::StException(ref value) => {
+                    TestTestExceptionResultRecv::StException(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -2533,10 +2533,10 @@ pub mod unknown_fields {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestExceptionResultRecv",
                 }) + match self {
-                    TestTestExceptionResultRecv::Ok(ref value) => {
+                    TestTestExceptionResultRecv::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
-                    TestTestExceptionResultRecv::StException(ref value) => {
+                    TestTestExceptionResultRecv::StException(value) => {
                         __protocol.struct_field_len(Some(1), value)
                     }
                 } + __protocol.field_stop_len()
@@ -2574,7 +2574,7 @@ pub mod unknown_fields {
                     name: "TestTest123ResultRecv",
                 })?;
                 match self {
-                    TestTest123ResultRecv::Ok(ref value) => {}
+                    TestTest123ResultRecv::Ok(value) => {}
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -2652,7 +2652,7 @@ pub mod unknown_fields {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTest123ResultRecv",
                 }) + match self {
-                    TestTest123ResultRecv::Ok(ref value) => 0,
+                    TestTest123ResultRecv::Ok(value) => 0,
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -3107,7 +3107,7 @@ pub mod unknown_fields {
                     name: "TestTest123ResultSend",
                 })?;
                 match self {
-                    TestTest123ResultSend::Ok(ref value) => {}
+                    TestTest123ResultSend::Ok(value) => {}
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -3185,7 +3185,7 @@ pub mod unknown_fields {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTest123ResultSend",
                 }) + match self {
-                    TestTest123ResultSend::Ok(ref value) => 0,
+                    TestTest123ResultSend::Ok(value) => 0,
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -3513,10 +3513,10 @@ pub mod unknown_fields {
                     name: "TestTestExceptionResultSend",
                 })?;
                 match self {
-                    TestTestExceptionResultSend::Ok(ref value) => {
+                    TestTestExceptionResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    TestTestExceptionResultSend::StException(ref value) => {
+                    TestTestExceptionResultSend::StException(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -3663,10 +3663,10 @@ pub mod unknown_fields {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestExceptionResultSend",
                 }) + match self {
-                    TestTestExceptionResultSend::Ok(ref value) => {
+                    TestTestExceptionResultSend::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
-                    TestTestExceptionResultSend::StException(ref value) => {
+                    TestTestExceptionResultSend::StException(value) => {
                         __protocol.struct_field_len(Some(1), value)
                     }
                 } + __protocol.field_stop_len()
@@ -3717,7 +3717,7 @@ pub mod unknown_fields {
                     name: "TestTest123ResultRecv",
                 })?;
                 match self {
-                    TestTest123ResultRecv::Ok(ref value) => {}
+                    TestTest123ResultRecv::Ok(value) => {}
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -3795,7 +3795,7 @@ pub mod unknown_fields {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTest123ResultRecv",
                 }) + match self {
-                    TestTest123ResultRecv::Ok(ref value) => 0,
+                    TestTest123ResultRecv::Ok(value) => 0,
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -3831,7 +3831,7 @@ pub mod unknown_fields {
                     name: "TestTest123ResultSend",
                 })?;
                 match self {
-                    TestTest123ResultSend::Ok(ref value) => {}
+                    TestTest123ResultSend::Ok(value) => {}
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -3909,7 +3909,7 @@ pub mod unknown_fields {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTest123ResultSend",
                 }) + match self {
-                    TestTest123ResultSend::Ok(ref value) => 0,
+                    TestTest123ResultSend::Ok(value) => 0,
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }

@@ -25,10 +25,10 @@ pub mod union {
                 __protocol
                     .write_struct_begin(&::pilota::thrift::TStructIdentifier { name: "Union" })?;
                 match self {
-                    Union::A(ref value) => {
+                    Union::A(value) => {
                         __protocol.write_faststr_field(1, (value).clone())?;
                     }
-                    Union::B(ref value) => {
+                    Union::B(value) => {
                         __protocol.write_bytes_field(2, (value).clone())?;
                     }
                 }
@@ -165,8 +165,8 @@ pub mod union {
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Union" })
                     + match self {
-                        Union::A(ref value) => __protocol.faststr_field_len(Some(1), value),
-                        Union::B(ref value) => __protocol.bytes_field_len(Some(2), value),
+                        Union::A(value) => __protocol.faststr_field_len(Some(1), value),
+                        Union::B(value) => __protocol.bytes_field_len(Some(2), value),
                     }
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()

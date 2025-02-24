@@ -1,7 +1,7 @@
 [package]
 name = "pilota"
-version = "0.11.8"
-edition = "2021"
+version = "0.11.9"
+edition = "2024"
 description = "Pilota is a thrift and protobuf implementation in pure rust with high performance and extensibility."
 documentation = "https://docs.rs/pilota"
 readme = "README.md"

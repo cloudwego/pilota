@@ -122,15 +122,15 @@ impl ContextBuilder {
             CollectMode::All => {
                 let nodes = self.db.nodes();
                 self.codegen_items.extend(nodes.iter().filter_map(|(k, v)| {
-                    if let NodeKind::Item(i) = &v.kind {
+                    match &v.kind { NodeKind::Item(i) => {
                         if !matches!(&**i, Item::Mod(_)) {
                             Some(k)
                         } else {
                             None
                         }
-                    } else {
+                    } _ => {
                         None
-                    }
+                    }}
                 }));
             }
             CollectMode::OnlyUsed { touches } => {

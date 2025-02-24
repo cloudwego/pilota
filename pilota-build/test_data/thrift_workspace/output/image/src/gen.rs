@@ -1,4 +1,4 @@
-pub mod gen {
+pub mod r#gen {
     #![allow(warnings, clippy::all)]
 
     pub mod article {
@@ -185,7 +185,7 @@ pub mod gen {
                         name: "ImageServiceGetImageResultSend",
                     })?;
                     match self {
-                        ImageServiceGetImageResultSend::Ok(ref value) => {
+                        ImageServiceGetImageResultSend::Ok(value) => {
                             __protocol.write_struct_field(
                                 0,
                                 value,
@@ -304,7 +304,7 @@ pub mod gen {
                     __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                         name: "ImageServiceGetImageResultSend",
                     }) + match self {
-                        ImageServiceGetImageResultSend::Ok(ref value) => {
+                        ImageServiceGetImageResultSend::Ok(value) => {
                             __protocol.struct_field_len(Some(0), value)
                         }
                     } + __protocol.field_stop_len()
@@ -820,7 +820,7 @@ pub mod gen {
                         name: "ImageServiceGetImageResultRecv",
                     })?;
                     match self {
-                        ImageServiceGetImageResultRecv::Ok(ref value) => {
+                        ImageServiceGetImageResultRecv::Ok(value) => {
                             __protocol.write_struct_field(
                                 0,
                                 value,
@@ -939,7 +939,7 @@ pub mod gen {
                     __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                         name: "ImageServiceGetImageResultRecv",
                     }) + match self {
-                        ImageServiceGetImageResultRecv::Ok(ref value) => {
+                        ImageServiceGetImageResultRecv::Ok(value) => {
                             __protocol.struct_field_len(Some(0), value)
                         }
                     } + __protocol.field_stop_len()

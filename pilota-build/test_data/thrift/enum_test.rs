@@ -659,7 +659,7 @@ pub mod enum_test {
                     name: "TestTestEnumVarTypeNameConflictResultSend",
                 })?;
                 match self {
-                    TestTestEnumVarTypeNameConflictResultSend::Ok(ref value) => {
+                    TestTestEnumVarTypeNameConflictResultSend::Ok(value) => {
                         __protocol.write_i32_field(0, (value).inner())?;
                     }
                 }
@@ -779,7 +779,7 @@ pub mod enum_test {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestEnumVarTypeNameConflictResultSend",
                 }) + match self {
-                    TestTestEnumVarTypeNameConflictResultSend::Ok(ref value) => {
+                    TestTestEnumVarTypeNameConflictResultSend::Ok(value) => {
                         __protocol.i32_field_len(Some(0), (value).inner())
                     }
                 } + __protocol.field_stop_len()
@@ -960,7 +960,7 @@ pub mod enum_test {
                     name: "TestTestEnumResultSend",
                 })?;
                 match self {
-                    TestTestEnumResultSend::Ok(ref value) => {
+                    TestTestEnumResultSend::Ok(value) => {
                         __protocol.write_i32_field(0, (value).inner())?;
                     }
                 }
@@ -1076,7 +1076,7 @@ pub mod enum_test {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestEnumResultSend",
                 }) + match self {
-                    TestTestEnumResultSend::Ok(ref value) => {
+                    TestTestEnumResultSend::Ok(value) => {
                         __protocol.i32_field_len(Some(0), (value).inner())
                     }
                 } + __protocol.field_stop_len()
@@ -1405,7 +1405,7 @@ pub mod enum_test {
                     name: "TestTestEnumVarTypeNameConflictResultRecv",
                 })?;
                 match self {
-                    TestTestEnumVarTypeNameConflictResultRecv::Ok(ref value) => {
+                    TestTestEnumVarTypeNameConflictResultRecv::Ok(value) => {
                         __protocol.write_i32_field(0, (value).inner())?;
                     }
                 }
@@ -1525,7 +1525,7 @@ pub mod enum_test {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestEnumVarTypeNameConflictResultRecv",
                 }) + match self {
-                    TestTestEnumVarTypeNameConflictResultRecv::Ok(ref value) => {
+                    TestTestEnumVarTypeNameConflictResultRecv::Ok(value) => {
                         __protocol.i32_field_len(Some(0), (value).inner())
                     }
                 } + __protocol.field_stop_len()
@@ -1553,7 +1553,7 @@ pub mod enum_test {
                     name: "TestTestEnumResultRecv",
                 })?;
                 match self {
-                    TestTestEnumResultRecv::Ok(ref value) => {
+                    TestTestEnumResultRecv::Ok(value) => {
                         __protocol.write_i32_field(0, (value).inner())?;
                     }
                 }
@@ -1669,7 +1669,7 @@ pub mod enum_test {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestEnumResultRecv",
                 }) + match self {
-                    TestTestEnumResultRecv::Ok(ref value) => {
+                    TestTestEnumResultRecv::Ok(value) => {
                         __protocol.i32_field_len(Some(0), (value).inner())
                     }
                 } + __protocol.field_stop_len()

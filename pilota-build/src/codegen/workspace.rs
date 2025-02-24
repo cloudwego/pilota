@@ -219,7 +219,7 @@ where
 
         let mut lib_rs_stream = String::default();
         lib_rs_stream.push_str("include!(\"gen.rs\");\n");
-        lib_rs_stream.push_str("pub use gen::*;\n\n");
+        lib_rs_stream.push_str("pub use r#gen::*;\n\n");
 
         if let Some(user_gen) = info.user_gen {
             if !user_gen.is_empty() {
@@ -254,7 +254,7 @@ where
                 main_mod_path.iter().map(|item| item.to_string()).join("::")
             ));
         }
-        gen_rs_stream = format! {r#"pub mod gen {{
+        gen_rs_stream = format! {r#"pub mod r#gen {{
             #![allow(warnings, clippy::all)]
             {gen_rs_stream}
         }}"#};

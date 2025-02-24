@@ -741,14 +741,14 @@ impl<'a> TBinaryUnsafeInputProtocol<'a> {
     ///
     /// The 'trans' MUST have enough capacity to read from or write to.
     #[inline]
-    pub unsafe fn new(trans: &'a mut Bytes) -> Self {
+    pub unsafe fn new(trans: &'a mut Bytes) -> Self { unsafe {
         let buf = slice::from_raw_parts(trans.as_ptr(), trans.len());
         Self {
             trans,
             buf,
             index: 0,
         }
-    }
+    }}
 
     #[doc(hidden)]
     pub fn index(&self) -> usize {
@@ -895,7 +895,7 @@ struct SkipData {
 }
 
 macro_rules! skip_stack_pop {
-    ($stack: expr) => {
+    ($stack: expr_2021) => {
         let top: &mut SkipData = $stack.last_mut().unwrap();
         top.len -= 1;
         if (top.len == 0) {

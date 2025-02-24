@@ -534,11 +534,11 @@ impl Resolver {
             Namespace::Mod => unreachable!(),
         };
         {
-            let segs = if let Some(segs) = segs.strip_prefix(&*cur_file.package.segments) {
+            let segs = match segs.strip_prefix(&*cur_file.package.segments) { Some(segs) => {
                 segs
-            } else {
+            } _ => {
                 segs
-            };
+            }};
 
             let def_id = self.blocks.iter().rev().find_map(|b| {
                 let b = unsafe { b.as_ref() };
@@ -559,12 +559,12 @@ impl Resolver {
             .uses
             .iter()
             .find_map(|f| {
-                if let Some(rest) = path.segments.strip_prefix(&*f.0.segments) {
+                match path.segments.strip_prefix(&*f.0.segments) { Some(rest) => {
                     let file = &self.file_sym_map[&f.1];
                     self.find_path_in_table(rest, ns, file)
-                } else {
+                } _ => {
                     None
-                }
+                }}
             })
             .unwrap_or_else(|| {
                 panic!(

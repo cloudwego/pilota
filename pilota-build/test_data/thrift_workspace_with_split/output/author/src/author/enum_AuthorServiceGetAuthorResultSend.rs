@@ -20,7 +20,7 @@ impl ::pilota::thrift::Message for AuthorServiceGetAuthorResultSend {
             name: "AuthorServiceGetAuthorResultSend",
         })?;
         match self {
-            AuthorServiceGetAuthorResultSend::Ok(ref value) => {
+            AuthorServiceGetAuthorResultSend::Ok(value) => {
                 __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
             }
         }
@@ -138,7 +138,7 @@ impl ::pilota::thrift::Message for AuthorServiceGetAuthorResultSend {
         __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
             name: "AuthorServiceGetAuthorResultSend",
         }) + match self {
-            AuthorServiceGetAuthorResultSend::Ok(ref value) => {
+            AuthorServiceGetAuthorResultSend::Ok(value) => {
                 __protocol.struct_field_len(Some(0), value)
             }
         } + __protocol.field_stop_len()

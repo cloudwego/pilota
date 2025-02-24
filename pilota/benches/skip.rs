@@ -45,7 +45,7 @@ fn skip_bench(c: &mut Criterion) {
 fn generate_list_i32() -> Bytes {
     let mut rng = rand::thread_rng();
     let vec_size: usize = 100;
-    let v: Vec<i32> = (0..vec_size).map(|_| rng.gen()).collect();
+    let v: Vec<i32> = (0..vec_size).map(|_| rng.r#gen()).collect();
 
     let mut buf = BytesMut::new();
 

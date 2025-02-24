@@ -622,7 +622,7 @@ where
         fmt_file(file_name)
     }
 
-    pub fn gen(self) -> anyhow::Result<()> {
+    pub fn r#gen(self) -> anyhow::Result<()> {
         match &*self.mode.clone() {
             Mode::Workspace(info) => self.write_workspace(info.dir.clone()),
             Mode::SingleFile { file_path: p } => {
