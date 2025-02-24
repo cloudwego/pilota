@@ -11,11 +11,11 @@ use alloc::{string::String, vec::Vec};
 use ::bytes::{Buf, BufMut, Bytes};
 
 use super::{
-    encoding::{
-        bool, bytes, double, float, int32, int64, skip_field, string, uint32, uint64,
-        DecodeContext, WireType,
-    },
     DecodeError, Message,
+    encoding::{
+        DecodeContext, WireType, bool, bytes, double, float, int32, int64, skip_field, string,
+        uint32, uint64,
+    },
 };
 
 /// `google.protobuf.BoolValue`
@@ -45,11 +45,7 @@ impl Message for bool {
         }
     }
     fn encoded_len(&self) -> usize {
-        if *self {
-            2
-        } else {
-            0
-        }
+        if *self { 2 } else { 0 }
     }
 }
 

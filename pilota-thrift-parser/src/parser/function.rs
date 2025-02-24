@@ -1,15 +1,15 @@
 use nom::{
+    IResult,
     bytes::complete::tag,
     combinator::{map, opt},
     multi::many1,
     sequence::tuple,
-    IResult,
 };
 
 use super::super::{
-    descriptor::{Annotations, Field, Function, Ident, Type},
-    parser::{blank, list_separator, Parser},
     Attribute,
+    descriptor::{Annotations, Field, Function, Ident, Type},
+    parser::{Parser, blank, list_separator},
 };
 
 impl Parser for Function {

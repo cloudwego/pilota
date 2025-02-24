@@ -121,17 +121,17 @@ impl ContextBuilder {
         match mode {
             CollectMode::All => {
                 let nodes = self.db.nodes();
-                self.codegen_items.extend(nodes.iter().filter_map(|(k, v)| {
-                    match &v.kind { NodeKind::Item(i) => {
-                        if !matches!(&**i, Item::Mod(_)) {
-                            Some(k)
-                        } else {
-                            None
+                self.codegen_items
+                    .extend(nodes.iter().filter_map(|(k, v)| match &v.kind {
+                        NodeKind::Item(i) => {
+                            if !matches!(&**i, Item::Mod(_)) {
+                                Some(k)
+                            } else {
+                                None
+                            }
                         }
-                    } _ => {
-                        None
-                    }}
-                }));
+                        _ => None,
+                    }));
             }
             CollectMode::OnlyUsed { touches } => {
                 let extra_def_ids = touches

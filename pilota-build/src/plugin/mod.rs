@@ -350,15 +350,18 @@ impl Plugin for ImplDefaultPlugin {
                         .map(|f| {
                             let name = cx.rust_name(f.did);
                             let default = cx.default_val(f).map(|v| v.0);
-                            match default { Some(default) => {
-                                let mut val = default;
-                                if f.is_optional() {
-                                    val = format!("Some({val})").into()
+                            match default {
+                                Some(default) => {
+                                    let mut val = default;
+                                    if f.is_optional() {
+                                        val = format!("Some({val})").into()
+                                    }
+                                    format!("{name}: {val}")
                                 }
-                                format!("{name}: {val}")
-                            } _ => {
-                                format!("{name}: ::std::default::Default::default()")
-                            }}
+                                _ => {
+                                    format!("{name}: ::std::default::Default::default()")
+                                }
+                            }
                         })
                         .join(",\n");
 

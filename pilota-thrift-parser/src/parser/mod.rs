@@ -20,13 +20,13 @@ mod typedef;
 use std::sync::Arc;
 
 use nom::{
+    IResult,
     branch::alt,
     bytes::complete::{tag, take_till, take_until},
     character::complete::{multispace1, one_of, satisfy},
     combinator::{map, opt},
     multi::{many0, many1, separated_list1},
     sequence::{preceded, terminated, tuple},
-    IResult,
 };
 
 use super::descriptor::{Ident, Path};

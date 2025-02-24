@@ -1,10 +1,10 @@
 use ahash::{AHashMap, AHashSet};
 use bytes::{Bytes, BytesMut};
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use faststr::FastStr;
 use pilota::thrift::{
-    binary_unsafe::TBinaryUnsafeInputProtocol, TInputProtocol, TOutputProtocol, TOutputProtocolExt,
-    TStructIdentifier, TType, ThriftException,
+    TInputProtocol, TOutputProtocol, TOutputProtocolExt, TStructIdentifier, TType, ThriftException,
+    binary_unsafe::TBinaryUnsafeInputProtocol,
 };
 use rand::Rng;
 

@@ -43,16 +43,19 @@ impl PathResolver for DefaultPathResolver {
     fn mod_prefix(&self, cx: &Context, def_id: DefId) -> Arc<[Symbol]> {
         fn calc_item_path(cx: &Context, def_id: DefId, segs: &mut Vec<Symbol>) {
             let node = cx.node(def_id).unwrap();
-            match node.parent { Some(parent) => {
-                tracing::debug!("the parent of {:?} is {:?} ", def_id, parent);
-                calc_item_path(cx, parent, segs)
-            } _ => {
-                let file = cx.file(node.file_id).unwrap();
-                let package = &file.package;
-                if package.len() != 1 || !package.first().unwrap().0.is_empty() {
-                    segs.extend(package.iter().map(|s| (&*s.0).mod_ident().into()))
+            match node.parent {
+                Some(parent) => {
+                    tracing::debug!("the parent of {:?} is {:?} ", def_id, parent);
+                    calc_item_path(cx, parent, segs)
                 }
-            }}
+                _ => {
+                    let file = cx.file(node.file_id).unwrap();
+                    let package = &file.package;
+                    if package.len() != 1 || !package.first().unwrap().0.is_empty() {
+                        segs.extend(package.iter().map(|s| (&*s.0).mod_ident().into()))
+                    }
+                }
+            }
 
             if let NodeKind::Item(item) = node.kind {
                 if let crate::rir::Item::Mod(_) = &*item {

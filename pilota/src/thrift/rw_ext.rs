@@ -2,7 +2,7 @@ use std::mem;
 
 use bytes::{Buf as _, BufMut, BytesMut};
 
-use super::{new_protocol_exception, ThriftException};
+use super::{ThriftException, new_protocol_exception};
 
 #[derive(thiserror::Error, Debug)]
 pub enum IOError {

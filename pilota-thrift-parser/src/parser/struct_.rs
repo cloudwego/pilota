@@ -1,7 +1,7 @@
 use nom::{
+    IResult,
     bytes::complete::tag,
     combinator::{map, opt},
-    IResult,
 };
 
 use super::super::{

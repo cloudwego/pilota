@@ -1,9 +1,9 @@
 use nom::{
+    IResult,
     branch::alt,
     bytes::complete::tag,
     combinator::{map, opt},
     sequence::{preceded, tuple},
-    IResult,
 };
 
 use super::super::{descriptor::Annotations, parser::*};

@@ -1,10 +1,10 @@
 use nom::{
+    IResult,
     branch::alt,
     bytes::complete::{escaped, tag},
     character::complete::none_of,
     combinator::map,
     sequence::delimited,
-    IResult,
 };
 
 use super::super::{descriptor::Literal, parser::*};

@@ -294,12 +294,9 @@ where
         } = Resolver::default().resolve_files(&files);
 
         db.set_files_with_durability(Arc::new(files), Durability::HIGH);
-        let items = nodes.iter().filter_map(|(k, v)| {
-            match &v.kind { NodeKind::Item(item) => {
-                Some((*k, item.clone()))
-            } _ => {
-                None
-            }}
+        let items = nodes.iter().filter_map(|(k, v)| match &v.kind {
+            NodeKind::Item(item) => Some((*k, item.clone())),
+            _ => None,
         });
 
         let type_graph = Arc::from(TypeGraph::from_items(items.clone()));

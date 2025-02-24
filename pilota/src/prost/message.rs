@@ -6,8 +6,8 @@ use core::{fmt::Debug, usize};
 use bytes::{Buf, BufMut};
 
 use super::{
-    encoding::{decode_key, encode_varint, encoded_len_varint, message, DecodeContext, WireType},
     DecodeError, EncodeError,
+    encoding::{DecodeContext, WireType, decode_key, encode_varint, encoded_len_varint, message},
 };
 
 /// A Protocol Buffers message.
