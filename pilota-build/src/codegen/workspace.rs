@@ -8,8 +8,8 @@ use rustc_hash::FxHashMap;
 
 use super::CodegenItem;
 use crate::{
-    fmt::fmt_file, middle::context::DefLocation, rir::ItemPath, Codegen, CodegenBackend, Context,
-    DefId,
+    Codegen, CodegenBackend, Context, DefId, fmt::fmt_file, middle::context::DefLocation,
+    rir::ItemPath,
 };
 
 #[derive(Clone)]

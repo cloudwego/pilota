@@ -26,11 +26,11 @@ mod dedup;
 pub mod plugin;
 
 pub use codegen::{
-    protobuf::ProtobufBackend, thrift::ThriftBackend, traits::CodegenBackend, Codegen,
+    Codegen, protobuf::ProtobufBackend, thrift::ThriftBackend, traits::CodegenBackend,
 };
 use db::{RirDatabase, RootDatabase};
 use middle::{
-    context::{tls::CONTEXT, CollectMode, ContextBuilder, Mode, WorkspaceInfo},
+    context::{CollectMode, ContextBuilder, Mode, WorkspaceInfo, tls::CONTEXT},
     rir::NodeKind,
     type_graph::TypeGraph,
     workspace_graph::WorkspaceGraph,
@@ -39,7 +39,7 @@ pub use middle::{
     context::{Context, SourceType},
     rir, ty,
 };
-use parser::{protobuf::ProtobufParser, thrift::ThriftParser, ParseResult, Parser};
+use parser::{ParseResult, Parser, protobuf::ProtobufParser, thrift::ThriftParser};
 use plugin::{AutoDerivePlugin, BoxedPlugin, ImplDefaultPlugin, PredicateResult, WithAttrsPlugin};
 pub use plugin::{BoxClonePlugin, ClonePlugin, Plugin};
 use resolve::{ResolveResult, Resolver};

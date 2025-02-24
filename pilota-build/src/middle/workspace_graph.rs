@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use petgraph::{algo::has_path_connecting, graph::NodeIndex, Graph};
+use petgraph::{Graph, algo::has_path_connecting, graph::NodeIndex};
 use rustc_hash::FxHashMap;
 
 use super::{

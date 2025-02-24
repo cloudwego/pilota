@@ -3,6 +3,7 @@ use std::{fmt, path::PathBuf, sync::Arc};
 use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::{
+    TagId,
     middle::{
         context::{CrateId, DefLocation},
         rir,
@@ -12,7 +13,6 @@ use crate::{
     },
     symbol::{DefId, FileId},
     tags::Tags,
-    TagId,
 };
 
 #[derive(Default)]

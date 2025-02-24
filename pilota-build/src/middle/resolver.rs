@@ -3,7 +3,7 @@ use std::sync::Arc;
 use faststr::FastStr;
 use itertools::Itertools;
 
-use crate::{db::RirDatabase, rir::NodeKind, symbol::Symbol, Context, DefId, IdentName};
+use crate::{Context, DefId, IdentName, db::RirDatabase, rir::NodeKind, symbol::Symbol};
 
 pub trait PathResolver: Sync + Send {
     fn path_for_def_id(&self, cx: &Context, def_id: DefId) -> Arc<[Symbol]> {

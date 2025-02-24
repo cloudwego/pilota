@@ -5,12 +5,12 @@ use itertools::Itertools;
 use rustc_hash::FxHashMap;
 
 use crate::{
+    Context,
     db::RirDatabase,
     middle::context::tls::CUR_ITEM,
     rir::{EnumVariant, Field, Item, NodeKind},
     symbol::DefId,
     ty::{self, Ty, Visitor},
-    Context,
 };
 
 mod serde;

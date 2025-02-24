@@ -1,7 +1,7 @@
 use crate::{
+    Context,
     middle::rir::{self, Method},
     symbol::DefId,
-    Context,
 };
 
 pub trait CodegenBackend: Clone {

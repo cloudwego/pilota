@@ -11,12 +11,12 @@ use salsa::ParallelDatabase;
 use thrift_parser::Annotations;
 
 use crate::{
+    IdentName,
     index::Idx,
     ir::{self, Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path},
     symbol::{EnumRepr, FileId, Ident},
     tags::{Annotation, PilotaName, RustWrapperArc, Tags},
     util::error_abort,
-    IdentName,
 };
 
 #[salsa::query_group(SourceDatabaseStorage)]

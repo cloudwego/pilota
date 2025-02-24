@@ -1,7 +1,7 @@
 use std::{
     io::Write,
     path::Path,
-    process::{exit, Command},
+    process::{Command, exit},
 };
 
 pub fn fmt_file<P: AsRef<Path>>(file: P) {

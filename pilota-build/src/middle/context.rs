@@ -15,12 +15,12 @@ use super::{
     rir::NodeKind,
 };
 use crate::{
+    Plugin,
     db::{RirDatabase, RootDatabase},
     rir::{self, Field, Item, ItemPath, Literal},
-    symbol::{DefId, FileId, IdentName, Symbol, SPECIAL_NAMINGS},
+    symbol::{DefId, FileId, IdentName, SPECIAL_NAMINGS, Symbol},
     tags::{TagId, Tags},
     ty::{AdtDef, AdtKind, CodegenTy, Visitor},
-    Plugin,
 };
 
 #[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Clone)]
@@ -735,11 +735,7 @@ impl Context {
                                 Literal::String(s) => s,
                                 _ => panic!(),
                             };
-                            if **k == **f.name {
-                                Some(v)
-                            } else {
-                                None
-                            }
+                            if **k == **f.name { Some(v) } else { None }
                         });
 
                         let name = self.rust_name(f.did);

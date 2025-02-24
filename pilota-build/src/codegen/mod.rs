@@ -6,7 +6,7 @@ use std::{
 };
 
 use ahash::{AHashMap, AHashSet};
-use dashmap::{mapref::one::RefMut, DashMap};
+use dashmap::{DashMap, mapref::one::RefMut};
 use faststr::FastStr;
 use itertools::Itertools;
 use normpath::PathExt;
@@ -17,17 +17,17 @@ use traits::CodegenBackend;
 
 use self::workspace::Workspace;
 use crate::{
+    Context, Symbol,
     db::RirDatabase,
     dedup::def_id_equal,
     fmt::fmt_file,
     middle::{
         self,
-        context::{tls::CUR_ITEM, Mode},
+        context::{Mode, tls::CUR_ITEM},
         rir,
     },
     rir::{Item, NodeKind},
     symbol::{DefId, EnumRepr, FileId},
-    Context, Symbol,
 };
 
 pub(crate) mod pkg_tree;

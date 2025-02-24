@@ -6,12 +6,12 @@ use proc_macro2::{Ident, Span};
 use quote::quote;
 
 use crate::{
+    CodegenBackend, Context, DefId,
     db::RirDatabase,
     middle::ty::{self},
     rir::{self, Field, FieldKind, Item, NodeKind},
     tags::protobuf::{OneOf, ProstType},
     ty::Ty,
-    CodegenBackend, Context, DefId,
 };
 
 #[derive(Clone)]

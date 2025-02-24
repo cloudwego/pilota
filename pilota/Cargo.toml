@@ -1,14 +1,15 @@
 [package]
 name = "pilota"
 version = "0.11.9"
-edition = "2024"
+edition.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
 description = "Pilota is a thrift and protobuf implementation in pure rust with high performance and extensibility."
 documentation = "https://docs.rs/pilota"
 readme = "README.md"
-homepage = "https://cloudwego.io/docs/pilota/"
-repository = "https://github.com/cloudwego/pilota"
-license = "MIT OR Apache-2.0"
-authors = ["Pilota Team <pilota@cloudwego.io>"]
 categories = ["encoding"]
 keywords = ["serialization", "thrift", "protobuf"]
 
@@ -18,25 +19,25 @@ keywords = ["serialization", "thrift", "protobuf"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-ahash = { version = "0.8", features = ["serde"] }
-paste = "1"
-bytes = { version = "1", features = ["serde"] }
-async-recursion = "1"
-tokio = { version = "1", features = ["io-util"] }
-lazy_static = "1"
-linkedbytes = "0.1"
-anyhow = "1"
-thiserror = "1"
-faststr = { version = "0.2", features = ["serde"] }
-integer-encoding = { version = "4", features = ["tokio", "tokio_async"] }
-serde = { version = "1", features = ["derive"] }
-smallvec = "1"
-ordered-float = { version = "4", features = ["serde"] }
+ahash.workspace = true
+anyhow.workspace = true
+async-recursion.workspace = true
+bytes.workspace = true
+faststr.workspace = true
+integer-encoding.workspace = true
+lazy_static.workspace = true
+linkedbytes.workspace = true
+ordered-float.workspace = true
+paste.workspace = true
+smallvec.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
 
 [dev-dependencies]
-criterion = "0.5"
-proptest = "1"
-rand = "0.8"
+criterion.workspace = true
+proptest.workspace = true
+rand.workspace = true
 
 [features]
 unstable = []

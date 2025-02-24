@@ -1,8 +1,8 @@
 use crate::{
+    Plugin,
     db::RirDatabase,
     middle::context::tls::CUR_ITEM,
     rir::{Item, NodeKind},
-    Plugin,
 };
 
 #[derive(Clone, Copy)]
