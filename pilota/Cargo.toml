@@ -1,6 +1,6 @@
 [package]
 name = "pilota"
-version = "0.11.9"
+version = "0.11.10"
 edition.workspace = true
 homepage.workspace = true
 repository.workspace = true
@@ -19,11 +19,11 @@ keywords = ["serialization", "thrift", "protobuf"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-ahash.workspace = true
+ahash = { workspace = true, features = ["serde"] }
 anyhow.workspace = true
 async-recursion.workspace = true
 bytes.workspace = true
-faststr.workspace = true
+faststr = { workspace = true, features = ["serde"] }
 integer-encoding.workspace = true
 lazy_static.workspace = true
 linkedbytes.workspace = true
