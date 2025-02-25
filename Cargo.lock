@@ -26,6 +26,7 @@ dependencies = [
  "cfg-if",
  "getrandom",
  "once_cell",
+ "serde",
  "version_check",
  "zerocopy",
 ]
@@ -784,7 +785,7 @@ dependencies = [
 
 [[package]]
 name = "pilota"
-version = "0.11.9"
+version = "0.11.10"
 dependencies = [
  "ahash",
  "anyhow",
