@@ -5,12 +5,12 @@ use itertools::Itertools;
 use rustc_hash::FxHashMap;
 
 use crate::{
+    Context,
     db::RirDatabase,
     middle::context::tls::CUR_ITEM,
     rir::{EnumVariant, Field, Item, NodeKind},
     symbol::DefId,
     ty::{self, Ty, Visitor},
-    Context,
 };
 
 mod serde;
@@ -350,14 +350,17 @@ impl Plugin for ImplDefaultPlugin {
                         .map(|f| {
                             let name = cx.rust_name(f.did);
                             let default = cx.default_val(f).map(|v| v.0);
-                            if let Some(default) = default {
-                                let mut val = default;
-                                if f.is_optional() {
-                                    val = format!("Some({val})").into()
+                            match default {
+                                Some(default) => {
+                                    let mut val = default;
+                                    if f.is_optional() {
+                                        val = format!("Some({val})").into()
+                                    }
+                                    format!("{name}: {val}")
                                 }
-                                format!("{name}: {val}")
-                            } else {
-                                format!("{name}: ::std::default::Default::default()")
+                                _ => {
+                                    format!("{name}: ::std::default::Default::default()")
+                                }
                             }
                         })
                         .join(",\n");

@@ -1,6 +1,70 @@
 [workspace]
 members = ["pilota", "pilota-build", "pilota-thrift-parser", "examples"]
-resolver = "2"
+resolver = "3"
+
+[workspace.package]
+authors = ["Pilota Team <pilota@cloudwego.io>"]
+edition = "2024"
+homepage = "https://cloudwego.io/docs/pilota/"
+repository = "https://github.com/cloudwego/pilota"
+license = "MIT OR Apache-2.0"
+rust-version = "1.85.0"
+
+[workspace.dependencies]
+ahash = "0.8"
+anyhow = "1"
+async-recursion = "1"
+bytes = { version = "1", features = ["serde"] }
+criterion = { version = "0.5", features = ["html_reports"] }
+dashmap = "6"
+diffy = "0.4"
+faststr = "0.2"
+heck = "0.5"
+integer-encoding = { version = "4", features = ["tokio", "tokio_async"] }
+itertools = "0.13"
+lazy_static = "1"
+linkedbytes = "0.1"
+nom = "7"
+normpath = "1"
+ordered-float = { version = "4", features = ["serde"] }
+paste = "1"
+petgraph = "0.6"
+phf = { version = "0.11", features = ["macros"] }
+proc-macro2 = "1"
+proptest = "1"
+quote = "1"
+rand = "0.8"
+rayon = "1"
+rustc-hash = "1"
+salsa = { version = "0.17.0-pre.2" }
+scoped-tls = "1"
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+smallvec = "1"
+syn = "2"
+tempfile = "3"
+thiserror = "1"
+tokio = { version = "1", features = ["io-util"] }
+toml = "0.8"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# The official rust-protobuf parser currently has some bug.
+# We will switch to the official one when https://github.com/stepancheg/rust-protobuf/pull/646 is fixed.
+protobuf-parse = { package = "protobuf-parse2", version = "4.0.0-alpha.4" }
+protobuf = { package = "protobuf2", version = "4.0.0-alpha.2" }
+
+
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1
+panic = 'unwind'
+incremental = false
+overflow-checks = false
 
 [profile.bench]
 opt-level = 3

@@ -24,7 +24,7 @@ pub mod underscore {
                     name: "Test_UnderscoredResultRecv",
                 })?;
                 match self {
-                    Test_UnderscoredResultRecv::Ok(ref value) => {
+                    Test_UnderscoredResultRecv::Ok(value) => {
                         __protocol.write_faststr_field(0, (value).clone())?;
                     }
                 }
@@ -136,7 +136,7 @@ pub mod underscore {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "Test_UnderscoredResultRecv",
                 }) + match self {
-                    Test_UnderscoredResultRecv::Ok(ref value) => {
+                    Test_UnderscoredResultRecv::Ok(value) => {
                         __protocol.faststr_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -464,7 +464,7 @@ pub mod underscore {
                     name: "Test_UnderscoredResultSend",
                 })?;
                 match self {
-                    Test_UnderscoredResultSend::Ok(ref value) => {
+                    Test_UnderscoredResultSend::Ok(value) => {
                         __protocol.write_faststr_field(0, (value).clone())?;
                     }
                 }
@@ -576,7 +576,7 @@ pub mod underscore {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "Test_UnderscoredResultSend",
                 }) + match self {
-                    Test_UnderscoredResultSend::Ok(ref value) => {
+                    Test_UnderscoredResultSend::Ok(value) => {
                         __protocol.faststr_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()

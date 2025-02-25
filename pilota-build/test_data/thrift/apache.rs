@@ -843,10 +843,10 @@ pub mod apache {
                     name: "ThriftTestTestMultiExceptionException",
                 })?;
                 match self {
-                    ThriftTestTestMultiExceptionException::Err1(ref value) => {
+                    ThriftTestTestMultiExceptionException::Err1(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    ThriftTestTestMultiExceptionException::Err2(ref value) => {
+                    ThriftTestTestMultiExceptionException::Err2(value) => {
                         __protocol.write_struct_field(2, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -998,10 +998,10 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestMultiExceptionException",
                 }) + match self {
-                    ThriftTestTestMultiExceptionException::Err1(ref value) => {
+                    ThriftTestTestMultiExceptionException::Err1(value) => {
                         __protocol.struct_field_len(Some(1), value)
                     }
-                    ThriftTestTestMultiExceptionException::Err2(ref value) => {
+                    ThriftTestTestMultiExceptionException::Err2(value) => {
                         __protocol.struct_field_len(Some(2), value)
                     }
                 } + __protocol.field_stop_len()
@@ -1300,7 +1300,7 @@ pub mod apache {
                     name: "ThriftTestTestMultiResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestMultiResultRecv::Ok(ref value) => {
+                    ThriftTestTestMultiResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -1416,7 +1416,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestMultiResultRecv",
                 }) + match self {
-                    ThriftTestTestMultiResultRecv::Ok(ref value) => {
+                    ThriftTestTestMultiResultRecv::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -1762,7 +1762,7 @@ pub mod apache {
                     name: "ThriftTestTestEnumResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestEnumResultRecv::Ok(ref value) => {
+                    ThriftTestTestEnumResultRecv::Ok(value) => {
                         __protocol.write_i32_field(0, (value).inner())?;
                     }
                 }
@@ -1878,7 +1878,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestEnumResultRecv",
                 }) + match self {
-                    ThriftTestTestEnumResultRecv::Ok(ref value) => {
+                    ThriftTestTestEnumResultRecv::Ok(value) => {
                         __protocol.i32_field_len(Some(0), (value).inner())
                     }
                 } + __protocol.field_stop_len()
@@ -1906,7 +1906,7 @@ pub mod apache {
                     name: "ThriftTestTestOnewayResultSend",
                 })?;
                 match self {
-                    ThriftTestTestOnewayResultSend::Ok(ref value) => {}
+                    ThriftTestTestOnewayResultSend::Ok(value) => {}
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -1984,7 +1984,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestOnewayResultSend",
                 }) + match self {
-                    ThriftTestTestOnewayResultSend::Ok(ref value) => 0,
+                    ThriftTestTestOnewayResultSend::Ok(value) => 0,
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -2160,7 +2160,7 @@ pub mod apache {
                     name: "ThriftTestTestMapResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestMapResultRecv::Ok(ref value) => {
+                    ThriftTestTestMapResultRecv::Ok(value) => {
                         __protocol.write_map_field(
                             0,
                             ::pilota::thrift::TType::I32,
@@ -2311,7 +2311,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestMapResultRecv",
                 }) + match self {
-                    ThriftTestTestMapResultRecv::Ok(ref value) => __protocol.map_field_len(
+                    ThriftTestTestMapResultRecv::Ok(value) => __protocol.map_field_len(
                         Some(0),
                         ::pilota::thrift::TType::I32,
                         ::pilota::thrift::TType::I32,
@@ -2554,7 +2554,7 @@ pub mod apache {
                     name: "ThriftTestTestBinaryResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestBinaryResultRecv::Ok(ref value) => {
+                    ThriftTestTestBinaryResultRecv::Ok(value) => {
                         __protocol.write_bytes_field(0, (value).clone())?;
                     }
                 }
@@ -2666,7 +2666,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestBinaryResultRecv",
                 }) + match self {
-                    ThriftTestTestBinaryResultRecv::Ok(ref value) => {
+                    ThriftTestTestBinaryResultRecv::Ok(value) => {
                         __protocol.bytes_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -2694,7 +2694,7 @@ pub mod apache {
                     name: "SecondServiceSecondtestStringResultSend",
                 })?;
                 match self {
-                    SecondServiceSecondtestStringResultSend::Ok(ref value) => {
+                    SecondServiceSecondtestStringResultSend::Ok(value) => {
                         __protocol.write_faststr_field(0, (value).clone())?;
                     }
                 }
@@ -2809,7 +2809,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "SecondServiceSecondtestStringResultSend",
                 }) + match self {
-                    SecondServiceSecondtestStringResultSend::Ok(ref value) => {
+                    SecondServiceSecondtestStringResultSend::Ok(value) => {
                         __protocol.faststr_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -2837,7 +2837,7 @@ pub mod apache {
                     name: "ThriftTestTestByteResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestByteResultRecv::Ok(ref value) => {
+                    ThriftTestTestByteResultRecv::Ok(value) => {
                         __protocol.write_i8_field(0, *value)?;
                     }
                 }
@@ -2949,7 +2949,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestByteResultRecv",
                 }) + match self {
-                    ThriftTestTestByteResultRecv::Ok(ref value) => {
+                    ThriftTestTestByteResultRecv::Ok(value) => {
                         __protocol.i8_field_len(Some(0), *value)
                     }
                 } + __protocol.field_stop_len()
@@ -3127,7 +3127,7 @@ pub mod apache {
                     name: "ThriftTestTestMapMapResultSend",
                 })?;
                 match self {
-                    ThriftTestTestMapMapResultSend::Ok(ref value) => {
+                    ThriftTestTestMapMapResultSend::Ok(value) => {
                         __protocol.write_map_field(
                             0,
                             ::pilota::thrift::TType::I32,
@@ -3320,7 +3320,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestMapMapResultSend",
                 }) + match self {
-                    ThriftTestTestMapMapResultSend::Ok(ref value) => __protocol.map_field_len(
+                    ThriftTestTestMapMapResultSend::Ok(value) => __protocol.map_field_len(
                         Some(0),
                         ::pilota::thrift::TType::I32,
                         ::pilota::thrift::TType::Map,
@@ -3560,7 +3560,7 @@ pub mod apache {
                     name: "ThriftTestTestSetResultSend",
                 })?;
                 match self {
-                    ThriftTestTestSetResultSend::Ok(ref value) => {
+                    ThriftTestTestSetResultSend::Ok(value) => {
                         __protocol.write_set_field(
                             0,
                             ::pilota::thrift::TType::I32,
@@ -3702,7 +3702,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestSetResultSend",
                 }) + match self {
-                    ThriftTestTestSetResultSend::Ok(ref value) => __protocol.set_field_len(
+                    ThriftTestTestSetResultSend::Ok(value) => __protocol.set_field_len(
                         Some(0),
                         ::pilota::thrift::TType::I32,
                         value,
@@ -3733,7 +3733,7 @@ pub mod apache {
                     name: "ThriftTestTestStructResultSend",
                 })?;
                 match self {
-                    ThriftTestTestStructResultSend::Ok(ref value) => {
+                    ThriftTestTestStructResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -3849,7 +3849,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestStructResultSend",
                 }) + match self {
-                    ThriftTestTestStructResultSend::Ok(ref value) => {
+                    ThriftTestTestStructResultSend::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -4310,7 +4310,7 @@ pub mod apache {
                     name: "ThriftTestTestI64ResultSend",
                 })?;
                 match self {
-                    ThriftTestTestI64ResultSend::Ok(ref value) => {
+                    ThriftTestTestI64ResultSend::Ok(value) => {
                         __protocol.write_i64_field(0, *value)?;
                     }
                 }
@@ -4422,7 +4422,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestI64ResultSend",
                 }) + match self {
-                    ThriftTestTestI64ResultSend::Ok(ref value) => {
+                    ThriftTestTestI64ResultSend::Ok(value) => {
                         __protocol.i64_field_len(Some(0), *value)
                     }
                 } + __protocol.field_stop_len()
@@ -4637,7 +4637,7 @@ pub mod apache {
                     name: "ThriftTestTestStringResultSend",
                 })?;
                 match self {
-                    ThriftTestTestStringResultSend::Ok(ref value) => {
+                    ThriftTestTestStringResultSend::Ok(value) => {
                         __protocol.write_faststr_field(0, (value).clone())?;
                     }
                 }
@@ -4749,7 +4749,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestStringResultSend",
                 }) + match self {
-                    ThriftTestTestStringResultSend::Ok(ref value) => {
+                    ThriftTestTestStringResultSend::Ok(value) => {
                         __protocol.faststr_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -6752,7 +6752,7 @@ pub mod apache {
                     name: "ThriftTestTestInsanityResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestInsanityResultRecv::Ok(ref value) => {
+                    ThriftTestTestInsanityResultRecv::Ok(value) => {
                         __protocol.write_map_field(
                             0,
                             ::pilota::thrift::TType::I64,
@@ -6948,7 +6948,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestInsanityResultRecv",
                 }) + match self {
-                    ThriftTestTestInsanityResultRecv::Ok(ref value) => __protocol.map_field_len(
+                    ThriftTestTestInsanityResultRecv::Ok(value) => __protocol.map_field_len(
                         Some(0),
                         ::pilota::thrift::TType::I64,
                         ::pilota::thrift::TType::Map,
@@ -7343,7 +7343,7 @@ pub mod apache {
                     name: "ThriftTestTestListResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestListResultRecv::Ok(ref value) => {
+                    ThriftTestTestListResultRecv::Ok(value) => {
                         __protocol.write_list_field(
                             0,
                             ::pilota::thrift::TType::I32,
@@ -7488,7 +7488,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestListResultRecv",
                 }) + match self {
-                    ThriftTestTestListResultRecv::Ok(ref value) => __protocol.list_field_len(
+                    ThriftTestTestListResultRecv::Ok(value) => __protocol.list_field_len(
                         Some(0),
                         ::pilota::thrift::TType::I32,
                         value,
@@ -7635,7 +7635,7 @@ pub mod apache {
                     name: "ThriftTestTestNestResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestNestResultRecv::Ok(ref value) => {
+                    ThriftTestTestNestResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -7751,7 +7751,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestNestResultRecv",
                 }) + match self {
-                    ThriftTestTestNestResultRecv::Ok(ref value) => {
+                    ThriftTestTestNestResultRecv::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -7990,7 +7990,7 @@ pub mod apache {
                     name: "ThriftTestTestDoubleResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestDoubleResultRecv::Ok(ref value) => {
+                    ThriftTestTestDoubleResultRecv::Ok(value) => {
                         __protocol.write_double_field(0, *value)?;
                     }
                 }
@@ -8102,7 +8102,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestDoubleResultRecv",
                 }) + match self {
-                    ThriftTestTestDoubleResultRecv::Ok(ref value) => {
+                    ThriftTestTestDoubleResultRecv::Ok(value) => {
                         __protocol.double_field_len(Some(0), *value)
                     }
                 } + __protocol.field_stop_len()
@@ -8130,7 +8130,7 @@ pub mod apache {
                     name: "ThriftTestTestBoolResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestBoolResultRecv::Ok(ref value) => {
+                    ThriftTestTestBoolResultRecv::Ok(value) => {
                         __protocol.write_bool_field(0, *value)?;
                     }
                 }
@@ -8242,7 +8242,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestBoolResultRecv",
                 }) + match self {
-                    ThriftTestTestBoolResultRecv::Ok(ref value) => {
+                    ThriftTestTestBoolResultRecv::Ok(value) => {
                         __protocol.bool_field_len(Some(0), *value)
                     }
                 } + __protocol.field_stop_len()
@@ -8504,7 +8504,7 @@ pub mod apache {
                     name: "ThriftTestTestTypedefResultSend",
                 })?;
                 match self {
-                    ThriftTestTestTypedefResultSend::Ok(ref value) => {
+                    ThriftTestTestTypedefResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::I64)?;
                     }
                 }
@@ -8620,7 +8620,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestTypedefResultSend",
                 }) + match self {
-                    ThriftTestTestTypedefResultSend::Ok(ref value) => {
+                    ThriftTestTestTypedefResultSend::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -8648,7 +8648,7 @@ pub mod apache {
                     name: "ThriftTestTestStringMapResultSend",
                 })?;
                 match self {
-                    ThriftTestTestStringMapResultSend::Ok(ref value) => {
+                    ThriftTestTestStringMapResultSend::Ok(value) => {
                         __protocol.write_map_field(
                             0,
                             ::pilota::thrift::TType::Binary,
@@ -8802,7 +8802,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestStringMapResultSend",
                 }) + match self {
-                    ThriftTestTestStringMapResultSend::Ok(ref value) => __protocol.map_field_len(
+                    ThriftTestTestStringMapResultSend::Ok(value) => __protocol.map_field_len(
                         Some(0),
                         ::pilota::thrift::TType::Binary,
                         ::pilota::thrift::TType::Binary,
@@ -8985,7 +8985,7 @@ pub mod apache {
                     name: "ThriftTestTestUuidResultSend",
                 })?;
                 match self {
-                    ThriftTestTestUuidResultSend::Ok(ref value) => {
+                    ThriftTestTestUuidResultSend::Ok(value) => {
                         __protocol.write_uuid_field(0, *value)?;
                     }
                 }
@@ -9097,7 +9097,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestUuidResultSend",
                 }) + match self {
-                    ThriftTestTestUuidResultSend::Ok(ref value) => {
+                    ThriftTestTestUuidResultSend::Ok(value) => {
                         __protocol.uuid_field_len(Some(0), *value)
                     }
                 } + __protocol.field_stop_len()
@@ -9324,7 +9324,7 @@ pub mod apache {
                     name: "ThriftTestTestI32ResultSend",
                 })?;
                 match self {
-                    ThriftTestTestI32ResultSend::Ok(ref value) => {
+                    ThriftTestTestI32ResultSend::Ok(value) => {
                         __protocol.write_i32_field(0, *value)?;
                     }
                 }
@@ -9436,7 +9436,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestI32ResultSend",
                 }) + match self {
-                    ThriftTestTestI32ResultSend::Ok(ref value) => {
+                    ThriftTestTestI32ResultSend::Ok(value) => {
                         __protocol.i32_field_len(Some(0), *value)
                     }
                 } + __protocol.field_stop_len()
@@ -9464,7 +9464,7 @@ pub mod apache {
                     name: "ThriftTestTestVoidResultSend",
                 })?;
                 match self {
-                    ThriftTestTestVoidResultSend::Ok(ref value) => {}
+                    ThriftTestTestVoidResultSend::Ok(value) => {}
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -9542,7 +9542,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestVoidResultSend",
                 }) + match self {
-                    ThriftTestTestVoidResultSend::Ok(ref value) => 0,
+                    ThriftTestTestVoidResultSend::Ok(value) => 0,
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -10085,7 +10085,7 @@ pub mod apache {
                     name: "ThriftTestTestOnewayResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestOnewayResultRecv::Ok(ref value) => {}
+                    ThriftTestTestOnewayResultRecv::Ok(value) => {}
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -10163,7 +10163,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestOnewayResultRecv",
                 }) + match self {
-                    ThriftTestTestOnewayResultRecv::Ok(ref value) => 0,
+                    ThriftTestTestOnewayResultRecv::Ok(value) => 0,
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -11209,7 +11209,7 @@ pub mod apache {
                     name: "SecondServiceSecondtestStringResultRecv",
                 })?;
                 match self {
-                    SecondServiceSecondtestStringResultRecv::Ok(ref value) => {
+                    SecondServiceSecondtestStringResultRecv::Ok(value) => {
                         __protocol.write_faststr_field(0, (value).clone())?;
                     }
                 }
@@ -11324,7 +11324,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "SecondServiceSecondtestStringResultRecv",
                 }) + match self {
-                    SecondServiceSecondtestStringResultRecv::Ok(ref value) => {
+                    SecondServiceSecondtestStringResultRecv::Ok(value) => {
                         __protocol.faststr_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -11685,7 +11685,7 @@ pub mod apache {
                     name: "ThriftTestTestExceptionException",
                 })?;
                 match self {
-                    ThriftTestTestExceptionException::Err1(ref value) => {
+                    ThriftTestTestExceptionException::Err1(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -11801,7 +11801,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestExceptionException",
                 }) + match self {
-                    ThriftTestTestExceptionException::Err1(ref value) => {
+                    ThriftTestTestExceptionException::Err1(value) => {
                         __protocol.struct_field_len(Some(1), value)
                     }
                 } + __protocol.field_stop_len()
@@ -11979,7 +11979,7 @@ pub mod apache {
                     name: "ThriftTestTestMapMapResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestMapMapResultRecv::Ok(ref value) => {
+                    ThriftTestTestMapMapResultRecv::Ok(value) => {
                         __protocol.write_map_field(
                             0,
                             ::pilota::thrift::TType::I32,
@@ -12172,7 +12172,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestMapMapResultRecv",
                 }) + match self {
-                    ThriftTestTestMapMapResultRecv::Ok(ref value) => __protocol.map_field_len(
+                    ThriftTestTestMapMapResultRecv::Ok(value) => __protocol.map_field_len(
                         Some(0),
                         ::pilota::thrift::TType::I32,
                         ::pilota::thrift::TType::Map,
@@ -12551,7 +12551,7 @@ pub mod apache {
                     name: "ThriftTestTestSetResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestSetResultRecv::Ok(ref value) => {
+                    ThriftTestTestSetResultRecv::Ok(value) => {
                         __protocol.write_set_field(
                             0,
                             ::pilota::thrift::TType::I32,
@@ -12693,7 +12693,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestSetResultRecv",
                 }) + match self {
-                    ThriftTestTestSetResultRecv::Ok(ref value) => __protocol.set_field_len(
+                    ThriftTestTestSetResultRecv::Ok(value) => __protocol.set_field_len(
                         Some(0),
                         ::pilota::thrift::TType::I32,
                         value,
@@ -12872,7 +12872,7 @@ pub mod apache {
                     name: "ThriftTestTestStructResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestStructResultRecv::Ok(ref value) => {
+                    ThriftTestTestStructResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -12988,7 +12988,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestStructResultRecv",
                 }) + match self {
-                    ThriftTestTestStructResultRecv::Ok(ref value) => {
+                    ThriftTestTestStructResultRecv::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -13263,7 +13263,7 @@ pub mod apache {
                     name: "ThriftTestTestI64ResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestI64ResultRecv::Ok(ref value) => {
+                    ThriftTestTestI64ResultRecv::Ok(value) => {
                         __protocol.write_i64_field(0, *value)?;
                     }
                 }
@@ -13375,7 +13375,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestI64ResultRecv",
                 }) + match self {
-                    ThriftTestTestI64ResultRecv::Ok(ref value) => {
+                    ThriftTestTestI64ResultRecv::Ok(value) => {
                         __protocol.i64_field_len(Some(0), *value)
                     }
                 } + __protocol.field_stop_len()
@@ -13403,7 +13403,7 @@ pub mod apache {
                     name: "ThriftTestTestStringResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestStringResultRecv::Ok(ref value) => {
+                    ThriftTestTestStringResultRecv::Ok(value) => {
                         __protocol.write_faststr_field(0, (value).clone())?;
                     }
                 }
@@ -13515,7 +13515,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestStringResultRecv",
                 }) + match self {
-                    ThriftTestTestStringResultRecv::Ok(ref value) => {
+                    ThriftTestTestStringResultRecv::Ok(value) => {
                         __protocol.faststr_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -13543,7 +13543,7 @@ pub mod apache {
                     name: "ThriftTestTestMultiResultSend",
                 })?;
                 match self {
-                    ThriftTestTestMultiResultSend::Ok(ref value) => {
+                    ThriftTestTestMultiResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -13659,7 +13659,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestMultiResultSend",
                 }) + match self {
-                    ThriftTestTestMultiResultSend::Ok(ref value) => {
+                    ThriftTestTestMultiResultSend::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -14046,7 +14046,7 @@ pub mod apache {
                     name: "ThriftTestTestEnumResultSend",
                 })?;
                 match self {
-                    ThriftTestTestEnumResultSend::Ok(ref value) => {
+                    ThriftTestTestEnumResultSend::Ok(value) => {
                         __protocol.write_i32_field(0, (value).inner())?;
                     }
                 }
@@ -14162,7 +14162,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestEnumResultSend",
                 }) + match self {
-                    ThriftTestTestEnumResultSend::Ok(ref value) => {
+                    ThriftTestTestEnumResultSend::Ok(value) => {
                         __protocol.i32_field_len(Some(0), (value).inner())
                     }
                 } + __protocol.field_stop_len()
@@ -14341,7 +14341,7 @@ pub mod apache {
                     name: "ThriftTestTestMapResultSend",
                 })?;
                 match self {
-                    ThriftTestTestMapResultSend::Ok(ref value) => {
+                    ThriftTestTestMapResultSend::Ok(value) => {
                         __protocol.write_map_field(
                             0,
                             ::pilota::thrift::TType::I32,
@@ -14492,7 +14492,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestMapResultSend",
                 }) + match self {
-                    ThriftTestTestMapResultSend::Ok(ref value) => __protocol.map_field_len(
+                    ThriftTestTestMapResultSend::Ok(value) => __protocol.map_field_len(
                         Some(0),
                         ::pilota::thrift::TType::I32,
                         ::pilota::thrift::TType::I32,
@@ -14527,8 +14527,8 @@ pub mod apache {
                     name: "ThriftTestTestExceptionResultSend",
                 })?;
                 match self {
-                    ThriftTestTestExceptionResultSend::Ok(ref value) => {}
-                    ThriftTestTestExceptionResultSend::Err1(ref value) => {
+                    ThriftTestTestExceptionResultSend::Ok(value) => {}
+                    ThriftTestTestExceptionResultSend::Err1(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -14639,8 +14639,8 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestExceptionResultSend",
                 }) + match self {
-                    ThriftTestTestExceptionResultSend::Ok(ref value) => 0,
-                    ThriftTestTestExceptionResultSend::Err1(ref value) => {
+                    ThriftTestTestExceptionResultSend::Ok(value) => 0,
+                    ThriftTestTestExceptionResultSend::Err1(value) => {
                         __protocol.struct_field_len(Some(1), value)
                     }
                 } + __protocol.field_stop_len()
@@ -15183,7 +15183,7 @@ pub mod apache {
                     name: "ThriftTestTestBinaryResultSend",
                 })?;
                 match self {
-                    ThriftTestTestBinaryResultSend::Ok(ref value) => {
+                    ThriftTestTestBinaryResultSend::Ok(value) => {
                         __protocol.write_bytes_field(0, (value).clone())?;
                     }
                 }
@@ -15295,7 +15295,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestBinaryResultSend",
                 }) + match self {
-                    ThriftTestTestBinaryResultSend::Ok(ref value) => {
+                    ThriftTestTestBinaryResultSend::Ok(value) => {
                         __protocol.bytes_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -15473,7 +15473,7 @@ pub mod apache {
                     name: "ThriftTestTestByteResultSend",
                 })?;
                 match self {
-                    ThriftTestTestByteResultSend::Ok(ref value) => {
+                    ThriftTestTestByteResultSend::Ok(value) => {
                         __protocol.write_i8_field(0, *value)?;
                     }
                 }
@@ -15585,7 +15585,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestByteResultSend",
                 }) + match self {
-                    ThriftTestTestByteResultSend::Ok(ref value) => {
+                    ThriftTestTestByteResultSend::Ok(value) => {
                         __protocol.i8_field_len(Some(0), *value)
                     }
                 } + __protocol.field_stop_len()
@@ -15617,13 +15617,13 @@ pub mod apache {
                     name: "ThriftTestTestMultiExceptionResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestMultiExceptionResultRecv::Ok(ref value) => {
+                    ThriftTestTestMultiExceptionResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    ThriftTestTestMultiExceptionResultRecv::Err1(ref value) => {
+                    ThriftTestTestMultiExceptionResultRecv::Err1(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    ThriftTestTestMultiExceptionResultRecv::Err2(ref value) => {
+                    ThriftTestTestMultiExceptionResultRecv::Err2(value) => {
                         __protocol.write_struct_field(2, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -15807,13 +15807,13 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestMultiExceptionResultRecv",
                 }) + match self {
-                    ThriftTestTestMultiExceptionResultRecv::Ok(ref value) => {
+                    ThriftTestTestMultiExceptionResultRecv::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
-                    ThriftTestTestMultiExceptionResultRecv::Err1(ref value) => {
+                    ThriftTestTestMultiExceptionResultRecv::Err1(value) => {
                         __protocol.struct_field_len(Some(1), value)
                     }
-                    ThriftTestTestMultiExceptionResultRecv::Err2(ref value) => {
+                    ThriftTestTestMultiExceptionResultRecv::Err2(value) => {
                         __protocol.struct_field_len(Some(2), value)
                     }
                 } + __protocol.field_stop_len()
@@ -17705,8 +17705,8 @@ pub mod apache {
                     name: "ThriftTestTestExceptionResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestExceptionResultRecv::Ok(ref value) => {}
-                    ThriftTestTestExceptionResultRecv::Err1(ref value) => {
+                    ThriftTestTestExceptionResultRecv::Ok(value) => {}
+                    ThriftTestTestExceptionResultRecv::Err1(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -17817,8 +17817,8 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestExceptionResultRecv",
                 }) + match self {
-                    ThriftTestTestExceptionResultRecv::Ok(ref value) => 0,
-                    ThriftTestTestExceptionResultRecv::Err1(ref value) => {
+                    ThriftTestTestExceptionResultRecv::Ok(value) => 0,
+                    ThriftTestTestExceptionResultRecv::Err1(value) => {
                         __protocol.struct_field_len(Some(1), value)
                     }
                 } + __protocol.field_stop_len()
@@ -18190,7 +18190,7 @@ pub mod apache {
                     name: "ThriftTestTestTypedefResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestTypedefResultRecv::Ok(ref value) => {
+                    ThriftTestTestTypedefResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::I64)?;
                     }
                 }
@@ -18306,7 +18306,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestTypedefResultRecv",
                 }) + match self {
-                    ThriftTestTestTypedefResultRecv::Ok(ref value) => {
+                    ThriftTestTestTypedefResultRecv::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -18481,7 +18481,7 @@ pub mod apache {
                     name: "ThriftTestTestStringMapResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestStringMapResultRecv::Ok(ref value) => {
+                    ThriftTestTestStringMapResultRecv::Ok(value) => {
                         __protocol.write_map_field(
                             0,
                             ::pilota::thrift::TType::Binary,
@@ -18635,7 +18635,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestStringMapResultRecv",
                 }) + match self {
-                    ThriftTestTestStringMapResultRecv::Ok(ref value) => __protocol.map_field_len(
+                    ThriftTestTestStringMapResultRecv::Ok(value) => __protocol.map_field_len(
                         Some(0),
                         ::pilota::thrift::TType::Binary,
                         ::pilota::thrift::TType::Binary,
@@ -18668,7 +18668,7 @@ pub mod apache {
                     name: "ThriftTestTestUuidResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestUuidResultRecv::Ok(ref value) => {
+                    ThriftTestTestUuidResultRecv::Ok(value) => {
                         __protocol.write_uuid_field(0, *value)?;
                     }
                 }
@@ -18780,7 +18780,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestUuidResultRecv",
                 }) + match self {
-                    ThriftTestTestUuidResultRecv::Ok(ref value) => {
+                    ThriftTestTestUuidResultRecv::Ok(value) => {
                         __protocol.uuid_field_len(Some(0), *value)
                     }
                 } + __protocol.field_stop_len()
@@ -19301,7 +19301,7 @@ pub mod apache {
                     name: "ThriftTestTestI32ResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestI32ResultRecv::Ok(ref value) => {
+                    ThriftTestTestI32ResultRecv::Ok(value) => {
                         __protocol.write_i32_field(0, *value)?;
                     }
                 }
@@ -19413,7 +19413,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestI32ResultRecv",
                 }) + match self {
-                    ThriftTestTestI32ResultRecv::Ok(ref value) => {
+                    ThriftTestTestI32ResultRecv::Ok(value) => {
                         __protocol.i32_field_len(Some(0), *value)
                     }
                 } + __protocol.field_stop_len()
@@ -19445,13 +19445,13 @@ pub mod apache {
                     name: "ThriftTestTestMultiExceptionResultSend",
                 })?;
                 match self {
-                    ThriftTestTestMultiExceptionResultSend::Ok(ref value) => {
+                    ThriftTestTestMultiExceptionResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    ThriftTestTestMultiExceptionResultSend::Err1(ref value) => {
+                    ThriftTestTestMultiExceptionResultSend::Err1(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    ThriftTestTestMultiExceptionResultSend::Err2(ref value) => {
+                    ThriftTestTestMultiExceptionResultSend::Err2(value) => {
                         __protocol.write_struct_field(2, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -19635,13 +19635,13 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestMultiExceptionResultSend",
                 }) + match self {
-                    ThriftTestTestMultiExceptionResultSend::Ok(ref value) => {
+                    ThriftTestTestMultiExceptionResultSend::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
-                    ThriftTestTestMultiExceptionResultSend::Err1(ref value) => {
+                    ThriftTestTestMultiExceptionResultSend::Err1(value) => {
                         __protocol.struct_field_len(Some(1), value)
                     }
-                    ThriftTestTestMultiExceptionResultSend::Err2(ref value) => {
+                    ThriftTestTestMultiExceptionResultSend::Err2(value) => {
                         __protocol.struct_field_len(Some(2), value)
                     }
                 } + __protocol.field_stop_len()
@@ -19669,7 +19669,7 @@ pub mod apache {
                     name: "ThriftTestTestVoidResultRecv",
                 })?;
                 match self {
-                    ThriftTestTestVoidResultRecv::Ok(ref value) => {}
+                    ThriftTestTestVoidResultRecv::Ok(value) => {}
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -19747,7 +19747,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestVoidResultRecv",
                 }) + match self {
-                    ThriftTestTestVoidResultRecv::Ok(ref value) => 0,
+                    ThriftTestTestVoidResultRecv::Ok(value) => 0,
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -19773,7 +19773,7 @@ pub mod apache {
                     name: "ThriftTestTestInsanityResultSend",
                 })?;
                 match self {
-                    ThriftTestTestInsanityResultSend::Ok(ref value) => {
+                    ThriftTestTestInsanityResultSend::Ok(value) => {
                         __protocol.write_map_field(
                             0,
                             ::pilota::thrift::TType::I64,
@@ -19969,7 +19969,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestInsanityResultSend",
                 }) + match self {
-                    ThriftTestTestInsanityResultSend::Ok(ref value) => __protocol.map_field_len(
+                    ThriftTestTestInsanityResultSend::Ok(value) => __protocol.map_field_len(
                         Some(0),
                         ::pilota::thrift::TType::I64,
                         ::pilota::thrift::TType::Map,
@@ -20214,7 +20214,7 @@ pub mod apache {
                     name: "ThriftTestTestListResultSend",
                 })?;
                 match self {
-                    ThriftTestTestListResultSend::Ok(ref value) => {
+                    ThriftTestTestListResultSend::Ok(value) => {
                         __protocol.write_list_field(
                             0,
                             ::pilota::thrift::TType::I32,
@@ -20359,7 +20359,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestListResultSend",
                 }) + match self {
-                    ThriftTestTestListResultSend::Ok(ref value) => __protocol.list_field_len(
+                    ThriftTestTestListResultSend::Ok(value) => __protocol.list_field_len(
                         Some(0),
                         ::pilota::thrift::TType::I32,
                         value,
@@ -20577,7 +20577,7 @@ pub mod apache {
                     name: "ThriftTestTestNestResultSend",
                 })?;
                 match self {
-                    ThriftTestTestNestResultSend::Ok(ref value) => {
+                    ThriftTestTestNestResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -20693,7 +20693,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestNestResultSend",
                 }) + match self {
-                    ThriftTestTestNestResultSend::Ok(ref value) => {
+                    ThriftTestTestNestResultSend::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -21012,7 +21012,7 @@ pub mod apache {
                     name: "ThriftTestTestDoubleResultSend",
                 })?;
                 match self {
-                    ThriftTestTestDoubleResultSend::Ok(ref value) => {
+                    ThriftTestTestDoubleResultSend::Ok(value) => {
                         __protocol.write_double_field(0, *value)?;
                     }
                 }
@@ -21124,7 +21124,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestDoubleResultSend",
                 }) + match self {
-                    ThriftTestTestDoubleResultSend::Ok(ref value) => {
+                    ThriftTestTestDoubleResultSend::Ok(value) => {
                         __protocol.double_field_len(Some(0), *value)
                     }
                 } + __protocol.field_stop_len()
@@ -21303,7 +21303,7 @@ pub mod apache {
                     name: "ThriftTestTestBoolResultSend",
                 })?;
                 match self {
-                    ThriftTestTestBoolResultSend::Ok(ref value) => {
+                    ThriftTestTestBoolResultSend::Ok(value) => {
                         __protocol.write_bool_field(0, *value)?;
                     }
                 }
@@ -21415,7 +21415,7 @@ pub mod apache {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ThriftTestTestBoolResultSend",
                 }) + match self {
-                    ThriftTestTestBoolResultSend::Ok(ref value) => {
+                    ThriftTestTestBoolResultSend::Ok(value) => {
                         __protocol.bool_field_len(Some(0), *value)
                     }
                 } + __protocol.field_stop_len()
@@ -21451,7 +21451,7 @@ pub mod apache {
                     name: "SomeUnion",
                 })?;
                 match self {
-                    SomeUnion::MapThing(ref value) => {
+                    SomeUnion::MapThing(value) => {
                         __protocol.write_map_field(
                             1,
                             ::pilota::thrift::TType::I32,
@@ -21467,16 +21467,16 @@ pub mod apache {
                             },
                         )?;
                     }
-                    SomeUnion::StringThing(ref value) => {
+                    SomeUnion::StringThing(value) => {
                         __protocol.write_faststr_field(2, (value).clone())?;
                     }
-                    SomeUnion::I32Thing(ref value) => {
+                    SomeUnion::I32Thing(value) => {
                         __protocol.write_i32_field(3, *value)?;
                     }
-                    SomeUnion::XtructThing(ref value) => {
+                    SomeUnion::XtructThing(value) => {
                         __protocol.write_struct_field(4, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    SomeUnion::InsanityThing(ref value) => {
+                    SomeUnion::InsanityThing(value) => {
                         __protocol.write_struct_field(5, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -21726,7 +21726,7 @@ pub mod apache {
                 __protocol
                     .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "SomeUnion" })
                     + match self {
-                        SomeUnion::MapThing(ref value) => __protocol.map_field_len(
+                        SomeUnion::MapThing(value) => __protocol.map_field_len(
                             Some(1),
                             ::pilota::thrift::TType::I32,
                             ::pilota::thrift::TType::I64,
@@ -21734,14 +21734,14 @@ pub mod apache {
                             |__protocol, key| __protocol.struct_len(key),
                             |__protocol, val| __protocol.struct_len(val),
                         ),
-                        SomeUnion::StringThing(ref value) => {
+                        SomeUnion::StringThing(value) => {
                             __protocol.faststr_field_len(Some(2), value)
                         }
-                        SomeUnion::I32Thing(ref value) => __protocol.i32_field_len(Some(3), *value),
-                        SomeUnion::XtructThing(ref value) => {
+                        SomeUnion::I32Thing(value) => __protocol.i32_field_len(Some(3), *value),
+                        SomeUnion::XtructThing(value) => {
                             __protocol.struct_field_len(Some(4), value)
                         }
-                        SomeUnion::InsanityThing(ref value) => {
+                        SomeUnion::InsanityThing(value) => {
                             __protocol.struct_field_len(Some(5), value)
                         }
                     }

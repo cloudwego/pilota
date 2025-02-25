@@ -1,13 +1,13 @@
 use std::{num::ParseIntError, str::FromStr};
 
 use nom::{
+    IResult,
     branch::alt,
     bytes::complete::{tag, tag_no_case},
     character::complete::{digit1, hex_digit1},
     combinator::{map, map_res, opt, recognize},
     multi::many0,
     sequence::{delimited, preceded, tuple},
-    IResult,
 };
 
 use super::super::{

@@ -1,10 +1,10 @@
 use nom::{
+    IResult,
     branch::alt,
     bytes::complete::tag,
     character::complete::digit1,
     combinator::{map, opt},
     sequence::tuple,
-    IResult,
 };
 
 use super::super::{

@@ -4,7 +4,7 @@ use std::{fs, fs::File, path::Path, process::Command};
 
 use tempfile::tempdir;
 
-use crate::{plugin::SerdePlugin, IdlService};
+use crate::{IdlService, plugin::SerdePlugin};
 
 fn diff_file(old: impl AsRef<Path>, new: impl AsRef<Path>) {
     let old_content =
@@ -497,7 +497,7 @@ fn test_unknown_fields() {
 mod tests {
     use pilota::{
         prost::bytes::BytesMut,
-        thrift::{binary::TBinaryProtocol, Message},
+        thrift::{Message, binary::TBinaryProtocol},
     };
 
     use self::decode_error::decode_error::A;

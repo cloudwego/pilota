@@ -1,7 +1,7 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use pilota::{
     prost::bytes::BytesMut,
-    thrift::{binary::TBinaryProtocol, Message},
+    thrift::{Message, binary::TBinaryProtocol},
 };
 
 include!("../test_data/thrift/default_value.rs");

@@ -13,7 +13,7 @@ fn binary_bench(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("Bench Thrift Binary");
     let mut v: Vec<i64> = Vec::with_capacity(size);
     for _ in 0..size {
-        v.push(rand::thread_rng().gen());
+        v.push(rand::thread_rng().r#gen());
     }
     let mut buf = BytesMut::new();
 

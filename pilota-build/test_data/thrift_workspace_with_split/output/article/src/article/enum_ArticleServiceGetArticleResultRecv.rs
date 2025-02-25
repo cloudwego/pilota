@@ -20,7 +20,7 @@ impl ::pilota::thrift::Message for ArticleServiceGetArticleResultRecv {
             name: "ArticleServiceGetArticleResultRecv",
         })?;
         match self {
-            ArticleServiceGetArticleResultRecv::Ok(ref value) => {
+            ArticleServiceGetArticleResultRecv::Ok(value) => {
                 __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
             }
         }
@@ -138,7 +138,7 @@ impl ::pilota::thrift::Message for ArticleServiceGetArticleResultRecv {
         __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
             name: "ArticleServiceGetArticleResultRecv",
         }) + match self {
-            ArticleServiceGetArticleResultRecv::Ok(ref value) => {
+            ArticleServiceGetArticleResultRecv::Ok(value) => {
                 __protocol.struct_field_len(Some(0), value)
             }
         } + __protocol.field_stop_len()

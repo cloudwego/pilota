@@ -5,21 +5,21 @@ use faststr::FastStr;
 use itertools::Itertools;
 use normpath::PathExt;
 use protobuf::descriptor::{
-    field_descriptor_proto::{Label, Type},
     DescriptorProto, EnumDescriptorProto, ServiceDescriptorProto,
+    field_descriptor_proto::{Label, Type},
 };
 use rustc_hash::{FxHashMap, FxHashSet};
 
 use super::Parser;
 use crate::{
+    IdentName,
     index::Idx,
     ir::{self, FieldKind, Item, Path, TyKind},
     symbol::{EnumRepr, FileId, Ident},
     tags::{
-        protobuf::{ClientStreaming, OneOf, ProstType, Repeated, ServerStreaming},
         PilotaName, Tags,
+        protobuf::{ClientStreaming, OneOf, ProstType, Repeated, ServerStreaming},
     },
-    IdentName,
 };
 
 #[derive(Default)]

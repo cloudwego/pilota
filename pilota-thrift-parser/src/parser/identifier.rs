@@ -1,6 +1,6 @@
 use nom::{
-    bytes::complete::take_while, character::complete::satisfy, combinator::recognize,
-    sequence::tuple, IResult,
+    IResult, bytes::complete::take_while, character::complete::satisfy, combinator::recognize,
+    sequence::tuple,
 };
 
 use super::super::{descriptor::Ident, parser::*};

@@ -1,7 +1,7 @@
 #![allow(clippy::redundant_clone)]
 
 use criterion::{black_box, criterion_group, criterion_main};
-use pilota::thrift::{new_protocol_exception, ProtocolExceptionKind, TType, ThriftException};
+use pilota::thrift::{ProtocolExceptionKind, TType, ThriftException, new_protocol_exception};
 
 fn ttype_bench(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("Bench Thrift TType");

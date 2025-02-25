@@ -227,7 +227,7 @@ impl ThriftBackend {
             .iter()
             .filter_map(|f| {
                 let field_name = f.local_var_name();
-                if let Some((default, is_const)) = self.cx.default_val(f) {
+                match self.cx.default_val(f) { Some((default, is_const)) => {
                     if !is_const {
                         if f.is_optional() {
                             Some(format! {
@@ -243,9 +243,9 @@ impl ThriftBackend {
                     } else {
                         None
                     }
-                } else {
+                } _ => {
                     None
-                }
+                }}
             })
             .join("\n");
 
@@ -378,10 +378,9 @@ impl ThriftBackend {
                 };
 
                 if f.is_optional() || {
-                    if let Some((_, is_const)) = self.cx.default_val(f) {
-                        !is_const
-                    } else {
-                        true
+                    match self.cx.default_val(f) {
+                        Some((_, is_const)) => !is_const,
+                        _ => true,
                     }
                 } {
                     read_field = format!("Some({read_field})").into();
@@ -546,7 +545,7 @@ impl CodegenBackend for ThriftBackend {
                         let encode =
                             self.codegen_encode_field(variant_id, &v.fields[0], "value".into());
                         format! {
-                            r#"{name}::{variant_name}(ref value) => {{
+                            r#"{name}::{variant_name}(value) => {{
                             {encode}
                         }},"#
                         }
@@ -554,7 +553,7 @@ impl CodegenBackend for ThriftBackend {
                     .join("");
                 if keep {
                     encode_variants.push_str(&format! {
-                        "{name}::_UnknownFields(ref value) => {{
+                        "{name}::_UnknownFields(value) => {{
                                         for bytes in value.list.iter() {{
                                             __protocol.write_bytes_without_len(bytes.clone());
                                         }}
@@ -576,7 +575,7 @@ impl CodegenBackend for ThriftBackend {
                             self.codegen_field_size(&v.fields[0], variant_id, "value".into());
 
                         format! {
-                            r#"{name}::{variant_name}(ref value) => {{
+                            r#"{name}::{variant_name}(value) => {{
                             {size}
                         }},"#
                         }
@@ -584,7 +583,7 @@ impl CodegenBackend for ThriftBackend {
                     .join("");
                 if keep {
                     variants_size.push_str(&format! {
-                        "{name}::_UnknownFields(ref value) => {{
+                        "{name}::_UnknownFields(value) => {{
                                 value.size()
                             }}",
                     })

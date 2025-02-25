@@ -19,7 +19,7 @@ pub use error::*;
 use faststr::FastStr;
 
 pub use self::{binary::TAsyncBinaryProtocol, compact::TAsyncCompactProtocol};
-use crate::{assert_remaining, thrift::rw_ext::IOError, AHashMap, AHashSet};
+use crate::{AHashMap, AHashSet, assert_remaining, thrift::rw_ext::IOError};
 
 const MAXIMUM_SKIP_DEPTH: i8 = 64;
 
@@ -248,7 +248,7 @@ pub trait TInputProtocol: TLengthProtocol {
                 return Err(new_protocol_exception(
                     ProtocolExceptionKind::DepthLimit,
                     format!("cannot skip field type {:?}", &u),
-                ))
+                ));
             }
         };
 
@@ -649,7 +649,7 @@ pub trait TOutputProtocol: TLengthProtocol {
     fn write_message_end(&mut self) -> Result<(), ThriftException>;
     /// Write the beginning of a Thrift struct.
     fn write_struct_begin(&mut self, identifier: &TStructIdentifier)
-        -> Result<(), ThriftException>;
+    -> Result<(), ThriftException>;
     /// Write the end of a Thrift struct.
     fn write_struct_end(&mut self) -> Result<(), ThriftException>;
     /// Write the beginning of a Thrift field.

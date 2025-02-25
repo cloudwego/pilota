@@ -331,7 +331,7 @@ pub mod pilota_name {
                     name: "TestServiceTestResultSend",
                 })?;
                 match self {
-                    TestServiceTestResultSend::Ok(ref value) => {
+                    TestServiceTestResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -447,7 +447,7 @@ pub mod pilota_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestResultSend",
                 }) + match self {
-                    TestServiceTestResultSend::Ok(ref value) => {
+                    TestServiceTestResultSend::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -823,7 +823,7 @@ pub mod pilota_name {
                     name: "TestServiceTestResultRecv",
                 })?;
                 match self {
-                    TestServiceTestResultRecv::Ok(ref value) => {
+                    TestServiceTestResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -939,7 +939,7 @@ pub mod pilota_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestServiceTestResultRecv",
                 }) + match self {
-                    TestServiceTestResultRecv::Ok(ref value) => {
+                    TestServiceTestResultRecv::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()

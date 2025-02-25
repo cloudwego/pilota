@@ -1,8 +1,8 @@
 use std::fmt::Display;
 pub use std::sync::Arc;
 
-use itertools::Itertools;
 pub use TyKind::*;
+use itertools::Itertools;
 
 use super::context::tls::with_cx;
 pub use super::rir::Path;

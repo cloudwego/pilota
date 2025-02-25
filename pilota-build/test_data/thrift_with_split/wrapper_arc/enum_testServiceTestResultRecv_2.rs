@@ -20,7 +20,7 @@ impl ::pilota::thrift::Message for testServiceTestResultRecv {
             name: "testServiceTestResultRecv",
         })?;
         match self {
-            testServiceTestResultRecv::Ok(ref value) => {
+            testServiceTestResultRecv::Ok(value) => {
                 __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
             }
         }
@@ -136,7 +136,7 @@ impl ::pilota::thrift::Message for testServiceTestResultRecv {
         __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
             name: "testServiceTestResultRecv",
         }) + match self {
-            testServiceTestResultRecv::Ok(ref value) => __protocol.struct_field_len(Some(0), value),
+            testServiceTestResultRecv::Ok(value) => __protocol.struct_field_len(Some(0), value),
         } + __protocol.field_stop_len()
             + __protocol.struct_end_len()
     }

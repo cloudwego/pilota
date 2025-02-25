@@ -1,11 +1,11 @@
 use faststr::FastStr;
 
-use super::{decode_helper::DecodeHelper, ThriftBackend};
+use super::{ThriftBackend, decode_helper::DecodeHelper};
 use crate::{
+    DefId,
     db::RirDatabase,
     middle::{rir, ty, ty::Ty},
     symbol::EnumRepr,
-    DefId,
 };
 
 impl ThriftBackend {

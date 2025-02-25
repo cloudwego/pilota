@@ -3,9 +3,9 @@ use std::sync::Arc;
 use rustc_hash::FxHashMap;
 
 use crate::{
+    DefId,
     rir::{Arg, EnumVariant, Field, Item, Method, Node},
     ty::{Ty, TyKind},
-    DefId,
 };
 
 type Nodes = Arc<FxHashMap<DefId, Node>>;

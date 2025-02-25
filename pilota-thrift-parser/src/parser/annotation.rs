@@ -1,10 +1,10 @@
 use nom::{
+    IResult,
     bytes::complete::{tag, take_while},
     character::complete::satisfy,
     combinator::{map, opt, recognize},
     multi::many1,
     sequence::tuple,
-    IResult,
 };
 
 use crate::{

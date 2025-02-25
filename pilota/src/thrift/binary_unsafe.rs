@@ -6,10 +6,10 @@ use linkedbytes::LinkedBytes;
 use smallvec::SmallVec;
 
 use super::{
-    error::ProtocolExceptionKind, new_protocol_exception, ProtocolException, TFieldIdentifier,
-    TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier, TMessageIdentifier,
-    TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType, ThriftException,
-    BINARY_BASIC_TYPE_FIXED_SIZE, ZERO_COPY_THRESHOLD,
+    BINARY_BASIC_TYPE_FIXED_SIZE, ProtocolException, TFieldIdentifier, TInputProtocol,
+    TLengthProtocol, TListIdentifier, TMapIdentifier, TMessageIdentifier, TMessageType,
+    TOutputProtocol, TSetIdentifier, TStructIdentifier, TType, ThriftException,
+    ZERO_COPY_THRESHOLD, error::ProtocolExceptionKind, new_protocol_exception,
 };
 
 static VERSION_1: u32 = 0x80010000;
@@ -742,11 +742,13 @@ impl<'a> TBinaryUnsafeInputProtocol<'a> {
     /// The 'trans' MUST have enough capacity to read from or write to.
     #[inline]
     pub unsafe fn new(trans: &'a mut Bytes) -> Self {
-        let buf = slice::from_raw_parts(trans.as_ptr(), trans.len());
-        Self {
-            trans,
-            buf,
-            index: 0,
+        unsafe {
+            let buf = slice::from_raw_parts(trans.as_ptr(), trans.len());
+            Self {
+                trans,
+                buf,
+                index: 0,
+            }
         }
     }
 
@@ -895,7 +897,7 @@ struct SkipData {
 }
 
 macro_rules! skip_stack_pop {
-    ($stack: expr) => {
+    ($stack: expr_2021) => {
         let top: &mut SkipData = $stack.last_mut().unwrap();
         top.len -= 1;
         if (top.len == 0) {
@@ -1303,7 +1305,7 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
                     return Err(new_protocol_exception(
                         ProtocolExceptionKind::DepthLimit,
                         format!("cannot skip field type {:?}", &u),
-                    ))
+                    ));
                 }
             };
 

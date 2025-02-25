@@ -26,11 +26,11 @@ mod dedup;
 pub mod plugin;
 
 pub use codegen::{
-    protobuf::ProtobufBackend, thrift::ThriftBackend, traits::CodegenBackend, Codegen,
+    Codegen, protobuf::ProtobufBackend, thrift::ThriftBackend, traits::CodegenBackend,
 };
 use db::{RirDatabase, RootDatabase};
 use middle::{
-    context::{tls::CONTEXT, CollectMode, ContextBuilder, Mode, WorkspaceInfo},
+    context::{CollectMode, ContextBuilder, Mode, WorkspaceInfo, tls::CONTEXT},
     rir::NodeKind,
     type_graph::TypeGraph,
     workspace_graph::WorkspaceGraph,
@@ -39,7 +39,7 @@ pub use middle::{
     context::{Context, SourceType},
     rir, ty,
 };
-use parser::{protobuf::ProtobufParser, thrift::ThriftParser, ParseResult, Parser};
+use parser::{ParseResult, Parser, protobuf::ProtobufParser, thrift::ThriftParser};
 use plugin::{AutoDerivePlugin, BoxedPlugin, ImplDefaultPlugin, PredicateResult, WithAttrsPlugin};
 pub use plugin::{BoxClonePlugin, ClonePlugin, Plugin};
 use resolve::{ResolveResult, Resolver};
@@ -294,12 +294,9 @@ where
         } = Resolver::default().resolve_files(&files);
 
         db.set_files_with_durability(Arc::new(files), Durability::HIGH);
-        let items = nodes.iter().filter_map(|(k, v)| {
-            if let NodeKind::Item(item) = &v.kind {
-                Some((*k, item.clone()))
-            } else {
-                None
-            }
+        let items = nodes.iter().filter_map(|(k, v)| match &v.kind {
+            NodeKind::Item(item) => Some((*k, item.clone())),
+            _ => None,
         });
 
         let type_graph = Arc::from(TypeGraph::from_items(items.clone()));
@@ -429,7 +426,7 @@ where
 
             pool.install(move || {
                 let cg = Codegen::new(self.mk_backend.make_backend(cx));
-                cg.gen().unwrap();
+                cg.r#gen().unwrap();
             });
 
             Ok::<_, rayon::ThreadPoolBuildError>(())

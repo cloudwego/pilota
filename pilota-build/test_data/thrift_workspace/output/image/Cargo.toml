@@ -14,6 +14,6 @@ workspace = true
 workspace = true
 
 [package]
-edition = "2021"
+edition = "2024"
 name = "image"
 version = "0.1.0"

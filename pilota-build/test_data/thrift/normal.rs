@@ -1083,7 +1083,7 @@ pub mod normal {
                     name: "TestTest123ResultSend",
                 })?;
                 match self {
-                    TestTest123ResultSend::Ok(ref value) => {}
+                    TestTest123ResultSend::Ok(value) => {}
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -1161,7 +1161,7 @@ pub mod normal {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTest123ResultSend",
                 }) + match self {
-                    TestTest123ResultSend::Ok(ref value) => 0,
+                    TestTest123ResultSend::Ok(value) => 0,
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -1630,7 +1630,7 @@ pub mod normal {
                     name: "TestTestExceptionException",
                 })?;
                 match self {
-                    TestTestExceptionException::StException(ref value) => {
+                    TestTestExceptionException::StException(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -1747,7 +1747,7 @@ pub mod normal {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestExceptionException",
                 }) + match self {
-                    TestTestExceptionException::StException(ref value) => {
+                    TestTestExceptionException::StException(value) => {
                         __protocol.struct_field_len(Some(1), value)
                     }
                 } + __protocol.field_stop_len()
@@ -1777,10 +1777,10 @@ pub mod normal {
                     name: "TestTestExceptionResultSend",
                 })?;
                 match self {
-                    TestTestExceptionResultSend::Ok(ref value) => {
+                    TestTestExceptionResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    TestTestExceptionResultSend::StException(ref value) => {
+                    TestTestExceptionResultSend::StException(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -1927,10 +1927,10 @@ pub mod normal {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestExceptionResultSend",
                 }) + match self {
-                    TestTestExceptionResultSend::Ok(ref value) => {
+                    TestTestExceptionResultSend::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
-                    TestTestExceptionResultSend::StException(ref value) => {
+                    TestTestExceptionResultSend::StException(value) => {
                         __protocol.struct_field_len(Some(1), value)
                     }
                 } + __protocol.field_stop_len()
@@ -1960,10 +1960,10 @@ pub mod normal {
                     name: "TestTestExceptionResultRecv",
                 })?;
                 match self {
-                    TestTestExceptionResultRecv::Ok(ref value) => {
+                    TestTestExceptionResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    TestTestExceptionResultRecv::StException(ref value) => {
+                    TestTestExceptionResultRecv::StException(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -2110,10 +2110,10 @@ pub mod normal {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestExceptionResultRecv",
                 }) + match self {
-                    TestTestExceptionResultRecv::Ok(ref value) => {
+                    TestTestExceptionResultRecv::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
-                    TestTestExceptionResultRecv::StException(ref value) => {
+                    TestTestExceptionResultRecv::StException(value) => {
                         __protocol.struct_field_len(Some(1), value)
                     }
                 } + __protocol.field_stop_len()
@@ -2141,7 +2141,7 @@ pub mod normal {
                     name: "TestTest123ResultRecv",
                 })?;
                 match self {
-                    TestTest123ResultRecv::Ok(ref value) => {}
+                    TestTest123ResultRecv::Ok(value) => {}
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -2219,7 +2219,7 @@ pub mod normal {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTest123ResultRecv",
                 }) + match self {
-                    TestTest123ResultRecv::Ok(ref value) => 0,
+                    TestTest123ResultRecv::Ok(value) => 0,
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }

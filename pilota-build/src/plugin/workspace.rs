@@ -1,8 +1,8 @@
 use crate::{
+    Plugin,
     db::RirDatabase,
     middle::context::tls::CUR_ITEM,
     rir::{Item, NodeKind},
-    Plugin,
 };
 
 #[derive(Clone, Copy)]
@@ -31,8 +31,8 @@ impl Plugin for _WorkspacePlugin {
     ) {
         if let Item::Service(s) = &*item {
             if let Some(loc) = cx.location_map.get(&def_id) {
-                if let Some(mut gen) = cx.plugin_gen.get_mut(loc) {
-                    gen.push_str(&format!("pub struct {};", s.name.sym));
+                if let Some(mut r#gen) = cx.plugin_gen.get_mut(loc) {
+                    r#gen.push_str(&format!("pub struct {};", s.name.sym));
                 }
             };
         }

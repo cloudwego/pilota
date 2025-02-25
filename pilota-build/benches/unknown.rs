@@ -1,14 +1,14 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use faststr::FastStr;
 use pilota::{
     prost::bytes::BytesMut,
     thrift::{
+        Message,
         binary::TBinaryProtocol,
         binary_unsafe::{TBinaryUnsafeInputProtocol, TBinaryUnsafeOutputProtocol},
-        Message,
     },
 };
-use rand::{distributions::Alphanumeric, Rng};
+use rand::{Rng, distributions::Alphanumeric};
 
 include!("../test_data/thrift/normal.rs");
 include!("../test_data/unknown_fields.rs");

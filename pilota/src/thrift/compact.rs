@@ -11,13 +11,13 @@ use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::{
+    ProtocolException, TAsyncInputProtocol, TFieldIdentifier, TInputProtocol, TLengthProtocol,
+    TListIdentifier, TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol,
+    TSetIdentifier, TStructIdentifier, TType, ThriftException, ZERO_COPY_THRESHOLD,
     error::ProtocolExceptionKind,
     new_protocol_exception,
     rw_ext::{ReadExt, WriteExt},
     varint_ext::VarIntProcessor,
-    ProtocolException, TAsyncInputProtocol, TFieldIdentifier, TInputProtocol, TLengthProtocol,
-    TListIdentifier, TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol,
-    TSetIdentifier, TStructIdentifier, TType, ThriftException, ZERO_COPY_THRESHOLD,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -182,7 +182,7 @@ impl<T> TCompactOutputProtocol<T> {
 }
 
 macro_rules! write_field_header_len {
-    ($self:expr, $ax:expr, $field_type:expr, $id:expr) => {
+    ($self:expr_2021, $ax:expr_2021, $field_type:expr_2021, $id:expr_2021) => {
         let field_delta = $id - $self.last_write_field_id;
         if field_delta > 0 && field_delta < 15 {
             $ax += $self.byte_len(0);
@@ -1300,7 +1300,7 @@ impl TCompactInputProtocol<&mut Bytes> {
 }
 
 macro_rules! read_field_header_len {
-    ($self:expr, $ax:expr, $field_type:expr, $id:expr) => {
+    ($self:expr_2021, $ax:expr_2021, $field_type:expr_2021, $id:expr_2021) => {
         let field_delta = $id - $self.last_read_field_id;
         if field_delta > 0 && field_delta < 15 {
             $ax += $self.byte_len(0);
@@ -1774,7 +1774,7 @@ mod tests {
 
     #[cfg(test)]
     macro_rules! assert_success {
-        ($e: expr) => {{
+        ($e: expr_2021) => {{
             let res = $e;
             assert!(res.is_ok());
             res.unwrap()
@@ -1799,7 +1799,7 @@ mod tests {
         let mut trans = BytesMut::new();
         let mut o_prot = test_output_prot_bytesmut(&mut trans);
         macro_rules! mteq {
-            ($o:expr, $exp:expr) => {
+            ($o:expr_2021, $exp:expr_2021) => {
                 assert_eq!($exp, $o.trans.len());
                 $o.trans.clear();
             };

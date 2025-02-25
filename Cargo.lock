@@ -26,7 +26,6 @@ dependencies = [
  "cfg-if",
  "getrandom",
  "once_cell",
- "serde",
  "version_check",
  "zerocopy",
 ]
@@ -282,19 +281,6 @@ checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
 
 [[package]]
 name = "dashmap"
-version = "5.5.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "978747c1d849a7d2ee5e8adc0159961c48fb7e5db2f06af6723b80123bb53856"
-dependencies = [
- "cfg-if",
- "hashbrown 0.14.5",
- "lock_api",
- "once_cell",
- "parking_lot_core 0.9.10",
-]
-
-[[package]]
-name = "dashmap"
 version = "6.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5041cc499144891f3790297212f32a74fb938e5136a14943f338ef9e0ae276cf"
@@ -340,41 +326,10 @@ dependencies = [
 
 [[package]]
 name = "examples"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
- "ahash",
- "anyhow",
- "criterion",
- "dashmap 5.5.3",
- "diffy",
- "faststr",
- "heck 0.5.0",
- "itertools 0.13.0",
- "linkedbytes",
- "normpath",
- "paste",
- "petgraph",
- "phf",
  "pilota",
  "pilota-build",
- "pilota-thrift-parser",
- "proc-macro2",
- "protobuf-parse2",
- "protobuf2",
- "quote",
- "rand",
- "rayon",
- "rustc-hash",
- "salsa",
- "scoped-tls",
- "serde",
- "serde_yaml",
- "syn 2.0.87",
- "tempfile",
- "tokio",
- "toml",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]
@@ -829,7 +784,7 @@ dependencies = [
 
 [[package]]
 name = "pilota"
-version = "0.11.8"
+version = "0.11.9"
 dependencies = [
  "ahash",
  "anyhow",
@@ -852,12 +807,12 @@ dependencies = [
 
 [[package]]
 name = "pilota-build"
-version = "0.11.29"
+version = "0.11.30"
 dependencies = [
  "ahash",
  "anyhow",
  "criterion",
- "dashmap 6.1.0",
+ "dashmap",
  "diffy",
  "faststr",
  "heck 0.5.0",
@@ -890,7 +845,7 @@ dependencies = [
 
 [[package]]
 name = "pilota-thrift-parser"
-version = "0.11.5"
+version = "0.11.6"
 dependencies = [
  "nom",
 ]

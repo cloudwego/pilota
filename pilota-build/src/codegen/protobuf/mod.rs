@@ -6,12 +6,12 @@ use proc_macro2::{Ident, Span};
 use quote::quote;
 
 use crate::{
+    CodegenBackend, Context, DefId,
     db::RirDatabase,
     middle::ty::{self},
     rir::{self, Field, FieldKind, Item, NodeKind},
     tags::protobuf::{OneOf, ProstType},
     ty::Ty,
-    CodegenBackend, Context, DefId,
 };
 
 #[derive(Clone)]
@@ -280,7 +280,7 @@ impl ProtobufBackend {
         }
     }
 
-    fn field_tags(&self, field: &Field) -> impl Iterator<Item = u32> {
+    fn field_tags(&self, field: &Field) -> impl Iterator<Item = u32> + use<> {
         if let ty::TyKind::Path(path) = &field.ty.kind {
             if let Some(node) = &self.cx.node(path.did) {
                 if self.cx.contains_tag::<OneOf>(node.tags) {
@@ -496,7 +496,7 @@ impl CodegenBackend for ProtobufBackend {
             format! {
                 r#"{tag} => {{
                     match field {{
-                        ::core::option::Option::Some({name}::{variant_name}(ref mut value)) => {{
+                        ::core::option::Option::Some({name}::{variant_name}(value)) => {{
                             {merge}?;
                         }},
                         _ => {{

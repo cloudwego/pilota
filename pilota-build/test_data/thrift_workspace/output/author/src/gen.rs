@@ -1,4 +1,4 @@
-pub mod gen {
+pub mod r#gen {
     #![allow(warnings, clippy::all)]
 
     pub mod article {
@@ -36,7 +36,7 @@ pub mod gen {
                     name: "AuthorServiceGetAuthorResultRecv",
                 })?;
                 match self {
-                    AuthorServiceGetAuthorResultRecv::Ok(ref value) => {
+                    AuthorServiceGetAuthorResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -148,7 +148,7 @@ pub mod gen {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "AuthorServiceGetAuthorResultRecv",
                 }) + match self {
-                    AuthorServiceGetAuthorResultRecv::Ok(ref value) => {
+                    AuthorServiceGetAuthorResultRecv::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -329,7 +329,7 @@ pub mod gen {
                     name: "AuthorServiceGetAuthorResultSend",
                 })?;
                 match self {
-                    AuthorServiceGetAuthorResultSend::Ok(ref value) => {
+                    AuthorServiceGetAuthorResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -441,7 +441,7 @@ pub mod gen {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "AuthorServiceGetAuthorResultSend",
                 }) + match self {
-                    AuthorServiceGetAuthorResultSend::Ok(ref value) => {
+                    AuthorServiceGetAuthorResultSend::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()

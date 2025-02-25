@@ -1,10 +1,10 @@
 use ahash::{AHashMap, AHashSet};
 use bytes::{Bytes, BytesMut};
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use faststr::FastStr;
 use pilota::thrift::{
-    binary_unsafe::TBinaryUnsafeInputProtocol, TInputProtocol, TOutputProtocol, TOutputProtocolExt,
-    TStructIdentifier, TType, ThriftException,
+    TInputProtocol, TOutputProtocol, TOutputProtocolExt, TStructIdentifier, TType, ThriftException,
+    binary_unsafe::TBinaryUnsafeInputProtocol,
 };
 use rand::Rng;
 
@@ -45,7 +45,7 @@ fn skip_bench(c: &mut Criterion) {
 fn generate_list_i32() -> Bytes {
     let mut rng = rand::thread_rng();
     let vec_size: usize = 100;
-    let v: Vec<i32> = (0..vec_size).map(|_| rng.gen()).collect();
+    let v: Vec<i32> = (0..vec_size).map(|_| rng.r#gen()).collect();
 
     let mut buf = BytesMut::new();
 

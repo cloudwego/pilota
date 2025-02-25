@@ -178,7 +178,7 @@ pub mod auto_name {
                     name: "serviceTest2ResultRecv",
                 })?;
                 match self {
-                    serviceTest2ResultRecv::Ok(ref value) => {
+                    serviceTest2ResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -294,7 +294,7 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "serviceTest2ResultRecv",
                 }) + match self {
-                    serviceTest2ResultRecv::Ok(ref value) => {
+                    serviceTest2ResultRecv::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -763,10 +763,10 @@ pub mod auto_name {
                     name: "servicetestResultSend",
                 })?;
                 match self {
-                    servicetestResultSend::Ok(ref value) => {
+                    servicetestResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    servicetestResultSend::E(ref value) => {
+                    servicetestResultSend::E(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -912,12 +912,8 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "servicetestResultSend",
                 }) + match self {
-                    servicetestResultSend::Ok(ref value) => {
-                        __protocol.struct_field_len(Some(0), value)
-                    }
-                    servicetestResultSend::E(ref value) => {
-                        __protocol.struct_field_len(Some(1), value)
-                    }
+                    servicetestResultSend::Ok(value) => __protocol.struct_field_len(Some(0), value),
+                    servicetestResultSend::E(value) => __protocol.struct_field_len(Some(1), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -1259,7 +1255,7 @@ pub mod auto_name {
                     name: "ServicetestException",
                 })?;
                 match self {
-                    ServicetestException::E(ref value) => {
+                    ServicetestException::E(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -1375,9 +1371,7 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ServicetestException",
                 }) + match self {
-                    ServicetestException::E(ref value) => {
-                        __protocol.struct_field_len(Some(1), value)
-                    }
+                    ServicetestException::E(value) => __protocol.struct_field_len(Some(1), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -1405,10 +1399,10 @@ pub mod auto_name {
                     name: "ServicetestResultRecv",
                 })?;
                 match self {
-                    ServicetestResultRecv::Ok(ref value) => {
+                    ServicetestResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    ServicetestResultRecv::E(ref value) => {
+                    ServicetestResultRecv::E(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -1554,12 +1548,8 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ServicetestResultRecv",
                 }) + match self {
-                    ServicetestResultRecv::Ok(ref value) => {
-                        __protocol.struct_field_len(Some(0), value)
-                    }
-                    ServicetestResultRecv::E(ref value) => {
-                        __protocol.struct_field_len(Some(1), value)
-                    }
+                    ServicetestResultRecv::Ok(value) => __protocol.struct_field_len(Some(0), value),
+                    ServicetestResultRecv::E(value) => __protocol.struct_field_len(Some(1), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -1586,7 +1576,7 @@ pub mod auto_name {
                     name: "serviceTest2ResultSend",
                 })?;
                 match self {
-                    serviceTest2ResultSend::Ok(ref value) => {
+                    serviceTest2ResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -1702,7 +1692,7 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "serviceTest2ResultSend",
                 }) + match self {
-                    serviceTest2ResultSend::Ok(ref value) => {
+                    serviceTest2ResultSend::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -1730,7 +1720,7 @@ pub mod auto_name {
                     name: "serviceTestException",
                 })?;
                 match self {
-                    serviceTestException::E(ref value) => {
+                    serviceTestException::E(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -1846,9 +1836,7 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "serviceTestException",
                 }) + match self {
-                    serviceTestException::E(ref value) => {
-                        __protocol.struct_field_len(Some(1), value)
-                    }
+                    serviceTestException::E(value) => __protocol.struct_field_len(Some(1), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -1876,10 +1864,10 @@ pub mod auto_name {
                     name: "serviceTestResultRecv",
                 })?;
                 match self {
-                    serviceTestResultRecv::Ok(ref value) => {
+                    serviceTestResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    serviceTestResultRecv::E(ref value) => {
+                    serviceTestResultRecv::E(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -2025,12 +2013,8 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "serviceTestResultRecv",
                 }) + match self {
-                    serviceTestResultRecv::Ok(ref value) => {
-                        __protocol.struct_field_len(Some(0), value)
-                    }
-                    serviceTestResultRecv::E(ref value) => {
-                        __protocol.struct_field_len(Some(1), value)
-                    }
+                    serviceTestResultRecv::Ok(value) => __protocol.struct_field_len(Some(0), value),
+                    serviceTestResultRecv::E(value) => __protocol.struct_field_len(Some(1), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -2374,10 +2358,10 @@ pub mod auto_name {
                     name: "ServiceTestResultSend",
                 })?;
                 match self {
-                    ServiceTestResultSend::Ok(ref value) => {
+                    ServiceTestResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    ServiceTestResultSend::E(ref value) => {
+                    ServiceTestResultSend::E(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -2523,12 +2507,8 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ServiceTestResultSend",
                 }) + match self {
-                    ServiceTestResultSend::Ok(ref value) => {
-                        __protocol.struct_field_len(Some(0), value)
-                    }
-                    ServiceTestResultSend::E(ref value) => {
-                        __protocol.struct_field_len(Some(1), value)
-                    }
+                    ServiceTestResultSend::Ok(value) => __protocol.struct_field_len(Some(0), value),
+                    ServiceTestResultSend::E(value) => __protocol.struct_field_len(Some(1), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -2746,7 +2726,7 @@ pub mod auto_name {
                     name: "ServiceTest2ResultRecv",
                 })?;
                 match self {
-                    ServiceTest2ResultRecv::Ok(ref value) => {
+                    ServiceTest2ResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -2862,7 +2842,7 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ServiceTest2ResultRecv",
                 }) + match self {
-                    ServiceTest2ResultRecv::Ok(ref value) => {
+                    ServiceTest2ResultRecv::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -3495,7 +3475,7 @@ pub mod auto_name {
                     name: "servicetestException",
                 })?;
                 match self {
-                    servicetestException::E(ref value) => {
+                    servicetestException::E(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -3611,9 +3591,7 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "servicetestException",
                 }) + match self {
-                    servicetestException::E(ref value) => {
-                        __protocol.struct_field_len(Some(1), value)
-                    }
+                    servicetestException::E(value) => __protocol.struct_field_len(Some(1), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -3641,10 +3619,10 @@ pub mod auto_name {
                     name: "servicetestResultRecv",
                 })?;
                 match self {
-                    servicetestResultRecv::Ok(ref value) => {
+                    servicetestResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    servicetestResultRecv::E(ref value) => {
+                    servicetestResultRecv::E(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -3790,12 +3768,8 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "servicetestResultRecv",
                 }) + match self {
-                    servicetestResultRecv::Ok(ref value) => {
-                        __protocol.struct_field_len(Some(0), value)
-                    }
-                    servicetestResultRecv::E(ref value) => {
-                        __protocol.struct_field_len(Some(1), value)
-                    }
+                    servicetestResultRecv::Ok(value) => __protocol.struct_field_len(Some(0), value),
+                    servicetestResultRecv::E(value) => __protocol.struct_field_len(Some(1), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -4023,10 +3997,10 @@ pub mod auto_name {
                     name: "ServicetestResultSend",
                 })?;
                 match self {
-                    ServicetestResultSend::Ok(ref value) => {
+                    ServicetestResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    ServicetestResultSend::E(ref value) => {
+                    ServicetestResultSend::E(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -4172,12 +4146,8 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ServicetestResultSend",
                 }) + match self {
-                    ServicetestResultSend::Ok(ref value) => {
-                        __protocol.struct_field_len(Some(0), value)
-                    }
-                    ServicetestResultSend::E(ref value) => {
-                        __protocol.struct_field_len(Some(1), value)
-                    }
+                    ServicetestResultSend::Ok(value) => __protocol.struct_field_len(Some(0), value),
+                    ServicetestResultSend::E(value) => __protocol.struct_field_len(Some(1), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -4521,10 +4491,10 @@ pub mod auto_name {
                     name: "serviceTestResultSend",
                 })?;
                 match self {
-                    serviceTestResultSend::Ok(ref value) => {
+                    serviceTestResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    serviceTestResultSend::E(ref value) => {
+                    serviceTestResultSend::E(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -4670,12 +4640,8 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "serviceTestResultSend",
                 }) + match self {
-                    serviceTestResultSend::Ok(ref value) => {
-                        __protocol.struct_field_len(Some(0), value)
-                    }
-                    serviceTestResultSend::E(ref value) => {
-                        __protocol.struct_field_len(Some(1), value)
-                    }
+                    serviceTestResultSend::Ok(value) => __protocol.struct_field_len(Some(0), value),
+                    serviceTestResultSend::E(value) => __protocol.struct_field_len(Some(1), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -4701,7 +4667,7 @@ pub mod auto_name {
                     name: "ServiceTest2ResultSend",
                 })?;
                 match self {
-                    ServiceTest2ResultSend::Ok(ref value) => {
+                    ServiceTest2ResultSend::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -4817,7 +4783,7 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ServiceTest2ResultSend",
                 }) + match self {
-                    ServiceTest2ResultSend::Ok(ref value) => {
+                    ServiceTest2ResultSend::Ok(value) => {
                         __protocol.struct_field_len(Some(0), value)
                     }
                 } + __protocol.field_stop_len()
@@ -4845,7 +4811,7 @@ pub mod auto_name {
                     name: "ServiceTestException",
                 })?;
                 match self {
-                    ServiceTestException::E(ref value) => {
+                    ServiceTestException::E(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -4961,9 +4927,7 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ServiceTestException",
                 }) + match self {
-                    ServiceTestException::E(ref value) => {
-                        __protocol.struct_field_len(Some(1), value)
-                    }
+                    ServiceTestException::E(value) => __protocol.struct_field_len(Some(1), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -4991,10 +4955,10 @@ pub mod auto_name {
                     name: "ServiceTestResultRecv",
                 })?;
                 match self {
-                    ServiceTestResultRecv::Ok(ref value) => {
+                    ServiceTestResultRecv::Ok(value) => {
                         __protocol.write_struct_field(0, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    ServiceTestResultRecv::E(ref value) => {
+                    ServiceTestResultRecv::E(value) => {
                         __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                     }
                 }
@@ -5140,12 +5104,8 @@ pub mod auto_name {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "ServiceTestResultRecv",
                 }) + match self {
-                    ServiceTestResultRecv::Ok(ref value) => {
-                        __protocol.struct_field_len(Some(0), value)
-                    }
-                    ServiceTestResultRecv::E(ref value) => {
-                        __protocol.struct_field_len(Some(1), value)
-                    }
+                    ServiceTestResultRecv::Ok(value) => __protocol.struct_field_len(Some(0), value),
+                    ServiceTestResultRecv::E(value) => __protocol.struct_field_len(Some(1), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }

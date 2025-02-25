@@ -24,7 +24,7 @@ pub mod void {
                     name: "TestTest123ResultRecv",
                 })?;
                 match self {
-                    TestTest123ResultRecv::Ok(ref value) => {}
+                    TestTest123ResultRecv::Ok(value) => {}
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -102,7 +102,7 @@ pub mod void {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTest123ResultRecv",
                 }) + match self {
-                    TestTest123ResultRecv::Ok(ref value) => 0,
+                    TestTest123ResultRecv::Ok(value) => 0,
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -366,7 +366,7 @@ pub mod void {
                     name: "TestTest123ResultSend",
                 })?;
                 match self {
-                    TestTest123ResultSend::Ok(ref value) => {}
+                    TestTest123ResultSend::Ok(value) => {}
                 }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
@@ -444,7 +444,7 @@ pub mod void {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTest123ResultSend",
                 }) + match self {
-                    TestTest123ResultSend::Ok(ref value) => 0,
+                    TestTest123ResultSend::Ok(value) => 0,
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }

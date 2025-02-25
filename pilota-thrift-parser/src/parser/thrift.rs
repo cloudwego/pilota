@@ -1,10 +1,10 @@
 use nom::{
+    IResult,
     bytes::complete::take_while,
     character::complete::satisfy,
     combinator::{eof, map, opt, peek, recognize},
     multi::many_till,
     sequence::tuple,
-    IResult,
 };
 
 use super::super::{

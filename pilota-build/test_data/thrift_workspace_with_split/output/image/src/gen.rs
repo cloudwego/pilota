@@ -1,4 +1,4 @@
-pub mod gen {
+pub mod r#gen {
     #![allow(warnings, clippy::all)]
 
     pub mod article {

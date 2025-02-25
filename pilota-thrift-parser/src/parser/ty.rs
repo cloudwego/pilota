@@ -1,12 +1,11 @@
 use std::sync::Arc;
 
 use nom::{
-    self,
+    self, IResult,
     branch::{alt, permutation},
     bytes::complete::tag,
     combinator::{map, not, opt, peek},
     sequence::{preceded, tuple},
-    IResult,
 };
 
 use super::super::{

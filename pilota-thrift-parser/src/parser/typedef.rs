@@ -1,8 +1,8 @@
 use nom::{
+    IResult,
     bytes::complete::tag,
     combinator::{map, opt},
     sequence::tuple,
-    IResult,
 };
 
 use super::super::{
