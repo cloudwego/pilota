@@ -24,7 +24,7 @@ pub mod optional_parameter {
                     name: "TestTestResultRecv",
                 })?;
                 match self {
-                    TestTestResultRecv::Ok(ref value) => {
+                    TestTestResultRecv::Ok(value) => {
                         __protocol.write_faststr_field(0, (value).clone())?;
                     }
                 }
@@ -136,9 +136,7 @@ pub mod optional_parameter {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestResultRecv",
                 }) + match self {
-                    TestTestResultRecv::Ok(ref value) => {
-                        __protocol.faststr_field_len(Some(0), value)
-                    }
+                    TestTestResultRecv::Ok(value) => __protocol.faststr_field_len(Some(0), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -381,7 +379,7 @@ pub mod optional_parameter {
                     name: "TestTestResultSend",
                 })?;
                 match self {
-                    TestTestResultSend::Ok(ref value) => {
+                    TestTestResultSend::Ok(value) => {
                         __protocol.write_faststr_field(0, (value).clone())?;
                     }
                 }
@@ -493,9 +491,7 @@ pub mod optional_parameter {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                     name: "TestTestResultSend",
                 }) + match self {
-                    TestTestResultSend::Ok(ref value) => {
-                        __protocol.faststr_field_len(Some(0), value)
-                    }
+                    TestTestResultSend::Ok(value) => __protocol.faststr_field_len(Some(0), value),
                 } + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
