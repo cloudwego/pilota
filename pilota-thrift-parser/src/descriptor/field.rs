@@ -1,6 +1,6 @@
 use super::{Annotations, ConstValue, Ident, Type};
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub enum Attribute {
     Optional,
     Required,

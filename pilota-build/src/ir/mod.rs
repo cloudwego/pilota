@@ -54,6 +54,7 @@ pub struct Arg {
     pub name: Ident,
     pub id: i32,
     pub tags: Arc<Tags>,
+    pub attribute: FieldKind,
 }
 
 #[derive(Clone, Debug)]

@@ -660,6 +660,10 @@ impl Resolver {
                                     name: a.name.clone(),
                                     id: a.id,
                                     tags_id,
+                                    kind: match a.attribute {
+                                        ir::FieldKind::Required => FieldKind::Required,
+                                        ir::FieldKind::Optional => FieldKind::Optional,
+                                    },
                                 });
                                 self.nodes.insert(
                                     def_id,

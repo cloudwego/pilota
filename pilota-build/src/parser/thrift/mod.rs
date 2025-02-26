@@ -319,6 +319,11 @@ impl ThriftLower {
                     id: a.id,
                     name: self.lower_ident(&a.name),
                     tags: Arc::new(self.extract_tags(&a.annotations)),
+                    attribute: match a.attribute {
+                        pilota_thrift_parser::Attribute::Required => FieldKind::Required,
+                        pilota_thrift_parser::Attribute::Optional
+                        | pilota_thrift_parser::Attribute::Default => FieldKind::Optional,
+                    },
                 })
                 .collect(),
             ret: self.lower_ty(&method.result_type),
