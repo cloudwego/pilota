@@ -52,6 +52,7 @@ impl Parser for Scope {
                 tag("st"),
                 tag("xsd"),
                 tag("rs"),
+                tag("cocoa"),
             )),
             |s: &str| Scope(s.into()),
         )(input)
