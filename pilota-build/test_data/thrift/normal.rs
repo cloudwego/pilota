@@ -1,5 +1,6 @@
 pub mod normal {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod normal {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]

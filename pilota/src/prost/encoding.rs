@@ -11,6 +11,7 @@ use core::{cmp::min, convert::TryFrom, mem, str, u32, usize};
 use ::bytes::{Buf, BufMut, Bytes};
 
 use super::{DecodeError, Message};
+use crate::LinkedBytes;
 
 /// Encodes an integer value into LEB128 variable length format, and writes it
 /// to the buffer. The buffer must have enough remaining space (maximum 10
@@ -313,7 +314,7 @@ pub fn decode_key<B>(buf: &mut B) -> Result<(u32, WireType), DecodeError>
 where
     B: Buf,
 {
-    let key = decode_varint(buf)?;
+    let key: u64 = decode_varint(buf)?;
     if key > u64::from(u32::MAX) {
         return Err(DecodeError::new(format!("invalid key value: {}", key)));
     }

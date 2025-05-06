@@ -28,6 +28,7 @@ impl ::pilota::prost::Message for EchoResponse {
         B: ::pilota::prost::bytes::Buf,
     {
         const STRUCT_NAME: &'static str = stringify!(EchoResponse);
+
         match tag {
             1 => {
                 let mut _inner_pilota_value = &mut self.message;

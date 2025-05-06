@@ -1,5 +1,6 @@
 pub mod pilota_name {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod pilota_name {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]

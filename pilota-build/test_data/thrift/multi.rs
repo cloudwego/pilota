@@ -1,5 +1,6 @@
 pub mod multi {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod default_value {
 

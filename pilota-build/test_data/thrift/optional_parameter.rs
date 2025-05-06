@@ -1,5 +1,6 @@
 pub mod optional_parameter {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod optional_parameter {
 

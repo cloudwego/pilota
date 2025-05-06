@@ -1,5 +1,6 @@
 pub mod void {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod void {
 

@@ -118,6 +118,18 @@ fn test_protobuf(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     });
 }
 
+fn test_pb(source: impl AsRef<Path>, target: impl AsRef<Path>) {
+    test_with_builder(source, target, |source, target| {
+        crate::Builder::pb()
+            .ignore_unused(false)
+            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            )
+    });
+}
+
 fn test_protobuf_with_split(
     source: impl AsRef<Path>,
     target: impl AsRef<Path>,
@@ -125,6 +137,23 @@ fn test_protobuf_with_split(
 ) {
     test_with_split_builder(source, target, gen_dir, |source, target| {
         crate::Builder::protobuf()
+            .ignore_unused(false)
+            .split_generated_files(true)
+            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            )
+    });
+}
+
+fn test_pb_with_split(
+    source: impl AsRef<Path>,
+    target: impl AsRef<Path>,
+    gen_dir: impl AsRef<Path>,
+) {
+    test_with_split_builder(source, target, gen_dir, |source, target| {
+        crate::Builder::pb()
             .ignore_unused(false)
             .split_generated_files(true)
             .include_dirs(vec![source.parent().unwrap().to_path_buf()])
@@ -311,6 +340,18 @@ fn test_plugin_proto(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     });
 }
 
+fn test_plugin_pb(source: impl AsRef<Path>, target: impl AsRef<Path>) {
+    test_with_builder(source, target, |source, target| {
+        crate::Builder::pb()
+            .ignore_unused(false)
+            .plugin(SerdePlugin)
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            )
+    });
+}
+
 #[test]
 fn test_thrift_gen() {
     let test_data_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -396,8 +437,12 @@ fn test_protobuf_gen() {
         if let Some(ext) = path.extension() {
             if ext == "proto" {
                 let mut rs_path = path.clone();
+                let mut rs_path_new = path.clone();
+                let path_clone = path.clone();
                 rs_path.set_extension("rs");
                 test_protobuf(path, rs_path);
+                rs_path_new.set_extension("new_pb.rs");
+                test_pb(path_clone, rs_path_new);
             }
         }
     });
@@ -416,14 +461,30 @@ fn test_protobuf_gen_with_split() {
 
         if let Some(ext) = path.extension() {
             if ext == "proto" {
-                let mut rs_path = path.clone();
-                rs_path.set_extension("rs");
+                let file_name = path.file_name().unwrap();
+                let mut path_clone = path.clone();
+                let mut path_clone_new = path.clone();
 
-                let mut gen_dir = path.clone();
+                path_clone.pop();
+                path_clone.push("pb");
+                path_clone.push(file_name);
+                path_clone.set_extension("rs");
+
+                path_clone_new.pop();
+                path_clone_new.push("new_pb");
+                path_clone_new.push(file_name);
+                path_clone_new.set_extension("rs");
+
+                let mut gen_dir = path_clone.clone();
                 gen_dir.pop();
-                gen_dir.push(rs_path.file_stem().unwrap());
+                gen_dir.push(path_clone.file_stem().unwrap());
 
-                test_protobuf_with_split(path, rs_path, gen_dir.as_path());
+                let mut gen_dir_new = path_clone_new.clone();
+                gen_dir_new.pop();
+                gen_dir_new.push(path_clone_new.file_stem().unwrap());
+
+                test_protobuf_with_split(&path, path_clone, gen_dir.as_path());
+                test_pb_with_split(&path, path_clone_new, gen_dir_new.as_path());
             }
         }
     });
@@ -447,8 +508,12 @@ fn test_plugin_gen() {
                 test_plugin_thrift(path, rs_path);
             } else if ext == "proto" {
                 let mut rs_path = path.clone();
+                let mut rs_path_new = path.clone();
+                let path_clone = path.clone();
                 rs_path.set_extension("rs");
                 test_plugin_proto(path, rs_path);
+                rs_path_new.set_extension("new_pb.rs");
+                test_plugin_pb(path_clone, rs_path_new);
             }
         }
     });
@@ -486,6 +551,26 @@ fn test_unknown_fields() {
         crate::Builder::thrift()
             .ignore_unused(false)
             .keep_unknown_fields([source.into()])
+            .plugin(SerdePlugin)
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            )
+    });
+
+    // pb
+    let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("unknown_fields_pb.proto");
+
+    let mut out_path = file_path.clone();
+    out_path.set_extension("rs");
+
+    test_with_builder(file_path, out_path, |source, target| {
+        crate::Builder::protobuf()
+            .ignore_unused(false)
+            .keep_unknown_fields([source.into()])
+            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
             .plugin(SerdePlugin)
             .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
