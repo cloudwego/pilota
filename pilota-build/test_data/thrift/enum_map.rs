@@ -1,5 +1,6 @@
 pub mod enum_map {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod enum_map {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]

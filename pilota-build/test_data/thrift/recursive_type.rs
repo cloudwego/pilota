@@ -1,5 +1,6 @@
 pub mod recursive_type {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod recursive_type {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
