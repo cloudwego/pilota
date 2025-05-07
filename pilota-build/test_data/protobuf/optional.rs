@@ -1,5 +1,6 @@
 pub mod optional {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
     #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
     pub struct SearchRequest {
         pub page_number: ::std::option::Option<i32>,
@@ -34,6 +35,7 @@ pub mod optional {
             B: ::pilota::prost::bytes::Buf,
         {
             const STRUCT_NAME: &'static str = stringify!(SearchRequest);
+
             match tag {
                 2 => {
                     let mut _inner_pilota_value = &mut self.page_number;

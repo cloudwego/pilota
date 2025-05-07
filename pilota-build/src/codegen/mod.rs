@@ -36,6 +36,7 @@ pub(crate) mod traits;
 
 mod workspace;
 
+pub mod pb;
 pub mod protobuf;
 pub mod thrift;
 
@@ -119,7 +120,7 @@ where
             .join("\n");
 
         if self.keep_unknown_fields.contains(&def_id) {
-            fields.push_str("pub _unknown_fields: ::pilota::LinkedBytes,");
+            fields.push_str("pub _unknown_fields: ::pilota::BytesVec,");
         }
 
         stream.push_str(&format! {
@@ -315,7 +316,7 @@ where
             .join("\n");
 
         if self.keep_unknown_fields.contains(&def_id) && keep {
-            variants.push_str("_UnknownFields(::pilota::LinkedBytes),");
+            variants.push_str("_UnknownFields(::pilota::BytesVec),");
         }
         stream.push_str(&format! {
             r#"
@@ -613,6 +614,7 @@ where
 
         stream = format! {r#"pub mod {ns_name} {{
                 #![allow(warnings, clippy::all)]
+                use ::pilota::{{Buf as _, BufMut as _}};
                 {stream}
             }}"#};
         let stream = stream.lines().map(|s| s.trim_end()).join("\n");

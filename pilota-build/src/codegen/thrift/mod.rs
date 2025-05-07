@@ -219,7 +219,7 @@ impl ThriftBackend {
             .join("");
 
         if keep && !helper.is_async {
-            def_fields.push_str("let mut _unknown_fields = ::pilota::LinkedBytes::new();");
+            def_fields.push_str("let mut _unknown_fields = ::pilota::BytesVec::new();");
         }
 
         let set_default_fields = s
@@ -307,7 +307,7 @@ impl ThriftBackend {
             if !helper.is_async {
                 fields.push_str("_unknown_fields");
             } else {
-                fields.push_str("_unknown_fields: ::pilota::LinkedBytes::new()");
+                fields.push_str("_unknown_fields: ::pilota::BytesVec::new()");
             }
         }
 
@@ -683,7 +683,7 @@ impl CodegenBackend for ThriftBackend {
                             format!(
                                 r#"if ret.is_none() {{
                                 unsafe {{
-                                    let mut __pilota_linked_bytes = ::pilota::LinkedBytes::new();
+                                    let mut __pilota_linked_bytes = ::pilota::BytesVec::new();
                                     __pilota_linked_bytes.push_back(__protocol.get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?);
                                     ret = Some({name}::_UnknownFields(__pilota_linked_bytes));
                                 }}
