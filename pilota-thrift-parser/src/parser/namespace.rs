@@ -3,6 +3,7 @@ use nom::{
     branch::alt,
     bytes::complete::tag,
     combinator::{map, opt},
+    error::Error,
     sequence::{preceded, tuple},
 };
 
@@ -33,27 +34,49 @@ impl Parser for Namespace {
 impl Parser for Scope {
     fn parse(input: &str) -> IResult<&str, Scope> {
         map(
-            alt((
-                tag("*"),
-                tag("c_glib"),
-                tag("cpp"),
-                tag("delphi"),
-                tag("haxe"),
-                tag("go"),
-                tag("java"),
-                tag("js"),
-                tag("lua"),
-                tag("netstd"),
-                tag("perl"),
-                tag("php"),
-                tag("py.twisted"),
-                tag("py"),
-                tag("rb"),
-                tag("st"),
-                tag("xsd"),
-                tag("rs"),
-            )),
+            nom::bytes::complete::take_while1(|c: char| !c.is_whitespace()),
             |s: &str| Scope(s.into()),
         )(input)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_scope() {
+        let input = "cocoa ";
+        let (remaining, scope) = Scope::parse(input).unwrap();
+        assert_eq!(scope.0, "cocoa");
+        assert_eq!(remaining, " ");
+
+        let input = "*";
+        let (_, scope) = Scope::parse(input).unwrap();
+        assert_eq!(scope.0, "*");
+
+        let input = "py.twisted";
+        let (_, scope) = Scope::parse(input).unwrap();
+        assert_eq!(scope.0, "py.twisted");
+
+        let input = "  ";
+        let res = Scope::parse(input);
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn test_namespace() {
+        let input = "namespace cocoa java.lang.Object";
+        let (_, namespace) = Namespace::parse(input).unwrap();
+        assert_eq!(namespace.scope.0, "cocoa");
+        assert_eq!(
+            namespace
+                .name
+                .segments
+                .iter()
+                .map(|s| s.to_string())
+                .collect::<Vec<_>>(),
+            vec!["java", "lang", "Object"]
+        );
     }
 }
