@@ -271,11 +271,7 @@ impl ThriftLower {
                 fields: f
                     .arguments
                     .iter()
-                    .map(|a| {
-                        let mut tags = self.extract_tags(&a.annotations);
-                        tags.remove::<RustWrapperArc>();
-                        self.lower_field_with_tags(a, tags)
-                    })
+                    .map(|a| self.lower_field_with_tags(a, self.extract_tags(&a.annotations)))
                     .collect(),
             });
             related_items.push(name.clone());
