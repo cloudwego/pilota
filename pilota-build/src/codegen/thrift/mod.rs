@@ -292,7 +292,7 @@ impl ThriftBackend {
             }
         };
 
-        let format_msg = format!("decode struct {name} field(#{{}}) failed");
+        let format_msg = format!("decode struct `{name}` field(#{{}}) failed");
 
         let mut fields = s
             .fields

@@ -7,12 +7,12 @@ const DEFAULT_DEQUE_SIZE: usize = 16;
 #[derive(
     PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize,
 )]
-pub struct LinkedBytes {
+pub struct BytesVec {
     pub list: VecDeque<Bytes>,
     pub size: usize,
 }
 
-impl LinkedBytes {
+impl BytesVec {
     #[inline]
     pub fn new() -> Self {
         Self::with_capacity(DEFAULT_DEQUE_SIZE)
@@ -37,7 +37,7 @@ impl LinkedBytes {
     }
 }
 
-impl Default for LinkedBytes {
+impl Default for BytesVec {
     #[inline]
     fn default() -> Self {
         Self::new()
