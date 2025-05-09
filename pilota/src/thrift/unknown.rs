@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use bytes::{Bytes, BytesMut};
+use bytes::Bytes;
 
 const DEFAULT_DEQUE_SIZE: usize = 16;
 

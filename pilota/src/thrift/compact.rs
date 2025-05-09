@@ -63,7 +63,7 @@ impl TryFrom<u8> for TCompactType {
             0x0D => Ok(TCompactType::Uuid),
             _ => Err(ProtocolException::new(
                 ProtocolExceptionKind::InvalidData,
-                format!("invalid compact type {:?}", value),
+                format!("invalid compact type {value:?}"),
             )),
         }
     }
@@ -89,7 +89,7 @@ impl TryFrom<TType> for TCompactType {
             TType::Uuid => Ok(Self::Uuid),
             _ => Err(ProtocolException::new(
                 ProtocolExceptionKind::InvalidData,
-                format!("invalid ttype {:?}", value),
+                format!("invalid ttype {value:?}"),
             )),
         }
     }
@@ -128,7 +128,7 @@ fn tcompact_get_ttype(ct: TCompactType) -> Result<TType, ProtocolException> {
     ct.try_into().map_err(|_| {
         ProtocolException::new(
             ProtocolExceptionKind::InvalidData,
-            format!("don't know what type: {:?}", ct),
+            format!("don't know what type: {ct:?}"),
         )
     })
 }
@@ -138,7 +138,7 @@ fn tcompact_get_compact(tt: TType) -> Result<TCompactType, ProtocolException> {
     tt.try_into().map_err(|_| {
         ProtocolException::new(
             ProtocolExceptionKind::InvalidData,
-            format!("invalid ttype {:?}", tt),
+            format!("invalid ttype {tt:?}"),
         )
     })
 }
@@ -176,7 +176,7 @@ impl<T> TCompactOutputProtocol<T> {
 
     fn assert_no_pending_bool_write(&self) {
         if let Some(ref f) = self.pending_write_bool_field_identifier {
-            panic!("pending bool field {:?} not written", f);
+            panic!("pending bool field {f:?} not written");
         }
     }
 }
@@ -236,8 +236,7 @@ impl<T> TLengthProtocol for TCompactOutputProtocol<T> {
                 if self.pending_write_bool_field_identifier.is_some() {
                     panic!(
                         "should not have a pending bool while writing another bool with id: \
-                        {:?}",
-                        id,
+                        {id:?}",
                     )
                 }
                 self.pending_write_bool_field_identifier = Some(TFieldIdentifier {
@@ -497,8 +496,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut BytesMut> {
                 if self.pending_write_bool_field_identifier.is_some() {
                     panic!(
                         "should not have a pending bool while writing another bool with id: \
-                        {:?}",
-                        id
+                        {id:?}",
                     )
                 }
                 self.pending_write_bool_field_identifier = Some(TFieldIdentifier {
@@ -772,8 +770,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
                 if self.pending_write_bool_field_identifier.is_some() {
                     panic!(
                         "should not have a pending bool while writing another bool with id: \
-                        {:?}",
-                        id
+                        {id:?}",
                     )
                 }
                 self.pending_write_bool_field_identifier = Some(TFieldIdentifier {
@@ -977,7 +974,7 @@ where
         if compact_id != COMPACT_PROTOCOL_ID {
             return Err(new_protocol_exception(
                 ProtocolExceptionKind::BadVersion,
-                format!("invalid compact protocol header {:?}", compact_id),
+                format!("invalid compact protocol header {compact_id:?}"),
             ));
         }
 
@@ -986,7 +983,7 @@ where
         if version != COMPACT_VERSION {
             return Err(new_protocol_exception(
                 ProtocolExceptionKind::BadVersion,
-                format!("cannot process compact protocol version {:?}", version),
+                format!("cannot process compact protocol version {version:?}"),
             ));
         }
 
@@ -995,7 +992,7 @@ where
         let message_type = TMessageType::try_from(type_id).map_err(|_| {
             new_protocol_exception(
                 ProtocolExceptionKind::InvalidData,
-                format!("invalid message type {}", type_id),
+                format!("invalid message type {type_id}"),
             )
         })?;
 
@@ -1078,7 +1075,7 @@ where
                     TCompactType::BooleanFalse => Ok(false),
                     unkn => Err(new_protocol_exception(
                         ProtocolExceptionKind::InvalidData,
-                        format!("cannot convert {:?} into bool", unkn),
+                        format!("cannot convert {unkn:?} into bool"),
                     )),
                 }
             }
@@ -1266,7 +1263,7 @@ impl<T> TCompactInputProtocol<T> {
 
     fn assert_no_pending_bool_read(&self) {
         if let Some(ref f) = self.pending_read_bool_field_identifier {
-            panic!("pending bool field {:?} not read", f);
+            panic!("pending bool field {f:?} not read");
         }
     }
 }
@@ -1354,8 +1351,7 @@ impl<T> TLengthProtocol for TCompactInputProtocol<T> {
                 if self.pending_read_bool_field_identifier.is_some() {
                     panic!(
                         "should not have a pending bool while reading another bool with id: \
-                        {:?}",
-                        id,
+                        {id:?}",
                     )
                 }
                 self.pending_read_bool_field_identifier = Some(TFieldIdentifier {
@@ -1524,7 +1520,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
         if compact_id != COMPACT_PROTOCOL_ID {
             return Err(new_protocol_exception(
                 ProtocolExceptionKind::InvalidData,
-                format!("invalid compact protocol header {:?}", compact_id),
+                format!("invalid compact protocol header {compact_id}"),
             ));
         }
 
@@ -1533,7 +1529,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
         if version != COMPACT_VERSION {
             return Err(new_protocol_exception(
                 ProtocolExceptionKind::InvalidData,
-                format!("cannot process compact protocol version {:?}", version),
+                format!("cannot process compact protocol version {version}"),
             ));
         }
 
@@ -1542,7 +1538,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
         let message_type = TMessageType::try_from(type_id).map_err(|_| {
             new_protocol_exception(
                 ProtocolExceptionKind::InvalidData,
-                format!("invalid message type {:?}", type_id),
+                format!("invalid message type {type_id}"),
             )
         })?;
 
@@ -1625,7 +1621,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
                     TCompactType::BooleanFalse => Ok(false),
                     unkn => Err(new_protocol_exception(
                         ProtocolExceptionKind::InvalidData,
-                        format!("cannot convert {:?} into bool", unkn),
+                        format!("cannot convert {unkn:?} into bool"),
                     )),
                 }
             }

@@ -62,3 +62,11 @@ harness = false
 [[bench]]
 name = "unknown"
 harness = false
+
+[[bench]]
+name = "unknown_pb"
+harness = false
+
+[[bench]]
+name = "unknown_pb_new"
+harness = false

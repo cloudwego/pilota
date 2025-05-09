@@ -1,7 +1,7 @@
-use pilota::pb::Message as _;
 mod zero_value;
 #[test]
 fn test_pb_encode_zero_value() {
+    use pilota::pb::Message as _;
     let test_data = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("idl")
         .join("zero_value.proto");

@@ -292,7 +292,7 @@ impl ThriftBackend {
             }
         };
 
-        let format_msg = format!("decode struct `{}` field(#{{}}) failed", name);
+        let format_msg = format!("decode struct {name} field(#{{}}) failed");
 
         let mut fields = s
             .fields
@@ -521,7 +521,7 @@ impl CodegenBackend for ThriftBackend {
                 format!("__protocol.i32_len({v})"),
                 |helper| {
                     let read_i32 = helper.codegen_read_i32();
-                    let err_msg_tmpl = format!("invalid enum value for {}, value: {{}}", name);
+                    let err_msg_tmpl = format!("invalid enum value for {name}, value: {{}}");
                     format! {
                         r#"let value = {read_i32};
                         ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(|err|

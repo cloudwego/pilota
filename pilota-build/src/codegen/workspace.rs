@@ -199,7 +199,7 @@ where
         let deps = info
             .deps
             .iter()
-            .map(|s| Cow::from(format!(r#"{} = {{ path = "../{}" }}"#, s, s)))
+            .map(|s| Cow::from(format!(r#"{s} = {{ path = "../{s}" }}"#)))
             .chain(
                 info.workspace_deps
                     .iter()

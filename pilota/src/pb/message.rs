@@ -1,7 +1,7 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
-use core::{fmt::Debug, usize};
+use core::fmt::Debug;
 
 use bytes::{Buf, BufMut, Bytes};
 use linkedbytes::LinkedBytes;

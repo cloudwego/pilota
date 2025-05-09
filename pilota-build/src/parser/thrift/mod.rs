@@ -198,7 +198,7 @@ impl ThriftLower {
                 upper_camel_ident
             };
 
-            let name: Ident = format!("{}{}ResultRecv", service_name, method_name).into();
+            let name: Ident = format!("{service_name}{method_name}ResultRecv").into();
             let mut tags = self.extract_tags(&f.result_type.1);
             tags.remove::<RustWrapperArc>();
             let kind = ir::ItemKind::Enum(ir::Enum {
@@ -220,7 +220,7 @@ impl ThriftLower {
             tags.insert(crate::tags::PilotaName(name.sym.0));
             result.push(self.mk_item(kind, tags.into()));
 
-            let name: Ident = format!("{}{}ResultSend", service_name, method_name).into();
+            let name: Ident = format!("{service_name}{method_name}ResultSend").into();
             let kind = ir::ItemKind::Enum(ir::Enum {
                 name: name.clone(),
                 variants: std::iter::once(ir::EnumVariant {
@@ -241,7 +241,7 @@ impl ThriftLower {
             result.push(self.mk_item(kind, tags.into()));
 
             if !exception.is_empty() {
-                let name: Ident = format!("{}{}Exception", service_name, method_name).into();
+                let name: Ident = format!("{service_name}{method_name}Exception").into();
                 let kind = ir::ItemKind::Enum(ir::Enum {
                     name: name.clone(),
                     variants: exception,
@@ -254,7 +254,7 @@ impl ThriftLower {
                 result.push(self.mk_item(kind, tags.into()));
             }
 
-            let name: Ident = format!("{}{}ArgsSend", service_name, method_name).into();
+            let name: Ident = format!("{service_name}{method_name}ArgsSend").into();
             let kind = ir::ItemKind::Message(ir::Message {
                 name: name.clone(),
                 fields: f.arguments.iter().map(|a| self.lower_field(a)).collect(),
@@ -265,7 +265,7 @@ impl ThriftLower {
             tags.insert(crate::tags::PilotaName(name.sym.0));
             result.push(self.mk_item(kind, tags.into()));
 
-            let name: Ident = format!("{}{}ArgsRecv", service_name, method_name).into();
+            let name: Ident = format!("{service_name}{method_name}ArgsRecv").into();
             let kind = ir::ItemKind::Message(ir::Message {
                 name: name.clone(),
                 fields: f
@@ -334,8 +334,7 @@ impl ThriftLower {
             } else {
                 Some(Path {
                     segments: Arc::from([Ident::from(format!(
-                        "{}{}Exception",
-                        service_name, method_name,
+                        "{service_name}{method_name}Exception",
                     ))]),
                 })
             },
@@ -578,7 +577,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                         i.path
                             .0
                             .split('/')
-                            .last()
+                            .next_back()
                             .unwrap()
                             .trim_end_matches(".thrift")
                             .split('.')

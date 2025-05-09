@@ -37,7 +37,7 @@ impl ThriftBackend {
                         }
                     }
                     rir::Item::NewType(t) => self.ttype(&t.ty),
-                    _ => panic!("unsupported type {:?}", item),
+                    _ => panic!("unsupported type {item:?}"),
                 }
             }
             ty::Arc(ty) => self.ttype(ty),

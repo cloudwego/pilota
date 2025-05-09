@@ -12,7 +12,7 @@ pub enum IOError {
 
 impl From<IOError> for ThriftException {
     fn from(e: IOError) -> Self {
-        new_protocol_exception(super::ProtocolExceptionKind::InvalidData, format!("{}", e))
+        new_protocol_exception(super::ProtocolExceptionKind::InvalidData, format!("{e}"))
     }
 }
 
