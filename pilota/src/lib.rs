@@ -19,7 +19,7 @@ pub use serde;
 pub use thiserror::Error as ThisError;
 pub use tokio::io::AsyncRead;
 
-pub use crate::thrift::unknown::LinkedBytes as BytesVec;
+pub use crate::thrift::unknown::BytesVec;
 
 #[derive(thiserror::Error, Debug)]
 pub enum EnumConvertError<Num> {
