@@ -235,7 +235,7 @@ fn item(db: &dyn RirDatabase, def_id: DefId) -> Option<Arc<rir::Item>> {
             ..
         }) => Some(i),
         None => None,
-        _ => panic!("{:?} is not an item", def_id),
+        _ => panic!("{def_id:?} is not an item"),
     }
 }
 

@@ -21,7 +21,7 @@ pub fn fmt_file<P: AsRef<Path>>(file: P) {
         .output();
 
     match result {
-        Err(e) => eprintln!("{}", e),
+        Err(e) => eprintln!("{e}"),
         Ok(output) => {
             if !output.status.success() {
                 std::io::stderr().write_all(&output.stderr).unwrap();

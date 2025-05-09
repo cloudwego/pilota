@@ -42,7 +42,7 @@ fn field_type_from_u8(ttype: u8) -> Result<TType, ProtocolException> {
     let ttype: TType = ttype.try_into().map_err(|_| {
         ProtocolException::new(
             ProtocolExceptionKind::InvalidData,
-            format!("invalid ttype {}", ttype),
+            format!("invalid ttype {ttype}"),
         )
     })?;
 
@@ -583,7 +583,7 @@ where
         let message_type = TMessageType::try_from(type_u8).map_err(|_| {
             new_protocol_exception(
                 ProtocolExceptionKind::InvalidData,
-                format!("invalid message type {}", type_u8),
+                format!("invalid message type {type_u8}"),
             )
         })?;
 
@@ -591,7 +591,7 @@ where
         if version != (VERSION_LE as i32) {
             return Err(new_protocol_exception(
                 ProtocolExceptionKind::BadVersion,
-                format!("Bad version {:x} in ReadMessageBegin", version),
+                format!("Bad version {version:x} in ReadMessageBegin"),
             ));
         }
 
@@ -622,7 +622,7 @@ where
         let field_type = field_type_byte.try_into().map_err(|_| {
             new_protocol_exception(
                 ProtocolExceptionKind::InvalidData,
-                format!("invalid ttype {}", field_type_byte),
+                format!("invalid ttype {field_type_byte}"),
             )
         })?;
         let id = match field_type {
@@ -789,7 +789,7 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
         let message_type = TMessageType::try_from(type_u8).map_err(|_| {
             new_protocol_exception(
                 ProtocolExceptionKind::InvalidData,
-                format!("invalid message type {}", type_u8),
+                format!("invalid message type {type_u8}"),
             )
         })?;
 
@@ -828,7 +828,7 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
         let field_type = field_type_byte.try_into().map_err(|_| {
             new_protocol_exception(
                 ProtocolExceptionKind::InvalidData,
-                format!("invalid ttype {}", field_type_byte),
+                format!("invalid ttype {field_type_byte}"),
             )
         })?;
         let id = match field_type {

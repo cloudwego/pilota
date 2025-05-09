@@ -577,6 +577,26 @@ fn test_unknown_fields() {
                 crate::Output::File(target.into()),
             )
     });
+
+    // new pb
+    let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("unknown_fields_pb.proto");
+
+    let mut out_path = file_path.clone();
+    out_path.set_file_name("unknown_fields_pb_new.rs");
+
+    test_with_builder(file_path, out_path, |source, target| {
+        crate::Builder::pb()
+            .ignore_unused(false)
+            .keep_unknown_fields([source.into()])
+            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
+            .plugin(SerdePlugin)
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            )
+    });
 }
 
 mod tests {

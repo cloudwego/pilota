@@ -8,7 +8,7 @@ mod types;
 #[doc(hidden)]
 pub mod encoding;
 
-use bytes::{Buf, BufMut, Bytes};
+use bytes::{BufMut, Bytes};
 use encoding::{decode_varint, encode_varint, encoded_len_varint};
 pub use error::{DecodeError, EncodeError};
 pub use linkedbytes::LinkedBytes;
@@ -59,7 +59,7 @@ pub fn length_delimiter_len(length: usize) -> usize {
 ///    considered corrupt.
 pub fn decode_length_delimiter(mut buf: Bytes) -> Result<usize, DecodeError> {
     let length = decode_varint(&mut buf)?;
-    if length > usize::max_value() as u64 {
+    if length > usize::MAX as u64 {
         return Err(DecodeError::new(
             "length delimiter exceeds maximum usize value",
         ));

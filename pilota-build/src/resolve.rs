@@ -83,7 +83,7 @@ impl CollectDef<'_> {
         {
             self.resolver
                 .errors
-                .emit_error(format!("duplicate definition of `{}`", name));
+                .emit_error(format!("duplicate definition of `{name}`"));
         };
 
         self.resolver.def_modules.insert(
@@ -342,7 +342,7 @@ impl Resolver {
                         TyKind::Path(_) | TyKind::String | TyKind::BytesVec => {
                             TyKind::Arc(Arc::new(ty.clone()))
                         }
-                        _ => panic!("ty: `{:?}` is unnecessary to be wrapped by Arc", ty),
+                        _ => panic!("ty: {ty:?} is unnecessary to be wrapped by Arc"),
                     };
                     Ty {
                         kind,
