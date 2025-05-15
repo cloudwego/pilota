@@ -269,7 +269,7 @@ pub mod wrapper_arc {
         }
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct TestServiceTestArgsRecv {
-            pub req: Test,
+            pub req: ::std::sync::Arc<Test>,
         }
         impl ::pilota::thrift::Message for TestServiceTestArgsRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -314,7 +314,9 @@ pub mod wrapper_arc {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                ));
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -373,12 +375,12 @@ pub mod wrapper_arc {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_1 = Some(
+                                    var_1 = Some(::std::sync::Arc::new(
                                         <Test as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
-                                    );
+                                    ));
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
