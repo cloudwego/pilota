@@ -1,22 +1,22 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use faststr::FastStr;
-use pilota::prost::Message;
+use pilota::{Bytes, LinkedBytes, prost::Message};
 use rand::{Rng, distributions::Alphanumeric};
 
 include!("../test_data/protobuf/normal.rs");
 include!("../test_data/unknown_fields_pb.rs");
 
-fn decode_encode_known_fields_pb(bytes: &[u8]) {
+fn decode_encode_known_fields_pb(bytes: Bytes) {
     let req = normal::ObjReq::decode(bytes).unwrap();
 
-    let mut out_buf = Vec::with_capacity(req.encoded_len());
+    let mut out_buf = LinkedBytes::with_capacity(req.encoded_len());
     req.encode(&mut out_buf).unwrap();
 }
 
-fn decode_encode_unknown_fields_pb(bytes: &[u8]) {
+fn decode_encode_unknown_fields_pb(bytes: Bytes) {
     let req = unknown_fields_pb::ObjReq::decode(bytes).unwrap();
 
-    let mut out_buf = Vec::with_capacity(req.encoded_len());
+    let mut out_buf = LinkedBytes::with_capacity(req.encoded_len());
     req.encode(&mut out_buf).unwrap();
 }
 
@@ -79,17 +79,28 @@ fn pb_codegen(c: &mut Criterion) {
     for len_param in lens {
         // Prepare data using the "normal" struct definition
         let req_instance = prepare_obj_req_pb(len_param);
-        let mut encoded_known_bytes = Vec::with_capacity(req_instance.encoded_len());
+        let mut encoded_known_bytes = LinkedBytes::with_capacity(req_instance.encoded_len());
         req_instance.encode(&mut encoded_known_bytes).unwrap();
+        let encoded_known_bytes = encoded_known_bytes.bytes().clone().freeze();
 
         group.bench_function(
             format!("PB KnownFields DecodeEncode {} bytes", len_param * 8),
-            |b| b.iter(|| decode_encode_known_fields_pb(&encoded_known_bytes)),
+            |b| {
+                b.iter_with_setup(
+                    || encoded_known_bytes.clone(), // Clone immutable Bytes (cheap)
+                    |bytes_input| decode_encode_known_fields_pb(bytes_input),
+                )
+            },
         );
 
         group.bench_function(
             format!("PB UnknownFields DecodeEncode {} bytes", len_param * 8),
-            |b| b.iter(|| decode_encode_unknown_fields_pb(&encoded_known_bytes)),
+            |b| {
+                b.iter_with_setup(
+                    || encoded_known_bytes.clone(), // Clone immutable Bytes (cheap)
+                    |bytes_input| decode_encode_unknown_fields_pb(bytes_input),
+                )
+            },
         );
     }
 }

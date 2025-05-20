@@ -16,7 +16,7 @@ pub fn fmt_file<P: AsRef<Path>>(file: P) {
         .arg("--emit")
         .arg("files")
         .arg("--edition")
-        .arg("2021")
+        .arg("2024")
         .arg(file)
         .output();
 
