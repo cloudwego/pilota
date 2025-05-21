@@ -3,6 +3,7 @@ pub mod auto_name {
     use ::pilota::{Buf as _, BufMut as _};
 
     pub mod auto_name {
+        use ::pilota::{Buf as _, BufMut as _};
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TEST {
             pub id: ::pilota::FastStr,
@@ -27,7 +28,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -192,7 +193,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -265,10 +266,12 @@ pub mod auto_name {
 
                                     ret = Some(serviceTest2ResultRecv::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -328,7 +331,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -484,7 +487,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -609,7 +612,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -780,7 +783,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -867,10 +870,12 @@ pub mod auto_name {
 
                                     ret = Some(servicetestResultSend::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             Some(1) => {
@@ -883,10 +888,12 @@ pub mod auto_name {
 
                                     ret = Some(servicetestResultSend::E(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -945,7 +952,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -1105,7 +1112,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -1273,7 +1280,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -1346,10 +1353,12 @@ pub mod auto_name {
 
                                     ret = Some(ServicetestException::E(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -1420,7 +1429,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -1510,10 +1519,12 @@ pub mod auto_name {
 
                                     ret = Some(ServicetestResultRecv::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             Some(1) => {
@@ -1526,10 +1537,12 @@ pub mod auto_name {
 
                                     ret = Some(ServicetestResultRecv::E(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -1597,7 +1610,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -1670,10 +1683,12 @@ pub mod auto_name {
 
                                     ret = Some(serviceTest2ResultSend::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -1741,7 +1756,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -1814,10 +1829,12 @@ pub mod auto_name {
 
                                     ret = Some(serviceTestException::E(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -1888,7 +1905,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -1975,10 +1992,12 @@ pub mod auto_name {
 
                                     ret = Some(serviceTestResultRecv::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             Some(1) => {
@@ -1991,10 +2010,12 @@ pub mod auto_name {
 
                                     ret = Some(serviceTestResultRecv::E(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -2053,7 +2074,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -2213,7 +2234,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -2386,7 +2407,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -2476,10 +2497,12 @@ pub mod auto_name {
 
                                     ret = Some(ServiceTestResultSend::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             Some(1) => {
@@ -2492,10 +2515,12 @@ pub mod auto_name {
 
                                     ret = Some(ServiceTestResultSend::E(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -2555,7 +2580,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
                 let mut var_2 = None;
@@ -2754,7 +2779,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -2830,10 +2855,12 @@ pub mod auto_name {
 
                                     ret = Some(ServiceTest2ResultRecv::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -2896,7 +2923,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
                 let mut var_2 = None;
@@ -3119,7 +3146,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let value = __protocol.read_i32()?;
                 ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
                     |err| {
@@ -3186,7 +3213,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -3344,7 +3371,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -3510,7 +3537,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -3583,10 +3610,12 @@ pub mod auto_name {
 
                                     ret = Some(servicetestException::E(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -3657,7 +3686,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -3744,10 +3773,12 @@ pub mod auto_name {
 
                                     ret = Some(servicetestResultRecv::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             Some(1) => {
@@ -3760,10 +3791,12 @@ pub mod auto_name {
 
                                     ret = Some(servicetestResultRecv::E(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -3825,7 +3858,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
                 let mut var_2 = None;
@@ -4039,7 +4072,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -4129,10 +4162,12 @@ pub mod auto_name {
 
                                     ret = Some(ServicetestResultSend::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             Some(1) => {
@@ -4145,10 +4180,12 @@ pub mod auto_name {
 
                                     ret = Some(ServicetestResultSend::E(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -4207,7 +4244,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -4365,7 +4402,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -4536,7 +4573,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -4623,10 +4660,12 @@ pub mod auto_name {
 
                                     ret = Some(serviceTestResultSend::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             Some(1) => {
@@ -4639,10 +4678,12 @@ pub mod auto_name {
 
                                     ret = Some(serviceTestResultSend::E(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -4709,7 +4750,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -4785,10 +4826,12 @@ pub mod auto_name {
 
                                     ret = Some(ServiceTest2ResultSend::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -4856,7 +4899,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -4929,10 +4972,12 @@ pub mod auto_name {
 
                                     ret = Some(ServiceTestException::E(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -5003,7 +5048,7 @@ pub mod auto_name {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -5093,10 +5138,12 @@ pub mod auto_name {
 
                                     ret = Some(ServiceTestResultRecv::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             Some(1) => {
@@ -5109,10 +5156,12 @@ pub mod auto_name {
 
                                     ret = Some(ServiceTestResultRecv::E(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {

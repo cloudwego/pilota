@@ -3,6 +3,7 @@ pub mod recursive_type {
     use ::pilota::{Buf as _, BufMut as _};
 
     pub mod recursive_type {
+        use ::pilota::{Buf as _, BufMut as _};
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub a: ::std::option::Option<::std::boxed::Box<A>>,
@@ -34,7 +35,7 @@ pub mod recursive_type {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
                 let mut var_2 = None;
@@ -217,7 +218,7 @@ pub mod recursive_type {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -378,7 +379,7 @@ pub mod recursive_type {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 

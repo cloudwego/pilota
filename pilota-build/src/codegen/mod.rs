@@ -174,6 +174,7 @@ where
                             let name = self.rust_name(def_id);
                             stream.push_str(&format! {
                                 r#"pub mod {name} {{
+                                    use ::pilota::{{Buf as _, BufMut as _}};
                             {inner}
                         }}"#
                             })
@@ -511,6 +512,7 @@ where
                 stream.push_str(&format! {
                     r#"
                     pub mod {name} {{
+                        use ::pilota::{{Buf as _, BufMut as _}};
                         {inner_stream}
                     }}
                     "#

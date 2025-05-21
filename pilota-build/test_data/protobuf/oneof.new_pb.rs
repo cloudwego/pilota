@@ -83,6 +83,7 @@ pub mod oneof {
     }
 
     pub mod test {
+        use ::pilota::{Buf as _, BufMut as _};
 
         impl ::std::default::Default for Test {
             fn default() -> Self {

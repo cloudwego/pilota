@@ -24,7 +24,7 @@ impl ::pilota::thrift::Message for AuthorServiceGetAuthorArgsSend {
         __protocol: &mut T,
     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
         #[allow(unused_imports)]
-        use ::pilota::{thrift::TLengthProtocolExt, Buf};
+        use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
         let mut var_1 = None;
 

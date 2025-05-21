@@ -20,7 +20,7 @@ impl ::pilota::thrift::Message for A {
         __protocol: &mut T,
     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
         #[allow(unused_imports)]
-        use ::pilota::{thrift::TLengthProtocolExt, Buf};
+        use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
         let mut __pilota_decoding_field_id = None;
 
