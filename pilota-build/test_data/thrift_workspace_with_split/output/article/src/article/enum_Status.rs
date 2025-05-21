@@ -46,7 +46,7 @@ impl ::pilota::thrift::Message for Status {
         __protocol: &mut T,
     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
         #[allow(unused_imports)]
-        use ::pilota::{thrift::TLengthProtocolExt, Buf};
+        use ::pilota::{Buf, thrift::TLengthProtocolExt};
         let value = __protocol.read_i32()?;
         ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(|err| {
             ::pilota::thrift::new_protocol_exception(

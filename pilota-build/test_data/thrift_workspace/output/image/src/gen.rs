@@ -2,8 +2,10 @@ pub mod r#gen {
     #![allow(warnings, clippy::all)]
 
     pub mod article {
+        use ::pilota::{Buf as _, BufMut as _};
 
         pub mod image {
+            use ::pilota::{Buf as _, BufMut as _};
             #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
             pub struct ImageServiceGetImageArgsRecv {
                 pub req: GetImageRequest,
@@ -31,7 +33,7 @@ pub mod r#gen {
                 ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                 {
                     #[allow(unused_imports)]
-                    use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                    use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                     let mut var_1 = None;
 
@@ -203,7 +205,7 @@ pub mod r#gen {
                 ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                 {
                     #[allow(unused_imports)]
-                    use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                    use ::pilota::{Buf, thrift::TLengthProtocolExt};
                     let mut ret = None;
                     __protocol.read_struct_begin()?;
                     loop {
@@ -222,10 +224,12 @@ pub mod r#gen {
                                     __protocol.struct_len(&field_ident);
                                     ret = Some(ImageServiceGetImageResultSend::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -342,7 +346,7 @@ pub mod r#gen {
                 ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                 {
                     #[allow(unused_imports)]
-                    use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                    use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                     let mut var_1 = None;
 
@@ -505,7 +509,7 @@ pub mod r#gen {
                 ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                 {
                     #[allow(unused_imports)]
-                    use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                    use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                     let mut var_1 = None;
 
@@ -665,7 +669,7 @@ pub mod r#gen {
                 ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                 {
                     #[allow(unused_imports)]
-                    use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                    use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                     let mut var_1 = None;
 
@@ -838,7 +842,7 @@ pub mod r#gen {
                 ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                 {
                     #[allow(unused_imports)]
-                    use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                    use ::pilota::{Buf, thrift::TLengthProtocolExt};
                     let mut ret = None;
                     __protocol.read_struct_begin()?;
                     loop {
@@ -857,10 +861,12 @@ pub mod r#gen {
                                     __protocol.struct_len(&field_ident);
                                     ret = Some(ImageServiceGetImageResultRecv::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -949,12 +955,14 @@ pub mod r#gen {
             pub use ::common::article::image::Image;
             pub mod cdn {
                 pub use ::common::article::image::cdn::Cdn;
+                use ::pilota::{Buf as _, BufMut as _};
             }
         }
     }
 
     pub mod common {
         pub use ::common::common::CommonData;
+        use ::pilota::{Buf as _, BufMut as _};
     }
     pub use article::image::*;
 }
