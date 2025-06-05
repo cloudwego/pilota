@@ -8,8 +8,8 @@ use rustc_hash::FxHashMap;
 
 use super::CodegenItem;
 use crate::{
-    Codegen, CodegenBackend, Context, DefId, fmt::fmt_file, middle::context::DefLocation,
-    rir::ItemPath,
+    Codegen, CodegenBackend, Context, DefId, db::RirDatabase as _, fmt::fmt_file,
+    middle::context::DefLocation, rir::ItemPath,
 };
 
 #[derive(Clone)]
@@ -100,6 +100,7 @@ where
 
     [workspace.dependencies]
     pilota = "*"
+    pilota-thrift-reflect = {{ path = "/data02/home/giggle/projects/pilota/pilota-thrift-reflect" }}
     anyhow = "1"
     volo = "*"
     volo-{} = "*""#,

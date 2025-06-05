@@ -43,6 +43,7 @@ namespace xsd test (uri = 'http://thrift.apache.org/ns/ThriftTest')
 // namespace cpp.noexist ThriftTest
 
 namespace * thrift.test
+namespace rs thrift.rs.test
 
 /**
  * Docstring!

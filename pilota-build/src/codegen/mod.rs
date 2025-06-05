@@ -459,8 +459,9 @@ where
         B: Send,
     {
         let mods = items.into_group_map_by(|CodegenItem { def_id, .. }| {
-            let path = Arc::from_iter(self.mod_path(*def_id).iter().map(|s| s.0.clone()));
+            let path = self.mod_path(*def_id);
             tracing::debug!("ths path of {:?} is {:?}", def_id, path);
+
             match &*self.mode {
                 Mode::Workspace(_) => Arc::from(&path[1..]), /* the first element for
                                                                 * workspace */
@@ -469,29 +470,78 @@ where
             }
         });
 
-        let mut pkgs: DashMap<Arc<[FastStr]>, String> = Default::default();
+        let mods_iter = mods.iter().map(|(p, def_ids)| {
+            let file_path = def_ids.first().map(|def_id| {
+                let node = self.node(def_id.def_id).unwrap();
+                let file_id = node.file_id;
+                let file_path = self
+                    .file_ids_map()
+                    .iter()
+                    .find(|(_, id)| **id == file_id)
+                    .map(|(path, _)| path)
+                    .cloned()
+                    .unwrap();
+                file_path
+            });
+
+            let has_direct = def_ids
+                .iter()
+                .find(|def_id| matches!(def_id.kind, CodegenKind::Direct))
+                .is_some();
+
+            (p.clone(), def_ids, file_path, has_direct)
+        });
+
+        let has_direct_mods = mods_iter.clone().any(|(_, _, _, has_direct)| has_direct);
+
+        if has_direct_mods {
+            let mods_paths = mods_iter
+                .clone()
+                .filter_map(|(p, _, file_path, _)| {
+                    if file_path.is_some() {
+                        Some((p, file_path.unwrap()))
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>();
+            self.backend
+                .codegen_register_mod_file_descriptor(stream, &mods_paths);
+        }
+
+        let mut pkgs: DashMap<Arc<[Symbol]>, String> = Default::default();
 
         let this = self.clone();
 
-        mods.par_iter().for_each_with(this, |this, (p, def_ids)| {
-            let mut stream = pkgs.entry(p.clone()).or_default();
+        let mods = mods_iter.clone().collect::<Vec<_>>();
 
-            let span = tracing::span!(tracing::Level::TRACE, "write_mod", path = ?p);
+        mods.par_iter()
+            .for_each_with(this, |this, (p, def_ids, file_path, has_direct)| {
+                let mut stream = pkgs.entry(p.clone()).or_default();
 
-            let _enter = span.enter();
-            let mut dup = AHashMap::default();
+                let span = tracing::span!(tracing::Level::TRACE, "write_mod", path = ?p);
 
-            if this.split {
-                Self::write_split_mod(this, base_dir, p, def_ids, &mut stream, &mut dup);
-            } else {
-                for def_id in def_ids.iter() {
-                    this.write_item(&mut stream, *def_id, &mut dup)
+                let _enter = span.enter();
+                let mut dup = AHashMap::default();
+
+                if let Some(file_path) = file_path {
+                    let file_id = this.file_id(file_path.to_path_buf()).unwrap();
+                    let file = this.file(file_id).unwrap();
+                    this.backend
+                        .codegen_file_descriptor(&mut stream, &file, *has_direct);
                 }
-            }
-        });
+
+                if this.split {
+                    Self::write_split_mod(this, base_dir, p, def_ids, &mut stream, &mut dup);
+                } else {
+                    for def_id in def_ids.iter() {
+                        this.write_item(&mut stream, *def_id, &mut dup)
+                    }
+                }
+            });
 
         fn write_stream(
-            pkgs: &mut DashMap<Arc<[FastStr]>, String>,
+            pkgs: &mut DashMap<Arc<[Symbol]>, String>,
             stream: &mut String,
             nodes: &[PkgNode],
         ) {
@@ -503,7 +553,7 @@ where
 
                 write_stream(pkgs, &mut inner_stream, &node.children);
                 let name = node.ident();
-                if name.clone().unwrap_or_default() == "" {
+                if name.is_none() {
                     stream.push_str(&inner_stream);
                     return;
                 }
@@ -530,9 +580,9 @@ where
     fn write_split_mod(
         this: &mut Codegen<B>,
         base_dir: &Path,
-        p: &Arc<[FastStr]>,
+        p: &Arc<[Symbol]>,
         def_ids: &[CodegenItem],
-        stream: &mut RefMut<Arc<[FastStr]>, String>,
+        stream: &mut RefMut<Arc<[Symbol]>, String>,
         dup: &mut AHashMap<FastStr, Vec<DefId>>,
     ) {
         let base_mod_name = p.iter().map(|s| s.to_string()).join("/");
@@ -608,11 +658,9 @@ where
     pub fn write_file(self, ns_name: Symbol, file_name: impl AsRef<Path>) {
         let base_dir = file_name.as_ref().parent().unwrap();
         let mut stream = String::default();
-        self.write_items(
-            &mut stream,
-            self.codegen_items.iter().map(|def_id| (*def_id).into()),
-            base_dir,
-        );
+        let items = self.codegen_items.iter().map(|def_id| (*def_id).into());
+
+        self.write_items(&mut stream, items, base_dir);
 
         stream = format! {r#"pub mod {ns_name} {{
                 #![allow(warnings, clippy::all)]

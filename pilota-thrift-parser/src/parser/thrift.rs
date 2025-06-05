@@ -60,22 +60,31 @@ impl Parser for File {
 
         t.items = items.0;
 
-        t.package = t
-            .items
-            .iter()
-            .filter_map(|item| {
-                if let Item::Namespace(ns) = item {
-                    Some(ns)
-                } else {
-                    None
-                }
-            })
+        let mut namespaces = t.items.iter().filter_map(|item| {
+            if let Item::Namespace(ns) = item {
+                Some(ns)
+            } else {
+                None
+            }
+        });
+
+        t.package = namespaces
+            .clone()
             .find_map(|n| {
                 if n.scope.0 == "rs" {
                     Some(n.name.clone())
                 } else {
                     None
                 }
+            })
+            .or_else(|| {
+                namespaces.find_map(|n| {
+                    if n.scope.0 == "*" {
+                        Some(n.name.clone())
+                    } else {
+                        None
+                    }
+                })
             });
 
         Ok((remain, t))

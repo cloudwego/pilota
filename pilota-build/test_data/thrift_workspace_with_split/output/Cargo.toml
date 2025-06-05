@@ -11,3 +11,6 @@ anyhow = "1"
 pilota = "*"
 volo = "*"
 volo-thrift = "*"
+
+[workspace.dependencies.pilota-thrift-reflect]
+path = "/data02/home/giggle/projects/pilota/pilota-thrift-reflect"

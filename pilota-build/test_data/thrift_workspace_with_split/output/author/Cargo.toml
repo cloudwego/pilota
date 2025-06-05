@@ -7,6 +7,9 @@ path = "../common"
 [dependencies.pilota]
 workspace = true
 
+[dependencies.pilota-thrift-reflect]
+workspace = true
+
 [dependencies.volo]
 workspace = true
 
