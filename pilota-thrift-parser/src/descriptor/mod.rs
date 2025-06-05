@@ -12,6 +12,8 @@ mod struct_;
 mod ty;
 mod typedef;
 
+use bytes::Bytes;
+use faststr::FastStr;
 use std::{hash::Hash, path::PathBuf, sync::Arc};
 
 pub use annotation::{Annotation, Annotations};
@@ -79,8 +81,10 @@ item_from!(Service);
 #[derive(Default, Debug)]
 pub struct File {
     pub path: Arc<PathBuf>,
+    pub uuid: FastStr,
     pub package: Option<Path>,
     pub items: Vec<Item>,
+    pub descriptor: Bytes,
 }
 
 impl PartialEq for File {

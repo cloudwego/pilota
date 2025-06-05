@@ -1,5 +1,7 @@
 use std::{ops::Deref, sync::Arc};
 
+use pilota::Bytes;
+
 use super::ty::Ty;
 use crate::{
     symbol::{DefId, EnumRepr, FileId, Ident, Symbol},
@@ -193,6 +195,7 @@ pub struct File {
     pub items: Vec<DefId>,
     pub file_id: FileId,
     pub uses: Vec<FileId>,
+    pub descriptor: Bytes,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]

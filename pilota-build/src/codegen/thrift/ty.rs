@@ -149,7 +149,7 @@ impl ThriftBackend {
             ty::I32 => format!("__protocol.write_i32_field({id}, *{ident})?;").into(),
             ty::I64 => format!("__protocol.write_i64_field({id}, *{ident})?;").into(),
             ty::F64 => format!("__protocol.write_double_field({id}, *{ident})?;").into(),
-            ty::OrderedF64 => format!("__protocol.write_double_field({id}, {ident}.0)?;").into(),
+            ty::OrderedF64 => format!("__protocol.write_double_field({id}, *{ident}.0)?;").into(),
             ty::Uuid => format!("__protocol.write_uuid_field({id}, *{ident})?;").into(),
             ty::Vec(ty) => {
                 let el_ttype = self.ttype(ty);
@@ -304,7 +304,9 @@ impl ThriftBackend {
             ty::I32 => format!("__protocol.i32_field_len(Some({id}), *{ident})").into(),
             ty::I64 => format!("__protocol.i64_field_len(Some({id}), *{ident})").into(),
             ty::F64 => format!("__protocol.double_field_len(Some({id}), *{ident}) ").into(),
-            ty::OrderedF64 => format!("__protocol.double_field_len(Some({id}), {ident}.0) ").into(),
+            ty::OrderedF64 => {
+                format!("__protocol.double_field_len(Some({id}), *{ident}.0) ").into()
+            }
             ty::Uuid => format!("__protocol.uuid_field_len(Some({id}), *{ident}) ").into(),
             ty::Vec(el) => {
                 let add_el = self.codegen_ty_size(el, "el".into());

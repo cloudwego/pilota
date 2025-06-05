@@ -4,6 +4,7 @@ use ahash::AHashMap;
 use faststr::FastStr;
 use itertools::Itertools;
 use normpath::PathExt;
+use pilota::Bytes;
 use protobuf::descriptor::{
     DescriptorProto, EnumDescriptorProto, ServiceDescriptorProto,
     field_descriptor_proto::{Label, Type},
@@ -455,6 +456,7 @@ impl Lower {
                         .chain(services)
                         .map(Arc::from)
                         .collect::<Vec<_>>(),
+                    descriptor: Bytes::default(),
                 });
 
                 self.cur_package = None;

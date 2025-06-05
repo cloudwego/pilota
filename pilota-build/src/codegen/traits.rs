@@ -1,5 +1,9 @@
+use std::{path::PathBuf, sync::Arc};
+
+use pilota::FastStr;
+
 use crate::{
-    Context,
+    Context, Symbol,
     middle::rir::{self, Method},
     symbol::DefId,
 };
@@ -24,4 +28,11 @@ pub trait CodegenBackend: Clone {
     }
     fn codegen_enum_impl(&self, _def_id: DefId, _stream: &mut String, _e: &rir::Enum) {}
     fn codegen_newtype_impl(&self, _def_id: DefId, _stream: &mut String, _t: &rir::NewType) {}
+    fn codegen_file_descriptor(&self, _stream: &mut String, _f: &rir::File, _has_direct: bool) {}
+    fn codegen_register_mod_file_descriptor(
+        &self,
+        _stream: &mut String,
+        _mods: &Vec<(Arc<[Symbol]>, Arc<PathBuf>)>,
+    ) {
+    }
 }

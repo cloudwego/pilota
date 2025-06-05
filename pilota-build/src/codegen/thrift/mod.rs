@@ -1,4 +1,4 @@
-use std::{ops::Deref, sync::Arc};
+use std::{ops::Deref, path::PathBuf, sync::Arc};
 
 use faststr::FastStr;
 use itertools::Itertools;
@@ -7,7 +7,7 @@ use super::traits::CodegenBackend;
 use crate::{
     db::RirDatabase,
     middle::{
-        context::Context,
+        context::{Context, Mode},
         rir::{self, Enum, Field, Message, Method, NewType, Service},
     },
     rir::EnumVariant,
@@ -496,6 +496,23 @@ impl CodegenBackend for ThriftBackend {
             },
             |helper| self.codegen_decode(helper, s, name.clone(), keep, self.is_arg(def_id)),
         ));
+
+        if s.name.ends_with("ArgsRecv")
+            || s.name.ends_with("ArgsSend")
+            || s.name.ends_with("ResultSend")
+            || s.name.ends_with("ResultRecv")
+        {
+            return;
+        }
+
+        stream.push_str(&format! {
+            r#"impl {name} {{
+                pub fn get_descriptor(&self) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {{
+                    let file_descriptor = get_file_descriptor();
+                    file_descriptor.find_struct_by_name("{name}").unwrap()
+                }}
+            }}"#
+        });
     }
 
     fn codegen_service_impl(&self, _def_id: DefId, _stream: &mut String, _s: &Service) {}
@@ -766,5 +783,98 @@ impl CodegenBackend for ThriftBackend {
 
     fn cx(&self) -> &Context {
         &self.cx
+    }
+
+    fn codegen_file_descriptor(&self, stream: &mut String, f: &rir::File, has_direct: bool) {
+        if has_direct {
+            let descriptor = &f.descriptor;
+            let super_mod = match &*self.mode {
+                Mode::Workspace(_) => "crate::".to_string(),
+                Mode::SingleFile { .. } => "super::".repeat(f.package.len()),
+            };
+            stream.push_str(&format!(
+            r#"
+static FILE_DESCRIPTOR_BYTES: ::pilota::Bytes = ::pilota::Bytes::from_static({descriptor:?});
+
+pub static FILE_DESCRIPTOR: ::std::sync::LazyLock<::pilota_thrift_reflect::thrift_reflection::FileDescriptor> = ::std::sync::LazyLock::new(|| {{
+    let descriptor = ::pilota_thrift_reflect::thrift_reflection::FileDescriptor::deserialize(FILE_DESCRIPTOR_BYTES.clone())
+        .expect("Failed to decode file descriptor");
+    ::pilota_thrift_reflect::service::Register::register(
+        descriptor.filepath.clone(),
+        descriptor.clone(),
+    );
+    
+    for (key, include) in descriptor.includes.iter() {{
+        let path = include.as_str();
+        if ::pilota_thrift_reflect::service::Register::contains(path) {{
+            continue;
+        }}
+
+        let include_file_descriptor =
+            {super_mod}find_mod_file_descriptor(path).expect("include file descriptor must exist");
+        ::pilota_thrift_reflect::service::Register::register(
+            include_file_descriptor.filepath.clone(),
+            include_file_descriptor.clone(),
+        );
+    }}
+    descriptor
+}});
+
+pub fn get_file_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor {{
+    &*FILE_DESCRIPTOR
+}}"#));
+        } else {
+            match &*self.mode {
+                Mode::Workspace(_) => {
+                    // 使用 pub use 的形式，从 common crate 中引入
+                    let mod_prefix = f.package.iter().join("::");
+                    let common_crate_name = &self.common_crate_name;
+                    stream.push_str(&format!(
+                        r#"
+                        pub use ::{common_crate_name}::{mod_prefix}::get_file_descriptor;
+                        "#
+                    ));
+                }
+                Mode::SingleFile { .. } => {}
+            };
+        }
+    }
+
+    fn codegen_register_mod_file_descriptor(
+        &self,
+        stream: &mut String,
+        mods: &Vec<(Arc<[Symbol]>, Arc<PathBuf>)>,
+    ) {
+        stream.push_str(&format!(
+            r#"
+                pub fn find_mod_file_descriptor(path: &str) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {{
+                    match path {{
+            "#
+        ));
+
+        for (p, path) in mods {
+            let path = path.display();
+            stream.push_str(&format!(
+                r#"
+                "{path}" => Some(
+            "#
+            ));
+            let prefix = p.iter().join("::");
+            if !prefix.is_empty() {
+                stream.push_str(&format!(r#"{prefix}::"#));
+            }
+            stream.push_str(
+                r#"get_file_descriptor()),
+                "#,
+            );
+        }
+
+        stream.push_str(&format!(
+            r#"
+                _ => None,
+            }}
+        }}
+        "#
+        ));
     }
 }
