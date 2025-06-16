@@ -255,11 +255,3 @@ impl ::pilota::thrift::Message for Author {
             + __protocol.struct_end_len()
     }
 }
-impl Author {
-    pub fn get_descriptor(
-        &self,
-    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-        let file_descriptor = get_file_descriptor();
-        file_descriptor.find_struct_by_name("Author").unwrap()
-    }
-}

@@ -85,6 +85,8 @@ pub struct Builder<MkB, P> {
     dedups: Vec<FastStr>,
     special_namings: Vec<FastStr>,
     common_crate_name: FastStr,
+    with_descriptor: bool,
+    with_field_mask: bool,
 }
 
 impl Builder<MkThriftBackend, ThriftParser> {
@@ -105,6 +107,8 @@ impl Builder<MkThriftBackend, ThriftParser> {
             special_namings: Vec::default(),
             common_crate_name: "common".into(),
             split: false,
+            with_descriptor: false,
+            with_field_mask: false,
         }
     }
 }
@@ -127,6 +131,8 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             special_namings: Vec::default(),
             common_crate_name: "common".into(),
             split: false,
+            with_descriptor: false,
+            with_field_mask: false,
         }
     }
 }
@@ -156,6 +162,8 @@ impl<MkB, P> Builder<MkB, P> {
             special_namings: self.special_namings,
             common_crate_name: self.common_crate_name,
             split: self.split,
+            with_descriptor: self.with_descriptor,
+            with_field_mask: self.with_field_mask,
         }
     }
 
@@ -218,6 +226,16 @@ impl<MkB, P> Builder<MkB, P> {
         self.common_crate_name = name;
         self
     }
+
+    pub fn with_descriptor(mut self, on: bool) -> Self {
+        self.with_descriptor = on;
+        self
+    }
+
+    pub fn with_field_mask(mut self, on: bool) -> Self {
+        self.with_field_mask = on;
+        self
+    }
 }
 
 pub enum Output {
@@ -276,6 +294,8 @@ where
         special_namings: Vec<FastStr>,
         common_crate_name: FastStr,
         split: bool,
+        with_descriptor: bool,
+        with_field_mask: bool,
     ) -> Context {
         let mut db = RootDatabase::default();
         parser.inputs(services.iter().map(|s| &s.path));
@@ -349,6 +369,8 @@ where
             special_namings,
             common_crate_name,
             split,
+            with_descriptor,
+            with_field_mask,
         )
     }
 
@@ -368,6 +390,8 @@ where
             self.special_namings,
             self.common_crate_name,
             self.split,
+            self.with_descriptor,
+            self.with_field_mask,
         );
 
         cx.exec_plugin(BoxedPlugin);
@@ -451,6 +475,8 @@ where
             self.special_namings,
             self.common_crate_name,
             self.split,
+            self.with_descriptor,
+            self.with_field_mask,
         );
 
         std::thread::scope(|_scope| {

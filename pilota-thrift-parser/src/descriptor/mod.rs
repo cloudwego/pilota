@@ -12,13 +12,13 @@ mod struct_;
 mod ty;
 mod typedef;
 
-use bytes::Bytes;
-use faststr::FastStr;
 use std::{hash::Hash, path::PathBuf, sync::Arc};
 
 pub use annotation::{Annotation, Annotations};
+use bytes::Bytes;
 pub use constant::{ConstValue, Constant, DoubleConstant, IntConstant};
 pub use enum_::{Enum, EnumValue};
+use faststr::FastStr;
 pub use field::{Attribute, Field};
 pub use function::Function;
 pub use identifier::Ident;

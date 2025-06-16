@@ -1,55 +1,8 @@
 pub mod void {
     #![allow(warnings, clippy::all)]
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-            "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/void.thrift" => {
-                Some(void::get_file_descriptor())
-            }
-
-            _ => None,
-        }
-    }
-
     pub mod void {
 
-        static FILE_DESCRIPTOR_BYTES: ::pilota::Bytes = ::pilota::Bytes::from_static(b"\x0b\0\x01\0\0\0M/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/void.thrift\r\0\x02\x0b\x0b\0\0\0\0\r\0\x03\x0b\x0b\0\0\0\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0M/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/void.thrift\x0b\0\x02\0\0\0\x04Test\x0f\0\x03\x0c\0\0\0\x01\x0b\0\x01\0\0\0M/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/void.thrift\x0b\0\x02\0\0\0\x08test_123\x0c\0\x03\x0b\0\x01\0\0\0M/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/void.thrift\x0b\0\x02\0\0\0\x04void\0\x0f\0\x04\x0c\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\x0b\0\x07\0\0\0\0\0\x0f\0\x05\x0c\0\0\0\0\x0f\0\x06\x0c\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x0f\0\x08\x0c\0\0\0\0\x0f\0\t\x0c\0\0\0\0\x0f\0\n\x0c\0\0\0\0\0");
-
-        pub static FILE_DESCRIPTOR: ::std::sync::LazyLock<
-            ::pilota_thrift_reflect::thrift_reflection::FileDescriptor,
-        > = ::std::sync::LazyLock::new(|| {
-            let descriptor =
-                ::pilota_thrift_reflect::thrift_reflection::FileDescriptor::deserialize(
-                    FILE_DESCRIPTOR_BYTES.clone(),
-                )
-                .expect("Failed to decode file descriptor");
-            ::pilota_thrift_reflect::service::Register::register(
-                descriptor.filepath.clone(),
-                descriptor.clone(),
-            );
-
-            for (key, include) in descriptor.includes.iter() {
-                let path = include.as_str();
-                if ::pilota_thrift_reflect::service::Register::contains(path) {
-                    continue;
-                }
-
-                let include_file_descriptor = super::find_mod_file_descriptor(path)
-                    .expect("include file descriptor must exist");
-                ::pilota_thrift_reflect::service::Register::register(
-                    include_file_descriptor.filepath.clone(),
-                    include_file_descriptor.clone(),
-                );
-            }
-            descriptor
-        });
-
-        pub fn get_file_descriptor(
-        ) -> &'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor {
-            &*FILE_DESCRIPTOR
-        }
         impl ::std::default::Default for TestTest123ResultRecv {
             fn default() -> Self {
                 TestTest123ResultRecv::Ok(::std::default::Default::default())

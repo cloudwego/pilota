@@ -20,7 +20,8 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 pilota = { path = "../pilota" }
 pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.11" }
-pilota-thrift-reflect = { path = "../pilota-thrift-reflect", version = "0.1" }
+pilota-thrift-reflect = { path = "../pilota-thrift-reflect", version = "0.0" }
+pilota-thrift-fieldmask = { path = "../pilota-thrift-fieldmask", version = "0.0" }
 
 ahash.workspace = true
 anyhow.workspace = true

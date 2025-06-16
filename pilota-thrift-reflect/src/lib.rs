@@ -278,15 +278,15 @@ impl From<(FastStr, &pilota_thrift_parser::Type)> for thrift_reflection::TypeDes
             pilota_thrift_parser::Ty::List { value, .. } => thrift_reflection::TypeDescriptor {
                 filepath: filepath.clone(),
                 name: FastStr::new(ThriftType::List.to_string()),
-                key_type: Some(Box::new((filepath, value.as_ref()).into())),
-                value_type: None,
+                key_type: None,
+                value_type: Some(Box::new((filepath, value.as_ref()).into())),
                 extra: None,
             },
             pilota_thrift_parser::Ty::Set { value, .. } => thrift_reflection::TypeDescriptor {
                 filepath: filepath.clone(),
                 name: FastStr::new(ThriftType::Set.to_string()),
-                key_type: Some(Box::new((filepath, value.as_ref()).into())),
-                value_type: None,
+                key_type: None,
+                value_type: Some(Box::new((filepath, value.as_ref()).into())),
                 extra: None,
             },
             pilota_thrift_parser::Ty::Map { key, value, .. } => thrift_reflection::TypeDescriptor {

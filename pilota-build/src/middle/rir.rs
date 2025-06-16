@@ -96,6 +96,7 @@ impl Field {
 pub struct Message {
     pub name: Ident,
     pub fields: Vec<Arc<Field>>,
+    pub is_wrapper: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

@@ -271,6 +271,7 @@ impl ThriftLower {
             let kind = ir::ItemKind::Message(ir::Message {
                 name: name.clone(),
                 fields: f.arguments.iter().map(|a| self.lower_field(a)).collect(),
+                is_wrapper: true,
             });
             related_items.push(name.clone());
             let mut tags = Tags::default();
@@ -286,6 +287,7 @@ impl ThriftLower {
                     .iter()
                     .map(|a| self.lower_field_with_tags(a, self.extract_tags(&a.annotations)))
                     .collect(),
+                is_wrapper: true,
             });
             related_items.push(name.clone());
             let mut tags: Tags = Tags::default();
@@ -529,6 +531,7 @@ impl ThriftLower {
         ir::Message {
             name: self.lower_ident(&s.name),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
+            is_wrapper: false,
         }
     }
 

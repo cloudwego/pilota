@@ -1,61 +1,11 @@
 pub mod apache {
     #![allow(warnings, clippy::all)]
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-            "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift" => {
-                Some(thrift::rs::test::get_file_descriptor())
-            }
-
-            _ => None,
-        }
-    }
-
     pub mod thrift {
 
         pub mod rs {
 
             pub mod test {
-
-                static FILE_DESCRIPTOR_BYTES: ::pilota::Bytes = ::pilota::Bytes::from_static(b"\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\r\0\x02\x0b\x0b\0\0\0\0\r\0\x03\x0b\x0b\0\0\0\x11\0\0\0\x06netstd\0\0\0\nThriftTest\0\0\0\x03lua\0\0\0\nThriftTest\0\0\0\x04perl\0\0\0\nThriftTest\0\0\0\x04java\0\0\0\x0bthrift.test\0\0\0\x01*\0\0\0\x0bthrift.test\0\0\0\x02rs\0\0\0\x0ethrift.rs.test\0\0\0\x02rb\0\0\0\x0bThrift.Test\0\0\0\x06delphi\0\0\0\x0bThrift.Test\0\0\0\x02go\0\0\0\nthrifttest\0\0\0\x03php\0\0\0\nThriftTest\0\0\0\x03cpp\0\0\0\x0bthrift.test\0\0\0\x02js\0\0\0\nThriftTest\0\0\0\npy.twisted\0\0\0\nThriftTest\0\0\0\x02py\0\0\0\nThriftTest\0\0\0\x06c_glib\0\0\0\x05TTest\0\0\0\x02st\0\0\0\nThriftTest\0\0\0\x03xsd\0\0\0\x04test\x0f\0\x04\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\nThriftTest\x0f\0\x03\x0c\0\0\0\x17\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08testVoid\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04void\0\x0f\0\x04\x0c\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ntestString\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08testBool\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04bool\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04bool\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08testByte\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x02i8\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x02i8\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07testI32\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07testI64\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i64\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i64\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ntestDouble\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06double\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06double\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ntestBinary\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06binary\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06binary\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08testUuid\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04uuid\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04uuid\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ntestStruct\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06Xtruct\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06Xtruct\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08testNest\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Xtruct2\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Xtruct2\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07testMap\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\rtestStringMap\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07testSet\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03set\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03set\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08testList\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08testEnum\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Numberz\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Numberz\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0btestTypedef\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06UserId\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06UserId\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ntestMapMap\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05hello\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0ctestInsanity\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06UserId\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Numberz\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08Insanity\0\0\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08argument\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08Insanity\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ttestMulti\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06Xtruct\0\x0f\0\x04\x0c\0\0\0\x06\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04arg0\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x02i8\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04arg1\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04arg2\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i64\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x03\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04arg3\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i16\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x04\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04arg4\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Numberz\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x05\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04arg5\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06UserId\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x06\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\rtestException\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04void\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03arg\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04err1\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08Xception\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x12testMultiException\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06Xtruct\0\x0f\0\x04\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04arg0\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04arg1\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04err1\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08Xception\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04err2\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\tXception2\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ntestOneway\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04void\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0esecondsToSleep\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\x01\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\x0b\0\x07\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\rSecondService\x0f\0\x03\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x10secondtestString\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\x0b\0\x07\0\0\0\0\0\x0f\0\x05\x0c\0\0\0\x1a\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04Bonk\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07message\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04type\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05Bools\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07im_true\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04bool\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08im_false\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04bool\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06Xtruct\x0f\0\x03\x0c\0\0\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0cstring_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\nbyte_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x02i8\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x04\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ti32_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\t\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ti64_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i64\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x0b\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Xtruct2\x0f\0\x03\x0c\0\0\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\nbyte_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x02i8\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0cstruct_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06Xtruct\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ti32_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x03\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Xtruct3\x0f\0\x03\x0c\0\0\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0cstring_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07changed\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x04\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ti32_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\t\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ti64_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i64\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x0b\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08Insanity\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07userMap\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Numberz\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06UserId\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\x01\0\0\0\x10pilota.rust_type\x0b\0\0\0\x01\0\0\0\x05btree\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07xtructs\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06Xtruct\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\x01\0\0\0\x10python.immutable\x0b\0\0\0\x01\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0cCrazyNesting\x0f\0\x03\x0c\0\0\0\x05\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0cstring_field\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\tset_field\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03set\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08Insanity\0\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\nlist_field\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03set\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03set\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08Insanity\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x03\r\0\x07\x0b\x0f\0\0\0\x01\0\0\0\x10pilota.rust_type\x0b\0\0\0\x01\0\0\0\x05btree\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0cbinary_field\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06binary\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x04\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\nuuid_field\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04uuid\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x05\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0bEmptyStruct\x0f\0\x03\x0c\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08OneField\x0f\0\x03\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05field\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0bEmptyStruct\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x10VersioningTestV1\x0f\0\x03\x0c\0\0\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\rbegin_in_both\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\nold_string\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x03\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0bend_in_both\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x0c\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x10VersioningTestV2\x0f\0\x03\x0c\0\0\0\x0c\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\rbegin_in_both\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06newint\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07newbyte\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x02i8\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x03\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08newshort\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i16\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x04\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07newlong\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i64\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x05\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\tnewdouble\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06double\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x06\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\tnewstruct\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04Bonk\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x07\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07newlist\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x08\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06newset\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03set\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\t\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06newmap\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\n\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\tnewstring\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x0b\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0bend_in_both\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x0c\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x14ListTypeVersioningV1\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06myints\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05hello\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x14ListTypeVersioningV2\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07strings\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05hello\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x13GuessProtocolStruct\x0f\0\x03\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\tmap_field\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x07\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0bLargeDeltas\x0f\0\x03\x0c\0\0\0\n\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x02b1\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05Bools\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03b10\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05Bools\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\n\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04b100\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05Bools\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0d\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ncheck_true\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04bool\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\x01\xf4\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05b1000\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05Bools\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\x03\xe8\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0bcheck_false\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04bool\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\x05\xdc\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\nvertwo2000\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x10VersioningTestV2\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\x07\xd0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ta_set2500\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03set\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\t\xc4\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\nvertwo3000\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x10VersioningTestV2\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\x0b\xb8\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0bbig_numbers\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\x0f\xa0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x10NestedListsI32x2\x0f\0\x03\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0bintegerlist\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x10NestedListsI32x3\x0f\0\x03\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0bintegerlist\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x13NestedListsDoublex2\x0f\0\x03\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ndoublelist\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06double\0\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\rNestedMixedx2\x0f\0\x03\x0c\0\0\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0cint_set_list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03set\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0emap_int_strset\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03set\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x13map_int_strset_list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03set\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\0\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x03\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\tListBonks\x0f\0\x03\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04bonk\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04Bonk\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0fNestedListsBonk\x0f\0\x03\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04bonk\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04list\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04Bonk\0\0\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08BoolTest\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x01b\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04bool\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x01\x0c\0\x06\x08\0\x01\0\0\0\x03\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\x01\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x01s\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x02\x0c\0\x06\x08\0\x01\0\0\0\x02\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\x04true\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07StructA\x0f\0\x03\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x01s\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07StructB\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x02aa\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07StructA\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x02ab\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07StructA\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x16OptionalSetDefaultTest\x0f\0\x03\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0cwith_default\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03set\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x01\x0c\0\x06\x08\0\x01\0\0\0\x04\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0f\0\x06\x0c\0\0\0\x01\x08\0\x01\0\0\0\x02\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\x04test\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0eOptionalBinary\x0f\0\x03\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07bin_map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06binary\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x02\x0c\0\x06\x08\0\x01\0\0\0\x05\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\r\0\x07\x0c\x0c\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0f\0\x06\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08Xception\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\terrorCode\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07message\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\tXception2\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\terrorCode\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0cstruct_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06Xtruct\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0f\0\x07\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Numberz\x0f\0\x03\x0c\0\0\0\x06\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03ONE\n\0\x03\0\0\0\0\0\0\0\x01\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03TWO\n\0\x03\xff\xff\xff\xff\xff\xff\xff\xff\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05THREE\n\0\x03\xff\xff\xff\xff\xff\xff\xff\xff\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04FIVE\n\0\x03\0\0\0\0\0\0\0\x05\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03SIX\n\0\x03\xff\xff\xff\xff\xff\xff\xff\xff\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x05EIGHT\n\0\x03\0\0\0\0\0\0\0\x08\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0f\0\x08\x0c\0\0\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0c\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i64\0\x0b\0\x03\0\0\0\x06UserId\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0c\0\x02\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x04Bonk\0\0\x0b\0\x03\0\0\0\x07MapType\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0f\0\t\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\tSomeUnion\x0f\0\x03\x0c\0\0\0\x05\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\tmap_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Numberz\0\x0c\0\x04\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06UserId\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0cstring_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\ti32_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x03i32\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x03\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0cxtruct_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Xtruct3\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x04\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x0einsanity_thing\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x08Insanity\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x05\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0f\0\n\x0c\0\0\0\x01\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\tmyNumberz\x0c\0\x03\x0b\0\x01\0\0\0O/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/apache.thrift\x0b\0\x02\0\0\0\x07Numberz\0\x0c\0\x04\x08\0\x01\0\0\0\x06\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\x0bNumberz.ONE\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\0\0");
-
-                pub static FILE_DESCRIPTOR: ::std::sync::LazyLock<
-                    ::pilota_thrift_reflect::thrift_reflection::FileDescriptor,
-                > = ::std::sync::LazyLock::new(|| {
-                    let descriptor =
-                        ::pilota_thrift_reflect::thrift_reflection::FileDescriptor::deserialize(
-                            FILE_DESCRIPTOR_BYTES.clone(),
-                        )
-                        .expect("Failed to decode file descriptor");
-                    ::pilota_thrift_reflect::service::Register::register(
-                        descriptor.filepath.clone(),
-                        descriptor.clone(),
-                    );
-
-                    for (key, include) in descriptor.includes.iter() {
-                        let path = include.as_str();
-                        if ::pilota_thrift_reflect::service::Register::contains(path) {
-                            continue;
-                        }
-
-                        let include_file_descriptor =
-                            super::super::super::find_mod_file_descriptor(path)
-                                .expect("include file descriptor must exist");
-                        ::pilota_thrift_reflect::service::Register::register(
-                            include_file_descriptor.filepath.clone(),
-                            include_file_descriptor.clone(),
-                        );
-                    }
-                    descriptor
-                });
-
-                pub fn get_file_descriptor(
-                ) -> &'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor
-                {
-                    &*FILE_DESCRIPTOR
-                }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
                 #[repr(transparent)]
                 pub struct Numberz(i32);
@@ -605,15 +555,6 @@ pub mod apache {
                             })
                             + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl LargeDeltas {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("LargeDeltas").unwrap()
                     }
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -1813,15 +1754,6 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl BoolTest {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("BoolTest").unwrap()
-                    }
-                }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestI64ArgsRecv {
                     pub thing: i64,
@@ -2833,15 +2765,6 @@ pub mod apache {
                                 .map_or(0, |value| __protocol.i64_field_len(Some(11), *value))
                             + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl Xtruct3 {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("Xtruct3").unwrap()
                     }
                 }
                 impl ::std::default::Default for ThriftTestTestBinaryResultRecv {
@@ -3921,17 +3844,6 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl ListTypeVersioningV1 {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor
-                            .find_struct_by_name("ListTypeVersioningV1")
-                            .unwrap()
-                    }
-                }
                 impl ::std::default::Default for ThriftTestTestSetResultSend {
                     fn default() -> Self {
                         ThriftTestTestSetResultSend::Ok(::std::default::Default::default())
@@ -4705,17 +4617,6 @@ pub mod apache {
                             )
                         }) + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl NestedMixedx2 {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor
-                            .find_struct_by_name("NestedMixedx2")
-                            .unwrap()
                     }
                 }
                 impl ::std::default::Default for ThriftTestTestI64ResultSend {
@@ -5778,15 +5679,6 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl Bools {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("Bools").unwrap()
-                    }
-                }
                 impl ::std::default::Default for OptionalBinary {
                     fn default() -> Self {
                         OptionalBinary {
@@ -6005,17 +5897,6 @@ pub mod apache {
                             )
                         }) + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl OptionalBinary {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor
-                            .find_struct_by_name("OptionalBinary")
-                            .unwrap()
                     }
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -7228,15 +7109,6 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl EmptyStruct {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("EmptyStruct").unwrap()
-                    }
-                }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestUuidArgsRecv {
                     pub thing: [u8; 16],
@@ -7870,17 +7742,6 @@ pub mod apache {
                             )
                         }) + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl NestedListsI32x2 {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor
-                            .find_struct_by_name("NestedListsI32x2")
-                            .unwrap()
                     }
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -8750,15 +8611,6 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl StructA {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("StructA").unwrap()
-                    }
-                }
                 impl ::std::default::Default for ThriftTestTestDoubleResultRecv {
                     fn default() -> Self {
                         ThriftTestTestDoubleResultRecv::Ok(::std::default::Default::default())
@@ -9304,15 +9156,6 @@ pub mod apache {
                             )
                         }) + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl Insanity {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("Insanity").unwrap()
                     }
                 }
                 impl ::std::default::Default for ThriftTestTestTypedefResultSend {
@@ -10196,17 +10039,6 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl ListTypeVersioningV2 {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor
-                            .find_struct_by_name("ListTypeVersioningV2")
-                            .unwrap()
-                    }
-                }
                 impl ::std::default::Default for ThriftTestTestI32ResultSend {
                     fn default() -> Self {
                         ThriftTestTestI32ResultSend::Ok(::std::default::Default::default())
@@ -10821,15 +10653,6 @@ pub mod apache {
                             )
                         }) + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl ListBonks {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("ListBonks").unwrap()
                     }
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -11912,15 +11735,6 @@ pub mod apache {
                                 .map_or(0, |value| __protocol.i64_field_len(Some(11), *value))
                             + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl Xtruct {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("Xtruct").unwrap()
                     }
                 }
                 #[derive(PartialOrd, Debug, Default, Clone, PartialEq)]
@@ -13549,17 +13363,6 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl VersioningTestV1 {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor
-                            .find_struct_by_name("VersioningTestV1")
-                            .unwrap()
-                    }
-                }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestByteArgsRecv {
                     pub thing: i8,
@@ -14067,15 +13870,6 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl OneField {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("OneField").unwrap()
-                    }
-                }
                 impl ::std::default::Default for ThriftTestTestStructResultRecv {
                     fn default() -> Self {
                         ThriftTestTestStructResultRecv::Ok(::std::default::Default::default())
@@ -14489,17 +14283,6 @@ pub mod apache {
                             )
                         }) + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl NestedListsI32x3 {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor
-                            .find_struct_by_name("NestedListsI32x3")
-                            .unwrap()
                     }
                 }
                 impl ::std::default::Default for ThriftTestTestI64ResultRecv {
@@ -15135,15 +14918,6 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl Bonk {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("Bonk").unwrap()
-                    }
-                }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct StructB {
                     pub aa: ::std::option::Option<StructA>,
@@ -15344,15 +15118,6 @@ pub mod apache {
                             + __protocol.struct_field_len(Some(2), &self.ab)
                             + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl StructB {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("StructB").unwrap()
                     }
                 }
                 impl ::std::default::Default for ThriftTestTestEnumResultSend {
@@ -16451,8 +16216,8 @@ pub mod apache {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
                         __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
-                    name: "CrazyNesting",
-                }) + self.string_field.as_ref().map_or(0, |value| __protocol.faststr_field_len(Some(1), value)) +self.set_field.as_ref().map_or(0, |value| __protocol.set_field_len(Some(2), ::pilota::thrift::TType::Struct, value, |__protocol, el| {
+                        name: "CrazyNesting",
+                    }) + self.string_field.as_ref().map_or(0, |value| __protocol.faststr_field_len(Some(1), value)) +self.set_field.as_ref().map_or(0, |value| __protocol.set_field_len(Some(2), ::pilota::thrift::TType::Struct, value, |__protocol, el| {
                 __protocol.struct_len(el)
             })) +__protocol.list_field_len(Some(3), ::pilota::thrift::TType::Map, &self.list_field, |__protocol, el| {
                         __protocol.btree_map_len(::pilota::thrift::TType::Set, ::pilota::thrift::TType::Map, el, |__protocol, key| {
@@ -16475,15 +16240,6 @@ pub mod apache {
             })
             })
                     }) +self.binary_field.as_ref().map_or(0, |value| __protocol.bytes_field_len(Some(4), value)) +self.uuid_field.as_ref().map_or(0, |value| __protocol.uuid_field_len(Some(5), *value) ) + __protocol.field_stop_len() + __protocol.struct_end_len()
-                    }
-                }
-                impl CrazyNesting {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("CrazyNesting").unwrap()
                     }
                 }
                 impl ::std::default::Default for ThriftTestTestBinaryResultSend {
@@ -17372,15 +17128,6 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl Xception {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("Xception").unwrap()
-                    }
-                }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestMapMapArgsSend {
                     pub hello: i32,
@@ -17736,17 +17483,6 @@ pub mod apache {
                             )
                         }) + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl GuessProtocolStruct {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor
-                            .find_struct_by_name("GuessProtocolStruct")
-                            .unwrap()
                     }
                 }
                 #[derive(Debug, Default, Clone, PartialEq)]
@@ -18523,17 +18259,6 @@ pub mod apache {
                             )
                         }) + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl NestedListsBonk {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor
-                            .find_struct_by_name("NestedListsBonk")
-                            .unwrap()
                     }
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -19590,15 +19315,6 @@ pub mod apache {
                                 .map_or(0, |value| __protocol.i32_field_len(Some(3), *value))
                             + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl Xtruct2 {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("Xtruct2").unwrap()
                     }
                 }
                 #[derive(PartialOrd, Debug, Default, Clone, PartialEq)]
@@ -20939,17 +20655,6 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl VersioningTestV2 {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor
-                            .find_struct_by_name("VersioningTestV2")
-                            .unwrap()
-                    }
-                }
                 impl ::std::default::Default for ThriftTestTestI32ResultRecv {
                     fn default() -> Self {
                         ThriftTestTestI32ResultRecv::Ok(::std::default::Default::default())
@@ -21924,17 +21629,6 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl NestedListsDoublex2 {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor
-                            .find_struct_by_name("NestedListsDoublex2")
-                            .unwrap()
-                    }
-                }
                 impl ::std::default::Default for ThriftTestTestListResultSend {
                     fn default() -> Self {
                         ThriftTestTestListResultSend::Ok(::std::default::Default::default())
@@ -22786,17 +22480,6 @@ pub mod apache {
                             )
                         }) + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl OptionalSetDefaultTest {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor
-                            .find_struct_by_name("OptionalSetDefaultTest")
-                            .unwrap()
                     }
                 }
                 impl ::std::default::Default for ThriftTestTestDoubleResultSend {
@@ -24319,15 +24002,6 @@ pub mod apache {
                                 .map_or(0, |value| __protocol.struct_field_len(Some(2), value))
                             + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
-                    }
-                }
-                impl Xception2 {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("Xception2").unwrap()
                     }
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]

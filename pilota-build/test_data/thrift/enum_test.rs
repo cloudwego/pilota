@@ -1,55 +1,7 @@
 pub mod enum_test {
     #![allow(warnings, clippy::all)]
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift" => Some(
-            enum_test::get_file_descriptor()),
-
-                _ => None,
-            }
-    }
-
     pub mod enum_test {
-
-        static FILE_DESCRIPTOR_BYTES: ::pilota::Bytes = ::pilota::Bytes::from_static(b"\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\r\0\x02\x0b\x0b\0\0\0\0\r\0\x03\x0b\x0b\0\0\0\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x04Test\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\ttest_enum\x0c\0\x03\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x03Err\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x03req\x0c\0\x03\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x02Ok\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0 test_enum_var_type_name_conflict\x0c\0\x03\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x03Err\0\x0f\0\x04\x0c\0\0\0\x01\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x03req\x0c\0\x03\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x07Request\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\x0f\0\x07\x0c\0\0\0\0\x02\0\x08\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\x0b\0\x07\0\0\0\0\0\x0f\0\x05\x0c\0\0\0\x01\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x07Request\x0f\0\x03\x0c\0\0\0\x03\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x05Index\x0c\0\x03\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x05Index\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x05index\x0c\0\x03\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x05Index\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x02\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x05_enum\x0c\0\x03\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x05_Enum\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x03\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0f\0\x06\x0c\0\0\0\0\x0f\0\x07\x0c\0\0\0\x04\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x05Index\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x01A\n\0\x03\0\0\0\0\0\0\0\x01\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x01B\n\0\x03\0\0\0\0\0\0\0\x10\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x03Err\x0f\0\x03\x0c\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x02Ok\x0f\0\x03\x0c\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x05_Enum\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x02_1\n\0\x03\0\0\0\0\0\0\0\x01\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0R/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/enum_test.thrift\x0b\0\x02\0\0\0\x02_2\n\0\x03\0\0\0\0\0\0\0\x02\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0f\0\x08\x0c\0\0\0\0\x0f\0\t\x0c\0\0\0\0\x0f\0\n\x0c\0\0\0\0\0");
-
-        pub static FILE_DESCRIPTOR: ::std::sync::LazyLock<
-            ::pilota_thrift_reflect::thrift_reflection::FileDescriptor,
-        > = ::std::sync::LazyLock::new(|| {
-            let descriptor =
-                ::pilota_thrift_reflect::thrift_reflection::FileDescriptor::deserialize(
-                    FILE_DESCRIPTOR_BYTES.clone(),
-                )
-                .expect("Failed to decode file descriptor");
-            ::pilota_thrift_reflect::service::Register::register(
-                descriptor.filepath.clone(),
-                descriptor.clone(),
-            );
-
-            for (key, include) in descriptor.includes.iter() {
-                let path = include.as_str();
-                if ::pilota_thrift_reflect::service::Register::contains(path) {
-                    continue;
-                }
-
-                let include_file_descriptor = super::find_mod_file_descriptor(path)
-                    .expect("include file descriptor must exist");
-                ::pilota_thrift_reflect::service::Register::register(
-                    include_file_descriptor.filepath.clone(),
-                    include_file_descriptor.clone(),
-                );
-            }
-            descriptor
-        });
-
-        pub fn get_file_descriptor(
-        ) -> &'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor {
-            &*FILE_DESCRIPTOR
-        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Index(i32);
@@ -1339,14 +1291,6 @@ pub mod enum_test {
                     })
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl Request {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("Request").unwrap()
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]

@@ -1,55 +1,7 @@
 pub mod default_value {
     #![allow(warnings, clippy::all)]
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift" => Some(
-            default_value::get_file_descriptor()),
-
-                _ => None,
-            }
-    }
-
     pub mod default_value {
-
-        static FILE_DESCRIPTOR_BYTES: ::pilota::Bytes = ::pilota::Bytes::from_static(b"\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\r\0\x02\x0b\x0b\0\0\0\0\r\0\x03\x0b\x0b\0\0\0\0\x0f\0\x04\x0c\0\0\0\0\x0f\0\x05\x0c\0\0\0\x02\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x01A\x0f\0\x03\x0c\0\0\0\x0f\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x07faststr\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x01\x0c\0\x06\x08\0\x01\0\0\0\x02\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\x0bhello world\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06string\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x02\x0c\0\x06\x08\0\x01\0\0\0\x02\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\x04test\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\x01\0\0\0\x10pilota.rust_type\x0b\0\0\0\x01\0\0\0\x06string\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x01a\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x04bool\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x03\x0c\0\x06\x08\0\x01\0\0\0\x03\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06test_b\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x01B\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x04\x0c\0\x06\x08\0\x01\0\0\0\x06\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\x06B.Read\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x07test_b2\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x01B\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x05\x0c\0\x06\x08\0\x01\0\0\0\x01\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\x02\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x07test_b3\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x02i8\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x06\x0c\0\x06\x08\0\x01\0\0\0\x06\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\x06B.Read\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06string\0\x0c\0\x04\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06string\0\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x07\x0c\0\x06\x08\0\x01\0\0\0\x05\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\r\0\x07\x0c\x0c\0\0\0\x01\x08\0\x01\0\0\0\x02\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\x05hello\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\x08\0\x01\0\0\0\x02\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\x05world\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x0btest_double\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06double\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x08\x0c\0\x06\x08\0\x01\0\0\0\x01\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\x01\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x0ctest_double2\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06double\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\t\x0c\0\x06\x08\0\x01\0\0\0\0\x04\0\x02?\xf3333333\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\talias_str\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\n\x0c\0\x06\x08\0\x01\0\0\0\x06\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\x03A_S\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x05empty\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06binary\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x0b\x0c\0\x06\x08\0\x01\0\0\0\x02\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x08test_map\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06double\0\x0c\0\x04\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06double\0\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\x0c\x0c\0\x06\x08\0\x01\0\0\0\x05\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\r\0\x07\x0c\x0c\0\0\0\x01\x08\0\x01\0\0\0\0\x04\0\x02?\xf0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\x08\0\x01\0\0\0\0\x04\0\x02@\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x08test_set\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x03set\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06double\0\0\x0b\0\x04\0\0\0\x08required\x08\0\x05\0\0\0\r\x0c\0\x06\x08\0\x01\0\0\0\x04\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0f\0\x06\x0c\0\0\0\x01\x08\0\x01\0\0\0\0\x04\0\x02?\xf0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x02a2\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x04bool\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x0e\x0c\0\x06\x08\0\x01\0\0\0\x01\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\x03\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x04map2\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x03map\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06string\0\x0c\0\x04\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06string\0\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x0f\x0c\0\x06\x08\0\x01\0\0\0\x04\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0f\0\x06\x0c\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x01C\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x03off\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06string\0\x0b\0\x04\0\0\0\x07default\x08\0\x05\0\0\0\x01\x0c\0\x06\x08\0\x01\0\0\0\x02\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\x03off\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\ttest_byte\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x04byte\0\x0b\0\x04\0\0\0\x08optional\x08\0\x05\0\0\0\x02\x0c\0\x06\x08\0\x01\0\0\0\x01\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\0\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\r\0\x07\x0b\x0f\0\0\0\0\x0b\0\x08\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0f\0\x06\x0c\0\0\0\0\x0f\0\x07\x0c\0\0\0\x01\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x01B\x0f\0\x03\x0c\0\0\0\x02\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x04Read\n\0\x03\0\0\0\0\0\0\0\x01\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x05Write\n\0\x03\0\0\0\0\0\0\0\x02\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\r\0\x04\x0b\x0f\0\0\0\0\x0b\0\x05\0\0\0\0\0\x0f\0\x08\x0c\0\0\0\0\x0f\0\t\x0c\0\0\0\0\x0f\0\n\x0c\0\0\0\x01\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x03A_S\x0c\0\x03\x0b\0\x01\0\0\0V/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/default_value.thrift\x0b\0\x02\0\0\0\x06string\0\x0c\0\x04\x08\0\x01\0\0\0\x02\x04\0\x02\0\0\0\0\0\0\0\0\n\0\x03\0\0\0\0\0\0\0\0\x0b\0\x04\0\0\0\x06string\x02\0\x05\0\x0b\0\x08\0\0\0\0\0\r\0\x05\x0b\x0f\0\0\0\0\x0b\0\x06\0\0\0\0\0\0");
-
-        pub static FILE_DESCRIPTOR: ::std::sync::LazyLock<
-            ::pilota_thrift_reflect::thrift_reflection::FileDescriptor,
-        > = ::std::sync::LazyLock::new(|| {
-            let descriptor =
-                ::pilota_thrift_reflect::thrift_reflection::FileDescriptor::deserialize(
-                    FILE_DESCRIPTOR_BYTES.clone(),
-                )
-                .expect("Failed to decode file descriptor");
-            ::pilota_thrift_reflect::service::Register::register(
-                descriptor.filepath.clone(),
-                descriptor.clone(),
-            );
-
-            for (key, include) in descriptor.includes.iter() {
-                let path = include.as_str();
-                if ::pilota_thrift_reflect::service::Register::contains(path) {
-                    continue;
-                }
-
-                let include_file_descriptor = super::find_mod_file_descriptor(path)
-                    .expect("include file descriptor must exist");
-                ::pilota_thrift_reflect::service::Register::register(
-                    include_file_descriptor.filepath.clone(),
-                    include_file_descriptor.clone(),
-                );
-            }
-            descriptor
-        });
-
-        pub fn get_file_descriptor(
-        ) -> &'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor {
-            &*FILE_DESCRIPTOR
-        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct B(i32);
@@ -312,14 +264,6 @@ pub mod default_value {
                         .map_or(0, |value| __protocol.i8_field_len(Some(2), *value))
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl C {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("C").unwrap()
             }
         }
         impl ::std::default::Default for A {
@@ -997,14 +941,6 @@ pub mod default_value {
                     })
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl A {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("A").unwrap()
             }
         }
         pub const A_S: &'static str = "string";

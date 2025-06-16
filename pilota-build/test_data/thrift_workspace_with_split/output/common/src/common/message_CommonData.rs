@@ -200,11 +200,3 @@ impl ::pilota::thrift::Message for CommonData {
             + __protocol.struct_end_len()
     }
 }
-impl CommonData {
-    pub fn get_descriptor(
-        &self,
-    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-        let file_descriptor = get_file_descriptor();
-        file_descriptor.find_struct_by_name("CommonData").unwrap()
-    }
-}
