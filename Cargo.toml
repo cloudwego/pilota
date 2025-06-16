@@ -1,5 +1,12 @@
 [workspace]
-members = ["pilota", "pilota-build", "pilota-thrift-parser", "examples"]
+members = [
+    "pilota",
+    "pilota-build",
+    "pilota-thrift-parser",
+    "pilota-thrift-reflect",
+    "pilota-thrift-fieldmask",
+    "examples",
+]
 resolver = "3"
 
 [workspace.package]

@@ -1,0 +1,31 @@
+[package]
+name = "pilota-thrift-reflect"
+version = "0.0.1"
+edition.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+description = "Reflect support for Pilota"
+documentation = "https://docs.rs/pilota-reflect"
+readme = "README.md"
+keywords = ["reflect", "pilota"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[dependencies]
+pilota = { path = "../pilota" }
+pilota-thrift-parser = { path = "../pilota-thrift-parser" }
+
+ahash.workspace = true
+bytes.workspace = true
+dashmap.workspace = true
+faststr.workspace = true
+thiserror.workspace = true
+
+[build-dependencies]
+# pilota-build = { path = "../pilota-build" }

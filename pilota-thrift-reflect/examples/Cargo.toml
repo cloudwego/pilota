@@ -1,0 +1,16 @@
+[package]
+name = "pilota-reflect-example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+pilota = { path = "../../pilota" }
+pilota-thrift-reflect = { path = "../../pilota-thrift-reflect" }
+pilota-thrift-parser = { path = "../../pilota-thrift-parser" }
+
+tokio = { version = "1", features = ["full"] }
+ahash = "0.8"
+faststr = "0.2"
+bytes = "1.0"
+anyhow = "1.0"

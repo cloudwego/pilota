@@ -1,0 +1,26 @@
+[package]
+name = "pilota-thrift-fieldmask"
+version = "0.0.1"
+edition.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+description = "Fieldmask support for Pilota"
+documentation = "https://docs.rs/pilota-fieldmask"
+readme = "README.md"
+keywords = ["fieldmask", "pilota"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[dependencies]
+pilota = { path = "../pilota" }
+pilota-thrift-reflect = { path = "../pilota-thrift-reflect" }
+nom.workspace = true
+ahash.workspace = true
+faststr.workspace = true
+thiserror.workspace = true
