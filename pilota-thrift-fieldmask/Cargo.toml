@@ -8,8 +8,9 @@ license.workspace = true
 authors.workspace = true
 rust-version.workspace = true
 description = "Fieldmask support for Pilota"
-documentation = "https://docs.rs/pilota-fieldmask"
+documentation = "https://docs.rs/pilota-thrift-fieldmask"
 readme = "README.md"
+categories = ["encoding"]
 keywords = ["fieldmask", "pilota"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
