@@ -1,0 +1,1170 @@
+use crate::path::{PathError, PathIterator, PathToken, TokenData};
+use ahash::AHashMap;
+use pilota::FastStr;
+use pilota_thrift_reflect::{ThriftType, descriptor::thrift_reflection::TypeDescriptor};
+use thiserror::Error;
+
+#[derive(Debug, Clone, Error)]
+pub enum FieldMaskError {
+    #[error("path '{path}' parse error")]
+    PathError {
+        path: FastStr,
+        #[source]
+        source: PathError,
+    },
+    #[error(
+        "in path '{path}' at position {position}: type descriptor error on '{type_name}': {message}"
+    )]
+    DescriptorError {
+        type_name: FastStr,
+        message: FastStr,
+        path: FastStr,
+        position: usize,
+    },
+    #[error(
+        "in path '{path}' at position {position}: field '{field_identifier}' not found in type '{parent_type}'"
+    )]
+    FieldNotFound {
+        field_identifier: FastStr,
+        parent_type: FastStr,
+        path: FastStr,
+        position: usize,
+    },
+    #[error(
+        "in path '{path}' at position {position}: type mismatch in {context}: expected '{expected}', actual '{actual}'"
+    )]
+    TypeMismatch {
+        expected: FastStr,
+        actual: FastStr,
+        context: FastStr,
+        path: FastStr,
+        position: usize,
+    },
+    #[error("in path '{path}' at position {position}: empty {collection_type} collection")]
+    EmptyCollection {
+        collection_type: FastStr,
+        path: FastStr,
+        position: usize,
+    },
+    #[error("in path '{path}' at position {position}: conflict error: {message}")]
+    ConflictError {
+        message: FastStr,
+        path: FastStr,
+        position: usize,
+    },
+    #[error(
+        "in path '{path}' at position {position}: invalid token type '{token_type}', expected '{expected}'"
+    )]
+    InvalidToken {
+        token_type: FastStr,
+        expected: FastStr,
+        path: FastStr,
+        position: usize,
+    },
+    #[error("FieldMask error: {message}")]
+    GenericError { message: String },
+}
+
+#[derive(Debug, Clone, Eq)]
+pub enum FieldMaskData {
+    Invalid,
+    Scalar,
+    Struct {
+        children: AHashMap<i32, Box<FieldMask>>, // field id -> sub mask
+        is_all: bool,                            // is all fields
+    },
+    List {
+        children: AHashMap<i32, Box<FieldMask>>, // index -> sub mask
+        wildcard: Option<Box<FieldMask>>,        // wildcard sub mask
+        is_all: bool,
+    },
+    StrMap {
+        children: AHashMap<FastStr, Box<FieldMask>>, // key -> sub mask
+        wildcard: Option<Box<FieldMask>>,            // wildcard sub mask
+        is_all: bool,
+    },
+    IntMap {
+        children: AHashMap<i32, Box<FieldMask>>, // key -> sub mask
+        wildcard: Option<Box<FieldMask>>,        // wildcard sub mask
+        is_all: bool,
+    },
+}
+
+impl PartialEq for FieldMaskData {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (FieldMaskData::Invalid, FieldMaskData::Invalid) => true,
+            (FieldMaskData::Scalar, FieldMaskData::Scalar) => true,
+            (
+                FieldMaskData::Struct {
+                    children: c1,
+                    is_all: w1,
+                },
+                FieldMaskData::Struct {
+                    children: c2,
+                    is_all: w2,
+                },
+            ) => {
+                let mut children1 = c1.iter().collect::<Vec<_>>();
+                let mut children2 = c2.iter().collect::<Vec<_>>();
+                children1.sort_unstable();
+                children2.sort_unstable();
+                children1 == children2 && w1.eq(w2)
+            }
+            (
+                FieldMaskData::List {
+                    children: c1,
+                    wildcard: w1,
+                    is_all: a1,
+                },
+                FieldMaskData::List {
+                    children: c2,
+                    wildcard: w2,
+                    is_all: a2,
+                },
+            ) => {
+                let mut children1 = c1.iter().collect::<Vec<_>>();
+                let mut children2 = c2.iter().collect::<Vec<_>>();
+                children1.sort_unstable();
+                children2.sort_unstable();
+                children1 == children2 && w1.eq(w2) && a1.eq(a2)
+            }
+            (
+                FieldMaskData::StrMap {
+                    children: c1,
+                    wildcard: w1,
+                    is_all: a1,
+                },
+                FieldMaskData::StrMap {
+                    children: c2,
+                    wildcard: w2,
+                    is_all: a2,
+                },
+            ) => {
+                let mut children1 = c1.iter().collect::<Vec<_>>();
+                let mut children2 = c2.iter().collect::<Vec<_>>();
+                children1.sort_unstable();
+                children2.sort_unstable();
+                children1 == children2 && w1.eq(w2) && a1.eq(a2)
+            }
+            (
+                FieldMaskData::IntMap {
+                    children: c1,
+                    wildcard: w1,
+                    is_all: a1,
+                },
+                FieldMaskData::IntMap {
+                    children: c2,
+                    wildcard: w2,
+                    is_all: a2,
+                },
+            ) => {
+                let mut children1 = c1.iter().collect::<Vec<_>>();
+                let mut children2 = c2.iter().collect::<Vec<_>>();
+                children1.sort_unstable();
+                children2.sort_unstable();
+                children1 == children2 && w1.eq(w2) && a1.eq(a2)
+            }
+            _ => false,
+        }
+    }
+}
+
+impl Ord for FieldMaskData {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match (self, other) {
+            (FieldMaskData::Invalid, FieldMaskData::Invalid) => std::cmp::Ordering::Equal,
+            (FieldMaskData::Scalar, FieldMaskData::Scalar) => std::cmp::Ordering::Equal,
+            (
+                FieldMaskData::Struct {
+                    children: c1,
+                    is_all: w1,
+                },
+                FieldMaskData::Struct {
+                    children: c2,
+                    is_all: w2,
+                },
+            ) => {
+                if c1.len() == 0 && c2.len() == 0 {
+                    return w1.cmp(w2);
+                }
+                // wildcard is always greater
+                if c1.len() == 0 && *w1 {
+                    return std::cmp::Ordering::Greater;
+                }
+                if c2.len() == 0 && *w2 {
+                    return std::cmp::Ordering::Less;
+                }
+                // compare children
+                if c1.len() != c2.len() {
+                    return c1.len().cmp(&c2.len());
+                }
+                let mut children1 = c1.iter().collect::<Vec<_>>();
+                let mut children2 = c2.iter().collect::<Vec<_>>();
+                children1.sort_unstable();
+                children2.sort_unstable();
+                children1.cmp(&children2)
+            }
+            (
+                FieldMaskData::List {
+                    children: c1,
+                    wildcard: w1,
+                    is_all: a1,
+                },
+                FieldMaskData::List {
+                    children: c2,
+                    wildcard: w2,
+                    is_all: a2,
+                },
+            ) => {
+                if c1.len() == 0 && c2.len() == 0 {
+                    return a1.cmp(a2).then(w1.cmp(w2));
+                }
+                // wildcard is always greater
+                if c1.len() == 0 && *a1 {
+                    return std::cmp::Ordering::Greater;
+                }
+                if c2.len() == 0 && *a2 {
+                    return std::cmp::Ordering::Less;
+                }
+                if c1.len() == 0 && w1.is_some() {
+                    return std::cmp::Ordering::Greater;
+                }
+                if c2.len() == 0 && w2.is_some() {
+                    return std::cmp::Ordering::Less;
+                }
+                // compare children
+                if c1.len() != c2.len() {
+                    return c1.len().cmp(&c2.len());
+                }
+                let mut children1 = c1.iter().collect::<Vec<_>>();
+                let mut children2 = c2.iter().collect::<Vec<_>>();
+                children1.sort_unstable();
+                children2.sort_unstable();
+                children1.cmp(&children2)
+            }
+            (
+                FieldMaskData::StrMap {
+                    children: c1,
+                    wildcard: w1,
+                    is_all: a1,
+                },
+                FieldMaskData::StrMap {
+                    children: c2,
+                    wildcard: w2,
+                    is_all: a2,
+                },
+            ) => {
+                if c1.len() == 0 && c2.len() == 0 {
+                    return a1.cmp(a2).then(w1.cmp(w2));
+                }
+                // wildcard is always greater
+                if c1.len() == 0 && *a1 {
+                    return std::cmp::Ordering::Greater;
+                }
+                if c2.len() == 0 && *a2 {
+                    return std::cmp::Ordering::Less;
+                }
+                if c1.len() == 0 && w1.is_some() {
+                    return std::cmp::Ordering::Greater;
+                }
+                if c2.len() == 0 && w2.is_some() {
+                    return std::cmp::Ordering::Less;
+                }
+                // compare children
+                if c1.len() != c2.len() {
+                    return c1.len().cmp(&c2.len());
+                }
+                let mut children1 = c1.iter().collect::<Vec<_>>();
+                let mut children2 = c2.iter().collect::<Vec<_>>();
+                children1.sort_unstable();
+                children2.sort_unstable();
+                children1.cmp(&children2)
+            }
+            (
+                FieldMaskData::IntMap {
+                    children: c1,
+                    wildcard: w1,
+                    is_all: a1,
+                },
+                FieldMaskData::IntMap {
+                    children: c2,
+                    wildcard: w2,
+                    is_all: a2,
+                },
+            ) => {
+                if c1.len() == 0 && c2.len() == 0 {
+                    return a1.cmp(a2).then(w1.cmp(w2));
+                }
+                // wildcard is always greater
+                if c1.len() == 0 && *a1 {
+                    return std::cmp::Ordering::Greater;
+                }
+                if c2.len() == 0 && *a2 {
+                    return std::cmp::Ordering::Less;
+                }
+                if c1.len() == 0 && w1.is_some() {
+                    return std::cmp::Ordering::Greater;
+                }
+                if c2.len() == 0 && w2.is_some() {
+                    return std::cmp::Ordering::Less;
+                }
+                // compare children
+                if c1.len() != c2.len() {
+                    return c1.len().cmp(&c2.len());
+                }
+                let mut children1 = c1.iter().collect::<Vec<_>>();
+                let mut children2 = c2.iter().collect::<Vec<_>>();
+                children1.sort_unstable();
+                children2.sort_unstable();
+                children1.cmp(&children2)
+            }
+            (FieldMaskData::Invalid, _) => std::cmp::Ordering::Less,
+            (_, FieldMaskData::Invalid) => std::cmp::Ordering::Greater,
+            (FieldMaskData::Scalar, _) => std::cmp::Ordering::Less,
+            (_, FieldMaskData::Scalar) => std::cmp::Ordering::Greater,
+            (FieldMaskData::Struct { .. }, _) => std::cmp::Ordering::Less,
+            (_, FieldMaskData::Struct { .. }) => std::cmp::Ordering::Greater,
+            (FieldMaskData::List { .. }, _) => std::cmp::Ordering::Less,
+            (_, FieldMaskData::List { .. }) => std::cmp::Ordering::Greater,
+            (FieldMaskData::StrMap { .. }, _) => std::cmp::Ordering::Less,
+            (_, FieldMaskData::StrMap { .. }) => std::cmp::Ordering::Greater,
+        }
+    }
+}
+
+impl PartialOrd for FieldMaskData {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl std::hash::Hash for FieldMaskData {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        match self {
+            FieldMaskData::Invalid => 0.hash(state),
+            FieldMaskData::Scalar => 1.hash(state),
+            FieldMaskData::Struct { children, is_all } => {
+                children.iter().for_each(|(k, v)| {
+                    k.hash(state);
+                    v.hash(state);
+                });
+                is_all.hash(state);
+            }
+            FieldMaskData::List {
+                children,
+                wildcard,
+                is_all,
+            } => {
+                children.iter().for_each(|(k, v)| {
+                    k.hash(state);
+                    v.hash(state);
+                });
+                if let Some(wildcard) = wildcard {
+                    wildcard.hash(state);
+                }
+                is_all.hash(state);
+            }
+            FieldMaskData::StrMap {
+                children,
+                wildcard,
+                is_all,
+            } => {
+                children.iter().for_each(|(k, v)| {
+                    k.hash(state);
+                    v.hash(state);
+                });
+                if let Some(wildcard) = wildcard {
+                    wildcard.hash(state);
+                }
+                is_all.hash(state);
+            }
+            FieldMaskData::IntMap {
+                children,
+                wildcard,
+                is_all,
+            } => {
+                children.iter().for_each(|(k, v)| {
+                    k.hash(state);
+                    v.hash(state);
+                });
+                if let Some(wildcard) = wildcard {
+                    wildcard.hash(state);
+                }
+                is_all.hash(state);
+            }
+        }
+    }
+}
+
+impl Default for FieldMaskData {
+    fn default() -> Self {
+        Self::Invalid
+    }
+}
+
+impl FieldMaskData {
+    #[inline]
+    fn new(desc: &TypeDescriptor) -> Self {
+        let type_name = desc.name.as_str().into();
+        match type_name {
+            ThriftType::Path(_) => FieldMaskData::Struct {
+                children: AHashMap::new(),
+                is_all: false,
+            },
+            ThriftType::Set | ThriftType::List => FieldMaskData::List {
+                children: AHashMap::new(),
+                wildcard: None,
+                is_all: false,
+            },
+            ThriftType::Map => {
+                if let Some(key_type) = &desc.key_type {
+                    let type_name = key_type.name.as_str().into();
+                    match type_name {
+                        ThriftType::String | ThriftType::Binary => FieldMaskData::StrMap {
+                            children: AHashMap::new(),
+                            wildcard: None,
+                            is_all: false,
+                        },
+                        ThriftType::I8 | ThriftType::I16 | ThriftType::I32 | ThriftType::I64 => {
+                            FieldMaskData::IntMap {
+                                children: AHashMap::new(),
+                                wildcard: None,
+                                is_all: false,
+                            }
+                        }
+                        _ => FieldMaskData::Scalar,
+                    }
+                } else {
+                    FieldMaskData::Scalar
+                }
+            }
+            _ => FieldMaskData::Scalar,
+        }
+    }
+
+    pub fn type_name(&self) -> &'static str {
+        match self {
+            FieldMaskData::Invalid => "Invalid",
+            FieldMaskData::Scalar => "Scalar",
+            FieldMaskData::Struct { .. } => "Struct",
+            FieldMaskData::List { .. } => "List",
+            FieldMaskData::StrMap { .. } => "StrMap",
+            FieldMaskData::IntMap { .. } => "IntMap",
+        }
+    }
+
+    // this is not wildcard, it is the all fields mode and it must be the last token, for example:
+    // struct a {
+    //     f1: i32,
+    // }
+    // struct test {
+    //     f1: i32,
+    //     f2: list<a>,
+    //     f3: a,
+    // }
+    // wildcard is "$.f2[*]", is_all is "$.f2", because the wildcard for f2 can also be extend as "$.f2[*].f1"
+    pub fn is_all(&self) -> bool {
+        match self {
+            FieldMaskData::Struct { is_all, .. }
+            | FieldMaskData::List { is_all, .. }
+            | FieldMaskData::StrMap { is_all, .. }
+            | FieldMaskData::IntMap { is_all, .. } => *is_all,
+            FieldMaskData::Scalar => true,
+            FieldMaskData::Invalid => false,
+        }
+    }
+
+    // don't support wildcard for now
+    pub fn has_children(&self) -> bool {
+        match self {
+            FieldMaskData::Struct { children, .. } => !children.is_empty(),
+            FieldMaskData::List {
+                children, wildcard, ..
+            } => !children.is_empty() || wildcard.is_some(),
+            FieldMaskData::StrMap {
+                children, wildcard, ..
+            } => !children.is_empty() || wildcard.is_some(),
+            FieldMaskData::IntMap {
+                children, wildcard, ..
+            } => !children.is_empty() || wildcard.is_some(),
+            FieldMaskData::Scalar => false,
+            FieldMaskData::Invalid => false,
+        }
+    }
+
+    fn set_all(&mut self) -> Result<(), FieldMaskError> {
+        match self {
+            FieldMaskData::Struct { is_all, .. } => *is_all = true,
+            FieldMaskData::List { is_all, .. } => *is_all = true,
+            FieldMaskData::StrMap { is_all, .. } => *is_all = true,
+            FieldMaskData::IntMap { is_all, .. } => *is_all = true,
+            FieldMaskData::Scalar => {}
+            data => {
+                return Err(FieldMaskError::GenericError {
+                    message: format!("Cannot set all fields on {:?}", data),
+                });
+            }
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct FieldMask {
+    pub is_black: bool, // black list mode flag
+    pub data: FieldMaskData,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Options {
+    pub black_list_mode: bool,
+}
+
+pub struct FieldMaskBuilder {
+    pub opts: Options,
+    pub desc: TypeDescriptor,
+    pub paths: Vec<FastStr>,
+}
+
+impl FieldMaskBuilder {
+    pub fn new<S: AsRef<str>>(desc: &TypeDescriptor, paths: &[S]) -> Self {
+        Self {
+            opts: Options::default(),
+            desc: desc.clone(),
+            paths: paths.iter().map(|s| FastStr::new(s.as_ref())).collect(),
+        }
+    }
+
+    pub fn with_options(self, opts: Options) -> Self {
+        Self { opts, ..self }
+    }
+
+    pub fn build(self) -> Result<FieldMask, FieldMaskError> {
+        let mut fm = FieldMask::default();
+        if self.opts.black_list_mode {
+            fm.is_black = true;
+        }
+        fm.init(&self.desc, &self.paths)?;
+        Ok(fm)
+    }
+}
+
+impl FieldMask {
+    pub fn reset(&mut self) {
+        self.data = FieldMaskData::Invalid;
+    }
+
+    pub fn field(&self, id: i32) -> Option<&FieldMask> {
+        match &self.data {
+            FieldMaskData::Struct { children, .. } => children.get(&id).map(|f| f.as_ref()),
+            _ => None,
+        }
+    }
+
+    pub fn int(&self, id: i32) -> Option<&FieldMask> {
+        match &self.data {
+            FieldMaskData::Invalid => None,
+            FieldMaskData::List {
+                children, wildcard, ..
+            } => children
+                .get(&id)
+                .map(|f| f.as_ref())
+                .or_else(|| wildcard.as_ref().map(|f| f.as_ref())),
+            _ => None,
+        }
+    }
+
+    pub fn str(&self, id: &str) -> Option<&FieldMask> {
+        match &self.data {
+            FieldMaskData::Invalid => None,
+            FieldMaskData::StrMap {
+                children, wildcard, ..
+            } => children
+                .get(id)
+                .map(|f| f.as_ref())
+                .or_else(|| wildcard.as_ref().map(|f| f.as_ref())),
+            _ => None, // type mismatch
+        }
+    }
+
+    pub fn all(&self) -> bool {
+        self.data.is_all()
+    }
+
+    pub fn is_black(&self) -> bool {
+        self.is_black
+    }
+
+    pub fn typ(&self) -> &str {
+        self.data.type_name()
+    }
+
+    pub fn exist(&self) -> bool {
+        !matches!(self.data, FieldMaskData::Invalid)
+    }
+
+    pub fn for_each_child<F>(&self, mut scanner: F)
+    where
+        F: FnMut(&str, i32, &FieldMask) -> bool,
+    {
+        match &self.data {
+            FieldMaskData::Scalar | FieldMaskData::Invalid => return,
+            FieldMaskData::Struct { children, .. } => {
+                for (&k, v) in children {
+                    if !scanner("", k as i32, v) {
+                        return;
+                    }
+                }
+            }
+            FieldMaskData::List { children, .. } | FieldMaskData::IntMap { children, .. } => {
+                for (&k, v) in children {
+                    if !scanner("", k, v) {
+                        return;
+                    }
+                }
+            }
+            FieldMaskData::StrMap { children, .. } => {
+                for (k, v) in children {
+                    if !scanner(k, 0, v) {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Methods for mutation
+impl FieldMask {
+    #[inline]
+    fn mut_wildcard(&mut self, data: FieldMaskData) -> &mut FieldMask {
+        let is_black = self.is_black;
+        let wildcard = match &mut self.data {
+            FieldMaskData::List { wildcard, .. } => wildcard,
+            FieldMaskData::StrMap { wildcard, .. } => wildcard,
+            FieldMaskData::IntMap { wildcard, .. } => wildcard,
+            other => panic!("Cannot set wildcard on {:?}", other.type_name()),
+        };
+
+        wildcard.get_or_insert_with(|| Box::new(FieldMask { is_black, data }))
+    }
+
+    #[inline]
+    fn set_and_get_sub_field(&mut self, id: i32, data: FieldMaskData) -> &mut FieldMask {
+        let is_black = self.is_black;
+        match &mut self.data {
+            FieldMaskData::Struct { children, .. } => children
+                .entry(id)
+                .or_insert_with(|| Box::new(FieldMask { is_black, data })),
+            other => panic!("Cannot set field_id on {:?}", other.type_name()),
+        }
+    }
+
+    #[inline]
+    fn set_int_key_mask(&mut self, id: i32, data: FieldMaskData) {
+        let is_black = self.is_black;
+        match &mut self.data {
+            FieldMaskData::List { children, .. } | FieldMaskData::IntMap { children, .. } => {
+                children
+                    .entry(id)
+                    .or_insert_with(|| Box::new(FieldMask { is_black, data }));
+            }
+            other => panic!("Cannot set int on {:?}", other.type_name()),
+        }
+    }
+
+    #[inline]
+    fn set_str_key_mask(&mut self, id: FastStr, data: FieldMaskData) {
+        let is_black = self.is_black;
+        match &mut self.data {
+            FieldMaskData::StrMap { children, .. } => {
+                children
+                    .entry(id)
+                    .or_insert_with(|| Box::new(FieldMask { is_black, data }));
+            }
+            other => panic!("Cannot set str on {:?}", other.type_name()),
+        }
+    }
+}
+
+// Methods for path processing
+impl FieldMask {
+    #[inline]
+    fn init(&mut self, desc: &TypeDescriptor, paths: &[FastStr]) -> Result<(), FieldMaskError> {
+        for path in paths {
+            let mut it = PathIterator::new(path).map_err(|err| FieldMaskError::PathError {
+                path: path.clone(),
+                source: err,
+            })?;
+            self.add_path(&mut it, desc, path)?;
+        }
+        Ok(())
+    }
+
+    #[inline]
+    fn add_path(
+        &mut self,
+        it: &mut PathIterator,
+        cur_desc: &TypeDescriptor,
+        original_path: &FastStr,
+    ) -> Result<(), FieldMaskError> {
+        // if no more tokens for nested path, set as all
+        if !it.has_next() {
+            self.data.set_all()?;
+            return Ok(());
+        }
+
+        let token = it.next();
+        match &token.data {
+            TokenData::Root => {
+                if let FieldMaskData::Invalid = self.data {
+                    self.data = FieldMaskData::new(cur_desc);
+                }
+                self.add_path(it, cur_desc, original_path)
+            }
+            TokenData::Field => self.add_field_path(it, &token, cur_desc, original_path),
+            TokenData::IndexL => self.add_list_path(it, &token, cur_desc, original_path),
+            TokenData::MapL => self.add_map_path(it, &token, cur_desc, original_path),
+            _ => Err(FieldMaskError::InvalidToken {
+                token_type: FastStr::new(format!("{:?}", token.data)),
+                expected: FastStr::new("$ or . or [ or {"),
+                path: original_path.clone(),
+                position: token.get_begin_pos(),
+            }),
+        }
+    }
+
+    fn add_field_path(
+        &mut self,
+        it: &mut PathIterator,
+        token: &PathToken,
+        cur_desc: &TypeDescriptor,
+        original_path: &FastStr,
+    ) -> Result<(), FieldMaskError> {
+        let s = match cur_desc.get_struct_desc() {
+            Some(s) => s,
+            None => {
+                return Err(FieldMaskError::TypeMismatch {
+                    expected: FastStr::new("Struct"),
+                    actual: cur_desc.name.clone(),
+                    context: FastStr::new("descriptor type check for field"),
+                    path: original_path.clone(),
+                    position: token.get_begin_pos(),
+                });
+            }
+        };
+
+        if !matches!(self.data, FieldMaskData::Struct { .. }) {
+            return Err(FieldMaskError::TypeMismatch {
+                expected: FastStr::new("Struct"),
+                actual: FastStr::new(self.data.type_name()),
+                context: FastStr::new("FieldMask type check for field"),
+                path: original_path.clone(),
+                position: token.get_begin_pos(),
+            });
+        }
+
+        let field_token = it.next();
+        if field_token.data == TokenData::EOF {
+            return Err(FieldMaskError::InvalidToken {
+                token_type: FastStr::new("EOF"),
+                expected: FastStr::new("field name, field id or '*'"),
+                path: original_path.clone(),
+                position: field_token.get_begin_pos(),
+            });
+        }
+
+        match &field_token.data {
+            TokenData::LitInt(id) => {
+                let field =
+                    s.find_field_by_id(*id)
+                        .ok_or_else(|| FieldMaskError::FieldNotFound {
+                            field_identifier: FastStr::new(id.to_string()),
+                            parent_type: cur_desc.name.clone(),
+                            path: original_path.clone(),
+                            position: field_token.get_begin_pos(),
+                        })?;
+                let sub_mask =
+                    self.set_and_get_sub_field(field.id, FieldMaskData::new(&field.r#type));
+                sub_mask.add_path(it, &field.r#type, original_path)
+            }
+            TokenData::LitStr(name) => {
+                let field =
+                    s.find_field_by_name(name)
+                        .ok_or_else(|| FieldMaskError::FieldNotFound {
+                            field_identifier: name.clone(),
+                            parent_type: cur_desc.name.clone(),
+                            path: original_path.clone(),
+                            position: field_token.get_begin_pos(),
+                        })?;
+                let sub_mask =
+                    self.set_and_get_sub_field(field.id, FieldMaskData::new(&field.r#type));
+                sub_mask.add_path(it, &field.r#type, original_path)
+            }
+            TokenData::Any => {
+                self.data.set_all()?;
+                Ok(())
+            }
+            _ => Err(FieldMaskError::InvalidToken {
+                token_type: FastStr::new(format!("{:?}", field_token.data)),
+                expected: FastStr::new("field name, field id or '*'"),
+                path: original_path.clone(),
+                position: field_token.get_begin_pos(),
+            }),
+        }
+    }
+
+    fn add_list_path(
+        &mut self,
+        it: &mut PathIterator,
+        token: &PathToken,
+        cur_desc: &TypeDescriptor,
+        original_path: &FastStr,
+    ) -> Result<(), FieldMaskError> {
+        if !matches!(self.data, FieldMaskData::List { .. }) {
+            return Err(FieldMaskError::TypeMismatch {
+                expected: FastStr::new("List"),
+                actual: FastStr::new(self.data.type_name()),
+                context: FastStr::new("FieldMask type check for list"),
+                path: original_path.clone(),
+                position: token.get_begin_pos(),
+            });
+        }
+
+        let element_desc =
+            cur_desc
+                .value_type
+                .as_ref()
+                .ok_or_else(|| FieldMaskError::DescriptorError {
+                    type_name: cur_desc.name.clone(),
+                    message: FastStr::new("collection has no value type"),
+                    path: original_path.clone(),
+                    position: token.get_begin_pos(),
+                })?;
+
+        let mut ids = Vec::new();
+        let mut is_wildcard = false;
+        let mut empty = true;
+
+        while it.has_next() {
+            let idx_token = it.next();
+            if idx_token.data == TokenData::IndexR {
+                if empty {
+                    return Err(FieldMaskError::EmptyCollection {
+                        collection_type: FastStr::new("index collection"),
+                        path: original_path.clone(),
+                        position: idx_token.get_begin_pos(),
+                    });
+                }
+                break;
+            }
+            empty = false;
+
+            if matches!(idx_token.data, TokenData::Elem) {
+                continue;
+            }
+
+            if matches!(idx_token.data, TokenData::Any) {
+                is_wildcard = true;
+                continue;
+            }
+
+            if let TokenData::LitInt(id) = idx_token.data {
+                ids.push(id);
+            } else {
+                return Err(FieldMaskError::InvalidToken {
+                    token_type: FastStr::new(format!("{:?}", idx_token.data)),
+                    expected: FastStr::new("integer index or '*'"),
+                    path: original_path.clone(),
+                    position: idx_token.get_begin_pos(),
+                });
+            }
+        }
+
+        if is_wildcard {
+            let sub_mask = self.mut_wildcard(FieldMaskData::new(element_desc));
+            return sub_mask.add_path(it, element_desc, original_path);
+        }
+
+        if !it.has_next() {
+            for id in ids {
+                self.set_int_key_mask(id, FieldMaskData::Scalar);
+            }
+        } else {
+            let mut sub_mask = FieldMask {
+                is_black: self.is_black,
+                data: FieldMaskData::new(element_desc),
+            };
+            sub_mask.add_path(it, element_desc, original_path)?;
+            for id in ids {
+                self.set_int_key_mask(id, sub_mask.data.clone());
+            }
+        }
+        Ok(())
+    }
+
+    fn add_map_path(
+        &mut self,
+        it: &mut PathIterator,
+        token: &PathToken,
+        cur_desc: &TypeDescriptor,
+        original_path: &FastStr,
+    ) -> Result<(), FieldMaskError> {
+        let is_str_map = matches!(self.data, FieldMaskData::StrMap { .. });
+        let is_int_map = matches!(self.data, FieldMaskData::IntMap { .. });
+
+        if !is_str_map && !is_int_map {
+            return Err(FieldMaskError::TypeMismatch {
+                expected: FastStr::new("IntMap or StrMap"),
+                actual: FastStr::new(self.data.type_name()),
+                context: FastStr::new("FieldMask type check for map"),
+                path: original_path.clone(),
+                position: token.get_begin_pos(),
+            });
+        }
+
+        let element_desc =
+            cur_desc
+                .value_type
+                .as_ref()
+                .ok_or_else(|| FieldMaskError::DescriptorError {
+                    type_name: cur_desc.name.clone(),
+                    message: FastStr::new("map has no value type"),
+                    path: original_path.clone(),
+                    position: token.get_begin_pos(),
+                })?;
+
+        let mut int_keys = Vec::new();
+        let mut str_keys = Vec::new();
+        let mut is_wildcard = false;
+        let mut empty = true;
+
+        while it.has_next() {
+            let key_token = it.next();
+            if key_token.data == TokenData::MapR {
+                if empty {
+                    return Err(FieldMaskError::EmptyCollection {
+                        collection_type: FastStr::new("key collection"),
+                        path: original_path.clone(),
+                        position: key_token.get_begin_pos(),
+                    });
+                }
+                break;
+            }
+            empty = false;
+
+            if matches!(key_token.data, TokenData::Elem) {
+                continue;
+            }
+
+            if matches!(key_token.data, TokenData::Any) {
+                is_wildcard = true;
+                continue;
+            }
+
+            match &key_token.data {
+                TokenData::LitInt(id) => {
+                    if !is_int_map {
+                        return Err(FieldMaskError::TypeMismatch {
+                            expected: FastStr::new("string key"),
+                            actual: FastStr::new("integer key"),
+                            context: FastStr::new("map key type check"),
+                            path: original_path.clone(),
+                            position: key_token.get_begin_pos(),
+                        });
+                    }
+                    int_keys.push(*id);
+                }
+                TokenData::Str(key) => {
+                    if !is_str_map {
+                        return Err(FieldMaskError::TypeMismatch {
+                            expected: FastStr::new("integer key"),
+                            actual: FastStr::new("string key"),
+                            context: FastStr::new("map key type check"),
+                            path: original_path.clone(),
+                            position: key_token.get_begin_pos(),
+                        });
+                    }
+                    str_keys.push(key.clone());
+                }
+                _ => {
+                    return Err(FieldMaskError::InvalidToken {
+                        token_type: FastStr::new(format!("{:?}", key_token.data)),
+                        expected: FastStr::new("integer, string or '*' as key"),
+                        path: original_path.clone(),
+                        position: key_token.get_begin_pos(),
+                    });
+                }
+            }
+        }
+
+        if is_wildcard {
+            let sub_mask = self.mut_wildcard(FieldMaskData::new(element_desc));
+            return sub_mask.add_path(it, element_desc, original_path);
+        }
+
+        if !it.has_next() {
+            if is_int_map {
+                for id in int_keys {
+                    self.set_int_key_mask(id, FieldMaskData::Scalar);
+                }
+            } else {
+                for key in str_keys {
+                    self.set_str_key_mask(FastStr::new(key), FieldMaskData::Scalar);
+                }
+            }
+        } else {
+            let mut sub_mask = FieldMask {
+                is_black: self.is_black,
+                data: FieldMaskData::new(element_desc),
+            };
+            sub_mask.add_path(it, element_desc, original_path)?;
+
+            if is_int_map {
+                for id in int_keys {
+                    self.set_int_key_mask(id, sub_mask.data.clone());
+                }
+            } else {
+                for key in str_keys {
+                    self.set_str_key_mask(FastStr::new(key), sub_mask.data.clone());
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_field_mask_type_display() {
+        let struct_data = FieldMaskData::Struct {
+            children: AHashMap::new(),
+            is_all: false,
+        };
+        let list_data = FieldMaskData::List {
+            children: AHashMap::new(),
+            wildcard: None,
+            is_all: false,
+        };
+
+        assert_eq!(FieldMaskData::Scalar.type_name(), "Scalar");
+        assert_eq!(list_data.type_name(), "List");
+        assert_eq!(struct_data.type_name(), "Struct");
+    }
+
+    #[test]
+    fn test_field_mask_default() {
+        let fm = FieldMask::default();
+        assert!(!fm.exist());
+        assert_eq!(fm.typ(), "Invalid");
+        assert!(!fm.is_black());
+    }
+
+    #[test]
+    fn test_for_each_child() {
+        let mut fm = FieldMask::default();
+
+        let mut children = AHashMap::new();
+        let mut child1 = FieldMask::default();
+        child1.data = FieldMaskData::Scalar;
+        let mut child2 = FieldMask::default();
+        child2.data = FieldMaskData::List {
+            children: AHashMap::new(),
+            wildcard: None,
+            is_all: false,
+        };
+        children.insert(1, Box::new(child1));
+        children.insert(2, Box::new(child2));
+        fm.data = FieldMaskData::Struct {
+            children,
+            is_all: false,
+        };
+        let mut count = 0;
+        fm.for_each_child(|_, id, mask| {
+            match id {
+                1 => {
+                    assert_eq!(mask.typ(), "Scalar");
+                    assert_eq!(mask.exist(), true);
+                }
+                2 => {
+                    assert_eq!(mask.typ(), "List");
+                    assert_eq!(mask.exist(), true);
+                }
+                _ => {
+                    assert!(false);
+                }
+            }
+            count += 1;
+            true
+        });
+        assert_eq!(count, 2);
+        assert_eq!(fm.field(1).unwrap().typ(), "Scalar");
+        assert_eq!(fm.field(2).unwrap().typ(), "List");
+        assert!(fm.field(3).is_none());
+    }
+
+    #[test]
+    fn test_field_mask_error_display() {
+        let err = FieldMaskError::PathError {
+            path: FastStr::new("$.invalid"),
+            source: PathError::SyntaxError {
+                position: 5,
+                expected: FastStr::new("数字"),
+                found: FastStr::new("abc"),
+            },
+        };
+        assert!(err.to_string().contains("path")); // 英文错误消息
+
+        let err = FieldMaskError::TypeMismatch {
+            expected: FastStr::new("Struct"),
+            actual: FastStr::new("List"),
+            context: FastStr::new("字段访问"),
+            path: FastStr::new("$.test"),
+            position: 0,
+        };
+        assert!(err.to_string().contains("type mismatch")); // 英文错误消息
+    }
+
+    #[test]
+    fn test_field_mask_builder() {
+        let desc = TypeDescriptor {
+            name: "UserStruct".into(),
+            ..Default::default()
+        };
+
+        let paths = vec![FastStr::new("$.test")];
+        let builder = FieldMaskBuilder::new(&desc, &paths);
+
+        assert_eq!(builder.paths.len(), 1);
+        assert_eq!(builder.desc.name, "UserStruct");
+    }
+
+    #[test]
+    fn test_thiserror_integration() {
+        let path_error = PathError::InvalidCharacter {
+            position: 5,
+            character: '@',
+        };
+        assert!(path_error.to_string().contains("invalid character"));
+
+        let fieldmask_error = FieldMaskError::PathError {
+            path: FastStr::new("$.invalid"),
+            source: path_error.clone(),
+        };
+
+        assert!(
+            fieldmask_error
+                .to_string()
+                .contains("path '$.invalid' parse error")
+        );
+
+        use std::error::Error;
+        assert!(fieldmask_error.source().is_some());
+        let source = fieldmask_error.source().unwrap();
+        assert_eq!(source.to_string(), path_error.to_string());
+    }
+}
