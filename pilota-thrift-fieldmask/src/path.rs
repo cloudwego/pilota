@@ -1,5 +1,4 @@
-use std::fmt;
-use std::str;
+use std::{fmt, str};
 
 use nom::{
     IResult,

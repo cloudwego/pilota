@@ -1,7 +1,8 @@
+use std::collections::BTreeMap;
+
 use ahash::AHashMap;
 use descriptor::thrift_reflection::ConstValueType;
 use pilota::{FastStr, OrderedFloat};
-use std::collections::BTreeMap;
 
 include!("descriptor.rs");
 pub use descriptor::*;

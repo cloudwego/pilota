@@ -11,7 +11,7 @@ fn main() {
     //     .ignore_unused(false)
     //     .include_dirs(vec![idl_path.parent().unwrap().to_path_buf()])
     //     .compile_with_config(
-    //         vec![pilota_build::IdlService::from_path(idl_path.to_path_buf())],
-    //         pilota_build::Output::File(out_path.into()),
+    //         vec![pilota_build::IdlService::from_path(idl_path.
+    // to_path_buf())],         pilota_build::Output::File(out_path.into()),
     //     );
 }

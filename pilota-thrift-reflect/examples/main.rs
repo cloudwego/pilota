@@ -1,7 +1,8 @@
+use std::path::PathBuf;
+
 use bytes::BytesMut;
 use pilota::thrift::Message as _;
 use pilota_thrift_parser::parser::Parser as _;
-use std::path::PathBuf;
 
 fn main() {
     let idl_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("examples/idl/apache.thrift");

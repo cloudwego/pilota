@@ -1,8 +1,9 @@
-use crate::path::{PathError, PathIterator, PathToken, TokenData};
 use ahash::AHashMap;
 use pilota::FastStr;
 use pilota_thrift_reflect::{ThriftType, descriptor::thrift_reflection::TypeDescriptor};
 use thiserror::Error;
+
+use crate::path::{PathError, PathIterator, PathToken, TokenData};
 
 #[derive(Debug, Clone, Error)]
 pub enum FieldMaskError {
@@ -454,8 +455,8 @@ impl FieldMaskData {
         }
     }
 
-    // this is not wildcard, it is the all fields mode and it must be the last token, for example:
-    // struct a {
+    // this is not wildcard, it is the all fields mode and it must be the last
+    // token, for example: struct a {
     //     f1: i32,
     // }
     // struct test {
@@ -463,7 +464,8 @@ impl FieldMaskData {
     //     f2: list<a>,
     //     f3: a,
     // }
-    // wildcard is "$.f2[*]", is_all is "$.f2", because the wildcard for f2 can also be extend as "$.f2[*].f1"
+    // wildcard is "$.f2[*]", is_all is "$.f2", because the wildcard for f2 can also
+    // be extend as "$.f2[*].f1"
     pub fn is_all(&self) -> bool {
         match self {
             FieldMaskData::Struct { is_all, .. }
