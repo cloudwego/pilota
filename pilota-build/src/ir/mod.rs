@@ -108,6 +108,7 @@ pub struct Field {
 pub struct Message {
     pub name: Ident,
     pub fields: Vec<Field>,
+    pub is_wrapper: bool,
 }
 
 #[derive(Clone, Debug)]

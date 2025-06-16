@@ -2,19 +2,8 @@ pub mod btree {
     #![allow(warnings, clippy::all)]
     use ::pilota::{Buf as _, BufMut as _};
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-            "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/btree.thrift" => {
-                Some(btree::get_file_descriptor())
-            }
-
-            _ => None,
-        }
-    }
-
     pub mod btree {
+<<<<<<< HEAD
 <<<<<<< HEAD
         use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -55,6 +44,8 @@ pub mod btree {
             &*FILE_DESCRIPTOR
         }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {}
         impl ::pilota::thrift::Message for A {
@@ -172,14 +163,6 @@ pub mod btree {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl A {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("A").unwrap()
             }
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -797,14 +780,6 @@ pub mod btree {
                     + __protocol.struct_end_len()
             }
         }
-        impl B {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("B").unwrap()
-            }
-        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Vec {}
         impl ::pilota::thrift::Message for Vec {
@@ -922,14 +897,6 @@ pub mod btree {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Vec" })
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl Vec {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("Vec").unwrap()
             }
         }
         pub static TEST_MAP_LIST: ::std::sync::LazyLock<

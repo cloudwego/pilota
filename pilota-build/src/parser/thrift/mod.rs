@@ -8,6 +8,7 @@ use pilota_thrift_parser::{
     parser::Parser as _,
     {self as thrift_parser},
 };
+use pilota_thrift_reflect::thrift_reflection;
 use rustc_hash::{FxHashMap, FxHashSet};
 use salsa::ParallelDatabase;
 use thrift_parser::Annotations;
@@ -273,6 +274,7 @@ impl ThriftLower {
                     .iter()
                     .map(|a| self.lower_method_arg_field(a, arc_wrapper))
                     .collect(),
+                is_wrapper: true,
             });
             related_items.push(name.clone());
             let mut tags = Tags::default();
@@ -288,6 +290,7 @@ impl ThriftLower {
                     .iter()
                     .map(|a| self.lower_method_arg_field(a, arc_wrapper))
                     .collect(),
+                is_wrapper: true,
             });
             related_items.push(name.clone());
             let mut tags: Tags = Tags::default();
@@ -557,6 +560,7 @@ impl ThriftLower {
         ir::Message {
             name: self.lower_ident(&s.name),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
+            is_wrapper: false,
         }
     }
 

@@ -70,6 +70,8 @@ pub struct Context {
     pub(crate) dedups: Vec<FastStr>,
     pub(crate) common_crate_name: FastStr,
     pub names: FxHashMap<DefId, usize>,
+    pub with_descriptor: bool,
+    pub with_field_mask: bool,
 }
 
 impl Clone for Context {
@@ -91,6 +93,8 @@ impl Clone for Context {
             dedups: self.dedups.clone(),
             common_crate_name: self.common_crate_name.clone(),
             names: self.names.clone(),
+            with_descriptor: self.with_descriptor,
+            with_field_mask: self.with_field_mask,
         }
     }
 }
@@ -103,6 +107,7 @@ pub(crate) struct ContextBuilder {
     keep_unknown_fields: FxHashSet<DefId>,
     pub location_map: FxHashMap<DefId, DefLocation>,
     entry_map: HashMap<DefLocation, Vec<(DefId, DefLocation)>>,
+    with_field_mask: bool,
 }
 
 impl ContextBuilder {
@@ -115,6 +120,7 @@ impl ContextBuilder {
             keep_unknown_fields: Default::default(),
             location_map: Default::default(),
             entry_map: Default::default(),
+            with_field_mask: false,
         }
     }
     pub(crate) fn collect(&mut self, mode: CollectMode) {
@@ -324,6 +330,8 @@ impl ContextBuilder {
         special_namings: Vec<FastStr>,
         common_crate_name: FastStr,
         split: bool,
+        with_descriptor: bool,
+        with_field_mask: bool,
     ) -> Context {
         SPECIAL_NAMINGS.get_or_init(|| special_namings);
         let mut cx = Context {
@@ -346,6 +354,8 @@ impl ContextBuilder {
             dedups,
             common_crate_name,
             names: Default::default(),
+            with_descriptor,
+            with_field_mask,
         };
         let mut map: FxHashMap<(Vec<DefId>, String), Vec<DefId>> = FxHashMap::default();
         cx.nodes()

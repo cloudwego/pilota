@@ -123,6 +123,12 @@ where
             fields.push_str("pub _unknown_fields: ::pilota::BytesVec,");
         }
 
+        if !s.is_wrapper && self.with_field_mask {
+            fields.push_str(
+                "pub _field_mask: ::std::option::Option<::pilota_thrift_fieldmask::FieldMask>,",
+            );
+        }
+
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq)]
                 pub struct {name} {{
@@ -505,8 +511,10 @@ where
                     }
                 })
                 .collect::<Vec<_>>();
-            self.backend
-                .codegen_register_mod_file_descriptor(stream, &mods_paths);
+            if self.with_descriptor {
+                self.backend
+                    .codegen_register_mod_file_descriptor(stream, &mods_paths);
+            }
         }
 
         let mut pkgs: DashMap<Arc<[Symbol]>, String> = Default::default();
@@ -527,8 +535,10 @@ where
                 if let Some(file_path) = file_path {
                     let file_id = this.file_id(file_path.to_path_buf()).unwrap();
                     let file = this.file(file_id).unwrap();
-                    this.backend
-                        .codegen_file_descriptor(&mut stream, &file, *has_direct);
+                    if this.with_descriptor {
+                        this.backend
+                            .codegen_file_descriptor(&mut stream, &file, *has_direct);
+                    }
                 }
 
                 if this.split {

@@ -1,31 +1,11 @@
 pub mod r#gen {
     #![allow(warnings, clippy::all)]
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace/input/image.thrift" => Some(
-            article::image::get_file_descriptor()),
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace/input/author.thrift" => Some(
-            author::get_file_descriptor()),
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace/input/cdn.thrift" => Some(
-            article::image::cdn::get_file_descriptor()),
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace/input/common.thrift" => Some(
-            common::get_file_descriptor()),
-
-                _ => None,
-            }
-    }
-
     pub mod article {
         use ::pilota::{Buf as _, BufMut as _};
 
         pub mod image {
+<<<<<<< HEAD
 <<<<<<< HEAD
             use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -66,6 +46,8 @@ pub mod r#gen {
                 &*FILE_DESCRIPTOR
             }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
             #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
             pub struct Image {
                 pub id: i64,
@@ -333,16 +315,8 @@ pub mod r#gen {
                         + __protocol.struct_end_len()
                 }
             }
-            impl Image {
-                pub fn get_descriptor(
-                    &self,
-                ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                {
-                    let file_descriptor = get_file_descriptor();
-                    file_descriptor.find_struct_by_name("Image").unwrap()
-                }
-            }
             pub mod cdn {
+<<<<<<< HEAD
 <<<<<<< HEAD
                 use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -384,6 +358,8 @@ pub mod r#gen {
                     &*FILE_DESCRIPTOR
                 }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct Cdn {
                     pub id: i64,
@@ -625,20 +601,12 @@ pub mod r#gen {
                             + __protocol.struct_end_len()
                     }
                 }
-                impl Cdn {
-                    pub fn get_descriptor(
-                        &self,
-                    ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                    {
-                        let file_descriptor = get_file_descriptor();
-                        file_descriptor.find_struct_by_name("Cdn").unwrap()
-                    }
-                }
             }
         }
     }
 
     pub mod author {
+<<<<<<< HEAD
 <<<<<<< HEAD
         use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -679,6 +647,8 @@ pub mod r#gen {
             &*FILE_DESCRIPTOR
         }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Author {
             pub id: i64,
@@ -958,17 +928,10 @@ pub mod r#gen {
                     + __protocol.struct_end_len()
             }
         }
-        impl Author {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("Author").unwrap()
-            }
-        }
     }
 
     pub mod common {
+<<<<<<< HEAD
 <<<<<<< HEAD
         use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -1009,6 +972,8 @@ pub mod r#gen {
             &*FILE_DESCRIPTOR
         }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct CommonData {
             pub id: i64,
@@ -1228,14 +1193,6 @@ pub mod r#gen {
                     + __protocol.faststr_field_len(Some(3), &self.description)
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl CommonData {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("CommonData").unwrap()
             }
         }
     }

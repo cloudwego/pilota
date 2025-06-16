@@ -16,3 +16,5 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 pilota = { path = "../pilota", features = ["pb-encode-default-value"] }
 pilota-build = { path = "../pilota-build" }
+pilota-thrift-fieldmask = { path = "../pilota-thrift-fieldmask" }
+pilota-thrift-reflect = { path = "../pilota-thrift-reflect" }

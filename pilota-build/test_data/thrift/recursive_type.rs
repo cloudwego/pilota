@@ -2,19 +2,8 @@ pub mod recursive_type {
     #![allow(warnings, clippy::all)]
     use ::pilota::{Buf as _, BufMut as _};
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/recursive_type.thrift" => Some(
-            recursive_type::get_file_descriptor()),
-
-                _ => None,
-            }
-    }
-
     pub mod recursive_type {
+<<<<<<< HEAD
 <<<<<<< HEAD
         use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -55,6 +44,8 @@ pub mod recursive_type {
             &*FILE_DESCRIPTOR
         }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub a: ::std::option::Option<::std::boxed::Box<A>>,
@@ -235,14 +226,6 @@ pub mod recursive_type {
                     + __protocol.struct_end_len()
             }
         }
-        impl A {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("A").unwrap()
-            }
-        }
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct C {
             pub c: ::std::option::Option<::pilota::AHashSet<::pilota::FastStr>>,
@@ -412,14 +395,6 @@ pub mod recursive_type {
                     + __protocol.struct_end_len()
             }
         }
-        impl C {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("C").unwrap()
-            }
-        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct B {
             pub b_a: ::std::option::Option<::std::boxed::Box<A>>,
@@ -565,14 +540,6 @@ pub mod recursive_type {
                         .map_or(0, |value| __protocol.struct_field_len(Some(1), value))
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl B {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("B").unwrap()
             }
         }
     }

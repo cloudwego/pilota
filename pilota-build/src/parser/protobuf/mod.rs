@@ -341,6 +341,7 @@ impl Lower {
                     .map(|(_, f)| f)
                     .collect(),
                 name: FastStr::new(message.name()).into(),
+                is_wrapper: false,
             }),
         };
 

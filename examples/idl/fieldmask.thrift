@@ -25,7 +25,10 @@ struct Request {
     15: map<string, A> f15,
     16: map<string, list<A>> f16,
     17: list<map<string, i32>> f17,
+<<<<<<< HEAD
     255: optional base.Base base
+=======
+>>>>>>> 6320b4f (feat(pilota-build): codegen fieldmask)
 }
 
 struct Response {}

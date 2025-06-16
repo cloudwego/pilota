@@ -1,31 +1,8 @@
 pub mod r#gen {
     #![allow(warnings, clippy::all)]
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace/input/common.thrift" => Some(
-            common::get_file_descriptor()),
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace/input/article.thrift" => Some(
-            article::get_file_descriptor()),
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace/input/image.thrift" => Some(
-            article::image::get_file_descriptor()),
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace/input/cdn.thrift" => Some(
-            article::image::cdn::get_file_descriptor()),
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace/input/author.thrift" => Some(
-            author::get_file_descriptor()),
-
-                _ => None,
-            }
-    }
-
     pub mod article {
+<<<<<<< HEAD
 <<<<<<< HEAD
         use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -66,6 +43,8 @@ pub mod r#gen {
             &*FILE_DESCRIPTOR
         }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Status(i32);
@@ -611,16 +590,6 @@ pub mod r#gen {
                     + __protocol.struct_end_len()
             }
         }
-        impl GetArticleResponse {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor
-                    .find_struct_by_name("GetArticleResponse")
-                    .unwrap()
-            }
-        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct ArticleServiceGetArticleArgsSend {
             pub req: GetArticleRequest,
@@ -925,16 +894,6 @@ pub mod r#gen {
                 }) + __protocol.i64_field_len(Some(1), *&self.id)
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl GetArticleRequest {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor
-                    .find_struct_by_name("GetArticleRequest")
-                    .unwrap()
             }
         }
         pub trait ArticleService {}
@@ -1450,22 +1409,10 @@ pub mod r#gen {
                     + __protocol.struct_end_len()
             }
         }
-        impl Article {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("Article").unwrap()
-            }
-        }
         pub mod image {
-
-            pub use ::common::article::image::get_file_descriptor;
             pub use ::common::article::image::Image;
             use ::pilota::{Buf as _, BufMut as _};
             pub mod cdn {
-
-                pub use ::common::article::image::cdn::get_file_descriptor;
                 pub use ::common::article::image::cdn::Cdn;
                 use ::pilota::{Buf as _, BufMut as _};
             }
@@ -1473,15 +1420,11 @@ pub mod r#gen {
     }
 
     pub mod author {
-
-        pub use ::common::author::get_file_descriptor;
         pub use ::common::author::Author;
         use ::pilota::{Buf as _, BufMut as _};
     }
 
     pub mod common {
-
-        pub use ::common::common::get_file_descriptor;
         pub use ::common::common::CommonData;
         use ::pilota::{Buf as _, BufMut as _};
     }

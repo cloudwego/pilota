@@ -589,6 +589,7 @@ impl Resolver {
         Message {
             name: s.name.clone(),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
+            is_wrapper: s.is_wrapper,
         }
     }
 

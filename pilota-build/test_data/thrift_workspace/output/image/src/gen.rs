@@ -1,28 +1,11 @@
 pub mod r#gen {
     #![allow(warnings, clippy::all)]
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace/input/cdn.thrift" => Some(
-            article::image::cdn::get_file_descriptor()),
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace/input/image.thrift" => Some(
-            article::image::get_file_descriptor()),
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace/input/common.thrift" => Some(
-            common::get_file_descriptor()),
-
-                _ => None,
-            }
-    }
-
     pub mod article {
         use ::pilota::{Buf as _, BufMut as _};
 
         pub mod image {
+<<<<<<< HEAD
 <<<<<<< HEAD
             use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -63,6 +46,8 @@ pub mod r#gen {
                 &*FILE_DESCRIPTOR
             }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
             #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
             pub struct ImageServiceGetImageArgsRecv {
                 pub req: GetImageRequest,
@@ -539,17 +524,6 @@ pub mod r#gen {
                         + __protocol.struct_end_len()
                 }
             }
-            impl GetImageResponse {
-                pub fn get_descriptor(
-                    &self,
-                ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                {
-                    let file_descriptor = get_file_descriptor();
-                    file_descriptor
-                        .find_struct_by_name("GetImageResponse")
-                        .unwrap()
-                }
-            }
             #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
             pub struct ImageServiceGetImageArgsSend {
                 pub req: GetImageRequest,
@@ -869,17 +843,6 @@ pub mod r#gen {
                         + __protocol.struct_end_len()
                 }
             }
-            impl GetImageRequest {
-                pub fn get_descriptor(
-                    &self,
-                ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor
-                {
-                    let file_descriptor = get_file_descriptor();
-                    file_descriptor
-                        .find_struct_by_name("GetImageRequest")
-                        .unwrap()
-                }
-            }
             pub trait ImageService {}
 
             impl ::std::default::Default for ImageServiceGetImageResultRecv {
@@ -1033,8 +996,6 @@ pub mod r#gen {
             }
             pub use ::common::article::image::Image;
             pub mod cdn {
-
-                pub use ::common::article::image::cdn::get_file_descriptor;
                 pub use ::common::article::image::cdn::Cdn;
                 use ::pilota::{Buf as _, BufMut as _};
             }
@@ -1042,8 +1003,6 @@ pub mod r#gen {
     }
 
     pub mod common {
-
-        pub use ::common::common::get_file_descriptor;
         pub use ::common::common::CommonData;
         use ::pilota::{Buf as _, BufMut as _};
     }

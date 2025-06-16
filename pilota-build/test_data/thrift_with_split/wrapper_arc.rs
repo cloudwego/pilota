@@ -2,19 +2,8 @@ pub mod wrapper_arc {
     #![allow(warnings, clippy::all)]
     use ::pilota::{Buf as _, BufMut as _};
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_with_split/wrapper_arc.thrift" => Some(
-            wrapper_arc::get_file_descriptor()),
-
-                _ => None,
-            }
-    }
-
     pub mod wrapper_arc {
+<<<<<<< HEAD
 <<<<<<< HEAD
         use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -55,6 +44,8 @@ pub mod wrapper_arc {
             &*FILE_DESCRIPTOR
         }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
         include!("wrapper_arc/mod.rs");
     }
 }

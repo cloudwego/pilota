@@ -2,19 +2,8 @@ pub mod normal {
     #![allow(warnings, clippy::all)]
     use ::pilota::{Buf as _, BufMut as _};
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-            "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/normal.thrift" => {
-                Some(normal::get_file_descriptor())
-            }
-
-            _ => None,
-        }
-    }
-
     pub mod normal {
+<<<<<<< HEAD
 <<<<<<< HEAD
         use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -55,6 +44,8 @@ pub mod normal {
             &*FILE_DESCRIPTOR
         }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub a: ::std::option::Option<i32>,
@@ -192,14 +183,6 @@ pub mod normal {
                         .map_or(0, |value| __protocol.i32_field_len(Some(1), *value))
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl A {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("A").unwrap()
             }
         }
         pub trait Test {}
@@ -704,14 +687,6 @@ pub mod normal {
                     + __protocol.struct_end_len()
             }
         }
-        impl ObjReq {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("ObjReq").unwrap()
-            }
-        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct B {
             pub a: ::std::option::Option<A>,
@@ -855,14 +830,6 @@ pub mod normal {
                         .map_or(0, |value| __protocol.struct_field_len(Some(2), value))
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl B {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("B").unwrap()
             }
         }
         #[derive(Debug, Default, Clone, PartialEq)]
@@ -1388,14 +1355,6 @@ pub mod normal {
                     + __protocol.struct_end_len()
             }
         }
-        impl StException {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("StException").unwrap()
-            }
-        }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct SubMessage {
             pub value: ::std::option::Option<::pilota::FastStr>,
@@ -1537,14 +1496,6 @@ pub mod normal {
                         .map_or(0, |value| __protocol.faststr_field_len(Some(2), value))
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl SubMessage {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("SubMessage").unwrap()
             }
         }
         #[derive(Debug, Default, Clone, PartialEq)]
@@ -2542,14 +2493,6 @@ pub mod normal {
                     })
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl Message {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("Message").unwrap()
             }
         }
     }

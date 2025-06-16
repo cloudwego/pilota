@@ -1,31 +1,11 @@
 pub mod r#gen {
     #![allow(warnings, clippy::all)]
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace_with_split/input/author.thrift" => Some(
-            author::get_file_descriptor()),
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace_with_split/input/cdn.thrift" => Some(
-            article::image::cdn::get_file_descriptor()),
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace_with_split/input/common.thrift" => Some(
-            common::get_file_descriptor()),
-
-                "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift_workspace_with_split/input/image.thrift" => Some(
-            article::image::get_file_descriptor()),
-
-                _ => None,
-            }
-    }
-
     pub mod article {
         use ::pilota::{Buf as _, BufMut as _};
 
         pub mod image {
+<<<<<<< HEAD
 <<<<<<< HEAD
             use ::pilota::{Buf as _, BufMut as _};
             include!("article/image/mod.rs");
@@ -110,12 +90,18 @@ pub mod r#gen {
                     &*FILE_DESCRIPTOR
                 }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+            include!("article/image/mod.rs");
+
+            pub mod cdn {
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
                 include!("article/image/cdn/mod.rs");
             }
         }
     }
 
     pub mod author {
+<<<<<<< HEAD
 <<<<<<< HEAD
         use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -156,10 +142,13 @@ pub mod r#gen {
             &*FILE_DESCRIPTOR
         }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
         include!("author/mod.rs");
     }
 
     pub mod common {
+<<<<<<< HEAD
 <<<<<<< HEAD
         use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -200,6 +189,8 @@ pub mod r#gen {
             &*FILE_DESCRIPTOR
         }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
         include!("common/mod.rs");
     }
 }

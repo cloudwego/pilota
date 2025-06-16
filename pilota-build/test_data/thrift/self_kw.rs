@@ -2,19 +2,8 @@ pub mod self_kw {
     #![allow(warnings, clippy::all)]
     use ::pilota::{Buf as _, BufMut as _};
 
-    pub fn find_mod_file_descriptor(
-        path: &str,
-    ) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
-        match path {
-            "/data02/home/giggle/projects/pilota/pilota-build/test_data/thrift/self_kw.thrift" => {
-                Some(self_kw::get_file_descriptor())
-            }
-
-            _ => None,
-        }
-    }
-
     pub mod self_kw {
+<<<<<<< HEAD
 <<<<<<< HEAD
         use ::pilota::{Buf as _, BufMut as _};
 =======
@@ -55,6 +44,8 @@ pub mod self_kw {
             &*FILE_DESCRIPTOR
         }
 >>>>>>> ae87e76 (feat(pilota-build): codegen file descriptor)
+=======
+>>>>>>> 0314c00 (feat(pilota-build): codegen fieldmask)
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Index(i32);
@@ -365,14 +356,6 @@ pub mod self_kw {
                     + __protocol.faststr_field_len(Some(3), &self.protocol)
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
-            }
-        }
-        impl A {
-            pub fn get_descriptor(
-                &self,
-            ) -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {
-                let file_descriptor = get_file_descriptor();
-                file_descriptor.find_struct_by_name("A").unwrap()
             }
         }
     }
