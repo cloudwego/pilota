@@ -8,8 +8,9 @@ license.workspace = true
 authors.workspace = true
 rust-version.workspace = true
 description = "Reflect support for Pilota"
-documentation = "https://docs.rs/pilota-reflect"
+documentation = "https://docs.rs/pilota-thrift-reflect"
 readme = "README.md"
+categories = ["encoding"]
 keywords = ["reflect", "pilota"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
