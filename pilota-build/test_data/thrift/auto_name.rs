@@ -920,7 +920,7 @@ pub mod auto_name {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct ServiceTest2ArgsSend {
-            pub r#type: TEST,
+            pub r#type: ::std::sync::Arc<TEST>,
         }
         impl ::pilota::thrift::Message for ServiceTest2ArgsSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -965,7 +965,9 @@ pub mod auto_name {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                ));
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -1027,12 +1029,12 @@ pub mod auto_name {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_1 = Some(
+                                    var_1 = Some(::std::sync::Arc::new(
                                         <TEST as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
-                                    );
+                                    ));
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -1078,7 +1080,7 @@ pub mod auto_name {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct ServiceTestArgsSend {
-            pub req: TEST,
+            pub req: ::std::sync::Arc<TEST>,
         }
         impl ::pilota::thrift::Message for ServiceTestArgsSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -1123,7 +1125,9 @@ pub mod auto_name {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                ));
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -1185,12 +1189,12 @@ pub mod auto_name {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_1 = Some(
+                                    var_1 = Some(::std::sync::Arc::new(
                                         <TEST as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
-                                    );
+                                    ));
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -1383,7 +1387,7 @@ pub mod auto_name {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServicetestResultRecv {
-            Ok(Test),
+            Ok(::std::sync::Arc<Test>),
 
             E(TestException),
         }
@@ -1429,7 +1433,9 @@ pub mod auto_name {
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
-                                let field_ident = ::pilota::thrift::Message::decode(__protocol)?;
+                                let field_ident = ::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                                 __protocol.struct_len(&field_ident);
                                 ret = Some(ServicetestResultRecv::Ok(field_ident));
                             } else {
@@ -1494,11 +1500,12 @@ pub mod auto_name {
                         match field_ident.id {
                             Some(0) => {
                                 if ret.is_none() {
-                                    let field_ident =
+                                    let field_ident = ::std::sync::Arc::new(
                                         <Test as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
-                                        .await?;
+                                        .await?,
+                                    );
 
                                     ret = Some(ServicetestResultRecv::Ok(field_ident));
                                 } else {
@@ -2021,7 +2028,7 @@ pub mod auto_name {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct ServiceTest2ArgsRecv {
-            pub r#type: TEST,
+            pub r#type: ::std::sync::Arc<TEST>,
         }
         impl ::pilota::thrift::Message for ServiceTest2ArgsRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -2066,7 +2073,9 @@ pub mod auto_name {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                ));
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -2128,12 +2137,12 @@ pub mod auto_name {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_1 = Some(
+                                    var_1 = Some(::std::sync::Arc::new(
                                         <TEST as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
-                                    );
+                                    ));
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -2179,7 +2188,7 @@ pub mod auto_name {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct ServiceTestArgsRecv {
-            pub req: TEST,
+            pub req: ::std::sync::Arc<TEST>,
         }
         impl ::pilota::thrift::Message for ServiceTestArgsRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -2224,7 +2233,9 @@ pub mod auto_name {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                ));
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -2286,12 +2297,12 @@ pub mod auto_name {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_1 = Some(
+                                    var_1 = Some(::std::sync::Arc::new(
                                         <TEST as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
-                                    );
+                                    ));
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -2342,7 +2353,7 @@ pub mod auto_name {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServiceTestResultSend {
-            Ok(Test),
+            Ok(::std::sync::Arc<Test>),
 
             E(TestException),
         }
@@ -2388,7 +2399,9 @@ pub mod auto_name {
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
-                                let field_ident = ::pilota::thrift::Message::decode(__protocol)?;
+                                let field_ident = ::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                                 __protocol.struct_len(&field_ident);
                                 ret = Some(ServiceTestResultSend::Ok(field_ident));
                             } else {
@@ -2453,11 +2466,12 @@ pub mod auto_name {
                         match field_ident.id {
                             Some(0) => {
                                 if ret.is_none() {
-                                    let field_ident =
+                                    let field_ident = ::std::sync::Arc::new(
                                         <Test as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
-                                        .await?;
+                                        .await?,
+                                    );
 
                                     ret = Some(ServiceTestResultSend::Ok(field_ident));
                                 } else {
@@ -2712,7 +2726,7 @@ pub mod auto_name {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServiceTest2ResultRecv {
-            Ok(Test),
+            Ok(::std::sync::Arc<Test>),
         }
 
         impl ::pilota::thrift::Message for ServiceTest2ResultRecv {
@@ -2753,7 +2767,9 @@ pub mod auto_name {
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
-                                let field_ident = ::pilota::thrift::Message::decode(__protocol)?;
+                                let field_ident = ::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                                 __protocol.struct_len(&field_ident);
                                 ret = Some(ServiceTest2ResultRecv::Ok(field_ident));
                             } else {
@@ -2804,11 +2820,12 @@ pub mod auto_name {
                         match field_ident.id {
                             Some(0) => {
                                 if ret.is_none() {
-                                    let field_ident =
+                                    let field_ident = ::std::sync::Arc::new(
                                         <Test as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
-                                        .await?;
+                                        .await?,
+                                    );
 
                                     ret = Some(ServiceTest2ResultRecv::Ok(field_ident));
                                 } else {
@@ -2851,9 +2868,9 @@ pub mod auto_name {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct ServicetestArgsSend {
-            pub req: TEST,
+            pub req: ::std::sync::Arc<TEST>,
 
-            pub Req: TEST,
+            pub Req: ::std::sync::Arc<TEST>,
         }
         impl ::pilota::thrift::Message for ServicetestArgsSend {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -2900,12 +2917,16 @@ pub mod auto_name {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                ));
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_2 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_2 = Some(::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                ));
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -2977,23 +2998,23 @@ pub mod auto_name {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_1 = Some(
+                                    var_1 = Some(::std::sync::Arc::new(
                                         <TEST as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
-                                    );
+                                    ));
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_2 = Some(
+                                    var_2 = Some(::std::sync::Arc::new(
                                         <TEST as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
-                                    );
+                                    ));
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -3776,9 +3797,9 @@ pub mod auto_name {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct ServicetestArgsRecv {
-            pub req: TEST,
+            pub req: ::std::sync::Arc<TEST>,
 
-            pub Req: TEST,
+            pub Req: ::std::sync::Arc<TEST>,
         }
         impl ::pilota::thrift::Message for ServicetestArgsRecv {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -3825,12 +3846,16 @@ pub mod auto_name {
                             Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = Some(::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                ));
                             }
                             Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_2 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_2 = Some(::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                ));
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -3902,23 +3927,23 @@ pub mod auto_name {
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_1 = Some(
+                                    var_1 = Some(::std::sync::Arc::new(
                                         <TEST as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
-                                    );
+                                    ));
                                 }
                                 Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_2 = Some(
+                                    var_2 = Some(::std::sync::Arc::new(
                                         <TEST as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
-                                    );
+                                    ));
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -3981,7 +4006,7 @@ pub mod auto_name {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServicetestResultSend {
-            Ok(Test),
+            Ok(::std::sync::Arc<Test>),
 
             E(TestException),
         }
@@ -4027,7 +4052,9 @@ pub mod auto_name {
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
-                                let field_ident = ::pilota::thrift::Message::decode(__protocol)?;
+                                let field_ident = ::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                                 __protocol.struct_len(&field_ident);
                                 ret = Some(ServicetestResultSend::Ok(field_ident));
                             } else {
@@ -4092,11 +4119,12 @@ pub mod auto_name {
                         match field_ident.id {
                             Some(0) => {
                                 if ret.is_none() {
-                                    let field_ident =
+                                    let field_ident = ::std::sync::Arc::new(
                                         <Test as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
-                                        .await?;
+                                        .await?,
+                                    );
 
                                     ret = Some(ServicetestResultSend::Ok(field_ident));
                                 } else {
@@ -4653,7 +4681,7 @@ pub mod auto_name {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServiceTest2ResultSend {
-            Ok(Test),
+            Ok(::std::sync::Arc<Test>),
         }
 
         impl ::pilota::thrift::Message for ServiceTest2ResultSend {
@@ -4694,7 +4722,9 @@ pub mod auto_name {
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
-                                let field_ident = ::pilota::thrift::Message::decode(__protocol)?;
+                                let field_ident = ::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                                 __protocol.struct_len(&field_ident);
                                 ret = Some(ServiceTest2ResultSend::Ok(field_ident));
                             } else {
@@ -4745,11 +4775,12 @@ pub mod auto_name {
                         match field_ident.id {
                             Some(0) => {
                                 if ret.is_none() {
-                                    let field_ident =
+                                    let field_ident = ::std::sync::Arc::new(
                                         <Test as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
-                                        .await?;
+                                        .await?,
+                                    );
 
                                     ret = Some(ServiceTest2ResultSend::Ok(field_ident));
                                 } else {
@@ -4939,7 +4970,7 @@ pub mod auto_name {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
         pub enum ServiceTestResultRecv {
-            Ok(Test),
+            Ok(::std::sync::Arc<Test>),
 
             E(TestException),
         }
@@ -4985,7 +5016,9 @@ pub mod auto_name {
                     match field_ident.id {
                         Some(0) => {
                             if ret.is_none() {
-                                let field_ident = ::pilota::thrift::Message::decode(__protocol)?;
+                                let field_ident = ::std::sync::Arc::new(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                                 __protocol.struct_len(&field_ident);
                                 ret = Some(ServiceTestResultRecv::Ok(field_ident));
                             } else {
@@ -5050,11 +5083,12 @@ pub mod auto_name {
                         match field_ident.id {
                             Some(0) => {
                                 if ret.is_none() {
-                                    let field_ident =
+                                    let field_ident = ::std::sync::Arc::new(
                                         <Test as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
-                                        .await?;
+                                        .await?,
+                                    );
 
                                     ret = Some(ServiceTestResultRecv::Ok(field_ident));
                                 } else {
