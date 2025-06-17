@@ -6,7 +6,7 @@ impl ::std::default::Default for testServiceTestResultRecv {
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum testServiceTestResultRecv {
-    Ok(Test),
+    Ok(::std::sync::Arc<Test>),
 }
 
 impl ::pilota::thrift::Message for testServiceTestResultRecv {
@@ -47,7 +47,8 @@ impl ::pilota::thrift::Message for testServiceTestResultRecv {
             match field_ident.id {
                 Some(0) => {
                     if ret.is_none() {
-                        let field_ident = ::pilota::thrift::Message::decode(__protocol)?;
+                        let field_ident =
+                            ::std::sync::Arc::new(::pilota::thrift::Message::decode(__protocol)?);
                         __protocol.struct_len(&field_ident);
                         ret = Some(testServiceTestResultRecv::Ok(field_ident));
                     } else {
@@ -98,9 +99,10 @@ impl ::pilota::thrift::Message for testServiceTestResultRecv {
                 match field_ident.id {
                     Some(0) => {
                         if ret.is_none() {
-                            let field_ident =
+                            let field_ident = ::std::sync::Arc::new(
                                 <Test as ::pilota::thrift::Message>::decode_async(__protocol)
-                                    .await?;
+                                    .await?,
+                            );
 
                             ret = Some(testServiceTestResultRecv::Ok(field_ident));
                         } else {
