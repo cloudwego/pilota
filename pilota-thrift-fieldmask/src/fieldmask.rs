@@ -846,10 +846,14 @@ impl FieldMask {
 
                         if let TokenData::LitInt(id) = idx_token.data {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> c2b09a5 (fix: make sure list indexes in thrift path all exsit in field mask)
                             let (next_fm, exist) = cur_fm.int(id);
                             if !exist {
                                 return Ok((None, false));
                             }
+<<<<<<< HEAD
                             if next_fm.is_none() {
                                 return Ok((Some(Cow::Borrowed(cur_fm)), true));
 =======
@@ -857,6 +861,10 @@ impl FieldMask {
                             if next_fm.is_none() {
                                 return Ok((Some(Cow::Borrowed(cur_fm)), false));
 >>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
+=======
+                            if next_fm.is_none() {
+                                return Ok((Some(Cow::Borrowed(cur_fm)), true));
+>>>>>>> c2b09a5 (fix: make sure list indexes in thrift path all exsit in field mask)
                             }
                             next_fm_for_loop = next_fm;
                         } else if let TokenData::Any = idx_token.data {
