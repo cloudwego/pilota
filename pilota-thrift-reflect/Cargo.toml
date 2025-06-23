@@ -1,6 +1,6 @@
 [package]
 name = "pilota-thrift-reflect"
-version = "0.0.1"
+version = "0.0.2"
 edition.workspace = true
 homepage.workspace = true
 repository.workspace = true

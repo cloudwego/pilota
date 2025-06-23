@@ -1,4 +1,6 @@
-namespace rust std
+namespace rs fieldmask
+
+include "base.thrift"
 
 struct A {
     1: i32 a,
@@ -23,6 +25,7 @@ struct Request {
     15: map<string, A> f15,
     16: map<string, list<A>> f16,
     17: list<map<string, i32>> f17,
+    255: optional base.Base base
 }
 
 struct Response {}

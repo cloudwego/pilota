@@ -132,6 +132,7 @@ impl TypeDescriptor {
                         .includes
                         .get(include_path.prefix.as_str())
                         .expect("include path not found");
+                    println!("include_file_path: {:?}", include_file_path);
                     let included_file_descriptor =
                         Register::get(include_file_path.as_str()).unwrap();
                     included_file_descriptor
@@ -148,6 +149,7 @@ impl TypeDescriptor {
     }
 }
 
+#[derive(Debug)]
 pub struct IncludePath {
     pub prefix: FastStr,
     pub name: FastStr,
