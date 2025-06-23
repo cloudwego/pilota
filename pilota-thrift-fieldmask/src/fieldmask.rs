@@ -822,9 +822,12 @@ impl FieldMask {
                         }
 
                         if let TokenData::LitInt(id) = idx_token.data {
-                            let (next_fm, _) = cur_fm.int(id);
+                            let (next_fm, exist) = cur_fm.int(id);
+                            if !exist {
+                                return Ok((None, false));
+                            }
                             if next_fm.is_none() {
-                                return Ok((Some(Cow::Borrowed(cur_fm)), false));
+                                return Ok((Some(Cow::Borrowed(cur_fm)), true));
                             }
                             next_fm_for_loop = next_fm;
                         } else if let TokenData::Any = idx_token.data {
