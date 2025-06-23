@@ -816,11 +816,14 @@ impl FieldMask {
                         });
                     }
 
+<<<<<<< HEAD
                     if cur_fm.all() {
                         // the path should be end here
                         return Ok((Some(Cow::Borrowed(cur_fm)), true));
                     }
 
+=======
+>>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
                     let mut next_fm_for_loop = None;
                     let mut empty = true;
                     while it.has_next() {
@@ -842,12 +845,18 @@ impl FieldMask {
                         }
 
                         if let TokenData::LitInt(id) = idx_token.data {
+<<<<<<< HEAD
                             let (next_fm, exist) = cur_fm.int(id);
                             if !exist {
                                 return Ok((None, false));
                             }
                             if next_fm.is_none() {
                                 return Ok((Some(Cow::Borrowed(cur_fm)), true));
+=======
+                            let (next_fm, _) = cur_fm.int(id);
+                            if next_fm.is_none() {
+                                return Ok((Some(Cow::Borrowed(cur_fm)), false));
+>>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
                             }
                             next_fm_for_loop = next_fm;
                         } else if let TokenData::Any = idx_token.data {
@@ -869,6 +878,14 @@ impl FieldMask {
                         }
                     }
 
+<<<<<<< HEAD
+=======
+                    if cur_fm.all() {
+                        // the path should be end here
+                        return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                    }
+
+>>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
                     cur_desc = element_desc.clone();
                     if let Some(next) = next_fm_for_loop {
                         cur_fm = next;
@@ -900,11 +917,14 @@ impl FieldMask {
                         });
                     }
 
+<<<<<<< HEAD
                     if cur_fm.all() {
                         // the path should be end here
                         return Ok((Some(Cow::Borrowed(cur_fm)), true));
                     }
 
+=======
+>>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
                     let mut next_fm_for_loop = None;
                     let mut empty = true;
                     while it.has_next() {
@@ -932,7 +952,11 @@ impl FieldMask {
                                     return Ok((None, false));
                                 }
                                 if next_fm.is_none() {
+<<<<<<< HEAD
                                     return Ok((Some(Cow::Borrowed(cur_fm)), true));
+=======
+                                    return Ok((Some(Cow::Borrowed(cur_fm)), false));
+>>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
                                 }
                                 next_fm_for_loop = next_fm;
                             }
@@ -942,7 +966,11 @@ impl FieldMask {
                                     return Ok((None, false));
                                 }
                                 if next_fm.is_none() {
+<<<<<<< HEAD
                                     return Ok((Some(Cow::Borrowed(cur_fm)), true));
+=======
+                                    return Ok((Some(Cow::Borrowed(cur_fm)), false));
+>>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
                                 }
                                 next_fm_for_loop = next_fm;
                             }
@@ -966,7 +994,10 @@ impl FieldMask {
                             }
                         }
                     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
                     cur_desc = element_desc.clone();
                     if let Some(next) = next_fm_for_loop {
                         cur_fm = next;
@@ -1562,7 +1593,10 @@ mod tests {
             "$.f16{\"key1\"}[1].a",
             "$.f17[*]{\"key1\"}",
             "$.base.Addr",
+<<<<<<< HEAD
             "$.base.EnumMap{1, 2}",
+=======
+>>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
         ];
         let fm = FieldMaskBuilder::new(
             &desc
@@ -1622,11 +1656,14 @@ mod tests {
             .unwrap();
         assert!(!exist);
         assert!(sub_fm.is_none());
+<<<<<<< HEAD
 
         let (sub_fm, exist) = fm
             .get_path(&req_desc.type_descriptor(), "$.base.EnumMap{1}")
             .unwrap();
         assert!(exist);
         assert!(sub_fm.unwrap().all());
+=======
+>>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
     }
 }

@@ -22,6 +22,7 @@ maintenance = { status = "actively-developed" }
 pilota = { path = "../pilota", version = "0.12" }
 pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.12" }
 pilota-thrift-reflect = { path = "../pilota-thrift-reflect", version = "0.1" }
+
 nom.workspace = true
 ahash.workspace = true
 faststr.workspace = true
