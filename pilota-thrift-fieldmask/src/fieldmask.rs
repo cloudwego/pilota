@@ -817,13 +817,19 @@ impl FieldMask {
                     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                     if cur_fm.all() {
                         // the path should be end here
                         return Ok((Some(Cow::Borrowed(cur_fm)), true));
                     }
 
+<<<<<<< HEAD
 =======
 >>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
+=======
+>>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                     let mut next_fm_for_loop = None;
                     let mut empty = true;
                     while it.has_next() {
@@ -887,6 +893,7 @@ impl FieldMask {
                     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                     if cur_fm.all() {
                         // the path should be end here
@@ -894,6 +901,8 @@ impl FieldMask {
                     }
 
 >>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
+=======
+>>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                     cur_desc = element_desc.clone();
                     if let Some(next) = next_fm_for_loop {
                         cur_fm = next;
@@ -926,13 +935,19 @@ impl FieldMask {
                     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                     if cur_fm.all() {
                         // the path should be end here
                         return Ok((Some(Cow::Borrowed(cur_fm)), true));
                     }
 
+<<<<<<< HEAD
 =======
 >>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
+=======
+>>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                     let mut next_fm_for_loop = None;
                     let mut empty = true;
                     while it.has_next() {
@@ -961,10 +976,14 @@ impl FieldMask {
                                 }
                                 if next_fm.is_none() {
 <<<<<<< HEAD
+<<<<<<< HEAD
                                     return Ok((Some(Cow::Borrowed(cur_fm)), true));
 =======
                                     return Ok((Some(Cow::Borrowed(cur_fm)), false));
 >>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
+=======
+                                    return Ok((Some(Cow::Borrowed(cur_fm)), true));
+>>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                                 }
                                 next_fm_for_loop = next_fm;
                             }
@@ -975,10 +994,14 @@ impl FieldMask {
                                 }
                                 if next_fm.is_none() {
 <<<<<<< HEAD
+<<<<<<< HEAD
                                     return Ok((Some(Cow::Borrowed(cur_fm)), true));
 =======
                                     return Ok((Some(Cow::Borrowed(cur_fm)), false));
 >>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
+=======
+                                    return Ok((Some(Cow::Borrowed(cur_fm)), true));
+>>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                                 }
                                 next_fm_for_loop = next_fm;
                             }
@@ -1003,9 +1026,13 @@ impl FieldMask {
                         }
                     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
+=======
+
+>>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                     cur_desc = element_desc.clone();
                     if let Some(next) = next_fm_for_loop {
                         cur_fm = next;
@@ -1602,9 +1629,13 @@ mod tests {
             "$.f17[*]{\"key1\"}",
             "$.base.Addr",
 <<<<<<< HEAD
+<<<<<<< HEAD
             "$.base.EnumMap{1, 2}",
 =======
 >>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
+=======
+            "$.base.EnumMap{1, 2}",
+>>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
         ];
         let fm = FieldMaskBuilder::new(
             &desc
@@ -1665,13 +1696,19 @@ mod tests {
         assert!(!exist);
         assert!(sub_fm.is_none());
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
 
         let (sub_fm, exist) = fm
             .get_path(&req_desc.type_descriptor(), "$.base.EnumMap{1}")
             .unwrap();
         assert!(exist);
         assert!(sub_fm.unwrap().all());
+<<<<<<< HEAD
 =======
 >>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
+=======
+>>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
     }
 }
