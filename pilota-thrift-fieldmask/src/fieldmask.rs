@@ -411,11 +411,17 @@ impl FieldMaskData {
     fn new(desc: &TypeDescriptor) -> Self {
         let type_name = desc.name.as_str().into();
         match type_name {
-            ThriftType::Path(_) => FieldMaskData::Struct {
-                children: AHashMap::new(),
-                is_all: false,
-            },
-            ThriftType::Set | ThriftType::List => FieldMaskData::List {
+            ThriftType::Path(_) => {
+                if desc.get_struct_desc().is_some() {
+                    FieldMaskData::Struct {
+                        children: AHashMap::new(),
+                        is_all: false,
+                    }
+                } else {
+                    FieldMaskData::Scalar
+                }
+            }
+            ThriftType::List => FieldMaskData::List {
                 children: AHashMap::new(),
                 wildcard: None,
                 is_all: false,
@@ -429,7 +435,16 @@ impl FieldMaskData {
                             wildcard: None,
                             is_all: false,
                         },
-                        ThriftType::I8 | ThriftType::I16 | ThriftType::I32 | ThriftType::I64 => {
+                        ThriftType::I8
+                        | ThriftType::I16
+                        | ThriftType::I32
+                        | ThriftType::I64
+                        | ThriftType::Byte => FieldMaskData::IntMap {
+                            children: AHashMap::new(),
+                            wildcard: None,
+                            is_all: false,
+                        },
+                        ThriftType::Path(_) if key_type.get_enum_i32().is_some() => {
                             FieldMaskData::IntMap {
                                 children: AHashMap::new(),
                                 wildcard: None,
@@ -439,7 +454,7 @@ impl FieldMaskData {
                         _ => FieldMaskData::Scalar,
                     }
                 } else {
-                    FieldMaskData::Scalar
+                    FieldMaskData::Invalid
                 }
             }
             _ => FieldMaskData::Scalar,
@@ -801,6 +816,11 @@ impl FieldMask {
                         });
                     }
 
+                    if cur_fm.all() {
+                        // the path should be end here
+                        return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                    }
+
                     let mut next_fm_for_loop = None;
                     let mut empty = true;
                     while it.has_next() {
@@ -849,11 +869,6 @@ impl FieldMask {
                         }
                     }
 
-                    if cur_fm.all() {
-                        // the path should be end here
-                        return Ok((Some(Cow::Borrowed(cur_fm)), true));
-                    }
-
                     cur_desc = element_desc.clone();
                     if let Some(next) = next_fm_for_loop {
                         cur_fm = next;
@@ -885,6 +900,11 @@ impl FieldMask {
                         });
                     }
 
+                    if cur_fm.all() {
+                        // the path should be end here
+                        return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                    }
+
                     let mut next_fm_for_loop = None;
                     let mut empty = true;
                     while it.has_next() {
@@ -912,7 +932,7 @@ impl FieldMask {
                                     return Ok((None, false));
                                 }
                                 if next_fm.is_none() {
-                                    return Ok((Some(Cow::Borrowed(cur_fm)), false));
+                                    return Ok((Some(Cow::Borrowed(cur_fm)), true));
                                 }
                                 next_fm_for_loop = next_fm;
                             }
@@ -922,7 +942,7 @@ impl FieldMask {
                                     return Ok((None, false));
                                 }
                                 if next_fm.is_none() {
-                                    return Ok((Some(Cow::Borrowed(cur_fm)), false));
+                                    return Ok((Some(Cow::Borrowed(cur_fm)), true));
                                 }
                                 next_fm_for_loop = next_fm;
                             }
@@ -946,6 +966,7 @@ impl FieldMask {
                             }
                         }
                     }
+
                     cur_desc = element_desc.clone();
                     if let Some(next) = next_fm_for_loop {
                         cur_fm = next;
@@ -1541,6 +1562,7 @@ mod tests {
             "$.f16{\"key1\"}[1].a",
             "$.f17[*]{\"key1\"}",
             "$.base.Addr",
+            "$.base.EnumMap{1, 2}",
         ];
         let fm = FieldMaskBuilder::new(
             &desc
@@ -1600,5 +1622,11 @@ mod tests {
             .unwrap();
         assert!(!exist);
         assert!(sub_fm.is_none());
+
+        let (sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.base.EnumMap{1}")
+            .unwrap();
+        assert!(exist);
+        assert!(sub_fm.unwrap().all());
     }
 }
