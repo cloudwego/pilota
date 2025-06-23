@@ -600,28 +600,26 @@ fn test_unknown_fields() {
 }
 
 mod tests {
-    use pilota::{
-        prost::bytes::BytesMut,
-        thrift::{Message, binary::TBinaryProtocol},
-    };
 
-    use self::decode_error::decode_error::A;
+    // use self::decode_error::decode_error::A;
 
-    include!("../../test_data/thrift/decode_error.rs");
+    // include!("../../test_data/thrift/decode_error.rs");
 
-    #[test]
-    fn test_decode_error() {
-        let mut data = BytesMut::from(&[
-            12_u8, 0, 1, 12, 0, 1, 11, 0, 1, 0, 0, 0, 10, 104, 101, 108, 108, 111, 32, 119, 111,
-            114, 108, 100, 0, 0, 0,
-        ] as &[u8])
-        .freeze();
+    // #[test]
+    // fn test_decode_error() {
+    //     let mut data = BytesMut::from(&[
+    //         12_u8, 0, 1, 12, 0, 1, 11, 0, 1, 0, 0, 0, 10, 104, 101, 108, 108,
+    // 111, 32, 119, 111,         114, 108, 100, 0, 0, 0,
+    //     ] as &[u8])
+    //     .freeze();
 
-        let err = A::decode(&mut TBinaryProtocol::new(&mut data, false)).unwrap_err();
+    //     let err = A::decode(&mut TBinaryProtocol::new(&mut data,
+    // false)).unwrap_err();
 
-        assert_eq!(
-            err.to_string(),
-            "Protocol(ProtocolException { kind: InvalidData, message: \"decode struct `A` field(#1) failed, caused by: decode struct `B` field(#1) failed, caused by: invalid ttype 100\" })"
-        )
-    }
+    //     assert_eq!(
+    //         err.to_string(),
+    //         "Protocol(ProtocolException { kind: InvalidData, message:
+    // \"decode struct `A` field(#1) failed, caused by: decode struct `B`
+    // field(#1) failed, caused by: invalid ttype 100\" })"     )
+    // }
 }

@@ -73,13 +73,36 @@ impl ThriftBackend {
             let is_optional = f.is_optional();
             let field_id = f.id as i16;
             let write_field = if is_optional {
-                self.codegen_field_size_with_field_mask(&f.ty, field_id, "value".into())
+                let write_field_size_with_field_mask =
+                    self.codegen_field_size_with_field_mask(&f.ty, field_id, "value".into());
+                format! {
+                    r#"{{
+                        let (field_fm, exist) = struct_fm.field({field_id});
+                        if exist {{
+                            {write_field_size_with_field_mask}
+                        }} else {{
+                            0
+                        }}
+                    }}"#
+                }
+                .into()
             } else {
-                self.codegen_field_size_with_field_mask(
+                let write_field_size_with_field_mask = self.codegen_field_size_with_field_mask(
                     &f.ty,
                     field_id,
                     format!("&self.{field_name}").into(),
-                )
+                );
+                format! {
+                    r#"{{
+                        let (field_fm, exist) = struct_fm.field({field_id});
+                        if exist {{
+                            {write_field_size_with_field_mask}
+                        }} else {{
+                            0
+                        }}
+                    }}"#
+                }
+                .into()
             };
 
             if is_optional {
@@ -126,13 +149,28 @@ impl ThriftBackend {
             let field_id = f.id as i16;
             let is_optional = f.is_optional();
             let write_field = if is_optional {
-                self.codegen_encode_field_with_field_mask(field_id, &f.ty, "value".into())
+                let write_field_with_field_mask =
+                    self.codegen_encode_field_with_field_mask(field_id, &f.ty, "value".into());
+                format! {
+                    r#"let (field_fm, exist) = struct_fm.field({field_id});
+                    if exist {{
+                        {write_field_with_field_mask}
+                    }}"#
+                }
+                .into()
             } else {
-                self.codegen_encode_field_with_field_mask(
+                let write_field_with_field_mask = self.codegen_encode_field_with_field_mask(
                     field_id,
                     &f.ty,
                     format!("&self.{field_name}").into(),
-                )
+                );
+                format! {
+                r#"let (field_fm, exist) = struct_fm.field({field_id});
+                if exist {{
+                    {write_field_with_field_mask}
+                }}"#
+                }
+                .into()
             };
 
             if is_optional {
@@ -547,6 +585,7 @@ impl CodegenBackend for ThriftBackend {
             .codegen_encode_fields_size_with_field_mask(&s.fields)
             .map(|s| format!("{s} +"))
             .join("");
+
         if keep {
             encode_fields_size.push_str("self._unknown_fields.size() +");
             encode_fields_size_with_field_mask.push_str("self._unknown_fields.size() +");
@@ -595,17 +634,17 @@ impl CodegenBackend for ThriftBackend {
                 name.clone(),
                 format! {
                     r#"if let Some(struct_fm) = self._field_mask.as_ref() {{
-                        if !struct_fm.all() {{
-                            let struct_ident =::pilota::thrift::TStructIdentifier {{
-                                name: "{name}",
-                            }};
-                            __protocol.write_struct_begin(&struct_ident)?;
-                            {encode_fields_with_field_mask}
-                            __protocol.write_field_stop()?;
-                            __protocol.write_struct_end()?;
+                        if !struct_fm.exist() {{
                             ::std::result::Result::Ok(())
                         }} else {{
-                            ::std::result::Result::Ok(())
+                            let struct_ident =::pilota::thrift::TStructIdentifier {{
+                                    name: "{name}",
+                                }};
+                                __protocol.write_struct_begin(&struct_ident)?;
+                                {encode_fields_with_field_mask}
+                                __protocol.write_field_stop()?;
+                                __protocol.write_struct_end()?;
+                                ::std::result::Result::Ok(())
                         }}
                     }} else {{
                         let struct_ident =::pilota::thrift::TStructIdentifier {{
@@ -621,12 +660,12 @@ impl CodegenBackend for ThriftBackend {
                 },
                 format! {
                     r#"if let Some(struct_fm) = self._field_mask.as_ref() {{
-                        if !struct_fm.all() {{
+                        if !struct_fm.exist() {{
+                            0
+                        }} else {{
                             __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
                                 name: "{name}",
                             }}) + {encode_fields_size_with_field_mask} __protocol.field_stop_len() + __protocol.struct_end_len()
-                        }} else {{
-                            0
                         }}
                     }} else {{
                         __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
@@ -960,7 +999,6 @@ impl CodegenBackend for ThriftBackend {
         match &t.ty.kind {
             TyKind::Path(p) if !self.is_enum(p.did) => {
                 let inner_name = self.rust_name(p.did);
-
                 let encode_with_field_mask =
                     self.codegen_encode_ty_with_field_mask(&t.ty, "(&**self)".into());
                 let encode_size_with_field_mask =
@@ -970,15 +1008,10 @@ impl CodegenBackend for ThriftBackend {
                     def_id,
                     name.clone(),
                     format! {
-                        r#"let item_fm = self.0._field_mask.as_ref();
-                        {encode_with_field_mask}
+                        r#"{encode_with_field_mask}
                         ::std::result::Result::Ok(())"#
                     },
-                    format!(
-                        r#"let item_fm = self.0._field_mask.as_ref();
-                            {encode_size_with_field_mask}
-                        "#
-                    ),
+                    encode_size_with_field_mask.into(),
                     |helper| {
                         let decode = self.codegen_decode_ty(helper, &t.ty);
                         format!("::std::result::Result::Ok({name}({decode}))")
@@ -1035,7 +1068,6 @@ impl CodegenBackend for ThriftBackend {
             stream.push_str(&format!(
             r#"
 static FILE_DESCRIPTOR_BYTES: ::pilota::Bytes = ::pilota::Bytes::from_static({descriptor:?});
-
 pub static FILE_DESCRIPTOR: ::std::sync::LazyLock<::pilota_thrift_reflect::thrift_reflection::FileDescriptor> = ::std::sync::LazyLock::new(|| {{
     let descriptor = ::pilota_thrift_reflect::thrift_reflection::FileDescriptor::deserialize(FILE_DESCRIPTOR_BYTES.clone())
         .expect("Failed to decode file descriptor");
@@ -1049,7 +1081,6 @@ pub static FILE_DESCRIPTOR: ::std::sync::LazyLock<::pilota_thrift_reflect::thrif
         if ::pilota_thrift_reflect::service::Register::contains(path) {{
             continue;
         }}
-
         let include_file_descriptor =
             {super_mod}find_mod_file_descriptor(path).expect("include file descriptor must exist");
         ::pilota_thrift_reflect::service::Register::register(
@@ -1059,7 +1090,6 @@ pub static FILE_DESCRIPTOR: ::std::sync::LazyLock<::pilota_thrift_reflect::thrif
     }}
     descriptor
 }});
-
 pub fn get_file_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor {{
     &*FILE_DESCRIPTOR
 }}"#));
@@ -1083,18 +1113,20 @@ pub fn get_file_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflect
     fn codegen_register_mod_file_descriptor(
         &self,
         stream: &mut String,
-        mods: &Vec<(Arc<[Symbol]>, Arc<PathBuf>)>,
+        mods: &[(Arc<[Symbol]>, Arc<PathBuf>)],
     ) {
-        stream.push_str(&format!(
-            r#"
-                pub fn find_mod_file_descriptor(path: &str) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {{
-                    match path {{
-            "#
-        ));
+        stream.push_str(r#"
+                pub fn find_mod_file_descriptor(path: &str) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
+                    match path {
+            "#);
 
         for (p, path) in mods {
-            let path = path.as_path().as_os_str().to_string_lossy();
-            stream.push_str(&format!(r#"r"{path}" => Some("#));
+            let path = path.display();
+            stream.push_str(&format!(
+                r#"
+                r"{path}" => Some(
+            "#
+            ));
             let prefix = p.iter().join("::");
             if !prefix.is_empty() {
                 stream.push_str(&format!(r#"{prefix}::"#));
@@ -1105,11 +1137,12 @@ pub fn get_file_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflect
             );
         }
 
-        stream.push_str(&format!(
-            r#"_ => None,
-            }}
-        }}
-        "#
-        ));
+        stream.push_str(
+            r#"
+                _ => None,
+            }
+        }
+        "#,
+        );
     }
 }

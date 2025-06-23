@@ -188,14 +188,14 @@ impl Ord for FieldMaskData {
                     is_all: w2,
                 },
             ) => {
-                if c1.len() == 0 && c2.len() == 0 {
+                if c1.is_empty() && c2.is_empty() {
                     return w1.cmp(w2);
                 }
                 // wildcard is always greater
-                if c1.len() == 0 && *w1 {
+                if c1.is_empty() && *w1 {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && *w2 {
+                if c2.is_empty() && *w2 {
                     return std::cmp::Ordering::Less;
                 }
                 // compare children
@@ -220,20 +220,20 @@ impl Ord for FieldMaskData {
                     is_all: a2,
                 },
             ) => {
-                if c1.len() == 0 && c2.len() == 0 {
+                if c1.is_empty() && c2.is_empty() {
                     return a1.cmp(a2).then(w1.cmp(w2));
                 }
                 // wildcard is always greater
-                if c1.len() == 0 && *a1 {
+                if c1.is_empty() && *a1 {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && *a2 {
+                if c2.is_empty() && *a2 {
                     return std::cmp::Ordering::Less;
                 }
-                if c1.len() == 0 && w1.is_some() {
+                if c1.is_empty() && w1.is_some() {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && w2.is_some() {
+                if c2.is_empty() && w2.is_some() {
                     return std::cmp::Ordering::Less;
                 }
                 // compare children
@@ -258,20 +258,20 @@ impl Ord for FieldMaskData {
                     is_all: a2,
                 },
             ) => {
-                if c1.len() == 0 && c2.len() == 0 {
+                if c1.is_empty() && c2.is_empty() {
                     return a1.cmp(a2).then(w1.cmp(w2));
                 }
                 // wildcard is always greater
-                if c1.len() == 0 && *a1 {
+                if c1.is_empty() && *a1 {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && *a2 {
+                if c2.is_empty() && *a2 {
                     return std::cmp::Ordering::Less;
                 }
-                if c1.len() == 0 && w1.is_some() {
+                if c1.is_empty() && w1.is_some() {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && w2.is_some() {
+                if c2.is_empty() && w2.is_some() {
                     return std::cmp::Ordering::Less;
                 }
                 // compare children
@@ -296,20 +296,20 @@ impl Ord for FieldMaskData {
                     is_all: a2,
                 },
             ) => {
-                if c1.len() == 0 && c2.len() == 0 {
+                if c1.is_empty() && c2.is_empty() {
                     return a1.cmp(a2).then(w1.cmp(w2));
                 }
                 // wildcard is always greater
-                if c1.len() == 0 && *a1 {
+                if c1.is_empty() && *a1 {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && *a2 {
+                if c2.is_empty() && *a2 {
                     return std::cmp::Ordering::Less;
                 }
-                if c1.len() == 0 && w1.is_some() {
+                if c1.is_empty() && w1.is_some() {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && w2.is_some() {
+                if c2.is_empty() && w2.is_some() {
                     return std::cmp::Ordering::Less;
                 }
                 // compare children
@@ -694,10 +694,10 @@ impl FieldMask {
         F: FnMut(&str, i32, &FieldMask) -> bool,
     {
         match &self.data {
-            FieldMaskData::Scalar | FieldMaskData::Invalid => return,
+            FieldMaskData::Scalar | FieldMaskData::Invalid => (),
             FieldMaskData::Struct { children, .. } => {
                 for (&k, v) in children {
-                    if !scanner("", k as i32, v) {
+                    if !scanner("", k, v) {
                         return;
                     }
                 }
@@ -816,20 +816,11 @@ impl FieldMask {
                         });
                     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                     if cur_fm.all() {
                         // the path should be end here
                         return Ok((Some(Cow::Borrowed(cur_fm)), true));
                     }
 
-<<<<<<< HEAD
-=======
->>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
-=======
->>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                     let mut next_fm_for_loop = None;
                     let mut empty = true;
                     while it.has_next() {
@@ -851,26 +842,12 @@ impl FieldMask {
                         }
 
                         if let TokenData::LitInt(id) = idx_token.data {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> c2b09a5 (fix: make sure list indexes in thrift path all exsit in field mask)
                             let (next_fm, exist) = cur_fm.int(id);
                             if !exist {
                                 return Ok((None, false));
                             }
-<<<<<<< HEAD
                             if next_fm.is_none() {
                                 return Ok((Some(Cow::Borrowed(cur_fm)), true));
-=======
-                            let (next_fm, _) = cur_fm.int(id);
-                            if next_fm.is_none() {
-                                return Ok((Some(Cow::Borrowed(cur_fm)), false));
->>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
-=======
-                            if next_fm.is_none() {
-                                return Ok((Some(Cow::Borrowed(cur_fm)), true));
->>>>>>> c2b09a5 (fix: make sure list indexes in thrift path all exsit in field mask)
                             }
                             next_fm_for_loop = next_fm;
                         } else if let TokenData::Any = idx_token.data {
@@ -892,17 +869,6 @@ impl FieldMask {
                         }
                     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-                    if cur_fm.all() {
-                        // the path should be end here
-                        return Ok((Some(Cow::Borrowed(cur_fm)), true));
-                    }
-
->>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
-=======
->>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                     cur_desc = element_desc.clone();
                     if let Some(next) = next_fm_for_loop {
                         cur_fm = next;
@@ -934,20 +900,11 @@ impl FieldMask {
                         });
                     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                     if cur_fm.all() {
                         // the path should be end here
                         return Ok((Some(Cow::Borrowed(cur_fm)), true));
                     }
 
-<<<<<<< HEAD
-=======
->>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
-=======
->>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                     let mut next_fm_for_loop = None;
                     let mut empty = true;
                     while it.has_next() {
@@ -975,15 +932,7 @@ impl FieldMask {
                                     return Ok((None, false));
                                 }
                                 if next_fm.is_none() {
-<<<<<<< HEAD
-<<<<<<< HEAD
                                     return Ok((Some(Cow::Borrowed(cur_fm)), true));
-=======
-                                    return Ok((Some(Cow::Borrowed(cur_fm)), false));
->>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
-=======
-                                    return Ok((Some(Cow::Borrowed(cur_fm)), true));
->>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                                 }
                                 next_fm_for_loop = next_fm;
                             }
@@ -993,15 +942,7 @@ impl FieldMask {
                                     return Ok((None, false));
                                 }
                                 if next_fm.is_none() {
-<<<<<<< HEAD
-<<<<<<< HEAD
                                     return Ok((Some(Cow::Borrowed(cur_fm)), true));
-=======
-                                    return Ok((Some(Cow::Borrowed(cur_fm)), false));
->>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
-=======
-                                    return Ok((Some(Cow::Borrowed(cur_fm)), true));
->>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                                 }
                                 next_fm_for_loop = next_fm;
                             }
@@ -1025,14 +966,7 @@ impl FieldMask {
                             }
                         }
                     }
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
-=======
-
->>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
                     cur_desc = element_desc.clone();
                     if let Some(next) = next_fm_for_loop {
                         cur_fm = next;
@@ -1516,11 +1450,11 @@ mod tests {
             match id {
                 1 => {
                     assert_eq!(mask.typ(), "Scalar");
-                    assert_eq!(mask.exist(), true);
+                    assert!(mask.exist());
                 }
                 2 => {
                     assert_eq!(mask.typ(), "List");
-                    assert_eq!(mask.exist(), true);
+                    assert!(mask.exist());
                 }
                 _ => {
                     assert!(false);
@@ -1541,20 +1475,20 @@ mod tests {
             path: FastStr::new("$.invalid"),
             source: PathError::SyntaxError {
                 position: 5,
-                expected: FastStr::new("数字"),
+                expected: FastStr::new("int"),
                 found: FastStr::new("abc"),
             },
         };
-        assert!(err.to_string().contains("path")); // 英文错误消息
+        assert!(err.to_string().contains("path"));
 
         let err = FieldMaskError::TypeMismatch {
             expected: FastStr::new("Struct"),
             actual: FastStr::new("List"),
-            context: FastStr::new("字段访问"),
+            context: FastStr::new("field access"),
             path: FastStr::new("$.test"),
             position: 0,
         };
-        assert!(err.to_string().contains("type mismatch")); // 英文错误消息
+        assert!(err.to_string().contains("type mismatch"));
     }
 
     #[test]
@@ -1606,6 +1540,8 @@ mod tests {
                 .unwrap(),
         );
         let desc: pilota_thrift_reflect::thrift_reflection::FileDescriptor = (&ast).into();
+        let key = FastStr::new(ast.path.to_string_lossy());
+        pilota_thrift_reflect::service::Register::register(key, desc.clone());
 
         let content = std::fs::read_to_string("../examples/idl/base.thrift").unwrap();
         let mut ast = pilota_thrift_parser::File::parse(&content).unwrap().1;
@@ -1614,7 +1550,9 @@ mod tests {
                 .canonicalize()
                 .unwrap(),
         );
-        let _: pilota_thrift_reflect::thrift_reflection::FileDescriptor = (&ast).into();
+        let base_desc: pilota_thrift_reflect::thrift_reflection::FileDescriptor = (&ast).into();
+        let key = FastStr::new(ast.path.to_string_lossy());
+        pilota_thrift_reflect::service::Register::register(key, base_desc.clone());
 
         println!("{:?}", desc);
 
@@ -1628,14 +1566,7 @@ mod tests {
             "$.f16{\"key1\"}[1].a",
             "$.f17[*]{\"key1\"}",
             "$.base.Addr",
-<<<<<<< HEAD
-<<<<<<< HEAD
             "$.base.EnumMap{1, 2}",
-=======
->>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
-=======
-            "$.base.EnumMap{1, 2}",
->>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
         ];
         let fm = FieldMaskBuilder::new(
             &desc
@@ -1695,20 +1626,11 @@ mod tests {
             .unwrap();
         assert!(!exist);
         assert!(sub_fm.is_none());
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
 
         let (sub_fm, exist) = fm
             .get_path(&req_desc.type_descriptor(), "$.base.EnumMap{1}")
             .unwrap();
         assert!(exist);
         assert!(sub_fm.unwrap().all());
-<<<<<<< HEAD
-=======
->>>>>>> b03b1c1 (feat: support field mask black list and include descriptor for build field mask for include field type)
-=======
->>>>>>> 3807678 (fix: allow thrift enum as the int map key for creating field mask)
     }
 }

@@ -1585,7 +1585,7 @@ pub mod btree_map {
 #[cfg(test)]
 mod test {
     use alloc::string::ToString;
-    use core::{borrow::Borrow, fmt::Debug, u64};
+    use core::{fmt::Debug, u64};
 
     use ::bytes::Bytes;
     use proptest::{prelude::*, test_runner::TestCaseResult};

@@ -1,9 +1,7 @@
 use nom::{
     IResult,
-    branch::alt,
     bytes::complete::tag,
     combinator::{map, opt},
-    error::Error,
     sequence::{preceded, tuple},
 };
 

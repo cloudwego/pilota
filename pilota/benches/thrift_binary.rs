@@ -79,7 +79,8 @@ fn binary_bench(c: &mut criterion::Criterion) {
         b.iter(|| {
             black_box({
                 let mut b = BytesMut::with_capacity(8 * size);
-                black_box(write_be(&mut b, &v, size));
+                write_be(&mut b, &v, size);
+                black_box(());
             });
         })
     });
@@ -88,7 +89,8 @@ fn binary_bench(c: &mut criterion::Criterion) {
         b.iter(|| {
             black_box({
                 let mut b = BytesMut::with_capacity(8 * size);
-                black_box(write_be_unsafe(&mut b, &v, size));
+                write_be_unsafe(&mut b, &v, size);
+                black_box(());
             });
         })
     });
@@ -242,14 +244,17 @@ fn read_le_unsafe_optimized(b: Bytes, size: usize) -> Vec<i64> {
 fn read_le_optimized(mut b: Bytes, size: usize) -> Vec<i64> {
     let _p = pilota::thrift::binary_le::TBinaryProtocol::new(&mut b, true);
     let mut v: Vec<i64> = Vec::with_capacity(size);
-    let _ = black_box({
-        let src = b.as_ptr();
-        let dst = v.as_mut_ptr();
-        unsafe {
-            std::ptr::copy_nonoverlapping(src, dst as *mut u8, size * 8);
-            v.set_len(size);
-        }
-    });
+    {
+        {
+            let src = b.as_ptr();
+            let dst = v.as_mut_ptr();
+            unsafe {
+                std::ptr::copy_nonoverlapping(src, dst as *mut u8, size * 8);
+                v.set_len(size);
+            }
+        };
+        black_box(())
+    };
     v
 }
 

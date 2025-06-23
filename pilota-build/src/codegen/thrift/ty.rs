@@ -93,84 +93,46 @@ impl ThriftBackend {
 
     pub(crate) fn codegen_encode_ty_with_field_mask(&self, ty: &Ty, ident: FastStr) -> FastStr {
         match &ty.kind {
-            ty::String => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_string({ident})?;
-                }}"#).into(),
-            ty::FastStr => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_faststr(({ident}).clone())?;
-                }}"#).into(),
+            ty::String => format!(r#"__protocol.write_string({ident})?;"#).into(),
+            ty::FastStr => format!(r#"__protocol.write_faststr(({ident}).clone())?;"#).into(),
             ty::Void => r#"__protocol.write_struct_begin(&*::pilota::thrift::VOID_IDENT)?;__protocol.write_struct_end()?;"#.into(),
-            ty::U8 => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_byte(*{ident})?;
-                }}"#).into(),
-            ty::Bool => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_bool(*{ident})?;
-                }}"#).into(),
-            ty::BytesVec => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_bytes_vec({ident})?;
-                }}"#).into(),
-            ty::Bytes => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_bytes({ident}.clone())?;
-                }}"#).into(),
-            ty::I8 => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_i8(*{ident})?;
-                }}"#).into(),
-            ty::I16 => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_i16(*{ident})?;
-                }}"#).into(),
-            ty::I32 => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_i32(*{ident})?;
-                }}"#).into(),
-            ty::I64 => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_i64(*{ident})?;
-                }}"#).into(),
-            ty::F64 => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_double(*{ident})?;
-                }}"#).into(),
-            ty::OrderedF64 => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_double({ident}.0)?;
-                }}"#).into(),
-            ty::Uuid => format!(r#"if item_fm.is_none() {{
-                    __protocol.write_uuid({ident})?;
-                }}"#).into(),
+            ty::U8 => format!(r#"__protocol.write_byte(*{ident})?;"#).into(),
+            ty::Bool => format!(r#"__protocol.write_bool(*{ident})?;"#).into(),
+            ty::BytesVec => format!(r#"__protocol.write_bytes_vec({ident})?;"#).into(),
+            ty::Bytes => format!(r#"__protocol.write_bytes({ident}.clone())?;"#).into(),
+            ty::I8 => format!(r#"__protocol.write_i8(*{ident})?;"#).into(),
+            ty::I16 => format!(r#"__protocol.write_i16(*{ident})?;"#).into(),
+            ty::I32 => format!(r#"__protocol.write_i32(*{ident})?;"#).into(),
+            ty::I64 => format!(r#"__protocol.write_i64(*{ident})?;"#).into(),
+            ty::F64 => format!(r#"__protocol.write_double(*{ident})?;"#).into(),
+            ty::OrderedF64 => format!(r#"__protocol.write_double({ident}.0)?;"#).into(),
+            ty::Uuid => format!(r#"__protocol.write_uuid({ident})?;"#).into(),
             ty::Vec(el) => {
                 let el_ttype = self.ttype(el);
                 let write_el_with_field_mask = self.codegen_encode_ty_with_field_mask(el, "val".into());
                 let write_el = self.codegen_encode_ty(el, "val".into());
-                let length_calculation = format!(r#"{{ let mut count = {ident}.len() as i32;
+                format! {
+                    r#"if let Some(list_fm) = item_fm {{
+                        __protocol.write_list_begin(::pilota::thrift::TListIdentifier {{
+                            element_type: {el_ttype},
+                            size: (0..{ident}.len()).filter(|idx| list_fm.int(*idx as i32).1).count(),
+                        }})?;
                         let mut idx = 0;
-                        for _ in {ident} {{
-                            if let Some(item_fm) = list_fm.int(idx as i32) {{
-                                if item_fm.all() {{
-                                    count -= 1;
-                                }}
+                        for val in {ident} {{
+                            let (item_fm, exist) = list_fm.int(idx as i32);
+                            if exist {{
+                                {write_el_with_field_mask} 
                             }}
                             idx += 1;
                         }}
-                        count as usize
-                        }}"#);
-                 format! {
-                     r#"if let Some(list_fm) = item_fm {{
-                        if !list_fm.all() {{
-                            __protocol.write_list_begin(::pilota::thrift::TListIdentifier {{
-                                element_type: {el_ttype},
-                                size: {length_calculation},
-                            }})?;
-                            let mut idx = 0;
-                            for val in {ident} {{
-                                let item_fm = list_fm.int(idx as i32);
-                                {write_el_with_field_mask} 
-                                idx += 1;
-                            }}
-                            __protocol.write_list_end()?;
-                        }}
-                     }} else {{
+                        __protocol.write_list_end()?;
+                    }} else {{
                         __protocol.write_list({el_ttype}, &{ident}, |__protocol, val| {{
                             {write_el}
                             ::std::result::Result::Ok(())
                         }})?;
-                     }}"#
-                 }
+                    }}"#
+                }
                 .into()
             }
             ty::Set(k) => {
@@ -209,13 +171,7 @@ impl ThriftBackend {
             ty::BTreeMap(k, v) => {
                 self.encode_map(k, v, ident, "btree_map")
             }
-            ty::Path(_) => format!(r#"if let Some(fm) = item_fm {{
-                if !fm.all() {{
-                    __protocol.write_struct({ident})?;
-                }}
-            }} else {{
-                __protocol.write_struct({ident})?;
-            }}"#).into(),
+            ty::Path(_) => format!(r#"__protocol.write_struct({ident})?;"#).into(),
             ty::Arc(ty) => self.codegen_encode_ty_with_field_mask(ty, ident),
             _ => unimplemented!(),
         }
@@ -253,7 +209,6 @@ impl ThriftBackend {
         .into()
     }
 
-    #[inline]
     fn encode_map_with_str_field_mask(
         &self,
         k: &Ty,
@@ -266,56 +221,35 @@ impl ThriftBackend {
         let write_key = self.codegen_encode_ty(k, "key".into());
         let write_val = self.codegen_encode_ty(v, "val".into());
         let write_val_with_field_mask = self.codegen_encode_ty_with_field_mask(v, "val".into());
-        let length_calculation = format!(
-            r#"{{
-                let mut count = {ident}.len() as i32;
-                for (key, item) in {ident} {{
-                    if let Some(item_fm) = map_fm.str(key.as_str()) {{
-                        if item_fm.all() {{
-                            count -= 1;
-                        }}
-                    }}
-                }}
-                count as usize
-            }}"#
-        );
+
         format! {
             r#"if let Some(map_fm) = item_fm {{
-                    if !map_fm.all() {{
-                        __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
-                            key_type: {key_ttype},
-                            value_type: {val_ttype},
-                            size: {length_calculation},
-                        }})?;
-                        for (key, val) in {ident} {{
-                            let item_fm = map_fm.str(key.as_str());
-                            if let Some(fm) = item_fm {{
-                                if !fm.all() {{
-                                    {write_key}
-                                    let item_fm = Some(fm);
-                                    {write_val_with_field_mask}
-                                }}
-                            }} else {{
-                                {write_key}
-                                {write_val}
-                            }}
-                        }}
-                        __protocol.write_{name}_end()?;
-                    }}
-                }} else {{
-                    __protocol.write_{name}({key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
+                __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
+                    key_type: {key_ttype},
+                    value_type: {val_ttype},
+                    size: {ident}.keys().filter(|key| map_fm.str(key).1).count(),
+                }})?;
+                for (key, val) in {ident} {{
+                    let (item_fm, exist) = map_fm.str(key.as_str());
+                    if exist {{
                         {write_key}
-                        ::std::result::Result::Ok(())
-                    }}, |__protocol, val| {{
-                        {write_val}
-                        ::std::result::Result::Ok(())
-                    }})?;
-                }}"#
+                        {write_val_with_field_mask}
+                    }}
+                }}
+                __protocol.write_{name}_end()?;
+            }} else {{
+                __protocol.write_{name}({key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
+                    {write_key}
+                    ::std::result::Result::Ok(())
+                }}, |__protocol, val| {{
+                    {write_val}
+                    ::std::result::Result::Ok(())
+                }})?;
+            }}"#
         }
         .into()
     }
 
-    #[inline]
     fn encode_map_with_int_field_mask(
         &self,
         k: &Ty,
@@ -328,43 +262,22 @@ impl ThriftBackend {
         let write_key = self.codegen_encode_ty(k, "key".into());
         let write_val = self.codegen_encode_ty(v, "val".into());
         let write_val_with_field_mask = self.codegen_encode_ty_with_field_mask(v, "val".into());
-        let length_calculation = format!(
-            r#"{{
-                let mut count = {ident}.len() as i32;
-                for (key, item) in {ident} {{
-                    if let Some(item_fm) = map_fm.int(*key as i32) {{
-                        if item_fm.all() {{
-                            count -= 1;
-                        }}
-                    }}
-                }}
-                count as usize
-            }}"#
-        );
 
         format! {
             r#"if let Some(map_fm) = item_fm {{
-                if !map_fm.all() {{
-                    __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
-                        key_type: {key_ttype},
-                        value_type: {val_ttype},    
-                        size: {length_calculation},
-                    }})?;
-                    for (key, val) in {ident} {{
-                        let item_fm = map_fm.int(*key as i32);
-                        if let Some(fm) = item_fm {{
-                            if !fm.all() {{
-                                {write_key}
-                                let item_fm = Some(fm);
-                                {write_val_with_field_mask}
-                            }}
-                        }} else {{
-                            {write_key}
-                            {write_val}
-                        }}
+                __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
+                    key_type: {key_ttype},
+                    value_type: {val_ttype},
+                    size: {ident}.keys().filter(|key| map_fm.int(*key as i32).1).count(),
+                }})?;
+                for (key, val) in {ident} {{
+                    let (item_fm, exist) = map_fm.int(*key as i32);
+                    if exist {{
+                        {write_key}
+                        {write_val_with_field_mask}
                     }}
-                    __protocol.write_{name}_end()?;
                 }}
+                __protocol.write_{name}_end()?;
             }} else {{
                 __protocol.write_{name}({key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
                     {write_key}
@@ -390,9 +303,8 @@ impl ThriftBackend {
 
     pub(crate) fn is_enum(&self, def_id: DefId) -> bool {
         let item = self.expect_item(def_id);
-        match &*item {
-            rir::Item::Enum(_) => return true,
-            _ => {}
+        if let rir::Item::Enum(_) = &*item {
+            return true;
         }
 
         false
@@ -465,80 +377,44 @@ impl ThriftBackend {
         ident: FastStr,
     ) -> FastStr {
         match &ty.kind {
-            ty::String => format!(r#"if struct_fm.field({id}).is_none() {{
-                __protocol.write_string_field({id}, {ident})?;
-            }}"#).into(),
+            ty::String => format!(r#"__protocol.write_string_field({id}, {ident})?;"#).into(),
             ty::FastStr => {
-                format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_faststr_field({id}, ({ident}).clone())?;
-                }}"#).into()
+                format!(r#"__protocol.write_faststr_field({id}, ({ident}).clone())?;"#).into()
             }
             ty::Void => "".into(),
-            ty::U8 => format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_byte_field({id}, *{ident})?;
-                }}"#).into(),
-            ty::Bool => format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_bool_field({id}, *{ident})?;
-                }}"#).into(),
-            ty::BytesVec => format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_bytes_vec_field({id}, {ident})?;
-                }}"#).into(),
-            ty::Bytes => format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_bytes_field({id}, ({ident}).clone())?;
-                }}"#).into(),
-            ty::I8 => format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_i8_field({id}, *{ident})?;
-                }}"#).into(),
-            ty::I16 => format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_i16_field({id}, *{ident})?;
-                }}"#).into(),
-            ty::I32 => format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_i32_field({id}, *{ident})?;
-                }}"#).into(),
-            ty::I64 => format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_i64_field({id}, *{ident})?;
-                }}"#).into(),
-            ty::F64 => format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_double_field({id}, *{ident})?;
-                }}"#).into(),
-            ty::OrderedF64 => format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_double_field({id}, *{ident}.0)?;
-                }}"#).into(),
-            ty::Uuid => format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_uuid_field({id}, *{ident})?;
-                }}"#).into(),
+            ty::U8 => format!(r#"__protocol.write_byte_field({id}, *{ident})?;"#).into(),
+            ty::Bool => format!(r#"__protocol.write_bool_field({id}, *{ident})?;"#).into(),
+            ty::BytesVec => format!(r#"__protocol.write_bytes_vec_field({id}, {ident})?;"#).into(),
+            ty::Bytes => format!(r#"__protocol.write_bytes_field({id}, ({ident}).clone())?;"#).into(),
+            ty::I8 => format!(r#"__protocol.write_i8_field({id}, *{ident})?;"#).into(),
+            ty::I16 => format!(r#"__protocol.write_i16_field({id}, *{ident})?;"#).into(),
+            ty::I32 => format!(r#"__protocol.write_i32_field({id}, *{ident})?;"#).into(),
+            ty::I64 => format!(r#"__protocol.write_i64_field({id}, *{ident})?;"#).into(),
+            ty::F64 => format!(r#"__protocol.write_double_field({id}, *{ident})?;"#).into(),
+            ty::OrderedF64 => format!(r#"__protocol.write_double_field({id}, *{ident}.0)?;"#).into(),
+            ty::Uuid => format!(r#"__protocol.write_uuid_field({id}, *{ident})?;"#).into(),
             ty::Vec(ty) => {
                 let el_ttype = self.ttype(ty);
                 let write_el = self.codegen_encode_ty(ty, "val".into());
                 let write_el_with_field_mask = self.codegen_encode_ty_with_field_mask(ty, "val".into());
-                let length_calculation = format!(r#"{{ let mut count = (*{ident}).len() as i32;
-                        for idx in 0..(*{ident}).len() {{
-                            if let Some(item_fm) = list_fm.int(idx as i32) {{
-                                if item_fm.all() {{
-                                    count -= 1;
-                                }}
-                            }}
-                        }}
-                        count as usize
-                        }}"#);
 
                 format! {
-                    r#"if let Some(list_fm) = struct_fm.field({id}) {{
-                        if !list_fm.all() {{
-                            __protocol.write_field_begin(::pilota::thrift::TType::List, {id})?;
-                            __protocol.write_list_begin(::pilota::thrift::TListIdentifier {{
-                                element_type: {el_ttype},
-                                size: {length_calculation},
-                            }})?;
-                            let mut idx = 0;
-                            for val in {ident} {{
-                                let item_fm = list_fm.int(idx as i32);
+                    r#"if let Some(list_fm) = field_fm {{
+                        __protocol.write_field_begin(::pilota::thrift::TType::List, {id})?;
+                        __protocol.write_list_begin(::pilota::thrift::TListIdentifier {{
+                            element_type: {el_ttype},
+                            size: (0..{ident}.len()).filter(|idx| list_fm.int(*idx as i32).1).count(),
+                        }})?;
+                        let mut idx = 0;
+                        for val in {ident} {{
+                            let (item_fm, exist) = list_fm.int(idx as i32);
+                            if exist {{
                                 {write_el_with_field_mask} 
-                                idx += 1;
                             }}
-                            __protocol.write_list_end()?;
-                            __protocol.write_field_end()?;
+                            idx += 1;
                         }}
+                        __protocol.write_list_end()?;
+                        __protocol.write_field_end()?;
                     }} else {{
                         __protocol.write_list_field({id}, {el_ttype}, &{ident}, |__protocol, val| {{
                         {write_el}
@@ -573,29 +449,14 @@ impl ThriftBackend {
                 self.encode_map_field(k, v, id, ident, "btree_map")
             }
             ty::Path(p) if self.is_i32_enum(p.did) => {
-                format!(r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.write_i32_field({id}, ({ident}).inner())?; 
-                }}"#).into()
+                format!(r#"__protocol.write_i32_field({id}, ({ident}).inner())?;"#).into()
             }
             ty::Path(p) => match self.cx.expect_item(p.did).as_ref() {
                 rir::Item::NewType(nt) => {
-                    // todo: don't support fieldmask for newtype
                     let ttype = self.ttype(&nt.ty);
-                    format!(r#"if let Some(struct_fm) = struct_fm.field({id}) {{
-                        if !struct_fm.all() {{
-                            __protocol.write_struct_field({id}, {ident}, {ttype})?;
-                        }}
-                    }} else {{
-                        __protocol.write_struct_field({id}, {ident}, {ttype})?;
-                    }}"#).into()
+                    format!(r#"__protocol.write_struct_field({id}, {ident}, {ttype})?;"#).into()
                 }
-                _ => format!(r#"if let Some(struct_fm) = struct_fm.field({id}) {{
-                        if !struct_fm.all() {{
-                            __protocol.write_struct_field({id}, {ident}, ::pilota::thrift::TType::Struct)?;
-                        }}
-                    }} else {{
-                        __protocol.write_struct_field({id}, {ident}, ::pilota::thrift::TType::Struct)?;
-                }}"#).into(),
+                _ => format!(r#"__protocol.write_struct_field({id}, {ident}, ::pilota::thrift::TType::Struct)?;"#).into(),
             },
             ty::Arc(ty) => self.codegen_encode_field_with_field_mask(id, ty, ident),
             _ => unimplemented!("unsupported thrift field type: {:?}, id: {}, ident: {}", ty.kind, id, ident),
@@ -634,7 +495,6 @@ impl ThriftBackend {
         .into()
     }
 
-    #[inline]
     fn encode_map_field_with_str_field_mask(
         &self,
         k: &Ty,
@@ -648,57 +508,37 @@ impl ThriftBackend {
         let write_key = self.codegen_encode_ty(k, "key".into());
         let write_val = self.codegen_encode_ty(v, "val".into());
         let write_val_with_field_mask = self.codegen_encode_ty_with_field_mask(v, "val".into());
-        let length_calculation = format!(
-            r#"{{ let mut count = {ident}.len() as i32;
-                for key in (*{ident}).keys() {{
-                    if let Some(item_fm) = map_fm.str(key.as_str()) {{
-                        if item_fm.all() {{
-                            count -= 1;
-                        }}
-                    }}
-                }}
-                count as usize
-            }}"#
-        );
+
         format! {
-            r#"if let Some(map_fm) = struct_fm.field({id}) {{
-                if !map_fm.all() {{
-                    __protocol.write_field_begin(::pilota::thrift::TType::Map, {id})?;
-                    __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
-                        key_type: {key_ttype},
-                        value_type: {val_ttype},
-                        size: {length_calculation},
-                    }})?;
-                    for (key, val) in {ident} {{
-                        let item_fm = map_fm.str(key);
-                        if let Some(fm) = item_fm {{
-                            if !fm.all() {{
-                                {write_key}
-                                let item_fm = Some(fm);
-                                {write_val_with_field_mask}
-                            }}
-                        }} else {{
-                            {write_key}
-                            {write_val}
-                        }}
+            r#"if let Some(map_fm) = field_fm {{
+                __protocol.write_field_begin(::pilota::thrift::TType::Map, {id})?;
+                __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
+                    key_type: {key_ttype},
+                    value_type: {val_ttype},
+                    size: {ident}.keys().filter(|key| map_fm.str(key).1).count(),
+                }})?;
+                for (key, val) in {ident} {{
+                    let (item_fm, is_exist) = map_fm.str(key);
+                    if is_exist {{
+                        {write_key}
+                        {write_val_with_field_mask}
                     }}
-                    __protocol.write_{name}_end()?;
-                    __protocol.write_field_end()?;
                 }}
+                __protocol.write_{name}_end()?;
+                __protocol.write_field_end()?;
             }} else {{
                 __protocol.write_{name}_field({id}, {key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
-                    {write_key}
-                    ::std::result::Result::Ok(())
-                }}, |__protocol, val| {{
-                    {write_val}
-                    ::std::result::Result::Ok(())
-                }})?;
+                        {write_key}
+                        ::std::result::Result::Ok(())
+                    }}, |__protocol, val| {{
+                        {write_val}
+                        ::std::result::Result::Ok(())
+                    }})?;
             }}"#
             }
             .into()
     }
 
-    #[inline]
     fn encode_map_field_with_int_field_mask(
         &self,
         k: &Ty,
@@ -713,47 +553,25 @@ impl ThriftBackend {
         let write_val = self.codegen_encode_ty(v, "val".into());
         let write_val_with_field_mask = self.codegen_encode_ty_with_field_mask(v, "val".into());
 
-        let length_calculation = format!(
-            r#"{{
-                let mut count = (*{ident}).len() as i32;
-                for key in {ident}.keys() {{
-                    if let Some(item_fm) = map_fm.int(*key as i32) {{
-                        if item_fm.all() {{
-                            count -= 1;
-                        }}
+        format! {
+            r#"if let Some(map_fm) = field_fm {{
+                __protocol.write_field_begin(::pilota::thrift::TType::Map, {id})?;
+                __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
+                    key_type: {key_ttype},
+                    value_type: {val_ttype},
+                    size: {ident}.keys().filter(|key| map_fm.int(**key as i32).1).count(),
+                }})?;
+                for (key, val) in {ident} {{
+                    let (item_fm, is_exist) = map_fm.int(*key as i32);
+                    if is_exist {{
+                        {write_key}
+                        {write_val_with_field_mask}
                     }}
                 }}
-                count as usize
-            }}
-            "#
-        );
-        format! {
-                r#"if let Some(map_fm) = struct_fm.field({id}) {{
-                    if !map_fm.all() {{
-                        __protocol.write_field_begin(::pilota::thrift::TType::Map, {id})?;
-                        __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
-                            key_type: {key_ttype},
-                            value_type: {val_ttype},
-                            size: {length_calculation},
-                        }})?;
-                        for (key, val) in {ident} {{
-                            let item_fm = map_fm.int(*key as i32);
-                            if let Some(fm) = item_fm {{
-                                if !fm.all() {{
-                                    {write_key}
-                                    let item_fm = Some(fm);
-                                    {write_val_with_field_mask}
-                                }}
-                            }} else {{
-                                {write_key}
-                                {write_val}
-                            }}
-                        }}
-                        __protocol.write_{name}_end()?;
-                        __protocol.write_field_end()?;
-                    }}
-                }} else {{
-                    __protocol.write_{name}_field({id}, {key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
+                __protocol.write_{name}_end()?;
+                __protocol.write_field_end()?;
+            }} else {{
+                __protocol.write_{name}_field({id}, {key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
                         {write_key}
                         ::std::result::Result::Ok(())
                     }}, |__protocol, val| {{
@@ -803,136 +621,40 @@ impl ThriftBackend {
 
     pub(crate) fn codegen_ty_size_with_field_mask(&self, ty: &Ty, ident: FastStr) -> FastStr {
         match &ty.kind {
-            ty::String => format!(
-                r#"if item_fm.is_none() {{
-                __protocol.string_len({ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::FastStr => format!(
-                r#"if item_fm.is_none() {{
-                __protocol.faststr_len({ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
+            ty::String => format!(r#"__protocol.string_len({ident})"#).into(),
+            ty::FastStr => format!(r#"__protocol.faststr_len({ident})"#).into(),
             ty::Void => "__protocol.void_len()".into(),
-            ty::U8 => format!(
-                r#"if item_fm.is_none() {{
-                __protocol.byte_len(*{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::Bool => format!(
-                r#"if item_fm.is_none() {{
-                __protocol.bool_len(*{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::BytesVec => format!(
-                r#"
-            if item_fm.is_none() {{
-                __protocol.bytes_vec_len({ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::Bytes => format!(
-                r#"if item_fm.is_none() {{
-                __protocol.bytes_len({ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::I8 => format!(
-                r#"if item_fm.is_none() {{
-                __protocol.i8_len(*{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::I16 => format!(
-                r#"if item_fm.is_none() {{
-                __protocol.i16_len(*{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::I32 => format!(
-                r#"if item_fm.is_none() {{
-                __protocol.i32_len(*{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::I64 => format!(
-                r#"if item_fm.is_none() {{
-                __protocol.i64_len(*{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::F64 => format!(
-                r#"if item_fm.is_none() {{
-                __protocol.double_len(*{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::OrderedF64 => format!(
-                r#"if item_fm.is_none() {{
-                __protocol.double_len({ident}.0)
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::Uuid => format!(
-                r#"if item_fm.is_none() {{
-                __protocol.uuid_len(*{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
+            ty::U8 => format!(r#"__protocol.byte_len(*{ident})"#).into(),
+            ty::Bool => format!(r#"__protocol.bool_len(*{ident})"#).into(),
+            ty::BytesVec => format!(r#"__protocol.bytes_vec_len({ident})"#).into(),
+            ty::Bytes => format!(r#"__protocol.bytes_len({ident})"#).into(),
+            ty::I8 => format!(r#"__protocol.i8_len(*{ident})"#).into(),
+            ty::I16 => format!(r#"__protocol.i16_len(*{ident})"#).into(),
+            ty::I32 => format!(r#"__protocol.i32_len(*{ident})"#).into(),
+            ty::I64 => format!(r#"__protocol.i64_len(*{ident})"#).into(),
+            ty::F64 => format!(r#"__protocol.double_len(*{ident})"#).into(),
+            ty::OrderedF64 => format!(r#"__protocol.double_len({ident}.0)"#).into(),
+            ty::Uuid => format!(r#"__protocol.uuid_len(*{ident})"#).into(),
             ty::Vec(el) => {
                 let add_el = self.codegen_ty_size(el, "el".into());
                 let add_el_with_field_mask = self.codegen_ty_size_with_field_mask(el, "el".into());
                 let el_ttype = self.ttype(el);
                 format! {
                     r#"if let Some(list_fm) = item_fm {{
-                        if list_fm.all() {{
-                            0
-                        }} else {{
-                            let mut idx = 0;
-                            let mut size = __protocol.list_begin_len(::pilota::thrift::TListIdentifier {{
-                                element_type: {el_ttype},
-                                size: 0,
-                            }}) + __protocol.list_end_len();
-                            for el in {ident} {{
-                                let item_fm = list_fm.int(idx as i32);
-                                size += {add_el_with_field_mask};
-                                idx += 1;
-                            }}
-                            size
+                        let mut idx = 0;
+                        let mut size = __protocol.list_begin_len(::pilota::thrift::TListIdentifier {{
+                            element_type: {el_ttype},
+                            size: 0,
+                        }}) + __protocol.list_end_len();
+                        for el in {ident} {{
+                            let item_fm = list_fm.int(idx as i32);
+                            size += {add_el_with_field_mask};
+                            idx += 1;
                         }}
+                        size
                     }} else {{
                         __protocol.list_len({el_ttype}, {ident}, |__protocol, el| {{
-                        {add_el}
+                            {add_el}
                         }})
                     }}"#
                 }
@@ -956,18 +678,7 @@ impl ThriftBackend {
                 self.map_size_with_int_field_mask(k, v, ident, "btree_map")
             }
             ty::BTreeMap(k, v) => self.map_size(k, v, ident, "btree_map"),
-            ty::Path(_) => format!(
-                r#"if let Some(struct_fm) = item_fm {{
-                if !struct_fm.all() {{
-                    __protocol.struct_len({ident})
-                }} else {{
-                    0
-                }}
-            }} else {{
-                __protocol.struct_len({ident})
-            }}"#
-            )
-            .into(),
+            ty::Path(_) => format!(r#"__protocol.struct_len({ident})"#).into(),
             ty::Arc(ty) => self.codegen_ty_size_with_field_mask(ty, ident),
             _ => unimplemented!(),
         }
@@ -1012,29 +723,19 @@ impl ThriftBackend {
 
         format! {
             r#"if let Some(map_fm) = item_fm {{
-                if map_fm.all() {{
-                    0
-                }} else {{
-                    let mut size = __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
-                        key_type: {k_ttype},
-                        value_type: {v_ttype},
-                        size: 0,
-                    }}) + __protocol.map_end_len();
-                    for (key, val) in {ident} {{
-                        let item_fm = map_fm.str(key);
-                        if let Some(fm) = item_fm {{
-                            if !fm.all() {{
-                                size += {add_key};
-                                let item_fm = Some(fm);
-                                size += {add_val_with_field_mask};
-                            }}
-                        }} else {{
-                            size += {add_key};
-                            size += {add_val};
-                        }}
+                let mut size = __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
+                    key_type: {k_ttype},
+                    value_type: {v_ttype},
+                    size: 0,
+                }}) + __protocol.map_end_len();
+                for (key, val) in {ident} {{
+                    let (item_fm, exist) = map_fm.str(key);
+                    if exist {{
+                        size += {add_key};
+                        size += {add_val_with_field_mask};
                     }}
-                    size
                 }}
+                size
             }} else {{
                 __protocol.{name}_len({k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{
                     {add_key}
@@ -1046,7 +747,6 @@ impl ThriftBackend {
         .into()
     }
 
-    #[inline]
     fn map_size_with_int_field_mask(&self, k: &Ty, v: &Ty, ident: FastStr, name: &str) -> FastStr {
         let add_key = self.codegen_ty_size(k, "key".into());
         let add_val = self.codegen_ty_size(v, "val".into());
@@ -1056,29 +756,20 @@ impl ThriftBackend {
 
         format! {
             r#"if let Some(map_fm) = item_fm {{
-                if map_fm.all() {{
-                    0
-                }} else {{
-                    let mut size = __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
-                        key_type: {k_ttype},
-                        value_type: {v_ttype},
-                        size: 0,
-                    }}) + __protocol.map_end_len();
-                    for (key, val) in {ident} {{
-                        let item_fm = map_fm.int(*key as i32);
-                        if let Some(fm) = item_fm {{
-                            if !fm.all() {{
-                                size += {add_key};
-                                let item_fm = Some(fm);
-                                size += {add_val_with_field_mask};
-                            }}
-                        }} else {{
-                            size += {add_key};
-                            size += {add_val};
-                        }}
+                let mut size = __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
+                    key_type: {k_ttype},
+                    value_type: {v_ttype},
+                    size: 0,
+                }}) + __protocol.map_end_len();
+                
+                for (key, val) in {ident} {{
+                    let (item_fm, exist) = map_fm.int(*key as i32);
+                    if exist {{
+                        size += {add_key};
+                        size += {add_val_with_field_mask};
                     }}
-                    size
                 }}
+                size
             }} else {{
                 __protocol.{name}_len({k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{
                     {add_key}
@@ -1138,132 +829,43 @@ impl ThriftBackend {
         ident: FastStr,
     ) -> FastStr {
         match &ty.kind {
-            ty::String => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                __protocol.string_field_len(Some({id}), &{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::FastStr => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                __protocol.faststr_field_len(Some({id}), {ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
+            ty::String => format!(r#"__protocol.string_field_len(Some({id}), &{ident})"#).into(),
+            ty::FastStr => format!(r#"__protocol.faststr_field_len(Some({id}), {ident})"#).into(),
             ty::Void => "0".into(),
-            ty::U8 => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                __protocol.byte_field_len(Some({id}), *{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::Bool => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                __protocol.bool_field_len(Some({id}), *{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::BytesVec => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                __protocol.bytes_vec_field_len(Some({id}), {ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::Bytes => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                __protocol.bytes_field_len(Some({id}), {ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::I8 => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                __protocol.i8_field_len(Some({id}), *{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::I16 => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                __protocol.i16_field_len(Some({id}), *{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::I32 => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                __protocol.i32_field_len(Some({id}), *{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::I64 => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                __protocol.i64_field_len(Some({id}), *{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::F64 => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                __protocol.double_field_len(Some({id}), *{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
-            ty::OrderedF64 => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                    __protocol.double_field_len(Some({id}), *{ident}.0)
-                }} else {{
-                    0
-                }}"#
-            )
-            .into(),
-            ty::Uuid => format!(
-                r#"if struct_fm.field({id}).is_none() {{
-                __protocol.uuid_field_len(Some({id}), *{ident})
-            }} else {{
-                0
-            }}"#
-            )
-            .into(),
+            ty::U8 => format!(r#"__protocol.byte_field_len(Some({id}), *{ident})"#).into(),
+            ty::Bool => format!(r#"__protocol.bool_field_len(Some({id}), *{ident})"#).into(),
+            ty::BytesVec => {
+                format!(r#"__protocol.bytes_vec_field_len(Some({id}), {ident})"#).into()
+            }
+            ty::Bytes => format!(r#"__protocol.bytes_field_len(Some({id}), {ident})"#).into(),
+            ty::I8 => format!(r#"__protocol.i8_field_len(Some({id}), *{ident})"#).into(),
+            ty::I16 => format!(r#"__protocol.i16_field_len(Some({id}), *{ident})"#).into(),
+            ty::I32 => format!(r#"__protocol.i32_field_len(Some({id}), *{ident})"#).into(),
+            ty::I64 => format!(r#"__protocol.i64_field_len(Some({id}), *{ident})"#).into(),
+            ty::F64 => format!(r#"__protocol.double_field_len(Some({id}), *{ident})"#).into(),
+            ty::OrderedF64 => {
+                format!(r#"__protocol.double_field_len(Some({id}), *{ident}.0)"#).into()
+            }
+            ty::Uuid => format!(r#"__protocol.uuid_field_len(Some({id}), *{ident})"#).into(),
             ty::Vec(el) => {
                 let add_el = self.codegen_ty_size(el, "el".into());
                 let add_el_with_field_mask = self.codegen_ty_size_with_field_mask(el, "el".into());
                 let el_ttype = self.ttype(el);
                 format! {
-                    r#"if let Some(list_fm) = struct_fm.field({id}) {{
-                        if list_fm.all() {{
-                            0
-                        }} else {{
-                            let mut idx = 0;
-                            let mut size = __protocol.field_begin_len(::pilota::thrift::TType::List, None) + __protocol.field_end_len() + __protocol.list_begin_len(::pilota::thrift::TListIdentifier {{
-                                element_type: {el_ttype},
-                                size: 0,
-                            }}) + __protocol.list_end_len();
-                            for el in {ident} {{
-                                let item_fm = list_fm.int(idx as i32);
+                    r#"if let Some(list_fm) = field_fm {{
+                        let mut idx = 0;
+                        let mut size = __protocol.field_begin_len(::pilota::thrift::TType::List, None) + __protocol.field_end_len() + __protocol.list_begin_len(::pilota::thrift::TListIdentifier {{
+                            element_type: {el_ttype},
+                            size: 0,
+                        }}) + __protocol.list_end_len();
+                        for el in {ident} {{
+                            let (item_fm, exist) = list_fm.int(idx as i32);
+                            if exist {{
                                 size += {add_el_with_field_mask};
-                                idx += 1;
                             }}
-                            size
+                            idx += 1;
                         }}
+                        size
                     }} else {{
                         __protocol.list_field_len(Some({id}), {el_ttype}, {ident}, |__protocol, el| {{
                             {add_el}
@@ -1291,20 +893,9 @@ impl ThriftBackend {
             }
             ty::BTreeMap(k, v) => self.map_field_size(k, v, id, ident, "btree_map"),
             ty::Path(p) if self.is_i32_enum(p.did) => {
-                format!("__protocol.i32_field_len(Some({id}), ({ident}).inner())").into()
+                format!(r#"__protocol.i32_field_len(Some({id}), ({ident}).inner())"#).into()
             }
-            ty::Path(_) => format!(
-                r#"if let Some(struct_fm) = struct_fm.field({id}) {{
-                if !struct_fm.all() {{
-                    __protocol.struct_field_len(Some({id}), {ident})
-                }} else {{
-                    0
-                }}
-            }} else {{
-                __protocol.struct_field_len(Some({id}), {ident})
-            }}"#
-            )
-            .into(),
+            ty::Path(_) => format!(r#"__protocol.struct_field_len(Some({id}), {ident})"#).into(),
             ty::Arc(ty) => self.codegen_field_size_with_field_mask(ty, id, ident),
             _ => unimplemented!(),
         }
@@ -1355,30 +946,20 @@ impl ThriftBackend {
         let v_ttype = self.ttype(v);
 
         format! {
-            r#"if let Some(map_fm) = struct_fm.field({id}) {{
-                if map_fm.all() {{
-                    0
-                }} else {{
-                    let mut size = __protocol.field_begin_len(::pilota::thrift::TType::Map, None) + __protocol.field_end_len() + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
-                        key_type: {k_ttype},
-                        value_type: {v_ttype},
-                        size: 0,
-                    }}) + __protocol.map_end_len();
-                    for (key, val) in {ident} {{
-                        let item_fm = map_fm.str(key);
-                        if let Some(fm) = item_fm {{
-                            if !fm.all() {{
-                                size += {add_key};
-                                let item_fm = Some(fm);
-                                size += {add_val_with_field_mask};
-                            }}
-                        }} else {{
-                            size += {add_key};
-                            size += {add_val};
-                        }}
+            r#"if let Some(map_fm) = field_fm {{
+                let mut size = __protocol.field_begin_len(::pilota::thrift::TType::Map, None) + __protocol.field_end_len() + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
+                    key_type: {k_ttype},
+                    value_type: {v_ttype},
+                    size: 0,
+                }}) + __protocol.map_end_len();
+                for (key, val) in {ident} {{
+                    let (item_fm, exist) = map_fm.str(key);
+                    if exist {{
+                        size += {add_key};
+                        size += {add_val_with_field_mask};
                     }}
-                    size
                 }}
+                size
             }} else {{
                 __protocol.{name}_field_len(Some({id}), {k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{
                     {add_key}
@@ -1390,7 +971,6 @@ impl ThriftBackend {
         .into()
     }
 
-    #[inline]
     fn map_field_size_with_int_field_mask(
         &self,
         k: &Ty,
@@ -1406,30 +986,20 @@ impl ThriftBackend {
         let v_ttype = self.ttype(v);
 
         format! {
-            r#"if let Some(map_fm) = struct_fm.field({id}) {{
-                if map_fm.all() {{
-                    0
-                }} else {{
-                    let mut size = __protocol.field_begin_len(::pilota::thrift::TType::Map, None) + __protocol.field_end_len() + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
-                        key_type: {k_ttype},
-                        value_type: {v_ttype},
-                        size: 0,
-                    }}) + __protocol.map_end_len();
-                    for (key, val) in {ident} {{
-                        let item_fm = map_fm.int(*key as i32);
-                        if let Some(fm) = item_fm {{
-                            if !fm.all() {{
-                                size += {add_key};
-                                let item_fm = Some(fm);
-                                size += {add_val_with_field_mask};
-                            }}
-                        }} else {{
-                            size += {add_key};
-                            size += {add_val};
-                        }}
+            r#"if let Some(map_fm) = field_fm {{
+                let mut size = __protocol.field_begin_len(::pilota::thrift::TType::Map, None) + __protocol.field_end_len() + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
+                    key_type: {k_ttype},
+                    value_type: {v_ttype},
+                    size: 0,
+                }}) + __protocol.map_end_len();
+                for (key, val) in {ident} {{
+                    let (item_fm, is_exist) = map_fm.int(*key as i32);
+                    if is_exist {{
+                        size += {add_key};
+                        size += {add_val_with_field_mask};
                     }}
-                    size
                 }}
+                size
             }} else {{
                 __protocol.{name}_field_len(Some({id}), {k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{
                     {add_key}
@@ -1609,7 +1179,7 @@ impl ThriftBackend {
                     format!(
                         r#"if !{field_mask}.all() {{
                             for (idx, item) in {ident}.iter_mut().enumerate() {{
-                                if let Some(item_fm) = {field_mask}.int(idx as i32) {{
+                                if let Some(item_fm) = {field_mask}.int(idx as i32).0 {{
                                     {item_field_mask}
                                 }}
                             }}
@@ -1629,7 +1199,7 @@ impl ThriftBackend {
                             format!(
                                 r#"if !{field_mask}.all() {{
                             for (key, item) in {ident}.iter_mut() {{
-                                if let Some(item_fm) = {field_mask}.int(*key as i32) {{
+                                if let Some(item_fm) = {field_mask}.int(*key as i32).0 {{
                                     {val_field_mask}
                                     }}
                                 }}
@@ -1640,7 +1210,7 @@ impl ThriftBackend {
                         ty::String | ty::FastStr => format!(
                             r#"if !{field_mask}.all() {{
                             for (key, item) in {ident}.iter_mut() {{
-                                if let Some(item_fm) = {field_mask}.str(key) {{
+                                if let Some(item_fm) = {field_mask}.str(key).0 {{
                                     {val_field_mask}
                                 }}
                             }}
@@ -1670,7 +1240,7 @@ impl ThriftBackend {
     ) -> FastStr {
         match &ty.kind {
             ty::Path(p) if !self.is_enum(p.did) => format!(
-                r#"if let Some(fm) = {field_mask}.field({id}) {{
+                r#"if let Some(fm) = {field_mask}.field({id}).0 {{
                     {ident}.set_field_mask(fm.clone());
                 }}
                 "#
@@ -1681,10 +1251,10 @@ impl ThriftBackend {
                     self.codegen_iter_item_field_mask(el, "item".into(), "item_fm".into());
                 if !item_field_mask.is_empty() {
                     format!(
-                        r#"if let Some(list_fm) = {field_mask}.field({id}) {{
+                        r#"if let Some(list_fm) = {field_mask}.field({id}).0 {{
                             if !list_fm.all() {{
                                 for (idx, item) in {ident}.iter_mut().enumerate() {{
-                                    if let Some(item_fm) = list_fm.int(idx as i32) {{
+                                    if let Some(item_fm) = list_fm.int(idx as i32).0 {{
                                         {item_field_mask}
                                     }}
                                 }}
@@ -1707,10 +1277,10 @@ impl ThriftBackend {
                     self.codegen_iter_item_field_mask(val, "item".into(), "item_fm".into());
                 if !item_field_mask.is_empty() {
                     format!(
-                        r#"if let Some(map_mask) = {field_mask}.field({id}) {{
+                        r#"if let Some(map_mask) = {field_mask}.field({id}).0 {{
                       if !map_mask.all() {{
                         for (key, item) in {ident}.iter_mut() {{
-                            if let Some(item_fm) = map_mask.int(*key as i32) {{
+                            if let Some(item_fm) = map_mask.int(*key as i32).0 {{
                                 {item_field_mask}
                                 }}
                             }}
@@ -1730,10 +1300,10 @@ impl ThriftBackend {
                     self.codegen_iter_item_field_mask(val, "item".into(), "item_fm".into());
                 if !item_field_mask.is_empty() {
                     format!(
-                        r#"if let Some(map_mask) = {field_mask}.field({id}) {{
+                        r#"if let Some(map_mask) = {field_mask}.field({id}).0 {{
                         if !map_mask.all() {{
                             for (key, item) in {ident}.iter_mut() {{
-                                if let Some(item_fm) = map_mask.str(key) {{
+                                if let Some(item_fm) = map_mask.str(key).0 {{
                                     {item_field_mask}
                                 }}
                             }}

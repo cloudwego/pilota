@@ -35,7 +35,7 @@ fn decode_encode_all_fields_unsafe(mut bytes: Bytes) {
     let buf = unsafe {
         let l = linked_bytes.bytes_mut().len();
         std::slice::from_raw_parts_mut(
-            linked_bytes.bytes_mut().as_mut_ptr().offset(l as isize),
+            linked_bytes.bytes_mut().as_mut_ptr().add(l),
             linked_bytes.bytes_mut().capacity() - l,
         )
     };
@@ -74,7 +74,7 @@ fn decode_encode_unknown_fields_unsafe(mut bytes: Bytes) {
     let buf = unsafe {
         let l = linked_bytes.bytes_mut().len();
         std::slice::from_raw_parts_mut(
-            linked_bytes.bytes_mut().as_mut_ptr().offset(l as isize),
+            linked_bytes.bytes_mut().as_mut_ptr().add(l),
             linked_bytes.bytes_mut().capacity() - l,
         )
     };
@@ -100,7 +100,7 @@ fn codegen(c: &mut Criterion) {
         let buf = buf.freeze();
         group.bench_function(
             format!("TBinaryProtocol all_fields decode_encode {} bytes", len * 8),
-            |b| b.iter_with_setup(|| buf.clone(), |buf| decode_encode_all_fields_safe(buf)),
+            |b| b.iter_with_setup(|| buf.clone(), decode_encode_all_fields_safe),
         );
         group.bench_function(
             format!(
@@ -108,14 +108,14 @@ fn codegen(c: &mut Criterion) {
   decode_encode {} bytes",
                 len * 8
             ),
-            |b| b.iter_with_setup(|| buf.clone(), |buf| decode_encode_all_fields_unsafe(buf)),
+            |b| b.iter_with_setup(|| buf.clone(), decode_encode_all_fields_unsafe),
         );
         group.bench_function(
             format!(
                 "TBinaryProtocol unknown_fields decode_encode {} bytes",
                 len * 8
             ),
-            |b| b.iter_with_setup(|| buf.clone(), |buf| decode_encode_unknown_fields_safe(buf)),
+            |b| b.iter_with_setup(|| buf.clone(), decode_encode_unknown_fields_safe),
         );
         group.bench_function(
             format!(
@@ -124,12 +124,7 @@ fn codegen(c: &mut Criterion) {
 bytes",
                 len * 8
             ),
-            |b| {
-                b.iter_with_setup(
-                    || buf.clone(),
-                    |buf| decode_encode_unknown_fields_unsafe(buf),
-                )
-            },
+            |b| b.iter_with_setup(|| buf.clone(), decode_encode_unknown_fields_unsafe),
         );
     }
 }

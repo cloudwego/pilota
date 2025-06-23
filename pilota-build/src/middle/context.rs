@@ -107,7 +107,6 @@ pub(crate) struct ContextBuilder {
     keep_unknown_fields: FxHashSet<DefId>,
     pub location_map: FxHashMap<DefId, DefLocation>,
     entry_map: HashMap<DefLocation, Vec<(DefId, DefLocation)>>,
-    with_field_mask: bool,
 }
 
 impl ContextBuilder {
@@ -120,7 +119,6 @@ impl ContextBuilder {
             keep_unknown_fields: Default::default(),
             location_map: Default::default(),
             entry_map: Default::default(),
-            with_field_mask: false,
         }
     }
     pub(crate) fn collect(&mut self, mode: CollectMode) {

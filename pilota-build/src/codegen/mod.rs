@@ -480,20 +480,18 @@ where
             let file_path = def_ids.first().map(|def_id| {
                 let node = self.node(def_id.def_id).unwrap();
                 let file_id = node.file_id;
-                let file_path = self
-                    .file_ids_map()
+
+                self.file_ids_map()
                     .iter()
                     .find(|(_, id)| **id == file_id)
                     .map(|(path, _)| path)
                     .cloned()
-                    .unwrap();
-                file_path
+                    .unwrap()
             });
 
             let has_direct = def_ids
                 .iter()
-                .find(|def_id| matches!(def_id.kind, CodegenKind::Direct))
-                .is_some();
+                .any(|def_id| matches!(def_id.kind, CodegenKind::Direct));
 
             (p.clone(), def_ids, file_path, has_direct)
         });
@@ -503,13 +501,7 @@ where
         if has_direct_mods {
             let mods_paths = mods_iter
                 .clone()
-                .filter_map(|(p, _, file_path, _)| {
-                    if file_path.is_some() {
-                        Some((p, file_path.unwrap()))
-                    } else {
-                        None
-                    }
-                })
+                .filter_map(|(p, _, file_path, _)| file_path.map(|file_path| (p, file_path)))
                 .collect::<Vec<_>>();
             if self.with_descriptor {
                 self.backend
@@ -568,7 +560,7 @@ where
                     return;
                 }
 
-                let name = Symbol::from(name.unwrap());
+                let name = name.unwrap();
                 stream.push_str(&format! {
                     r#"
                     pub mod {name} {{

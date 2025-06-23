@@ -89,7 +89,7 @@ fn pb_codegen(c: &mut Criterion) {
             |b| {
                 b.iter_with_setup(
                     || encoded_known_bytes.clone(), // Clone immutable Bytes (cheap)
-                    |bytes_input| decode_encode_known_fields_pb(bytes_input),
+                    decode_encode_known_fields_pb,
                 )
             },
         );
@@ -99,7 +99,7 @@ fn pb_codegen(c: &mut Criterion) {
             |b| {
                 b.iter_with_setup(
                     || encoded_known_bytes.clone(), // Clone immutable Bytes (cheap)
-                    |bytes_input| decode_encode_unknown_fields_pb(bytes_input),
+                    decode_encode_unknown_fields_pb,
                 )
             },
         );

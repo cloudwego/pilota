@@ -10,8 +10,7 @@ use pilota::{
 use crate::{ThriftType, error::ReflectorError, thrift_reflection::*};
 
 // global descriptor map for include file search
-pub static GLOBAL_DESCRIPTOR: LazyLock<DashMap<FastStr, FileDescriptor>> =
-    LazyLock::new(|| DashMap::new());
+static GLOBAL_DESCRIPTOR: LazyLock<DashMap<FastStr, FileDescriptor>> = LazyLock::new(DashMap::new);
 
 // global descriptor manager
 pub struct Register;
@@ -138,7 +137,7 @@ impl TypeDescriptor {
                 let include_file_path = cur_file_desc
                     .includes
                     .get(include_path.prefix.as_str())
-                    .expect(&format!("include path not found: {}", include_path.prefix));
+                    .unwrap_or_else(|| panic!("include path not found: {}", include_path.prefix));
                 let included_file_descriptor = Register::get(include_file_path.as_str()).unwrap();
                 included_file_descriptor
                     .find_enum_by_name(include_path.name.as_str())
@@ -153,6 +152,9 @@ impl TypeDescriptor {
         let ty = self.name.as_str().into();
         match ty {
             ThriftType::Path(path) => {
+                println!("path: {}", path);
+                println!("self.filepath: {}", self.filepath);
+                println!("Register: {:?}", GLOBAL_DESCRIPTOR);
                 let cur_file_desc = Register::get(self.filepath.as_str()).unwrap();
                 let include_path = IncludePath::try_from(path.as_str()).unwrap();
 
@@ -160,7 +162,9 @@ impl TypeDescriptor {
                     let include_file_path = cur_file_desc
                         .includes
                         .get(include_path.prefix.as_str())
-                        .expect(&format!("include path not found: {}", include_path.prefix));
+                        .unwrap_or_else(|| {
+                            panic!("include path not found: {}", include_path.prefix)
+                        });
                     let included_file_descriptor =
                         Register::get(include_file_path.as_str()).unwrap();
                     included_file_descriptor

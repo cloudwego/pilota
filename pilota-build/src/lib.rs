@@ -165,6 +165,8 @@ impl Builder<MkPbBackend, ProtobufParser> {
             special_namings: Vec::default(),
             common_crate_name: "common".into(),
             split: false,
+            with_descriptor: false,
+            with_field_mask: false,
         }
     }
 }
