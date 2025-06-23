@@ -7,6 +7,8 @@ use pilota::{FastStr, OrderedFloat};
 include!("descriptor.rs");
 pub use descriptor::*;
 
+use crate::service::Register;
+
 pub mod error;
 pub mod service;
 
@@ -88,6 +90,12 @@ impl From<&pilota_thrift_parser::File> for thrift_reflection::FileDescriptor {
         for item in file.items.iter() {
             match item {
                 pilota_thrift_parser::Item::Include(include) => {
+                    let include_path = file
+                        .path
+                        .parent()
+                        .unwrap_or_else(|| std::path::Path::new(""))
+                        .join(include.path.0.as_str()); // relative path -> absolute path
+
                     includes.insert(
                         FastStr::new(
                             include
@@ -99,7 +107,7 @@ impl From<&pilota_thrift_parser::File> for thrift_reflection::FileDescriptor {
                                 .unwrap()
                                 .trim_end_matches(".thrift"),
                         ),
-                        FastStr::new(include.path.0.as_str()),
+                        FastStr::new(include_path.to_string_lossy()),
                     );
                 }
                 pilota_thrift_parser::Item::Namespace(namespace) => {
@@ -140,7 +148,8 @@ impl From<&pilota_thrift_parser::File> for thrift_reflection::FileDescriptor {
                 _ => {}
             }
         }
-        thrift_reflection::FileDescriptor {
+        let key = filepath.clone();
+        let file = thrift_reflection::FileDescriptor {
             filepath,
             includes,
             namespaces,
@@ -152,7 +161,11 @@ impl From<&pilota_thrift_parser::File> for thrift_reflection::FileDescriptor {
             exceptions,
             unions,
             ..Default::default()
+        };
+        if !Register::contains(&key) {
+            Register::register(key, file.clone());
         }
+        file
     }
 }
 
@@ -278,15 +291,15 @@ impl From<(FastStr, &pilota_thrift_parser::Type)> for thrift_reflection::TypeDes
             pilota_thrift_parser::Ty::List { value, .. } => thrift_reflection::TypeDescriptor {
                 filepath: filepath.clone(),
                 name: FastStr::new(ThriftType::List.to_string()),
-                key_type: Some(Box::new((filepath, value.as_ref()).into())),
-                value_type: None,
+                key_type: None,
+                value_type: Some(Box::new((filepath, value.as_ref()).into())),
                 extra: None,
             },
             pilota_thrift_parser::Ty::Set { value, .. } => thrift_reflection::TypeDescriptor {
                 filepath: filepath.clone(),
                 name: FastStr::new(ThriftType::Set.to_string()),
-                key_type: Some(Box::new((filepath, value.as_ref()).into())),
-                value_type: None,
+                key_type: None,
+                value_type: Some(Box::new((filepath, value.as_ref()).into())),
                 extra: None,
             },
             pilota_thrift_parser::Ty::Map { key, value, .. } => thrift_reflection::TypeDescriptor {

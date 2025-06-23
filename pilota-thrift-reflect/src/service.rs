@@ -76,6 +76,16 @@ impl StructDescriptor {
     pub fn find_field_by_name(&self, name: &str) -> Option<&FieldDescriptor> {
         self.fields.iter().find(|f| f.name.as_str() == name)
     }
+
+    pub fn type_descriptor(&self) -> TypeDescriptor {
+        TypeDescriptor {
+            filepath: self.filepath.clone(),
+            name: self.name.clone(),
+            key_type: None,
+            value_type: None,
+            extra: None,
+        }
+    }
 }
 
 impl TypeDescriptor {
@@ -138,6 +148,7 @@ impl TypeDescriptor {
     }
 }
 
+#[derive(Debug)]
 pub struct IncludePath {
     pub prefix: FastStr,
     pub name: FastStr,
