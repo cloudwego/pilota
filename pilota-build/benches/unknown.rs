@@ -1,6 +1,7 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use faststr::FastStr;
 use pilota::{
+    Bytes,
     prost::bytes::BytesMut,
     thrift::{
         Message,
@@ -13,12 +14,9 @@ use rand::{Rng, distributions::Alphanumeric};
 include!("../test_data/thrift/normal.rs");
 include!("../test_data/unknown_fields.rs");
 
-fn decode_encode_all_fields_safe(bytes: &[u8]) {
-    let a = crate::normal::normal::ObjReq::decode(&mut TBinaryProtocol::new(
-        &mut BytesMut::from(bytes).freeze(),
-        true,
-    ))
-    .unwrap();
+fn decode_encode_all_fields_safe(mut bytes: Bytes) {
+    let a =
+        crate::normal::normal::ObjReq::decode(&mut TBinaryProtocol::new(&mut bytes, true)).unwrap();
 
     let size = a.size(&mut TBinaryProtocol::new((), false));
     let mut linked_bytes = linkedbytes::LinkedBytes::with_capacity(size);
@@ -26,11 +24,9 @@ fn decode_encode_all_fields_safe(bytes: &[u8]) {
         .unwrap();
 }
 
-fn decode_encode_all_fields_unsafe(bytes: &[u8]) {
+fn decode_encode_all_fields_unsafe(mut bytes: Bytes) {
     let a = unsafe {
-        crate::normal::normal::ObjReq::decode(&mut TBinaryUnsafeInputProtocol::new(
-            &mut BytesMut::from(bytes).freeze(),
-        ))
+        crate::normal::normal::ObjReq::decode(&mut TBinaryUnsafeInputProtocol::new(&mut bytes))
     }
     .unwrap();
 
@@ -53,10 +49,9 @@ fn decode_encode_all_fields_unsafe(bytes: &[u8]) {
     }
 }
 
-fn decode_encode_unknown_fields_safe(bytes: &[u8]) {
+fn decode_encode_unknown_fields_safe(mut bytes: Bytes) {
     let a = crate::unknown_fields::unknown_fields::ObjReq::decode(&mut TBinaryProtocol::new(
-        &mut BytesMut::from(bytes).freeze(),
-        true,
+        &mut bytes, true,
     ))
     .unwrap();
 
@@ -66,10 +61,10 @@ fn decode_encode_unknown_fields_safe(bytes: &[u8]) {
         .unwrap();
 }
 
-fn decode_encode_unknown_fields_unsafe(bytes: &[u8]) {
+fn decode_encode_unknown_fields_unsafe(mut bytes: Bytes) {
     let a = unsafe {
         crate::unknown_fields::unknown_fields::ObjReq::decode(&mut TBinaryUnsafeInputProtocol::new(
-            &mut BytesMut::from(bytes).freeze(),
+            &mut bytes,
         ))
     }
     .unwrap();
@@ -102,30 +97,36 @@ fn codegen(c: &mut Criterion) {
         let mut buf = BytesMut::with_capacity(size);
         a.encode(&mut TBinaryProtocol::new(&mut buf, false))
             .unwrap();
+        let buf = buf.freeze();
         group.bench_function(
             format!("TBinaryProtocol all_fields decode_encode {} bytes", len * 8),
-            |b| b.iter(|| decode_encode_all_fields_safe(&buf)),
+            |b| b.iter_with_setup(|| buf.clone(), |buf| decode_encode_all_fields_safe(buf)),
         );
         group.bench_function(
             format!(
                 "TBinaryUnsafeProtocol all_fields decode_encode {} bytes",
                 len * 8
             ),
-            |b| b.iter(|| decode_encode_all_fields_unsafe(&buf)),
+            |b| b.iter_with_setup(|| buf.clone(), |buf| decode_encode_all_fields_unsafe(buf)),
         );
         group.bench_function(
             format!(
                 "TBinaryProtocol unknown_fields decode_encode {} bytes",
                 len * 8
             ),
-            |b| b.iter(|| decode_encode_unknown_fields_safe(&buf)),
+            |b| b.iter_with_setup(|| buf.clone(), |buf| decode_encode_unknown_fields_safe(buf)),
         );
         group.bench_function(
             format!(
                 "TBinaryUnsafeProtocol unknown_fields decode_encode {} bytes",
                 len * 8
             ),
-            |b| b.iter(|| decode_encode_unknown_fields_unsafe(&buf)),
+            |b| {
+                b.iter_with_setup(
+                    || buf.clone(),
+                    |buf| decode_encode_unknown_fields_unsafe(buf),
+                )
+            },
         );
     }
 }
@@ -142,7 +143,7 @@ fn prepare_obj_req(size: usize) -> crate::normal::normal::ObjReq {
         value: Some(generate_message(size / 2)),
     };
     // size
-    let sub_msg_list = vec![sub_msg_1, sub_msg_2];
+    let sub_msg_list = vec![sub_msg_1.clone(), sub_msg_2.clone()];
 
     // 2 * size
     let msg = crate::normal::normal::Message {
@@ -166,10 +167,13 @@ fn prepare_obj_req(size: usize) -> crate::normal::normal::ObjReq {
     let mut msg_set = pilota::AHashSet::default();
     msg_set.insert(msg.clone());
 
+    let mut sub_msg_list2 = vec![sub_msg_1, sub_msg_2];
+    sub_msg_list2.extend(sub_msg_list);
+
     req.msg = msg; // 2 * size
     req.msg_map = msg_map; // 2 * size
     req.msg_set = Some(msg_set); // 2 * size
-    req.sub_msgs = sub_msg_list; // 2 * size
+    req.sub_msgs = sub_msg_list2; // 2 * size
 
     req
 }

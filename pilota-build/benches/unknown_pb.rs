@@ -33,43 +33,44 @@ fn generate_random_string_pb(size: usize) -> FastStr {
 }
 
 fn prepare_obj_req_pb(size: usize) -> normal::ObjReq {
-    let base_size = size.max(16);
     let sub_msg_1 = normal::SubMessage {
-        value: Some(generate_random_string_pb(base_size / 2)),
+        value: Some(generate_random_string_pb(size / 2)),
     };
     let sub_msg_2 = normal::SubMessage {
-        value: Some(generate_random_string_pb(base_size / 2)),
+        value: Some(generate_random_string_pb(size / 2)),
     };
     let sub_msg_list = vec![sub_msg_1.clone(), sub_msg_2.clone()];
 
-    let msg_key = normal::Message {
-        uid: generate_random_string_pb(16),
-        value: Some(generate_random_string_pb(base_size / 4)),
-        sub_messages: vec![sub_msg_1.clone()],
-    };
-
-    let msg_val = normal::SubMessage {
-        value: Some(generate_random_string_pb(base_size / 4)),
-    };
-
-    let msg_map_entry = normal::obj_req::MsgMapEntry {
-        key: Some(msg_key),
-        value: Some(msg_val),
-    };
-
-    let msg_for_set_and_field = normal::Message {
-        uid: generate_random_string_pb(16),
-        value: Some(generate_random_string_pb(base_size)),
+    let msg = normal::Message {
+        uid: "".into(),
+        value: Some(generate_random_string_pb(size)),
         sub_messages: sub_msg_list.clone(),
     };
 
+    let msg_map_key = normal::Message {
+        uid: "".into(),
+        value: None,
+        sub_messages: sub_msg_list.clone(),
+    };
+
+    let msg_map_val = normal::SubMessage {
+        value: Some(generate_random_string_pb(size)),
+    };
+
+    let msg_map_entry = normal::obj_req::MsgMapEntry {
+        key: Some(msg_map_key),
+        value: Some(msg_map_val),
+    };
+    let mut sub_msg_list2 = vec![sub_msg_1.clone(), sub_msg_2.clone()];
+    sub_msg_list2.extend(sub_msg_list.clone());
+
     normal::ObjReq {
-        msg: Some(msg_for_set_and_field.clone()),
-        msg_map: vec![msg_map_entry],
-        sub_msgs: sub_msg_list,
-        msg_set: vec![msg_for_set_and_field],
-        flag_msg: generate_random_string_pb(base_size / 8),
-        mock_cost: Some(generate_random_string_pb(base_size / 8)),
+        msg: Some(msg.clone()),       // 2 * size
+        msg_map: vec![msg_map_entry], // 2 * size
+        sub_msgs: sub_msg_list2,      // 2 * size
+        msg_set: vec![msg],           // 2 * size
+        flag_msg: "".into(),
+        mock_cost: None,
     }
 }
 

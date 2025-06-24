@@ -19,8 +19,8 @@ keywords = ["reflect", "pilota"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-pilota = { path = "../pilota", version = "0.11" }
-pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.11" }
+pilota = { path = "../pilota", version = "0.12" }
+pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.12" }
 
 ahash.workspace = true
 bytes.workspace = true

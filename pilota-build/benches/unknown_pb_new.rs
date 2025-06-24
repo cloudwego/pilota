@@ -33,43 +33,52 @@ fn generate_random_string_pb(size: usize) -> FastStr {
 }
 
 fn prepare_obj_req_pb(size: usize) -> normal::ObjReq {
-    let base_size = size.max(16);
     let sub_msg_1 = normal::SubMessage {
-        value: Some(generate_random_string_pb(base_size / 2)),
+        value: Some(generate_random_string_pb(size / 2)),
     };
     let sub_msg_2 = normal::SubMessage {
-        value: Some(generate_random_string_pb(base_size / 2)),
+        value: Some(generate_random_string_pb(size / 2)),
     };
+
+    // size
     let sub_msg_list = vec![sub_msg_1.clone(), sub_msg_2.clone()];
 
+    // size
     let msg_key = normal::Message {
-        uid: generate_random_string_pb(16),
-        value: Some(generate_random_string_pb(base_size / 4)),
+        uid: "".into(),
+        value: None,
         sub_messages: vec![sub_msg_1.clone()],
     };
 
+    // size
     let msg_val = normal::SubMessage {
-        value: Some(generate_random_string_pb(base_size / 4)),
+        value: Some(generate_random_string_pb(size)),
     };
 
+    // size * 2
     let msg_map_entry = normal::obj_req::MsgMapEntry {
         key: Some(msg_key),
         value: Some(msg_val),
     };
 
+    // size * 2
     let msg_for_set_and_field = normal::Message {
-        uid: generate_random_string_pb(16),
-        value: Some(generate_random_string_pb(base_size)),
+        uid: "".into(),
+        value: Some(generate_random_string_pb(size)),
         sub_messages: sub_msg_list.clone(),
     };
 
+    // size * 2
+    let mut sub_msg_list2 = vec![sub_msg_1, sub_msg_2];
+    sub_msg_list2.extend(sub_msg_list.clone());
+
     normal::ObjReq {
-        msg: Some(msg_for_set_and_field.clone()),
-        msg_map: vec![msg_map_entry],
-        sub_msgs: sub_msg_list,
-        msg_set: vec![msg_for_set_and_field],
-        flag_msg: generate_random_string_pb(base_size / 8),
-        mock_cost: Some(generate_random_string_pb(base_size / 8)),
+        msg: Some(msg_for_set_and_field.clone()), // size * 2
+        msg_map: vec![msg_map_entry],             // size * 2
+        sub_msgs: sub_msg_list2,                  // size * 2
+        msg_set: vec![msg_for_set_and_field],     // size * 2
+        flag_msg: "".into(),
+        mock_cost: None,
     }
 }
 
