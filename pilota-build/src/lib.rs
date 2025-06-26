@@ -72,6 +72,16 @@ impl MakeBackend for MkProtobufBackend {
     }
 }
 
+pub struct MkPbBackend;
+
+impl MakeBackend for MkPbBackend {
+    type Target = codegen::pb::ProtobufBackend;
+
+    fn make_backend(self, context: Context) -> Self::Target {
+        codegen::pb::ProtobufBackend::new(context)
+    }
+}
+
 pub struct Builder<MkB, P> {
     source_type: SourceType,
     mk_backend: MkB,
@@ -114,6 +124,28 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
         Builder {
             source_type: SourceType::Protobuf,
             mk_backend: MkProtobufBackend,
+            parser: ProtobufParser::default(),
+            plugins: vec![
+                Box::new(WithAttrsPlugin(Arc::from(["#[derive(Debug)]".into()]))),
+                Box::new(ImplDefaultPlugin),
+            ],
+            touches: Vec::default(),
+            ignore_unused: true,
+            change_case: true,
+            keep_unknown_fields: Vec::default(),
+            dedups: Vec::default(),
+            special_namings: Vec::default(),
+            common_crate_name: "common".into(),
+            split: false,
+        }
+    }
+}
+
+impl Builder<MkPbBackend, ProtobufParser> {
+    pub fn pb() -> Self {
+        Builder {
+            source_type: SourceType::Protobuf,
+            mk_backend: MkPbBackend,
             parser: ProtobufParser::default(),
             plugins: vec![
                 Box::new(WithAttrsPlugin(Arc::from(["#[derive(Debug)]".into()]))),

@@ -82,11 +82,8 @@ impl DecodeHelper {
 
     pub fn codegen_item_decode(&self, name: FastStr) -> FastStr {
         if self.is_async {
-            format!(
-                "<{} as ::pilota::thrift::Message>::decode_async(__protocol).await?",
-                name
-            )
-            .into()
+            format!("<{name} as ::pilota::thrift::Message>::decode_async(__protocol).await?",)
+                .into()
         } else {
             "::pilota::thrift::Message::decode(__protocol)?".into()
         }

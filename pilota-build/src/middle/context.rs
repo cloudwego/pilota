@@ -156,8 +156,7 @@ impl ContextBuilder {
                                     Some(def_id)
                                 } else {
                                     println!(
-                                        "cargo:warning=item `{}` of `{}` not exists",
-                                        item_name,
+                                        "cargo:warning=item `{item_name}` of `{}` not exists",
                                         path.display(),
                                     );
                                     None
@@ -453,7 +452,7 @@ impl Context {
             {
                 Ok(v) => v,
                 Err(err) => {
-                    panic!("{:?}", err)
+                    panic!("{err}")
                 }
             }
         })
@@ -499,7 +498,7 @@ impl Context {
             (Literal::Map(m), CodegenTy::LazyStaticRef(map)) => match &**map {
                 CodegenTy::Map(k_ty, v_ty) => (mk_map(m, k_ty, v_ty, false)?, false),
                 CodegenTy::BTreeMap(k_ty, v_ty) => (mk_map(m, k_ty, v_ty, true)?, false),
-                _ => panic!("invalid map type {:?}", map),
+                _ => panic!("invalid map type {map:?}"),
             },
             (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => (mk_map(m, k_ty, v_ty, false)?, false),
             (Literal::Map(m), CodegenTy::BTreeMap(k_ty, v_ty)) => {
@@ -512,7 +511,7 @@ impl Context {
                     CodegenTy::BTreeMap(_, _) => {
                         ("::std::collections::BTreeMap::new()".into(), false)
                     }
-                    _ => panic!("invalid map type {:?}", map),
+                    _ => panic!("invalid map type {map:?}"),
                 }
             }
             (Literal::List(l), CodegenTy::Map(_, _)) => {
@@ -583,7 +582,7 @@ impl Context {
                 };
                 (format!("({stream}.inner() as {target})").into(), true)
             }
-            _ => panic!("invalid convert {:?} to {:?}", ident_ty, target),
+            _ => panic!("invalid convert {ident_ty:?} to {target:?}"),
         }
     }
 
@@ -671,7 +670,7 @@ impl Context {
                     .into();
                     (stream, false)
                 }
-                _ => panic!("invalid map type {:?}", map),
+                _ => panic!("invalid map type {map:?}"),
             },
             (Literal::List(els), CodegenTy::Array(inner, _)) => {
                 let stream = els
@@ -770,7 +769,7 @@ impl Context {
                     is_const,
                 )
             }
-            _ => panic!("unexpected literal {:?} with ty {:?}", lit, ty),
+            _ => panic!("unexpected literal {lit:?} with ty {ty:?}"),
         })
     }
 

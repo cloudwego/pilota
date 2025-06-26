@@ -1,7 +1,9 @@
 pub mod service {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod service {
+        use ::pilota::{Buf as _, BufMut as _};
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct EchoRequest {
             pub message: ::pilota::FastStr,
@@ -32,6 +34,7 @@ pub mod service {
                 B: ::pilota::prost::bytes::Buf,
             {
                 const STRUCT_NAME: &'static str = stringify!(EchoRequest);
+
                 match tag {
                     1 => {
                         let mut _inner_pilota_value = &mut self.message;
@@ -82,6 +85,7 @@ pub mod service {
                 B: ::pilota::prost::bytes::Buf,
             {
                 const STRUCT_NAME: &'static str = stringify!(EchoResponse);
+
                 match tag {
                     1 => {
                         let mut _inner_pilota_value = &mut self.message;

@@ -1,4 +1,4 @@
 pub fn error_abort(msg: String) -> ! {
-    eprintln!("{}", msg);
+    eprintln!("{msg}");
     std::process::exit(1);
 }

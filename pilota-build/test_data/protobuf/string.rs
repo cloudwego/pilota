@@ -1,5 +1,6 @@
 pub mod string {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
     #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
     pub struct A {
         pub a: ::std::option::Option<::pilota::FastStr>,
@@ -37,6 +38,7 @@ pub mod string {
             B: ::pilota::prost::bytes::Buf,
         {
             const STRUCT_NAME: &'static str = stringify!(A);
+
             match tag {
                 1 => {
                     let mut _inner_pilota_value = &mut self.a;

@@ -19,7 +19,7 @@ keywords = ["fieldmask", "pilota"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-pilota = { path = "../pilota", version = "0.11" }
+pilota = { path = "../pilota", version = "0.12" }
 pilota-thrift-reflect = { path = "../pilota-thrift-reflect", version = "0.0" }
 nom.workspace = true
 ahash.workspace = true

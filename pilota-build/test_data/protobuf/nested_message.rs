@@ -1,5 +1,6 @@
 pub mod nested_message {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
     #[derive(Debug, Default, Clone, PartialEq)]
     pub struct Tt1 {
         pub t2: tt1::T2,
@@ -38,6 +39,7 @@ pub mod nested_message {
             B: ::pilota::prost::bytes::Buf,
         {
             const STRUCT_NAME: &'static str = stringify!(Tt1);
+
             match tag {
                 1 => {
                     let mut _inner_pilota_value = &mut self.t2;
@@ -84,6 +86,7 @@ pub mod nested_message {
     }
 
     pub mod tt1 {
+        use ::pilota::{Buf as _, BufMut as _};
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Label(i32);
@@ -149,6 +152,7 @@ pub mod nested_message {
                 B: ::pilota::prost::bytes::Buf,
             {
                 const STRUCT_NAME: &'static str = stringify!(T2);
+
                 match tag {
                     1 => {
                         let mut _inner_pilota_value = &mut self.t3;
@@ -169,6 +173,7 @@ pub mod nested_message {
         }
 
         pub mod t2 {
+            use ::pilota::{Buf as _, BufMut as _};
             #[derive(Debug, Default, Clone, PartialEq)]
             pub struct Tt3 {
                 pub a: ::std::option::Option<i32>,
@@ -219,6 +224,7 @@ pub mod nested_message {
                     B: ::pilota::prost::bytes::Buf,
                 {
                     const STRUCT_NAME: &'static str = stringify!(Tt3);
+
                     match tag {
                         1 => {
                             let mut _inner_pilota_value = &mut self.a;

@@ -33,7 +33,7 @@ impl ::pilota::thrift::Message for ImageServiceGetImageResultSend {
         __protocol: &mut T,
     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
         #[allow(unused_imports)]
-        use ::pilota::{thrift::TLengthProtocolExt, Buf};
+        use ::pilota::{Buf, thrift::TLengthProtocolExt};
         let mut ret = None;
         __protocol.read_struct_begin()?;
         loop {

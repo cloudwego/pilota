@@ -36,6 +36,7 @@ pub(crate) mod traits;
 
 mod workspace;
 
+pub mod pb;
 pub mod protobuf;
 pub mod thrift;
 
@@ -119,7 +120,7 @@ where
             .join("\n");
 
         if self.keep_unknown_fields.contains(&def_id) {
-            fields.push_str("pub _unknown_fields: ::pilota::LinkedBytes,");
+            fields.push_str("pub _unknown_fields: ::pilota::BytesVec,");
         }
 
         stream.push_str(&format! {
@@ -173,6 +174,7 @@ where
                             let name = self.rust_name(def_id);
                             stream.push_str(&format! {
                                 r#"pub mod {name} {{
+                                    use ::pilota::{{Buf as _, BufMut as _}};
                             {inner}
                         }}"#
                             })
@@ -186,7 +188,7 @@ where
                     .iter()
                     .map(|item| item.to_string())
                     .join("::");
-                stream.push_str(format!("pub use ::{};", path).as_str());
+                stream.push_str(format!("pub use ::{path};").as_str());
             }
         })
     }
@@ -315,7 +317,7 @@ where
             .join("\n");
 
         if self.keep_unknown_fields.contains(&def_id) && keep {
-            variants.push_str("_UnknownFields(::pilota::LinkedBytes),");
+            variants.push_str("_UnknownFields(::pilota::BytesVec),");
         }
         stream.push_str(&format! {
             r#"
@@ -510,6 +512,7 @@ where
                 stream.push_str(&format! {
                     r#"
                     pub mod {name} {{
+                        use ::pilota::{{Buf as _, BufMut as _}};
                         {inner_stream}
                     }}
                     "#
@@ -533,7 +536,7 @@ where
         dup: &mut AHashMap<FastStr, Vec<DefId>>,
     ) {
         let base_mod_name = p.iter().map(|s| s.to_string()).join("/");
-        let mod_file_name = format!("{}/mod.rs", base_mod_name);
+        let mod_file_name = format!("{base_mod_name}/mod.rs");
         let mut mod_stream = String::new();
 
         let mut existing_file_names: AHashSet<String> = AHashSet::new();
@@ -561,7 +564,7 @@ where
             let simple_name = format!("{}_{}", name_prefix, node.name());
             let unique_name = Self::generate_unique_name(&existing_file_names, &simple_name);
             existing_file_names.insert(unique_name.to_ascii_lowercase().clone());
-            let file_name = format!("{}.rs", unique_name);
+            let file_name = format!("{unique_name}.rs");
             this.write_item(&mut item_stream, *def_id, dup);
 
             let full_path = mod_dir.join(file_name.clone());
@@ -574,7 +577,7 @@ where
             file.flush().unwrap();
             fmt_file(full_path);
 
-            mod_stream.push_str(format!("include!(\"{}\");\n", file_name).as_str());
+            mod_stream.push_str(format!("include!(\"{file_name}\");\n").as_str());
         }
 
         let mod_path = base_dir.join(&mod_file_name);
@@ -584,7 +587,7 @@ where
         mod_file.flush().unwrap();
         fmt_file(&mod_path);
 
-        stream.push_str(format!("include!(\"{}\");\n", mod_file_name).as_str());
+        stream.push_str(format!("include!(\"{mod_file_name}\");\n").as_str());
     }
 
     /**
@@ -597,7 +600,7 @@ where
         let mut name = simple_name.to_string();
         while existing_names.contains(name.to_ascii_lowercase().as_str()) {
             counter += 1;
-            name = format!("{}_{}", simple_name, counter)
+            name = format!("{simple_name}_{counter}")
         }
         name
     }
@@ -613,6 +616,7 @@ where
 
         stream = format! {r#"pub mod {ns_name} {{
                 #![allow(warnings, clippy::all)]
+                use ::pilota::{{Buf as _, BufMut as _}};
                 {stream}
             }}"#};
         let stream = stream.lines().map(|s| s.trim_end()).join("\n");

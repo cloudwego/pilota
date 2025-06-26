@@ -68,14 +68,14 @@ impl From<string::FromUtf8Error> for ThriftException {
     fn from(err: string::FromUtf8Error) -> Self {
         ThriftException::Protocol(ProtocolException::new(
             ProtocolExceptionKind::InvalidData,
-            format!("{:?}", err),
+            format!("{err:?}"),
         ))
     }
 }
 
 impl Display for ThriftException {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 

@@ -6,7 +6,7 @@
 extern crate alloc;
 
 use alloc::{collections::BTreeMap, format, string::String, vec::Vec};
-use core::{cmp::min, convert::TryFrom, mem, str, u32, usize};
+use core::{cmp::min, convert::TryFrom, mem, str};
 
 use ::bytes::{Buf, BufMut, Bytes};
 
@@ -287,8 +287,7 @@ impl TryFrom<u64> for WireType {
             4 => Ok(WireType::EndGroup),
             5 => Ok(WireType::ThirtyTwoBit),
             _ => Err(DecodeError::new(format!(
-                "invalid wire type value: {}",
-                value
+                "invalid wire type value: {value}"
             ))),
         }
     }
@@ -313,9 +312,9 @@ pub fn decode_key<B>(buf: &mut B) -> Result<(u32, WireType), DecodeError>
 where
     B: Buf,
 {
-    let key = decode_varint(buf)?;
+    let key: u64 = decode_varint(buf)?;
     if key > u64::from(u32::MAX) {
-        return Err(DecodeError::new(format!("invalid key value: {}", key)));
+        return Err(DecodeError::new(format!("invalid key value: {key}")));
     }
     let wire_type = WireType::try_from(key & 0x07)?;
     let tag = key as u32 >> 3;
@@ -340,8 +339,7 @@ pub fn key_len(tag: u32) -> usize {
 pub fn check_wire_type(expected: WireType, actual: WireType) -> Result<(), DecodeError> {
     if expected != actual {
         return Err(DecodeError::new(format!(
-            "invalid wire type: {:?} (expected {:?})",
-            actual, expected
+            "invalid wire type: {actual:?} (expected {expected:?})",
         )));
     }
     Ok(())
@@ -1579,14 +1577,8 @@ macro_rules! map {
             VL: Fn(u32, &V) -> usize,
         {
             for (key, val) in values.iter() {
-                let mut skip_key = key == &K::default();
-                let mut skip_val = val == val_default;
-
-                #[cfg(feature = "pb-encode-default-value")]
-                {
-                    skip_key = false;
-                    skip_val = false;
-                }
+                let skip_key = !cfg!(feature = "pb-encode-default-value") && key == &K::default();
+                let skip_val = !cfg!(feature = "pb-encode-default-value") && val == val_default;
 
                 let len = (if skip_key { 0 } else { key_encoded_len(1, key) })
                     + (if skip_val { 0 } else { val_encoded_len(2, val) });
@@ -1658,11 +1650,7 @@ macro_rules! map {
             KL: Fn(u32, &K) -> usize,
             VL: Fn(u32, &V) -> usize,
         {
-            let mut skip_default_value = true;
-            #[cfg(feature = "pb-encode-default-value")]
-            {
-                skip_default_value = false;
-            }
+            let skip_default_value = !cfg!(feature = "pb-encode-default-value");
 
             key_len(tag) * values.len()
                 + values

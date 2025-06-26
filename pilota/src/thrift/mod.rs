@@ -149,7 +149,7 @@ pub trait TInputProtocol: TLengthProtocol {
         if depth == 0 {
             return Err(new_protocol_exception(
                 ProtocolExceptionKind::DepthLimit,
-                format!("cannot parse past {:?}", field_type),
+                format!("cannot parse past {field_type:?}"),
             ));
         }
         let mut len = 0;
@@ -809,7 +809,7 @@ pub trait TAsyncInputProtocol: Send {
         if depth == 0 {
             return Err(new_protocol_exception(
                 ProtocolExceptionKind::DepthLimit,
-                format!("cannot parse past {:?}", field_type),
+                format!("cannot parse past {field_type:?}"),
             ));
         }
 
@@ -936,7 +936,7 @@ impl TryFrom<u8> for TType {
             Some(Some(ttype)) => Ok(*ttype),
             _ => Err(new_protocol_exception(
                 ProtocolExceptionKind::InvalidData,
-                format!("invalid ttype {}", value),
+                format!("invalid ttype {value}"),
             )),
         }
     }
@@ -988,7 +988,7 @@ impl TryFrom<u8> for TMessageType {
             4 => Ok(TMessageType::OneWay),
             _ => Err(new_protocol_exception(
                 ProtocolExceptionKind::InvalidData,
-                format!("invalid tmessage type {}", value),
+                format!("invalid tmessage type {value}"),
             )),
         }
     }

@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+message A {
+  int32 a = 1;
+}
+
+message B {
+  A a = 2;
+}
+
+message SubMessage {
+  optional string value = 2;
+}
+
+message Message {
+  string uid = 1;
+  optional string value = 2;
+  repeated SubMessage sub_messages = 3;
+}
+
+message ObjReq {
+  Message msg = 1;
+  message MsgMapEntry {
+    Message key = 1;
+    SubMessage value = 2;
+  }
+  repeated MsgMapEntry msg_map = 2;
+
+  repeated SubMessage sub_msgs = 3;           
+  repeated Message msg_set = 4;
+  string flag_msg = 5;
+  optional string mock_cost = 6;
+}
+
+service TestService {
+   rpc TestException(ObjReq) returns (ObjReq);
+}

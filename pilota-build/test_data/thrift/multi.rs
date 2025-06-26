@@ -1,7 +1,9 @@
 pub mod multi {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod default_value {
+        use ::pilota::{Buf as _, BufMut as _};
 
         impl ::std::default::Default for C {
             fn default() -> Self {
@@ -42,7 +44,7 @@ pub mod multi {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = Some(::pilota::FastStr::from_static_str("off"));
                 let mut var_2 = Some(0i8);
@@ -227,7 +229,7 @@ pub mod multi {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let value = __protocol.read_i32()?;
                 ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
                     |err| {
@@ -435,7 +437,7 @@ pub mod multi {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = ::pilota::FastStr::from_static_str("hello world");
                 let mut var_2 = None;
@@ -948,6 +950,7 @@ pub mod multi {
     }
 
     pub mod multi {
+        use ::pilota::{Buf as _, BufMut as _};
 
         impl ::std::default::Default for A {
             fn default() -> Self {
@@ -985,7 +988,7 @@ pub mod multi {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = Some(super::default_value::C {
                     off: Some(::pilota::FastStr::from_static_str("off")),
@@ -1138,7 +1141,7 @@ pub mod multi {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
                 let mut var_2 = None;
@@ -1271,6 +1274,7 @@ pub mod multi {
     }
 
     pub mod recursive_type {
+        use ::pilota::{Buf as _, BufMut as _};
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct C {
             pub c: ::std::option::Option<::pilota::AHashSet<::pilota::FastStr>>,
@@ -1305,7 +1309,7 @@ pub mod multi {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -1471,7 +1475,7 @@ pub mod multi {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
                 let mut var_2 = None;
@@ -1646,7 +1650,7 @@ pub mod multi {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 

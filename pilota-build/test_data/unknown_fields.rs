@@ -1,7 +1,9 @@
 pub mod unknown_fields {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod must_gen_items {
+        use ::pilota::{Buf as _, BufMut as _};
         #[derive(
             PartialOrd,
             Hash,
@@ -16,7 +18,7 @@ pub mod unknown_fields {
         )]
         pub struct A {
             pub a: ::std::option::Option<i32>,
-            pub _unknown_fields: ::pilota::LinkedBytes,
+            pub _unknown_fields: ::pilota::BytesVec,
         }
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -43,10 +45,10 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
-                let mut _unknown_fields = ::pilota::LinkedBytes::new();
+                let mut _unknown_fields = ::pilota::BytesVec::new();
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -152,7 +154,7 @@ pub mod unknown_fields {
 
                     let data = Self {
                         a: var_1,
-                        _unknown_fields: ::pilota::LinkedBytes::new(),
+                        _unknown_fields: ::pilota::BytesVec::new(),
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -185,7 +187,7 @@ pub mod unknown_fields {
         )]
         pub struct B {
             pub a: ::std::option::Option<A>,
-            pub _unknown_fields: ::pilota::LinkedBytes,
+            pub _unknown_fields: ::pilota::BytesVec,
         }
         impl ::pilota::thrift::Message for B {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -212,10 +214,10 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_2 = None;
-                let mut _unknown_fields = ::pilota::LinkedBytes::new();
+                let mut _unknown_fields = ::pilota::BytesVec::new();
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -327,7 +329,7 @@ pub mod unknown_fields {
 
                     let data = Self {
                         a: var_2,
-                        _unknown_fields: ::pilota::LinkedBytes::new(),
+                        _unknown_fields: ::pilota::BytesVec::new(),
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -349,6 +351,7 @@ pub mod unknown_fields {
     }
 
     pub mod unknown_fields {
+        use ::pilota::{Buf as _, BufMut as _};
         #[derive(
             PartialOrd,
             Hash,
@@ -365,7 +368,7 @@ pub mod unknown_fields {
             pub bytes: ::pilota::Bytes,
 
             pub vec: ::std::vec::Vec<u8>,
-            pub _unknown_fields: ::pilota::LinkedBytes,
+            pub _unknown_fields: ::pilota::BytesVec,
         }
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -391,11 +394,11 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
                 let mut var_2 = None;
-                let mut _unknown_fields = ::pilota::LinkedBytes::new();
+                let mut _unknown_fields = ::pilota::BytesVec::new();
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -548,7 +551,7 @@ pub mod unknown_fields {
                     let data = Self {
                         bytes: var_1,
                         vec: var_2,
-                        _unknown_fields: ::pilota::LinkedBytes::new(),
+                        _unknown_fields: ::pilota::BytesVec::new(),
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -579,7 +582,7 @@ pub mod unknown_fields {
         )]
         pub struct D {
             pub td: Td,
-            pub _unknown_fields: ::pilota::LinkedBytes,
+            pub _unknown_fields: ::pilota::BytesVec,
         }
         impl ::pilota::thrift::Message for D {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -604,10 +607,10 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
-                let mut _unknown_fields = ::pilota::LinkedBytes::new();
+                let mut _unknown_fields = ::pilota::BytesVec::new();
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -732,7 +735,7 @@ pub mod unknown_fields {
 
                     let data = Self {
                         td: var_1,
-                        _unknown_fields: ::pilota::LinkedBytes::new(),
+                        _unknown_fields: ::pilota::BytesVec::new(),
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -784,7 +787,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -898,7 +901,7 @@ pub mod unknown_fields {
             pub string: ::std::string::String,
 
             pub list: ::std::vec::Vec<::std::vec::Vec<::pilota::FastStr>>,
-            pub _unknown_fields: ::pilota::LinkedBytes,
+            pub _unknown_fields: ::pilota::BytesVec,
         }
         impl ::pilota::thrift::Message for B {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -940,12 +943,12 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
                 let mut var_2 = None;
                 let mut var_3 = None;
-                let mut _unknown_fields = ::pilota::LinkedBytes::new();
+                let mut _unknown_fields = ::pilota::BytesVec::new();
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1165,7 +1168,7 @@ pub mod unknown_fields {
                         faststr: var_1,
                         string: var_2,
                         list: var_3,
-                        _unknown_fields: ::pilota::LinkedBytes::new(),
+                        _unknown_fields: ::pilota::BytesVec::new(),
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -1207,7 +1210,7 @@ pub mod unknown_fields {
             PartialEq,
         )]
         pub struct SubMessage {
-            pub _unknown_fields: ::pilota::LinkedBytes,
+            pub _unknown_fields: ::pilota::BytesVec,
         }
         impl ::pilota::thrift::Message for SubMessage {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -1231,9 +1234,9 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut _unknown_fields = ::pilota::LinkedBytes::new();
+                let mut _unknown_fields = ::pilota::BytesVec::new();
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1325,7 +1328,7 @@ pub mod unknown_fields {
                     __protocol.read_struct_end().await?;
 
                     let data = Self {
-                        _unknown_fields: ::pilota::LinkedBytes::new(),
+                        _unknown_fields: ::pilota::BytesVec::new(),
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -1355,7 +1358,7 @@ pub mod unknown_fields {
         )]
         pub struct StException {
             pub message: ::std::option::Option<::pilota::FastStr>,
-            pub _unknown_fields: ::pilota::LinkedBytes,
+            pub _unknown_fields: ::pilota::BytesVec,
         }
         impl ::pilota::thrift::Message for StException {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -1384,10 +1387,10 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
-                let mut _unknown_fields = ::pilota::LinkedBytes::new();
+                let mut _unknown_fields = ::pilota::BytesVec::new();
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1496,7 +1499,7 @@ pub mod unknown_fields {
 
                     let data = Self {
                         message: var_1,
-                        _unknown_fields: ::pilota::LinkedBytes::new(),
+                        _unknown_fields: ::pilota::BytesVec::new(),
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -1551,7 +1554,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1667,7 +1670,7 @@ pub mod unknown_fields {
         )]
         pub struct C {
             pub a: super::must_gen_items::A,
-            pub _unknown_fields: ::pilota::LinkedBytes,
+            pub _unknown_fields: ::pilota::BytesVec,
         }
         impl ::pilota::thrift::Message for C {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -1692,10 +1695,10 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
-                let mut _unknown_fields = ::pilota::LinkedBytes::new();
+                let mut _unknown_fields = ::pilota::BytesVec::new();
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1820,7 +1823,7 @@ pub mod unknown_fields {
 
                     let data = Self {
                         a: var_1,
-                        _unknown_fields: ::pilota::LinkedBytes::new(),
+                        _unknown_fields: ::pilota::BytesVec::new(),
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -1849,7 +1852,7 @@ pub mod unknown_fields {
             PartialEq,
         )]
         pub struct Message {
-            pub _unknown_fields: ::pilota::LinkedBytes,
+            pub _unknown_fields: ::pilota::BytesVec,
         }
         impl ::pilota::thrift::Message for Message {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -1873,9 +1876,9 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut _unknown_fields = ::pilota::LinkedBytes::new();
+                let mut _unknown_fields = ::pilota::BytesVec::new();
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -1967,7 +1970,7 @@ pub mod unknown_fields {
                     __protocol.read_struct_end().await?;
 
                     let data = Self {
-                        _unknown_fields: ::pilota::LinkedBytes::new(),
+                        _unknown_fields: ::pilota::BytesVec::new(),
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -2003,7 +2006,7 @@ pub mod unknown_fields {
             A(A),
 
             B(B),
-            _UnknownFields(::pilota::LinkedBytes),
+            _UnknownFields(::pilota::BytesVec),
         }
 
         impl ::pilota::thrift::Message for TestUnion {
@@ -2038,7 +2041,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -2085,7 +2088,7 @@ pub mod unknown_fields {
                             __pilota_offset += __protocol.skip(field_ident.field_type)?;
                             if ret.is_none() {
                                 unsafe {
-                                    let mut __pilota_linked_bytes = ::pilota::LinkedBytes::new();
+                                    let mut __pilota_linked_bytes = ::pilota::BytesVec::new();
                                     __pilota_linked_bytes.push_back(
                                         __protocol
                                             .get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?,
@@ -2143,10 +2146,12 @@ pub mod unknown_fields {
 
                                     ret = Some(TestUnion::A(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             Some(2) => {
@@ -2157,10 +2162,12 @@ pub mod unknown_fields {
 
                                     ret = Some(TestUnion::B(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -2239,7 +2246,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -2313,10 +2320,12 @@ pub mod unknown_fields {
                                     ret =
                                         Some(TestTestExceptionException::StException(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -2399,7 +2408,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -2486,10 +2495,12 @@ pub mod unknown_fields {
 
                                     ret = Some(TestTestExceptionResultRecv::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             Some(1) => {
@@ -2503,10 +2514,12 @@ pub mod unknown_fields {
                                     ret =
                                         Some(TestTestExceptionResultRecv::StException(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -2585,7 +2598,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -2716,7 +2729,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let value = __protocol.read_i32()?;
                 ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(
                     |err| {
@@ -2770,7 +2783,7 @@ pub mod unknown_fields {
             PartialEq,
         )]
         pub struct ObjReq {
-            pub _unknown_fields: ::pilota::LinkedBytes,
+            pub _unknown_fields: ::pilota::BytesVec,
         }
         impl ::pilota::thrift::Message for ObjReq {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -2794,10 +2807,10 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut __pilota_fields_num = 0;
-                let mut _unknown_fields = ::pilota::LinkedBytes::new();
+                let mut _unknown_fields = ::pilota::BytesVec::new();
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -2895,7 +2908,7 @@ pub mod unknown_fields {
                     __protocol.read_struct_end().await?;
 
                     let data = Self {
-                        _unknown_fields: ::pilota::LinkedBytes::new(),
+                        _unknown_fields: ::pilota::BytesVec::new(),
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -2947,7 +2960,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -3118,7 +3131,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -3247,7 +3260,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 ::std::result::Result::Ok(Td(unsafe {
                     let list_ident = __protocol.read_list_begin()?;
                     let mut val: ::std::vec::Vec<::std::vec::Vec<::pilota::FastStr>> =
@@ -3351,7 +3364,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = None;
 
@@ -3529,7 +3542,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -3616,10 +3629,12 @@ pub mod unknown_fields {
 
                                     ret = Some(TestTestExceptionResultSend::Ok(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             Some(1) => {
@@ -3633,10 +3648,12 @@ pub mod unknown_fields {
                                     ret =
                                         Some(TestTestExceptionResultSend::StException(field_ident));
                                 } else {
-                                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                            "received multiple fields for union from remote Message"
-                                        ));
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
                                 }
                             }
                             _ => {
@@ -3683,6 +3700,7 @@ pub mod unknown_fields {
     }
 
     pub mod void {
+        use ::pilota::{Buf as _, BufMut as _};
 
         pub trait Test {}
 
@@ -3728,7 +3746,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -3842,7 +3860,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
                 let mut ret = None;
                 __protocol.read_struct_begin()?;
                 loop {
@@ -3949,7 +3967,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -4079,7 +4097,7 @@ pub mod unknown_fields {
                 __protocol: &mut T,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
-                use ::pilota::{thrift::TLengthProtocolExt, Buf};
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut __pilota_decoding_field_id = None;
 

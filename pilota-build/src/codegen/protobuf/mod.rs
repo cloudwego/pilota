@@ -354,7 +354,7 @@ impl CodegenBackend for ProtobufBackend {
 
     fn codegen_struct_impl(&self, def_id: DefId, stream: &mut String, s: &rir::Message) {
         let name = self.cx.rust_name(def_id);
-        let encoded_len = s
+        let mut encoded_len = s
             .fields
             .iter()
             .map(|field| {
@@ -368,7 +368,8 @@ impl CodegenBackend for ProtobufBackend {
                 FastStr::from(format!("+ {len}"))
             })
             .join("");
-        let encode = s
+
+        let mut encode = s
             .fields
             .iter()
             .map(|field| {
@@ -410,6 +411,35 @@ impl CodegenBackend for ProtobufBackend {
             format!("const STRUCT_NAME: &'static str = stringify!({name});")
         };
 
+        // add unknown fields
+        let keep = self.keep_unknown_fields.contains(&def_id);
+
+        let mut unknown_fields = "";
+        let mut skip_field = "::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx)";
+
+        if keep {
+            unknown_fields = r#"
+            let mut _unknown_fields = &mut self._unknown_fields;"#;
+            encoded_len.push_str(" + self._unknown_fields.size()");
+            encode.push_str(
+                r#"for bytes in self._unknown_fields.list.iter() {
+                    buf.put_slice(bytes.as_ref());
+                }"#,
+            );
+
+            skip_field = r#"{
+                let tag_value = (tag << 3) | wire_type as u32;
+                let tag_len = ::pilota::prost::encoding::encoded_len_varint(tag_value as u64);
+                let begin = unsafe { buf.chunk().as_ptr().sub(tag_len) };
+                ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx)?;
+                let end = buf.chunk().as_ptr();
+                _unknown_fields.push_back(::pilota::Bytes::copy_from_slice(unsafe {
+                    std::slice::from_raw_parts(begin, end as usize - begin as usize)
+                }));
+                Ok(())
+            }"#;
+        }
+
         stream.push_str(&format!(
             r#"
             impl ::pilota::prost::Message for {name} {{
@@ -434,9 +464,10 @@ impl CodegenBackend for ProtobufBackend {
                 ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
                 where B: ::pilota::prost::bytes::Buf {{
                     {struct_name}
+                    {unknown_fields}
                     match tag {{
                         {merge}
-                        _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
+                        _ => {skip_field}
                     }}
                 }}
             }}

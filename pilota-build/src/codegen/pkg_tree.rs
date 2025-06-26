@@ -14,7 +14,7 @@ fn from_pkgs(base_path: &[FastStr], pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
         return Arc::new([]);
     }
 
-    if pkgs.iter().filter(|p| p.first().is_some()).count() == 0 {
+    if pkgs.iter().filter(|p| !p.is_empty()).count() == 0 {
         return Arc::from([PkgNode {
             path: Arc::from(base_path),
             children: Arc::new([]),
@@ -23,7 +23,7 @@ fn from_pkgs(base_path: &[FastStr], pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
 
     let groups = pkgs
         .iter()
-        .filter(|p| p.first().is_some())
+        .filter(|p| !p.is_empty())
         .into_group_map_by(|p| p.first().unwrap());
 
     Arc::from_iter(groups.into_iter().map(|(k, v)| {
