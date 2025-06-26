@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use ahash::AHashMap;
 use pilota::FastStr;
 use pilota_thrift_reflect::{ThriftType, descriptor::thrift_reflection::TypeDescriptor};
@@ -409,11 +411,17 @@ impl FieldMaskData {
     fn new(desc: &TypeDescriptor) -> Self {
         let type_name = desc.name.as_str().into();
         match type_name {
-            ThriftType::Path(_) => FieldMaskData::Struct {
-                children: AHashMap::new(),
-                is_all: false,
-            },
-            ThriftType::Set | ThriftType::List => FieldMaskData::List {
+            ThriftType::Path(_) => {
+                if desc.get_struct_desc().is_some() {
+                    FieldMaskData::Struct {
+                        children: AHashMap::new(),
+                        is_all: false,
+                    }
+                } else {
+                    FieldMaskData::Scalar
+                }
+            }
+            ThriftType::List => FieldMaskData::List {
                 children: AHashMap::new(),
                 wildcard: None,
                 is_all: false,
@@ -427,7 +435,16 @@ impl FieldMaskData {
                             wildcard: None,
                             is_all: false,
                         },
-                        ThriftType::I8 | ThriftType::I16 | ThriftType::I32 | ThriftType::I64 => {
+                        ThriftType::I8
+                        | ThriftType::I16
+                        | ThriftType::I32
+                        | ThriftType::I64
+                        | ThriftType::Byte => FieldMaskData::IntMap {
+                            children: AHashMap::new(),
+                            wildcard: None,
+                            is_all: false,
+                        },
+                        ThriftType::Path(_) if key_type.get_enum_i32().is_some() => {
                             FieldMaskData::IntMap {
                                 children: AHashMap::new(),
                                 wildcard: None,
@@ -437,7 +454,7 @@ impl FieldMaskData {
                         _ => FieldMaskData::Scalar,
                     }
                 } else {
-                    FieldMaskData::Scalar
+                    FieldMaskData::Invalid
                 }
             }
             _ => FieldMaskData::Scalar,
@@ -477,7 +494,6 @@ impl FieldMaskData {
         }
     }
 
-    // don't support wildcard for now
     pub fn has_children(&self) -> bool {
         match self {
             FieldMaskData::Struct { children, .. } => !children.is_empty(),
@@ -514,19 +530,32 @@ impl FieldMaskData {
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct FieldMask {
-    pub is_black: bool, // black list mode flag
-    pub data: FieldMaskData,
+    is_black: bool, // black list mode flag
+    data: FieldMaskData,
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct Options {
-    pub black_list_mode: bool,
+    black_list_mode: bool,
+}
+
+impl Options {
+    pub fn new() -> Self {
+        Self {
+            black_list_mode: false,
+        }
+    }
+
+    pub fn with_black_list_mode(mut self, black_list_mode: bool) -> Self {
+        self.black_list_mode = black_list_mode;
+        self
+    }
 }
 
 pub struct FieldMaskBuilder {
-    pub opts: Options,
-    pub desc: TypeDescriptor,
-    pub paths: Vec<FastStr>,
+    opts: Options,
+    desc: TypeDescriptor,
+    paths: Vec<FastStr>,
 }
 
 impl FieldMaskBuilder {
@@ -557,37 +586,95 @@ impl FieldMask {
         self.data = FieldMaskData::Invalid;
     }
 
-    pub fn field(&self, id: i32) -> Option<&FieldMask> {
+    // default mode: include if field mask exists
+    // black mode: include if field mask exists and not `all` mode
+    pub fn exist(&self) -> bool {
         match &self.data {
-            FieldMaskData::Struct { children, .. } => children.get(&id).map(|f| f.as_ref()),
-            _ => None,
+            FieldMaskData::Invalid => self.is_black,
+            FieldMaskData::Scalar => !self.is_black,
+            FieldMaskData::Struct { .. }
+            | FieldMaskData::List { .. }
+            | FieldMaskData::StrMap { .. }
+            | FieldMaskData::IntMap { .. } => !self.is_black || !self.all(),
         }
     }
 
-    pub fn int(&self, id: i32) -> Option<&FieldMask> {
+    pub fn field(&self, id: i32) -> (Option<&FieldMask>, bool) {
+        // (field_fm, is_exist)
         match &self.data {
-            FieldMaskData::Invalid => None,
+            FieldMaskData::Struct { children, .. } => {
+                let field_fm = children.get(&id).map(|f| f.as_ref());
+                // default mode: include if field exists or self is `all` mode
+                // black mode: include if field exists and not `all` mode and self is not `all`
+                // mode
+                let is_exist = (!self.is_black
+                    && (field_fm.is_some_and(|f| f.exist()) || self.all()))
+                    || (self.is_black && !self.all() && !field_fm.is_some_and(|f| f.all()));
+                (field_fm, is_exist)
+            }
+            _ => (None, self.is_black), // not match, return true if black mode
+        }
+    }
+
+    pub fn int(&self, id: i32) -> (Option<&FieldMask>, bool) {
+        match &self.data {
             FieldMaskData::List {
                 children, wildcard, ..
-            } => children
-                .get(&id)
-                .map(|f| f.as_ref())
-                .or_else(|| wildcard.as_ref().map(|f| f.as_ref())),
-            _ => None,
+            } => {
+                let item_fm = children
+                    .get(&id)
+                    .map(|f| f.as_ref())
+                    .or_else(|| wildcard.as_ref().map(|f| f.as_ref()));
+                let is_exist = (!self.is_black
+                    && (self.all() || item_fm.is_some_and(|f| f.exist())))
+                    || (self.is_black && !self.all() && !item_fm.is_some_and(|f| f.all()));
+                (item_fm, is_exist)
+            }
+            FieldMaskData::IntMap {
+                children, wildcard, ..
+            } => {
+                let item_fm = children
+                    .get(&id)
+                    .map(|f| f.as_ref())
+                    .or_else(|| wildcard.as_ref().map(|f| f.as_ref()));
+                let is_exist = (!self.is_black
+                    && (self.all() || item_fm.is_some_and(|f| f.exist())))
+                    || (self.is_black && !self.all() && !item_fm.is_some_and(|f| f.all()));
+                (item_fm, is_exist)
+            }
+            _ => (None, self.is_black),
         }
     }
 
-    pub fn str(&self, id: &str) -> Option<&FieldMask> {
+    pub fn str(&self, id: &str) -> (Option<&FieldMask>, bool) {
         match &self.data {
-            FieldMaskData::Invalid => None,
             FieldMaskData::StrMap {
                 children, wildcard, ..
-            } => children
-                .get(id)
-                .map(|f| f.as_ref())
-                .or_else(|| wildcard.as_ref().map(|f| f.as_ref())),
-            _ => None, // type mismatch
+            } => {
+                let item_fm = children
+                    .get(id)
+                    .map(|f| f.as_ref())
+                    .or_else(|| wildcard.as_ref().map(|f| f.as_ref()));
+                let is_exist = (!self.is_black
+                    && (self.all() || item_fm.is_some_and(|f| f.exist())))
+                    || (self.is_black && !self.all() && !item_fm.is_some_and(|f| f.all()));
+                (item_fm, is_exist)
+            }
+            _ => (None, self.is_black),
         }
+    }
+
+    pub fn wildcard(&self) -> (Option<&FieldMask>, bool) {
+        let item_fm = match &self.data {
+            FieldMaskData::List { wildcard, .. }
+            | FieldMaskData::StrMap { wildcard, .. }
+            | FieldMaskData::IntMap { wildcard, .. } => wildcard.as_ref().map(|v| v.as_ref()),
+            _ => None,
+        };
+
+        let is_exist = (!self.is_black && (self.all() || item_fm.is_some_and(|f| f.exist())))
+            || (self.is_black && !self.all() && !item_fm.is_some_and(|f| f.all()));
+        (item_fm, is_exist)
     }
 
     pub fn all(&self) -> bool {
@@ -600,10 +687,6 @@ impl FieldMask {
 
     pub fn typ(&self) -> &str {
         self.data.type_name()
-    }
-
-    pub fn exist(&self) -> bool {
-        !matches!(self.data, FieldMaskData::Invalid)
     }
 
     pub fn for_each_child<F>(&self, mut scanner: F)
@@ -634,6 +717,279 @@ impl FieldMask {
                 }
             }
         }
+    }
+
+    pub fn get_path<'a>(
+        &'a self,
+        desc: &TypeDescriptor,
+        path: &str,
+    ) -> Result<(Option<Cow<'a, FieldMask>>, bool), FieldMaskError> {
+        let mut it = PathIterator::new(path).map_err(|source| FieldMaskError::PathError {
+            path: FastStr::new(path),
+            source,
+        })?;
+
+        let mut cur_fm = self;
+        let mut cur_desc = desc.clone();
+
+        while it.has_next() {
+            let token = it.next();
+
+            match &token.data {
+                TokenData::Root => {
+                    continue;
+                }
+                TokenData::Field => {
+                    let s =
+                        cur_desc
+                            .get_struct_desc()
+                            .ok_or_else(|| FieldMaskError::TypeMismatch {
+                                expected: "Struct".into(),
+                                actual: cur_desc.name.clone(),
+                                context: "descriptor type check for field".into(),
+                                path: FastStr::new(path),
+                                position: token.get_begin_pos(),
+                            })?;
+
+                    if !matches!(cur_fm.data, FieldMaskData::Struct { .. }) && !cur_fm.all() {
+                        return Err(FieldMaskError::TypeMismatch {
+                            expected: "Struct".into(),
+                            actual: FastStr::new(cur_fm.typ()),
+                            context: "FieldMask type check for field".into(),
+                            path: FastStr::new(path),
+                            position: token.get_begin_pos(),
+                        });
+                    }
+
+                    let field_token = it.next();
+
+                    let field = match &field_token.data {
+                        TokenData::LitInt(id) => s.find_field_by_id(*id).cloned(),
+                        TokenData::LitStr(name) => s.find_field_by_name(name).cloned(),
+                        TokenData::Any => {
+                            // for struct, `*` means all fields
+                            return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                        }
+                        _ => {
+                            return Err(FieldMaskError::InvalidToken {
+                                token_type: FastStr::new(format!("{:?}", field_token.data)),
+                                expected: "field name, field id or '*'".into(),
+                                path: FastStr::new(path),
+                                position: field_token.get_begin_pos(),
+                            });
+                        }
+                    }
+                    .ok_or_else(|| FieldMaskError::FieldNotFound {
+                        field_identifier: format!("{:?}", field_token.data).into(),
+                        parent_type: cur_desc.name.clone(),
+                        path: FastStr::new(path),
+                        position: field_token.get_begin_pos(),
+                    })?;
+
+                    let (next_fm, exist) = cur_fm.field(field.id);
+                    if !exist {
+                        return Ok((None, false));
+                    }
+                    if next_fm.is_none() {
+                        return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                    }
+                    cur_desc = field.r#type;
+                    cur_fm = next_fm.unwrap();
+                }
+                TokenData::IndexL => {
+                    let element_desc = cur_desc.value_type.as_deref().ok_or_else(|| {
+                        FieldMaskError::DescriptorError {
+                            type_name: cur_desc.name.clone(),
+                            message: "collection has no value type".into(),
+                            path: FastStr::new(path),
+                            position: token.get_begin_pos(),
+                        }
+                    })?;
+
+                    if !matches!(cur_fm.data, FieldMaskData::List { .. }) && !cur_fm.all() {
+                        return Err(FieldMaskError::TypeMismatch {
+                            expected: "List".into(),
+                            actual: FastStr::new(cur_fm.typ()),
+                            context: "FieldMask type check for list".into(),
+                            path: FastStr::new(path),
+                            position: token.get_begin_pos(),
+                        });
+                    }
+
+                    if cur_fm.all() {
+                        // the path should be end here
+                        return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                    }
+
+                    let mut next_fm_for_loop = None;
+                    let mut empty = true;
+                    while it.has_next() {
+                        let idx_token = it.next();
+                        if idx_token.data == TokenData::IndexR {
+                            if empty {
+                                return Err(FieldMaskError::EmptyCollection {
+                                    collection_type: "index collection".into(),
+                                    path: FastStr::new(path),
+                                    position: idx_token.get_begin_pos(),
+                                });
+                            }
+                            break;
+                        }
+                        empty = false;
+
+                        if matches!(idx_token.data, TokenData::Elem) {
+                            continue;
+                        }
+
+                        if let TokenData::LitInt(id) = idx_token.data {
+                            let (next_fm, exist) = cur_fm.int(id);
+                            if !exist {
+                                return Ok((None, false));
+                            }
+                            if next_fm.is_none() {
+                                return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                            }
+                            next_fm_for_loop = next_fm;
+                        } else if let TokenData::Any = idx_token.data {
+                            let (next_fm, exist) = cur_fm.wildcard();
+                            if !exist {
+                                return Ok((None, false));
+                            }
+                            if next_fm.is_none() {
+                                return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                            }
+                            next_fm_for_loop = next_fm;
+                        } else {
+                            return Err(FieldMaskError::InvalidToken {
+                                token_type: FastStr::new(format!("{:?}", idx_token.data)),
+                                expected: "integer index or '*'".into(),
+                                path: FastStr::new(path),
+                                position: idx_token.get_begin_pos(),
+                            });
+                        }
+                    }
+
+                    cur_desc = element_desc.clone();
+                    if let Some(next) = next_fm_for_loop {
+                        cur_fm = next;
+                    } else {
+                        return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                    }
+                }
+                TokenData::MapL => {
+                    let element_desc = cur_desc.value_type.as_deref().ok_or_else(|| {
+                        FieldMaskError::DescriptorError {
+                            type_name: cur_desc.name.clone(),
+                            message: "map has no value type".into(),
+                            path: FastStr::new(path),
+                            position: token.get_begin_pos(),
+                        }
+                    })?;
+
+                    if !matches!(
+                        cur_fm.data,
+                        FieldMaskData::StrMap { .. } | FieldMaskData::IntMap { .. }
+                    ) && !cur_fm.all()
+                    {
+                        return Err(FieldMaskError::TypeMismatch {
+                            expected: "IntMap or StrMap".into(),
+                            actual: FastStr::new(cur_fm.typ()),
+                            context: "FieldMask type check for map".into(),
+                            path: FastStr::new(path),
+                            position: token.get_begin_pos(),
+                        });
+                    }
+
+                    if cur_fm.all() {
+                        // the path should be end here
+                        return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                    }
+
+                    let mut next_fm_for_loop = None;
+                    let mut empty = true;
+                    while it.has_next() {
+                        let key_token = it.next();
+                        if key_token.data == TokenData::MapR {
+                            if empty {
+                                return Err(FieldMaskError::EmptyCollection {
+                                    collection_type: "key collection".into(),
+                                    path: FastStr::new(path),
+                                    position: key_token.get_begin_pos(),
+                                });
+                            }
+                            break;
+                        }
+                        empty = false;
+
+                        if matches!(key_token.data, TokenData::Elem) {
+                            continue;
+                        }
+
+                        match &key_token.data {
+                            TokenData::LitInt(id) => {
+                                let (next_fm, exist) = cur_fm.int(*id);
+                                if !exist {
+                                    return Ok((None, false));
+                                }
+                                if next_fm.is_none() {
+                                    return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                                }
+                                next_fm_for_loop = next_fm;
+                            }
+                            TokenData::Str(key) => {
+                                let (next_fm, exist) = cur_fm.str(key);
+                                if !exist {
+                                    return Ok((None, false));
+                                }
+                                if next_fm.is_none() {
+                                    return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                                }
+                                next_fm_for_loop = next_fm;
+                            }
+                            TokenData::Any => {
+                                let (next_fm, exist) = cur_fm.wildcard();
+                                if !exist {
+                                    return Ok((None, false));
+                                }
+                                if next_fm.is_none() {
+                                    return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                                }
+                                next_fm_for_loop = next_fm;
+                            }
+                            _ => {
+                                return Err(FieldMaskError::InvalidToken {
+                                    token_type: FastStr::new(format!("{:?}", key_token.data)),
+                                    expected: "integer, string or '*' as key".into(),
+                                    path: FastStr::new(path),
+                                    position: key_token.get_begin_pos(),
+                                });
+                            }
+                        }
+                    }
+
+                    cur_desc = element_desc.clone();
+                    if let Some(next) = next_fm_for_loop {
+                        cur_fm = next;
+                    } else {
+                        return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                    }
+                }
+                _ => {
+                    return Err(FieldMaskError::InvalidToken {
+                        token_type: FastStr::new(format!("{:?}", token.data)),
+                        expected: "$ or . or [ or {".into(),
+                        path: FastStr::new(path),
+                        position: token.get_begin_pos(),
+                    });
+                }
+            }
+        }
+        Ok((Some(Cow::Borrowed(cur_fm)), !it.has_next()))
+    }
+
+    pub fn path_in_mask(&self, desc: &TypeDescriptor, path: &str) -> Result<bool, FieldMaskError> {
+        let (_, exist) = self.get_path(desc, path)?;
+        Ok(exist)
     }
 }
 
@@ -1039,6 +1395,10 @@ impl FieldMask {
 
 #[cfg(test)]
 mod tests {
+    use std::{path::PathBuf, sync::Arc};
+
+    use pilota_thrift_parser::parser::Parser as _;
+
     use super::*;
 
     #[test]
@@ -1104,9 +1464,9 @@ mod tests {
             true
         });
         assert_eq!(count, 2);
-        assert_eq!(fm.field(1).unwrap().typ(), "Scalar");
-        assert_eq!(fm.field(2).unwrap().typ(), "List");
-        assert!(fm.field(3).is_none());
+        assert_eq!(fm.field(1).0.unwrap().typ(), "Scalar");
+        assert_eq!(fm.field(2).0.unwrap().typ(), "List");
+        assert!(fm.field(3).0.is_none());
     }
 
     #[test]
@@ -1168,5 +1528,105 @@ mod tests {
         assert!(fieldmask_error.source().is_some());
         let source = fieldmask_error.source().unwrap();
         assert_eq!(source.to_string(), path_error.to_string());
+    }
+
+    #[test]
+    fn test_get_path() {
+        let content = std::fs::read_to_string("../examples/idl/fieldmask.thrift").unwrap();
+        let mut ast = pilota_thrift_parser::File::parse(&content).unwrap().1;
+        ast.path = Arc::from(
+            PathBuf::from("../examples/idl/fieldmask.thrift")
+                .canonicalize()
+                .unwrap(),
+        );
+        let desc: pilota_thrift_reflect::thrift_reflection::FileDescriptor = (&ast).into();
+
+        let content = std::fs::read_to_string("../examples/idl/base.thrift").unwrap();
+        let mut ast = pilota_thrift_parser::File::parse(&content).unwrap().1;
+        ast.path = Arc::from(
+            PathBuf::from("../examples/idl/base.thrift")
+                .canonicalize()
+                .unwrap(),
+        );
+        let _: pilota_thrift_reflect::thrift_reflection::FileDescriptor = (&ast).into();
+
+        println!("{:?}", desc);
+
+        let paths = &[
+            "$.f1",
+            "$.f9[1, 3]",
+            "$.f11.b",
+            "$.f12[0][*]",
+            "$.f14{*}",
+            "$.f15{ \"key1\",\"key3\"}",
+            "$.f16{\"key1\"}[1].a",
+            "$.f17[*]{\"key1\"}",
+            "$.base.Addr",
+            "$.base.EnumMap{1, 2}",
+        ];
+        let fm = FieldMaskBuilder::new(
+            &desc
+                .find_struct_by_name("Request")
+                .unwrap()
+                .type_descriptor(),
+            paths,
+        )
+        .build()
+        .unwrap();
+        let req_desc = desc.find_struct_by_name("Request").unwrap();
+
+        let (sub_fm, exist) = fm.get_path(&req_desc.type_descriptor(), "$.f1").unwrap();
+        assert!(exist);
+        assert!(sub_fm.unwrap().all());
+
+        let (sub_fm, exist) = fm.get_path(&req_desc.type_descriptor(), "$.f9[1]").unwrap();
+        assert!(exist);
+        assert!(sub_fm.unwrap().all());
+
+        let (sub_fm, exist) = fm.get_path(&req_desc.type_descriptor(), "$.f11.b").unwrap();
+        assert!(exist);
+        assert!(sub_fm.unwrap().all());
+
+        let (sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.f12[0][1]")
+            .unwrap();
+        assert!(exist);
+        assert!(sub_fm.unwrap().all());
+
+        let (sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.f14{0, 1}")
+            .unwrap();
+        assert!(exist);
+        assert!(sub_fm.unwrap().all());
+
+        let (sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.f15{ \"key1\",\"key2\"}")
+            .unwrap();
+        assert!(!exist);
+        assert!(sub_fm.is_none());
+
+        let (sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.f16{\"key1\"}[1]")
+            .unwrap();
+        assert!(exist);
+        assert!(!sub_fm.unwrap().all());
+
+        let (sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.f17[*]{\"key1\"}")
+            .unwrap();
+        assert!(exist);
+        assert!(sub_fm.unwrap().all());
+
+        let (sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.base.LogID")
+            .unwrap();
+        assert!(!exist);
+        assert!(sub_fm.is_none());
+
+        let (sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.base.EnumMap{1}")
+            .unwrap();
+        assert!(exist);
+        assert!(sub_fm.unwrap().all());
     }
 }

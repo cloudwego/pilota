@@ -55,6 +55,11 @@ impl FileDescriptor {
         self.exceptions.iter().find(|e| e.name.as_str() == name)
     }
 
+    // find enum by name
+    pub fn find_enum_by_name(&self, name: &str) -> Option<&EnumDescriptor> {
+        self.enums.iter().find(|e| e.name.as_str() == name)
+    }
+
     pub fn serialize(&self) -> Bytes {
         let mut data = BytesMut::new();
         let mut protocol = pilota::thrift::binary::TBinaryProtocol::new(&mut data, true);
@@ -75,6 +80,16 @@ impl StructDescriptor {
 
     pub fn find_field_by_name(&self, name: &str) -> Option<&FieldDescriptor> {
         self.fields.iter().find(|f| f.name.as_str() == name)
+    }
+
+    pub fn type_descriptor(&self) -> TypeDescriptor {
+        TypeDescriptor {
+            filepath: self.filepath.clone(),
+            name: self.name.clone(),
+            key_type: None,
+            value_type: None,
+            extra: None,
+        }
     }
 }
 
@@ -110,6 +125,30 @@ impl TypeDescriptor {
         matches!(ty, ThriftType::Path(_))
     }
 
+    pub fn get_enum_i32(&self) -> Option<EnumDescriptor> {
+        let ty = self.name.as_str().into();
+        if let ThriftType::Path(path) = ty {
+            let include_path = IncludePath::try_from(path.as_str()).unwrap();
+            let cur_file_desc = Register::get(self.filepath.as_str()).unwrap();
+            if include_path.prefix.is_empty() {
+                cur_file_desc
+                    .find_enum_by_name(include_path.name.as_str())
+                    .cloned()
+            } else {
+                let include_file_path = cur_file_desc
+                    .includes
+                    .get(include_path.prefix.as_str())
+                    .expect(&format!("include path not found: {}", include_path.prefix));
+                let included_file_descriptor = Register::get(include_file_path.as_str()).unwrap();
+                included_file_descriptor
+                    .find_enum_by_name(include_path.name.as_str())
+                    .cloned()
+            }
+        } else {
+            None
+        }
+    }
+
     pub fn get_struct_desc(&self) -> Option<StructDescriptor> {
         let ty = self.name.as_str().into();
         match ty {
@@ -121,7 +160,7 @@ impl TypeDescriptor {
                     let include_file_path = cur_file_desc
                         .includes
                         .get(include_path.prefix.as_str())
-                        .expect("include path not found");
+                        .expect(&format!("include path not found: {}", include_path.prefix));
                     let included_file_descriptor =
                         Register::get(include_file_path.as_str()).unwrap();
                     included_file_descriptor
@@ -138,6 +177,7 @@ impl TypeDescriptor {
     }
 }
 
+#[derive(Debug)]
 pub struct IncludePath {
     pub prefix: FastStr,
     pub name: FastStr,
