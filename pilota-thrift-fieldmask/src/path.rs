@@ -301,7 +301,7 @@ mod tests {
 
     #[test]
     fn test_path_iterator_basic() {
-        let mut iter = PathIterator::new("$.field[0]".to_string()).unwrap();
+        let mut iter = PathIterator::new("$.field[0]").unwrap();
 
         let token = iter.next();
         assert_eq!(token.data, TokenData::Root);
@@ -324,7 +324,7 @@ mod tests {
 
     #[test]
     fn test_path_iterator_string() {
-        let mut iter = PathIterator::new("\"hello world\"".to_string()).unwrap();
+        let mut iter = PathIterator::new("\"hello world\"").unwrap();
 
         let token = iter.next();
         assert_eq!(token.data, TokenData::Str("hello world".into()));
@@ -332,7 +332,7 @@ mod tests {
 
     #[test]
     fn test_path_iterator_map() {
-        let mut iter = PathIterator::new("{\"key\"}".to_string()).unwrap();
+        let mut iter = PathIterator::new("{\"key\"}").unwrap();
 
         let token = iter.next();
         assert_eq!(token.data, TokenData::MapL);
@@ -346,7 +346,7 @@ mod tests {
 
     #[test]
     fn test_escaped_string() {
-        let mut iter = PathIterator::new(r#""hello\nworld""#.to_string()).unwrap();
+        let mut iter = PathIterator::new(r#""hello\nworld""#).unwrap();
 
         let token = iter.next();
         assert_eq!(token.data, TokenData::Str("hello\nworld".into()));
@@ -355,7 +355,7 @@ mod tests {
     #[test]
     fn test_error_handling() {
         // 测试无效字符
-        let result = PathIterator::new("$@invalid".to_string());
+        let result = PathIterator::new("$@invalid");
         assert!(result.is_err());
         assert!(matches!(
             result.unwrap_err(),
@@ -363,7 +363,7 @@ mod tests {
         ));
 
         // 测试未闭合的字符串
-        let result = PathIterator::new("\"unclosed".to_string());
+        let result = PathIterator::new("\"unclosed");
         assert!(result.is_err());
         assert!(matches!(
             result.unwrap_err(),
@@ -374,19 +374,19 @@ mod tests {
     #[test]
     fn test_path_validation() {
         // 有效路径
-        assert!(PathIterator::new("$.field[0].name".to_string()).is_ok());
-        assert!(PathIterator::new("$[*]".to_string()).is_ok());
-        assert!(PathIterator::new(r#"${"key"}"#.to_string()).is_ok());
+        assert!(PathIterator::new("$.field[0].name").is_ok());
+        assert!(PathIterator::new("$[*]").is_ok());
+        assert!(PathIterator::new(r#"${"key"}"#).is_ok());
 
         // 无效路径
-        assert!(PathIterator::new("".to_string()).is_err());
-        assert!(PathIterator::new("$@invalid".to_string()).is_err());
-        assert!(PathIterator::new("\"unclosed".to_string()).is_err());
+        assert!(PathIterator::new("").is_err());
+        assert!(PathIterator::new("$@invalid").is_err());
+        assert!(PathIterator::new("\"unclosed").is_err());
     }
 
     #[test]
     fn test_complex_path() {
-        let mut iter = PathIterator::new("$.users[0].name".to_string()).unwrap();
+        let mut iter = PathIterator::new("$.users[0].name").unwrap();
 
         let tokens: Vec<_> = std::iter::from_fn(|| {
             let token = iter.next();
@@ -416,8 +416,7 @@ mod tests {
     #[test]
     fn test_complex_map_access() {
         // 测试复杂的映射访问语法
-        let mut iter =
-            PathIterator::new(r#"$.data{"user name"}.profile{"avatar url"}"#.to_string()).unwrap();
+        let mut iter = PathIterator::new(r#"$.data{"user name"}.profile{"avatar url"}"#).unwrap();
 
         let tokens: Vec<_> = std::iter::from_fn(|| {
             let token = iter.next();

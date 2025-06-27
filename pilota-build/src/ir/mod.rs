@@ -1,6 +1,7 @@
 use std::{fmt::Display, sync::Arc};
 
 use itertools::Itertools;
+use pilota::Bytes;
 
 use crate::{
     symbol::{EnumRepr, FileId, Ident, Symbol},
@@ -107,6 +108,7 @@ pub struct Field {
 pub struct Message {
     pub name: Ident,
     pub fields: Vec<Field>,
+    pub is_wrapper: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -190,4 +192,5 @@ pub struct File {
     pub items: Vec<Arc<Item>>,
     pub id: FileId,
     pub uses: Vec<(Path, FileId)>,
+    pub descriptor: Bytes,
 }

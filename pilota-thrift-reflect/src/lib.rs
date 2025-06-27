@@ -7,8 +7,6 @@ use pilota::{FastStr, OrderedFloat};
 include!("descriptor.rs");
 pub use descriptor::*;
 
-use crate::service::Register;
-
 pub mod error;
 pub mod service;
 
@@ -69,7 +67,7 @@ impl From<&str> for ThriftType {
             "set" => ThriftType::Set,
             "map" => ThriftType::Map,
             "void" => ThriftType::Void,
-            _ => ThriftType::Path(FastStr::new(s.to_string())),
+            _ => ThriftType::Path(FastStr::new(s)),
         }
     }
 }
@@ -103,7 +101,7 @@ impl From<&pilota_thrift_parser::File> for thrift_reflection::FileDescriptor {
                                 .0
                                 .as_str()
                                 .split('/')
-                                .last()
+                                .next_back()
                                 .unwrap()
                                 .trim_end_matches(".thrift"),
                         ),
@@ -148,8 +146,7 @@ impl From<&pilota_thrift_parser::File> for thrift_reflection::FileDescriptor {
                 _ => {}
             }
         }
-        let key = filepath.clone();
-        let file = thrift_reflection::FileDescriptor {
+        thrift_reflection::FileDescriptor {
             filepath,
             includes,
             namespaces,
@@ -161,11 +158,7 @@ impl From<&pilota_thrift_parser::File> for thrift_reflection::FileDescriptor {
             exceptions,
             unions,
             ..Default::default()
-        };
-        if !Register::contains(&key) {
-            Register::register(key, file.clone());
         }
-        file
     }
 }
 

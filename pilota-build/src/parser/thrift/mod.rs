@@ -8,6 +8,7 @@ use pilota_thrift_parser::{
     parser::Parser as _,
     {self as thrift_parser},
 };
+use pilota_thrift_reflect::thrift_reflection;
 use rustc_hash::{FxHashMap, FxHashSet};
 use salsa::ParallelDatabase;
 use thrift_parser::Annotations;
@@ -35,7 +36,15 @@ fn parse(db: &dyn SourceDatabase, path: PathBuf) -> Arc<thrift_parser::File> {
     let text = db.file_text(path.clone());
     let mut ast = thrift_parser::File::parse(&text).unwrap().1;
     ast.path = Arc::from(path);
+    ast.uuid = generate_short_uuid();
+    let descriptor = thrift_reflection::FileDescriptor::from(&ast);
+    ast.descriptor = descriptor.serialize();
     Arc::from(ast)
+}
+
+fn generate_short_uuid() -> FastStr {
+    let uuid: [u8; 4] = rand::random();
+    FastStr::new(hex::encode(uuid))
 }
 
 #[derive(Default)]
@@ -265,6 +274,7 @@ impl ThriftLower {
                     .iter()
                     .map(|a| self.lower_method_arg_field(a, arc_wrapper))
                     .collect(),
+                is_wrapper: true,
             });
             related_items.push(name.clone());
             let mut tags = Tags::default();
@@ -280,6 +290,7 @@ impl ThriftLower {
                     .iter()
                     .map(|a| self.lower_method_arg_field(a, arc_wrapper))
                     .collect(),
+                is_wrapper: true,
             });
             related_items.push(name.clone());
             let mut tags: Tags = Tags::default();
@@ -549,6 +560,7 @@ impl ThriftLower {
         ir::Message {
             name: self.lower_ident(&s.name),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
+            is_wrapper: false,
         }
     }
 
@@ -687,6 +699,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                     .collect(),
                 id: file_id,
                 uses,
+                descriptor: f.descriptor.clone(),
             };
 
             this.service_name_duplicates.clear();

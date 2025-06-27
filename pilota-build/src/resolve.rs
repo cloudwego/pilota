@@ -320,6 +320,8 @@ impl Resolver {
                     }
                 }
                 ty = BTreeFolder(self).fold_ty(&ty);
+            } else if repr == "ordered_f64" {
+                ty.kind = ty::OrderedF64;
             }
         };
 
@@ -587,6 +589,7 @@ impl Resolver {
         Message {
             name: s.name.clone(),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
+            is_wrapper: s.is_wrapper,
         }
     }
 
@@ -831,6 +834,7 @@ impl Resolver {
                     .collect::<Vec<_>>(),
             ),
             uses: file.uses.iter().map(|(_, f)| *f).collect(),
+            descriptor: file.descriptor.clone(),
         };
 
         if should_pop {

@@ -15,8 +15,10 @@ mod typedef;
 use std::{hash::Hash, path::PathBuf, sync::Arc};
 
 pub use annotation::{Annotation, Annotations};
+use bytes::Bytes;
 pub use constant::{ConstValue, Constant, DoubleConstant, IntConstant};
 pub use enum_::{Enum, EnumValue};
+use faststr::FastStr;
 pub use field::{Attribute, Field};
 pub use function::Function;
 pub use identifier::Ident;
@@ -79,8 +81,10 @@ item_from!(Service);
 #[derive(Default, Debug)]
 pub struct File {
     pub path: Arc<PathBuf>,
+    pub uuid: FastStr,
     pub package: Option<Path>,
     pub items: Vec<Item>,
+    pub descriptor: Bytes,
 }
 
 impl PartialEq for File {

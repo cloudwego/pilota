@@ -188,14 +188,14 @@ impl Ord for FieldMaskData {
                     is_all: w2,
                 },
             ) => {
-                if c1.len() == 0 && c2.len() == 0 {
+                if c1.is_empty() && c2.is_empty() {
                     return w1.cmp(w2);
                 }
                 // wildcard is always greater
-                if c1.len() == 0 && *w1 {
+                if c1.is_empty() && *w1 {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && *w2 {
+                if c2.is_empty() && *w2 {
                     return std::cmp::Ordering::Less;
                 }
                 // compare children
@@ -220,20 +220,20 @@ impl Ord for FieldMaskData {
                     is_all: a2,
                 },
             ) => {
-                if c1.len() == 0 && c2.len() == 0 {
+                if c1.is_empty() && c2.is_empty() {
                     return a1.cmp(a2).then(w1.cmp(w2));
                 }
                 // wildcard is always greater
-                if c1.len() == 0 && *a1 {
+                if c1.is_empty() && *a1 {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && *a2 {
+                if c2.is_empty() && *a2 {
                     return std::cmp::Ordering::Less;
                 }
-                if c1.len() == 0 && w1.is_some() {
+                if c1.is_empty() && w1.is_some() {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && w2.is_some() {
+                if c2.is_empty() && w2.is_some() {
                     return std::cmp::Ordering::Less;
                 }
                 // compare children
@@ -258,20 +258,20 @@ impl Ord for FieldMaskData {
                     is_all: a2,
                 },
             ) => {
-                if c1.len() == 0 && c2.len() == 0 {
+                if c1.is_empty() && c2.is_empty() {
                     return a1.cmp(a2).then(w1.cmp(w2));
                 }
                 // wildcard is always greater
-                if c1.len() == 0 && *a1 {
+                if c1.is_empty() && *a1 {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && *a2 {
+                if c2.is_empty() && *a2 {
                     return std::cmp::Ordering::Less;
                 }
-                if c1.len() == 0 && w1.is_some() {
+                if c1.is_empty() && w1.is_some() {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && w2.is_some() {
+                if c2.is_empty() && w2.is_some() {
                     return std::cmp::Ordering::Less;
                 }
                 // compare children
@@ -296,20 +296,20 @@ impl Ord for FieldMaskData {
                     is_all: a2,
                 },
             ) => {
-                if c1.len() == 0 && c2.len() == 0 {
+                if c1.is_empty() && c2.is_empty() {
                     return a1.cmp(a2).then(w1.cmp(w2));
                 }
                 // wildcard is always greater
-                if c1.len() == 0 && *a1 {
+                if c1.is_empty() && *a1 {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && *a2 {
+                if c2.is_empty() && *a2 {
                     return std::cmp::Ordering::Less;
                 }
-                if c1.len() == 0 && w1.is_some() {
+                if c1.is_empty() && w1.is_some() {
                     return std::cmp::Ordering::Greater;
                 }
-                if c2.len() == 0 && w2.is_some() {
+                if c2.is_empty() && w2.is_some() {
                     return std::cmp::Ordering::Less;
                 }
                 // compare children
@@ -694,10 +694,10 @@ impl FieldMask {
         F: FnMut(&str, i32, &FieldMask) -> bool,
     {
         match &self.data {
-            FieldMaskData::Scalar | FieldMaskData::Invalid => return,
+            FieldMaskData::Scalar | FieldMaskData::Invalid => (),
             FieldMaskData::Struct { children, .. } => {
                 for (&k, v) in children {
-                    if !scanner("", k as i32, v) {
+                    if !scanner("", k, v) {
                         return;
                     }
                 }
@@ -1450,11 +1450,11 @@ mod tests {
             match id {
                 1 => {
                     assert_eq!(mask.typ(), "Scalar");
-                    assert_eq!(mask.exist(), true);
+                    assert!(mask.exist());
                 }
                 2 => {
                     assert_eq!(mask.typ(), "List");
-                    assert_eq!(mask.exist(), true);
+                    assert!(mask.exist());
                 }
                 _ => {
                     assert!(false);
@@ -1475,20 +1475,20 @@ mod tests {
             path: FastStr::new("$.invalid"),
             source: PathError::SyntaxError {
                 position: 5,
-                expected: FastStr::new("数字"),
+                expected: FastStr::new("int"),
                 found: FastStr::new("abc"),
             },
         };
-        assert!(err.to_string().contains("path")); // 英文错误消息
+        assert!(err.to_string().contains("path"));
 
         let err = FieldMaskError::TypeMismatch {
             expected: FastStr::new("Struct"),
             actual: FastStr::new("List"),
-            context: FastStr::new("字段访问"),
+            context: FastStr::new("field access"),
             path: FastStr::new("$.test"),
             position: 0,
         };
-        assert!(err.to_string().contains("type mismatch")); // 英文错误消息
+        assert!(err.to_string().contains("type mismatch"));
     }
 
     #[test]
@@ -1540,6 +1540,8 @@ mod tests {
                 .unwrap(),
         );
         let desc: pilota_thrift_reflect::thrift_reflection::FileDescriptor = (&ast).into();
+        let key = FastStr::new(ast.path.to_string_lossy());
+        pilota_thrift_reflect::service::Register::register(key, desc.clone());
 
         let content = std::fs::read_to_string("../examples/idl/base.thrift").unwrap();
         let mut ast = pilota_thrift_parser::File::parse(&content).unwrap().1;
@@ -1548,7 +1550,9 @@ mod tests {
                 .canonicalize()
                 .unwrap(),
         );
-        let _: pilota_thrift_reflect::thrift_reflection::FileDescriptor = (&ast).into();
+        let base_desc: pilota_thrift_reflect::thrift_reflection::FileDescriptor = (&ast).into();
+        let key = FastStr::new(ast.path.to_string_lossy());
+        pilota_thrift_reflect::service::Register::register(key, base_desc.clone());
 
         println!("{:?}", desc);
 

@@ -90,6 +90,18 @@ where
         })
         .unwrap();
 
+        let reflect_dep = if self.cg.with_descriptor {
+            r#"pilota-thrift-reflect = "*""#
+        } else {
+            r#""#
+        };
+
+        let fieldmask_dep = if self.cg.with_field_mask {
+            r#"pilota-thrift-fieldmask = "*""#
+        } else {
+            r#""#
+        };
+
         crate::codegen::toml::merge_tomls(
             &mut cargo_toml,
             toml::from_str::<toml::Value>(&format!(
@@ -100,6 +112,8 @@ where
 
     [workspace.dependencies]
     pilota = "*"
+    {reflect_dep}
+    {fieldmask_dep}
     anyhow = "1"
     volo = "*"
     volo-{} = "*""#,

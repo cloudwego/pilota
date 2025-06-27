@@ -372,6 +372,13 @@ impl Plugin for ImplDefaultPlugin {
                         fields.push_str("_unknown_fields: ::pilota::LinkedBytes::new()");
                     }
 
+                    if !m.is_wrapper && cx.with_field_mask {
+                        if !fields.is_empty() {
+                            fields.push_str(",\n");
+                        }
+                        fields.push_str("_field_mask: ::std::option::Option::None");
+                    }
+
                     cx.with_adjust_mut(def_id, |adj| {
                         adj.add_nested_item(
                             format!(

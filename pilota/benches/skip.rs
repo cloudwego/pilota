@@ -14,28 +14,30 @@ fn skip_bench(c: &mut Criterion) {
     let buf = generate_list_i32();
     group.bench_function("binary_unsafe skip list<i32>", |b| {
         b.iter(|| {
-            black_box({
+            {
                 let b = buf.clone();
                 let b_len = b.len();
                 match black_box(skip_binary_unsafe(b, TType::List)) {
                     Ok(size) => assert_eq!(size, b_len),
                     Err(_) => panic!("skip decode error"),
                 }
-            });
+            };
+            black_box(());
         });
     });
 
     let buf = generate_struct();
     group.bench_function("binary_unsafe skip struct", |b| {
         b.iter(|| {
-            black_box({
+            {
                 let b = buf.clone();
                 let b_len = b.len();
                 match black_box(skip_binary_unsafe(b, TType::Struct)) {
                     Ok(size) => assert_eq!(size, b_len),
                     Err(_) => panic!("skip decode error"),
                 }
-            });
+            };
+            black_box(());
         });
     });
 
@@ -51,7 +53,7 @@ fn generate_list_i32() -> Bytes {
 
     let mut p = pilota::thrift::binary::TBinaryProtocol::new(&mut buf, true);
     p.write_list(TType::I32, &v, |protocol, e| {
-        protocol.write_i32(e.clone())?;
+        protocol.write_i32(*e)?;
         Ok(())
     })
     .unwrap();
@@ -80,7 +82,7 @@ fn generate_struct() -> Bytes {
         TType::I32,
         &AHashMap::from([("key1", 1), ("key2", 2), ("key3", 3)]),
         |protocol, key| {
-            protocol.write_string(*key)?;
+            protocol.write_string(key)?;
             Ok(())
         },
         |protocol, val| {
@@ -94,7 +96,7 @@ fn generate_struct() -> Bytes {
         TType::Binary,
         &AHashSet::from(["set1", "set2", "set3"]),
         |protocol, key| {
-            protocol.write_string(*key)?;
+            protocol.write_string(key)?;
             Ok(())
         },
     )
@@ -104,7 +106,7 @@ fn generate_struct() -> Bytes {
         TType::Binary,
         &["set1", "set2", "set3"],
         |protocol, key| {
-            protocol.write_string(*key)?;
+            protocol.write_string(key)?;
             Ok(())
         },
     )

@@ -18,13 +18,17 @@ keywords = ["serialization", "thrift", "protobuf", "volo"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
+pilota = { path = "../pilota", version = "0.12" }
 pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.12" }
+pilota-thrift-reflect = { path = "../pilota-thrift-reflect", version = "0.1" }
+pilota-thrift-fieldmask = { path = "../pilota-thrift-fieldmask", version = "0.1" }
 
 ahash.workspace = true
 anyhow.workspace = true
 dashmap.workspace = true
 faststr.workspace = true
 heck.workspace = true
+hex.workspace = true
 itertools.workspace = true
 normpath.workspace = true
 paste.workspace = true
@@ -33,6 +37,7 @@ phf.workspace = true
 proc-macro2.workspace = true
 quote.workspace = true
 rayon.workspace = true
+rand.workspace = true
 rustc-hash.workspace = true
 salsa.workspace = true
 scoped-tls.workspace = true
@@ -47,7 +52,6 @@ protobuf-parse.workspace = true
 protobuf.workspace = true
 
 [dev-dependencies]
-pilota = { path = "../pilota" }
 tokio.workspace = true
 tempfile.workspace = true
 diffy.workspace = true
