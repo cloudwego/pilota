@@ -1,7 +1,13 @@
+mod salsa_ids;
+pub mod cached_queries;
+
 use std::{fmt::Debug, path::PathBuf, sync::Arc};
 
 use faststr::FastStr;
 use rustc_hash::{FxHashMap, FxHashSet};
+
+pub use salsa_ids::{SalsaDefId, SalsaFileId, IntoSalsa};
+pub use cached_queries::CachedQueries;
 
 use crate::{
     middle::context::{CrateId, DefLocation},
@@ -332,6 +338,42 @@ pub trait RirDatabase: salsa::Database {
     }
 }
 
+// Extension trait for cached queries
+pub trait RirDatabaseExt: RirDatabase + CachedQueries + Sized {
+    /// Get a node using the cached version
+    fn node_cached(&self, def_id: DefId) -> Option<Node> {
+        let salsa_id = def_id.into_salsa(self);
+        cached_queries::get_node(self, salsa_id)
+    }
+    
+    /// Get a file using the cached version
+    fn file_cached(&self, file_id: FileId) -> Option<Arc<File>> {
+        let salsa_id = file_id.into_salsa(self);
+        cached_queries::get_file(self, salsa_id)
+    }
+    
+    /// Get an item using the cached version
+    fn item_cached(&self, def_id: DefId) -> Option<Arc<Item>> {
+        let salsa_id = def_id.into_salsa(self);
+        cached_queries::get_item(self, salsa_id)
+    }
+    
+    /// Get service methods using the cached version
+    fn service_methods_cached(&self, def_id: DefId) -> Arc<[Arc<rir::Method>]> {
+        let salsa_id = def_id.into_salsa(self);
+        cached_queries::get_service_methods(self, salsa_id)
+    }
+    
+    /// Check if DefId is an argument using the cached version
+    fn is_arg_cached_ext(&self, def_id: DefId) -> bool {
+        let salsa_id = def_id.into_salsa(self);
+        cached_queries::is_arg_cached(self, salsa_id)
+    }
+}
+
+// Implement the extension trait for any type that implements both traits
+impl<T: RirDatabase + CachedQueries> RirDatabaseExt for T {}
+
 // 为 RootDatabase 实现 RirDatabase trait
 impl RirDatabase for RootDatabase {
     fn nodes(&self) -> &Arc<FxHashMap<DefId, rir::Node>> {
@@ -372,3 +414,5 @@ impl Debug for RootDatabase {
         write!(f, "RootDatabase {{ .. }}")
     }
 }
+
+
