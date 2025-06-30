@@ -62,7 +62,7 @@ impl DerefMut for Tags {
 #[macro_export]
 macro_rules! tags {
     {
-        $($value: expr_2021),*
+        $($value: expr),*
     } => {
         {
             let mut tags = $crate::tags::Tags::default();

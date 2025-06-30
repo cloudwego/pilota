@@ -182,7 +182,7 @@ impl<T> TCompactOutputProtocol<T> {
 }
 
 macro_rules! write_field_header_len {
-    ($self:expr_2021, $ax:expr_2021, $field_type:expr_2021, $id:expr_2021) => {
+    ($self:expr, $ax:expr, $field_type:expr, $id:expr) => {
         let field_delta = $id - $self.last_write_field_id;
         if field_delta > 0 && field_delta < 15 {
             $ax += $self.byte_len(0);
@@ -1297,7 +1297,7 @@ impl TCompactInputProtocol<&mut Bytes> {
 }
 
 macro_rules! read_field_header_len {
-    ($self:expr_2021, $ax:expr_2021, $field_type:expr_2021, $id:expr_2021) => {
+    ($self:expr, $ax:expr, $field_type:expr, $id:expr) => {
         let field_delta = $id - $self.last_read_field_id;
         if field_delta > 0 && field_delta < 15 {
             $ax += $self.byte_len(0);
@@ -1770,7 +1770,7 @@ mod tests {
 
     #[cfg(test)]
     macro_rules! assert_success {
-        ($e: expr_2021) => {{
+        ($e: expr) => {{
             let res = $e;
             assert!(res.is_ok());
             res.unwrap()
@@ -1795,7 +1795,7 @@ mod tests {
         let mut trans = BytesMut::new();
         let mut o_prot = test_output_prot_bytesmut(&mut trans);
         macro_rules! mteq {
-            ($o:expr_2021, $exp:expr_2021) => {
+            ($o:expr, $exp:expr) => {
                 assert_eq!($exp, $o.trans.len());
                 $o.trans.clear();
             };

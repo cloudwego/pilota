@@ -897,7 +897,7 @@ struct SkipData {
 }
 
 macro_rules! skip_stack_pop {
-    ($stack: expr_2021) => {
+    ($stack: expr) => {
         let top: &mut SkipData = $stack.last_mut().unwrap();
         top.len -= 1;
         if (top.len == 0) {

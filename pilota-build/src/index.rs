@@ -56,7 +56,7 @@ macro_rules! newtype_index {
     (@derives      [$($derives:ident,)*]
      @attrs        [$(#[$attrs:meta])*]
      @type         [$type:ident]
-     @max          [$max:expr_2021]
+     @max          [$max:expr]
      @vis          [$v:vis]
      @debug_format [$debug_format:tt]) => (
         $(#[$attrs])*
@@ -229,7 +229,7 @@ macro_rules! newtype_index {
 
     (@attrs        [$(#[$attrs:meta])*]
      @type         [$type:ident]
-     @max          [$max:expr_2021]
+     @max          [$max:expr]
      @vis          [$v:vis]
      @debug_format [$debug_format:tt]
                    $($tokens:tt)*) => (

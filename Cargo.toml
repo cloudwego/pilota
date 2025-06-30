@@ -7,15 +7,15 @@ members = [
     "pilota-thrift-fieldmask",
     "examples",
 ]
-resolver = "3"
+resolver = "2"
 
 [workspace.package]
 authors = ["Pilota Team <pilota@cloudwego.io>"]
-edition = "2024"
+edition = "2021"
 homepage = "https://cloudwego.io/docs/pilota/"
 repository = "https://github.com/cloudwego/pilota"
 license = "MIT OR Apache-2.0"
-rust-version = "1.85.0"
+rust-version = "1.70.0"
 
 [workspace.dependencies]
 ahash = "0.8"
@@ -44,7 +44,7 @@ quote = "1"
 rand = "0.9"
 rayon = "1"
 rustc-hash = "1"
-salsa = { version = "0.23.0" }
+salsa = { version = "0.17.0-pre.2" }
 scoped-tls = "1"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"

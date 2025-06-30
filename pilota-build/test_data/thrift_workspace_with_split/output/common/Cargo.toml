@@ -11,6 +11,6 @@ workspace = true
 workspace = true
 
 [package]
-edition = "2024"
+edition = "2021"
 name = "common"
 version = "0.1.0"
