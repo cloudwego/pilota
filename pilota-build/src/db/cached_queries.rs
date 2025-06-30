@@ -1,15 +1,39 @@
 //! Cached query functions using Salsa's tracked mechanism
 
 use std::sync::Arc;
+use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::{
-    db::{RirDatabase, RootDatabase, SalsaDefId, SalsaFileId},
+    db::{RootDatabase, SalsaDefId, SalsaFileId},
     rir::{self, File, Item, Node},
+    symbol::{DefId, FileId},
 };
+
+// Define a trait for basic database access without circular dependency
+pub trait DatabaseStorage: salsa::Database {
+    fn nodes(&self) -> &Arc<FxHashMap<DefId, rir::Node>>;
+    fn files(&self) -> &Arc<FxHashMap<FileId, Arc<rir::File>>>;
+    fn args(&self) -> &Arc<FxHashSet<DefId>>;
+}
 
 // We create a separate trait that includes the tracked functions
 #[salsa::db]
-pub trait CachedQueries: RirDatabase + salsa::Database {}
+pub trait CachedQueries: DatabaseStorage + salsa::Database {}
+
+// Implement DatabaseStorage for RootDatabase
+impl DatabaseStorage for RootDatabase {
+    fn nodes(&self) -> &Arc<FxHashMap<DefId, rir::Node>> {
+        &self.nodes
+    }
+    
+    fn files(&self) -> &Arc<FxHashMap<FileId, Arc<rir::File>>> {
+        &self.files
+    }
+    
+    fn args(&self) -> &Arc<FxHashSet<DefId>> {
+        &self.args
+    }
+}
 
 // Implement for RootDatabase
 #[salsa::db]

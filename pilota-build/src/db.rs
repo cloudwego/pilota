@@ -282,97 +282,25 @@ pub trait RirDatabase: salsa::Database {
     fn args(&self) -> &Arc<FxHashSet<DefId>>;
     fn workspace_graph(&self) -> &Arc<WorkspaceGraph>;
     
-    // 查询方法 - 直接实现，不使用 tracked
-    fn node(&self, def_id: DefId) -> Option<Node> {
-        self.nodes().get(&def_id).cloned()
-    }
+    // 查询方法
+    fn node(&self, def_id: DefId) -> Option<Node>;
     
-    fn file(&self, file_id: FileId) -> Option<Arc<File>> {
-        self.files().get(&file_id).cloned()
-    }
+    fn file(&self, file_id: FileId) -> Option<Arc<File>>;
     
     fn file_id(&self, path: PathBuf) -> Option<FileId> {
         self.file_ids_map().get(&path).cloned()
     }
     
-    fn item(&self, def_id: DefId) -> Option<Arc<Item>> {
-        let node = self.node(def_id)?;
-        match node.kind {
-            rir::NodeKind::Item(i) => Some(i),
-            _ => panic!("{def_id:?} is not an item"),
-        }
-    }
+    fn item(&self, def_id: DefId) -> Option<Arc<Item>>;
     
     fn expect_item(&self, def_id: DefId) -> Arc<Item> {
         self.item(def_id).unwrap()
     }
     
-    fn service_methods(&self, def_id: DefId) -> Arc<[Arc<rir::Method>]> {
-        let item = self.expect_item(def_id);
-        let service = match &*item {
-            rir::Item::Service(s) => s,
-            _ => panic!(),
-        };
-        let methods = service
-            .extend
-            .iter()
-            .flat_map(|p| {
-                self.service_methods(p.did)
-                    .iter()
-                    .map(|m| match m.source {
-                        rir::MethodSource::Extend(_) => m.clone(),
-                        rir::MethodSource::Own => Arc::from(rir::Method {
-                            source: rir::MethodSource::Extend(p.did),
-                            ..(**m).clone()
-                        }),
-                    })
-                    .collect::<Vec<_>>()
-            })
-            .chain(service.methods.iter().cloned());
-
-        Arc::from_iter(methods)
-    }
+    fn service_methods(&self, def_id: DefId) -> Arc<[Arc<rir::Method>]>;
     
-    fn is_arg(&self, def_id: DefId) -> bool {
-        self.args().contains(&def_id)
-    }
+    fn is_arg(&self, def_id: DefId) -> bool;
 }
-
-// Extension trait for cached queries
-pub trait RirDatabaseExt: RirDatabase + CachedQueries + Sized {
-    /// Get a node using the cached version
-    fn node_cached(&self, def_id: DefId) -> Option<Node> {
-        let salsa_id = def_id.into_salsa(self);
-        cached_queries::get_node(self, salsa_id)
-    }
-    
-    /// Get a file using the cached version
-    fn file_cached(&self, file_id: FileId) -> Option<Arc<File>> {
-        let salsa_id = file_id.into_salsa(self);
-        cached_queries::get_file(self, salsa_id)
-    }
-    
-    /// Get an item using the cached version
-    fn item_cached(&self, def_id: DefId) -> Option<Arc<Item>> {
-        let salsa_id = def_id.into_salsa(self);
-        cached_queries::get_item(self, salsa_id)
-    }
-    
-    /// Get service methods using the cached version
-    fn service_methods_cached(&self, def_id: DefId) -> Arc<[Arc<rir::Method>]> {
-        let salsa_id = def_id.into_salsa(self);
-        cached_queries::get_service_methods(self, salsa_id)
-    }
-    
-    /// Check if DefId is an argument using the cached version
-    fn is_arg_cached_ext(&self, def_id: DefId) -> bool {
-        let salsa_id = def_id.into_salsa(self);
-        cached_queries::is_arg_cached(self, salsa_id)
-    }
-}
-
-// Implement the extension trait for any type that implements both traits
-impl<T: RirDatabase + CachedQueries> RirDatabaseExt for T {}
 
 // 为 RootDatabase 实现 RirDatabase trait
 impl RirDatabase for RootDatabase {
@@ -407,30 +335,36 @@ impl RirDatabase for RootDatabase {
     fn workspace_graph(&self) -> &Arc<WorkspaceGraph> {
         &self.workspace_graph
     }
-
+    
+    // 使用缓存实现查询方法
     fn node(&self, def_id: DefId) -> Option<Node> {
-        // Use cached version for better performance
-        self.node_cached(def_id)
+        use cached_queries::{CachedQueries, get_node};
+        let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
+        get_node(self as &dyn CachedQueries, salsa_id)
     }
-
-    fn item(&self, def_id: DefId) -> Option<Arc<Item>> {
-        // Use cached version for better performance
-        self.item_cached(def_id)
-    }
-
+    
     fn file(&self, file_id: FileId) -> Option<Arc<File>> {
-        // Use cached version for better performance
-        self.file_cached(file_id)
+        use cached_queries::{CachedQueries, get_file};
+        let salsa_id = file_id.into_salsa(self as &dyn CachedQueries);
+        get_file(self as &dyn CachedQueries, salsa_id)
     }
-
-    fn service_methods(&self, service_def_id: DefId) -> Arc<[Arc<rir::Method>]> {
-        // Use cached version for better performance
-        self.service_methods_cached(service_def_id)
+    
+    fn item(&self, def_id: DefId) -> Option<Arc<Item>> {
+        use cached_queries::{CachedQueries, get_item};
+        let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
+        get_item(self as &dyn CachedQueries, salsa_id)
     }
-
+    
+    fn service_methods(&self, def_id: DefId) -> Arc<[Arc<rir::Method>]> {
+        use cached_queries::{CachedQueries, get_service_methods};
+        let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
+        get_service_methods(self as &dyn CachedQueries, salsa_id)
+    }
+    
     fn is_arg(&self, def_id: DefId) -> bool {
-        // Use cached version for better performance
-        self.is_arg_cached_ext(def_id)
+        use cached_queries::{CachedQueries, is_arg_cached};
+        let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
+        is_arg_cached(self as &dyn CachedQueries, salsa_id)
     }
 }
 

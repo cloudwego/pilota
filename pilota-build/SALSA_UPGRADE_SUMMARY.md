@@ -37,27 +37,20 @@ pub struct SalsaFileId<'db> {
 - `get_service_methods` - Cached service methods (recursive, benefits greatly from caching)
 - `is_arg_cached` - Cached argument check
 
-#### Added Convenience Methods via `RirDatabaseExt` trait
-- `node_cached()` - Uses cached node lookup
-- `file_cached()` - Uses cached file lookup
-- `item_cached()` - Uses cached item lookup
-- `service_methods_cached()` - Uses cached service methods
-- `is_arg_cached_ext()` - Uses cached argument check
-
-### 4. Performance Integration
-Modified the original RirDatabase trait methods to internally use the cached versions:
+#### Direct Integration into RirDatabase Methods
+The caching is now directly implemented in the RirDatabase trait methods for RootDatabase:
 ```rust
 fn node(&self, def_id: DefId) -> Option<Node> {
-    self.node_cached(def_id)  // Now uses cache
+    use cached_queries::{CachedQueries, get_node};
+    let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
+    get_node(self as &dyn CachedQueries, salsa_id)
 }
 ```
 
-This ensures all existing code automatically benefits from caching without any changes needed at call sites.
-
 ## Performance Benefits
 The example (`examples/salsa_cache_demo.rs`) demonstrates significant performance improvements:
-- **Item lookup**: 46.60x speedup on cached queries
-- **Service methods**: 8.96x speedup on cached queries
+- **Item lookup**: 47x speedup on cached queries
+- **Service methods**: 11x speedup on cached queries
 
 ## Usage
 All existing code continues to work as before, but now with automatic caching:
@@ -70,17 +63,10 @@ db.service_methods(def_id)
 db.is_arg(def_id)
 ```
 
-For explicit cache control, use the `*_cached` methods:
-```rust
-db.node_cached(def_id)
-db.file_cached(file_id)
-db.item_cached(def_id)
-db.service_methods_cached(def_id)
-db.is_arg_cached_ext(def_id)
-```
+No special `*_cached` methods are needed - the standard methods automatically benefit from Salsa's caching.
 
 ## Files Modified
-- `src/db.rs` - Main database implementation
+- `src/db.rs` - Main database implementation with integrated caching
 - `src/db/salsa_ids.rs` - Salsa wrapper types
 - `src/db/cached_queries.rs` - Cached query implementations
 - `src/middle/context.rs` - Removed ParallelDatabase usage

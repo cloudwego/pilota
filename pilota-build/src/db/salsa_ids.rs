@@ -20,13 +20,13 @@ pub struct SalsaFileId<'db> {
 // Helper trait to convert between regular IDs and Salsa IDs
 pub trait IntoSalsa {
     type SalsaType<'db>;
-    fn into_salsa<'db>(self, db: &'db dyn crate::db::RirDatabase) -> Self::SalsaType<'db>;
+    fn into_salsa<'db>(self, db: &'db dyn crate::db::cached_queries::CachedQueries) -> Self::SalsaType<'db>;
 }
 
 impl IntoSalsa for DefId {
     type SalsaType<'db> = SalsaDefId<'db>;
     
-    fn into_salsa<'db>(self, db: &'db dyn crate::db::RirDatabase) -> SalsaDefId<'db> {
+    fn into_salsa<'db>(self, db: &'db dyn crate::db::cached_queries::CachedQueries) -> SalsaDefId<'db> {
         SalsaDefId::new(db, self)
     }
 }
@@ -34,7 +34,7 @@ impl IntoSalsa for DefId {
 impl IntoSalsa for FileId {
     type SalsaType<'db> = SalsaFileId<'db>;
     
-    fn into_salsa<'db>(self, db: &'db dyn crate::db::RirDatabase) -> SalsaFileId<'db> {
+    fn into_salsa<'db>(self, db: &'db dyn crate::db::cached_queries::CachedQueries) -> SalsaFileId<'db> {
         SalsaFileId::new(db, self)
     }
 }

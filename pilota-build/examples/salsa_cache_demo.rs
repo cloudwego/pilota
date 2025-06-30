@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use pilota_build::{
-    db::{RootDatabase, RirDatabaseExt},
+    db::{RootDatabase, RirDatabase},
     rir::{self, Node, NodeKind, Method, MethodSource},
     ty::{Ty, TyKind},
     DefId, TagId,
@@ -75,12 +75,12 @@ fn main() {
     // Test item lookup caching
     println!("\nTesting item lookup cache:");
     let start = std::time::Instant::now();
-    let item1 = db.item_cached(def_id);
+    let item1 = db.item(def_id);
     let duration1 = start.elapsed();
     println!("First call - Result: {:?}, Time: {:?}", item1.is_some(), duration1);
     
     let start = std::time::Instant::now();
-    let item2 = db.item_cached(def_id);
+    let item2 = db.item(def_id);
     let duration2 = start.elapsed();
     println!("Second call - Result: {:?}, Time: {:?}", item2.is_some(), duration2);
     
@@ -91,12 +91,12 @@ fn main() {
     // Test service methods caching
     println!("\n\nTesting service_methods cache:");
     let start = std::time::Instant::now();
-    let methods1 = db.service_methods_cached(def_id);
+    let methods1 = db.service_methods(def_id);
     let duration1 = start.elapsed();
     println!("First call - Methods count: {}, Time: {:?}", methods1.len(), duration1);
     
     let start = std::time::Instant::now();
-    let methods2 = db.service_methods_cached(def_id);
+    let methods2 = db.service_methods(def_id);
     let duration2 = start.elapsed();
     println!("Second call - Methods count: {}, Time: {:?}", methods2.len(), duration2);
     
@@ -105,10 +105,10 @@ fn main() {
     }
     
     println!("\nNote: The caching functionality is now integrated into pilota-build!");
-    println!("Use the *_cached methods to benefit from Salsa's caching:");
-    println!("  - db.node_cached(def_id)");
-    println!("  - db.file_cached(file_id)");
-    println!("  - db.item_cached(def_id)");
-    println!("  - db.service_methods_cached(def_id)");
-    println!("  - db.is_arg_cached_ext(def_id)");
+    println!("All database queries now automatically benefit from Salsa's caching:");
+    println!("  - db.node(def_id)");
+    println!("  - db.file(file_id)");
+    println!("  - db.item(def_id)");
+    println!("  - db.service_methods(def_id)");
+    println!("  - db.is_arg(def_id)");
 }
