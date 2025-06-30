@@ -535,7 +535,7 @@ impl CodegenBackend for ProtobufBackend {
 
         stream.push_str(&format! {
             r#"impl {name} {{
-                pub fn encode(&self, buf: &mut Self::BufMut) {{
+                pub fn encode(&self, buf: &mut ::pilota::LinkedBytes) {{
                     match self {{
                         {encode}
                     }}
