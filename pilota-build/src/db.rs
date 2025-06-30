@@ -407,6 +407,31 @@ impl RirDatabase for RootDatabase {
     fn workspace_graph(&self) -> &Arc<WorkspaceGraph> {
         &self.workspace_graph
     }
+
+    fn node(&self, def_id: DefId) -> Option<Node> {
+        // Use cached version for better performance
+        self.node_cached(def_id)
+    }
+
+    fn item(&self, def_id: DefId) -> Option<Arc<Item>> {
+        // Use cached version for better performance
+        self.item_cached(def_id)
+    }
+
+    fn file(&self, file_id: FileId) -> Option<Arc<File>> {
+        // Use cached version for better performance
+        self.file_cached(file_id)
+    }
+
+    fn service_methods(&self, service_def_id: DefId) -> Arc<[Arc<rir::Method>]> {
+        // Use cached version for better performance
+        self.service_methods_cached(service_def_id)
+    }
+
+    fn is_arg(&self, def_id: DefId) -> bool {
+        // Use cached version for better performance
+        self.is_arg_cached_ext(def_id)
+    }
 }
 
 impl Debug for RootDatabase {

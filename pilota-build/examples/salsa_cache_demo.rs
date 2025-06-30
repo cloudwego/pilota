@@ -3,69 +3,90 @@
 use std::sync::Arc;
 
 use pilota_build::{
-    db::{RootDatabase, RirDatabase, RirDatabaseExt, CachedQueries, IntoSalsa},
-    rir::{self, Item, Node, NodeKind, Method},
-    symbol::{DefId, FileId},
+    db::{RootDatabase, RirDatabaseExt},
+    rir::{self, Node, NodeKind, Method, MethodSource},
+    ty::{Ty, TyKind},
+    DefId, TagId,
 };
 use rustc_hash::FxHashMap;
+
+// We need to create FileId from scratch since it's not exposed
+#[derive(Copy, Clone, Hash, PartialEq, Eq, Debug)]
+struct FileId(u32);
+
+impl FileId {
+    fn from_u32(val: u32) -> Self {
+        FileId(val)
+    }
+}
 
 fn main() {
     // Create a database
     let mut db = RootDatabase::default();
     
     // Create some test data
-    let def_id = DefId(0);
-    let file_id = FileId(0);
+    let def_id = DefId::from_u32(0);
+    let _file_id = FileId::from_u32(0);
     
     // Create a service item
     let service = rir::Item::Service(rir::Service {
         name: "TestService".into(),
         methods: vec![
             Arc::new(Method {
-                def_id: DefId(1),
+                def_id: DefId::from_u32(1),
                 name: "method1".into(),
                 args: vec![],
-                ret: rir::Ty { kind: Arc::new(rir::ty::TyKind::Unit) },
+                ret: Ty { 
+                    kind: TyKind::Void,
+                    tags_id: TagId::from_u32(0),
+                },
                 oneway: false,
                 exceptions: None,
-                source: rir::MethodSource::Own,
+                source: MethodSource::Own,
             })
         ],
         extend: vec![],
     });
     
     // Create nodes
-    let mut nodes = FxHashMap::default();
-    nodes.insert(def_id, Node {
-        file_id,
+    let nodes = FxHashMap::default();
+    
+    // Since we can't access the actual FileId type, let's demonstrate caching with DefId operations
+    println!("Testing Salsa cache functionality...");
+    
+    // Update database with empty nodes for now
+    db = db.with_nodes(nodes);
+    
+    // Let's test with a simpler example that doesn't require FileId
+    println!("\nExample: Demonstrating caching with DefId operations");
+    
+    // Create some nodes without FileId
+    let mut new_nodes = FxHashMap::default();
+    new_nodes.insert(def_id, Node {
+        file_id: unsafe { std::mem::transmute(0u32) }, // Workaround for demo
         kind: NodeKind::Item(Arc::new(service)),
         parent: None,
-        tags: 0.into(),
+        tags: TagId::from_u32(0),
         related_nodes: vec![],
     });
     
-    // Update database
-    db = db.with_nodes(nodes);
+    db = db.with_nodes(new_nodes);
     
-    println!("Testing Salsa cache functionality...");
-    
-    // First call - will compute
-    println!("\nFirst call (will compute):");
+    // Test item lookup caching
+    println!("\nTesting item lookup cache:");
     let start = std::time::Instant::now();
     let item1 = db.item_cached(def_id);
     let duration1 = start.elapsed();
-    println!("Result: {:?}", item1.is_some());
-    println!("Time: {:?}", duration1);
+    println!("First call - Result: {:?}, Time: {:?}", item1.is_some(), duration1);
     
-    // Second call - should use cache
-    println!("\nSecond call (should use cache):");
     let start = std::time::Instant::now();
     let item2 = db.item_cached(def_id);
     let duration2 = start.elapsed();
-    println!("Result: {:?}", item2.is_some());
-    println!("Time: {:?}", duration2);
+    println!("Second call - Result: {:?}, Time: {:?}", item2.is_some(), duration2);
     
-    println!("\nCache speedup: {:.2}x", duration1.as_nanos() as f64 / duration2.as_nanos() as f64);
+    if duration1.as_nanos() > 0 && duration2.as_nanos() > 0 {
+        println!("Cache speedup: {:.2}x", duration1.as_nanos() as f64 / duration2.as_nanos() as f64);
+    }
     
     // Test service methods caching
     println!("\n\nTesting service_methods cache:");
@@ -79,5 +100,15 @@ fn main() {
     let duration2 = start.elapsed();
     println!("Second call - Methods count: {}, Time: {:?}", methods2.len(), duration2);
     
-    println!("Service methods cache speedup: {:.2}x", duration1.as_nanos() as f64 / duration2.as_nanos() as f64);
+    if duration1.as_nanos() > 0 && duration2.as_nanos() > 0 {
+        println!("Service methods cache speedup: {:.2}x", duration1.as_nanos() as f64 / duration2.as_nanos() as f64);
+    }
+    
+    println!("\nNote: The caching functionality is now integrated into pilota-build!");
+    println!("Use the *_cached methods to benefit from Salsa's caching:");
+    println!("  - db.node_cached(def_id)");
+    println!("  - db.file_cached(file_id)");
+    println!("  - db.item_cached(def_id)");
+    println!("  - db.service_methods_cached(def_id)");
+    println!("  - db.is_arg_cached_ext(def_id)");
 }
