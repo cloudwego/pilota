@@ -97,7 +97,7 @@ pub mod oneof {
             B(i32),
         }
         impl Test {
-            pub fn encode(&self, buf: &mut Self::BufMut) {
+            pub fn encode(&self, buf: &mut ::pilota::LinkedBytes) {
                 match self {
                     Test::A(value) => {
                         ::pilota::pb::encoding::faststr::encode(6, &*value, buf);
@@ -164,7 +164,7 @@ pub mod oneof {
             I(i32),
         }
         impl Type {
-            pub fn encode(&self, buf: &mut Self::BufMut) {
+            pub fn encode(&self, buf: &mut ::pilota::LinkedBytes) {
                 match self {
                     Type::S(value) => {
                         ::pilota::pb::encoding::faststr::encode(2, &*value, buf);
