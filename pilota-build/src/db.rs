@@ -1,13 +1,13 @@
-mod salsa_ids;
 pub mod cached_queries;
+mod salsa_ids;
 
 use std::{fmt::Debug, path::PathBuf, sync::Arc};
 
 use faststr::FastStr;
 use rustc_hash::{FxHashMap, FxHashSet};
 
-pub use salsa_ids::{SalsaDefId, SalsaFileId, IntoSalsa};
 pub use cached_queries::CachedQueries;
+pub use salsa_ids::{IntoSalsa, SalsaDefId, SalsaFileId};
 
 use crate::{
     middle::context::{CrateId, DefLocation},
@@ -76,18 +76,12 @@ impl RootDatabase {
         self
     }
 
-    pub fn with_files(
-        mut self,
-        files: impl Iterator<Item = (FileId, Arc<File>)>,
-    ) -> Self {
+    pub fn with_files(mut self, files: impl Iterator<Item = (FileId, Arc<File>)>) -> Self {
         self.files = Arc::new(files.collect());
         self
     }
 
-    pub fn with_file_ids_map(
-        mut self,
-        file_ids_map: FxHashMap<Arc<PathBuf>, FileId>,
-    ) -> Self {
+    pub fn with_file_ids_map(mut self, file_ids_map: FxHashMap<Arc<PathBuf>, FileId>) -> Self {
         self.file_ids_map = Arc::new(file_ids_map);
         self
     }
@@ -138,10 +132,7 @@ impl RootDatabase {
             }
             if let Some(locations) = locations {
                 map.insert(def_id, locations[&def_id].clone());
-            } else if let Some(item) = db.item(def_id) {
-                if matches!(&*item, rir::Item::Mod(_)) {
-                    return;
-                }
+            } else if !matches!(&*db.item(def_id).unwrap(), rir::Item::Mod(_)) {
                 let file_id = db.node(def_id).unwrap().file_id;
 
                 if db.input_files().contains(&file_id) {
@@ -281,24 +272,24 @@ pub trait RirDatabase: salsa::Database {
     fn input_files(&self) -> &Arc<Vec<FileId>>;
     fn args(&self) -> &Arc<FxHashSet<DefId>>;
     fn workspace_graph(&self) -> &Arc<WorkspaceGraph>;
-    
+
     // 查询方法
     fn node(&self, def_id: DefId) -> Option<Node>;
-    
+
     fn file(&self, file_id: FileId) -> Option<Arc<File>>;
-    
+
     fn file_id(&self, path: PathBuf) -> Option<FileId> {
         self.file_ids_map().get(&path).cloned()
     }
-    
+
     fn item(&self, def_id: DefId) -> Option<Arc<Item>>;
-    
+
     fn expect_item(&self, def_id: DefId) -> Arc<Item> {
         self.item(def_id).unwrap()
     }
-    
+
     fn service_methods(&self, def_id: DefId) -> Arc<[Arc<rir::Method>]>;
-    
+
     fn is_arg(&self, def_id: DefId) -> bool;
 }
 
@@ -307,60 +298,60 @@ impl RirDatabase for RootDatabase {
     fn nodes(&self) -> &Arc<FxHashMap<DefId, rir::Node>> {
         &self.nodes
     }
-    
+
     fn files(&self) -> &Arc<FxHashMap<FileId, Arc<rir::File>>> {
         &self.files
     }
-    
+
     fn file_ids_map(&self) -> &Arc<FxHashMap<Arc<PathBuf>, FileId>> {
         &self.file_ids_map
     }
-    
+
     fn type_graph(&self) -> &Arc<TypeGraph> {
         &self.type_graph
     }
-    
+
     fn tags_map(&self) -> &Arc<FxHashMap<TagId, Arc<Tags>>> {
         &self.tags_map
     }
-    
+
     fn input_files(&self) -> &Arc<Vec<FileId>> {
         &self.input_files
     }
-    
+
     fn args(&self) -> &Arc<FxHashSet<DefId>> {
         &self.args
     }
-    
+
     fn workspace_graph(&self) -> &Arc<WorkspaceGraph> {
         &self.workspace_graph
     }
-    
+
     // 使用缓存实现查询方法
     fn node(&self, def_id: DefId) -> Option<Node> {
         use cached_queries::{CachedQueries, get_node};
         let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
         get_node(self as &dyn CachedQueries, salsa_id)
     }
-    
+
     fn file(&self, file_id: FileId) -> Option<Arc<File>> {
         use cached_queries::{CachedQueries, get_file};
         let salsa_id = file_id.into_salsa(self as &dyn CachedQueries);
         get_file(self as &dyn CachedQueries, salsa_id)
     }
-    
+
     fn item(&self, def_id: DefId) -> Option<Arc<Item>> {
         use cached_queries::{CachedQueries, get_item};
         let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
         get_item(self as &dyn CachedQueries, salsa_id)
     }
-    
+
     fn service_methods(&self, def_id: DefId) -> Arc<[Arc<rir::Method>]> {
         use cached_queries::{CachedQueries, get_service_methods};
         let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
         get_service_methods(self as &dyn CachedQueries, salsa_id)
     }
-    
+
     fn is_arg(&self, def_id: DefId) -> bool {
         use cached_queries::{CachedQueries, is_arg_cached};
         let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
@@ -373,5 +364,3 @@ impl Debug for RootDatabase {
         write!(f, "RootDatabase {{ .. }}")
     }
 }
-
-
