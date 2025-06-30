@@ -132,7 +132,10 @@ impl RootDatabase {
             }
             if let Some(locations) = locations {
                 map.insert(def_id, locations[&def_id].clone());
-            } else if !matches!(&*db.item(def_id).unwrap(), rir::Item::Mod(_)) {
+            } else if let Some(item) = db.item(def_id) {
+                if matches!(&*item, rir::Item::Mod(_)) {
+                    return;
+                }
                 let file_id = db.node(def_id).unwrap().file_id;
 
                 if db.input_files().contains(&file_id) {

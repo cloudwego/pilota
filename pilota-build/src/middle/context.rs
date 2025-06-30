@@ -461,22 +461,35 @@ impl Context {
     }
 
     fn get_codegen_ty_for_path(&self, def_id: DefId) -> CodegenTy {
-        let item = self.item(def_id).unwrap();
-        match &*item {
-            Item::Const(c) => c.ty.kind.to_codegen_const_ty(&self.db),
-            Item::Enum(_) => CodegenTy::Adt(AdtDef {
-                did: def_id,
-                kind: AdtKind::Enum,
-            }),
-            Item::NewType(t) => CodegenTy::Adt(AdtDef {
-                did: def_id,
-                kind: AdtKind::NewType(Arc::new(t.ty.kind.to_codegen_item_ty(&self.db))),
-            }),
-            Item::Message(_) => CodegenTy::Adt(AdtDef {
-                did: def_id,
-                kind: AdtKind::Struct,
-            }),
-            _ => panic!("Unexpected item type for path: {:?}", item),
+        let node = self.node(def_id).unwrap();
+        match &node.kind {
+            NodeKind::Item(item) => match &**item {
+                Item::Const(c) => c.ty.kind.to_codegen_const_ty(&self.db),
+                Item::Enum(_) => CodegenTy::Adt(AdtDef {
+                    did: def_id,
+                    kind: AdtKind::Enum,
+                }),
+                Item::NewType(t) => CodegenTy::Adt(AdtDef {
+                    did: def_id,
+                    kind: AdtKind::NewType(Arc::new(t.ty.kind.to_codegen_item_ty(&self.db))),
+                }),
+                Item::Message(_) => CodegenTy::Adt(AdtDef {
+                    did: def_id,
+                    kind: AdtKind::Struct,
+                }),
+                _ => panic!("Unexpected item type for path: {:?}", item),
+            },
+            NodeKind::Variant(_v) => {
+                // For enum variants, get the parent enum's type
+                let parent_def_id = node.parent.unwrap();
+                CodegenTy::Adt(AdtDef {
+                    did: parent_def_id,
+                    kind: AdtKind::Enum,
+                })
+            }
+            NodeKind::Field(_) | NodeKind::Method(_) | NodeKind::Arg(_) => {
+                panic!("Unexpected node kind for path: {:?}", node.kind)
+            }
         }
     }
 
