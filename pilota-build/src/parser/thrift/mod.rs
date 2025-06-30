@@ -10,7 +10,6 @@ use pilota_thrift_parser::{
 };
 use pilota_thrift_reflect::thrift_reflection;
 use rustc_hash::{FxHashMap, FxHashSet};
-use salsa::ParallelDatabase;
 use thrift_parser::Annotations;
 
 use crate::{
@@ -22,44 +21,35 @@ use crate::{
     util::error_abort,
 };
 
-#[salsa::query_group(SourceDatabaseStorage)]
-trait SourceDatabase {
-    fn file_text(&self, path: PathBuf) -> Arc<str>;
-    fn parse(&self, path: PathBuf) -> Arc<thrift_parser::File>;
-}
-
-fn file_text(_db: &dyn SourceDatabase, path: PathBuf) -> Arc<str> {
-    Arc::from(unsafe { String::from_utf8_unchecked(std::fs::read(path).unwrap()) })
-}
-
-fn parse(db: &dyn SourceDatabase, path: PathBuf) -> Arc<thrift_parser::File> {
-    let text = db.file_text(path.clone());
-    let mut ast = thrift_parser::File::parse(&text).unwrap().1;
-    ast.path = Arc::from(path);
-    ast.uuid = generate_short_uuid();
-    let descriptor = thrift_reflection::FileDescriptor::from(&ast);
-    ast.descriptor = descriptor.serialize();
-    Arc::from(ast)
-}
-
 fn generate_short_uuid() -> FastStr {
     let uuid: [u8; 4] = rand::random();
     FastStr::new(hex::encode(uuid))
 }
 
-#[derive(Default)]
-#[salsa::database(SourceDatabaseStorage)]
+#[salsa::db]
+#[derive(Default, Clone)]
 struct ThriftSourceDatabase {
-    storage: salsa::Storage<ThriftSourceDatabase>,
+    storage: salsa::Storage<Self>,
+    file_cache: FxHashMap<PathBuf, Arc<str>>,
+    parse_cache: FxHashMap<PathBuf, Arc<thrift_parser::File>>,
 }
 
+#[salsa::db]
 impl salsa::Database for ThriftSourceDatabase {}
 
-impl salsa::ParallelDatabase for ThriftSourceDatabase {
-    fn snapshot(&self) -> salsa::Snapshot<ThriftSourceDatabase> {
-        salsa::Snapshot::new(ThriftSourceDatabase {
-            storage: self.storage.snapshot(),
-        })
+impl ThriftSourceDatabase {
+    fn file_text(&self, path: PathBuf) -> Arc<str> {
+        Arc::from(unsafe { String::from_utf8_unchecked(std::fs::read(path).unwrap()) })
+    }
+    
+    fn parse(&self, path: PathBuf) -> Arc<thrift_parser::File> {
+        let text = self.file_text(path.clone());
+        let mut ast = thrift_parser::File::parse(&text).unwrap().1;
+        ast.path = Arc::from(path);
+        ast.uuid = generate_short_uuid();
+        let descriptor = thrift_reflection::FileDescriptor::from(&ast);
+        ast.descriptor = descriptor.serialize();
+        Arc::from(ast)
     }
 }
 
@@ -78,7 +68,7 @@ pub trait Lower<Ast> {
 pub struct ThriftLower {
     cur_file: Option<Arc<thrift_parser::File>>,
     next_file_id: FileId,
-    db: salsa::Snapshot<ThriftSourceDatabase>,
+    db: ThriftSourceDatabase,
     files: FxHashMap<FileId, Arc<File>>,
     file_ids_map: FxHashMap<Arc<PathBuf>, FileId>,
     include_dirs: Vec<PathBuf>,
@@ -87,7 +77,7 @@ pub struct ThriftLower {
 }
 
 impl ThriftLower {
-    fn new(db: salsa::Snapshot<ThriftSourceDatabase>, include_dirs: Vec<PathBuf>) -> Self {
+    fn new(db: ThriftSourceDatabase, include_dirs: Vec<PathBuf>) -> Self {
         ThriftLower {
             cur_file: None,
             next_file_id: FileId::from_u32(0),
@@ -509,7 +499,7 @@ impl ThriftLower {
             id: f.id,
             ty: self.lower_method_relative_ty(&f.ty, arc_wrapper),
             kind: match f.attribute {
-                thrift_parser::Attribute::Required => FieldKind::Required,
+                pilota_thrift_parser::Attribute::Required => FieldKind::Required,
                 _ => FieldKind::Optional,
             },
             tags: tags.into(),
@@ -528,7 +518,7 @@ impl ThriftLower {
             id: f.id,
             ty: self.lower_ty(&f.ty),
             kind: match f.attribute {
-                thrift_parser::Attribute::Required => FieldKind::Required,
+                pilota_thrift_parser::Attribute::Required => FieldKind::Required,
                 _ => FieldKind::Optional,
             },
             default: f.default.as_ref().map(|c| self.lower_lit(c)),
@@ -743,13 +733,14 @@ impl super::Parser for ThriftParser {
     }
 
     fn parse(self) -> super::ParseResult {
-        let mut lower = ThriftLower::new(self.db.snapshot(), self.include_dirs.clone());
+        let db = self.db.clone();
+        let mut lower = ThriftLower::new(self.db, self.include_dirs.clone());
         let mut input_files = Vec::default();
 
         self.files.iter().for_each(|f| {
             input_files.push(
                 lower.lower(
-                    self.db.parse(
+                    db.parse(
                         f.to_path_buf()
                             .normalize()
                             .unwrap_or_else(|_| panic!("normalize path failed: {}", f.display()))

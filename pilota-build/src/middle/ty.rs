@@ -385,7 +385,23 @@ pub trait TyTransformer {
     fn path(&self, path: &Path) -> CodegenTy {
         let did = path.did;
         let db = self.get_db();
-        db.codegen_ty(did)
+        // Get the item and determine its CodegenTy
+        let item = db.item(did).unwrap();
+        match &*item {
+            crate::rir::Item::Message(_) => CodegenTy::Adt(AdtDef {
+                did,
+                kind: AdtKind::Struct,
+            }),
+            crate::rir::Item::Enum(_) => CodegenTy::Adt(AdtDef {
+                did,
+                kind: AdtKind::Enum,
+            }),
+            crate::rir::Item::NewType(t) => CodegenTy::Adt(AdtDef {
+                did,
+                kind: AdtKind::NewType(Arc::new(self.codegen_item_ty(&t.ty.kind))),
+            }),
+            _ => panic!("Invalid path type: {:?}", item),
+        }
     }
 
     #[inline]

@@ -6,7 +6,6 @@ use faststr::FastStr;
 use itertools::Itertools;
 use normpath::PathExt;
 use rustc_hash::{FxHashMap, FxHashSet};
-use salsa::ParallelDatabase;
 
 use self::tls::with_cur_item;
 use super::{
@@ -55,7 +54,7 @@ pub enum Mode {
 
 pub struct Context {
     pub source_type: SourceType,
-    pub db: salsa::Snapshot<RootDatabase>,
+    pub db: RootDatabase,
     pub adjusts: Arc<DashMap<DefId, Adjust>>,
     pub services: Arc<[crate::IdlService]>,
     pub(crate) change_case: bool,
@@ -78,7 +77,7 @@ impl Clone for Context {
     fn clone(&self) -> Self {
         Self {
             source_type: self.source_type,
-            db: self.db.snapshot(),
+            db: self.db.clone(),
             adjusts: self.adjusts.clone(),
             change_case: self.change_case,
             codegen_items: self.codegen_items.clone(),
@@ -282,9 +281,11 @@ impl ContextBuilder {
         let mut file_ids = FxHashSet::default();
         keep_unknown_fields.into_iter().for_each(|p| {
             let path = p.normalize().unwrap().into_path_buf();
-            let file_ids_map = self.db.file_ids_map();
-            let file_id = file_ids_map.get(&path).unwrap();
-            keep_files(self, file_id, &mut file_ids);
+            let file_id = {
+                let file_ids_map = self.db.file_ids_map();
+                *file_ids_map.get(&path).unwrap()
+            };
+            keep_files(self, &file_id, &mut file_ids);
 
             fn keep_files(
                 cx: &mut ContextBuilder,
@@ -294,11 +295,11 @@ impl ContextBuilder {
                 if !file_ids.insert(*file_id) {
                     return;
                 }
-                let files = cx.db.files();
-                let file = files.get(file_id).unwrap();
-                file.uses.iter().for_each(|f| keep_files(cx, f, file_ids));
-                cx.keep_unknown_fields.extend(
-                    file.items
+                let (uses, items_to_keep) = {
+                    let files = cx.db.files();
+                    let file = files.get(file_id).unwrap();
+                    let uses = file.uses.clone();
+                    let items_to_keep = file.items
                         .iter()
                         .filter(|&&def_id| match cx.db.node(def_id) {
                             Some(rir::Node {
@@ -313,8 +314,16 @@ impl ContextBuilder {
                             ),
                             _ => true,
                         })
-                        .cloned(),
-                )
+                        .cloned()
+                        .collect::<Vec<_>>();
+                    (uses, items_to_keep)
+                };
+                
+                for f in &uses {
+                    keep_files(cx, f, file_ids);
+                }
+                
+                cx.keep_unknown_fields.extend(items_to_keep);
             }
         });
     }
@@ -335,7 +344,7 @@ impl ContextBuilder {
         let mut cx = Context {
             adjusts: Default::default(),
             source_type,
-            db: self.db.snapshot(),
+            db: self.db.clone(),
             change_case,
             services,
             codegen_items: Arc::from(self.codegen_items),
@@ -393,7 +402,7 @@ impl ContextBuilder {
 }
 
 impl Deref for Context {
-    type Target = salsa::Snapshot<RootDatabase>;
+    type Target = RootDatabase;
 
     fn deref(&self) -> &Self::Target {
         &self.db
@@ -451,9 +460,29 @@ impl Context {
         item.symbol_name()
     }
 
+    fn get_codegen_ty_for_path(&self, def_id: DefId) -> CodegenTy {
+        let item = self.item(def_id).unwrap();
+        match &*item {
+            Item::Const(c) => c.ty.kind.to_codegen_const_ty(&self.db),
+            Item::Enum(_) => CodegenTy::Adt(AdtDef {
+                did: def_id,
+                kind: AdtKind::Enum,
+            }),
+            Item::NewType(t) => CodegenTy::Adt(AdtDef {
+                did: def_id,
+                kind: AdtKind::NewType(Arc::new(t.ty.kind.to_codegen_item_ty(&self.db))),
+            }),
+            Item::Message(_) => CodegenTy::Adt(AdtDef {
+                did: def_id,
+                kind: AdtKind::Struct,
+            }),
+            _ => panic!("Unexpected item type for path: {:?}", item),
+        }
+    }
+
     pub fn default_val(&self, f: &Field) -> Option<(FastStr, bool /* const? */)> {
         f.default.as_ref().map(|d| {
-            let ty = self.codegen_item_ty(f.ty.kind.clone());
+            let ty = f.ty.kind.to_codegen_item_ty(&self.db);
             match self
                 .lit_as_rvalue(d, &ty)
                 .with_context(|| format!("calc the default value for field {}", f.name))
@@ -601,7 +630,7 @@ impl Context {
     ) -> anyhow::Result<(FastStr, bool /* const? */)> {
         Ok(match (lit, ty) {
             (Literal::Path(p), ty) => {
-                let ident_ty = self.codegen_ty(p.did);
+                let ident_ty = self.get_codegen_ty_for_path(p.did);
 
                 self.ident_into_ty(p.did, &ident_ty, ty)
             }
@@ -749,7 +778,7 @@ impl Context {
 
                         if let Some(v) = v {
                             let (mut v, is_const) =
-                                self.lit_into_ty(v, &self.codegen_item_ty(f.ty.kind.clone()))?;
+                                self.lit_into_ty(v, &f.ty.kind.to_codegen_item_ty(&self.db))?;
 
                             if f.is_optional() {
                                 v = format!("Some({v})").into()

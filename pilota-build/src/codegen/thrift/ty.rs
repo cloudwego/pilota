@@ -1045,7 +1045,7 @@ impl ThriftBackend {
                 let read_list_begin = helper.codegen_read_list_begin();
                 let read_list_end = helper.codegen_read_list_end();
                 let read_el = self.codegen_decode_ty(helper, ty);
-                let ty_rust_name = self.codegen_item_ty(ty.kind.clone());
+                let ty_rust_name = ty.kind.to_codegen_item_ty(&self.cx.db);
                 if !helper.is_async {
                     format! {
                         r#"unsafe {{
@@ -1094,7 +1094,7 @@ impl ThriftBackend {
                 "::std::collections::BTreeMap::new()",
             ),
             ty::Path(_) => helper
-                .codegen_item_decode(format!("{}", self.codegen_item_ty(ty.kind.clone())).into()),
+                .codegen_item_decode(format!("{}", ty.kind.to_codegen_item_ty(&self.cx.db)).into()),
             ty::Arc(ty) => {
                 let inner = self.codegen_decode_ty(helper, ty);
                 format!("::std::sync::Arc::new({inner})").into()

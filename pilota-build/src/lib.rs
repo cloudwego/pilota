@@ -43,7 +43,7 @@ use parser::{ParseResult, Parser, protobuf::ProtobufParser, thrift::ThriftParser
 use plugin::{AutoDerivePlugin, BoxedPlugin, ImplDefaultPlugin, PredicateResult, WithAttrsPlugin};
 pub use plugin::{BoxClonePlugin, ClonePlugin, Plugin};
 use resolve::{ResolveResult, Resolver};
-use salsa::Durability;
+
 pub use symbol::{DefId, IdentName};
 pub use tags::TagId;
 
@@ -331,14 +331,12 @@ where
         with_descriptor: bool,
         with_field_mask: bool,
     ) -> Context {
-        let mut db = RootDatabase::default();
         parser.inputs(services.iter().map(|s| &s.path));
         let ParseResult {
             files,
             input_files,
             file_ids_map,
         } = parser.parse();
-        db.set_file_ids_map_with_durability(Arc::new(file_ids_map), Durability::HIGH);
 
         let ResolveResult {
             files,
@@ -347,19 +345,23 @@ where
             args,
         } = Resolver::default().resolve_files(&files);
 
-        db.set_files_with_durability(Arc::new(files), Durability::HIGH);
         let items = nodes.iter().filter_map(|(k, v)| match &v.kind {
             NodeKind::Item(item) => Some((*k, item.clone())),
             _ => None,
         });
 
-        let type_graph = Arc::from(TypeGraph::from_items(items.clone()));
-        let workspace_graph = Arc::from(WorkspaceGraph::from_items(items));
-        db.set_type_graph_with_durability(type_graph, Durability::HIGH);
-        db.set_workspace_graph_with_durability(workspace_graph, Durability::HIGH);
-        db.set_nodes_with_durability(Arc::new(nodes), Durability::HIGH);
-        db.set_tags_map_with_durability(Arc::new(tags), Durability::HIGH);
-        db.set_args_with_durability(Arc::new(args), Durability::HIGH);
+        let type_graph = TypeGraph::from_items(items.clone());
+        let workspace_graph = WorkspaceGraph::from_items(items);
+
+        // Build the database using the builder pattern
+        let db = RootDatabase::default()
+            .with_file_ids_map(file_ids_map)
+            .with_files(files.into_iter())
+            .with_nodes(nodes)
+            .with_tags(tags, type_graph)
+            .with_args(args)
+            .with_workspace_graph(workspace_graph)
+            .with_input_files(input_files.clone());
 
         let mut input = Vec::with_capacity(input_files.len());
         for file_id in &input_files {
@@ -370,7 +372,6 @@ where
                 }
             });
         }
-        db.set_input_files_with_durability(Arc::new(input_files), Durability::HIGH);
 
         let mut cx = ContextBuilder::new(
             db,
