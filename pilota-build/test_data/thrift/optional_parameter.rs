@@ -1,9 +1,7 @@
 pub mod optional_parameter {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod optional_parameter {
-        use ::pilota::{Buf as _, BufMut as _};
 
         impl ::std::default::Default for TestTestResultRecv {
             fn default() -> Self {

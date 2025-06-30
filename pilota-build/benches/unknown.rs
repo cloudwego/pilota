@@ -9,7 +9,7 @@ use pilota::{
         binary_unsafe::{TBinaryUnsafeInputProtocol, TBinaryUnsafeOutputProtocol},
     },
 };
-use rand::{Rng, distributions::Alphanumeric};
+use rand::{Rng, distr::Alphanumeric};
 
 include!("../test_data/thrift/normal.rs");
 include!("../test_data/unknown_fields.rs");
@@ -177,7 +177,7 @@ fn prepare_obj_req(size: usize) -> crate::normal::normal::ObjReq {
 }
 
 fn generate_message(size: usize) -> FastStr {
-    rand::thread_rng()
+    rand::rng()
         .sample_iter(&Alphanumeric)
         .take(size)
         .map(char::from)

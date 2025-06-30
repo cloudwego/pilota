@@ -1,15 +1,12 @@
 pub mod apache {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod thrift {
-        use ::pilota::{Buf as _, BufMut as _};
 
         pub mod rs {
-            use ::pilota::{Buf as _, BufMut as _};
 
             pub mod test {
-                use ::pilota::{Buf as _, BufMut as _};
+
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
                 #[repr(transparent)]
                 pub struct Numberz(i32);

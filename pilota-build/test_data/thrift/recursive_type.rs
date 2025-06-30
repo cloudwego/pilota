@@ -1,9 +1,8 @@
 pub mod recursive_type {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod recursive_type {
-        use ::pilota::{Buf as _, BufMut as _};
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub a: ::std::option::Option<::std::boxed::Box<A>>,

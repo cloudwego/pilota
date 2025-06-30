@@ -1,4 +1,4 @@
-namespace rs base
+namespace rs base.loop
 
 struct TrafficEnv {
 	0: string Name = "",

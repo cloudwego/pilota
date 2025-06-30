@@ -1,9 +1,8 @@
 pub mod wrapper_arc {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod wrapper_arc {
-        use ::pilota::{Buf as _, BufMut as _};
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {}
         impl ::pilota::thrift::Message for A {

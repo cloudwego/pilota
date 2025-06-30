@@ -1,16 +1,15 @@
 use std::sync::Arc;
 
 use itertools::Itertools;
-
-use crate::Symbol;
+use pilota::FastStr;
 
 #[derive(Debug)]
 pub struct PkgNode {
-    pub path: Arc<[Symbol]>,
+    pub path: Arc<[FastStr]>,
     pub children: Arc<[PkgNode]>,
 }
 
-fn from_pkgs(base_path: &[Symbol], pkgs: &[&[Symbol]]) -> Arc<[PkgNode]> {
+fn from_pkgs(base_path: &[FastStr], pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
     if pkgs.is_empty() {
         return Arc::new([]);
     }
@@ -45,14 +44,14 @@ fn from_pkgs(base_path: &[Symbol], pkgs: &[&[Symbol]]) -> Arc<[PkgNode]> {
 }
 
 impl PkgNode {
-    pub fn from_pkgs(pkgs: &[&[Symbol]]) -> Arc<[PkgNode]> {
+    pub fn from_pkgs(pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
         Arc::from([PkgNode {
             path: Arc::new([]),
             children: from_pkgs(&[], pkgs),
         }])
     }
 
-    pub fn ident(&self) -> Option<Symbol> {
+    pub fn ident(&self) -> Option<FastStr> {
         self.path.last().cloned()
     }
 }

@@ -1,9 +1,8 @@
 pub mod const_val {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod const_val {
-        use ::pilota::{Buf as _, BufMut as _};
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Index(i32);

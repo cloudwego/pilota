@@ -1113,7 +1113,7 @@ pub fn get_file_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflect
     fn codegen_register_mod_file_descriptor(
         &self,
         stream: &mut String,
-        mods: &[(Arc<[Symbol]>, Arc<PathBuf>)],
+        mods: &[(Arc<[FastStr]>, Arc<PathBuf>)],
     ) {
         stream.push_str(r#"
                 pub fn find_mod_file_descriptor(path: &str) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
@@ -1127,7 +1127,8 @@ pub fn get_file_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflect
                 r"{path}" => Some(
             "#
             ));
-            let prefix = p.iter().join("::");
+
+            let prefix = p.iter().map(|s| Symbol::from(s.clone())).join("::");
             if !prefix.is_empty() {
                 stream.push_str(&format!(r#"{prefix}::"#));
             }

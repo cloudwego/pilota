@@ -2,7 +2,7 @@ include "image.thrift"
 include "author.thrift"
 include "common.thrift"
 
-namespace rs article
+namespace * article.loop
 
 enum Status {
     NORMAL = 0,

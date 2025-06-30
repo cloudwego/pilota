@@ -170,7 +170,7 @@ fn test_thrift_fieldmask() {
             ("key1".into(), 1),
             ("key2".into(), 2),
         ])]),
-        base: Some(fieldmask::fieldmask::base::Base {
+        base: Some(fieldmask::fieldmask::base::r#loop::Base {
             addr: "127.0.0.1:8080".into(),
             log_id: Some("logid".into()),
             ..Default::default()

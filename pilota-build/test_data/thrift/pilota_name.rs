@@ -1,9 +1,8 @@
 pub mod pilota_name {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod pilota_name {
-        use ::pilota::{Buf as _, BufMut as _};
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Test2 {
             pub id: ::pilota::FastStr,

@@ -569,4 +569,8 @@ impl CodegenBackend for ProtobufBackend {
     fn cx(&self) -> &Context {
         &self.cx
     }
+
+    fn codegen_pilota_buf_trait(&self, stream: &mut String) {
+        stream.push_str("use ::pilota::{Buf as _, BufMut as _};");
+    }
 }

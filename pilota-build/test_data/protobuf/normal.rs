@@ -1,6 +1,5 @@
 pub mod normal {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _};
     #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
     pub struct A {
         pub a: i32,
@@ -396,7 +395,7 @@ pub mod normal {
     }
 
     pub mod obj_req {
-        use ::pilota::{Buf as _, BufMut as _};
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct MsgMapEntry {
             pub key: ::std::option::Option<super::Message>,

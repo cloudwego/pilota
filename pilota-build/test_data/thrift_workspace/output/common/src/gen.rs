@@ -2,10 +2,9 @@ pub mod r#gen {
     #![allow(warnings, clippy::all)]
 
     pub mod article {
-        use ::pilota::{Buf as _, BufMut as _};
 
         pub mod image {
-            use ::pilota::{Buf as _, BufMut as _};
+
             #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
             pub struct Image {
                 pub id: i64,
@@ -274,7 +273,7 @@ pub mod r#gen {
                 }
             }
             pub mod cdn {
-                use ::pilota::{Buf as _, BufMut as _};
+
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct Cdn {
                     pub id: i64,
@@ -521,7 +520,7 @@ pub mod r#gen {
     }
 
     pub mod author {
-        use ::pilota::{Buf as _, BufMut as _};
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Author {
             pub id: i64,
@@ -804,7 +803,7 @@ pub mod r#gen {
     }
 
     pub mod common {
-        use ::pilota::{Buf as _, BufMut as _};
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct CommonData {
             pub id: i64,
