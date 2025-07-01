@@ -1,7 +1,7 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use faststr::FastStr;
 use pilota::{Bytes, LinkedBytes, prost::Message};
-use rand::{Rng, distributions::Alphanumeric};
+use rand::{Rng, distr::Alphanumeric};
 
 include!("../test_data/protobuf/normal.rs");
 include!("../test_data/unknown_fields_pb.rs");
@@ -24,7 +24,7 @@ fn generate_random_string_pb(size: usize) -> FastStr {
     if size == 0 {
         return FastStr::empty();
     }
-    rand::thread_rng()
+    rand::rng()
         .sample_iter(&Alphanumeric)
         .take(size)
         .map(char::from)

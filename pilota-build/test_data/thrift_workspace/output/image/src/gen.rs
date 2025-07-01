@@ -2,10 +2,9 @@ pub mod r#gen {
     #![allow(warnings, clippy::all)]
 
     pub mod article {
-        use ::pilota::{Buf as _, BufMut as _};
 
         pub mod image {
-            use ::pilota::{Buf as _, BufMut as _};
+
             #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
             pub struct ImageServiceGetImageArgsRecv {
                 pub req: GetImageRequest,
@@ -954,15 +953,15 @@ pub mod r#gen {
             }
             pub use ::common::article::image::Image;
             pub mod cdn {
+
                 pub use ::common::article::image::cdn::Cdn;
-                use ::pilota::{Buf as _, BufMut as _};
             }
         }
     }
 
     pub mod common {
+
         pub use ::common::common::CommonData;
-        use ::pilota::{Buf as _, BufMut as _};
     }
     pub use article::image::*;
 }

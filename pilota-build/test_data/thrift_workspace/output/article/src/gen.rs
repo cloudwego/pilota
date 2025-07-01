@@ -2,7 +2,7 @@ pub mod r#gen {
     #![allow(warnings, clippy::all)]
 
     pub mod article {
-        use ::pilota::{Buf as _, BufMut as _};
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Status(i32);
@@ -1368,23 +1368,23 @@ pub mod r#gen {
             }
         }
         pub mod image {
+
             pub use ::common::article::image::Image;
-            use ::pilota::{Buf as _, BufMut as _};
             pub mod cdn {
+
                 pub use ::common::article::image::cdn::Cdn;
-                use ::pilota::{Buf as _, BufMut as _};
             }
         }
     }
 
     pub mod author {
+
         pub use ::common::author::Author;
-        use ::pilota::{Buf as _, BufMut as _};
     }
 
     pub mod common {
+
         pub use ::common::common::CommonData;
-        use ::pilota::{Buf as _, BufMut as _};
     }
     pub use article::*;
 }

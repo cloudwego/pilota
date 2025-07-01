@@ -1,9 +1,8 @@
 pub mod serde {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod serde {
-        use ::pilota::{Buf as _, BufMut as _};
+
         #[derive(
             PartialOrd,
             Hash,

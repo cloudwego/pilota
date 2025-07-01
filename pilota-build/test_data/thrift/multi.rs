@@ -1,9 +1,7 @@
 pub mod multi {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod default_value {
-        use ::pilota::{Buf as _, BufMut as _};
 
         impl ::std::default::Default for C {
             fn default() -> Self {
@@ -950,7 +948,6 @@ pub mod multi {
     }
 
     pub mod multi {
-        use ::pilota::{Buf as _, BufMut as _};
 
         impl ::std::default::Default for A {
             fn default() -> Self {
@@ -1274,7 +1271,7 @@ pub mod multi {
     }
 
     pub mod recursive_type {
-        use ::pilota::{Buf as _, BufMut as _};
+
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct C {
             pub c: ::std::option::Option<::pilota::AHashSet<::pilota::FastStr>>,

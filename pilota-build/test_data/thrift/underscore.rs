@@ -1,9 +1,7 @@
 pub mod underscore {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod underscore {
-        use ::pilota::{Buf as _, BufMut as _};
 
         impl ::std::default::Default for Test_UnderscoredResultRecv {
             fn default() -> Self {

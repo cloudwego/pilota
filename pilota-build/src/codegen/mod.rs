@@ -173,6 +173,7 @@ where
                         middle::rir::Item::Const(c) => self.write_const(def_id, stream, c),
                         middle::rir::Item::Mod(m) => {
                             let mut inner = Default::default();
+                            self.backend.codegen_pilota_buf_trait(&mut inner);
                             m.items.iter().for_each(|def_id| {
                                 self.write_item(&mut inner, (*def_id).into(), dup)
                             });
@@ -180,9 +181,8 @@ where
                             let name = self.rust_name(def_id);
                             stream.push_str(&format! {
                                 r#"pub mod {name} {{
-                                    use ::pilota::{{Buf as _, BufMut as _}};
-                            {inner}
-                        }}"#
+                                    {inner}
+                                }}"#
                             })
                         }
                     }
@@ -465,7 +465,8 @@ where
         B: Send,
     {
         let mods = items.into_group_map_by(|CodegenItem { def_id, .. }| {
-            let path = self.mod_path(*def_id);
+            // let path = self.mod_path(*def_id);
+            let path = Arc::from_iter(self.mod_path(*def_id).iter().map(|s| s.0.clone()));
             tracing::debug!("ths path of {:?} is {:?}", def_id, path);
 
             match &*self.mode {
@@ -509,7 +510,7 @@ where
             }
         }
 
-        let mut pkgs: DashMap<Arc<[Symbol]>, String> = Default::default();
+        let mut pkgs: DashMap<Arc<[FastStr]>, String> = Default::default();
 
         let this = self.clone();
 
@@ -542,49 +543,52 @@ where
                 }
             });
 
-        fn write_stream(
-            pkgs: &mut DashMap<Arc<[Symbol]>, String>,
-            stream: &mut String,
-            nodes: &[PkgNode],
-        ) {
-            for node in nodes.iter().sorted_by_key(|x| &x.path) {
-                let mut inner_stream = String::default();
-                if let Some((_, node_stream)) = pkgs.remove(&node.path) {
-                    inner_stream.push_str(&node_stream);
-                }
-
-                write_stream(pkgs, &mut inner_stream, &node.children);
-                let name = node.ident();
-                if name.is_none() {
-                    stream.push_str(&inner_stream);
-                    return;
-                }
-
-                let name = name.unwrap();
-                stream.push_str(&format! {
-                    r#"
-                    pub mod {name} {{
-                        use ::pilota::{{Buf as _, BufMut as _}};
-                        {inner_stream}
-                    }}
-                    "#
-                });
-            }
-        }
-
         let keys = pkgs.iter().map(|kv| kv.key().clone()).collect_vec();
         let pkg_node = PkgNode::from_pkgs(&keys.iter().map(|s| &**s).collect_vec());
         tracing::debug!(?pkg_node);
 
-        write_stream(&mut pkgs, stream, &pkg_node);
+        self.write_stream(&mut pkgs, stream, &pkg_node);
+    }
+
+    fn write_stream(
+        &self,
+        pkgs: &mut DashMap<Arc<[FastStr]>, String>,
+        stream: &mut String,
+        nodes: &[PkgNode],
+    ) {
+        for node in nodes.iter().sorted_by_key(|x| &x.path) {
+            let mut inner_stream = String::default();
+            if let Some((_, node_stream)) = pkgs.remove(&node.path) {
+                inner_stream.push_str(&node_stream);
+            }
+
+            self.write_stream(pkgs, &mut inner_stream, &node.children);
+            let name = node.ident();
+            if name.clone().unwrap_or_default() == "" {
+                stream.push_str(&inner_stream);
+                return;
+            }
+
+            let name = Symbol::from(name.unwrap());
+            let mut pilota_buf_trait = Default::default();
+            self.backend.codegen_pilota_buf_trait(&mut pilota_buf_trait);
+            stream.push_str(&format! {
+                r#"
+                pub mod {name} {{
+                    {pilota_buf_trait}
+                    {inner_stream}
+                }}
+                "#
+            });
+        }
     }
 
     fn write_split_mod(
         this: &mut Codegen<B>,
         base_dir: &Path,
-        p: &Arc<[Symbol]>,
+        p: &Arc<[FastStr]>,
         def_ids: &[CodegenItem],
-        stream: &mut RefMut<Arc<[Symbol]>, String>,
+        stream: &mut RefMut<Arc<[FastStr]>, String>,
         dup: &mut AHashMap<FastStr, Vec<DefId>>,
     ) {
         let base_mod_name = p.iter().map(|s| s.to_string()).join("/");
@@ -660,13 +664,13 @@ where
     pub fn write_file(self, ns_name: Symbol, file_name: impl AsRef<Path>) {
         let base_dir = file_name.as_ref().parent().unwrap();
         let mut stream = String::default();
+        self.backend.codegen_pilota_buf_trait(&mut stream);
         let items = self.codegen_items.iter().map(|def_id| (*def_id).into());
 
         self.write_items(&mut stream, items, base_dir);
 
         stream = format! {r#"pub mod {ns_name} {{
                 #![allow(warnings, clippy::all)]
-                use ::pilota::{{Buf as _, BufMut as _}};
                 {stream}
             }}"#};
         let stream = stream.lines().map(|s| s.trim_end()).join("\n");

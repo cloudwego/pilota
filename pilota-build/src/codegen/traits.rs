@@ -1,7 +1,9 @@
 use std::{path::PathBuf, sync::Arc};
 
+use pilota::FastStr;
+
 use crate::{
-    Context, Symbol,
+    Context,
     middle::rir::{self, Method},
     symbol::DefId,
 };
@@ -30,7 +32,8 @@ pub trait CodegenBackend: Clone {
     fn codegen_register_mod_file_descriptor(
         &self,
         _stream: &mut String,
-        _mods: &[(Arc<[Symbol]>, Arc<PathBuf>)],
+        _mods: &[(Arc<[FastStr]>, Arc<PathBuf>)],
     ) {
     }
+    fn codegen_pilota_buf_trait(&self, _stream: &mut String) {}
 }

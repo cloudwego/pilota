@@ -2,20 +2,18 @@ pub mod r#gen {
     #![allow(warnings, clippy::all)]
 
     pub mod article {
-        use ::pilota::{Buf as _, BufMut as _};
 
         pub mod image {
+
             pub use ::common::article::image::Image;
-            use ::pilota::{Buf as _, BufMut as _};
             pub mod cdn {
+
                 pub use ::common::article::image::cdn::Cdn;
-                use ::pilota::{Buf as _, BufMut as _};
             }
         }
     }
 
     pub mod author {
-        use ::pilota::{Buf as _, BufMut as _};
 
         pub trait AuthorService {}
 
@@ -922,8 +920,8 @@ pub mod r#gen {
     }
 
     pub mod common {
+
         pub use ::common::common::CommonData;
-        use ::pilota::{Buf as _, BufMut as _};
     }
     pub use author::*;
 }

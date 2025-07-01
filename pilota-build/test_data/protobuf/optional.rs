@@ -1,6 +1,5 @@
 pub mod optional {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _};
     #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
     pub struct SearchRequest {
         pub page_number: ::std::option::Option<i32>,

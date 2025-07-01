@@ -1,9 +1,7 @@
 pub mod union {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _};
 
     pub mod union {
-        use ::pilota::{Buf as _, BufMut as _};
 
         impl ::std::default::Default for Union {
             fn default() -> Self {
