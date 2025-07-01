@@ -1649,11 +1649,17 @@ pub mod unknown_fields {
             }
         }
         pub static TEST_MAP_LIST: ::std::sync::LazyLock<
-            ::pilota::AHashMap<i32, ::std::vec::Vec<&'static str>>,
+            &'static ::pilota::AHashMap<i32, ::std::vec::Vec<&'static str>>,
         > = ::std::sync::LazyLock::new(|| {
-            let mut map = ::pilota::AHashMap::with_capacity(1);
-            map.insert(1i32, ::std::vec!["hello"]);
-            map
+            pub static INNER_MAP: ::std::sync::LazyLock<
+                ::pilota::AHashMap<i32, ::std::vec::Vec<&'static str>>,
+            > = ::std::sync::LazyLock::new(|| {
+                let mut map = ::pilota::AHashMap::with_capacity(1);
+                map.insert(1i32, ::std::vec!["hello"]);
+                map
+            });
+
+            &*INNER_MAP
         });
         #[derive(
             PartialOrd,
@@ -3689,13 +3695,19 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
-        pub static TEST_MAP: ::std::sync::LazyLock<::pilota::AHashMap<Index, &'static str>> =
-            ::std::sync::LazyLock::new(|| {
-                let mut map = ::pilota::AHashMap::with_capacity(2);
-                map.insert(Index::A, "hello");
-                map.insert(Index::B, "world");
-                map
-            });
+        pub static TEST_MAP: ::std::sync::LazyLock<
+            &'static ::pilota::AHashMap<Index, &'static str>,
+        > = ::std::sync::LazyLock::new(|| {
+            pub static INNER_MAP: ::std::sync::LazyLock<::pilota::AHashMap<Index, &'static str>> =
+                ::std::sync::LazyLock::new(|| {
+                    let mut map = ::pilota::AHashMap::with_capacity(2);
+                    map.insert(Index::A, "hello");
+                    map.insert(Index::B, "world");
+                    map
+                });
+
+            &*INNER_MAP
+        });
     }
 
     pub mod void {

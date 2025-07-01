@@ -857,20 +857,32 @@ pub mod btree {
             }
         }
         pub static TEST_MAP_LIST: ::std::sync::LazyLock<
-            ::std::collections::BTreeMap<i32, ::std::vec::Vec<&'static str>>,
+            &'static ::std::collections::BTreeMap<i32, ::std::vec::Vec<&'static str>>,
         > = ::std::sync::LazyLock::new(|| {
-            let mut map = ::std::collections::BTreeMap::new();
-            map.insert(1i32, ::std::vec!["hello"]);
-            map
+            pub static INNER_MAP: ::std::sync::LazyLock<
+                ::std::collections::BTreeMap<i32, ::std::vec::Vec<&'static str>>,
+            > = ::std::sync::LazyLock::new(|| {
+                let mut map = ::std::collections::BTreeMap::new();
+                map.insert(1i32, ::std::vec!["hello"]);
+                map
+            });
+
+            &*INNER_MAP
         });
 
         pub static TEST_MAP: ::std::sync::LazyLock<
-            ::std::collections::BTreeMap<Index, &'static str>,
+            &'static ::std::collections::BTreeMap<Index, &'static str>,
         > = ::std::sync::LazyLock::new(|| {
-            let mut map = ::std::collections::BTreeMap::new();
-            map.insert(Index::A, "hello");
-            map.insert(Index::B, "world");
-            map
+            pub static INNER_MAP: ::std::sync::LazyLock<
+                ::std::collections::BTreeMap<Index, &'static str>,
+            > = ::std::sync::LazyLock::new(|| {
+                let mut map = ::std::collections::BTreeMap::new();
+                map.insert(Index::A, "hello");
+                map.insert(Index::B, "world");
+                map
+            });
+
+            &*INNER_MAP
         });
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
