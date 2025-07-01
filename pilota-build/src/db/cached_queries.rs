@@ -1,6 +1,7 @@
 //! Cached query functions using Salsa's tracked mechanism
 
 use std::sync::Arc;
+
 use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::{
@@ -25,11 +26,11 @@ impl DatabaseStorage for RootDatabase {
     fn nodes(&self) -> &Arc<FxHashMap<DefId, rir::Node>> {
         &self.nodes
     }
-    
+
     fn files(&self) -> &Arc<FxHashMap<FileId, Arc<rir::File>>> {
         &self.files
     }
-    
+
     fn args(&self) -> &Arc<FxHashSet<DefId>> {
         &self.args
     }
@@ -66,17 +67,20 @@ pub fn get_item<'db>(db: &'db dyn CachedQueries, def_id: SalsaDefId<'db>) -> Opt
 /// Get service methods - cached version
 /// This is especially beneficial as it involves recursive computation
 #[salsa::tracked]
-pub fn get_service_methods<'db>(db: &'db dyn CachedQueries, def_id: SalsaDefId<'db>) -> Arc<[Arc<rir::Method>]> {
+pub fn get_service_methods<'db>(
+    db: &'db dyn CachedQueries,
+    def_id: SalsaDefId<'db>,
+) -> Arc<[Arc<rir::Method>]> {
     let item = match get_item(db, def_id) {
         Some(item) => item,
         None => return Arc::new([]),
     };
-    
+
     let service = match &*item {
         rir::Item::Service(s) => s,
         _ => return Arc::new([]),
     };
-    
+
     let methods = service
         .extend
         .iter()

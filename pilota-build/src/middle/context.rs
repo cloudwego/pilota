@@ -299,7 +299,8 @@ impl ContextBuilder {
                     let files = cx.db.files();
                     let file = files.get(file_id).unwrap();
                     let uses = file.uses.clone();
-                    let items_to_keep = file.items
+                    let items_to_keep = file
+                        .items
                         .iter()
                         .filter(|&&def_id| match cx.db.node(def_id) {
                             Some(rir::Node {
@@ -318,11 +319,11 @@ impl ContextBuilder {
                         .collect::<Vec<_>>();
                     (uses, items_to_keep)
                 };
-                
+
                 for f in &uses {
                     keep_files(cx, f, file_ids);
                 }
-                
+
                 cx.keep_unknown_fields.extend(items_to_keep);
             }
         });

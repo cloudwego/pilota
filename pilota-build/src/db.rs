@@ -3,10 +3,9 @@ mod salsa_ids;
 
 use std::{fmt::Debug, path::PathBuf, sync::Arc};
 
+pub use cached_queries::CachedQueries;
 use faststr::FastStr;
 use rustc_hash::{FxHashMap, FxHashSet};
-
-pub use cached_queries::CachedQueries;
 pub use salsa_ids::{IntoSalsa, SalsaDefId, SalsaFileId};
 
 use crate::{

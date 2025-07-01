@@ -43,7 +43,6 @@ use parser::{ParseResult, Parser, protobuf::ProtobufParser, thrift::ThriftParser
 use plugin::{AutoDerivePlugin, BoxedPlugin, ImplDefaultPlugin, PredicateResult, WithAttrsPlugin};
 pub use plugin::{BoxClonePlugin, ClonePlugin, Plugin};
 use resolve::{ResolveResult, Resolver};
-
 pub use symbol::{DefId, IdentName};
 pub use tags::TagId;
 

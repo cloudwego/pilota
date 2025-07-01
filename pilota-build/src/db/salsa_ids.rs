@@ -1,5 +1,5 @@
 //! Salsa wrapper types for DefId and FileId
-//! 
+//!
 //! Since DefId and FileId are not Salsa structs, we need to wrap them
 //! to use them as parameters for tracked functions.
 
@@ -20,21 +20,30 @@ pub struct SalsaFileId<'db> {
 // Helper trait to convert between regular IDs and Salsa IDs
 pub trait IntoSalsa {
     type SalsaType<'db>;
-    fn into_salsa<'db>(self, db: &'db dyn crate::db::cached_queries::CachedQueries) -> Self::SalsaType<'db>;
+    fn into_salsa<'db>(
+        self,
+        db: &'db dyn crate::db::cached_queries::CachedQueries,
+    ) -> Self::SalsaType<'db>;
 }
 
 impl IntoSalsa for DefId {
     type SalsaType<'db> = SalsaDefId<'db>;
-    
-    fn into_salsa<'db>(self, db: &'db dyn crate::db::cached_queries::CachedQueries) -> SalsaDefId<'db> {
+
+    fn into_salsa<'db>(
+        self,
+        db: &'db dyn crate::db::cached_queries::CachedQueries,
+    ) -> SalsaDefId<'db> {
         SalsaDefId::new(db, self)
     }
 }
 
 impl IntoSalsa for FileId {
     type SalsaType<'db> = SalsaFileId<'db>;
-    
-    fn into_salsa<'db>(self, db: &'db dyn crate::db::cached_queries::CachedQueries) -> SalsaFileId<'db> {
+
+    fn into_salsa<'db>(
+        self,
+        db: &'db dyn crate::db::cached_queries::CachedQueries,
+    ) -> SalsaFileId<'db> {
         SalsaFileId::new(db, self)
     }
 }

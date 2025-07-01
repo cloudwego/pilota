@@ -41,7 +41,7 @@ impl ThriftSourceDatabase {
     fn file_text(&self, path: PathBuf) -> Arc<str> {
         Arc::from(unsafe { String::from_utf8_unchecked(std::fs::read(path).unwrap()) })
     }
-    
+
     fn parse(&self, path: PathBuf) -> Arc<thrift_parser::File> {
         let text = self.file_text(path.clone());
         let mut ast = thrift_parser::File::parse(&text).unwrap().1;
