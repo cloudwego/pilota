@@ -478,17 +478,19 @@ where
         });
 
         let mods_iter = mods.iter().map(|(p, def_ids)| {
-            let file_path = def_ids.first().map(|def_id| {
-                let node = self.node(def_id.def_id).unwrap();
-                let file_id = node.file_id;
+            let file_path = def_ids
+                .first()
+                .map(|def_id| {
+                    let node = self.node(def_id.def_id).unwrap();
+                    let file_id = node.file_id;
 
-                self.file_ids_map()
-                    .iter()
-                    .find(|(_, id)| **id == file_id)
-                    .map(|(path, _)| path)
-                    .cloned()
-                    .unwrap()
-            });
+                    self.file_ids_map()
+                        .iter()
+                        .find(|(_, id)| **id == file_id)
+                        .map(|(path, _)| path)
+                        .cloned()
+                })
+                .flatten();
 
             let has_direct = def_ids
                 .iter()
