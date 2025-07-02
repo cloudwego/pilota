@@ -64,17 +64,12 @@ pub mod enum_map {
         pub const TYPE_B2: TypeB = TypeB(2i32);
         pub const TYPE_A1: TypeA = TypeA("a1");
         pub const TYPE_B1: TypeB = TypeB(1i32);
-        pub static TYPE_A_MAP: ::std::sync::LazyLock<&'static ::pilota::AHashMap<TypeB, TypeA>> =
+        pub static TYPE_A_MAP: ::std::sync::LazyLock<::pilota::AHashMap<TypeB, TypeA>> =
             ::std::sync::LazyLock::new(|| {
-                pub static INNER_MAP: ::std::sync::LazyLock<::pilota::AHashMap<TypeB, TypeA>> =
-                    ::std::sync::LazyLock::new(|| {
-                        let mut map = ::pilota::AHashMap::with_capacity(2);
-                        map.insert(TYPE_B1, TYPE_A1);
-                        map.insert(TYPE_B2, TYPE_A2);
-                        map
-                    });
-
-                &*INNER_MAP
+                let mut map = ::pilota::AHashMap::with_capacity(2);
+                map.insert(TYPE_B1, TYPE_A1);
+                map.insert(TYPE_B2, TYPE_A2);
+                map
             });
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TypeA(pub ::pilota::FastStr);

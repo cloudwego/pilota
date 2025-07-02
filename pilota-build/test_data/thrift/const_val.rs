@@ -93,32 +93,20 @@ pub mod const_val {
             }
         }
         pub const TEST_STRUCT: Test = Test { name: None };
-        pub static TEST_MAP: ::std::sync::LazyLock<
-            &'static ::pilota::AHashMap<Index, &'static str>,
-        > = ::std::sync::LazyLock::new(|| {
-            pub static INNER_MAP: ::std::sync::LazyLock<::pilota::AHashMap<Index, &'static str>> =
-                ::std::sync::LazyLock::new(|| {
-                    let mut map = ::pilota::AHashMap::with_capacity(2);
-                    map.insert(Index::A, "hello");
-                    map.insert(Index::B, "world");
-                    map
-                });
-
-            &*INNER_MAP
-        });
-        pub const TEST_LIST: [&'static str; 2] = ["hello", "world"];
-        pub static TEST_MAP_LIST: ::std::sync::LazyLock<
-            &'static ::pilota::AHashMap<i32, ::std::vec::Vec<&'static str>>,
-        > = ::std::sync::LazyLock::new(|| {
-            pub static INNER_MAP: ::std::sync::LazyLock<
-                ::pilota::AHashMap<i32, ::std::vec::Vec<&'static str>>,
-            > = ::std::sync::LazyLock::new(|| {
-                let mut map = ::pilota::AHashMap::with_capacity(1);
-                map.insert(1i32, ::std::vec!["hello"]);
+        pub static TEST_MAP: ::std::sync::LazyLock<::pilota::AHashMap<Index, &'static str>> =
+            ::std::sync::LazyLock::new(|| {
+                let mut map = ::pilota::AHashMap::with_capacity(2);
+                map.insert(Index::A, "hello");
+                map.insert(Index::B, "world");
                 map
             });
-
-            &*INNER_MAP
+        pub const TEST_LIST: [&'static str; 2] = ["hello", "world"];
+        pub static TEST_MAP_LIST: ::std::sync::LazyLock<
+            ::pilota::AHashMap<i32, ::std::vec::Vec<&'static str>>,
+        > = ::std::sync::LazyLock::new(|| {
+            let mut map = ::pilota::AHashMap::with_capacity(1);
+            map.insert(1i32, ::std::vec!["hello"]);
+            map
         });
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct Test {
