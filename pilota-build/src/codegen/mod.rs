@@ -444,6 +444,7 @@ where
     }
 
     pub fn write_const(&self, did: DefId, stream: &mut String, c: &middle::rir::Const) {
+        // let mut ty = self.codegen_const_ty(c.ty.kind.clone());
         let mut ty = self.codegen_ty(did);
 
         let name = self.rust_name(did);
