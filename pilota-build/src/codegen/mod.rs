@@ -478,7 +478,7 @@ where
         });
 
         let mods_iter = mods.iter().map(|(p, def_ids)| {
-            let file_path = def_ids.first().map(|def_id| {
+            let file_path = def_ids.first().and_then(|def_id| {
                 let node = self.node(def_id.def_id).unwrap();
                 let file_id = node.file_id;
 
@@ -487,7 +487,6 @@ where
                     .find(|(_, id)| **id == file_id)
                     .map(|(path, _)| path)
                     .cloned()
-                    .unwrap()
             });
 
             let has_direct = def_ids
