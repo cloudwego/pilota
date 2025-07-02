@@ -135,7 +135,7 @@ IDL Types
     ▼
 IR Types (初始类型表示)
     │
-    ├── TyKind ([`src/ir/mod.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/ir/mod.rs))
+    ├── TyKind ([`src/ir/mod.rs`](../src/ir/mod.rs))
     │   ├── 基础类型: String, Bool, I32, etc.
     │   ├── 容器类型: Vec, Set, Map
     │   └── 路径引用: Path (未解析)
@@ -143,11 +143,11 @@ IR Types (初始类型表示)
     ▼
 RIR Types (解析后类型表示)
     │
-    ├── Ty ([`src/middle/ty.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/middle/ty.rs))
+    ├── Ty ([`src/middle/ty.rs`](../src/middle/ty.rs))
     │   ├── kind: TyKind
     │   └── tags_id: TagId
     │
-    ├── Path ([`src/middle/rir.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/middle/rir.rs))
+    ├── Path ([`src/middle/rir.rs`](../src/middle/rir.rs))
     │   ├── kind: DefKind (Type/Value/Mod)
     │   └── did: DefId (已解析的定义ID)
     │
@@ -201,7 +201,7 @@ pub enum CodegenTy {
 
 ## 5. 各模块详细设计
 
-### 5.1 Parser 模块 ([`src/parser/`](https://github.com/cloudwego/pilota/tree/main/pilota-build/src/parser))
+### 5.1 Parser 模块 ([`src/parser/`](../src/parser/))
 
 #### 职责
 将 IDL 文件解析为语言无关的中间表示。
@@ -234,7 +234,7 @@ pub struct ParseResult {
 - 处理 package、import、option 等
 - 支持 Proto2 和 Proto3 语法
 
-### 5.2 IR 模块 ([`src/ir/`](https://github.com/cloudwego/pilota/tree/main/pilota-build/src/ir))
+### 5.2 IR 模块 ([`src/ir/`](../src/ir/))
 
 #### 职责
 定义语言无关的初始中间表示。
@@ -265,9 +265,9 @@ pub struct Path {
 }
 ```
 
-### 5.3 Middle 模块 ([`src/middle/`](https://github.com/cloudwego/pilota/tree/main/pilota-build/src/middle))
+### 5.3 Middle 模块 ([`src/middle/`](../src/middle/))
 
-#### 5.3.1 Context ([`context.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/middle/context.rs))
+#### 5.3.1 Context ([`context.rs`](../src/middle/context.rs))
 
 **职责**：维护全局编译上下文
 
@@ -290,7 +290,7 @@ pub struct Context {
 - 默认值处理
 - 插件执行
 
-#### 5.3.2 Resolver ([`resolver.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/middle/resolver.rs))
+#### 5.3.2 Resolver ([`resolver.rs`](../src/middle/resolver.rs))
 
 **职责**：符号解析和符号表构建
 
@@ -311,7 +311,7 @@ pub struct Resolver {
 3. 解析路径引用
 4. 生成 RIR
 
-#### 5.3.3 Type System ([`ty.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/middle/ty.rs))
+#### 5.3.3 Type System ([`ty.rs`](../src/middle/ty.rs))
 
 **职责**：类型定义和转换
 
@@ -339,7 +339,7 @@ pub trait TyTransformer {
 }
 ```
 
-### 5.4 Codegen 模块 ([`src/codegen/`](https://github.com/cloudwego/pilota/tree/main/pilota-build/src/codegen))
+### 5.4 Codegen 模块 ([`src/codegen/`](../src/codegen/))
 
 #### 职责
 将 RIR 转换为 Rust 代码。
@@ -360,17 +360,17 @@ pub trait CodegenBackend: Clone {
 
 #### 5.4.2 Backend 实现
 
-**ThriftBackend** ([`thrift/mod.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/codegen/thrift/mod.rs))：
+**ThriftBackend** ([`thrift/mod.rs`](../src/codegen/thrift/mod.rs))：
 - 生成 Thrift 协议的编解码代码
 - 支持 Binary、Compact 等编码格式
 - 处理 field ID、required/optional 等
 
-**ProtobufBackend** ([`protobuf/mod.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/codegen/protobuf/mod.rs))：
+**ProtobufBackend** ([`protobuf/mod.rs`](../src/codegen/protobuf/mod.rs))：
 - 生成 Protobuf 协议的编解码代码
 - 支持 proto2/proto3 语法
 - 处理 field number、repeated 等
 
-**PbBackend** ([`pb/mod.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/codegen/pb/mod.rs))：
+**PbBackend** ([`pb/mod.rs`](../src/codegen/pb/mod.rs))：
 - 新的 Protobuf 实现
 - 使用 pilota 自己的编解码库
 - 更好的性能和更小的代码体积
@@ -392,7 +392,7 @@ impl<B> Codegen<B> {
 }
 ```
 
-### 5.5 Plugin 模块 ([`src/plugin/`](https://github.com/cloudwego/pilota/tree/main/pilota-build/src/plugin))
+### 5.5 Plugin 模块 ([`src/plugin/`](../src/plugin/))
 
 #### 职责
 提供可扩展的插件机制。
@@ -435,7 +435,7 @@ pub trait Plugin: Sync + Send {
    - 基于谓词函数自动派生 trait
    - 支持传递性推导
 
-### 5.6 Database 模块 ([`src/db.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/db.rs))
+### 5.6 Database 模块 ([`src/db.rs`](../src/db.rs))
 
 #### 职责
 使用 Salsa 框架实现增量编译。
@@ -468,7 +468,7 @@ pub trait RirDatabase {
 - 只重新计算受影响的部分
 - 支持并行查询
 
-### 5.7 Workspace 模块 ([`src/codegen/workspace.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/codegen/workspace.rs))
+### 5.7 Workspace 模块 ([`src/codegen/workspace.rs`](../src/codegen/workspace.rs))
 
 #### 职责
 处理多包工作空间的代码生成。
