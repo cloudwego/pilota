@@ -1,27 +1,108 @@
-use std::{fmt, path::PathBuf, sync::Arc};
+pub mod cached_queries;
+mod salsa_ids;
 
+use std::{fmt::Debug, path::PathBuf, sync::Arc};
+
+pub use cached_queries::CachedQueries;
+use faststr::FastStr;
 use rustc_hash::{FxHashMap, FxHashSet};
+pub use salsa_ids::{IntoSalsa, SalsaDefId, SalsaFileId, SalsaTyKind};
 
 use crate::{
-    TagId,
     middle::{
         context::{CrateId, DefLocation},
-        rir,
-        ty::{AdtDef, AdtKind, CodegenTy, TyKind},
-        type_graph::TypeGraph,
-        workspace_graph::WorkspaceGraph,
+        ty::{CodegenTy, TyKind},
     },
+    rir::{self, File, Item, Node},
     symbol::{DefId, FileId},
-    tags::Tags,
+    tags::{TagId, Tags},
 };
 
-#[derive(Default)]
-#[salsa::database(RirDatabaseStorage)]
+pub type ItemPath = Arc<Vec<FastStr>>;
+pub type TypeGraph = crate::middle::type_graph::TypeGraph;
+pub type WorkspaceGraph = crate::middle::workspace_graph::WorkspaceGraph;
+
+fn empty_type_graph() -> TypeGraph {
+    TypeGraph::from_items(std::iter::empty::<(DefId, Arc<Item>)>())
+}
+
+fn empty_workspace_graph() -> WorkspaceGraph {
+    WorkspaceGraph::from_items(std::iter::empty::<(DefId, Arc<Item>)>())
+}
+
+// 数据库定义 - 使用新的 #[salsa::db] 宏
+#[salsa::db]
+#[derive(Clone)]
 pub struct RootDatabase {
-    storage: salsa::Storage<RootDatabase>,
+    storage: salsa::Storage<Self>,
+    // 直接在数据库中存储数据
+    nodes: Arc<FxHashMap<DefId, rir::Node>>,
+    files: Arc<FxHashMap<FileId, Arc<rir::File>>>,
+    file_ids_map: Arc<FxHashMap<Arc<PathBuf>, FileId>>,
+    type_graph: Arc<TypeGraph>,
+    tags_map: Arc<FxHashMap<TagId, Arc<Tags>>>,
+    input_files: Arc<Vec<FileId>>,
+    args: Arc<FxHashSet<DefId>>,
+    workspace_graph: Arc<WorkspaceGraph>,
+}
+
+impl Default for RootDatabase {
+    fn default() -> Self {
+        RootDatabase {
+            storage: salsa::Storage::new(None),
+            nodes: Arc::new(FxHashMap::default()),
+            files: Arc::new(FxHashMap::default()),
+            file_ids_map: Arc::new(FxHashMap::default()),
+            type_graph: Arc::new(empty_type_graph()),
+            tags_map: Arc::new(FxHashMap::default()),
+            input_files: Arc::new(Vec::new()),
+            args: Arc::new(FxHashSet::default()),
+            workspace_graph: Arc::new(empty_workspace_graph()),
+        }
+    }
 }
 
 impl RootDatabase {
+    pub fn with_nodes(mut self, nodes: FxHashMap<DefId, rir::Node>) -> Self {
+        self.nodes = Arc::new(nodes);
+        self
+    }
+
+    pub fn with_workspace_graph(mut self, g: WorkspaceGraph) -> Self {
+        self.workspace_graph = Arc::new(g);
+        self
+    }
+
+    pub fn with_input_files(mut self, input_files: Vec<FileId>) -> Self {
+        self.input_files = Arc::new(input_files);
+        self
+    }
+
+    pub fn with_files(mut self, files: impl Iterator<Item = (FileId, Arc<File>)>) -> Self {
+        self.files = Arc::new(files.collect());
+        self
+    }
+
+    pub fn with_file_ids_map(mut self, file_ids_map: FxHashMap<Arc<PathBuf>, FileId>) -> Self {
+        self.file_ids_map = Arc::new(file_ids_map);
+        self
+    }
+
+    pub fn with_tags(
+        mut self,
+        tags_map: FxHashMap<TagId, Arc<Tags>>,
+        type_graph: TypeGraph,
+    ) -> Self {
+        self.tags_map = Arc::new(tags_map);
+        self.type_graph = Arc::new(type_graph);
+        self
+    }
+
+    pub fn with_args(mut self, args: FxHashSet<DefId>) -> Self {
+        self.args = Arc::new(args);
+        self
+    }
+
     pub fn collect_def_ids(
         &self,
         input: &[DefId],
@@ -178,148 +259,134 @@ impl RootDatabase {
     }
 }
 
-impl fmt::Debug for RootDatabase {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("RootDatabase").finish()
+// 实现 salsa::Database trait
+#[salsa::db]
+impl salsa::Database for RootDatabase {}
+
+// 定义 RirDatabase trait
+pub trait RirDatabase: salsa::Database {
+    // 访问数据库中的数据
+    fn nodes(&self) -> &Arc<FxHashMap<DefId, rir::Node>>;
+    fn files(&self) -> &Arc<FxHashMap<FileId, Arc<rir::File>>>;
+    fn file_ids_map(&self) -> &Arc<FxHashMap<Arc<PathBuf>, FileId>>;
+    fn type_graph(&self) -> &Arc<TypeGraph>;
+    fn tags_map(&self) -> &Arc<FxHashMap<TagId, Arc<Tags>>>;
+    fn input_files(&self) -> &Arc<Vec<FileId>>;
+    fn args(&self) -> &Arc<FxHashSet<DefId>>;
+    fn workspace_graph(&self) -> &Arc<WorkspaceGraph>;
+
+    // 查询方法
+    fn node(&self, def_id: DefId) -> Option<Node>;
+
+    fn file(&self, file_id: FileId) -> Option<Arc<File>>;
+
+    fn file_id(&self, path: PathBuf) -> Option<FileId> {
+        self.file_ids_map().get(&path).cloned()
     }
-}
 
-impl salsa::ParallelDatabase for RootDatabase {
-    fn snapshot(&self) -> salsa::Snapshot<RootDatabase> {
-        salsa::Snapshot::new(RootDatabase {
-            storage: self.storage.snapshot(),
-        })
+    fn item(&self, def_id: DefId) -> Option<Arc<Item>>;
+
+    fn expect_item(&self, def_id: DefId) -> Arc<Item> {
+        self.item(def_id).unwrap()
     }
-}
 
-#[salsa::query_group(RirDatabaseStorage)]
-pub trait RirDatabase {
-    #[salsa::input]
-    fn nodes(&self) -> Arc<FxHashMap<DefId, rir::Node>>;
-    #[salsa::input]
-    fn files(&self) -> Arc<FxHashMap<FileId, Arc<rir::File>>>;
-    #[salsa::input]
-    fn file_ids_map(&self) -> Arc<FxHashMap<Arc<PathBuf>, FileId>>;
-    #[salsa::input]
-    fn type_graph(&self) -> Arc<TypeGraph>;
-    #[salsa::input]
-    fn tags_map(&self) -> Arc<FxHashMap<TagId, Arc<Tags>>>;
-    #[salsa::input]
-    fn input_files(&self) -> Arc<Vec<FileId>>;
-    #[salsa::input]
-    fn args(&self) -> Arc<FxHashSet<DefId>>;
-    #[salsa::input]
-    fn workspace_graph(&self) -> Arc<WorkspaceGraph>;
-
-    fn node(&self, def_id: DefId) -> Option<rir::Node>;
-    fn file(&self, file_id: FileId) -> Option<Arc<rir::File>>;
-    fn file_id(&self, path: PathBuf) -> Option<FileId>;
-    fn item(&self, def_id: DefId) -> Option<Arc<rir::Item>>;
-    fn expect_item(&self, def_id: DefId) -> Arc<rir::Item>;
     fn codegen_item_ty(&self, ty: TyKind) -> CodegenTy;
+
     fn codegen_const_ty(&self, ty: TyKind) -> CodegenTy;
+
     fn codegen_ty(&self, def_id: DefId) -> CodegenTy;
+
     fn service_methods(&self, def_id: DefId) -> Arc<[Arc<rir::Method>]>;
+
     fn is_arg(&self, def_id: DefId) -> bool;
 }
 
-fn node(db: &dyn RirDatabase, def_id: DefId) -> Option<rir::Node> {
-    db.nodes().get(&def_id).cloned()
-}
+// 为 RootDatabase 实现 RirDatabase trait
+impl RirDatabase for RootDatabase {
+    fn nodes(&self) -> &Arc<FxHashMap<DefId, rir::Node>> {
+        &self.nodes
+    }
 
-fn item(db: &dyn RirDatabase, def_id: DefId) -> Option<Arc<rir::Item>> {
-    let node = db.node(def_id);
-    match node {
-        Some(rir::Node {
-            kind: rir::NodeKind::Item(i),
-            ..
-        }) => Some(i),
-        None => None,
-        _ => panic!("{def_id:?} is not an item"),
+    fn files(&self) -> &Arc<FxHashMap<FileId, Arc<rir::File>>> {
+        &self.files
+    }
+
+    fn file_ids_map(&self) -> &Arc<FxHashMap<Arc<PathBuf>, FileId>> {
+        &self.file_ids_map
+    }
+
+    fn type_graph(&self) -> &Arc<TypeGraph> {
+        &self.type_graph
+    }
+
+    fn tags_map(&self) -> &Arc<FxHashMap<TagId, Arc<Tags>>> {
+        &self.tags_map
+    }
+
+    fn input_files(&self) -> &Arc<Vec<FileId>> {
+        &self.input_files
+    }
+
+    fn args(&self) -> &Arc<FxHashSet<DefId>> {
+        &self.args
+    }
+
+    fn workspace_graph(&self) -> &Arc<WorkspaceGraph> {
+        &self.workspace_graph
+    }
+
+    // 使用缓存实现查询方法
+    fn node(&self, def_id: DefId) -> Option<Node> {
+        use cached_queries::{CachedQueries, get_node};
+        let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
+        get_node(self as &dyn CachedQueries, salsa_id)
+    }
+
+    fn file(&self, file_id: FileId) -> Option<Arc<File>> {
+        use cached_queries::{CachedQueries, get_file};
+        let salsa_id = file_id.into_salsa(self as &dyn CachedQueries);
+        get_file(self as &dyn CachedQueries, salsa_id)
+    }
+
+    fn item(&self, def_id: DefId) -> Option<Arc<Item>> {
+        use cached_queries::{CachedQueries, get_item};
+        let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
+        get_item(self as &dyn CachedQueries, salsa_id)
+    }
+
+    fn service_methods(&self, def_id: DefId) -> Arc<[Arc<rir::Method>]> {
+        use cached_queries::{CachedQueries, get_service_methods};
+        let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
+        get_service_methods(self as &dyn CachedQueries, salsa_id)
+    }
+
+    fn is_arg(&self, def_id: DefId) -> bool {
+        use cached_queries::{CachedQueries, is_arg_cached};
+        let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
+        is_arg_cached(self as &dyn CachedQueries, salsa_id)
+    }
+
+    fn codegen_item_ty(&self, ty: TyKind) -> CodegenTy {
+        use cached_queries::{CachedQueries, codegen_item_ty_cached};
+        let salsa_ty = ty.into_salsa(self as &dyn CachedQueries);
+        codegen_item_ty_cached(self as &dyn CachedQueries, salsa_ty)
+    }
+
+    fn codegen_const_ty(&self, ty: TyKind) -> CodegenTy {
+        use cached_queries::{CachedQueries, codegen_const_ty_cached};
+        let salsa_ty = ty.into_salsa(self as &dyn CachedQueries);
+        codegen_const_ty_cached(self as &dyn CachedQueries, salsa_ty)
+    }
+
+    fn codegen_ty(&self, def_id: DefId) -> CodegenTy {
+        use cached_queries::{CachedQueries, codegen_ty_cached};
+        let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
+        codegen_ty_cached(self as &dyn CachedQueries, salsa_id)
     }
 }
 
-fn expect_item(db: &dyn RirDatabase, def_id: DefId) -> Arc<rir::Item> {
-    db.item(def_id).unwrap()
-}
-
-fn file(db: &dyn RirDatabase, file_id: FileId) -> Option<Arc<rir::File>> {
-    db.files().get(&file_id).cloned()
-}
-
-fn file_id(db: &dyn RirDatabase, path: PathBuf) -> Option<FileId> {
-    db.file_ids_map().get(&path).cloned()
-}
-
-fn codegen_item_ty(db: &dyn RirDatabase, ty: TyKind) -> CodegenTy {
-    ty.to_codegen_item_ty(db)
-}
-
-fn codegen_const_ty(db: &dyn RirDatabase, ty: TyKind) -> CodegenTy {
-    ty.to_codegen_const_ty(db)
-}
-
-fn codegen_ty(db: &dyn RirDatabase, did: DefId) -> CodegenTy {
-    let node = db.node(did).unwrap();
-    match &node.kind {
-        rir::NodeKind::Item(item) => {
-            let kind = match &**item {
-                rir::Item::Message(_) => AdtKind::Struct,
-                rir::Item::Enum(_) => AdtKind::Enum,
-                rir::Item::Service(_) => unimplemented!(),
-                rir::Item::NewType(t) => {
-                    AdtKind::NewType(Arc::from(db.codegen_item_ty(t.ty.kind.clone())))
-                }
-                rir::Item::Const(c) => {
-                    let mut ty = db.codegen_const_ty(c.ty.kind.clone());
-                    if let CodegenTy::StaticRef(inner) = ty {
-                        ty = CodegenTy::LazyStaticRef(inner)
-                    }
-
-                    return ty;
-                }
-                rir::Item::Mod(_) => unreachable!(),
-            };
-            CodegenTy::Adt(AdtDef { did, kind })
-        }
-        rir::NodeKind::Variant(_) => CodegenTy::Adt(AdtDef {
-            did: node.parent.unwrap(),
-            kind: AdtKind::Enum,
-        }),
-        rir::NodeKind::Field(_) => todo!(),
-        rir::NodeKind::Method(_) => todo!(),
-        rir::NodeKind::Arg(_) => todo!(),
+impl Debug for RootDatabase {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "RootDatabase {{ .. }}")
     }
 }
-
-fn service_methods(db: &dyn RirDatabase, def_id: DefId) -> Arc<[Arc<rir::Method>]> {
-    let item = db.expect_item(def_id);
-    let service = match &*item {
-        rir::Item::Service(s) => s,
-        _ => panic!(),
-    };
-    let methods = service
-        .extend
-        .iter()
-        .flat_map(|p| {
-            db.service_methods(p.did)
-                .iter()
-                .map(|m| match m.source {
-                    rir::MethodSource::Extend(_) => m.clone(),
-                    rir::MethodSource::Own => Arc::from(rir::Method {
-                        source: rir::MethodSource::Extend(p.did),
-                        ..(**m).clone()
-                    }),
-                })
-                .collect::<Vec<_>>()
-        })
-        .chain(service.methods.iter().cloned());
-
-    Arc::from_iter(methods)
-}
-
-fn is_arg(db: &dyn RirDatabase, def_id: DefId) -> bool {
-    db.args().contains(&def_id)
-}
-
-impl salsa::Database for RootDatabase {}

@@ -60,9 +60,9 @@ pub mod enum_map {
                 __protocol.i32_len(*&**self)
             }
         }
-        pub const TYPE_A2: TypeA = TypeA(::pilota::FastStr::from_static_str("a2"));
+        pub const TYPE_A2: TypeA = TypeA("a2");
         pub const TYPE_B2: TypeB = TypeB(2i32);
-        pub const TYPE_A1: TypeA = TypeA(::pilota::FastStr::from_static_str("a1"));
+        pub const TYPE_A1: TypeA = TypeA("a1");
         pub const TYPE_B1: TypeB = TypeB(1i32);
         pub static TYPE_A_MAP: ::std::sync::LazyLock<::pilota::AHashMap<TypeB, TypeA>> =
             ::std::sync::LazyLock::new(|| {
