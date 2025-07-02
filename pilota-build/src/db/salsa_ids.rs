@@ -3,8 +3,10 @@
 //! Since DefId and FileId are not Salsa structs, we need to wrap them
 //! to use them as parameters for tracked functions.
 
-use crate::symbol::{DefId, FileId};
-use crate::middle::ty::TyKind;
+use crate::{
+    middle::ty::TyKind,
+    symbol::{DefId, FileId},
+};
 
 /// Salsa wrapper for DefId
 #[salsa::interned]

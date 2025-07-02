@@ -135,10 +135,10 @@ pub fn codegen_const_ty_cached<'db>(
 #[salsa::tracked]
 pub fn codegen_ty_cached<'db>(db: &'db dyn CachedQueries, def_id: SalsaDefId<'db>) -> CodegenTy {
     use crate::db::IntoSalsa;
-    
+
     let real_id = def_id.id(db);
     let node = get_node(db, def_id).unwrap();
-    
+
     match &node.kind {
         rir::NodeKind::Item(item) => {
             let kind = match &**item {
