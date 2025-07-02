@@ -96,7 +96,7 @@ Pilota-Build 是一个强大的代码生成框架，用于从接口定义语言�
 ### 3.2 详细处理步骤
 
 1. **输入处理**
-   - 读取 IDL 文件（.thrift 或 .proto）
+   - 读取 IDL 文件（`.thrift` 或 `.proto`）
    - 处理 include/import 指令
    - 构建文件依赖图
 
@@ -111,7 +111,7 @@ Pilota-Build 是一个强大的代码生成框架，用于从接口定义语言�
    - 生成 RIR（Resolved IR）
 
 4. **类型转换**
-   - 将 RIR 类型转换为 CodegenTy
+   - 将 RIR 类型转换为 `CodegenTy`
    - 处理特殊类型（如递归类型）
    - 应用类型标记和属性
 
@@ -135,7 +135,7 @@ IDL Types
     ▼
 IR Types (初始类型表示)
     │
-    ├── TyKind (src/ir/mod.rs)
+    ├── TyKind ([`src/ir/mod.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/ir/mod.rs))
     │   ├── 基础类型: String, Bool, I32, etc.
     │   ├── 容器类型: Vec, Set, Map
     │   └── 路径引用: Path (未解析)
@@ -143,16 +143,16 @@ IR Types (初始类型表示)
     ▼
 RIR Types (解析后类型表示)
     │
-    ├── Ty (src/middle/ty.rs)
+    ├── Ty ([`src/middle/ty.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/middle/ty.rs))
     │   ├── kind: TyKind
     │   └── tags_id: TagId
     │
-    ├── Path (src/middle/rir.rs)
+    ├── Path ([`src/middle/rir.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/middle/rir.rs))
     │   ├── kind: DefKind (Type/Value/Mod)
     │   └── did: DefId (已解析的定义ID)
     │
     ▼
-CodegenTy (代码生成类型)
+`CodegenTy` (代码生成类型)
     │
     ├── 基础类型映射
     │   ├── FastStr → ::pilota::FastStr
@@ -201,7 +201,7 @@ pub enum CodegenTy {
 
 ## 5. 各模块详细设计
 
-### 5.1 Parser 模块 (`src/parser/`)
+### 5.1 Parser 模块 ([`src/parser/`](https://github.com/cloudwego/pilota/tree/main/pilota-build/src/parser))
 
 #### 职责
 将 IDL 文件解析为语言无关的中间表示。
@@ -234,7 +234,7 @@ pub struct ParseResult {
 - 处理 package、import、option 等
 - 支持 Proto2 和 Proto3 语法
 
-### 5.2 IR 模块 (`src/ir/`)
+### 5.2 IR 模块 ([`src/ir/`](https://github.com/cloudwego/pilota/tree/main/pilota-build/src/ir))
 
 #### 职责
 定义语言无关的初始中间表示。
@@ -265,9 +265,9 @@ pub struct Path {
 }
 ```
 
-### 5.3 Middle 模块 (`src/middle/`)
+### 5.3 Middle 模块 ([`src/middle/`](https://github.com/cloudwego/pilota/tree/main/pilota-build/src/middle))
 
-#### 5.3.1 Context (`context.rs`)
+#### 5.3.1 Context ([`context.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/middle/context.rs))
 
 **职责**：维护全局编译上下文
 
@@ -290,7 +290,7 @@ pub struct Context {
 - 默认值处理
 - 插件执行
 
-#### 5.3.2 Resolver (`resolver.rs`)
+#### 5.3.2 Resolver ([`resolver.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/middle/resolver.rs))
 
 **职责**：符号解析和符号表构建
 
@@ -311,7 +311,7 @@ pub struct Resolver {
 3. 解析路径引用
 4. 生成 RIR
 
-#### 5.3.3 Type System (`ty.rs`)
+#### 5.3.3 Type System ([`ty.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/middle/ty.rs))
 
 **职责**：类型定义和转换
 
@@ -339,7 +339,7 @@ pub trait TyTransformer {
 }
 ```
 
-### 5.4 Codegen 模块 (`src/codegen/`)
+### 5.4 Codegen 模块 ([`src/codegen/`](https://github.com/cloudwego/pilota/tree/main/pilota-build/src/codegen))
 
 #### 职责
 将 RIR 转换为 Rust 代码。
@@ -360,17 +360,17 @@ pub trait CodegenBackend: Clone {
 
 #### 5.4.2 Backend 实现
 
-**ThriftBackend** (`thrift/mod.rs`)：
+**ThriftBackend** ([`thrift/mod.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/codegen/thrift/mod.rs))：
 - 生成 Thrift 协议的编解码代码
 - 支持 Binary、Compact 等编码格式
 - 处理 field ID、required/optional 等
 
-**ProtobufBackend** (`protobuf/mod.rs`)：
+**ProtobufBackend** ([`protobuf/mod.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/codegen/protobuf/mod.rs))：
 - 生成 Protobuf 协议的编解码代码
 - 支持 proto2/proto3 语法
 - 处理 field number、repeated 等
 
-**PbBackend** (`pb/mod.rs`)：
+**PbBackend** ([`pb/mod.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/codegen/pb/mod.rs))：
 - 新的 Protobuf 实现
 - 使用 pilota 自己的编解码库
 - 更好的性能和更小的代码体积
@@ -392,7 +392,7 @@ impl<B> Codegen<B> {
 }
 ```
 
-### 5.5 Plugin 模块 (`src/plugin/`)
+### 5.5 Plugin 模块 ([`src/plugin/`](https://github.com/cloudwego/pilota/tree/main/pilota-build/src/plugin))
 
 #### 职责
 提供可扩展的插件机制。
@@ -435,7 +435,7 @@ pub trait Plugin: Sync + Send {
    - 基于谓词函数自动派生 trait
    - 支持传递性推导
 
-### 5.6 Database 模块 (`src/db.rs`)
+### 5.6 Database 模块 ([`src/db.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/db.rs))
 
 #### 职责
 使用 Salsa 框架实现增量编译。
@@ -468,7 +468,7 @@ pub trait RirDatabase {
 - 只重新计算受影响的部分
 - 支持并行查询
 
-### 5.7 Workspace 模块 (`src/codegen/workspace.rs`)
+### 5.7 Workspace 模块 ([`src/codegen/workspace.rs`](https://github.com/cloudwego/pilota/blob/main/pilota-build/src/codegen/workspace.rs))
 
 #### 职责
 处理多包工作空间的代码生成。
@@ -606,5 +606,3 @@ Pilota-Build 通过清晰的分层架构和模块化设计，实现了一个功�
 3. **灵活的插件机制**：允许深度定制生成行为
 4. **优秀的性能**：增量编译和并行处理
 5. **完善的工具链集成**：原生支持 Cargo 工作空间
-
-通过本文档的详细分析，开发者可以深入理解 Pilota-Build 的内部机制，更好地使用和扩展这个框架。
