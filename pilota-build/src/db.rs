@@ -6,10 +6,11 @@ use std::{fmt::Debug, path::PathBuf, sync::Arc};
 pub use cached_queries::CachedQueries;
 use faststr::FastStr;
 use rustc_hash::{FxHashMap, FxHashSet};
-pub use salsa_ids::{IntoSalsa, SalsaDefId, SalsaFileId};
+pub use salsa_ids::{IntoSalsa, SalsaDefId, SalsaFileId, SalsaTyKind};
 
 use crate::{
     middle::context::{CrateId, DefLocation},
+    middle::ty::{CodegenTy, TyKind},
     rir::{self, File, Item, Node},
     symbol::{DefId, FileId},
     tags::{TagId, Tags},
@@ -287,6 +288,12 @@ pub trait RirDatabase: salsa::Database {
         self.item(def_id).unwrap()
     }
 
+    fn codegen_item_ty(&self, ty: TyKind) -> CodegenTy;
+    
+    fn codegen_const_ty(&self, ty: TyKind) -> CodegenTy;
+    
+    fn codegen_ty(&self, def_id: DefId) -> CodegenTy;
+
     fn service_methods(&self, def_id: DefId) -> Arc<[Arc<rir::Method>]>;
 
     fn is_arg(&self, def_id: DefId) -> bool;
@@ -355,6 +362,24 @@ impl RirDatabase for RootDatabase {
         use cached_queries::{CachedQueries, is_arg_cached};
         let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
         is_arg_cached(self as &dyn CachedQueries, salsa_id)
+    }
+
+    fn codegen_item_ty(&self, ty: TyKind) -> CodegenTy {
+        use cached_queries::{CachedQueries, codegen_item_ty_cached};
+        let salsa_ty = ty.into_salsa(self as &dyn CachedQueries);
+        codegen_item_ty_cached(self as &dyn CachedQueries, salsa_ty)
+    }
+    
+    fn codegen_const_ty(&self, ty: TyKind) -> CodegenTy {
+        use cached_queries::{CachedQueries, codegen_const_ty_cached};
+        let salsa_ty = ty.into_salsa(self as &dyn CachedQueries);
+        codegen_const_ty_cached(self as &dyn CachedQueries, salsa_ty)
+    }
+    
+    fn codegen_ty(&self, def_id: DefId) -> CodegenTy {
+        use cached_queries::{CachedQueries, codegen_ty_cached};
+        let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
+        codegen_ty_cached(self as &dyn CachedQueries, salsa_id)
     }
 }
 

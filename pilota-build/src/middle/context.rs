@@ -465,14 +465,14 @@ impl Context {
         let node = self.node(def_id).unwrap();
         match &node.kind {
             NodeKind::Item(item) => match &**item {
-                Item::Const(c) => c.ty.kind.to_codegen_const_ty(&self.db),
+                Item::Const(c) => self.db.codegen_const_ty(c.ty.kind.clone()),
                 Item::Enum(_) => CodegenTy::Adt(AdtDef {
                     did: def_id,
                     kind: AdtKind::Enum,
                 }),
                 Item::NewType(t) => CodegenTy::Adt(AdtDef {
                     did: def_id,
-                    kind: AdtKind::NewType(Arc::new(t.ty.kind.to_codegen_item_ty(&self.db))),
+                    kind: AdtKind::NewType(Arc::new(self.db.codegen_item_ty(t.ty.kind.clone()))),
                 }),
                 Item::Message(_) => CodegenTy::Adt(AdtDef {
                     did: def_id,
@@ -496,7 +496,7 @@ impl Context {
 
     pub fn default_val(&self, f: &Field) -> Option<(FastStr, bool /* const? */)> {
         f.default.as_ref().map(|d| {
-            let ty = f.ty.kind.to_codegen_item_ty(&self.db);
+            let ty = self.db.codegen_item_ty(f.ty.kind.clone());
             match self
                 .lit_as_rvalue(d, &ty)
                 .with_context(|| format!("calc the default value for field {}", f.name))
@@ -792,7 +792,7 @@ impl Context {
 
                         if let Some(v) = v {
                             let (mut v, is_const) =
-                                self.lit_into_ty(v, &f.ty.kind.to_codegen_item_ty(&self.db))?;
+                                self.lit_into_ty(v, &self.db.codegen_item_ty(f.ty.kind.clone()))?;
 
                             if f.is_optional() {
                                 v = format!("Some({v})").into()

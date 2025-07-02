@@ -96,7 +96,7 @@ where
             .map(|f| {
                 let name = self.rust_name(f.did);
                 self.with_adjust(f.did, |adjust| {
-                    let ty = f.ty.kind.to_codegen_item_ty(&self.db);
+                    let ty = self.db.codegen_item_ty(f.ty.kind.clone());
                     let mut ty = format!("{ty}");
 
                     if let Some(adjust) = adjust {
@@ -304,7 +304,7 @@ where
                     let fields = v
                         .fields
                         .iter()
-                        .map(|ty| ty.kind.to_codegen_item_ty(&self.db).to_string())
+                        .map(|ty| self.db.codegen_item_ty(ty.kind.clone()).to_string())
                         .join(",");
 
                     let fields_stream = if fields.is_empty() {
@@ -418,7 +418,7 @@ where
 
     pub fn write_new_type(&self, def_id: DefId, stream: &mut String, t: &middle::rir::NewType) {
         let name = self.rust_name(def_id);
-        let ty = t.ty.kind.to_codegen_item_ty(&self.db);
+        let ty = self.db.codegen_item_ty(t.ty.kind.clone());
         stream.push_str(&format! {
             r#"
             #[derive(Clone, PartialEq)]
@@ -444,7 +444,7 @@ where
     }
 
     pub fn write_const(&self, did: DefId, stream: &mut String, c: &middle::rir::Const) {
-        let mut ty = c.ty.kind.to_codegen_const_ty(&self.db);
+        let mut ty = self.db.codegen_const_ty(c.ty.kind.clone());
 
         let name = self.rust_name(did);
 
