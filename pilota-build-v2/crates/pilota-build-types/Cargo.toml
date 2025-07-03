@@ -1,0 +1,13 @@
+[package]
+name = "pilota-build-types"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+pilota-build-common = { path = "../pilota-build-common" }
+
+rustc-hash = { workspace = true }
+serde = { workspace = true }
+smallvec = { workspace = true }

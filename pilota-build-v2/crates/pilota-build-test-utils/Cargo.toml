@@ -1,0 +1,13 @@
+[package]
+name = "pilota-build-test-utils"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+pilota-build-common = { path = "../pilota-build-common" }
+pilota-build-diagnostics = { path = "../pilota-build-diagnostics" }
+
+tempfile = { workspace = true }
+insta = { workspace = true }

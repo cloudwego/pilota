@@ -1,0 +1,12 @@
+/workspace/pilota-build-v2/target/debug/deps/proc_macro2-4839bba9018df432.d: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/lib.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/marker.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/parse.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/rcvec.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/detection.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/fallback.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/extra.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/wrapper.rs
+
+/workspace/pilota-build-v2/target/debug/deps/libproc_macro2-4839bba9018df432.rmeta: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/lib.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/marker.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/parse.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/rcvec.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/detection.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/fallback.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/extra.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/wrapper.rs
+
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/lib.rs:
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/marker.rs:
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/parse.rs:
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/rcvec.rs:
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/detection.rs:
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/fallback.rs:
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/extra.rs:
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.95/src/wrapper.rs:

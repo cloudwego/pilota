@@ -1,0 +1,21 @@
+[package]
+name = "pilota-build-hir"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+# 内部依赖
+pilota-build-common = { path = "../pilota-build-common" }
+
+# 核心依赖
+rustc-hash = { workspace = true }
+indexmap = { workspace = true }
+smallvec = { workspace = true }
+
+# 序列化
+serde = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }

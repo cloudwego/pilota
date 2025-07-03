@@ -1,0 +1,34 @@
+[package]
+name = "pilota-build-core"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+# 内部依赖
+pilota-build-common = { path = "../pilota-build-common" }
+pilota-build-diagnostics = { path = "../pilota-build-diagnostics" }
+pilota-build-hir = { path = "../pilota-build-hir" }
+
+# 核心依赖
+rustc-hash = { workspace = true }
+dashmap = { workspace = true }
+parking_lot = { workspace = true }
+rayon = { workspace = true }
+salsa = { workspace = true }
+
+# 错误处理
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# 工具
+serde = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[[example]]
+name = "basic"
+path = "../../examples/basic.rs"

@@ -1,0 +1,33 @@
+[package]
+name = "pilota-build-diagnostics"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+# 核心依赖
+rustc-hash = { workspace = true }
+parking_lot = { workspace = true }
+dashmap = { workspace = true }
+once_cell = { workspace = true }
+
+# 错误处理
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# 终端输出
+termcolor = "1.4"
+unicode-width = "0.1"
+similar = "2.3"
+
+# 工具
+serde = { workspace = true }
+indexmap = { workspace = true }
+
+# 内部依赖
+pilota-build-common = { path = "../pilota-build-common" }
+
+[dev-dependencies]
+insta = { workspace = true }
+tempfile = { workspace = true }

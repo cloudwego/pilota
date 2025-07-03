@@ -1,0 +1,15 @@
+[package]
+name = "pilota-build-lir"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+pilota-build-common = { path = "../pilota-build-common" }
+pilota-build-mir = { path = "../pilota-build-mir" }
+
+rustc-hash = { workspace = true }
+serde = { workspace = true }
+quote = { workspace = true }
+proc-macro2 = { workspace = true }

@@ -1,0 +1,13 @@
+[package]
+name = "pilota-build-common"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+rustc-hash = { workspace = true }
+once_cell = { workspace = true }
+serde = { workspace = true }
+parking_lot = { workspace = true }
+smallvec = { workspace = true }
