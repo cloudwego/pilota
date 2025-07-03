@@ -1,202 +1,65 @@
-//! HIR AST node definitions.
+//! AST definitions for HIR.
 
+use crate::{HirId, LocalId};
 use pilota_build_common::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use smallvec::SmallVec;
 
-/// An attribute like `#[deprecated]`.
+/// A HIR node with metadata.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Attribute {
-    pub name: Path,
-    pub args: Option<AttrArgs>,
+pub struct HirNode<T> {
+    pub id: HirId,
     pub span: Span,
+    pub attrs: Vec<Attribute>,
+    pub kind: T,
 }
 
-/// Attribute arguments.
+/// A top-level item.
+pub type Item = HirNode<ItemKind>;
+
+/// The kind of item.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum AttrArgs {
-    /// `#[attr = "value"]`
-    Eq(Span, Expr),
-    /// `#[attr(args)]`
-    Paren(Vec<Expr>),
+pub enum ItemKind {
+    /// Message (struct/exception in Thrift, message in Protobuf)
+    Message(Message),
+    /// Service definition
+    Service(Service),
+    /// Enum definition
+    Enum(Enum),
+    /// Type alias
+    TypeAlias(TypeAlias),
+    /// Constant
+    Const(Const),
+    /// Module (for organizing items)
+    Module(Module),
 }
 
-/// A path like `std::vec::Vec`.
+/// A message definition.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Path {
-    pub segments: Vec<PathSegment>,
-    pub span: Span,
-}
-
-impl Path {
-    /// Create a path from a single identifier.
-    pub fn from_ident(ident: Symbol, span: Span) -> Self {
-        Path {
-            segments: vec![PathSegment {
-                ident,
-                args: None,
-                span,
-            }],
-            span,
-        }
-    }
-
-    /// Check if this is a single-segment path.
-    pub fn is_ident(&self) -> bool {
-        self.segments.len() == 1 && self.segments[0].args.is_none()
-    }
-
-    /// Get the identifier if this is a single-segment path.
-    pub fn as_ident(&self) -> Option<Symbol> {
-        if self.is_ident() {
-            Some(self.segments[0].ident)
-        } else {
-            None
-        }
-    }
-}
-
-/// A segment of a path.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PathSegment {
-    pub ident: Symbol,
-    pub args: Option<GenericArgs>,
-    pub span: Span,
-}
-
-/// Generic arguments like `<T, U>`.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct GenericArgs {
-    pub args: Vec<Type>,
-    pub span: Span,
-}
-
-/// A type in HIR.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Type {
-    /// A path type like `std::vec::Vec`.
-    Path(Path),
-    /// A primitive type.
-    Primitive(PrimitiveType),
-    /// A vector type `vec<T>`.
-    Vec(Box<Type>),
-    /// A set type `set<T>`.
-    Set(Box<Type>),
-    /// A map type `map<K, V>`.
-    Map {
-        key: Box<Type>,
-        value: Box<Type>,
-    },
-    /// An optional type `T?`.
-    Optional(Box<Type>),
-    /// A reference type (for recursive types).
-    Reference {
-        mutable: bool,
-        ty: Box<Type>,
-    },
-}
-
-/// Primitive types.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum PrimitiveType {
-    Bool,
-    Byte,
-    I8,
-    I16,
-    I32,
-    I64,
-    F32,
-    F64,
-    String,
-    Bytes,
-    Void,
-}
-
-/// An expression (for constants and defaults).
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Expr {
-    /// A literal value.
-    Literal(Literal),
-    /// A path reference.
-    Path(Path),
-    /// A list literal `[1, 2, 3]`.
-    List(Vec<Expr>),
-    /// A map literal `{"key": value}`.
-    Map(Vec<(Expr, Expr)>),
-    /// A struct literal.
-    Struct {
-        path: Path,
-        fields: Vec<FieldExpr>,
-    },
-    /// Unary operation.
-    Unary {
-        op: UnaryOp,
-        expr: Box<Expr>,
-    },
-    /// Binary operation.
-    Binary {
-        op: BinaryOp,
-        left: Box<Expr>,
-        right: Box<Expr>,
-    },
-}
-
-/// A field in a struct expression.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct FieldExpr {
+pub struct Message {
     pub name: Symbol,
-    pub value: Expr,
+    pub fields: Vec<Field>,
+    pub is_exception: bool,
+}
+
+/// A field in a message.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Field {
+    pub id: Option<i32>,
+    pub name: Symbol,
+    pub ty: Type,
+    pub required: FieldRequired,
+    pub default: Option<Expr>,
+    pub attrs: Vec<Attribute>,
     pub span: Span,
 }
 
-/// Literal values.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Literal {
-    Bool(bool),
-    Int(i64),
-    Float(f64),
-    String(Symbol),
-    Bytes(Vec<u8>),
-}
-
-/// Unary operators.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum UnaryOp {
-    /// `-`
-    Neg,
-    /// `!`
-    Not,
-}
-
-/// Binary operators.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum BinaryOp {
-    /// `+`
-    Add,
-    /// `-`
-    Sub,
-    /// `*`
-    Mul,
-    /// `/`
-    Div,
-    /// `%`
-    Rem,
-    /// `&&`
-    And,
-    /// `||`
-    Or,
-    /// `==`
-    Eq,
-    /// `!=`
-    Ne,
-    /// `<`
-    Lt,
-    /// `<=`
-    Le,
-    /// `>`
-    Gt,
-    /// `>=`
-    Ge,
+/// Field requiredness.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum FieldRequired {
+    Required,
+    Optional,
+    Default,
 }
 
 /// A service definition.
@@ -219,37 +82,6 @@ pub struct Method {
     pub span: Span,
 }
 
-/// A message/struct definition.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Message {
-    pub name: Symbol,
-    pub fields: Vec<Field>,
-    pub is_exception: bool,
-}
-
-/// A field in a message.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Field {
-    pub id: Option<i32>,
-    pub name: Symbol,
-    pub ty: Type,
-    pub required: FieldRequired,
-    pub default: Option<Expr>,
-    pub attrs: Vec<Attribute>,
-    pub span: Span,
-}
-
-/// Field requirement level.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum FieldRequired {
-    /// Required field.
-    Required,
-    /// Optional field.
-    Optional,
-    /// Default (depends on protocol).
-    Default,
-}
-
 /// An enum definition.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Enum {
@@ -257,13 +89,20 @@ pub struct Enum {
     pub variants: Vec<EnumVariant>,
 }
 
-/// A variant in an enum.
+/// An enum variant.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EnumVariant {
     pub name: Symbol,
     pub value: Option<i32>,
     pub attrs: Vec<Attribute>,
     pub span: Span,
+}
+
+/// A type alias.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TypeAlias {
+    pub name: Symbol,
+    pub ty: Type,
 }
 
 /// A constant definition.
@@ -274,23 +113,119 @@ pub struct Const {
     pub value: Expr,
 }
 
-/// A type alias.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TypeAlias {
-    pub name: Symbol,
-    pub ty: Type,
-}
-
-/// A module.
+/// A module for organizing items.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Module {
     pub name: Symbol,
-    pub items: Vec<super::Item>,
+    pub items: Vec<Item>,
 }
 
-/// A use/import statement.
+/// Type representation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Use {
-    pub path: Path,
-    pub alias: Option<Symbol>,
+pub enum Type {
+    /// Primitive type
+    Primitive(PrimitiveType),
+    /// Path to a type
+    Path(Path),
+    /// List/vector type
+    Vec(Box<Type>),
+    /// Set type
+    Set(Box<Type>),
+    /// Map type
+    Map { key: Box<Type>, value: Box<Type> },
+    /// Optional type
+    Optional(Box<Type>),
+}
+
+/// Primitive types.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PrimitiveType {
+    Bool,
+    Byte,
+    I8,
+    I16,
+    I32,
+    I64,
+    F32,
+    F64,
+    String,
+    Bytes,
+    Void,
+}
+
+/// Path to an item.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Path {
+    pub segments: Vec<PathSegment>,
+    pub span: Span,
+}
+
+impl Path {
+    /// Create a path from a single identifier.
+    pub fn from_ident(ident: Symbol, span: Span) -> Self {
+        Path {
+            segments: vec![PathSegment { ident, args: None }],
+            span,
+        }
+    }
+
+    /// Check if this is a single-segment path.
+    pub fn is_ident(&self) -> bool {
+        self.segments.len() == 1 && self.segments[0].args.is_none()
+    }
+
+    /// Get the identifier if this is a single-segment path.
+    pub fn as_ident(&self) -> Option<Symbol> {
+        if self.is_ident() {
+            Some(self.segments[0].ident)
+        } else {
+            None
+        }
+    }
+}
+
+/// A segment in a path.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PathSegment {
+    pub ident: Symbol,
+    pub args: Option<Vec<Type>>,
+}
+
+/// Expression.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Expr {
+    /// Literal value
+    Literal(Literal),
+    /// Path expression
+    Path(Path),
+    /// List expression
+    List(Vec<Expr>),
+    /// Map expression
+    Map(Vec<(Expr, Expr)>),
+}
+
+/// Literal values.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Literal {
+    Bool(bool),
+    Int(i64),
+    Float(f64),
+    String(Symbol),
+}
+
+/// Attribute.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Attribute {
+    pub name: Symbol,
+    pub args: Vec<AttributeArg>,
+    pub span: Span,
+}
+
+/// Attribute argument.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum AttributeArg {
+    /// Named argument
+    Named { name: Symbol, value: Expr },
+    /// Positional argument
+    Positional(Expr),
 }

@@ -1,4 +1,4 @@
-//! String interning for efficient symbol handling.
+//! String interning for symbols.
 
 use once_cell::sync::Lazy;
 use parking_lot::RwLock;
@@ -6,14 +6,14 @@ use rustc_hash::FxHashMap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// An interned string symbol.
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+/// An interned string.
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct Symbol(u32);
 
 impl Symbol {
-    /// Create a new symbol from a string.
-    pub fn intern(s: &str) -> Self {
-        INTERNER.intern(s)
+    /// Intern a string.
+    pub fn intern(string: &str) -> Self {
+        INTERNER.intern(string)
     }
 
     /// Get the string value of this symbol.
@@ -29,7 +29,7 @@ impl Symbol {
 
 impl fmt::Debug for Symbol {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Symbol({:?})", self.as_str())
+        write!(f, "Symbol({})", self.as_str())
     }
 }
 
@@ -40,23 +40,22 @@ impl fmt::Display for Symbol {
 }
 
 /// Global string interner.
-static INTERNER: Lazy<SymbolInterner> = Lazy::new(SymbolInterner::new);
+static INTERNER: Lazy<Interner> = Lazy::new(Interner::new);
 
-/// String interner for symbols.
-pub struct SymbolInterner {
+/// String interner implementation.
+struct Interner {
     strings: RwLock<Vec<&'static str>>,
     indices: RwLock<FxHashMap<&'static str, u32>>,
 }
 
-impl SymbolInterner {
+impl Interner {
     fn new() -> Self {
-        let mut interner = Self {
+        let interner = Self {
             strings: RwLock::new(Vec::new()),
             indices: RwLock::new(FxHashMap::default()),
         };
-        
-        // Pre-intern common strings
-        interner.intern("");
+
+        // Pre-intern common symbols
         interner.intern("self");
         interner.intern("Self");
         interner.intern("super");
@@ -64,36 +63,119 @@ impl SymbolInterner {
         interner.intern("std");
         interner.intern("core");
         interner.intern("alloc");
-        
+        interner.intern("String");
+        interner.intern("Vec");
+        interner.intern("Option");
+        interner.intern("Result");
+        interner.intern("Box");
+        interner.intern("Rc");
+        interner.intern("Arc");
+        interner.intern("i8");
+        interner.intern("i16");
+        interner.intern("i32");
+        interner.intern("i64");
+        interner.intern("u8");
+        interner.intern("u16");
+        interner.intern("u32");
+        interner.intern("u64");
+        interner.intern("f32");
+        interner.intern("f64");
+        interner.intern("bool");
+        interner.intern("char");
+        interner.intern("str");
+        interner.intern("main");
+        interner.intern("new");
+        interner.intern("default");
+        interner.intern("clone");
+        interner.intern("drop");
+        interner.intern("fn");
+        interner.intern("struct");
+        interner.intern("enum");
+        interner.intern("trait");
+        interner.intern("impl");
+        interner.intern("type");
+        interner.intern("const");
+        interner.intern("static");
+        interner.intern("let");
+        interner.intern("mut");
+        interner.intern("ref");
+        interner.intern("move");
+        interner.intern("if");
+        interner.intern("else");
+        interner.intern("match");
+        interner.intern("loop");
+        interner.intern("while");
+        interner.intern("for");
+        interner.intern("in");
+        interner.intern("return");
+        interner.intern("break");
+        interner.intern("continue");
+        interner.intern("pub");
+        interner.intern("mod");
+        interner.intern("use");
+        interner.intern("as");
+        interner.intern("where");
+        interner.intern("async");
+        interner.intern("await");
+        interner.intern("dyn");
+        interner.intern("abstract");
+        interner.intern("become");
+        interner.intern("do");
+        interner.intern("final");
+        interner.intern("macro");
+        interner.intern("override");
+        interner.intern("priv");
+        interner.intern("typeof");
+        interner.intern("unsized");
+        interner.intern("virtual");
+        interner.intern("yield");
+        interner.intern("try");
+
         interner
     }
 
-    /// Intern a string and return its symbol.
-    pub fn intern(&self, s: &str) -> Symbol {
-        // Fast path: check if already interned
-        if let Some(&idx) = self.indices.read().get(s) {
-            return Symbol(idx);
+    fn intern(&self, string: &str) -> Symbol {
+        {
+            let indices = self.indices.read();
+            if let Some(&idx) = indices.get(string) {
+                return Symbol(idx);
+            }
         }
 
-        // Slow path: intern the string
+        let string: &'static str = Box::leak(string.to_string().into_boxed_str());
+        
         let mut strings = self.strings.write();
         let mut indices = self.indices.write();
-
-        // Double-check after acquiring write lock
-        if let Some(&idx) = indices.get(s) {
-            return Symbol(idx);
-        }
-
-        let s = Box::leak(s.to_string().into_boxed_str());
+        
         let idx = strings.len() as u32;
-        strings.push(s);
-        indices.insert(s, idx);
+        strings.push(string);
+        indices.insert(string, idx);
+        
         Symbol(idx)
     }
 
-    /// Get the string value of a symbol.
-    pub fn get(&self, sym: Symbol) -> &'static str {
-        self.strings.read()[sym.0 as usize]
+    fn get(&self, symbol: Symbol) -> &'static str {
+        self.strings.read()[symbol.0 as usize]
+    }
+}
+
+// Implement Serialize/Deserialize by converting to/from string
+impl Serialize for Symbol {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.as_str().serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for Symbol {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        Ok(Symbol::intern(&s))
     }
 }
 

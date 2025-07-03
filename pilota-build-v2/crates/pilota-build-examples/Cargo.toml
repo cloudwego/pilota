@@ -1,0 +1,16 @@
+[package]
+name = "pilota-build-examples"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+pilota-build-common = { path = "../pilota-build-common" }
+pilota-build-parser = { path = "../pilota-build-parser" }
+pilota-build-hir = { path = "../pilota-build-hir" }
+pilota-build-core = { path = "../pilota-build-core" }
+
+[[bin]]
+name = "test_parser"
+path = "src/bin/test_parser.rs"

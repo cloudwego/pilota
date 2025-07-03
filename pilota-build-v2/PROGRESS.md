@@ -1,128 +1,88 @@
-# Pilota Build v2 重构进度总结
+# pilota-build-v2 开发进度
 
-## 完成情况概览
-
-根据开发计划，我们已经完成了 Phase 1（基础设施建设）的主要工作。
+## 已完成的工作
 
 ### Phase 1: 基础设施建设 (90% 完成)
 
-#### Week 1-2: 诊断系统 ✅
-- [x] 错误代码系统设计与实现
-- [x] 诊断信息结构（Diagnostic, DiagnosticBuilder）
-- [x] 错误处理器（DiagnosticHandler）
-- [x] 终端输出美化（TerminalEmitter）
-- [x] 代码片段展示（Snippet）
-- [x] 源码位置追踪（Span, SourceMap）
+#### ✅ 已完成的模块
 
-**关键成果：**
-- 实现了 rustc 风格的错误报告系统
-- 支持结构化错误代码（E0001-E3010）
-- 友好的终端彩色输出
-- 代码建议和修复提示功能
+1. **pilota-build-common** - 通用基础类型
+   - DefId 唯一标识系统
+   - Symbol 字符串内部化
+   - Span 和 SourceMap 源码追踪
+   - 基本编译通过（有警告）
 
-#### Week 3: 基础类型系统 ✅
-- [x] DefId 系统（定义唯一标识）
-- [x] Symbol 内部化（字符串优化）
-- [x] Span 和位置追踪
-- [x] SourceMap 源文件管理
-- [x] FastHashMap 类型别名
+2. **pilota-build-diagnostics** - 诊断系统
+   - 结构化错误码定义（40+ 个错误码）
+   - DiagnosticBuilder 模式
+   - 终端彩色输出支持
+   - 基本编译通过
 
-**关键成果：**
-- 建立了编译器的基础数据结构
-- 实现了高效的字符串处理
-- 完整的源码位置追踪系统
+3. **pilota-build-hir** - 高级中间表示
+   - AST 节点定义完成
+   - Visitor 模式实现
+   - 基本编译通过（有警告）
 
-#### Week 4: HIR 系统框架 ✅
-- [x] HIR AST 定义
-- [x] Visitor 模式实现
-- [x] Lowering 框架（占位）
-- [x] 基本的节点类型
+4. **pilota-build-mir/lir** - 中间表示（占位）
+   - 基础结构已创建
 
-**关键成果：**
-- 定义了完整的 HIR 结构
-- 实现了灵活的遍历机制
-- 为后续的语法分析做好准备
+5. **pilota-build-types** - 类型系统（占位）
+   - 基础结构已创建
 
-#### Week 5: 核心编译器框架 ✅
-- [x] Builder API
-- [x] CompilerSession
-- [x] CompilerContext
-- [x] 简化的 Database（暂不使用 Salsa）
-- [x] 错误类型定义
+6. **pilota-build-plugin** - 插件系统（占位）
+   - 基础结构已创建
 
-**关键成果：**
-- 用户友好的 Builder API
-- 完整的编译会话管理
-- 模块化的编译器上下文
+7. **pilota-build-core** - 核心编译器
+   - Builder API 定义
+   - Session 和 Context 结构
+   - 简化的 Database 实现
 
-### 项目结构
+8. **pilota-build-test-utils** - 测试工具（占位）
+   - 基础结构已创建
 
-```
-pilota-build-v2/
-├── Cargo.toml                  # 工作空间配置
-├── README.md                   # 项目说明
-├── PROGRESS.md                # 本文档
-├── examples/
-│   └── basic.rs               # 基本使用示例
-└── crates/
-    ├── pilota-build-common/   # 通用基础模块
-    ├── pilota-build-diagnostics/ # 诊断系统
-    ├── pilota-build-hir/      # 高级中间表示
-    ├── pilota-build-mir/      # 中级中间表示（待实现）
-    ├── pilota-build-lir/      # 低级中间表示（待实现）
-    ├── pilota-build-types/    # 类型系统（待实现）
-    ├── pilota-build-plugin/   # 插件系统（待实现）
-    ├── pilota-build-core/     # 核心编译器
-    └── pilota-build-test-utils/ # 测试工具（待实现）
-```
+### Phase 2: 核心模块重构 (开始)
 
-### 代码统计
+#### 🚧 正在进行的工作
 
-- 总代码行数：约 2,500 行
-- 模块数量：9 个
-- 主要语言：Rust
+1. **pilota-build-parser** - 解析器模块
+   - Thrift 词法分析器完成
+   - Thrift 解析器基本实现
+   - Protobuf 词法分析器（占位）
+   - 存在编译错误，需要修复：
+     - Logos 版本兼容性问题
+     - 类型不匹配问题
+     - Trait 实现问题
 
-### 技术债务和改进点
+## 当前问题
 
-1. **Salsa 集成**：由于新版本 API 变化较大，暂时使用简化实现
-2. **MIR/LIR 实现**：目前只有占位符，需要完整实现
-3. **解析器集成**：需要集成 Thrift/Protobuf 解析器
-4. **测试覆盖**：需要添加单元测试和集成测试
+1. **Logos 版本问题**
+   - 使用的 0.14 版本与代码不兼容
+   - 需要调整词法分析器实现
 
-### 下一步计划（Phase 2）
+2. **类型系统问题**
+   - Lexer 的泛型约束需要调整
+   - peek() 方法返回类型不匹配
 
-1. **Week 6-7: 解析器集成**
-   - 集成现有的 Thrift 解析器
-   - 集成现有的 Protobuf 解析器
-   - 统一到 HIR 的转换
+3. **SourceMap API 变更**
+   - load_file 方法不存在，需要使用 add_file
+   - new_source_file 方法需要调整
 
-2. **Week 8-9: 符号解析**
-   - 实现完整的符号表
-   - 名称解析算法
-   - 导入/导出处理
+## 下一步计划
 
-3. **Week 10-11: 类型系统**
-   - 类型推导
-   - 类型检查
-   - 泛型支持
+1. 修复解析器编译错误
+2. 完成 Thrift 解析器的集成测试
+3. 实现基本的 Protobuf 解析器
+4. 开始 MIR 层的设计和实现
 
-4. **Week 12: 代码生成**
-   - MIR → LIR 转换
-   - Rust 代码生成
-   - 格式化输出
+## 技术债务
 
-### 风险和挑战
+1. 大量未使用的警告需要清理
+2. Salsa 集成暂时搁置，使用简化版本
+3. 部分模块仅有占位实现
 
-1. **Salsa 学习曲线**：新版本 API 需要时间学习
-2. **性能优化**：并行编译的实现复杂度
-3. **向后兼容**：需要确保与原版本的兼容性
+## 统计
 
-### 总结
-
-Phase 1 的基础设施建设基本完成，建立了：
-- 强大的诊断系统
-- 完善的基础类型
-- 清晰的架构设计
-- 用户友好的 API
-
-这为后续的核心功能开发奠定了坚实基础。项目当前可以成功编译，基本框架已经搭建完成。
+- 总代码行数：约 3,000 行
+- 已实现模块：9 个
+- 编译通过模块：7 个
+- 待修复模块：2 个（parser, core）

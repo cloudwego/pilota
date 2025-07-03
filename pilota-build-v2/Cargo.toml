@@ -9,6 +9,8 @@ members = [
     "crates/pilota-build-types",
     "crates/pilota-build-common",
     "crates/pilota-build-test-utils",
+    "crates/pilota-build-parser",
+    "crates/pilota-build-examples",
 ]
 resolver = "2"
 

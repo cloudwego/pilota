@@ -1,36 +1,41 @@
-//! Lowering from parser AST to HIR.
+//! HIR lowering utilities.
 
-use crate::*;
-use pilota_build_common::{DefIdGenerator, LocalId};
+use crate::{HirId, LocalId};
+use pilota_build_common::{DefId, DefIndex};
 
 /// Context for lowering AST to HIR.
 pub struct LoweringContext {
-    def_id_gen: DefIdGenerator,
+    current_def_id: DefId,
     local_id_counter: u32,
 }
 
 impl LoweringContext {
     pub fn new() -> Self {
         LoweringContext {
-            def_id_gen: DefIdGenerator::new(),
+            current_def_id: DefId::local(DefIndex::from_u32(0)),
             local_id_counter: 0,
         }
     }
 
-    /// Generate a new HIR ID.
+    /// Get the next HIR ID.
     pub fn next_hir_id(&mut self) -> HirId {
-        let owner = self.def_id_gen.next_def_id();
         let local_id = LocalId(self.local_id_counter);
         self.local_id_counter += 1;
-        HirId { owner, local_id }
+        HirId {
+            owner: self.current_def_id,
+            local: local_id,
+        }
     }
 
-    /// Reset local ID counter for a new item.
+    /// Reset the local ID counter.
     pub fn reset_local_id_counter(&mut self) {
         self.local_id_counter = 0;
     }
 
-    // Lowering methods would be implemented here based on the specific parser AST
+    /// Set the current definition ID.
+    pub fn set_current_def_id(&mut self, def_id: DefId) {
+        self.current_def_id = def_id;
+    }
 }
 
 impl Default for LoweringContext {

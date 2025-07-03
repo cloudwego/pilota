@@ -1,225 +1,163 @@
 //! Terminal emitter for diagnostics.
 
 use crate::{
-    diagnostic::{Diagnostic, Level, SpanLabel, SpanStyle},
+    diagnostic::{Diagnostic, Level, SpanLabel},
     emitter::Emitter,
-    snippet::{Annotation, AnnotationType, Snippet},
 };
 use pilota_build_common::{SourceMap, Span};
 use std::io::{self, Write};
 use std::sync::Arc;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
-/// Configuration for terminal output.
-#[derive(Clone, Debug)]
-pub struct Config {
-    pub color_choice: ColorChoice,
-    pub show_code_snippets: bool,
-    pub max_line_length: usize,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Config {
-            color_choice: ColorChoice::Auto,
-            show_code_snippets: true,
-            max_line_length: 80,
-        }
-    }
-}
-
-/// Terminal emitter for diagnostics.
+/// Terminal emitter that outputs diagnostics to stderr with colors.
 pub struct TerminalEmitter {
-    dst: StandardStream,
+    writer: StandardStream,
     source_map: Arc<SourceMap>,
-    config: Config,
 }
 
 impl TerminalEmitter {
-    pub fn new(source_map: Arc<SourceMap>, config: Config) -> Self {
-        let dst = StandardStream::stderr(config.color_choice);
+    /// Create a new terminal emitter.
+    pub fn new(source_map: Arc<SourceMap>, color_choice: ColorChoice) -> Self {
         TerminalEmitter {
-            dst,
+            writer: StandardStream::stderr(color_choice),
             source_map,
-            config,
         }
     }
 
+    /// Emit a diagnostic header.
     fn emit_header(&mut self, diagnostic: &Diagnostic) -> io::Result<()> {
-        // Set color based on level
-        let color = match diagnostic.level {
-            Level::Error => Color::Red,
-            Level::Warning => Color::Yellow,
-            Level::Info => Color::Blue,
-            Level::Note => Color::Green,
-            Level::Help => Color::Cyan,
+        let (level_str, color) = match diagnostic.level {
+            Level::Error => ("error", Color::Red),
+            Level::Warning => ("warning", Color::Yellow),
+            Level::Info => ("info", Color::Blue),
+            Level::Note => ("note", Color::Green),
+            Level::Help => ("help", Color::Cyan),
         };
 
-        self.dst.set_color(ColorSpec::new().set_fg(Some(color)).set_bold(true))?;
-        write!(self.dst, "{}", diagnostic.level.to_str())?;
+        self.writer.set_color(ColorSpec::new().set_fg(Some(color)).set_bold(true))?;
+        write!(self.writer, "{}", level_str)?;
+        self.writer.reset()?;
 
-        // Add error code if present
         if let Some(code) = &diagnostic.code {
-            write!(self.dst, "[{}]", code)?;
+            self.writer.set_color(ColorSpec::new().set_bold(true))?;
+            write!(self.writer, "[{}]", code)?;
+            self.writer.reset()?;
         }
 
-        self.dst.set_color(ColorSpec::new().set_bold(true))?;
-        writeln!(self.dst, ": {}", diagnostic.message)?;
-        self.dst.reset()?;
+        writeln!(self.writer, ": {}", diagnostic.message)?;
 
         Ok(())
     }
 
-    fn emit_span(&mut self, span_label: &SpanLabel) -> io::Result<()> {
-        if !self.config.show_code_snippets {
-            return Ok(());
-        }
-
-        // Get source snippet
-        let snippet = match self.build_snippet(&span_label.span, &span_label.label) {
-            Some(snippet) => snippet,
+    /// Emit a source snippet with annotations.
+    fn emit_snippet(&mut self, span: &Span, label: &SpanLabel) -> io::Result<()> {
+        let location = match self.source_map.lookup_span(*span) {
+            Some(loc) => loc,
             None => return Ok(()),
         };
 
-        self.emit_snippet(&snippet)
-    }
+        let snippet = match self.source_map.snippet(*span) {
+            Some(s) => s,
+            None => return Ok(()),
+        };
 
-    fn emit_snippet(&mut self, snippet: &Snippet) -> io::Result<()> {
-        // Emit file location
-        self.dst.set_color(ColorSpec::new().set_bold(true))?;
-        write!(self.dst, "  --> ")?;
-        self.dst.reset()?;
-        writeln!(self.dst, "{}", snippet.file_name)?;
+        // Print file location
+        self.writer.set_color(ColorSpec::new().set_fg(Some(Color::Blue)).set_bold(true))?;
+        write!(self.writer, "--> ")?;
+        self.writer.reset()?;
+        writeln!(
+            self.writer,
+            "{}:{}:{}",
+            location.file.name,
+            location.start_line,
+            location.start_column
+        )?;
 
-        // Calculate line number width
-        let max_line_num = snippet.lines.iter().map(|l| l.line_number).max().unwrap_or(1);
-        let line_num_width = max_line_num.to_string().len();
+        // Print source lines with line numbers
+        let lines: Vec<&str> = snippet.lines().collect();
+        let line_num_width = location.end_line.to_string().len();
 
-        // Emit lines
-        for line in &snippet.lines {
+        for (i, line) in lines.iter().enumerate() {
+            let line_num = location.start_line + i;
+            
             // Line number
-            self.dst.set_color(ColorSpec::new().set_fg(Some(Color::Blue)).set_bold(true))?;
-            write!(self.dst, "{:>width$} | ", line.line_number, width = line_num_width)?;
-            self.dst.reset()?;
+            self.writer.set_color(ColorSpec::new().set_fg(Some(Color::Blue)).set_bold(true))?;
+            write!(self.writer, "{:>width$} | ", line_num, width = line_num_width)?;
+            self.writer.reset()?;
 
             // Source line
-            writeln!(self.dst, "{}", line.text)?;
+            writeln!(self.writer, "{}", line)?;
 
-            // Annotations
-            if !line.annotations.is_empty() {
-                write!(self.dst, "{:>width$} | ", "", width = line_num_width)?;
-                
-                let mut col = 0;
-                for annotation in &line.annotations {
-                    // Pad to start column
-                    while col < annotation.start_col {
-                        write!(self.dst, " ")?;
-                        col += 1;
-                    }
+            // Underline for the first line
+            if i == 0 {
+                self.writer.set_color(ColorSpec::new().set_fg(Some(Color::Blue)).set_bold(true))?;
+                write!(self.writer, "{:>width$} | ", "", width = line_num_width)?;
+                self.writer.reset()?;
 
-                    // Draw underline
-                    let color = match annotation.annotation_type {
-                        AnnotationType::Error => Color::Red,
-                        AnnotationType::Warning => Color::Yellow,
-                        AnnotationType::Info => Color::Blue,
-                        AnnotationType::Note => Color::Green,
-                        AnnotationType::Help => Color::Cyan,
-                    };
+                // Calculate underline position
+                let start_col = if location.start_line == location.end_line {
+                    location.start_column - 1
+                } else {
+                    0
+                };
+                let end_col = if location.start_line == location.end_line {
+                    location.end_column - 1
+                } else {
+                    line.len()
+                };
 
-                    self.dst.set_color(ColorSpec::new().set_fg(Some(color)))?;
-                    for _ in annotation.start_col..annotation.end_col {
-                        write!(self.dst, "^")?;
-                        col += 1;
-                    }
-                    self.dst.reset()?;
+                // Print spaces before underline
+                for _ in 0..start_col {
+                    write!(self.writer, " ")?;
                 }
 
-                // Add label if present
-                if let Some(annotation) = line.annotations.first() {
-                    if !annotation.label.is_empty() {
-                        let color = match annotation.annotation_type {
-                            AnnotationType::Error => Color::Red,
-                            AnnotationType::Warning => Color::Yellow,
-                            AnnotationType::Info => Color::Blue,
-                            AnnotationType::Note => Color::Green,
-                            AnnotationType::Help => Color::Cyan,
-                        };
-                        self.dst.set_color(ColorSpec::new().set_fg(Some(color)))?;
-                        write!(self.dst, " {}", annotation.label)?;
-                        self.dst.reset()?;
-                    }
+                // Print underline
+                let color = match label.style {
+                    crate::diagnostic::SpanStyle::Primary => Color::Red,
+                    crate::diagnostic::SpanStyle::Secondary => Color::Yellow,
+                };
+                self.writer.set_color(ColorSpec::new().set_fg(Some(color)).set_bold(true))?;
+                for _ in start_col..end_col {
+                    write!(self.writer, "^")?;
                 }
-                writeln!(self.dst)?;
+
+                // Print label message
+                if !label.label.is_empty() {
+                    write!(self.writer, " {}", label.label)?;
+                }
+                self.writer.reset()?;
+                writeln!(self.writer)?;
             }
         }
 
         Ok(())
     }
 
-    fn build_snippet(&self, span: &Span, label: &str) -> Option<Snippet> {
-        let file = self.source_map.get_file(span.file_id)?;
-        let loc_start = self.source_map.lookup_char_pos(span.lo)?;
-        let loc_end = self.source_map.lookup_char_pos(span.hi)?;
-
-        let mut snippet = Snippet {
-            file_name: loc_start.file.to_string_lossy().to_string(),
-            lines: Vec::new(),
-        };
-
-        // Get lines to display
-        let start_line = loc_start.line.saturating_sub(1);
-        let end_line = loc_end.line;
-
-        for line_num in start_line..=end_line {
-            if line_num == 0 || line_num > file.lines.len() {
-                continue;
-            }
-
-            let line_start = file.lines[line_num - 1];
-            let line_end = if line_num < file.lines.len() {
-                file.lines[line_num]
-            } else {
-                file.end_pos
+    /// Emit child diagnostics.
+    fn emit_children(&mut self, diagnostic: &Diagnostic) -> io::Result<()> {
+        for child in &diagnostic.children {
+            writeln!(self.writer)?;
+            
+            // Print child header
+            let (level_str, color) = match child.level {
+                Level::Error => ("error", Color::Red),
+                Level::Warning => ("warning", Color::Yellow),
+                Level::Info => ("info", Color::Blue),
+                Level::Note => ("note", Color::Green),
+                Level::Help => ("help", Color::Cyan),
             };
 
-            let line_span = Span::new(line_start, line_end, span.file_id);
-            let line_text = file.snippet(line_span)?.trim_end_matches('\n');
-
-            let mut line = crate::snippet::Line {
-                line_number: line_num,
-                text: line_text.to_string(),
-                annotations: Vec::new(),
-            };
-
-            // Add annotation if this line contains part of the span
-            if line_num >= loc_start.line && line_num <= loc_end.line {
-                let start_col = if line_num == loc_start.line {
-                    loc_start.col - 1
-                } else {
-                    0
-                };
-                let end_col = if line_num == loc_end.line {
-                    loc_end.col - 1
-                } else {
-                    line_text.len()
-                };
-
-                line.annotations.push(Annotation {
-                    start_col,
-                    end_col,
-                    label: if line_num == loc_start.line {
-                        label.to_string()
-                    } else {
-                        String::new()
-                    },
-                    annotation_type: AnnotationType::Error,
-                });
+            self.writer.set_color(ColorSpec::new().set_fg(Some(color)).set_bold(true))?;
+            write!(self.writer, "{}", level_str)?;
+            self.writer.reset()?;
+            writeln!(self.writer, ": {}", child.message)?;
+            
+            for span_label in &child.spans {
+                self.emit_snippet(&span_label.span, span_label)?;
             }
-
-            snippet.lines.push(line);
         }
 
-        Some(snippet)
+        Ok(())
     }
 }
 
@@ -227,43 +165,30 @@ impl Emitter for TerminalEmitter {
     fn emit_diagnostic(&mut self, diagnostic: &Diagnostic) {
         let _ = self.emit_header(diagnostic);
 
-        // Emit main spans
+        // Emit primary spans
         for span_label in &diagnostic.spans {
-            let _ = self.emit_span(span_label);
+            let _ = self.emit_snippet(&span_label.span, span_label);
         }
 
-        // Emit children (notes, helps)
-        for child in &diagnostic.children {
-            let child_diag = Diagnostic {
-                level: child.level,
-                message: child.message.clone(),
-                code: None,
-                spans: child.spans.clone(),
-                children: Vec::new(),
-                suggestions: Vec::new(),
-            };
-            let _ = self.emit_header(&child_diag);
-        }
+        // Emit children
+        let _ = self.emit_children(diagnostic);
 
         // Emit suggestions
-        for suggestion in &diagnostic.suggestions {
-            self.dst.set_color(ColorSpec::new().set_fg(Some(Color::Green)).set_bold(true)).ok();
-            write!(self.dst, "help: ").ok();
-            self.dst.reset().ok();
-            writeln!(self.dst, "{}", suggestion.message).ok();
+        if !diagnostic.suggestions.is_empty() {
+            let _ = writeln!(self.writer);
+            let _ = self.writer.set_color(ColorSpec::new().set_fg(Some(Color::Green)).set_bold(true));
+            let _ = writeln!(self.writer, "help: {}", diagnostic.suggestions[0].message);
+            let _ = self.writer.reset();
 
-            // Show the suggested code
-            for substitution in &suggestion.substitutions {
-                if let Some(snippet) = self.source_map.span_to_snippet(substitution.span) {
-                    self.dst.set_color(ColorSpec::new().set_fg(Some(Color::Green))).ok();
-                    writeln!(self.dst, "   - {}", snippet).ok();
-                    writeln!(self.dst, "   + {}", substitution.code).ok();
-                    self.dst.reset().ok();
+            for substitution in &diagnostic.suggestions[0].substitutions {
+                if let Some(snippet) = self.source_map.snippet(substitution.span) {
+                    let _ = self.writer.set_color(ColorSpec::new().set_fg(Some(Color::Green)));
+                    let _ = writeln!(self.writer, "   {}", substitution.code);
+                    let _ = self.writer.reset();
                 }
             }
         }
 
-        // Add a blank line after each diagnostic
-        writeln!(self.dst).ok();
+        let _ = writeln!(self.writer);
     }
 }

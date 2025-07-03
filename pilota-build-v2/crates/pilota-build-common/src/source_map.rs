@@ -1,41 +1,36 @@
-//! Source file management and mapping.
+//! Source file management.
 
-use super::{BytePos, CharPos, Span};
+use super::{BytePos, Span};
 use parking_lot::RwLock;
 use rustc_hash::FxHashMap;
-use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-/// A file ID.
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
-pub struct FileId(u32);
+/// File ID type.
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+pub struct FileId(pub u32);
 
 impl FileId {
-    pub const DUMMY: FileId = FileId(u32::MAX);
-
-    pub fn as_u32(self) -> u32 {
-        self.0
-    }
+    pub const DUMMY: FileId = FileId(0);
 }
 
-/// A source file.
-#[derive(Debug)]
+/// Information about a source file.
+#[derive(Debug, Clone)]
 pub struct SourceFile {
     /// The name of the file.
-    pub name: PathBuf,
-    /// The complete source code.
+    pub name: String,
+    /// The source code of the file.
     pub src: String,
-    /// The start position of this file.
+    /// The starting byte position of this file.
     pub start_pos: BytePos,
-    /// The end position of this file.
+    /// The ending byte position of this file.
     pub end_pos: BytePos,
-    /// Locations of line beginnings.
+    /// Byte positions of line beginnings.
     pub lines: Vec<BytePos>,
 }
 
 impl SourceFile {
-    fn new(name: PathBuf, src: String, start_pos: BytePos) -> Self {
+    /// Create a new source file.
+    pub fn new(name: String, src: String, start_pos: BytePos) -> Self {
         let end_pos = BytePos(start_pos.0 + src.len() as u32);
         let lines = compute_line_starts(&src, start_pos);
         
@@ -48,43 +43,44 @@ impl SourceFile {
         }
     }
 
-    /// Find the line containing the given position.
+    /// Get the line number (1-indexed) for a byte position.
     pub fn lookup_line(&self, pos: BytePos) -> Option<usize> {
         if pos < self.start_pos || pos > self.end_pos {
             return None;
         }
 
         match self.lines.binary_search(&pos) {
-            Ok(line) => Some(line),
-            Err(line) => Some(line.saturating_sub(1)),
+            Ok(line) => Some(line + 1),
+            Err(line) => Some(line),
         }
     }
 
-    /// Get the line and column for a position.
-    pub fn lookup_line_col(&self, pos: BytePos) -> Option<(usize, usize)> {
+    /// Get the column number (1-indexed) for a byte position.
+    pub fn lookup_column(&self, pos: BytePos) -> Option<usize> {
         let line = self.lookup_line(pos)?;
-        let line_start = self.lines[line];
-        let col = (pos.0 - line_start.0) as usize;
-        Some((line, col))
+        let line_start = if line == 1 {
+            self.start_pos
+        } else {
+            self.lines[line - 1]
+        };
+        
+        Some((pos.0 - line_start.0) as usize + 1)
     }
 
-    /// Get a snippet of the source code.
+    /// Get a snippet of source code for a span.
     pub fn snippet(&self, span: Span) -> Option<&str> {
-        if span.lo < self.start_pos || span.hi > self.end_pos {
-            return None;
+        let start = (span.start.0 - self.start_pos.0) as usize;
+        let end = (span.end.0 - self.start_pos.0) as usize;
+        
+        if start <= end && end <= self.src.len() {
+            Some(&self.src[start..end])
+        } else {
+            None
         }
-
-        let lo = (span.lo.0 - self.start_pos.0) as usize;
-        let hi = (span.hi.0 - self.start_pos.0) as usize;
-        Some(&self.src[lo..hi])
-    }
-
-    /// Check if this file contains the given position.
-    pub fn contains(&self, pos: BytePos) -> bool {
-        self.start_pos <= pos && pos <= self.end_pos
     }
 }
 
+/// Compute line start positions.
 fn compute_line_starts(src: &str, start_pos: BytePos) -> Vec<BytePos> {
     let mut lines = vec![start_pos];
     let mut pos = start_pos.0;
@@ -99,112 +95,106 @@ fn compute_line_starts(src: &str, start_pos: BytePos) -> Vec<BytePos> {
     lines
 }
 
-/// The source map containing all source files.
+/// Source map for tracking source files.
+#[derive(Default)]
 pub struct SourceMap {
-    files: RwLock<SourceMapFiles>,
+    files: RwLock<Files>,
 }
 
 #[derive(Default)]
-struct SourceMapFiles {
+struct Files {
     files: Vec<Arc<SourceFile>>,
-    file_id_to_index: FxHashMap<FileId, usize>,
+    by_name: FxHashMap<String, FileId>,
     next_file_id: u32,
 }
 
 impl SourceMap {
+    /// Create a new source map.
     pub fn new() -> Self {
         SourceMap {
-            files: RwLock::new(SourceMapFiles::default()),
+            files: RwLock::new(Files {
+                files: vec![Arc::new(SourceFile::new(
+                    "<dummy>".to_string(),
+                    String::new(),
+                    BytePos(0),
+                ))],
+                by_name: FxHashMap::default(),
+                next_file_id: 1,
+            }),
         }
     }
 
-    /// Load a file into the source map.
-    pub fn load_file(&self, path: &Path) -> std::io::Result<FileId> {
-        let src = std::fs::read_to_string(path)?;
-        Ok(self.new_source_file(path.to_path_buf(), src))
-    }
-
-    /// Create a new source file.
-    pub fn new_source_file(&self, name: PathBuf, src: String) -> FileId {
+    /// Add a file to the source map.
+    pub fn add_file(&self, name: impl Into<String>, src: impl Into<String>) -> super::FileId {
+        let name = name.into();
+        let src = src.into();
+        
         let mut files = self.files.write();
         
+        // Check if file already exists
+        if let Some(&file_id) = files.by_name.get(&name) {
+            return file_id.0;
+        }
+        
+        let file_id = files.next_file_id;
+        files.next_file_id += 1;
+        
         let start_pos = if let Some(last) = files.files.last() {
-            BytePos(last.end_pos.0 + 1)
+            last.end_pos
         } else {
             BytePos(0)
         };
-
-        let file = Arc::new(SourceFile::new(name, src, start_pos));
-        let file_id = FileId(files.next_file_id);
-        files.next_file_id += 1;
-
-        let index = files.files.len();
-        files.files.push(file);
-        files.file_id_to_index.insert(file_id, index);
-
+        
+        let source_file = Arc::new(SourceFile::new(name.clone(), src, start_pos));
+        files.files.push(source_file);
+        files.by_name.insert(name, FileId(file_id));
+        
         file_id
     }
 
-    /// Get a source file by ID.
-    pub fn get_file(&self, file_id: FileId) -> Option<Arc<SourceFile>> {
+    /// Get a file by ID.
+    pub fn get_file(&self, file_id: super::FileId) -> Option<Arc<SourceFile>> {
         let files = self.files.read();
-        let index = *files.file_id_to_index.get(&file_id)?;
-        files.files.get(index).cloned()
+        files.files.get(file_id as usize).cloned()
     }
 
-    /// Look up the file containing the given position.
-    pub fn lookup_file(&self, pos: BytePos) -> Option<Arc<SourceFile>> {
+    /// Get a file by name.
+    pub fn get_file_by_name(&self, name: &str) -> Option<Arc<SourceFile>> {
         let files = self.files.read();
+        let file_id = files.by_name.get(name)?;
+        files.files.get(file_id.0 as usize).cloned()
+    }
+
+    /// Look up file, line, and column for a span.
+    pub fn lookup_span(&self, span: Span) -> Option<SpanLocation> {
+        let file = self.get_file(span.file_id)?;
+        let start_line = file.lookup_line(span.start)?;
+        let start_column = file.lookup_column(span.start)?;
+        let end_line = file.lookup_line(span.end)?;
+        let end_column = file.lookup_column(span.end)?;
         
-        // Binary search for the file containing pos
-        let idx = files.files.binary_search_by(|file| {
-            if pos < file.start_pos {
-                std::cmp::Ordering::Greater
-            } else if pos > file.end_pos {
-                std::cmp::Ordering::Less
-            } else {
-                std::cmp::Ordering::Equal
-            }
-        }).ok()?;
-
-        files.files.get(idx).cloned()
+        Some(SpanLocation {
+            file,
+            start_line,
+            start_column,
+            end_line,
+            end_column,
+        })
     }
 
-    /// Get a snippet of source code.
-    pub fn span_to_snippet(&self, span: Span) -> Option<String> {
+    /// Get a snippet for a span.
+    pub fn snippet(&self, span: Span) -> Option<String> {
         let file = self.get_file(span.file_id)?;
         file.snippet(span).map(|s| s.to_string())
     }
-
-    /// Get the location (file, line, column) for a position.
-    pub fn lookup_char_pos(&self, pos: BytePos) -> Option<Location> {
-        let file = self.lookup_file(pos)?;
-        let (line, col) = file.lookup_line_col(pos)?;
-        
-        Some(Location {
-            file: file.name.clone(),
-            line: line + 1,  // Convert to 1-based
-            col: col + 1,    // Convert to 1-based
-        })
-    }
 }
 
-impl Default for SourceMap {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-/// A location in a source file.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Location {
-    pub file: PathBuf,
-    pub line: usize,
-    pub col: usize,
-}
-
-impl std::fmt::Display for Location {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}:{}:{}", self.file.display(), self.line, self.col)
-    }
+/// Location information for a span.
+#[derive(Debug)]
+pub struct SpanLocation {
+    pub file: Arc<SourceFile>,
+    pub start_line: usize,
+    pub start_column: usize,
+    pub end_line: usize,
+    pub end_column: usize,
 }

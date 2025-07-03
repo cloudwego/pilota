@@ -1,0 +1,31 @@
+[package]
+name = "pilota-build-parser"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+# 内部依赖
+pilota-build-common = { path = "../pilota-build-common" }
+pilota-build-hir = { path = "../pilota-build-hir" }
+pilota-build-diagnostics = { path = "../pilota-build-diagnostics" }
+
+# 解析器依赖
+nom = "7.1"
+logos = "0.14"
+lalrpop-util = "0.20"
+
+# 错误处理
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# 工具
+rustc-hash = { workspace = true }
+indexmap = { workspace = true }
+
+[build-dependencies]
+lalrpop = "0.20"
+
+[dev-dependencies]
+insta = { workspace = true }

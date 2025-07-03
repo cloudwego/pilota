@@ -1,14 +1,17 @@
-//! Common types and utilities used across pilota-build crates.
+//! Common types and utilities for pilota-build.
 
-pub mod span;
-pub mod symbol;
-pub mod def_id;
-pub mod source_map;
+mod def_id;
+mod source_map;
+mod span;
+mod symbol;
 
-pub use span::{Span, BytePos, CharPos, DUMMY_SPAN};
-pub use symbol::{Symbol, SymbolInterner};
-pub use def_id::{DefId, LocalDefId, DefIdGenerator, LocalId, CrateId, LOCAL_CRATE};
-pub use source_map::{SourceMap, FileId};
+pub use def_id::{DefId, DefIndex, LocalDefId};
+pub use source_map::{SourceFile, SourceMap};
+pub use span::{BytePos, CharPos, Span, DUMMY_SPAN};
+pub use symbol::Symbol;
+
+/// File ID type.
+pub type FileId = u32;
 
 use rustc_hash::FxHashMap;
 pub type FastHashMap<K, V> = FxHashMap<K, V>;
