@@ -1,4 +1,4 @@
-# Pilota-Build 编译器重构设计文档集
+# Pilota-Build 重构设计文档集
 
 ## 简介
 
@@ -88,3 +88,44 @@ pilota-build 是字节跳动 CloudWeGo 团队开发的 IDL（接口定义语言�
 ---
 
 *"优秀的编译器不仅是工具，更是语言和思想的桥梁。"*
+
+## 文档列表
+
+1. **[重构设计总览](00-summary.md)** - 整体设计思路和改进方向
+2. **[架构分析与重构建议](01-architecture-overview.md)** - 现有架构分析和重构方案
+3. **[新的 IR 系统设计](02-ir-system-design.md)** - 三层 IR 体系详细设计
+4. **[类型系统重构设计](03-type-system-redesign.md)** - 统一类型系统和类型推导
+5. **[插件系统增强设计](04-plugin-system-enhancement.md)** - 全流程插件系统设计
+6. **[错误处理与诊断系统设计](05-error-diagnostic-system.md)** - 友好的错误提示系统
+7. **[性能优化与并行编译设计](06-performance-optimization.md)** - 性能优化策略
+
+## 实施文档
+
+8. **[开发计划](development-plan.md)** - 详细的12个月开发计划，包含任务分解和交付物
+9. **[实施路线图](implementation-roadmap.md)** - 具体的执行步骤、技术决策和风险管理
+10. **[错误诊断系统实现指南](05-error-diagnostic-system-impl.md)** - 诊断系统的详细实现
+11. **[插件系统实现指南](04-plugin-system-impl.md)** - 插件系统的详细实现
+
+## 设计理念
+
+- **渐进式重构**：保持系统可用，逐步替换
+- **性能优先**：3-5倍性能提升目标
+- **开发体验**：友好的错误提示和工具支持
+- **可扩展性**：强大的插件系统
+
+## 预期成果
+
+- 编译速度提升 3-5 倍
+- 内存使用减少 30%
+- 增量编译延迟 < 100ms
+- 完整的错误诊断系统
+- 强大的插件生态
+
+## 开发时间线
+
+- **Phase 1 (Q1)**：基础设施建设
+- **Phase 2 (Q2)**：核心模块重构
+- **Phase 3 (Q3)**：性能优化完善
+- **Phase 4 (Q4)**：稳定化和发布
+
+详细的开发计划请参考 [开发计划文档](development-plan.md) 和 [实施路线图](implementation-roadmap.md)。

@@ -469,3 +469,348 @@ pub fn lower_items_parallel(items: &[hir::Item]) -> Vec<MirItem> {
 2. **更强的类型安全**：IR 本身是类型安全的
 3. **更好的增量编译**：细粒度的查询和依赖追踪
 4. **更好的扩展性**：易于添加新特性和优化
+
+## 9. 实现指南
+
+### 9.1 项目结构
+
+```
+pilota-build/
+├── crates/
+│   ├── pilota-build-hir/      # HIR 定义和操作
+│   │   ├── src/
+│   │   │   ├── lib.rs
+│   │   │   ├── ast.rs         # HIR AST 定义
+│   │   │   ├── visit.rs       # Visitor trait
+│   │   │   ├── lower.rs       # AST → HIR
+│   │   │   └── pretty.rs      # Pretty printer
+│   │   └── Cargo.toml
+│   │
+│   ├── pilota-build-mir/      # MIR 定义和操作
+│   │   ├── src/
+│   │   │   ├── lib.rs
+│   │   │   ├── mir.rs         # MIR 定义
+│   │   │   ├── lower.rs       # HIR → MIR
+│   │   │   ├── typeck.rs      # 类型检查
+│   │   │   └── validate.rs    # MIR 验证
+│   │   └── Cargo.toml
+│   │
+│   └── pilota-build-lir/      # LIR 定义和代码生成
+│       ├── src/
+│       │   ├── lib.rs
+│       │   ├── lir.rs         # LIR 定义
+│       │   ├── lower.rs       # MIR → LIR
+│       │   ├── codegen.rs     # 代码生成
+│       │   └── optimize.rs    # LIR 优化
+│       └── Cargo.toml
+```
+
+### 9.2 实现步骤
+
+#### Step 1: HIR 基础设施（Week 1-2）
+
+```rust
+// pilota-build-hir/src/ast.rs
+#[derive(Debug, Clone)]
+pub struct HirCrate {
+    pub items: Vec<Item>,
+    pub span: Span,
+}
+
+impl HirCrate {
+    pub fn new() -> Self {
+        Self {
+            items: Vec::new(),
+            span: DUMMY_SPAN,
+        }
+    }
+    
+    pub fn add_item(&mut self, item: Item) {
+        self.items.push(item);
+    }
+}
+
+// pilota-build-hir/src/visit.rs
+pub trait Visitor: Sized {
+    fn visit_item(&mut self, item: &Item) {
+        walk_item(self, item);
+    }
+    
+    fn visit_type(&mut self, ty: &Type) {
+        walk_type(self, ty);
+    }
+    
+    // ... 其他 visit 方法
+}
+
+pub fn walk_item<V: Visitor>(visitor: &mut V, item: &Item) {
+    match &item.kind {
+        ItemKind::Message(msg) => {
+            for field in &msg.fields {
+                visitor.visit_field(field);
+            }
+        }
+        // ... 其他情况
+    }
+}
+```
+
+#### Step 2: MIR 转换（Week 3-4）
+
+```rust
+// pilota-build-mir/src/lower.rs
+pub struct HirToMirCtx<'tcx> {
+    tcx: TyCtxt<'tcx>,
+    resolver: Resolver,
+    current_module: DefId,
+}
+
+impl<'tcx> HirToMirCtx<'tcx> {
+    pub fn lower_crate(&mut self, hir: &HirCrate) -> MirCrate {
+        let mut mir = MirCrate::new();
+        
+        // Phase 1: 收集所有定义
+        for item in &hir.items {
+            self.collect_item(item);
+        }
+        
+        // Phase 2: 解析和类型检查
+        for item in &hir.items {
+            let mir_item = self.lower_item(item);
+            mir.add_item(mir_item);
+        }
+        
+        mir
+    }
+    
+    fn collect_item(&mut self, item: &Item) {
+        let def_id = self.tcx.create_def_id();
+        self.resolver.define(item.name(), def_id);
+    }
+}
+```
+
+#### Step 3: 类型检查集成（Week 5-6）
+
+```rust
+// pilota-build-mir/src/typeck.rs
+pub struct TypeChecker<'tcx> {
+    tcx: TyCtxt<'tcx>,
+    infcx: InferCtxt<'tcx>,
+    errors: Vec<TypeError>,
+}
+
+impl<'tcx> TypeChecker<'tcx> {
+    pub fn check_item(&mut self, item: &MirItem) -> Result<(), TypeError> {
+        match &item.kind {
+            MirItemKind::Message(msg) => self.check_message(msg),
+            MirItemKind::Enum(e) => self.check_enum(e),
+            // ... 其他类型
+        }
+    }
+    
+    fn check_message(&mut self, msg: &MirMessage) -> Result<(), TypeError> {
+        // 检查字段类型
+        for field in &msg.fields {
+            self.check_type(&field.ty)?;
+        }
+        
+        // 检查字段 ID 唯一性
+        let mut seen_ids = FxHashSet::default();
+        for field in &msg.fields {
+            if !seen_ids.insert(field.id) {
+                return Err(TypeError::DuplicateFieldId {
+                    message: msg.name,
+                    field_id: field.id,
+                });
+            }
+        }
+        
+        Ok(())
+    }
+}
+```
+
+#### Step 4: LIR 代码生成（Week 7-8）
+
+```rust
+// pilota-build-lir/src/codegen.rs
+pub struct CodeGenerator {
+    output: String,
+    indent: usize,
+}
+
+impl CodeGenerator {
+    pub fn generate_item(&mut self, item: &LirItem) {
+        match item {
+            LirItem::Struct { name, fields, derives, .. } => {
+                self.generate_derives(derives);
+                self.writeln(&format!("pub struct {} {{", name));
+                self.indent();
+                
+                for field in fields {
+                    self.generate_field(field);
+                }
+                
+                self.dedent();
+                self.writeln("}");
+            }
+            // ... 其他类型
+        }
+    }
+    
+    fn generate_field(&mut self, field: &NamedField) {
+        for attr in &field.attrs {
+            self.writeln(&format!("#[{}]", attr));
+        }
+        self.writeln(&format!(
+            "{} {}: {},",
+            field.vis,
+            field.name,
+            self.format_type(&field.ty)
+        ));
+    }
+}
+```
+
+### 9.3 测试策略
+
+#### 单元测试
+
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_hir_construction() {
+        let mut hir = HirCrate::new();
+        let item = create_test_item();
+        hir.add_item(item);
+        
+        assert_eq!(hir.items.len(), 1);
+    }
+    
+    #[test]
+    fn test_mir_lowering() {
+        let hir = create_test_hir();
+        let mut ctx = HirToMirCtx::new();
+        let mir = ctx.lower_crate(&hir);
+        
+        assert_eq!(mir.items.len(), hir.items.len());
+    }
+}
+```
+
+#### 集成测试
+
+```rust
+// tests/ir_pipeline.rs
+#[test]
+fn test_full_pipeline() {
+    let input = include_str!("fixtures/test.thrift");
+    
+    // Parse to AST
+    let ast = parse_thrift(input).unwrap();
+    
+    // Lower to HIR
+    let hir = ast_to_hir(ast);
+    
+    // Lower to MIR
+    let mir = hir_to_mir(hir);
+    
+    // Lower to LIR
+    let lir = mir_to_lir(mir);
+    
+    // Generate code
+    let output = generate_code(lir);
+    
+    // Compare with expected
+    let expected = include_str!("fixtures/test.rs");
+    assert_eq!(output, expected);
+}
+```
+
+### 9.4 性能考虑
+
+#### 内存池使用
+
+```rust
+thread_local! {
+    static HIR_NODE_POOL: RefCell<Vec<Box<HirNode<()>>>> = RefCell::new(Vec::new());
+}
+
+pub fn alloc_hir_node<T>(kind: T) -> HirNode<T> {
+    // 尝试从池中获取
+    let recycled = HIR_NODE_POOL.with(|pool| {
+        pool.borrow_mut().pop()
+    });
+    
+    // 创建新节点或重用
+    match recycled {
+        Some(mut node) => {
+            // 重用节点，更新内容
+            unsafe { std::mem::transmute(node) }
+        }
+        None => {
+            HirNode::new(kind)
+        }
+    }
+}
+```
+
+#### 并行化点
+
+1. **文件级并行**：不同文件的 HIR 构建可以并行
+2. **项级并行**：独立项的 MIR 降级可以并行
+3. **类型检查并行**：无依赖的类型检查可以并行
+4. **代码生成并行**：不同模块的代码生成可以并行
+
+### 9.5 调试支持
+
+#### IR Dump 工具
+
+```rust
+pub trait IrDump {
+    fn dump(&self, writer: &mut dyn Write) -> io::Result<()>;
+    fn dump_pretty(&self, writer: &mut dyn Write) -> io::Result<()>;
+}
+
+impl IrDump for HirCrate {
+    fn dump(&self, writer: &mut dyn Write) -> io::Result<()> {
+        writeln!(writer, "HIR Crate {{")?;
+        for item in &self.items {
+            item.dump(writer)?;
+        }
+        writeln!(writer, "}}")?;
+        Ok(())
+    }
+}
+```
+
+#### 可视化工具
+
+```rust
+pub fn generate_dot_graph(mir: &MirCrate) -> String {
+    let mut dot = String::from("digraph MIR {\n");
+    
+    for (def_id, item) in &mir.items {
+        dot.push_str(&format!("  {} [label=\"{}\"];\n", def_id, item.name));
+        
+        // 添加依赖边
+        for dep in item.dependencies() {
+            dot.push_str(&format!("  {} -> {};\n", def_id, dep));
+        }
+    }
+    
+    dot.push_str("}\n");
+    dot
+}
+```
+
+### 9.6 迁移策略
+
+1. **并行运行**：新旧系统并行运行，对比输出
+2. **逐步切换**：通过 feature flag 控制使用新旧系统
+3. **回退机制**：保留快速回退到旧系统的能力
+4. **性能监控**：持续监控新系统的性能表现
