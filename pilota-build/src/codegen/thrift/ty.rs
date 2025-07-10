@@ -115,7 +115,7 @@ impl ThriftBackend {
                     r#"if let Some(list_fm) = item_fm {{
                         __protocol.write_list_begin(::pilota::thrift::TListIdentifier {{
                             element_type: {el_ttype},
-                            size: (0..{ident}.len()).filter(|idx| list_fm.int(*idx as i32).1).count(),
+                            size: (0..({ident}).len()).filter(|idx| list_fm.int(*idx as i32).1).count(),
                         }})?;
                         let mut idx = 0;
                         for val in {ident} {{
@@ -403,7 +403,7 @@ impl ThriftBackend {
                         __protocol.write_field_begin(::pilota::thrift::TType::List, {id})?;
                         __protocol.write_list_begin(::pilota::thrift::TListIdentifier {{
                             element_type: {el_ttype},
-                            size: (0..{ident}.len()).filter(|idx| list_fm.int(*idx as i32).1).count(),
+                            size: (0..({ident}).len()).filter(|idx| list_fm.int(*idx as i32).1).count(),
                         }})?;
                         let mut idx = 0;
                         for val in {ident} {{

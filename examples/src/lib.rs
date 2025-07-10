@@ -10,22 +10,6 @@ pub mod fieldmask {
 #[test]
 fn test_pb_encode_zero_value() {
     use pilota::pb::Message as _;
-    // let test_data = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-    //     .join("idl")
-    //     .join("zero_value.proto");
-
-    // let out_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-    //     .join("src")
-    //     .join("zero_value.rs");
-
-    // pilota_build::Builder::pb()
-    //     .ignore_unused(false)
-    //     .include_dirs(vec![test_data.parent().unwrap().to_path_buf()])
-    //     .keep_unknown_fields([test_data.clone().into()])
-    //     .compile_with_config(
-    //         vec![pilota_build::IdlService::from_path(test_data.to_path_buf())],
-    //         pilota_build::Output::File(out_path.into()),
-    //     );
 
     let mut a = zero_value::zero_value::A::default();
 
@@ -101,7 +85,7 @@ fn test_thrift_fieldmask() {
         f6: Some(1.0),
         f7: Some("1".into()),
         f8: Some(pilota::Bytes::from_static(b"1")),
-        f9: Some(vec![1, 2, 3]),
+        f9: vec![1, 2, 3],
         f10: Some(pilota::AHashSet::from_iter(vec!["1".into(), "2".into()])),
         f11: Some(fieldmask::fieldmask::fieldmask::A {
             a: Some(1),

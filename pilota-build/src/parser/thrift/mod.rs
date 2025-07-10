@@ -30,8 +30,6 @@ fn generate_short_uuid() -> FastStr {
 #[derive(Default, Clone)]
 struct ThriftSourceDatabase {
     storage: salsa::Storage<Self>,
-    file_cache: FxHashMap<PathBuf, Arc<str>>,
-    parse_cache: FxHashMap<PathBuf, Arc<thrift_parser::File>>,
 }
 
 #[salsa::db]

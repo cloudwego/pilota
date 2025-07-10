@@ -16,7 +16,7 @@ struct Request {
     6: double f6,
     7: string f7,
     8: binary f8,
-    9: list<i32> f9,
+    9: required list<i32> f9,
     10: set<string> f10,
     11: A f11,
     12: list<list<i32>> f12,
