@@ -18,7 +18,7 @@ fn decode_encode_all_fields_safe(mut bytes: Bytes) {
     let a =
         crate::normal::normal::ObjReq::decode(&mut TBinaryProtocol::new(&mut bytes, true)).unwrap();
 
-    let size = a.size(&mut TBinaryProtocol::new((), false));
+    let size = a.size(&mut TBinaryProtocol::new((), true));
     let mut linked_bytes = linkedbytes::LinkedBytes::with_capacity(size);
     a.encode(&mut TBinaryProtocol::new(&mut linked_bytes, true))
         .unwrap();
@@ -30,7 +30,7 @@ fn decode_encode_all_fields_unsafe(mut bytes: Bytes) {
     }
     .unwrap();
 
-    let size = a.size(&mut TBinaryProtocol::new((), false));
+    let size = a.size(&mut TBinaryProtocol::new((), true));
     let mut linked_bytes = linkedbytes::LinkedBytes::with_capacity(size);
     let buf = unsafe {
         let l = linked_bytes.bytes_mut().len();
@@ -55,7 +55,7 @@ fn decode_encode_unknown_fields_safe(mut bytes: Bytes) {
     ))
     .unwrap();
 
-    let size = a.size(&mut TBinaryProtocol::new((), false));
+    let size = a.size(&mut TBinaryProtocol::new((), true));
     let mut linked_bytes = linkedbytes::LinkedBytes::with_capacity(size);
     a.encode(&mut TBinaryProtocol::new(&mut linked_bytes, true))
         .unwrap();
@@ -69,7 +69,7 @@ fn decode_encode_unknown_fields_unsafe(mut bytes: Bytes) {
     }
     .unwrap();
 
-    let size = a.size(&mut TBinaryProtocol::new((), false));
+    let size = a.size(&mut TBinaryProtocol::new((), true));
     let mut linked_bytes = linkedbytes::LinkedBytes::with_capacity(size);
     let buf = unsafe {
         let l = linked_bytes.bytes_mut().len();
@@ -93,10 +93,9 @@ fn codegen(c: &mut Criterion) {
     let lens = [16, 64, 128, 512, 2 * 1024, 128 * 1024, 10 * 128 * 1024];
     for len in lens {
         let a = prepare_obj_req(len);
-        let size = a.size(&mut TBinaryProtocol::new((), false));
+        let size = a.size(&mut TBinaryProtocol::new((), true));
         let mut buf = BytesMut::with_capacity(size);
-        a.encode(&mut TBinaryProtocol::new(&mut buf, false))
-            .unwrap();
+        a.encode(&mut TBinaryProtocol::new(&mut buf, true)).unwrap();
         let buf = buf.freeze();
         group.bench_function(
             format!("TBinaryProtocol all_fields decode_encode {} bytes", len * 8),

@@ -42,29 +42,66 @@ fn test_pb_encode_zero_value() {
 
     // decode a
     let decode_a = encoded_a.clone();
-    let decode_unknown_a = encoded_a.clone();
+    let decode_a_to_unknown_a = encoded_a.clone();
     let decoded_a = zero_value::zero_value::A::decode(decode_a).unwrap();
     println!("decode a: {:?}", decoded_a);
+    assert_eq!(decoded_a, a);
 
-    // decode unknown_a
-    let decoded_unknown_a = zero_value::zero_value::UnknownA::decode(decode_unknown_a).unwrap();
-    println!("decode a to unknown_a: {:?}", decoded_unknown_a);
+    // decode a to unknown_a
+    let decoded_a_to_unknown_a =
+        zero_value::zero_value::UnknownA::decode(decode_a_to_unknown_a).unwrap();
+    println!("decode a to unknown_a: {:?}", decoded_a_to_unknown_a);
 
     // encode unknown_a
     let mut encode_unknown_a = pilota::pb::LinkedBytes::new();
-    decoded_unknown_a.encode(&mut encode_unknown_a).unwrap();
+    decoded_a_to_unknown_a
+        .encode(&mut encode_unknown_a)
+        .unwrap();
     let encoded_unknown_a = encode_unknown_a.bytes().clone().freeze();
+    println!("encode unknown_a: {:?}", encoded_unknown_a);
+    assert_eq!(encoded_unknown_a.as_ref(), encoded_a.as_ref());
 
     // decode unknown_a
     let decode_unknown_a = encoded_unknown_a.clone();
-    let decode_a = encoded_unknown_a.clone();
-    println!("encode unknown_a: {:?}", encoded_unknown_a);
+    let decode_unknown_a_to_a = encoded_unknown_a.clone();
     let decoded_unknown_a = zero_value::zero_value::UnknownA::decode(decode_unknown_a).unwrap();
     println!("decode unknown_a: {:?}", decoded_unknown_a);
+    assert_eq!(decoded_unknown_a, decoded_a_to_unknown_a);
 
-    // decode a
-    let decoded_a = zero_value::zero_value::A::decode(decode_a).unwrap();
-    println!("decode unknown_a to a: {:?}", decoded_a);
+    // decode unknown_a to a
+    let decoded_unknown_a_to_a = zero_value::zero_value::A::decode(decode_unknown_a_to_a).unwrap();
+    println!("decode unknown_a to a: {:?}", decoded_unknown_a_to_a);
+    assert_eq!(decoded_unknown_a_to_a, a);
+
+    // encode c
+    let mut encode_c = pilota::pb::LinkedBytes::new();
+    decoded_a.c.encode(&mut encode_c).unwrap();
+    let encoded_c = encode_c.bytes().clone().freeze();
+    println!("encode c: {:?}", encoded_c);
+
+    // decode c to unknown_c
+    let decode_c_to_unknown_c = encoded_c.clone();
+    let decoded_c_to_unknown_c = zero_value::zero_value::Cc::decode(decode_c_to_unknown_c).unwrap();
+    println!("decode c to unknown_c: {:?}", decoded_c_to_unknown_c);
+
+    // encode unknown_c
+    let mut encode_unknown_c = pilota::pb::LinkedBytes::new();
+    decoded_c_to_unknown_c
+        .encode(&mut encode_unknown_c)
+        .unwrap();
+    let encoded_unknown_c = encode_unknown_c.bytes().clone().freeze();
+    println!("encode unknown_c: {:?}", encoded_unknown_c);
+    assert_eq!(encoded_unknown_c.as_ref(), encoded_c.as_ref());
+
+    // decode unknown_c
+    let decoded_unknown_c = zero_value::zero_value::Cc::decode(encoded_unknown_c.clone()).unwrap();
+    println!("decode unknown_c: {:?}", decoded_unknown_c);
+    assert_eq!(decoded_unknown_c, decoded_c_to_unknown_c);
+
+    // decode unknown_c to c
+    let decoded_c = zero_value::zero_value::C::decode(encoded_unknown_c).unwrap();
+    println!("decode unknown_c to c: {:?}", decoded_c);
+    assert_eq!(decoded_c, a.c);
 }
 
 #[test]

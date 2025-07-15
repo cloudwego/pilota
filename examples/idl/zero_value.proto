@@ -10,10 +10,10 @@ message C {
 }
 
 message A {
-    required C c = 4;
-    required B b = 3;
-    map<string, string> str_map = 1;
-    required string s1 = 2;
+    required B b = 1;
+    required C c = 2;
+    map<string, string> str_map = 3;
+    required string s1 = 4;
     optional string s2 = 2047;
 }
 
@@ -24,6 +24,10 @@ message CC {
 }
 
 message UnknownA {
-    required BB b = 3;
-    required CC c = 4;
+    required BB b = 1;
+    required CC c = 2;
+}
+
+service TestService {
+   rpc Test(A) returns (UnknownA);
 }

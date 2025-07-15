@@ -23,6 +23,7 @@ pub mod normal {
             wire_type: ::pilota::pb::encoding::WireType,
             buf: &mut ::pilota::Bytes,
             ctx: &mut ::pilota::pb::encoding::DecodeContext,
+            is_root: bool,
         ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
             const STRUCT_NAME: &'static str = stringify!(A);
 
@@ -65,6 +66,7 @@ pub mod normal {
             wire_type: ::pilota::pb::encoding::WireType,
             buf: &mut ::pilota::Bytes,
             ctx: &mut ::pilota::pb::encoding::DecodeContext,
+            is_root: bool,
         ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
             const STRUCT_NAME: &'static str = stringify!(SubMessage);
 
@@ -143,6 +145,7 @@ pub mod normal {
             wire_type: ::pilota::pb::encoding::WireType,
             buf: &mut ::pilota::Bytes,
             ctx: &mut ::pilota::pb::encoding::DecodeContext,
+            is_root: bool,
         ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
             const STRUCT_NAME: &'static str = stringify!(ObjReq);
 
@@ -250,6 +253,7 @@ pub mod normal {
             wire_type: ::pilota::pb::encoding::WireType,
             buf: &mut ::pilota::Bytes,
             ctx: &mut ::pilota::pb::encoding::DecodeContext,
+            is_root: bool,
         ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
             const STRUCT_NAME: &'static str = stringify!(B);
 
@@ -307,6 +311,7 @@ pub mod normal {
             wire_type: ::pilota::pb::encoding::WireType,
             buf: &mut ::pilota::Bytes,
             ctx: &mut ::pilota::pb::encoding::DecodeContext,
+            is_root: bool,
         ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
             const STRUCT_NAME: &'static str = stringify!(Message);
 
@@ -385,6 +390,7 @@ pub mod normal {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(MsgMapEntry);
 
