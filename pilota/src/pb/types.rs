@@ -11,11 +11,13 @@ use alloc::{string::String, vec::Vec};
 use ::bytes::Bytes;
 use linkedbytes::LinkedBytes;
 
+use crate::pb::ZERO_COPY_THRESHOLD;
+
 use super::{
     DecodeError, Message,
     encoding::{
-        DecodeContext, WireType, bool, bytes, double, float, int32, int64, skip_field, string,
-        uint32, uint64,
+        DecodeContext, EncodeLengthContext, WireType, bool, bytes, double, float, int32, int64,
+        skip_field, string, uint32, uint64,
     },
 };
 
@@ -32,6 +34,7 @@ impl Message for bool {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             bool::merge(wire_type, self, buf, ctx)
@@ -39,7 +42,7 @@ impl Message for bool {
             skip_field(wire_type, tag, buf, ctx)
         }
     }
-    fn encoded_len(&self) -> usize {
+    fn encoded_len(&self, _ctx: &mut EncodeLengthContext) -> usize {
         if *self { 2 } else { 0 }
     }
 }
@@ -57,6 +60,7 @@ impl Message for u32 {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             uint32::merge(wire_type, self, buf, ctx)
@@ -64,9 +68,9 @@ impl Message for u32 {
             skip_field(wire_type, tag, buf, ctx)
         }
     }
-    fn encoded_len(&self) -> usize {
+    fn encoded_len(&self, ctx: &mut EncodeLengthContext) -> usize {
         if *self != 0 {
-            uint32::encoded_len(1, self)
+            uint32::encoded_len(ctx, 1, self)
         } else {
             0
         }
@@ -86,6 +90,7 @@ impl Message for u64 {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             uint64::merge(wire_type, self, buf, ctx)
@@ -93,9 +98,9 @@ impl Message for u64 {
             skip_field(wire_type, tag, buf, ctx)
         }
     }
-    fn encoded_len(&self) -> usize {
+    fn encoded_len(&self, ctx: &mut EncodeLengthContext) -> usize {
         if *self != 0 {
-            uint64::encoded_len(1, self)
+            uint64::encoded_len(ctx, 1, self)
         } else {
             0
         }
@@ -115,6 +120,7 @@ impl Message for i32 {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             int32::merge(wire_type, self, buf, ctx)
@@ -122,9 +128,9 @@ impl Message for i32 {
             skip_field(wire_type, tag, buf, ctx)
         }
     }
-    fn encoded_len(&self) -> usize {
+    fn encoded_len(&self, ctx: &mut EncodeLengthContext) -> usize {
         if *self != 0 {
-            int32::encoded_len(1, self)
+            int32::encoded_len(ctx, 1, self)
         } else {
             0
         }
@@ -144,6 +150,7 @@ impl Message for i64 {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             int64::merge(wire_type, self, buf, ctx)
@@ -151,9 +158,9 @@ impl Message for i64 {
             skip_field(wire_type, tag, buf, ctx)
         }
     }
-    fn encoded_len(&self) -> usize {
+    fn encoded_len(&self, ctx: &mut EncodeLengthContext) -> usize {
         if *self != 0 {
-            int64::encoded_len(1, self)
+            int64::encoded_len(ctx, 1, self)
         } else {
             0
         }
@@ -173,6 +180,7 @@ impl Message for f32 {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             float::merge(wire_type, self, buf, ctx)
@@ -180,9 +188,9 @@ impl Message for f32 {
             skip_field(wire_type, tag, buf, ctx)
         }
     }
-    fn encoded_len(&self) -> usize {
+    fn encoded_len(&self, ctx: &mut EncodeLengthContext) -> usize {
         if *self != 0.0 {
-            float::encoded_len(1, self)
+            float::encoded_len(ctx, 1, self)
         } else {
             0
         }
@@ -202,6 +210,7 @@ impl Message for f64 {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             double::merge(wire_type, self, buf, ctx)
@@ -209,9 +218,9 @@ impl Message for f64 {
             skip_field(wire_type, tag, buf, ctx)
         }
     }
-    fn encoded_len(&self) -> usize {
+    fn encoded_len(&self, ctx: &mut EncodeLengthContext) -> usize {
         if *self != 0.0 {
-            double::encoded_len(1, self)
+            double::encoded_len(ctx, 1, self)
         } else {
             0
         }
@@ -231,6 +240,7 @@ impl Message for String {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             string::merge(wire_type, self, buf, ctx)
@@ -238,9 +248,9 @@ impl Message for String {
             skip_field(wire_type, tag, buf, ctx)
         }
     }
-    fn encoded_len(&self) -> usize {
+    fn encoded_len(&self, ctx: &mut EncodeLengthContext) -> usize {
         if !self.is_empty() {
-            string::encoded_len(1, self)
+            string::encoded_len(ctx, 1, self)
         } else {
             0
         }
@@ -260,6 +270,7 @@ impl Message for Vec<u8> {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             bytes::merge(wire_type, self, buf, ctx)
@@ -267,9 +278,9 @@ impl Message for Vec<u8> {
             skip_field(wire_type, tag, buf, ctx)
         }
     }
-    fn encoded_len(&self) -> usize {
+    fn encoded_len(&self, ctx: &mut EncodeLengthContext) -> usize {
         if !self.is_empty() {
-            bytes::encoded_len(1, self)
+            bytes::encoded_len(ctx, 1, self)
         } else {
             0
         }
@@ -289,6 +300,7 @@ impl Message for Bytes {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             bytes::merge(wire_type, self, buf, ctx)
@@ -296,9 +308,12 @@ impl Message for Bytes {
             skip_field(wire_type, tag, buf, ctx)
         }
     }
-    fn encoded_len(&self) -> usize {
+    fn encoded_len(&self, ctx: &mut EncodeLengthContext) -> usize {
         if !self.is_empty() {
-            bytes::encoded_len(1, self)
+            if self.len() >= ZERO_COPY_THRESHOLD {
+                ctx.zero_copy_len += self.len();
+            }
+            bytes::encoded_len(ctx, 1, self)
         } else {
             0
         }
@@ -314,10 +329,11 @@ impl Message for () {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         skip_field(wire_type, tag, buf, ctx)
     }
-    fn encoded_len(&self) -> usize {
+    fn encoded_len(&self, _ctx: &mut EncodeLengthContext) -> usize {
         0
     }
 }
