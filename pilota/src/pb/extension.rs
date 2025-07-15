@@ -256,11 +256,11 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::pb::{Message, encoding::DecodeContext};
     use linkedbytes::LinkedBytes;
     use protobuf::Message as PbMessage;
 
     use super::*;
+    use crate::pb::{Message, encoding::DecodeContext};
 
     #[test]
     fn test_custom_ext_bool_field() {
@@ -363,11 +363,10 @@ mod tests {
         }
         impl crate::pb::Message for A {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + self
-                    .a
-                    .as_ref()
-                    .map_or(0, |value| crate::pb::encoding::bytes::encoded_len(1, value))
+            fn encoded_len(&self, ctx: &mut crate::pb::EncodeLengthContext) -> usize {
+                0 + self.a.as_ref().map_or(0, |value| {
+                    crate::pb::encoding::bytes::encoded_len(ctx, 1, value)
+                })
             }
 
             #[allow(unused_variables)]
@@ -384,6 +383,7 @@ mod tests {
                 wire_type: crate::pb::encoding::WireType,
                 buf: &mut crate::Bytes,
                 ctx: &mut crate::pb::encoding::DecodeContext,
+                _is_root: bool,
             ) -> ::core::result::Result<(), crate::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(A);
 
