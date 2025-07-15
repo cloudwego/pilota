@@ -1,5 +1,11 @@
 syntax = "proto3";
 
+enum Enum {
+  A = 0;
+  B = 1;
+}
+
+
 message Test {
     int32 c = 1;
     oneof type {
@@ -11,4 +17,5 @@ message Test {
         string a = 6;
         int32 b = 8;
     }
+    optional Enum e = 10;
 }
