@@ -33,6 +33,7 @@ pub trait Message: Debug + Send + Sync {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        is_root: bool,
     ) -> Result<(), DecodeError>
     where
         Self: Sized;
@@ -108,11 +109,9 @@ pub trait Message: Debug + Send + Sync {
     {
         let mut ctx = DecodeContext::new(buf.clone());
         while buf.has_remaining() {
+            ctx.align_with_buf(&buf);
             let (tag, wire_type) = decode_key(&mut buf)?;
-            self.merge_field(tag, wire_type, &mut buf, &mut ctx)?;
-            let align_ptr = buf.chunk().as_ptr();
-            let last_ptr = ctx.raw_bytes_cursor();
-            ctx.advance_raw_bytes(align_ptr as usize - last_ptr);
+            self.merge_field(tag, wire_type, &mut buf, &mut ctx, true)?;
         }
         Ok(())
     }
@@ -141,8 +140,9 @@ where
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        is_root: bool,
     ) -> Result<(), DecodeError> {
-        (**self).merge_field(tag, wire_type, buf, ctx)
+        (**self).merge_field(tag, wire_type, buf, ctx, is_root)
     }
     fn encoded_len(&self) -> usize {
         (**self).encoded_len()

@@ -32,6 +32,7 @@ impl Message for bool {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             bool::merge(wire_type, self, buf, ctx)
@@ -57,6 +58,7 @@ impl Message for u32 {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             uint32::merge(wire_type, self, buf, ctx)
@@ -86,6 +88,7 @@ impl Message for u64 {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             uint64::merge(wire_type, self, buf, ctx)
@@ -115,6 +118,7 @@ impl Message for i32 {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             int32::merge(wire_type, self, buf, ctx)
@@ -144,6 +148,7 @@ impl Message for i64 {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             int64::merge(wire_type, self, buf, ctx)
@@ -173,6 +178,7 @@ impl Message for f32 {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             float::merge(wire_type, self, buf, ctx)
@@ -202,6 +208,7 @@ impl Message for f64 {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             double::merge(wire_type, self, buf, ctx)
@@ -231,6 +238,7 @@ impl Message for String {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             string::merge(wire_type, self, buf, ctx)
@@ -260,6 +268,7 @@ impl Message for Vec<u8> {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             bytes::merge(wire_type, self, buf, ctx)
@@ -289,6 +298,7 @@ impl Message for Bytes {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         if tag == 1 {
             bytes::merge(wire_type, self, buf, ctx)
@@ -314,6 +324,7 @@ impl Message for () {
         wire_type: WireType,
         buf: &mut Bytes,
         ctx: &mut DecodeContext,
+        _is_root: bool,
     ) -> Result<(), DecodeError> {
         skip_field(wire_type, tag, buf, ctx)
     }

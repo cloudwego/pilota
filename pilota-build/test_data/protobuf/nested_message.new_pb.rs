@@ -31,6 +31,7 @@ pub mod nested_message {
             wire_type: ::pilota::pb::encoding::WireType,
             buf: &mut ::pilota::Bytes,
             ctx: &mut ::pilota::pb::encoding::DecodeContext,
+            is_root: bool,
         ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
             const STRUCT_NAME: &'static str = stringify!(Tt1);
 
@@ -123,6 +124,7 @@ pub mod nested_message {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(T2);
 
@@ -189,6 +191,7 @@ pub mod nested_message {
                     wire_type: ::pilota::pb::encoding::WireType,
                     buf: &mut ::pilota::Bytes,
                     ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                    is_root: bool,
                 ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                     const STRUCT_NAME: &'static str = stringify!(Tt3);
 
