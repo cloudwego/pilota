@@ -9,6 +9,7 @@ use alloc::{collections::BTreeMap, format, string::String, vec::Vec};
 use core::{cmp::min, convert::TryFrom, mem, str};
 
 use ::bytes::{Buf, BufMut, Bytes};
+use ahash::AHashSet;
 use linkedbytes::LinkedBytes;
 
 use super::{DecodeError, Message};
@@ -190,6 +191,9 @@ pub struct DecodeContext {
 
     raw_bytes: Bytes,
     raw_bytes_cursor: usize,
+
+    root_decoded_fields_num: u32,
+    decoded_fields_tag: AHashSet<u32>,
 }
 
 impl DecodeContext {
@@ -199,6 +203,8 @@ impl DecodeContext {
             recurse_count: super::RECURSION_LIMIT,
             raw_bytes,
             raw_bytes_cursor,
+            root_decoded_fields_num: 0,
+            decoded_fields_tag: AHashSet::new(),
         }
     }
     /// Call this function before recursively decoding.
@@ -255,6 +261,10 @@ impl DecodeContext {
         Ok(())
     }
 
+    pub fn raw_bytes_len(&self) -> usize {
+        self.raw_bytes.len()
+    }
+
     pub fn raw_bytes_split_to(&mut self, len: usize) -> Bytes {
         let split = self.raw_bytes.split_to(len);
         self.raw_bytes_cursor += len;
@@ -265,9 +275,26 @@ impl DecodeContext {
         self.raw_bytes_cursor
     }
 
+    pub fn align_with_buf(&mut self, buf: &Bytes) {
+        let cur = buf.chunk().as_ptr();
+        let last = self.raw_bytes_cursor();
+        self.advance_raw_bytes(cur as usize - last);
+    }
+
     pub fn advance_raw_bytes(&mut self, n: usize) {
         self.raw_bytes.advance(n);
         self.raw_bytes_cursor += n;
+    }
+
+    pub fn root_decoded_fields_num(&self) -> u32 {
+        self.root_decoded_fields_num
+    }
+
+    pub fn inc_root_decoded_fields_num(&mut self, tag: u32) {
+        if !self.decoded_fields_tag.contains(&tag) {
+            self.decoded_fields_tag.insert(tag);
+            self.root_decoded_fields_num += 1;
+        }
     }
 }
 
@@ -376,12 +403,9 @@ where
         return Err(DecodeError::new("buffer underflow"));
     }
 
-    let cur = buf.chunk().as_ptr();
-    let last = ctx.raw_bytes_cursor();
-    ctx.advance_raw_bytes(cur as usize - last);
-
     let limit = remaining - len as usize;
     while buf.remaining() > limit {
+        ctx.align_with_buf(buf);
         merge(value, buf, ctx)?;
     }
 
@@ -1264,7 +1288,7 @@ pub mod message {
             ctx,
             |msg: &mut M, buf: &mut Bytes, ctx: &mut DecodeContext| {
                 let (tag, wire_type) = decode_key(buf)?;
-                msg.merge_field(tag, wire_type, buf, ctx)
+                msg.merge_field(tag, wire_type, buf, ctx, false)
             },
         )?;
         ctx.exit_recursion();
@@ -1430,7 +1454,7 @@ pub mod group {
             }
 
             ctx.enter_recursion();
-            M::merge_field(msg, field_tag, field_wire_type, buf, ctx)?;
+            M::merge_field(msg, field_tag, field_wire_type, buf, ctx, false)?;
             ctx.exit_recursion();
         }
     }

@@ -443,6 +443,14 @@ impl CodegenBackend for ProtobufBackend {
             })
             .join("");
 
+        // add unknown fields
+        let keep = self.keep_unknown_fields.contains(&def_id);
+
+        let mut inc_decoded_fields_num = String::new();
+        if keep {
+            inc_decoded_fields_num = "if is_root { ctx.inc_root_decoded_fields_num(tag); }".into();
+        }
+
         let merge = s
             .fields
             .iter()
@@ -455,6 +463,7 @@ impl CodegenBackend for ProtobufBackend {
 
                 format! {
                     r#"{tags} => {{
+                    {inc_decoded_fields_num}
                     let mut _inner_pilota_value = &mut self.{field_ident};
                     {merge}.map_err(|mut error| {{
                         error.push(STRUCT_NAME, stringify!({field_ident}));
@@ -471,15 +480,14 @@ impl CodegenBackend for ProtobufBackend {
             format!("const STRUCT_NAME: &'static str = stringify!({name});")
         };
 
-        // add unknown fields
-        let keep = self.keep_unknown_fields.contains(&def_id);
-
         let mut unknown_fields = "";
-        let mut skip_field = "::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx)";
+        let mut short_circuit = "".into();
+        let mut skip_field =
+            String::from("::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx)");
 
         if keep {
-            unknown_fields = r#"
-            let mut _unknown_fields = &mut self._unknown_fields;"#;
+            let fields_num = s.fields.len() as u32;
+            unknown_fields = r#"let mut _unknown_fields = &mut self._unknown_fields;"#;
             encoded_len.push_str(" + self._unknown_fields.size()");
             encode.push_str(
                 r#"for bytes in self._unknown_fields.list.iter() {
@@ -487,14 +495,38 @@ impl CodegenBackend for ProtobufBackend {
                 }"#,
             );
 
-            skip_field = r#"{
+            let tags_repr = s.fields.iter().map(|f| f.id).join("|");
+            let tags_dismatch = if tags_repr.is_empty() {
+                "".into()
+            } else {
+                format!("&& !matches!(tag, {tags_repr})")
+            };
+
+            short_circuit = format!(
+                r#"// short circuit
+                if is_root {tags_dismatch} && ctx.root_decoded_fields_num() == {fields_num} {{
+                    // advance buf
+                    let cur = buf.chunk().as_ptr();
+                    let len = ctx.raw_bytes_len() - (cur as usize - ctx.raw_bytes_cursor());
+                    buf.advance(len);
+
+                    // read rest bytes
+                    let val = ctx.raw_bytes_split_to(ctx.raw_bytes_len());
+                    _unknown_fields.push_back(val);
+                    return Ok(());
+                }}"#
+            );
+
+            skip_field = format!(
+                r#"{{
                 ::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx)?;
                 let end = buf.chunk().as_ptr();
                 let len = end as usize - ctx.raw_bytes_cursor();
                 let val = ctx.raw_bytes_split_to(len);
                 _unknown_fields.push_back(val);
                 Ok(())
-            }"#;
+            }}"#
+            );
         }
 
         stream.push_str(&format!(
@@ -517,9 +549,11 @@ impl CodegenBackend for ProtobufBackend {
                     wire_type: ::pilota::pb::encoding::WireType,
                     buf: &mut ::pilota::Bytes,
                     ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                    is_root: bool,
                 ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {{
                     {struct_name}
                     {unknown_fields}
+                    {short_circuit}
                     match tag {{
                         {merge}
                         _ => {skip_field}

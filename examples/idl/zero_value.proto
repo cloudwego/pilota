@@ -24,7 +24,7 @@ message A {
     C c = 4[deprecated = true];
     B b = 3[(pilota.rust_wrapper_arc_field) = true];
     map<string, string> str_map = 1;
-     string s1 = 2;
+    string s1 = 2;
     optional string s2 = 2047;
 }
 

@@ -14,11 +14,13 @@ message SubMessage {
 
 message Message {
   string uid = 1;
-  optional string value = 2;
-  repeated SubMessage sub_messages = 3;
+  string value = 2;
 }
 
-message ObjReq {}
+message ObjReq {
+  Message msg = 1;
+  string flag_msg = 5;
+}
 
 service TestService {
    rpc TestException(ObjReq) returns (ObjReq);
