@@ -9,9 +9,11 @@ use alloc::{collections::BTreeMap, format, string::String, vec::Vec};
 use core::{cmp::min, convert::TryFrom, mem, str};
 
 use ::bytes::{Buf, BufMut, Bytes};
+use ahash::AHashSet;
 use linkedbytes::LinkedBytes;
 
 use super::{DecodeError, Message};
+use crate::pb::ZERO_COPY_THRESHOLD;
 
 /// Encodes an integer value into LEB128 variable length format, and writes it
 /// to the buffer. The buffer must have enough remaining space (maximum 10
@@ -190,6 +192,9 @@ pub struct DecodeContext {
 
     raw_bytes: Bytes,
     raw_bytes_cursor: usize,
+
+    root_decoded_fields_num: u32,
+    decoded_fields_tag: AHashSet<u32>,
 }
 
 impl DecodeContext {
@@ -199,6 +204,8 @@ impl DecodeContext {
             recurse_count: super::RECURSION_LIMIT,
             raw_bytes,
             raw_bytes_cursor,
+            root_decoded_fields_num: 0,
+            decoded_fields_tag: AHashSet::new(),
         }
     }
     /// Call this function before recursively decoding.
@@ -255,6 +262,10 @@ impl DecodeContext {
         Ok(())
     }
 
+    pub fn raw_bytes_len(&self) -> usize {
+        self.raw_bytes.len()
+    }
+
     pub fn raw_bytes_split_to(&mut self, len: usize) -> Bytes {
         let split = self.raw_bytes.split_to(len);
         self.raw_bytes_cursor += len;
@@ -265,9 +276,26 @@ impl DecodeContext {
         self.raw_bytes_cursor
     }
 
+    pub fn align_with_buf(&mut self, buf: &Bytes) {
+        let cur = buf.chunk().as_ptr();
+        let last = self.raw_bytes_cursor();
+        self.advance_raw_bytes(cur as usize - last);
+    }
+
     pub fn advance_raw_bytes(&mut self, n: usize) {
         self.raw_bytes.advance(n);
         self.raw_bytes_cursor += n;
+    }
+
+    pub fn root_decoded_fields_num(&self) -> u32 {
+        self.root_decoded_fields_num
+    }
+
+    pub fn inc_root_decoded_fields_num(&mut self, tag: u32) {
+        if !self.decoded_fields_tag.contains(&tag) {
+            self.decoded_fields_tag.insert(tag);
+            self.root_decoded_fields_num += 1;
+        }
     }
 }
 
@@ -376,12 +404,9 @@ where
         return Err(DecodeError::new("buffer underflow"));
     }
 
-    let cur = buf.chunk().as_ptr();
-    let last = ctx.raw_bytes_cursor();
-    ctx.advance_raw_bytes(cur as usize - last);
-
     let limit = remaining - len as usize;
     while buf.remaining() > limit {
+        ctx.align_with_buf(buf);
         merge(value, buf, ctx)?;
     }
 
@@ -523,19 +548,19 @@ macro_rules! varint {
             merge_repeated_numeric!($ty, WireType::Varint, merge, merge_repeated);
 
             #[inline]
-            pub fn encoded_len(tag: u32, $to_uint64_value: &$ty) -> usize {
+            pub fn encoded_len(_ctx: &mut EncodeLengthContext, tag: u32, $to_uint64_value: &$ty) -> usize {
                 key_len(tag) + encoded_len_varint($to_uint64)
             }
 
             #[inline]
-            pub fn encoded_len_repeated(tag: u32, values: &[$ty]) -> usize {
+            pub fn encoded_len_repeated(_ctx: &mut EncodeLengthContext, tag: u32, values: &[$ty]) -> usize {
                 key_len(tag) * values.len() + values.iter().map(|$to_uint64_value| {
                     encoded_len_varint($to_uint64)
                 }).sum::<usize>()
             }
 
             #[inline]
-            pub fn encoded_len_packed(tag: u32, values: &[$ty]) -> usize {
+            pub fn encoded_len_packed(_ctx: &mut EncodeLengthContext, tag: u32, values: &[$ty]) -> usize {
                 if values.is_empty() {
                     0
                 } else {
@@ -668,12 +693,20 @@ pub mod int32 {
     }
 
     #[inline]
-    pub fn encoded_len<T: Into<i32> + Copy>(tag: u32, value: &T) -> usize {
+    pub fn encoded_len<T: Into<i32> + Copy>(
+        _ctx: &mut EncodeLengthContext,
+        tag: u32,
+        value: &T,
+    ) -> usize {
         key_len(tag) + encoded_len_varint((*value).into() as u64)
     }
 
     #[inline]
-    pub fn encoded_len_repeated<V: Into<i32> + Copy>(tag: u32, values: &[V]) -> usize {
+    pub fn encoded_len_repeated<V: Into<i32> + Copy>(
+        _ctx: &mut EncodeLengthContext,
+        tag: u32,
+        values: &[V],
+    ) -> usize {
         key_len(tag) * values.len()
             + values
                 .iter()
@@ -763,17 +796,25 @@ macro_rules! fixed_width {
             merge_repeated_numeric!($ty, $wire_type, merge, merge_repeated);
 
             #[inline]
-            pub fn encoded_len(tag: u32, _: &$ty) -> usize {
+            pub fn encoded_len(_ctx: &mut EncodeLengthContext, tag: u32, _: &$ty) -> usize {
                 key_len(tag) + $width
             }
 
             #[inline]
-            pub fn encoded_len_repeated(tag: u32, values: &[$ty]) -> usize {
+            pub fn encoded_len_repeated(
+                _ctx: &mut EncodeLengthContext,
+                tag: u32,
+                values: &[$ty],
+            ) -> usize {
                 (key_len(tag) + $width) * values.len()
             }
 
             #[inline]
-            pub fn encoded_len_packed(tag: u32, values: &[$ty]) -> usize {
+            pub fn encoded_len_packed(
+                _ctx: &mut EncodeLengthContext,
+                tag: u32,
+                values: &[$ty],
+            ) -> usize {
                 if values.is_empty() {
                     0
                 } else {
@@ -882,16 +923,28 @@ macro_rules! length_delimited {
         }
 
         #[inline]
-        pub fn encoded_len(tag: u32, value: &$ty) -> usize {
+        pub fn encoded_len(ctx: &mut EncodeLengthContext, tag: u32, value: &$ty) -> usize {
+            if value.zero_copy_len() > ZERO_COPY_THRESHOLD {
+                ctx.zero_copy_len += value.zero_copy_len();
+            }
             key_len(tag) + encoded_len_varint(value.len() as u64) + value.len()
         }
 
         #[inline]
-        pub fn encoded_len_repeated(tag: u32, values: &[$ty]) -> usize {
+        pub fn encoded_len_repeated(
+            ctx: &mut EncodeLengthContext,
+            tag: u32,
+            values: &[$ty],
+        ) -> usize {
             key_len(tag) * values.len()
                 + values
                     .iter()
-                    .map(|value| encoded_len_varint(value.len() as u64) + value.len())
+                    .map(|value| {
+                        if value.zero_copy_len() > ZERO_COPY_THRESHOLD {
+                            ctx.zero_copy_len += value.zero_copy_len();
+                        }
+                        encoded_len_varint(value.len() as u64) + value.len()
+                    })
                     .sum::<usize>()
         }
     };
@@ -977,13 +1030,21 @@ pub mod string {
     }
 
     #[inline]
-    pub fn encoded_len<T: Borrow<str>>(tag: u32, value: &T) -> usize {
+    pub fn encoded_len<T: Borrow<str>>(
+        _ctx: &mut EncodeLengthContext,
+        tag: u32,
+        value: &T,
+    ) -> usize {
         let value = value.borrow();
         key_len(tag) + encoded_len_varint(value.len() as u64) + value.len()
     }
 
     #[inline]
-    pub fn encoded_len_repeated<T: Borrow<str>>(tag: u32, values: &[T]) -> usize {
+    pub fn encoded_len_repeated<T: Borrow<str>>(
+        _ctx: &mut EncodeLengthContext,
+        tag: u32,
+        values: &[T],
+    ) -> usize {
         key_len(tag) * values.len()
             + values
                 .iter()
@@ -1026,11 +1087,14 @@ pub mod faststr {
 
     use super::*;
 
-    pub fn encode<T: Borrow<str>>(tag: u32, value: &T, buf: &mut LinkedBytes) {
-        let value = value.borrow();
+    pub fn encode(tag: u32, value: &FastStr, buf: &mut LinkedBytes) {
         encode_key(tag, WireType::LengthDelimited, buf);
         encode_varint(value.len() as u64, buf);
-        buf.put_slice(value.as_bytes());
+        if value.len() >= ZERO_COPY_THRESHOLD {
+            buf.insert_faststr(value.clone());
+        } else {
+            buf.put_slice(value.as_bytes());
+        }
     }
     pub fn merge(
         wire_type: WireType,
@@ -1045,7 +1109,7 @@ pub mod faststr {
         Ok(())
     }
 
-    pub fn encode_repeated<T: Borrow<str>>(tag: u32, values: &[T], buf: &mut LinkedBytes) {
+    pub fn encode_repeated(tag: u32, values: &[FastStr], buf: &mut LinkedBytes) {
         for value in values {
             encode(tag, value, buf);
         }
@@ -1065,18 +1129,32 @@ pub mod faststr {
     }
 
     #[inline]
-    pub fn encoded_len<T: Borrow<str>>(tag: u32, value: &T) -> usize {
+    pub fn encoded_len<T: Borrow<str>>(
+        ctx: &mut EncodeLengthContext,
+        tag: u32,
+        value: &T,
+    ) -> usize {
         let value = value.borrow();
+        if value.len() >= ZERO_COPY_THRESHOLD {
+            ctx.zero_copy_len += value.len();
+        }
         key_len(tag) + encoded_len_varint(value.len() as u64) + value.len()
     }
 
     #[inline]
-    pub fn encoded_len_repeated<T: Borrow<str>>(tag: u32, values: &[T]) -> usize {
+    pub fn encoded_len_repeated<T: Borrow<str>>(
+        ctx: &mut EncodeLengthContext,
+        tag: u32,
+        values: &[T],
+    ) -> usize {
         key_len(tag) * values.len()
             + values
                 .iter()
                 .map(|value| {
                     let value = value.borrow();
+                    if value.len() >= ZERO_COPY_THRESHOLD {
+                        ctx.zero_copy_len += value.len();
+                    }
                     encoded_len_varint(value.len() as u64) + value.len()
                 })
                 .sum::<usize>()
@@ -1101,6 +1179,10 @@ mod sealed {
         fn is_empty(&self) -> bool {
             self.len() == 0
         }
+
+        fn zero_copy_len(&self) -> usize {
+            0
+        }
     }
 }
 
@@ -1119,7 +1201,20 @@ impl sealed::BytesAdapter for Bytes {
 
     #[inline]
     fn append_to(&self, buf: &mut LinkedBytes) {
-        buf.put(self.clone())
+        if self.len() >= ZERO_COPY_THRESHOLD {
+            buf.insert(self.clone());
+        } else {
+            buf.put_slice(self);
+        }
+    }
+
+    #[inline]
+    fn zero_copy_len(&self) -> usize {
+        if self.len() >= ZERO_COPY_THRESHOLD {
+            self.len()
+        } else {
+            0
+        }
     }
 }
 
@@ -1242,7 +1337,10 @@ pub mod message {
         M: Message,
     {
         encode_key(tag, WireType::LengthDelimited, buf);
-        encode_varint(msg.encoded_len() as u64, buf);
+        encode_varint(
+            msg.encoded_len(&mut EncodeLengthContext::default()) as u64,
+            buf,
+        );
         msg.encode_raw(buf);
     }
 
@@ -1264,7 +1362,7 @@ pub mod message {
             ctx,
             |msg: &mut M, buf: &mut Bytes, ctx: &mut DecodeContext| {
                 let (tag, wire_type) = decode_key(buf)?;
-                msg.merge_field(tag, wire_type, buf, ctx)
+                msg.merge_field(tag, wire_type, buf, ctx, false)
             },
         )?;
         ctx.exit_recursion();
@@ -1297,23 +1395,23 @@ pub mod message {
     }
 
     #[inline]
-    pub fn encoded_len<M>(tag: u32, msg: &M) -> usize
+    pub fn encoded_len<M>(ctx: &mut EncodeLengthContext, tag: u32, msg: &M) -> usize
     where
         M: Message,
     {
-        let len = msg.encoded_len();
+        let len = msg.encoded_len(ctx);
         key_len(tag) + encoded_len_varint(len as u64) + len
     }
 
     #[inline]
-    pub fn encoded_len_repeated<M>(tag: u32, messages: &[M]) -> usize
+    pub fn encoded_len_repeated<M>(ctx: &mut EncodeLengthContext, tag: u32, messages: &[M]) -> usize
     where
         M: Message,
     {
         key_len(tag) * messages.len()
             + messages
                 .iter()
-                .map(Message::encoded_len)
+                .map(|msg| msg.encoded_len(ctx))
                 .map(|len| len + encoded_len_varint(len as u64))
                 .sum::<usize>()
     }
@@ -1372,15 +1470,19 @@ pub mod arc_message {
     }
 
     #[inline]
-    pub fn encoded_len<M>(tag: u32, msg: &Arc<M>) -> usize
+    pub fn encoded_len<M>(ctx: &mut EncodeLengthContext, tag: u32, msg: &Arc<M>) -> usize
     where
         M: Message,
     {
-        message::encoded_len(tag, msg.as_ref())
+        message::encoded_len(ctx, tag, msg.as_ref())
     }
 
     #[inline]
-    pub fn encoded_len_repeated<M>(tag: u32, messages: &[Arc<M>]) -> usize
+    pub fn encoded_len_repeated<M>(
+        ctx: &mut EncodeLengthContext,
+        tag: u32,
+        messages: &[Arc<M>],
+    ) -> usize
     where
         M: Message,
     {
@@ -1388,7 +1490,7 @@ pub mod arc_message {
             + messages
                 .iter()
                 .map(|msg| {
-                    let len = msg.encoded_len();
+                    let len = msg.encoded_len(ctx);
                     encoded_len_varint(len as u64) + len
                 })
                 .sum::<usize>()
@@ -1430,7 +1532,7 @@ pub mod group {
             }
 
             ctx.enter_recursion();
-            M::merge_field(msg, field_tag, field_wire_type, buf, ctx)?;
+            M::merge_field(msg, field_tag, field_wire_type, buf, ctx, false)?;
             ctx.exit_recursion();
         }
     }
@@ -1462,19 +1564,23 @@ pub mod group {
     }
 
     #[inline]
-    pub fn encoded_len<M>(tag: u32, msg: &M) -> usize
+    pub fn encoded_len<M>(ctx: &mut EncodeLengthContext, tag: u32, msg: &M) -> usize
     where
         M: Message,
     {
-        2 * key_len(tag) + msg.encoded_len()
+        2 * key_len(tag) + msg.encoded_len(ctx)
     }
 
     #[inline]
-    pub fn encoded_len_repeated<M>(tag: u32, messages: &[M]) -> usize
+    pub fn encoded_len_repeated<M>(ctx: &mut EncodeLengthContext, tag: u32, messages: &[M]) -> usize
     where
         M: Message,
     {
-        2 * key_len(tag) * messages.len() + messages.iter().map(Message::encoded_len).sum::<usize>()
+        2 * key_len(tag) * messages.len()
+            + messages
+                .iter()
+                .map(|msg| msg.encoded_len(ctx))
+                .sum::<usize>()
     }
 }
 
@@ -1499,9 +1605,9 @@ macro_rules! map {
             K: Default + Eq + Hash + Ord,
             V: Default + PartialEq,
             KE: Fn(u32, &K, &mut LinkedBytes),
-            KL: Fn(u32, &K) -> usize,
+            KL: Fn(&mut EncodeLengthContext, u32, &K) -> usize,
             VE: Fn(u32, &V, &mut LinkedBytes),
-            VL: Fn(u32, &V) -> usize,
+            VL: Fn(&mut EncodeLengthContext, u32, &V) -> usize,
         {
             encode_with_default(
                 key_encode,
@@ -1534,6 +1640,7 @@ macro_rules! map {
 
         /// Generic protobuf map encode function.
         pub fn encoded_len<K, V, KL, VL>(
+            ctx: &mut EncodeLengthContext,
             key_encoded_len: KL,
             val_encoded_len: VL,
             tag: u32,
@@ -1542,10 +1649,17 @@ macro_rules! map {
         where
             K: Default + Eq + Hash + Ord,
             V: Default + PartialEq,
-            KL: Fn(u32, &K) -> usize,
-            VL: Fn(u32, &V) -> usize,
+            KL: Fn(&mut EncodeLengthContext, u32, &K) -> usize,
+            VL: Fn(&mut EncodeLengthContext, u32, &V) -> usize,
         {
-            encoded_len_with_default(key_encoded_len, val_encoded_len, &V::default(), tag, values)
+            encoded_len_with_default(
+                ctx,
+                key_encoded_len,
+                val_encoded_len,
+                &V::default(),
+                tag,
+                values,
+            )
         }
 
         /// Generic protobuf map encode function with an overridden value default.
@@ -1566,16 +1680,23 @@ macro_rules! map {
             K: Default + Eq + Hash + Ord,
             V: PartialEq,
             KE: Fn(u32, &K, &mut LinkedBytes),
-            KL: Fn(u32, &K) -> usize,
+            KL: Fn(&mut EncodeLengthContext, u32, &K) -> usize,
             VE: Fn(u32, &V, &mut LinkedBytes),
-            VL: Fn(u32, &V) -> usize,
+            VL: Fn(&mut EncodeLengthContext, u32, &V) -> usize,
         {
             for (key, val) in values.iter() {
                 let skip_key = !cfg!(feature = "pb-encode-default-value") && key == &K::default();
                 let skip_val = !cfg!(feature = "pb-encode-default-value") && val == val_default;
 
-                let len = (if skip_key { 0 } else { key_encoded_len(1, key) })
-                    + (if skip_val { 0 } else { val_encoded_len(2, val) });
+                let len = (if skip_key {
+                    0
+                } else {
+                    key_encoded_len(&mut EncodeLengthContext::default(), 1, key)
+                }) + (if skip_val {
+                    0
+                } else {
+                    val_encoded_len(&mut EncodeLengthContext::default(), 2, val)
+                });
 
                 encode_key(tag, WireType::LengthDelimited, buf);
                 encode_varint(len as u64, buf);
@@ -1633,6 +1754,7 @@ macro_rules! map {
         /// This is necessary because enumeration values can have a default value other
         /// than 0 in proto2.
         pub fn encoded_len_with_default<K, V, KL, VL>(
+            ctx: &mut EncodeLengthContext,
             key_encoded_len: KL,
             val_encoded_len: VL,
             val_default: &V,
@@ -1642,8 +1764,8 @@ macro_rules! map {
         where
             K: Default + Eq + Hash + Ord,
             V: PartialEq,
-            KL: Fn(u32, &K) -> usize,
-            VL: Fn(u32, &V) -> usize,
+            KL: Fn(&mut EncodeLengthContext, u32, &K) -> usize,
+            VL: Fn(&mut EncodeLengthContext, u32, &V) -> usize,
         {
             let skip_default_value = !cfg!(feature = "pb-encode-default-value");
 
@@ -1654,11 +1776,11 @@ macro_rules! map {
                         let len = (if key == &K::default() && skip_default_value {
                             0
                         } else {
-                            key_encoded_len(1, key)
+                            key_encoded_len(ctx, 1, key)
                         }) + (if val == val_default && skip_default_value {
                             0
                         } else {
-                            val_encoded_len(2, val)
+                            val_encoded_len(ctx, 2, val)
                         });
                         encoded_len_varint(len as u64) + len
                     })
@@ -1674,6 +1796,11 @@ pub mod hash_map {
 
 pub mod btree_map {
     map!(BTreeMap);
+}
+
+#[derive(Default)]
+pub struct EncodeLengthContext {
+    pub zero_copy_len: usize,
 }
 
 #[cfg(test)]
@@ -1692,19 +1819,19 @@ mod test {
         wire_type: WireType,
         encode: fn(u32, &T, &mut LinkedBytes),
         merge: fn(WireType, &mut T, &mut Bytes, &mut DecodeContext) -> Result<(), DecodeError>,
-        encoded_len: fn(u32, &T) -> usize,
+        encoded_len: fn(&mut EncodeLengthContext, u32, &T) -> usize,
     ) -> TestCaseResult
     where
         T: Debug + Default + PartialEq,
     {
         prop_assume!((MIN_TAG..=MAX_TAG).contains(&tag));
 
-        let expected_len = encoded_len(tag, &value);
+        let expected_len = encoded_len(&mut EncodeLengthContext::default(), tag, &value);
 
         let mut buf = LinkedBytes::with_capacity(expected_len);
         encode(tag, &value, &mut buf);
 
-        let mut buf = buf.bytes().clone().freeze();
+        let mut buf = buf.concat().freeze();
 
         prop_assert_eq!(
             buf.remaining(),
@@ -1779,16 +1906,17 @@ mod test {
         T: Debug + Default + PartialEq + AsRef<[Item]>,
         E: FnOnce(u32, &[Item], &mut LinkedBytes),
         M: FnMut(WireType, &mut T, &mut Bytes, &mut DecodeContext) -> Result<(), DecodeError>,
-        L: FnOnce(u32, &[Item]) -> usize,
+        L: FnOnce(&mut EncodeLengthContext, u32, &[Item]) -> usize,
     {
         prop_assume!((MIN_TAG..=MAX_TAG).contains(&tag));
 
-        let expected_len = encoded_len(tag, value.as_ref());
+        let mut ctx = EncodeLengthContext::default();
+        let expected_len = encoded_len(&mut ctx, tag, value.as_ref());
 
         let mut buf = LinkedBytes::with_capacity(expected_len);
         encode(tag, value.as_ref(), &mut buf);
 
-        let mut buf = buf.bytes().clone().freeze();
+        let mut buf = buf.concat().freeze();
 
         prop_assert_eq!(
             buf.remaining(),
