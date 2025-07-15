@@ -372,6 +372,10 @@ where
         return Err(DecodeError::new("buffer underflow"));
     }
 
+    let cur = buf.chunk().as_ptr();
+    let last = ctx.raw_bytes_cursor();
+    ctx.advance_raw_bytes(cur as usize - last);
+
     let limit = remaining - len as usize;
     while buf.remaining() > limit {
         merge(value, buf, ctx)?;

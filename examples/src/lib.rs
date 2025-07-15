@@ -17,6 +17,23 @@ fn test_pb_encode_zero_value() {
     a.str_map.insert("key2".into(), "".into());
     a.s1 = "s1".into();
     a.s2 = Some("s2".into());
+    a.b = zero_value::zero_value::B {
+        s3: "s3".into(),
+        ..Default::default()
+    };
+    a.c = zero_value::zero_value::C {
+        s4: Some("s4".into()),
+        ..Default::default()
+    };
+    a.c.b.push(zero_value::zero_value::B {
+        s3: "s5".into(),
+        ..Default::default()
+    });
+    a.c.b.push(zero_value::zero_value::B {
+        s3: "s6".into(),
+        ..Default::default()
+    });
+    println!("a: {:?}", a);
 
     // encode a
     let mut encode_a = pilota::pb::LinkedBytes::new();
