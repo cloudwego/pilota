@@ -218,9 +218,22 @@ impl DecodeContext {
         self
     }
 
+    #[cfg(not(feature = "no-recursion-limit"))]
+    #[inline]
+    pub(crate) fn exit_recursion(&mut self) -> &mut DecodeContext {
+        self.recurse_count += 1;
+        self
+    }
+
     #[cfg(feature = "no-recursion-limit")]
     #[inline]
     pub(crate) fn enter_recursion(&mut self) -> &mut DecodeContext {
+        self
+    }
+
+    #[cfg(feature = "no-recursion-limit")]
+    #[inline]
+    pub(crate) fn exit_recursion(&mut self) -> &mut DecodeContext {
         self
     }
 
@@ -404,7 +417,11 @@ pub fn skip_field(
                     }
                     break 0;
                 }
-                _ => skip_field(inner_wire_type, inner_tag, buf, ctx.enter_recursion())?,
+                _ => {
+                    ctx.enter_recursion();
+                    skip_field(inner_wire_type, inner_tag, buf, ctx)?;
+                    ctx.exit_recursion();
+                }
             }
         },
         WireType::EndGroup => return Err(DecodeError::new("unexpected end group tag")),
@@ -1245,15 +1262,18 @@ pub mod message {
     {
         check_wire_type(WireType::LengthDelimited, wire_type)?;
         ctx.limit_reached()?;
+        ctx.enter_recursion();
         merge_loop(
             msg,
             buf,
-            ctx.enter_recursion(),
+            ctx,
             |msg: &mut M, buf: &mut Bytes, ctx: &mut DecodeContext| {
                 let (tag, wire_type) = decode_key(buf)?;
                 msg.merge_field(tag, wire_type, buf, ctx)
             },
-        )
+        )?;
+        ctx.exit_recursion();
+        Ok(())
     }
 
     pub fn encode_repeated<M>(tag: u32, messages: &[M], buf: &mut LinkedBytes)
@@ -1340,6 +1360,7 @@ pub mod group {
 
             ctx.enter_recursion();
             M::merge_field(msg, field_tag, field_wire_type, buf, ctx)?;
+            ctx.exit_recursion();
         }
     }
 
@@ -1516,10 +1537,11 @@ macro_rules! map {
             let mut key = Default::default();
             let mut val = val_default;
             ctx.limit_reached()?;
+            ctx.enter_recursion();
             merge_loop(
                 &mut (&mut key, &mut val),
                 buf,
-                ctx.enter_recursion(),
+                ctx,
                 |&mut (ref mut key, ref mut val), buf, ctx| {
                     let (tag, wire_type) = decode_key(buf)?;
                     match tag {
@@ -1529,6 +1551,7 @@ macro_rules! map {
                     }
                 },
             )?;
+            ctx.exit_recursion();
             values.insert(key, val);
 
             Ok(())
