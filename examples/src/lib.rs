@@ -10,7 +10,6 @@ pub mod fieldmask {
 #[test]
 fn test_pb_encode_zero_value() {
     use pilota::pb::Message as _;
-
     let mut a = zero_value::zero_value::A::default();
 
     a.str_map.insert("key1".into(), "value".into());
