@@ -62,9 +62,11 @@ struct SubMessage {
 }
 
 struct Message {
-
+    1: uuid uid;
+    2: optional string value;
 }
 
 struct ObjReq {
-    
+    1: required Message msg
+    5: required string flagMsg
 }

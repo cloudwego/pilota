@@ -520,7 +520,8 @@ impl ThriftBackend {
         let skip_all = if keep && !helper.is_async && is_arg {
             "if __pilota_fields_num == 0 {
                 let __pilota_remaining = __protocol.buf().remaining();
-                _unknown_fields.push_back(__protocol.get_bytes(None, __pilota_remaining - 2)?);
+                let __pilota_field_stop_len = __protocol.field_stop_len();
+                _unknown_fields.push_back(__protocol.get_bytes(None, __pilota_remaining - __pilota_field_stop_len)?);
                 break;
             }"
         } else {
