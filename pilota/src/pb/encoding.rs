@@ -192,19 +192,15 @@ pub struct DecodeContext {
     raw_bytes_cursor: usize,
 }
 
-#[cfg(not(feature = "no-recursion-limit"))]
-impl Default for DecodeContext {
-    #[inline]
-    fn default() -> DecodeContext {
+impl DecodeContext {
+    pub fn new(raw_bytes: Bytes) -> DecodeContext {
+        let raw_bytes_cursor = raw_bytes.chunk().as_ptr() as usize;
         DecodeContext {
             recurse_count: super::RECURSION_LIMIT,
-            raw_bytes: Bytes::new(),
-            raw_bytes_cursor: 0,
+            raw_bytes,
+            raw_bytes_cursor,
         }
     }
-}
-
-impl DecodeContext {
     /// Call this function before recursively decoding.
     ///
     /// There is no `exit` function since this function creates a new
@@ -267,11 +263,6 @@ impl DecodeContext {
 
     pub fn raw_bytes_cursor(&self) -> usize {
         self.raw_bytes_cursor
-    }
-
-    pub(crate) fn set_raw_bytes(&mut self, raw_bytes: Bytes) {
-        self.raw_bytes_cursor = raw_bytes.chunk().as_ptr() as usize;
-        self.raw_bytes = raw_bytes;
     }
 
     pub fn advance_raw_bytes(&mut self, n: usize) {
@@ -384,6 +375,10 @@ where
     if len > remaining as u64 {
         return Err(DecodeError::new("buffer underflow"));
     }
+
+    let cur = buf.chunk().as_ptr();
+    let last = ctx.raw_bytes_cursor();
+    ctx.advance_raw_bytes(cur as usize - last);
 
     let limit = remaining - len as usize;
     while buf.remaining() > limit {
@@ -1681,13 +1676,9 @@ mod test {
         }?;
 
         let mut roundtrip_value = T::default();
-        merge(
-            wire_type,
-            &mut roundtrip_value,
-            &mut buf,
-            &mut DecodeContext::default(),
-        )
-        .map_err(|error| TestCaseError::fail(error.to_string()))?;
+        let mut ctx = DecodeContext::new(buf.clone());
+        merge(wire_type, &mut roundtrip_value, &mut buf, &mut ctx)
+            .map_err(|error| TestCaseError::fail(error.to_string()))?;
 
         prop_assert!(
             !buf.has_remaining(),
@@ -1752,13 +1743,9 @@ mod test {
                 decoded_wire_type
             );
 
-            merge(
-                wire_type,
-                &mut roundtrip_value,
-                &mut buf,
-                &mut DecodeContext::default(),
-            )
-            .map_err(|error| TestCaseError::fail(error.to_string()))?;
+            let mut ctx = DecodeContext::new(buf.clone());
+            merge(wire_type, &mut roundtrip_value, &mut buf, &mut ctx)
+                .map_err(|error| TestCaseError::fail(error.to_string()))?;
         }
 
         prop_assert_eq!(value, roundtrip_value);
@@ -1771,12 +1758,8 @@ mod test {
         let mut s = String::new();
         let mut buf = Bytes::from_static(b"\x02\x80\x80");
 
-        let r = string::merge(
-            WireType::LengthDelimited,
-            &mut s,
-            &mut buf,
-            &mut DecodeContext::default(),
-        );
+        let mut ctx = DecodeContext::new(buf.clone());
+        let r = string::merge(WireType::LengthDelimited, &mut s, &mut buf, &mut ctx);
         r.expect_err("must be an error");
         assert!(s.is_empty());
     }

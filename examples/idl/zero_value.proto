@@ -1,8 +1,29 @@
+syntax = "proto2";
+
+message B {
+    required string s3 = 1;
+}
+
+message C {
+    optional string s4 = 1;
+    repeated B b = 2;
+}
+
 message A {
+    required C c = 4;
+    required B b = 3;
     map<string, string> str_map = 1;
     required string s1 = 2;
     optional string s2 = 2047;
 }
 
+message BB {}
+
+message CC {
+    optional string s4 = 1;
+}
+
 message UnknownA {
+    required BB b = 3;
+    required CC c = 4;
 }

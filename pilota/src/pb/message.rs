@@ -106,8 +106,7 @@ pub trait Message: Debug + Send + Sync {
     where
         Self: Sized,
     {
-        let mut ctx = DecodeContext::default();
-        ctx.set_raw_bytes(buf.clone());
+        let mut ctx = DecodeContext::new(buf.clone());
         while buf.has_remaining() {
             let (tag, wire_type) = decode_key(&mut buf)?;
             self.merge_field(tag, wire_type, &mut buf, &mut ctx)?;
@@ -124,8 +123,7 @@ pub trait Message: Debug + Send + Sync {
     where
         Self: Sized,
     {
-        let mut ctx = DecodeContext::default();
-        ctx.set_raw_bytes(buf.clone());
+        let mut ctx = DecodeContext::new(buf.clone());
         message::merge(WireType::LengthDelimited, self, &mut buf, &mut ctx)
     }
 }
