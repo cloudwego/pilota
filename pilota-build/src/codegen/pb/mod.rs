@@ -69,9 +69,9 @@ impl ProtobufBackend {
                 let encoded_len_fn = format!("::pilota::pb::encoding::{module}::{encoded_len_fn}");
 
                 match kind {
-                    FieldKind::Required => format!("{encoded_len_fn}({tag}, &{ident})").into(),
+                    FieldKind::Required => format!("{encoded_len_fn}(ctx, {tag}, &{ident})").into(),
                     FieldKind::Optional => format!(
-                        "{ident}.as_ref().map_or(0, |value| {encoded_len_fn}({tag}, value))"
+                        "{ident}.as_ref().map_or(0, |value| {encoded_len_fn}(ctx, {tag}, value))"
                     )
                     .into(),
                 }
@@ -87,15 +87,17 @@ impl ProtobufBackend {
                     };
 
                     match kind {
-                        FieldKind::Required => format!("{encoded_len_fn}({tag}, &{ident})").into(),
+                        FieldKind::Required => {
+                            format!("{encoded_len_fn}(ctx, {tag}, &{ident})").into()
+                        }
                         FieldKind::Optional => format!(
-                            "{ident}.as_ref().map_or(0, |msg| {encoded_len_fn}({tag}, msg))"
+                            "{ident}.as_ref().map_or(0, |msg| {encoded_len_fn}(ctx, {tag}, msg))"
                         )
                         .into(),
                     }
                 } else {
                     let encoded_len: FastStr = if self.is_one_of(ty) {
-                        "msg.encoded_len()".into()
+                        "msg.encoded_len(ctx)".into()
                     } else {
                         let ident: FastStr = match kind {
                             FieldKind::Required => format!("&{ident}").into(),
@@ -103,12 +105,14 @@ impl ProtobufBackend {
                         };
                         if is_arc {
                             format!(
-                                "::pilota::pb::encoding::arc_message::encoded_len({tag}, {ident})"
+                                "::pilota::pb::encoding::arc_message::encoded_len(ctx, {tag}, {ident})"
                             )
                             .into()
                         } else {
-                            format!("::pilota::pb::encoding::message::encoded_len({tag}, {ident})")
-                                .into()
+                            format!(
+                                "::pilota::pb::encoding::message::encoded_len(ctx, {tag}, {ident})"
+                            )
+                            .into()
                         }
                     };
 
@@ -132,7 +136,7 @@ impl ProtobufBackend {
                 let value_encoded_len_fn =
                     quote!(::pilota::pb::encoding::#value_module::encoded_len);
 
-                format!("::pilota::pb::encoding::hash_map::encoded_len({key_encoded_len_fn}, {value_encoded_len_fn}, {tag}, &{ident})").into()
+                format!("::pilota::pb::encoding::hash_map::encoded_len(ctx, {key_encoded_len_fn}, {value_encoded_len_fn}, {tag}, &{ident})").into()
             }
         }
     }
@@ -491,7 +495,7 @@ impl CodegenBackend for ProtobufBackend {
             encoded_len.push_str(" + self._unknown_fields.size()");
             encode.push_str(
                 r#"for bytes in self._unknown_fields.list.iter() {
-                    buf.put_slice(bytes.as_ref());
+                    buf.insert(bytes.clone());
                 }"#,
             );
 
@@ -533,7 +537,7 @@ impl CodegenBackend for ProtobufBackend {
             r#"
             impl ::pilota::pb::Message for {name} {{
                 #[inline]
-                fn encoded_len(&self) -> usize {{
+                fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {{
                     0 {encoded_len}
                 }}
 
@@ -642,7 +646,7 @@ impl CodegenBackend for ProtobufBackend {
                 }}
 
                 #[inline]
-                pub fn encoded_len(&self) -> usize {{
+                pub fn encoded_len(&self, ctx:&mut ::pilota::pb::EncodeLengthContext) -> usize {{
                     match self {{
                         {encoded_len}
                     }}

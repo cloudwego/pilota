@@ -15,13 +15,13 @@ pub mod oneof {
     }
     impl ::pilota::pb::Message for Test {
         #[inline]
-        fn encoded_len(&self) -> usize {
-            0 + ::pilota::pb::encoding::int32::encoded_len(1, &self.c)
-                + self.r#type.as_ref().map_or(0, |msg| msg.encoded_len())
-                + ::pilota::pb::encoding::int64::encoded_len(5, &self.j)
-                + self.test.as_ref().map_or(0, |msg| msg.encoded_len())
+        fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+            0 + ::pilota::pb::encoding::int32::encoded_len(ctx, 1, &self.c)
+                + self.r#type.as_ref().map_or(0, |msg| msg.encoded_len(ctx))
+                + ::pilota::pb::encoding::int64::encoded_len(ctx, 5, &self.j)
+                + self.test.as_ref().map_or(0, |msg| msg.encoded_len(ctx))
                 + self.e.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::int32::encoded_len(10, value)
+                    ::pilota::pb::encoding::int32::encoded_len(ctx, 10, value)
                 })
         }
 
@@ -165,8 +165,8 @@ pub mod oneof {
             #[inline]
             pub fn encoded_len(&self) -> usize {
                 match self {
-                    Test::A(value) => ::pilota::pb::encoding::faststr::encoded_len(6, &*value),
-                    Test::B(value) => ::pilota::pb::encoding::int32::encoded_len(8, &*value),
+                    Test::A(value) => ::pilota::pb::encoding::faststr::encoded_len(ctx, 6, &*value),
+                    Test::B(value) => ::pilota::pb::encoding::int32::encoded_len(ctx, 8, &*value),
                 }
             }
 
@@ -232,8 +232,8 @@ pub mod oneof {
             #[inline]
             pub fn encoded_len(&self) -> usize {
                 match self {
-                    Type::S(value) => ::pilota::pb::encoding::faststr::encoded_len(2, &*value),
-                    Type::I(value) => ::pilota::pb::encoding::int32::encoded_len(4, &*value),
+                    Type::S(value) => ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &*value),
+                    Type::I(value) => ::pilota::pb::encoding::int32::encoded_len(ctx, 4, &*value),
                 }
             }
 
