@@ -9,10 +9,10 @@ pub mod string {
     }
     impl ::pilota::pb::Message for A {
         #[inline]
-        fn encoded_len(&self) -> usize {
+        fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
             0 + self.a.as_ref().map_or(0, |value| {
-                ::pilota::pb::encoding::faststr::encoded_len(1, value)
-            }) + ::pilota::pb::encoding::faststr::encoded_len(2, &self.b)
+                ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, value)
+            }) + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.b)
         }
 
         #[allow(unused_variables)]

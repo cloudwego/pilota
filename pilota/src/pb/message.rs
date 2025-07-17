@@ -6,6 +6,8 @@ use core::fmt::Debug;
 use bytes::{Buf, BufMut, Bytes};
 use linkedbytes::LinkedBytes;
 
+use crate::pb::encoding::EncodeLengthContext;
+
 use super::{
     DecodeError, EncodeError,
     encoding::{DecodeContext, WireType, decode_key, encode_varint, encoded_len_varint, message},
@@ -39,7 +41,7 @@ pub trait Message: Debug + Send + Sync {
         Self: Sized;
 
     /// Returns the encoded length of the message without a length delimiter.
-    fn encoded_len(&self) -> usize;
+    fn encoded_len(&self, ctx: &mut EncodeLengthContext) -> usize;
 
     /// Encodes the message to a buffer.
     ///
@@ -49,7 +51,7 @@ pub trait Message: Debug + Send + Sync {
     where
         Self: Sized,
     {
-        let required = self.encoded_len();
+        let required = self.encoded_len(&mut EncodeLengthContext::default());
         let remaining = buf.remaining_mut();
         if required > buf.remaining_mut() {
             return Err(EncodeError::new(required, remaining));
@@ -63,11 +65,15 @@ pub trait Message: Debug + Send + Sync {
     ///
     /// An error will be returned if the buffer does not have sufficient
     /// capacity.
-    fn encode_length_delimited(&self, buf: &mut LinkedBytes) -> Result<(), EncodeError>
+    fn encode_length_delimited(
+        &self,
+        ctx: &mut EncodeLengthContext,
+        buf: &mut LinkedBytes,
+    ) -> Result<(), EncodeError>
     where
         Self: Sized,
     {
-        let len = self.encoded_len();
+        let len = self.encoded_len(ctx);
         let required = len + encoded_len_varint(len as u64);
         let remaining = buf.remaining_mut();
         if required > remaining {
@@ -144,8 +150,8 @@ where
     ) -> Result<(), DecodeError> {
         (**self).merge_field(tag, wire_type, buf, ctx, is_root)
     }
-    fn encoded_len(&self) -> usize {
-        (**self).encoded_len()
+    fn encoded_len(&self, ctx: &mut EncodeLengthContext) -> usize {
+        (**self).encoded_len(ctx)
     }
 }
 

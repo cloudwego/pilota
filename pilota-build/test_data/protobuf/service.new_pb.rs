@@ -9,8 +9,8 @@ pub mod service {
         }
         impl ::pilota::pb::Message for EchoRequest {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(1, &self.message)
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.message)
             }
 
             #[allow(unused_variables)]
@@ -55,8 +55,8 @@ pub mod service {
         }
         impl ::pilota::pb::Message for EchoResponse {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(1, &self.message)
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.message)
             }
 
             #[allow(unused_variables)]

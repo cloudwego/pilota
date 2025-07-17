@@ -31,7 +31,8 @@ hex = "0.4"
 integer-encoding = { version = "4", features = ["tokio", "tokio_async"] }
 itertools = "0.14"
 lazy_static = "1"
-linkedbytes = "0.1"
+# linkedbytes = "0.1"
+linkedbytes = {git = "https://github.com/volo-rs/linkedbytes.git", branch = "feat/concat"}
 nom = "7"
 normpath = "1"
 ordered-float = { version = "5", features = ["serde"] }

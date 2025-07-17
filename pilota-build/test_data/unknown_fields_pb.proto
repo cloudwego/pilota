@@ -9,17 +9,12 @@ message B {
 }
 
 message SubMessage {
-  optional string value = 2;
 }
 
 message Message {
-  string uid = 1;
-  string value = 2;
 }
 
 message ObjReq {
-  Message msg = 1;
-  string flag_msg = 5;
 }
 
 service TestService {

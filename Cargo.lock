@@ -335,6 +335,7 @@ dependencies = [
 name = "examples"
 version = "0.1.0"
 dependencies = [
+ "linkedbytes",
  "pilota",
  "pilota-build",
  "pilota-thrift-fieldmask",
@@ -554,9 +555,8 @@ checksum = "1171693293099992e19cddea4e8b849964e9846f4acee11b3948bcc337be8776"
 
 [[package]]
 name = "linkedbytes"
-version = "0.1.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c663657632044d71a150755f0527ec22d7eb21b67e173bfce20597387284260a"
+version = "0.1.14"
+source = "git+https://github.com/volo-rs/linkedbytes.git?branch=feat%2Fconcat#220c83e90a1b16e4320d8ec629f616d6affc05af"
 dependencies = [
  "bytes",
  "faststr",

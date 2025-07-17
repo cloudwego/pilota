@@ -9,6 +9,7 @@ mod types;
 pub mod encoding;
 
 use bytes::{BufMut, Bytes};
+pub use encoding::EncodeLengthContext;
 use encoding::{decode_varint, encode_varint, encoded_len_varint};
 pub use error::{DecodeError, EncodeError};
 pub use linkedbytes::LinkedBytes;
@@ -78,3 +79,12 @@ extern crate prost_derive;
 #[cfg(feature = "prost-derive")]
 #[doc(hidden)]
 pub use prost_derive::*;
+
+#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+// According to the benchmark, 1KB is the suitable threshold for zero-copy on
+// Apple Silicon.
+const ZERO_COPY_THRESHOLD: usize = 1024;
+
+#[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+// While 4KB is better for other platforms (mainly amd64 linux).
+const ZERO_COPY_THRESHOLD: usize = 4 * 1024;

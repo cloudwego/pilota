@@ -1,4 +1,3 @@
-// mod fieldmask;
 pub mod zero_value {
     include!(concat!(env!("OUT_DIR"), "/zero_value.rs"));
 }
@@ -35,9 +34,9 @@ fn test_pb_encode_zero_value() {
     println!("a: {:?}", a);
 
     // encode a
-    let mut encode_a = pilota::pb::LinkedBytes::new();
+    let mut encode_a = pilota::LinkedBytes::new();
     a.encode(&mut encode_a).unwrap();
-    let encoded_a = encode_a.bytes().clone().freeze();
+    let encoded_a = encode_a.concat();
     println!("encode a: {:?}", encoded_a);
 
     // decode a
@@ -57,7 +56,7 @@ fn test_pb_encode_zero_value() {
     decoded_a_to_unknown_a
         .encode(&mut encode_unknown_a)
         .unwrap();
-    let encoded_unknown_a = encode_unknown_a.bytes().clone().freeze();
+    let encoded_unknown_a = encode_unknown_a.concat();
     println!("encode unknown_a: {:?}", encoded_unknown_a);
     assert_eq!(encoded_unknown_a.as_ref(), encoded_a.as_ref());
 
@@ -76,7 +75,7 @@ fn test_pb_encode_zero_value() {
     // encode c
     let mut encode_c = pilota::pb::LinkedBytes::new();
     decoded_a.c.encode(&mut encode_c).unwrap();
-    let encoded_c = encode_c.bytes().clone().freeze();
+    let encoded_c = encode_c.concat();
     println!("encode c: {:?}", encoded_c);
 
     // decode c to unknown_c
@@ -89,7 +88,7 @@ fn test_pb_encode_zero_value() {
     decoded_c_to_unknown_c
         .encode(&mut encode_unknown_c)
         .unwrap();
-    let encoded_unknown_c = encode_unknown_c.bytes().clone().freeze();
+    let encoded_unknown_c = encode_unknown_c.concat();
     println!("encode unknown_c: {:?}", encoded_unknown_c);
     assert_eq!(encoded_unknown_c.as_ref(), encoded_c.as_ref());
 
