@@ -122,6 +122,14 @@ pub mod oneof {
                 Self(val) => val.to_string(),
             }
         }
+
+        pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
+            match value {
+                0 => Some(Self::A),
+                1 => Some(Self::B),
+                _ => None,
+            }
+        }
     }
 
     impl ::std::convert::From<i32> for Enum {
@@ -163,7 +171,7 @@ pub mod oneof {
             }
 
             #[inline]
-            pub fn encoded_len(&self) -> usize {
+            pub fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 match self {
                     Test::A(value) => ::pilota::pb::encoding::faststr::encoded_len(ctx, 6, &*value),
                     Test::B(value) => ::pilota::pb::encoding::int32::encoded_len(ctx, 8, &*value),
@@ -230,7 +238,7 @@ pub mod oneof {
             }
 
             #[inline]
-            pub fn encoded_len(&self) -> usize {
+            pub fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 match self {
                     Type::S(value) => ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &*value),
                     Type::I(value) => ::pilota::pb::encoding::int32::encoded_len(ctx, 4, &*value),
