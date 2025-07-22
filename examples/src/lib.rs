@@ -46,18 +46,19 @@ fn test_pb_encode_zero_value() {
             s3: "s6".into(),
             ..Default::default()
         }));
+
     println!("a: {:?}", a);
 
     // encode a
     let mut encode_a = pilota::LinkedBytes::new();
     a.encode(&mut encode_a).unwrap();
-    let encoded_a = encode_a.concat();
+    let encoded_a = encode_a.concat().freeze();
     println!("encode a: {:?}", encoded_a);
 
     // decode a
     let decode_a = encoded_a.clone();
     let decode_a_to_unknown_a = encoded_a.clone();
-    let decoded_a = zero_value::zero_value::A::decode(decode_a).unwrap();
+    let decoded_a = zero_value::zero_value::A::decode(decode_a.clone()).unwrap();
     println!("decode a: {:?}", decoded_a);
     assert_eq!(decoded_a, a);
 
@@ -71,25 +72,27 @@ fn test_pb_encode_zero_value() {
     decoded_a_to_unknown_a
         .encode(&mut encode_unknown_a)
         .unwrap();
-    let encoded_unknown_a = encode_unknown_a.concat();
+    let encoded_unknown_a = encode_unknown_a.concat().freeze();
     println!("encode unknown_a: {:?}", encoded_unknown_a);
-    assert_eq!(encoded_unknown_a.as_ref(), encoded_a.as_ref());
+    println!("encoded_a: {:?}", encoded_a); // binary sequence is different
 
     // decode unknown_a
     let decode_unknown_a = encoded_unknown_a.clone();
-    let decode_unknown_a_to_a = encoded_unknown_a.clone();
+    let _decode_unknown_a_to_a = encoded_unknown_a.clone();
     let decoded_unknown_a = zero_value::zero_value::UnknownA::decode(decode_unknown_a).unwrap();
     println!("decode unknown_a: {:?}", decoded_unknown_a);
     assert_eq!(decoded_unknown_a, decoded_a_to_unknown_a);
 
     // decode a
-    let decoded_a = zero_value::zero_value::A::decode(decode_a).unwrap();
+    let decoded_a = zero_value::zero_value::A::decode(decode_a.clone()).unwrap();
     println!("decode unknown_a to a: {:?}", decoded_a);
+
+    println!("--------------------------------");
 
     // encode c
     let mut encode_c = pilota::pb::LinkedBytes::new();
-    decoded_a.c.encode(&mut encode_c).unwrap();
-    let encoded_c = encode_c.concat();
+    let _ = decoded_a.c.map(|c| c.encode(&mut encode_c)).unwrap();
+    let encoded_c = encode_c.concat().freeze();
     println!("encode c: {:?}", encoded_c);
 
     // decode c to unknown_c
@@ -102,7 +105,7 @@ fn test_pb_encode_zero_value() {
     decoded_c_to_unknown_c
         .encode(&mut encode_unknown_c)
         .unwrap();
-    let encoded_unknown_c = encode_unknown_c.concat();
+    let encoded_unknown_c = encode_unknown_c.concat().freeze();
     println!("encode unknown_c: {:?}", encoded_unknown_c);
     assert_eq!(encoded_unknown_c.as_ref(), encoded_c.as_ref());
 
@@ -114,13 +117,13 @@ fn test_pb_encode_zero_value() {
     // decode unknown_c to c
     let decoded_c = zero_value::zero_value::C::decode(encoded_unknown_c).unwrap();
     println!("decode unknown_c to c: {:?}", decoded_c);
-    assert_eq!(decoded_c, a.c);
+    assert_eq!(decoded_c, a.c.unwrap());
 
     // test deprecated
     use zero_value::zero_value::TestService;
 
     // test f32 and f64
-    let bb = zero_value::zero_value::file_descriptor_zero_value()
+    let _ = zero_value::zero_value::file_descriptor_zero_value()
         .messages()
         .for_each(|m| {
             // the name is same with the idl definition

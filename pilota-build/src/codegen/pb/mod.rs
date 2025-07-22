@@ -462,8 +462,7 @@ impl CodegenBackend for ProtobufBackend {
                 let field_ident = self.cx.rust_name(field.did);
                 let merge =
                     self.codegen_merge_field("_inner_pilota_value".into(), &field.ty, field.kind);
-                let mut tags = self.field_tags(field).map(|tag| tag.to_string());
-                let tags = tags.join("|");
+                let tags = self.field_tags(field).join("|");
 
                 format! {
                     r#"{tags} => {{
@@ -499,7 +498,7 @@ impl CodegenBackend for ProtobufBackend {
                 }"#,
             );
 
-            let tags_repr = s.fields.iter().map(|f| f.id).join("|");
+            let tags_repr = s.fields.iter().flat_map(|f| self.field_tags(f)).join("|");
             let tags_dismatch = if tags_repr.is_empty() {
                 "".into()
             } else {

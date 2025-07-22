@@ -26,6 +26,10 @@ message A {
     map<string, string> str_map = 1;
     string s1 = 2;
     optional string s2 = 2047;
+    oneof test {
+        string x = 6;
+        int32 y = 8;
+    }
 }
 
 message BB {
