@@ -31,6 +31,7 @@ fn test_pb_encode_zero_value() {
         s3: "s6".into(),
         ..Default::default()
     });
+    a.test = Some(zero_value::zero_value::a::Test::X("test".into()));
     println!("a: {:?}", a);
 
     // encode a
@@ -71,6 +72,8 @@ fn test_pb_encode_zero_value() {
     let decoded_unknown_a_to_a = zero_value::zero_value::A::decode(decode_unknown_a_to_a).unwrap();
     println!("decode unknown_a to a: {:?}", decoded_unknown_a_to_a);
     assert_eq!(decoded_unknown_a_to_a, a);
+
+    println!("--------------------------------");
 
     // encode c
     let mut encode_c = pilota::pb::LinkedBytes::new();

@@ -6,12 +6,11 @@ use core::fmt::Debug;
 use bytes::{Buf, BufMut, Bytes};
 use linkedbytes::LinkedBytes;
 
-use crate::pb::encoding::EncodeLengthContext;
-
 use super::{
     DecodeError, EncodeError,
     encoding::{DecodeContext, WireType, decode_key, encode_varint, encoded_len_varint, message},
 };
+use crate::pb::encoding::EncodeLengthContext;
 
 /// A Protocol Buffers message.
 pub trait Message: Debug + Send + Sync {

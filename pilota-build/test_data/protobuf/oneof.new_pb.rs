@@ -163,7 +163,7 @@ pub mod oneof {
             }
 
             #[inline]
-            pub fn encoded_len(&self) -> usize {
+            pub fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 match self {
                     Test::A(value) => ::pilota::pb::encoding::faststr::encoded_len(ctx, 6, &*value),
                     Test::B(value) => ::pilota::pb::encoding::int32::encoded_len(ctx, 8, &*value),
@@ -230,7 +230,7 @@ pub mod oneof {
             }
 
             #[inline]
-            pub fn encoded_len(&self) -> usize {
+            pub fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 match self {
                     Type::S(value) => ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &*value),
                     Type::I(value) => ::pilota::pb::encoding::int32::encoded_len(ctx, 4, &*value),

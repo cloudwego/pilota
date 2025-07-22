@@ -1,6 +1,9 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use faststr::FastStr;
-use pilota::{Bytes, LinkedBytes, pb::EncodeLengthContext, pb::Message};
+use pilota::{
+    Bytes, LinkedBytes,
+    pb::{EncodeLengthContext, Message},
+};
 use rand::{Rng, distr::Alphanumeric};
 
 include!("../test_data/protobuf/normal.new_pb.rs");

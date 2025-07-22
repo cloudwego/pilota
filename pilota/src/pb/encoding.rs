@@ -12,9 +12,8 @@ use ::bytes::{Buf, BufMut, Bytes};
 use ahash::AHashSet;
 use linkedbytes::LinkedBytes;
 
-use crate::pb::ZERO_COPY_THRESHOLD;
-
 use super::{DecodeError, Message};
+use crate::pb::ZERO_COPY_THRESHOLD;
 
 /// Encodes an integer value into LEB128 variable length format, and writes it
 /// to the buffer. The buffer must have enough remaining space (maximum 10
