@@ -92,6 +92,9 @@ impl<T> TLengthProtocol for TBinaryProtocol<T> {
 
     #[inline]
     fn bytes_len(&mut self, b: &[u8]) -> usize {
+        if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
+            self.zero_copy_len += b.len();
+        }
         self.i32_len(0) + b.len()
     }
 
@@ -136,6 +139,9 @@ impl<T> TLengthProtocol for TBinaryProtocol<T> {
 
     #[inline]
     fn faststr_len(&mut self, s: &FastStr) -> usize {
+        if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
+            self.zero_copy_len += s.len();
+        }
         self.i32_len(0) + s.len()
     }
 
@@ -438,7 +444,6 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     #[inline]
     fn write_bytes_without_len(&mut self, b: Bytes) -> Result<(), ThriftException> {
         if self.zero_copy && b.len() >= ZERO_COPY_THRESHOLD {
-            self.zero_copy_len += b.len();
             self.trans.insert(b);
             return Ok(());
         }
@@ -498,7 +503,6 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     fn write_faststr(&mut self, s: FastStr) -> Result<(), ThriftException> {
         self.write_i32(s.len() as i32)?;
         if self.zero_copy && s.len() >= ZERO_COPY_THRESHOLD {
-            self.zero_copy_len += s.len();
             self.trans.insert_faststr(s);
             return Ok(());
         }
