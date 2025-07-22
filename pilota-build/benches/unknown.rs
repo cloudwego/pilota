@@ -4,7 +4,7 @@ use pilota::{
     Bytes,
     prost::bytes::BytesMut,
     thrift::{
-        Message,
+        Message, TLengthProtocol,
         binary::TBinaryProtocol,
         binary_unsafe::{TBinaryUnsafeInputProtocol, TBinaryUnsafeOutputProtocol},
     },
@@ -14,12 +14,17 @@ use rand::{Rng, distr::Alphanumeric};
 include!("../test_data/thrift/normal.rs");
 include!("../test_data/unknown_fields.rs");
 
+use pilota::LinkedBytes;
+
 fn decode_encode_all_fields_safe(mut bytes: Bytes) {
     let a =
         crate::normal::normal::ObjReq::decode(&mut TBinaryProtocol::new(&mut bytes, true)).unwrap();
 
-    let size = a.size(&mut TBinaryProtocol::new((), false));
-    let mut linked_bytes = linkedbytes::LinkedBytes::with_capacity(size);
+    let mut protocol = TBinaryProtocol::new((), true);
+    let size = a.size(&mut protocol);
+    let zero_copy_size = protocol.zero_copy_len();
+    let malloc_size = size - zero_copy_size;
+    let mut linked_bytes = LinkedBytes::with_capacity(malloc_size);
     a.encode(&mut TBinaryProtocol::new(&mut linked_bytes, true))
         .unwrap();
 }
@@ -30,10 +35,13 @@ fn decode_encode_all_fields_unsafe(mut bytes: Bytes) {
     }
     .unwrap();
 
-    let size = a.size(&mut TBinaryProtocol::new((), false));
-    let mut linked_bytes = linkedbytes::LinkedBytes::with_capacity(size);
+    let mut protocol = TBinaryProtocol::new((), true);
+    let size = a.size(&mut protocol);
+    let zero_copy_size = protocol.zero_copy_len();
+    let malloc_size = size - zero_copy_size;
+    let mut linked_bytes = LinkedBytes::with_capacity(malloc_size);
     let buf = unsafe {
-        let l = linked_bytes.bytes_mut().len();
+        let l = linked_bytes.bytes().len();
         std::slice::from_raw_parts_mut(
             linked_bytes.bytes_mut().as_mut_ptr().add(l),
             linked_bytes.bytes_mut().capacity() - l,
@@ -55,8 +63,11 @@ fn decode_encode_unknown_fields_safe(mut bytes: Bytes) {
     ))
     .unwrap();
 
-    let size = a.size(&mut TBinaryProtocol::new((), false));
-    let mut linked_bytes = linkedbytes::LinkedBytes::with_capacity(size);
+    let mut protocol = TBinaryProtocol::new((), true);
+    let size = a.size(&mut protocol);
+    let zero_copy_size = protocol.zero_copy_len();
+    let malloc_size = size - zero_copy_size;
+    let mut linked_bytes = LinkedBytes::with_capacity(malloc_size);
     a.encode(&mut TBinaryProtocol::new(&mut linked_bytes, true))
         .unwrap();
 }
@@ -69,8 +80,11 @@ fn decode_encode_unknown_fields_unsafe(mut bytes: Bytes) {
     }
     .unwrap();
 
-    let size = a.size(&mut TBinaryProtocol::new((), false));
-    let mut linked_bytes = linkedbytes::LinkedBytes::with_capacity(size);
+    let mut protocol = TBinaryProtocol::new((), true);
+    let size = a.size(&mut protocol);
+    let zero_copy_size = protocol.zero_copy_len();
+    let malloc_size = size - zero_copy_size;
+    let mut linked_bytes = LinkedBytes::with_capacity(malloc_size);
     let buf = unsafe {
         let l = linked_bytes.bytes_mut().len();
         std::slice::from_raw_parts_mut(
@@ -93,10 +107,12 @@ fn codegen(c: &mut Criterion) {
     let lens = [16, 64, 128, 512, 2 * 1024, 128 * 1024, 10 * 128 * 1024];
     for len in lens {
         let a = prepare_obj_req(len);
-        let size = a.size(&mut TBinaryProtocol::new((), false));
-        let mut buf = BytesMut::with_capacity(size);
-        a.encode(&mut TBinaryProtocol::new(&mut buf, false))
-            .unwrap();
+        let mut protocol = TBinaryProtocol::new((), true);
+        let size = a.size(&mut protocol);
+        let zero_copy_size = protocol.zero_copy_len();
+        let malloc_size = size - zero_copy_size;
+        let mut buf = BytesMut::with_capacity(malloc_size);
+        a.encode(&mut TBinaryProtocol::new(&mut buf, true)).unwrap();
         let buf = buf.freeze();
         group.bench_function(
             format!("TBinaryProtocol all_fields decode_encode {} bytes", len * 8),
@@ -120,8 +136,8 @@ fn codegen(c: &mut Criterion) {
         group.bench_function(
             format!(
                 "TBinaryUnsafeProtocol unknown_fields
-  decode_encode {}
-bytes",
+          decode_encode {}
+        bytes",
                 len * 8
             ),
             |b| b.iter_with_setup(|| buf.clone(), decode_encode_unknown_fields_unsafe),
@@ -140,38 +156,42 @@ fn prepare_obj_req(size: usize) -> crate::normal::normal::ObjReq {
     let sub_msg_2 = crate::normal::normal::SubMessage {
         value: Some(generate_message(size / 2)),
     };
-    // size
-    let sub_msg_list = vec![sub_msg_1.clone(), sub_msg_2.clone()];
 
     // 2 * size
+    let sub_msg_list = vec![
+        sub_msg_1.clone(),
+        sub_msg_2.clone(),
+        sub_msg_1.clone(),
+        sub_msg_2.clone(),
+    ];
+
+    // 3 * size
     let msg = crate::normal::normal::Message {
         value: Some(generate_message(size)),
         sub_messages: Some(sub_msg_list.clone()),
         uid: None,
     };
 
+    // 2 * size
     let mut msg_map = pilota::AHashMap::default();
     msg_map.insert(
         crate::normal::normal::Message {
             value: None,
-            sub_messages: Some(sub_msg_list.clone()),
+            sub_messages: None,
             uid: None,
         },
         crate::normal::normal::SubMessage {
-            value: Some(generate_message(size)),
+            value: Some(generate_message(size * 2)),
         },
     );
 
-    let mut msg_set = pilota::AHashSet::default();
-    msg_set.insert(msg.clone());
-
+    // 3 * size
     let mut sub_msg_list2 = vec![sub_msg_1, sub_msg_2];
     sub_msg_list2.extend(sub_msg_list);
 
-    req.msg = msg; // 2 * size
+    req.msg = msg; // 3 * size
     req.msg_map = msg_map; // 2 * size
-    req.msg_set = Some(msg_set); // 2 * size
-    req.sub_msgs = sub_msg_list2; // 2 * size
+    req.sub_msgs = sub_msg_list2; // 3 * size
 
     req
 }
