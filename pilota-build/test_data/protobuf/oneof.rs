@@ -125,6 +125,14 @@ pub mod oneof {
                 Self(val) => val.to_string(),
             }
         }
+
+        pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
+            match value {
+                0 => Some(Self::A),
+                1 => Some(Self::B),
+                _ => None,
+            }
+        }
     }
 
     impl ::std::convert::From<i32> for Enum {

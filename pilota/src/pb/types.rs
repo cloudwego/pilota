@@ -11,8 +11,6 @@ use alloc::{string::String, vec::Vec};
 use ::bytes::Bytes;
 use linkedbytes::LinkedBytes;
 
-use crate::pb::ZERO_COPY_THRESHOLD;
-
 use super::{
     DecodeError, Message,
     encoding::{
@@ -20,6 +18,7 @@ use super::{
         skip_field, string, uint32, uint64,
     },
 };
+use crate::pb::ZERO_COPY_THRESHOLD;
 
 /// `google.protobuf.BoolValue`
 impl Message for bool {
