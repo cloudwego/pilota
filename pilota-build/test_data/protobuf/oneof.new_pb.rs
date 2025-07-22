@@ -10,14 +10,19 @@ pub mod oneof {
         pub j: i64,
 
         pub test: ::std::option::Option<test::Test>,
+
+        pub e: ::std::option::Option<Enum>,
     }
     impl ::pilota::pb::Message for Test {
         #[inline]
-        fn encoded_len(&self) -> usize {
-            0 + ::pilota::pb::encoding::int32::encoded_len(1, &self.c)
-                + self.r#type.as_ref().map_or(0, |msg| msg.encoded_len())
-                + ::pilota::pb::encoding::int64::encoded_len(5, &self.j)
-                + self.test.as_ref().map_or(0, |msg| msg.encoded_len())
+        fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+            0 + ::pilota::pb::encoding::int32::encoded_len(ctx, 1, &self.c)
+                + self.r#type.as_ref().map_or(0, |msg| msg.encoded_len(ctx))
+                + ::pilota::pb::encoding::int64::encoded_len(ctx, 5, &self.j)
+                + self.test.as_ref().map_or(0, |msg| msg.encoded_len(ctx))
+                + self.e.as_ref().map_or(0, |value| {
+                    ::pilota::pb::encoding::int32::encoded_len(ctx, 10, value)
+                })
         }
 
         #[allow(unused_variables)]
@@ -30,6 +35,9 @@ pub mod oneof {
             if let Some(_pilota_inner_value) = self.test.as_ref() {
                 _pilota_inner_value.encode(buf);
             }
+            if let Some(_pilota_inner_value) = self.e.as_ref() {
+                ::pilota::pb::encoding::int32::encode(10, _pilota_inner_value, buf);
+            };
         }
 
         #[allow(unused_variables)]
@@ -39,6 +47,7 @@ pub mod oneof {
             wire_type: ::pilota::pb::encoding::WireType,
             buf: &mut ::pilota::Bytes,
             ctx: &mut ::pilota::pb::encoding::DecodeContext,
+            is_root: bool,
         ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
             const STRUCT_NAME: &'static str = stringify!(Test);
 
@@ -77,8 +86,53 @@ pub mod oneof {
                         },
                     )
                 }
+                10 => {
+                    let mut _inner_pilota_value = &mut self.e;
+                    ::pilota::pb::encoding::int32::merge(
+                        wire_type,
+                        _inner_pilota_value.get_or_insert_with(::core::default::Default::default),
+                        buf,
+                        ctx,
+                    )
+                    .map_err(|mut error| {
+                        error.push(STRUCT_NAME, stringify!(e));
+                        error
+                    })
+                }
                 _ => ::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx),
             }
+        }
+    }
+    #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
+    #[repr(transparent)]
+    pub struct Enum(i32);
+
+    impl Enum {
+        pub const A: Self = Self(0);
+        pub const B: Self = Self(1);
+
+        pub fn inner(&self) -> i32 {
+            self.0
+        }
+
+        pub fn to_string(&self) -> ::std::string::String {
+            match self {
+                Self(0) => ::std::string::String::from("A"),
+                Self(1) => ::std::string::String::from("B"),
+                Self(val) => val.to_string(),
+            }
+        }
+    }
+
+    impl ::std::convert::From<i32> for Enum {
+        fn from(value: i32) -> Self {
+            Self(value)
+        }
+    }
+
+    impl ::std::convert::From<Enum> for i32 {
+        fn from(value: Enum) -> i32 {
+            value.0
         }
     }
 
@@ -109,10 +163,10 @@ pub mod oneof {
             }
 
             #[inline]
-            pub fn encoded_len(&self) -> usize {
+            pub fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 match self {
-                    Test::A(value) => ::pilota::pb::encoding::faststr::encoded_len(6, &*value),
-                    Test::B(value) => ::pilota::pb::encoding::int32::encoded_len(8, &*value),
+                    Test::A(value) => ::pilota::pb::encoding::faststr::encoded_len(ctx, 6, &*value),
+                    Test::B(value) => ::pilota::pb::encoding::int32::encoded_len(ctx, 8, &*value),
                 }
             }
 
@@ -176,10 +230,10 @@ pub mod oneof {
             }
 
             #[inline]
-            pub fn encoded_len(&self) -> usize {
+            pub fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 match self {
-                    Type::S(value) => ::pilota::pb::encoding::faststr::encoded_len(2, &*value),
-                    Type::I(value) => ::pilota::pb::encoding::int32::encoded_len(4, &*value),
+                    Type::S(value) => ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &*value),
+                    Type::I(value) => ::pilota::pb::encoding::int32::encoded_len(ctx, 4, &*value),
                 }
             }
 
