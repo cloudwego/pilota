@@ -26,6 +26,7 @@ impl Parser for Field {
         // 1: required i32 name = 123;
         map(
             tuple((
+                collect_comments,
                 map(tuple((digit1, opt(blank), tag(":"))), |(id, _, _)| {
                     id.parse::<i32>().unwrap()
                 }),
@@ -45,13 +46,14 @@ impl Parser for Field {
                 opt(blank),
                 opt(list_separator),
             )),
-            |(id, _, attribute, _, r#type, _, name, _, default, _, annotations, _, _)| Field {
+            |(comments, id, _, attribute, _, r#type, _, name, _, default, _, annotations, _, _)| Field {
                 id,
                 attribute: attribute.unwrap_or_default(),
                 ty: r#type,
                 name,
                 default,
                 annotations: annotations.unwrap_or_default(),
+                comments,
             },
         )(input)
     }

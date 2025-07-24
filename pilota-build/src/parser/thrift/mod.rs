@@ -156,6 +156,7 @@ impl ThriftLower {
                 .iter()
                 .map(|f| self.lower_method(&service_name, f, &function_name_duplicates))
                 .collect(),
+            comments: service.comments.clone(),
         });
         let mut service_item = self.mk_item(kind, Default::default());
         let mut result = vec![];
@@ -184,6 +185,7 @@ impl ThriftLower {
                     tags: Default::default(),
                     discr: None,
                     fields: vec![self.lower_ty(&f.ty)],
+                    comments: f.comments.clone(),
                 })
                 .collect::<Vec<_>>();
 
@@ -209,10 +211,12 @@ impl ThriftLower {
                     tags: Default::default(),
                     discr: None,
                     fields: vec![self.lower_method_relative_ty(&f.result_type, arc_wrapper)],
+                    comments: vec![],
                 })
                 .chain(exception.clone())
                 .collect(),
                 repr: None,
+                comments: vec![],
             });
             related_items.push(name.clone());
             let mut tags = Tags::default();
@@ -229,10 +233,12 @@ impl ThriftLower {
                     tags: Default::default(),
                     discr: None,
                     fields: vec![self.lower_method_relative_ty(&f.result_type, arc_wrapper)],
+                    comments: vec![],
                 })
                 .chain(exception.clone())
                 .collect(),
                 repr: None,
+                comments: vec![],
             });
             related_items.push(name.clone());
             let mut tags = Tags::default();
@@ -246,6 +252,7 @@ impl ThriftLower {
                     name: name.clone(),
                     variants: exception,
                     repr: None,
+                    comments: vec![],
                 });
                 related_items.push(name.clone());
                 let mut tags = Tags::default();
@@ -263,6 +270,7 @@ impl ThriftLower {
                     .map(|a| self.lower_method_arg_field(a, arc_wrapper))
                     .collect(),
                 is_wrapper: true,
+                comments: vec![],
             });
             related_items.push(name.clone());
             let mut tags = Tags::default();
@@ -279,6 +287,7 @@ impl ThriftLower {
                     .map(|a| self.lower_method_arg_field(a, arc_wrapper))
                     .collect(),
                 is_wrapper: true,
+                comments: vec![],
             });
             related_items.push(name.clone());
             let mut tags: Tags = Tags::default();
@@ -340,6 +349,7 @@ impl ThriftLower {
                     ))]),
                 })
             },
+            comments: method.comments.clone(),
         }
     }
 
@@ -355,9 +365,11 @@ impl ThriftLower {
                     discr: v.value.map(|v| v.0),
                     fields: vec![],
                     tags: self.extract_tags(&v.annotations).into(),
+                    comments: v.comments.clone(),
                 })
                 .collect(),
             repr: Some(EnumRepr::I32),
+            comments: e.comments.clone(),
         }
     }
 
@@ -436,9 +448,11 @@ impl ThriftLower {
                     discr: None,
                     fields: vec![self.lower_ty(&f.ty)],
                     tags: Default::default(),
+                    comments: f.comments.clone(),
                 })
                 .collect(),
             repr: None,
+            comments: union.comments.clone(),
         }
     }
 
@@ -502,6 +516,7 @@ impl ThriftLower {
             },
             tags: tags.into(),
             default: f.default.as_ref().map(|c| self.lower_lit(c)),
+            comments: f.comments.clone(),
         }
     }
 
@@ -521,6 +536,7 @@ impl ThriftLower {
             },
             default: f.default.as_ref().map(|c| self.lower_lit(c)),
             tags: tags.into(),
+            comments: f.comments.clone(),
         }
     }
 
@@ -549,6 +565,7 @@ impl ThriftLower {
             name: self.lower_ident(&s.name),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
             is_wrapper: false,
+            comments: s.comments.clone(),
         }
     }
 

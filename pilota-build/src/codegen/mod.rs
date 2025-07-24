@@ -87,8 +87,32 @@ impl<B> Codegen<B>
 where
     B: CodegenBackend + Send,
 {
+    /// Format comments as Rust doc comments
+    fn format_doc_comments(&self, comments: &[String]) -> String {
+        if comments.is_empty() {
+            return String::new();
+        }
+        
+        comments
+            .iter()
+            .map(|comment| {
+                if comment.trim().is_empty() {
+                    "///".to_string()
+                } else {
+                    format!("/// {}", comment.trim())
+                }
+            })
+            .join("\n")
+    }
     pub fn write_struct(&self, def_id: DefId, stream: &mut String, s: &rir::Message) {
         let name = self.rust_name(def_id);
+
+        // Add struct-level documentation comments
+        let struct_docs = self.format_doc_comments(&s.comments);
+        if !struct_docs.is_empty() {
+            stream.push_str(&struct_docs);
+            stream.push('\n');
+        }
 
         let mut fields = s
             .fields
@@ -110,9 +134,17 @@ where
                     }
 
                     let attrs = adjust.iter().flat_map(|a| a.attrs()).join("");
+                    
+                    // Add field-level documentation comments
+                    let field_docs = self.format_doc_comments(&f.comments);
+                    let field_docs_str = if field_docs.is_empty() {
+                        String::new()
+                    } else {
+                        format!("{}\n        ", field_docs)
+                    };
 
                     format! {
-                        r#"{attrs}
+                        r#"{field_docs_str}{attrs}
                         pub {name}: {ty},"#
                     }
                 })
@@ -222,6 +254,13 @@ where
     ) {
         let name = self.rust_name(def_id);
 
+        // Add enum-level documentation comments
+        let enum_docs = self.format_doc_comments(&e.comments);
+        if !enum_docs.is_empty() {
+            stream.push_str(&enum_docs);
+            stream.push('\n');
+        }
+
         let repr = match e.repr {
             Some(EnumRepr::I32) => quote!(i32),
             _ => panic!(),
@@ -238,8 +277,17 @@ where
                     Some(EnumRepr::I32) => discr as i32,
                     None => panic!(),
                 };
+                
+                // Add variant-level documentation comments
+                let variant_docs = self.format_doc_comments(&v.comments);
+                let variant_docs_str = if variant_docs.is_empty() {
+                    String::new()
+                } else {
+                    format!("        {}\n        ", variant_docs)
+                };
+                
                 (
-                    format!("pub const {name}: Self = Self({discr});"),
+                    format!("{variant_docs_str}pub const {name}: Self = Self({discr});"),
                     format!("Self({discr}) => ::std::string::String::from(\"{name}\"),"),
                 )
             })
@@ -291,6 +339,13 @@ where
         }
         let name = self.rust_name(def_id);
 
+        // Add enum-level documentation comments
+        let enum_docs = self.format_doc_comments(&e.comments);
+        if !enum_docs.is_empty() {
+            stream.push_str(&enum_docs);
+            stream.push('\n');
+        }
+
         let mut keep = true;
         let mut variants = e
             .variants
@@ -314,8 +369,16 @@ where
                         format!("({fields})")
                     };
 
+                    // Add variant-level documentation comments
+                    let variant_docs = self.format_doc_comments(&v.comments);
+                    let variant_docs_str = if variant_docs.is_empty() {
+                        String::new()
+                    } else {
+                        format!("        {}\n        ", variant_docs)
+                    };
+
                     format!(
-                        r#"{attrs}
+                        r#"{variant_docs_str}{attrs}
                         {name} {fields_stream},"#
                     )
                 })
@@ -340,6 +403,13 @@ where
     pub fn write_service(&self, def_id: DefId, stream: &mut String, s: &middle::rir::Service) {
         let name = self.rust_name(def_id);
         let methods = self.service_methods(def_id);
+
+        // Add service-level documentation comments
+        let service_docs = self.format_doc_comments(&s.comments);
+        if !service_docs.is_empty() {
+            stream.push_str(&service_docs);
+            stream.push('\n');
+        }
 
         let methods = methods
             .iter()

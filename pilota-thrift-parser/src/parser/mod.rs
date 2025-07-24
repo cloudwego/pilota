@@ -60,6 +60,17 @@ fn comment(input: &str) -> IResult<&str, &str> {
     ))(input)
 }
 
+/// Parse and collect comments that appear before an item
+pub(crate) fn collect_comments(input: &str) -> IResult<&str, Vec<String>> {
+    map(
+        many0(map(
+            tuple((opt(multispace1), comment, opt(multispace1))),
+            |(_, comment_text, _)| comment_text.trim().to_string(),
+        )),
+        |comments| comments.into_iter().filter(|c| !c.is_empty()).collect(),
+    )(input)
+}
+
 pub(crate) fn blank(input: &str) -> IResult<&str, ()> {
     map(many1(alt((comment, multispace1))), |_| ())(input)
 }

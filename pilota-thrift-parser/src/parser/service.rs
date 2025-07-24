@@ -14,6 +14,7 @@ impl Parser for Service {
     fn parse(input: &str) -> IResult<&str, Service> {
         map(
             tuple((
+                collect_comments,
                 tag("service"),
                 blank,
                 Ident::parse,
@@ -30,11 +31,12 @@ impl Parser for Service {
                 opt(Annotations::parse),
                 opt(list_separator),
             )),
-            |(_, _, name, extends, _, _, functions, _, _, _, annotations, _)| Service {
+            |(comments, _, _, name, extends, _, _, functions, _, _, _, annotations, _)| Service {
                 name,
                 extends,
                 functions,
                 annotations: annotations.unwrap_or_default(),
+                comments,
             },
         )(input)
     }

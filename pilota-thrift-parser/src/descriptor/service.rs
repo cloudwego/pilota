@@ -6,4 +6,5 @@ pub struct Service {
     pub extends: Option<Path>,
     pub functions: Vec<Function>,
     pub annotations: Annotations,
+    pub comments: Vec<String>,
 }

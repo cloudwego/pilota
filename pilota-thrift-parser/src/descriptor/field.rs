@@ -16,4 +16,5 @@ pub struct Field {
     pub ty: Type,
     pub default: Option<ConstValue>,
     pub annotations: Annotations,
+    pub comments: Vec<String>,
 }
