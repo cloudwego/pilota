@@ -545,6 +545,16 @@ impl ThriftLower {
     }
 
     fn lower_struct(&self, s: &thrift_parser::StructLike) -> ir::Message {
+        let mut seen_ids = FxHashSet::default();
+        for field in &s.fields {
+            if !seen_ids.insert(field.id) {
+                error_abort(format!(
+                    "Errors: duplicate ID `{}` in struct `{}`",
+                    field.id,
+                    self.lower_ident(&s.name),
+                ));
+            }
+        }
         ir::Message {
             name: self.lower_ident(&s.name),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
