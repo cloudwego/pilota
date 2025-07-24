@@ -548,11 +548,11 @@ impl ThriftLower {
         let mut seen_ids = FxHashSet::default();
         for field in &s.fields {
             if !seen_ids.insert(field.id) {
-                error_abort(format!(
-                    "Errors: duplicate ID `{}` in struct `{}`",
+                panic!(
+                    "duplicate ID `{}` in struct `{}`",
                     field.id,
                     self.lower_ident(&s.name),
-                ));
+                );
             }
         }
         ir::Message {
