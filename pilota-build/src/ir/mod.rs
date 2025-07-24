@@ -72,6 +72,7 @@ pub struct Method {
     pub oneway: bool,
     pub exceptions: Option<Path>,
     pub tags: Arc<Tags>,
+    pub comments: Vec<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -79,6 +80,7 @@ pub struct Service {
     pub name: Ident,
     pub methods: Vec<Method>,
     pub extend: Vec<Path>,
+    pub comments: Vec<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -102,6 +104,7 @@ pub struct Field {
     pub kind: FieldKind,
     pub tags: Arc<Tags>,
     pub default: Option<Literal>,
+    pub comments: Vec<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -109,6 +112,7 @@ pub struct Message {
     pub name: Ident,
     pub fields: Vec<Field>,
     pub is_wrapper: bool,
+    pub comments: Vec<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -118,6 +122,7 @@ pub struct EnumVariant {
     pub discr: Option<i64>,
     pub fields: Vec<Ty>,
     pub tags: Arc<Tags>,
+    pub comments: Vec<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -125,6 +130,7 @@ pub struct Enum {
     pub name: Ident,
     pub variants: Vec<EnumVariant>,
     pub repr: Option<EnumRepr>,
+    pub comments: Vec<String>,
 }
 
 #[derive(Clone, Debug)]

@@ -14,6 +14,8 @@ impl Parser for EnumValue {
     fn parse(input: &str) -> IResult<&str, EnumValue> {
         map(
             tuple((
+                // Collect comments before the enum value
+                opt(collect_comments),
                 Ident::parse,
                 opt(blank),
                 opt(map(
@@ -25,10 +27,15 @@ impl Parser for EnumValue {
                 opt(list_separator),
                 opt(blank),
             )),
-            |(name, _, value, _, annotations, _, _)| EnumValue {
+            |(leading_comments, name, _, value, _, annotations, _, _)| EnumValue {
                 name,
                 value,
                 annotations: annotations.unwrap_or_default(),
+                comments: leading_comments
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|s| s.to_string())
+                    .collect(),
             },
         )(input)
     }
@@ -38,6 +45,8 @@ impl Parser for Enum {
     fn parse(input: &str) -> IResult<&str, Enum> {
         map(
             tuple((
+                // Collect comments before the enum
+                opt(collect_comments),
                 tag("enum"),
                 blank,
                 Ident::parse,
@@ -50,10 +59,15 @@ impl Parser for Enum {
                 opt(blank),
                 opt(Annotations::parse),
             )),
-            |(_, _, name, _, _, _, values, _, _, _, annotations)| Enum {
+            |(leading_comments, _, _, name, _, _, _, values, _, _, _, annotations)| Enum {
                 name,
                 values,
                 annotations: annotations.unwrap_or_default(),
+                comments: leading_comments
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|s| s.to_string())
+                    .collect(),
             },
         )(input)
     }

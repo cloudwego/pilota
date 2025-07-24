@@ -8,4 +8,5 @@ pub struct Function {
     pub arguments: Vec<Field>,
     pub throws: Vec<Field>, // throws as an exception
     pub annotations: Annotations,
+    pub comments: Vec<String>,
 }

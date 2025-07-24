@@ -9,13 +9,15 @@ use nom::{
 use super::super::{
     Attribute,
     descriptor::{Annotations, Field, Function, Ident, Type},
-    parser::{Parser, blank, list_separator},
+    parser::{Parser, blank, list_separator, collect_comments},
 };
 
 impl Parser for Function {
     fn parse(input: &str) -> IResult<&str, Function> {
         map(
             tuple((
+                // Collect comments before the function
+                opt(collect_comments),
                 map(opt(tuple((tag("oneway"), blank))), |x| x.is_some()),
                 Type::parse,
                 blank,
@@ -44,7 +46,7 @@ impl Parser for Function {
                 opt(Annotations::parse),
                 opt(list_separator),
             )),
-            |(oneway, r#type, _, name, _, _, arguments, _, _, _, throws, _, annotations, _)| {
+            |(leading_comments, oneway, r#type, _, name, _, _, arguments, _, _, _, throws, _, annotations, _)| {
                 let mut args = arguments.unwrap_or_default();
                 args.iter_mut().for_each(|f| {
                     if f.attribute == Attribute::Default {
@@ -58,6 +60,11 @@ impl Parser for Function {
                     arguments: args,
                     throws: throws.unwrap_or_default(),
                     annotations: annotations.unwrap_or_default(),
+                    comments: leading_comments
+                        .unwrap_or_default()
+                        .into_iter()
+                        .map(|s| s.to_string())
+                        .collect(),
                 }
             },
         )(input)

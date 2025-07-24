@@ -60,8 +60,27 @@ fn comment(input: &str) -> IResult<&str, &str> {
     ))(input)
 }
 
+/// Parse and collect comments, returning them instead of discarding
+pub(crate) fn collect_comments(input: &str) -> IResult<&str, Vec<&str>> {
+    many0(map(
+        tuple((opt(multispace1), comment, opt(multispace1))),
+        |(_, comment, _)| comment,
+    ))(input)
+}
+
 pub(crate) fn blank(input: &str) -> IResult<&str, ()> {
     map(many1(alt((comment, multispace1))), |_| ())(input)
+}
+
+/// Parse blank space but also collect any comments found
+pub(crate) fn blank_with_comments(input: &str) -> IResult<&str, Vec<&str>> {
+    let (input, items) = many1(alt((
+        map(comment, |c| Some(c)),
+        map(multispace1, |_| None),
+    )))(input)?;
+    
+    let comments: Vec<&str> = items.into_iter().filter_map(|x| x).collect();
+    Ok((input, comments))
 }
 
 pub(crate) fn alphanumeric_or_underscore(input: &str) -> IResult<&str, char> {

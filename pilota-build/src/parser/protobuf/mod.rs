@@ -163,9 +163,11 @@ impl Lower {
                         discr: v.number.map(|v| v as i64),
                         tags: Default::default(),
                         fields: Default::default(),
+                        comments: Vec::new(), // Protobuf doesn't have comment support in current parser
                     })
                     .collect_vec(),
                 repr: Some(EnumRepr::I32),
+                comments: Vec::new(), // Protobuf doesn't have comment support in current parser
             }),
         }
     }
@@ -236,8 +238,10 @@ impl Lower {
                                     &nested_messages,
                                 )],
                                 tags: Default::default(),
+                                comments: Vec::new(), // Protobuf doesn't have comment support in current parser
                             })
                             .collect_vec(),
+                        comments: Vec::new(), // Protobuf doesn't have comment support in current parser
                     }),
                 }));
 
@@ -258,6 +262,7 @@ impl Lower {
                         tags: Arc::new(crate::tags!(OneOf)),
                         kind: ir::FieldKind::Optional,
                         default: None,
+                        comments: Vec::new(), // Protobuf doesn't have comment support in current parser
                     },
                 ));
             }
@@ -333,6 +338,7 @@ impl Lower {
                                 } else {
                                     FieldKind::Required
                                 },
+                                comments: Vec::new(), // Protobuf doesn't have comment support in current parser
                             },
                         )
                     })
@@ -342,6 +348,7 @@ impl Lower {
                     .collect(),
                 name: FastStr::new(message.name()).into(),
                 is_wrapper: false,
+                comments: Vec::new(), // Protobuf doesn't have comment support in current parser
             }),
         };
 
@@ -399,10 +406,12 @@ impl Lower {
                             oneway: false,
                             ret: self.lower_ty(None, m.output_type.as_deref(), &Default::default()),
                             exceptions: None,
+                            comments: Vec::new(), // Protobuf doesn't have comment support in current parser
                         }
                     })
                     .collect_vec(),
                 extend: vec![],
+                comments: Vec::new(), // Protobuf doesn't have comment support in current parser
             }),
         }
     }

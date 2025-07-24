@@ -39,4 +39,5 @@ pub struct StructLike {
     pub name: Ident,
     pub fields: Vec<Field>,
     pub annotations: Annotations,
+    pub comments: Vec<String>,
 }

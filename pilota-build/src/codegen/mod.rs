@@ -87,6 +87,26 @@ impl<B> Codegen<B>
 where
     B: CodegenBackend + Send,
 {
+    /// Convert comments to Rust doc comments
+    fn format_doc_comments(&self, comments: &[String]) -> String {
+        if comments.is_empty() {
+            return String::new();
+        }
+        
+        comments
+            .iter()
+            .map(|comment| {
+                let trimmed = comment.trim();
+                if trimmed.is_empty() {
+                    "///".to_string()
+                } else {
+                    format!("/// {}", trimmed)
+                }
+            })
+            .collect::<Vec<_>>()
+            .join("\n") + "\n"
+    }
+
     pub fn write_struct(&self, def_id: DefId, stream: &mut String, s: &rir::Message) {
         let name = self.rust_name(def_id);
 
@@ -110,9 +130,10 @@ where
                     }
 
                     let attrs = adjust.iter().flat_map(|a| a.attrs()).join("");
+                    let field_docs = self.format_doc_comments(&f.comments);
 
                     format! {
-                        r#"{attrs}
+                        r#"{field_docs}{attrs}
                         pub {name}: {ty},"#
                     }
                 })
@@ -129,8 +150,9 @@ where
             );
         }
 
+        let struct_docs = self.format_doc_comments(&s.comments);
         stream.push_str(&format! {
-            r#"#[derive(Clone, PartialEq)]
+            r#"{struct_docs}#[derive(Clone, PartialEq)]
                 pub struct {name} {{
                     {fields}
                 }}"#
@@ -470,7 +492,7 @@ where
             tracing::debug!("ths path of {:?} is {:?}", def_id, path);
 
             match &*self.mode {
-                Mode::Workspace(_) => Arc::from(&path[1..]), /* the first element for
+                Mode::Workspace(_) => Arc::from_iter(self.mod_path(*def_id).iter().map(|s| s.0.clone())), /* the first element for
                                                                 * workspace */
                 // path is crate name
                 Mode::SingleFile { .. } => path,

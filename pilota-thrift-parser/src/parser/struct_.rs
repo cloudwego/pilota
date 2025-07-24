@@ -42,6 +42,8 @@ impl Parser for StructLike {
     fn parse(input: &str) -> IResult<&str, StructLike> {
         let (r, a) = map(
             tuple((
+                // Collect comments before the struct name
+                opt(collect_comments),
                 Ident::parse,
                 opt(blank),
                 tag("{"),
@@ -52,10 +54,15 @@ impl Parser for StructLike {
                 opt(Annotations::parse),
                 opt(list_separator),
             )),
-            |(name, _, _, fields, _, _, _, annotations, _)| StructLike {
+            |(leading_comments, name, _, _, fields, _, _, _, annotations, _)| StructLike {
                 name,
                 fields,
                 annotations: annotations.unwrap_or_default(),
+                comments: leading_comments
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|s| s.to_string())
+                    .collect(),
             },
         )(input)?;
         Ok((r, a))

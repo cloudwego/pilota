@@ -378,6 +378,7 @@ impl Resolver {
             ty,
             tags_id,
             default: f.default.as_ref().map(|d| self.lower_lit(d)),
+            comments: f.comments.clone(),
         });
 
         self.nodes
@@ -590,6 +591,7 @@ impl Resolver {
             name: s.name.clone(),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
             is_wrapper: s.is_wrapper,
+            comments: s.comments.clone(),
         }
     }
 
@@ -681,6 +683,7 @@ impl Resolver {
                             .exceptions
                             .as_ref()
                             .map(|p| self.lower_path(p, Namespace::Ty, true)),
+                        comments: m.comments.clone(),
                     });
                     self.parent_node = old_parent;
                     self.nodes.insert(
@@ -696,6 +699,7 @@ impl Resolver {
                 .iter()
                 .map(|p| self.lower_path(p, Namespace::Ty, false))
                 .collect(),
+            comments: s.comments.clone(),
         }
     }
 
