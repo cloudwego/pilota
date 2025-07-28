@@ -599,6 +599,24 @@ fn test_unknown_fields() {
     });
 }
 
+#[test]
+#[should_panic(expected = "duplicate ID `1` in struct `User`")]
+fn test_duplicate_field_id() {
+    let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("duplicate_field_id.thrift");
+
+    let mut out_path = file_path.clone();
+    out_path.set_extension("rs");
+
+    crate::Builder::thrift()
+        .touch([(file_path.clone().into(), vec!["User"])])
+        .compile_with_config(
+            vec![IdlService::from_path(file_path)],
+            crate::Output::File(out_path),
+        );
+}
+
 mod tests {
 
     // use self::decode_error::decode_error::A;
