@@ -2,6 +2,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/pilota)](https://crates.io/crates/pilota)
 [![Documentation](https://docs.rs/pilota/badge.svg)](https://docs.rs/pilota)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/cloudwego/pilota)
 [![License](https://img.shields.io/crates/l/pilota)](#license)
 [![Build Status][actions-badge]][actions-url]
 
