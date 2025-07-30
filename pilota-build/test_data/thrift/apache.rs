@@ -34,6 +34,18 @@ pub mod apache {
                             Self(val) => val.to_string(),
                         }
                     }
+
+                    pub fn try_from_i32(value: i32) -> Option<Self> {
+                        match value {
+                            1 => Some(Self::ONE),
+                            2 => Some(Self::TWO),
+                            3 => Some(Self::THREE),
+                            5 => Some(Self::FIVE),
+                            6 => Some(Self::SIX),
+                            8 => Some(Self::EIGHT),
+                            _ => None,
+                        }
+                    }
                 }
 
                 impl ::std::convert::From<i32> for Numberz {

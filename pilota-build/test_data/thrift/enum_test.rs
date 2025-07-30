@@ -22,6 +22,14 @@ pub mod enum_test {
                     Self(val) => val.to_string(),
                 }
             }
+
+            pub fn try_from_i32(value: i32) -> Option<Self> {
+                match value {
+                    1 => Some(Self::A),
+                    16 => Some(Self::B),
+                    _ => None,
+                }
+            }
         }
 
         impl ::std::convert::From<i32> for Index {
@@ -412,6 +420,12 @@ pub mod enum_test {
             pub fn to_string(&self) -> ::std::string::String {
                 match self {
                     Self(val) => val.to_string(),
+                }
+            }
+
+            pub fn try_from_i32(value: i32) -> Option<Self> {
+                match value {
+                    _ => None,
                 }
             }
         }
@@ -1317,6 +1331,14 @@ pub mod enum_test {
                     Self(val) => val.to_string(),
                 }
             }
+
+            pub fn try_from_i32(value: i32) -> Option<Self> {
+                match value {
+                    1 => Some(Self::_1),
+                    2 => Some(Self::_2),
+                    _ => None,
+                }
+            }
         }
 
         impl ::std::convert::From<i32> for _Enum {
@@ -1697,6 +1719,12 @@ pub mod enum_test {
             pub fn to_string(&self) -> ::std::string::String {
                 match self {
                     Self(val) => val.to_string(),
+                }
+            }
+
+            pub fn try_from_i32(value: i32) -> Option<Self> {
+                match value {
+                    _ => None,
                 }
             }
         }

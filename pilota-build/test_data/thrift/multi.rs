@@ -198,6 +198,14 @@ pub mod multi {
                     Self(val) => val.to_string(),
                 }
             }
+
+            pub fn try_from_i32(value: i32) -> Option<Self> {
+                match value {
+                    1 => Some(Self::READ),
+                    2 => Some(Self::WRITE),
+                    _ => None,
+                }
+            }
         }
 
         impl ::std::convert::From<i32> for B {

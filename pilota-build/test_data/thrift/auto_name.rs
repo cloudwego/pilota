@@ -3116,6 +3116,14 @@ pub mod auto_name {
                     Self(val) => val.to_string(),
                 }
             }
+
+            pub fn try_from_i32(value: i32) -> Option<Self> {
+                match value {
+                    0 => Some(Self::A),
+                    1 => Some(Self::a),
+                    _ => None,
+                }
+            }
         }
 
         impl ::std::convert::From<i32> for Index {
