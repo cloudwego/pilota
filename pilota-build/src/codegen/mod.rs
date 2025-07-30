@@ -246,6 +246,19 @@ where
             .collect::<Vec<_>>();
         let variants_const = variants.iter().map(|(v, _)| v).join("");
         let variants_as_str_fields = variants.iter().map(|(_, v)| v).join("");
+        let try_from_arms = e
+            .variants
+            .iter()
+            .map(|v| {
+                let name = self.rust_name(v.did);
+                let discr = v.discr.unwrap();
+                let discr = match e.repr {
+                    Some(EnumRepr::I32) => discr as i32,
+                    None => panic!(),
+                };
+                format!("{discr} => Some(Self::{name}),")
+            })
+            .join("\n");
 
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq, Copy)]
@@ -263,6 +276,13 @@ where
                     match self {{
                         {variants_as_str_fields}
                         Self(val) => val.to_string(),
+                    }}
+                }}
+
+                pub fn try_from(value: {repr}) -> Option<Self> {{
+                    match value {{
+                        {try_from_arms}
+                        _ => None,
                     }}
                 }}
             }}

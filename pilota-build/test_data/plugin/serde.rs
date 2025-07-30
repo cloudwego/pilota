@@ -227,6 +227,14 @@ pub mod serde {
                     Self(val) => val.to_string(),
                 }
             }
+
+            pub fn try_from(value: i32) -> Option<Self> {
+                match value {
+                    0 => Some(Self::D),
+                    1 => Some(Self::E),
+                    _ => None,
+                }
+            }
         }
 
         impl ::std::convert::From<i32> for C {

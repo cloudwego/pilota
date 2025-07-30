@@ -87,6 +87,15 @@ pub mod nested_message {
                     Self(val) => val.to_string(),
                 }
             }
+
+            pub fn try_from(value: i32) -> Option<Self> {
+                match value {
+                    1 => Some(Self::LABEL_OPTIONAL),
+                    2 => Some(Self::LABEL_REQUIRED),
+                    3 => Some(Self::LABEL_REPEATED),
+                    _ => None,
+                }
+            }
         }
 
         impl ::std::convert::From<i32> for Label {

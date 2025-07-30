@@ -22,6 +22,14 @@ pub mod r#gen {
                     Self(val) => val.to_string(),
                 }
             }
+
+            pub fn try_from(value: i32) -> Option<Self> {
+                match value {
+                    0 => Some(Self::NORMAL),
+                    1 => Some(Self::DELETED),
+                    _ => None,
+                }
+            }
         }
 
         impl ::std::convert::From<i32> for Status {
