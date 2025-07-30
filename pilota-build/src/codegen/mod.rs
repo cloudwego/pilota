@@ -279,7 +279,7 @@ where
                     }}
                 }}
 
-                pub fn try_from(value: {repr}) -> Option<Self> {{
+                pub fn try_from_{repr}(value: {repr}) -> Option<Self> {{
                     match value {{
                         {try_from_arms}
                         _ => None,

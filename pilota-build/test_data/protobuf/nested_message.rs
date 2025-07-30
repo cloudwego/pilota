@@ -108,7 +108,7 @@ pub mod nested_message {
                 }
             }
 
-            pub fn try_from(value: i32) -> Option<Self> {
+            pub fn try_from_i32(value: i32) -> Option<Self> {
                 match value {
                     1 => Some(Self::LABEL_OPTIONAL),
                     2 => Some(Self::LABEL_REQUIRED),

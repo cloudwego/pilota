@@ -3117,7 +3117,7 @@ pub mod auto_name {
                 }
             }
 
-            pub fn try_from(value: i32) -> Option<Self> {
+            pub fn try_from_i32(value: i32) -> Option<Self> {
                 match value {
                     0 => Some(Self::A),
                     1 => Some(Self::a),
