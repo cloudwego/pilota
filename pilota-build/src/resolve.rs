@@ -297,8 +297,8 @@ impl Resolver {
 
         if let Some(repr) = tags.get::<RustType>() {
             if repr == "btree" {
-                struct BTreeFolder<'a>(&'a mut Resolver);
-                impl Folder for BTreeFolder<'_> {
+                struct BTreeFolder;
+                impl Folder for BTreeFolder {
                     fn fold_ty(&mut self, ty: &Ty) -> Ty {
                         let kind = match &ty.kind {
                             TyKind::Vec(inner) => {
@@ -315,19 +315,19 @@ impl Resolver {
                         };
                         Ty {
                             kind,
-                            tags_id: self.0.tags_id_counter.inc_one(),
+                            tags_id: ty.tags_id,
                         }
                     }
                 }
-                ty = BTreeFolder(self).fold_ty(&ty);
+                ty = BTreeFolder.fold_ty(&ty);
             } else if repr == "ordered_f64" {
                 ty.kind = ty::OrderedF64;
             }
         };
 
         if let Some(RustWrapperArc(true)) = tags.get::<RustWrapperArc>() {
-            struct ArcFolder<'a>(&'a mut Resolver);
-            impl Folder for ArcFolder<'_> {
+            struct ArcFolder;
+            impl Folder for ArcFolder {
                 fn fold_ty(&mut self, ty: &Ty) -> Ty {
                     let kind = match &ty.kind {
                         TyKind::Vec(inner) => TyKind::Vec(Arc::new(self.fold_ty(inner.as_ref()))),
@@ -348,11 +348,11 @@ impl Resolver {
                     };
                     Ty {
                         kind,
-                        tags_id: self.0.tags_id_counter.inc_one(),
+                        tags_id: ty.tags_id,
                     }
                 }
             }
-            ArcFolder(self).fold_ty(&ty)
+            ArcFolder.fold_ty(&ty)
         } else {
             ty
         }

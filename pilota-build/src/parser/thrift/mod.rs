@@ -125,6 +125,9 @@ impl ThriftLower {
             service.name.to_upper_camel_case()
         };
 
+        let service_tags = self.extract_tags(&service.annotations);
+        let arc_wrapper = service_tags.get::<RustWrapperArc>().is_some_and(|v| v.0);
+
         let mut function_names: FxHashMap<FastStr, Vec<String>> = FxHashMap::default();
         service.functions.iter().for_each(|func| {
             let name = self
@@ -154,16 +157,15 @@ impl ThriftLower {
             methods: service
                 .functions
                 .iter()
-                .map(|f| self.lower_method(&service_name, f, &function_name_duplicates))
+                .map(|f| {
+                    self.lower_method(&service_name, f, &function_name_duplicates, arc_wrapper)
+                })
                 .collect(),
         });
         let mut service_item = self.mk_item(kind, Default::default());
         let mut result = vec![];
 
         let mut related_items = Vec::default();
-
-        let service_tags = self.extract_tags(&service.annotations);
-        let arc_wrapper = service_tags.get::<RustWrapperArc>().is_some_and(|v| v.0);
 
         service.functions.iter().for_each(|f| {
             let exception = f
@@ -297,6 +299,7 @@ impl ThriftLower {
         service_name: &String,
         method: &thrift_parser::Function,
         function_name_duplicates: &FxHashSet<&str>,
+        arc_wrapper: bool,
     ) -> ir::Method {
         let tags = self.extract_tags(&method.annotations);
         let name = tags
@@ -316,19 +319,25 @@ impl ThriftLower {
             args: method
                 .arguments
                 .iter()
-                .map(|a| Arg {
-                    ty: self.lower_ty(&a.ty),
-                    id: a.id,
-                    name: self.lower_ident(&a.name),
-                    tags: Arc::new(self.extract_tags(&a.annotations)),
-                    attribute: match a.attribute {
-                        pilota_thrift_parser::Attribute::Required => FieldKind::Required,
-                        pilota_thrift_parser::Attribute::Optional
-                        | pilota_thrift_parser::Attribute::Default => FieldKind::Optional,
-                    },
+                .map(|a| {
+                    let mut tags = self.extract_tags(&a.annotations);
+                    if arc_wrapper && !tags.contains::<RustWrapperArc>() {
+                        tags.insert(RustWrapperArc(true));
+                    }
+                    Arg {
+                        ty: self.lower_method_relative_ty(&a.ty, arc_wrapper),
+                        id: a.id,
+                        name: self.lower_ident(&a.name),
+                        tags: Arc::new(tags),
+                        attribute: match a.attribute {
+                            pilota_thrift_parser::Attribute::Required => FieldKind::Required,
+                            pilota_thrift_parser::Attribute::Optional
+                            | pilota_thrift_parser::Attribute::Default => FieldKind::Optional,
+                        },
+                    }
                 })
                 .collect(),
-            ret: self.lower_ty(&method.result_type),
+            ret: self.lower_method_relative_ty(&method.result_type, arc_wrapper),
             oneway: method.oneway,
             tags: tags.into(),
             exceptions: if method.throws.is_empty() {
@@ -446,12 +455,16 @@ impl ThriftLower {
         Ident::from(s.0.clone())
     }
 
-    fn lower_method_relative_ty(&self, ty: &thrift_parser::Type, arc_wrapper: bool) -> ir::Ty {
-        let mut tags = self.extract_tags(&ty.1);
+    fn extract_tags_with_arc_wrapper(&self, annotations: &Annotations, arc_wrapper: bool) -> Tags {
+        let mut tags = self.extract_tags(annotations);
         if arc_wrapper && !tags.contains::<RustWrapperArc>() {
             tags.insert(RustWrapperArc(true));
         }
-        self.lower_ty_with_tags(ty, tags)
+        tags
+    }
+
+    fn lower_method_relative_ty(&self, ty: &thrift_parser::Type, arc_wrapper: bool) -> ir::Ty {
+        self.lower_ty_with_tags(ty, self.extract_tags_with_arc_wrapper(&ty.1, arc_wrapper))
     }
 
     fn lower_ty(&self, ty: &thrift_parser::Type) -> ir::Ty {
