@@ -57,9 +57,9 @@ impl ProtobufBackend {
                 let encoded_len_fn = format!("::pilota::pb::encoding::{module}::{encoded_len_fn}");
 
                 match kind {
-                    FieldKind::Required => format!("{encoded_len_fn}({tag}, &{ident})").into(),
+                    FieldKind::Required => format!("{encoded_len_fn}(ctx, {tag}, &{ident})").into(),
                     FieldKind::Optional => format!(
-                        "{ident}.as_ref().map_or(0, |value| {encoded_len_fn}({tag}, value))"
+                        "{ident}.as_ref().map_or(0, |value| {encoded_len_fn}(ctx, {tag}, value))"
                     )
                     .into(),
                 }
@@ -67,18 +67,18 @@ impl ProtobufBackend {
             Category::Message => {
                 if let ty::TyKind::Vec(_) = ty.kind {
                     format!(
-                        "::pilota::pb::encoding::message::encoded_len_repeated({tag}, &{ident})"
+                        "::pilota::pb::encoding::message::encoded_len_repeated(ctx, {tag}, &{ident})"
                     )
                     .into()
                 } else {
                     let encoded_len: FastStr = if self.is_one_of(ty) {
-                        "msg.encoded_len()".into()
+                        "msg.encoded_len(ctx)".into()
                     } else {
                         let ident: FastStr = match kind {
                             FieldKind::Required => format!("&{ident}").into(),
                             FieldKind::Optional => "msg".into(),
                         };
-                        format!("::pilota::pb::encoding::message::encoded_len({tag}, {ident})")
+                        format!("::pilota::pb::encoding::message::encoded_len(ctx, {tag}, {ident})")
                             .into()
                     };
 
@@ -102,7 +102,7 @@ impl ProtobufBackend {
                 let value_encoded_len_fn =
                     quote!(::pilota::pb::encoding::#value_module::encoded_len);
 
-                format!("::pilota::pb::encoding::hash_map::encoded_len({key_encoded_len_fn}, {value_encoded_len_fn}, {tag}, &{ident})").into()
+                format!("::pilota::pb::encoding::hash_map::encoded_len(ctx, {key_encoded_len_fn}, {value_encoded_len_fn}, {tag}, &{ident})").into()
             }
         }
     }
@@ -380,6 +380,14 @@ impl CodegenBackend for ProtobufBackend {
             })
             .join("");
 
+        // add unknown fields
+        let keep = self.keep_unknown_fields.contains(&def_id);
+
+        let mut inc_decoded_fields_num = String::new();
+        if keep {
+            inc_decoded_fields_num = "if is_root { ctx.inc_root_decoded_fields_num(tag); }".into();
+        }
+
         let merge = s
             .fields
             .iter()
@@ -387,11 +395,11 @@ impl CodegenBackend for ProtobufBackend {
                 let field_ident = self.cx.rust_name(field.did);
                 let merge =
                     self.codegen_merge_field("_inner_pilota_value".into(), &field.ty, field.kind);
-                let mut tags = self.field_tags(field).map(|tag| tag.to_string());
-                let tags = tags.join("|");
+                let tags = self.field_tags(field).join("|");
 
                 format! {
                     r#"{tags} => {{
+                    {inc_decoded_fields_num}
                     let mut _inner_pilota_value = &mut self.{field_ident};
                     {merge}.map_err(|mut error| {{
                         error.push(STRUCT_NAME, stringify!({field_ident}));
@@ -408,37 +416,60 @@ impl CodegenBackend for ProtobufBackend {
             format!("const STRUCT_NAME: &'static str = stringify!({name});")
         };
 
-        // add unknown fields
-        let keep = self.keep_unknown_fields.contains(&def_id);
-
         let mut unknown_fields = "";
-        let mut skip_field = "::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx)";
+        let mut short_circuit = "".into();
+        let mut skip_field =
+            String::from("::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx)");
 
         if keep {
-            unknown_fields = r#"
-            let mut _unknown_fields = &mut self._unknown_fields;"#;
+            let fields_num = s.fields.len() as u32;
+            unknown_fields = r#"let mut _unknown_fields = &mut self._unknown_fields;"#;
             encoded_len.push_str(" + self._unknown_fields.size()");
             encode.push_str(
                 r#"for bytes in self._unknown_fields.list.iter() {
-                    buf.put_slice(bytes.as_ref());
+                    buf.insert(bytes.clone());
                 }"#,
             );
 
-            skip_field = r#"{
+            let tags_repr = s.fields.iter().flat_map(|f| self.field_tags(f)).join("|");
+            let tags_dismatch = if tags_repr.is_empty() {
+                "".into()
+            } else {
+                format!("&& !matches!(tag, {tags_repr})")
+            };
+
+            short_circuit = format!(
+                r#"// short circuit
+                if is_root {tags_dismatch} && ctx.root_decoded_fields_num() == {fields_num} {{
+                    // advance buf
+                    let cur = buf.chunk().as_ptr();
+                    let len = ctx.raw_bytes_len() - (cur as usize - ctx.raw_bytes_cursor());
+                    buf.advance(len);
+
+                    // read rest bytes
+                    let val = ctx.raw_bytes_split_to(ctx.raw_bytes_len());
+                    _unknown_fields.push_back(val);
+                    return Ok(());
+                }}"#
+            );
+
+            skip_field = format!(
+                r#"{{
                 ::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx)?;
                 let end = buf.chunk().as_ptr();
                 let len = end as usize - ctx.raw_bytes_cursor();
                 let val = ctx.raw_bytes_split_to(len);
                 _unknown_fields.push_back(val);
                 Ok(())
-            }"#;
+            }}"#
+            );
         }
 
         stream.push_str(&format!(
             r#"
             impl ::pilota::pb::Message for {name} {{
                 #[inline]
-                fn encoded_len(&self) -> usize {{
+                fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {{
                     0 {encoded_len}
                 }}
 
@@ -454,9 +485,11 @@ impl CodegenBackend for ProtobufBackend {
                     wire_type: ::pilota::pb::encoding::WireType,
                     buf: &mut ::pilota::Bytes,
                     ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                    is_root: bool,
                 ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {{
                     {struct_name}
                     {unknown_fields}
+                    {short_circuit}
                     match tag {{
                         {merge}
                         _ => {skip_field}
@@ -542,7 +575,7 @@ impl CodegenBackend for ProtobufBackend {
                 }}
 
                 #[inline]
-                pub fn encoded_len(&self) -> usize {{
+                pub fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {{
                     match self {{
                         {encoded_len}
                     }}
