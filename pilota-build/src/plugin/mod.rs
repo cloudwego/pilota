@@ -369,7 +369,7 @@ impl Plugin for ImplDefaultPlugin {
                         if !fields.is_empty() {
                             fields.push_str(",\n");
                         }
-                        fields.push_str("_unknown_fields: ::pilota::LinkedBytes::new()");
+                        fields.push_str("_unknown_fields: ::pilota::BytesVec::new()");
                     }
 
                     if !m.is_wrapper && cx.with_field_mask {
