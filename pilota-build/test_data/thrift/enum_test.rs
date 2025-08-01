@@ -23,7 +23,7 @@ pub mod enum_test {
                 }
             }
 
-            pub fn try_from_i32(value: i32) -> Option<Self> {
+            pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
                     1 => Some(Self::A),
                     16 => Some(Self::B),
@@ -423,7 +423,7 @@ pub mod enum_test {
                 }
             }
 
-            pub fn try_from_i32(value: i32) -> Option<Self> {
+            pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
                     _ => None,
                 }
@@ -1332,7 +1332,7 @@ pub mod enum_test {
                 }
             }
 
-            pub fn try_from_i32(value: i32) -> Option<Self> {
+            pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
                     1 => Some(Self::_1),
                     2 => Some(Self::_2),
@@ -1722,7 +1722,7 @@ pub mod enum_test {
                 }
             }
 
-            pub fn try_from_i32(value: i32) -> Option<Self> {
+            pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
                     _ => None,
                 }
