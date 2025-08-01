@@ -23,7 +23,7 @@ pub mod const_val {
                 }
             }
 
-            pub fn try_from_i32(value: i32) -> Option<Self> {
+            pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
                     0 => Some(Self::A),
                     1 => Some(Self::B),

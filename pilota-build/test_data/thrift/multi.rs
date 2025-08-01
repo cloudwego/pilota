@@ -199,7 +199,7 @@ pub mod multi {
                 }
             }
 
-            pub fn try_from_i32(value: i32) -> Option<Self> {
+            pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
                     1 => Some(Self::READ),
                     2 => Some(Self::WRITE),
