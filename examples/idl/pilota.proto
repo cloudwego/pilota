@@ -41,32 +41,15 @@ extend google.protobuf.FileOptions {
 
 // Message-level custom options
 extend google.protobuf.MessageOptions {
-<<<<<<< HEAD
-  optional string serde_attribute_message = 50101;
-  optional string name_message = 50102;
-=======
->>>>>>> be46a4c (feat(proto): support the pilota rust_wrapper_arc annotation in proto using protobuf option format)
 }
 
 // Field-level custom options
 extend google.protobuf.FieldOptions {
-<<<<<<< HEAD
-  optional string serde_attribute_field = 50101;
-  optional string name_field = 50102;
   optional bool rust_wrapper_arc = 50201;
-  optional string rust_type = 50202;
-=======
-  optional bool rust_wrapper_arc = 50201;
->>>>>>> be46a4c (feat(proto): support the pilota rust_wrapper_arc annotation in proto using protobuf option format)
 }
 
 // Enum-level custom options
 extend google.protobuf.EnumOptions {
-<<<<<<< HEAD
-  optional string serde_attribute_enum = 50101;
-  optional string name_enum = 50102;
-=======
->>>>>>> be46a4c (feat(proto): support the pilota rust_wrapper_arc annotation in proto using protobuf option format)
 }
 
 // Enum value custom options
@@ -75,7 +58,7 @@ extend google.protobuf.EnumValueOptions {
 
 // Service-level custom options
 extend google.protobuf.ServiceOptions {
-  optional bool rust_wrapper_arc = 50201;
+  optional bool rust_arc_wrapper = 50501;
 }
 
 // Method-level custom options
