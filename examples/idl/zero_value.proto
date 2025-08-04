@@ -1,7 +1,10 @@
-syntax = "proto2";
+syntax = "proto3";
+
+import "pilota.proto";
+import "rustproto.proto";
 
 message B {
-    required string s3 = 1;
+    string s3 = 1;
 }
 
 message C {
@@ -10,10 +13,10 @@ message C {
 }
 
 message A {
-    required C c = 4;
-    required B b = 3;
-    map<string, string> str_map = 1;
-    required string s1 = 2;
+    C c = 4;
+    B b = 3[(pilota.rust_wrapper_arc) = true];
+    map<string, string> str_map = 1[(rustproto.btreemap_field) = true];
+     string s1 = 2;
     optional string s2 = 2047;
 }
 
@@ -24,6 +27,6 @@ message CC {
 }
 
 message UnknownA {
-    required BB b = 3;
-    required CC c = 4;
+     BB b = 3;
+     CC c = 4;
 }

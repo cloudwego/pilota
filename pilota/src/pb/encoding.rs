@@ -1319,6 +1319,79 @@ pub mod message {
     }
 }
 
+pub mod arc_message {
+    use std::sync::Arc;
+
+    use super::*;
+
+    pub fn encode<M>(tag: u32, msg: &Arc<M>, buf: &mut LinkedBytes)
+    where
+        M: Message,
+    {
+        message::encode(tag, msg.as_ref(), buf)
+    }
+
+    pub fn merge<M>(
+        wire_type: WireType,
+        value: &mut Arc<M>,
+        buf: &mut Bytes,
+        ctx: &mut DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        M: Message + Default,
+    {
+        let mut msg = M::default();
+        message::merge(wire_type, &mut msg, buf, ctx)?;
+        *value = Arc::new(msg);
+        Ok(())
+    }
+
+    pub fn encode_repeated<M>(tag: u32, messages: &[Arc<M>], buf: &mut LinkedBytes)
+    where
+        M: Message,
+    {
+        for msg in messages {
+            encode(tag, msg, buf);
+        }
+    }
+
+    pub fn merge_repeated<M>(
+        wire_type: WireType,
+        messages: &mut Vec<Arc<M>>,
+        buf: &mut Bytes,
+        ctx: &mut DecodeContext,
+    ) -> Result<(), DecodeError>
+    where
+        M: Message + Default,
+    {
+        check_wire_type(WireType::LengthDelimited, wire_type)?;
+        let mut msg = M::default();
+        message::merge(wire_type, &mut msg, buf, ctx)?;
+        messages.push(Arc::new(msg));
+        Ok(())
+    }
+
+    #[inline]
+    pub fn encoded_len<M>(tag: u32, msg: &Arc<M>) -> usize
+    where
+        M: Message,
+    {
+        message::encoded_len(tag, msg.as_ref())
+    }
+
+    #[inline]
+    pub fn encoded_len_repeated<M>(tag: u32, messages: &[Arc<M>]) -> usize
+    where
+        M: Message,
+    {
+        key_len(tag) * messages.len()
+            + messages
+                .iter()
+                .map(|msg| message::encoded_len(tag, msg.as_ref()))
+                .sum::<usize>()
+    }
+}
+
 pub mod group {
     use super::*;
 

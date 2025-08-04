@@ -6,7 +6,7 @@ use itertools::Itertools;
 use normpath::PathExt;
 use pilota::Bytes;
 use protobuf::descriptor::{
-    DescriptorProto, EnumDescriptorProto, ServiceDescriptorProto,
+    DescriptorProto, EnumDescriptorProto, FieldDescriptorProto, ServiceDescriptorProto,
     field_descriptor_proto::{Label, Type},
 };
 use rustc_hash::{FxHashMap, FxHashSet};
@@ -18,8 +18,11 @@ use crate::{
     ir::{self, FieldKind, Item, Path, TyKind},
     symbol::{EnumRepr, FileId, Ident},
     tags::{
-        PilotaName, Tags,
-        protobuf::{ClientStreaming, OneOf, ProstType, Repeated, ServerStreaming},
+        PilotaName, RustWrapperArc, Tags,
+        protobuf::{
+            AggregateOption, ClientStreaming, CustomOption, DbColumn, DbTable, Deprecated,
+            IsEntity, IsSensitive, OneOf, ProstType, Repeated, ServerStreaming,
+        },
     },
 };
 
@@ -283,7 +286,7 @@ impl Lower {
 
         let item = ir::Item {
             related_items: Default::default(),
-            tags: Default::default(),
+            tags: Arc::new(self.extract_message_tags(message)),
             kind: ir::ItemKind::Message(ir::Message {
                 fields: fields
                     .iter()
@@ -315,7 +318,7 @@ impl Lower {
                             }
                         })();
 
-                        let mut tags = Tags::default();
+                        let mut tags = self.extract_field_tags(f);
                         if repeated {
                             tags.insert(Repeated);
                         }
@@ -367,7 +370,7 @@ impl Lower {
 
     pub fn lower_service(&self, service: &ServiceDescriptorProto) -> ir::Item {
         ir::Item {
-            tags: Default::default(),
+            tags: Arc::new(self.extract_service_tags(service)),
             related_items: Default::default(),
             kind: ir::ItemKind::Service(ir::Service {
                 name: FastStr::new(service.name()).into(),
@@ -466,6 +469,67 @@ impl Lower {
             })
             .collect::<Vec<_>>()
     }
+
+    fn extract_service_tags(&self, service: &ServiceDescriptorProto) -> Tags {
+        let mut tags = Tags::default();
+        if service.options.is_some() {
+            let options = &service.options;
+
+            // defined in google.protobuf.ServiceOptions
+            if options.deprecated() {
+                tags.insert(Deprecated(true));
+            }
+        }
+        tags
+    }
+
+    fn extract_message_tags(&self, message: &DescriptorProto) -> Tags {
+        let mut tags = Tags::default();
+
+        if message.options.is_some() {
+            let options = &message.options;
+
+            // defined in google.protobuf.MessageOptions
+            if options.deprecated() {
+                tags.insert(Deprecated(true));
+            }
+
+            // defined in pilota_options.proto
+        }
+
+        tags
+    }
+
+    fn extract_enum_tags(&self, field: &EnumDescriptorProto) -> Tags {
+        let mut tags = Tags::default();
+        if field.options.is_some() {
+            let options = &field.options;
+            if options.deprecated() {
+                tags.insert(Deprecated(true));
+            }
+        }
+        tags
+    }
+
+    fn extract_field_tags(&self, field: &FieldDescriptorProto) -> Tags {
+        let mut tags = Tags::default();
+
+        if field.options.is_some() {
+            let options = &field.options;
+
+            // defined in google.protobuf.FieldOptions
+            if options.deprecated() {
+                tags.insert(Deprecated(true));
+            }
+
+            // defined in pilota.proto
+            if options.rust_wrapper_arc() {
+                tags.insert(RustWrapperArc(true));
+            }
+        }
+
+        tags
+    }
 }
 
 impl Parser for ProtobufParser {
@@ -518,6 +582,22 @@ impl Parser for ProtobufParser {
             files,
             input_files: input_file_ids,
             file_ids_map: file_ids,
+        }
+    }
+}
+
+pub trait PilotaFieldOptions {
+    fn rust_wrapper_arc(&self) -> bool;
+}
+
+impl PilotaFieldOptions for protobuf::descriptor::FieldOptions {
+    fn rust_wrapper_arc(&self) -> bool {
+        let Some(v) = self.special_fields.unknown_fields().get(50201) else {
+            return false;
+        };
+        match v {
+            protobuf::UnknownValueRef::Varint(v) => v != 0,
+            _ => false,
         }
     }
 }
