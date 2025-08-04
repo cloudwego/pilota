@@ -22,7 +22,7 @@ ahash = "0.8"
 anyhow = "1"
 async-recursion = "1"
 bytes = { version = "1", features = ["serde"] }
-criterion = { version = "0.6", features = ["html_reports"] }
+criterion = { version = "0.7", features = ["html_reports"] }
 dashmap = "6"
 diffy = "0.4"
 faststr = "0.2"
@@ -40,6 +40,8 @@ petgraph = "0.8"
 phf = { version = "0.12", features = ["macros"] }
 proc-macro2 = "1"
 proptest = "1"
+protobuf = { version = "3.7.2" }
+protobuf-parse = { version = "3.7.2" }
 quote = "1"
 rand = "0.9"
 rayon = "1"
@@ -53,14 +55,9 @@ syn = "2"
 tempfile = "3"
 thiserror = "2"
 tokio = { version = "1", features = ["io-util"] }
-toml = "0.8"
+toml = "0.9"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-
-# The official rust-protobuf parser currently has some bug.
-# We will switch to the official one when https://github.com/stepancheg/rust-protobuf/pull/646 is fixed.
-protobuf-parse = { package = "protobuf-parse2", version = "4.0.0-alpha.4" }
-protobuf = { package = "protobuf2", version = "4.0.0-alpha.2" }
 
 
 [profile.release]
