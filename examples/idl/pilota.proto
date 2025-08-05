@@ -58,7 +58,7 @@ extend google.protobuf.EnumValueOptions {
 
 // Service-level custom options
 extend google.protobuf.ServiceOptions {
-  optional bool rust_arc_wrapper = 50501;
+  optional bool rust_wrapper_arc = 50201;
 }
 
 // Method-level custom options
