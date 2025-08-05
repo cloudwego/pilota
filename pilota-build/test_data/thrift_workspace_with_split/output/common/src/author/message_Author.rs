@@ -6,7 +6,7 @@ pub struct Author {
 
     pub email: ::pilota::FastStr,
 
-    pub avatar: super::article::image::Image,
+    pub avatar: ::std::sync::Arc<super::article::image::Image>,
 
     pub common_data: super::common::CommonData,
 }
@@ -66,7 +66,9 @@ impl ::pilota::thrift::Message for Author {
                         var_3 = Some(__protocol.read_faststr()?);
                     }
                     Some(4) if field_ident.field_type == ::pilota::thrift::TType::Struct => {
-                        var_4 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                        var_4 = Some(::std::sync::Arc::new(::pilota::thrift::Message::decode(
+                            __protocol,
+                        )?));
                     }
                     Some(5) if field_ident.field_type == ::pilota::thrift::TType::Struct => {
                         var_5 = Some(::pilota::thrift::Message::decode(__protocol)?);
@@ -175,7 +177,7 @@ impl ::pilota::thrift::Message for Author {
                     var_3 = Some(__protocol.read_faststr().await?);
 
                 },Some(4) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    var_4 = Some(<super::article::image::Image as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                    var_4 = Some(::std::sync::Arc::new(<super::article::image::Image as ::pilota::thrift::Message>::decode_async(__protocol).await?));
 
                 },Some(5) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
                     var_5 = Some(<super::common::CommonData as ::pilota::thrift::Message>::decode_async(__protocol).await?);

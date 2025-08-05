@@ -7,7 +7,7 @@ struct Author {
     1: required i64 id,
     2: required string username,
     3: required string email,
-    4: required image.Image avatar,
+    //4: required image.Image avatar,
     5: required common.CommonData common_data,
 }
 
