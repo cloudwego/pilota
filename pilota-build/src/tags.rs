@@ -212,18 +212,6 @@ pub mod protobuf {
 
         pub struct ClientStreaming;
         pub struct ServerStreaming;
-
-        // 内置的 bool 选项
         pub struct Deprecated(pub bool);
-
-        // 自定义选项的 tag 类型
-        pub struct CustomOption(pub String);
-        pub struct DbTable(pub String);
-        pub struct IsEntity(pub bool);
-        pub struct DbColumn(pub String);
-        pub struct IsSensitive(pub bool);
-
-        // 聚合值选项的 tag 类型
-        pub struct AggregateOption(pub String);
     }
 }

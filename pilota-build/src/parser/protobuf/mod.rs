@@ -19,10 +19,7 @@ use crate::{
     symbol::{EnumRepr, FileId, Ident},
     tags::{
         PilotaName, RustWrapperArc, Tags,
-        protobuf::{
-            AggregateOption, ClientStreaming, CustomOption, DbColumn, DbTable, Deprecated,
-            IsEntity, IsSensitive, OneOf, ProstType, Repeated, ServerStreaming,
-        },
+        protobuf::{ClientStreaming, Deprecated, OneOf, ProstType, Repeated, ServerStreaming},
     },
 };
 
@@ -479,6 +476,11 @@ impl Lower {
             if options.deprecated() {
                 tags.insert(Deprecated(true));
             }
+
+            // defined in pilota_options.proto
+            if options.rust_wrapper_arc() {
+                tags.insert(RustWrapperArc(true));
+            }
         }
         tags
     }
@@ -586,18 +588,113 @@ impl Parser for ProtobufParser {
     }
 }
 
-pub trait PilotaFieldOptions {
-    fn rust_wrapper_arc(&self) -> bool;
+// define option value extractor
+pub trait PbOptionsValueExtractor<T> {
+    fn extract(&self, value: protobuf::UnknownValueRef) -> Option<T>;
+}
+pub struct PbOptionsValueExtractorImpl;
+
+impl PbOptionsValueExtractor<bool> for PbOptionsValueExtractorImpl {
+    fn extract(&self, value: protobuf::UnknownValueRef) -> Option<bool> {
+        match value {
+            protobuf::UnknownValueRef::Varint(v) => Some(v != 0),
+            _ => None,
+        }
+    }
 }
 
-impl PilotaFieldOptions for protobuf::descriptor::FieldOptions {
-    fn rust_wrapper_arc(&self) -> bool {
-        let Some(v) = self.special_fields.unknown_fields().get(50201) else {
-            return false;
-        };
-        match v {
-            protobuf::UnknownValueRef::Varint(v) => v != 0,
-            _ => false,
+impl PbOptionsValueExtractor<FastStr> for PbOptionsValueExtractorImpl {
+    fn extract(&self, value: protobuf::UnknownValueRef) -> Option<FastStr> {
+        match value {
+            protobuf::UnknownValueRef::LengthDelimited(v) => {
+                Some(unsafe { FastStr::new_u8_slice_unchecked(v) })
+            }
+            _ => None,
         }
+    }
+}
+
+// define option constants
+macro_rules! define_pb_option {
+    // with default value
+    ($name:ident, $id:expr, $default:expr) => {
+        paste::paste! {
+            pub const [<$name:upper _ID>]: u32 = $id;
+            pub const [<$name:upper _DEFAULT>]: bool = $default;
+        }
+    };
+    // without default value
+    ($name:ident, $id:expr) => {
+        paste::paste! {
+            pub const [<$name:upper _ID>]: u32 = $id;
+        }
+    };
+}
+
+// define all options traits and implementations
+macro_rules! define_all_options_traits {
+    (
+        $(
+            $trait_name:ident for $options_type:ty {
+                $(
+                    // with default value
+                    ($method:ident, $field_id:expr, $default:expr) -> $ret_type:ty
+                ),* $(;)?
+                ;
+                $(
+                    // without default value
+                    ($method_opt:ident, $field_id_opt:expr) -> $ret_type_opt:ty
+                ),* $(;)?
+            }
+        )*
+    ) => {
+        $(
+            // define trait
+            pub trait $trait_name {
+                $(
+                    fn $method(&self) -> $ret_type;
+                )*
+                $(
+                    fn $method_opt(&self) -> Option<$ret_type_opt>;
+                )*
+            }
+
+            // define implementation
+            impl $trait_name for $options_type {
+                $(
+                    fn $method(&self) -> $ret_type {
+                        let Some(v) = self.special_fields.unknown_fields().get($field_id) else {
+                            return $default;
+                        };
+                        <PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type>>::extract(&PbOptionsValueExtractorImpl, v)
+                            .unwrap_or($default)
+                    }
+                )*
+                $(
+                    fn $method_opt(&self) -> Option<$ret_type_opt> {
+                        let v = self.special_fields.unknown_fields().get($field_id_opt)?;
+                        <PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type_opt>>::extract(&PbOptionsValueExtractorImpl, v)
+                    }
+                )*
+            }
+        )*
+    };
+}
+
+// pb options maintenance
+pub struct PbOptions;
+impl PbOptions {
+    // defined in pilota.proto
+    define_pb_option!(rust_wrapper_arc, 50201, false);
+}
+
+// define all options traits and implementations
+define_all_options_traits! {
+    PilotaFieldOptions for protobuf::descriptor::FieldOptions {
+        (rust_wrapper_arc, PbOptions::RUST_WRAPPER_ARC_ID, PbOptions::RUST_WRAPPER_ARC_DEFAULT) -> bool;
+    }
+
+    PilotaServiceOptions for protobuf::descriptor::ServiceOptions {
+        (rust_wrapper_arc, PbOptions::RUST_WRAPPER_ARC_ID, PbOptions::RUST_WRAPPER_ARC_DEFAULT) -> bool;
     }
 }
