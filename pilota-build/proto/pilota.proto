@@ -1,0 +1,70 @@
+syntax = "proto3";
+package pilota;
+
+/**
+ * Protocol Buffer Options Reference Guide
+ * ======================================
+ *
+ * This file serves as a comprehensive reference for Protocol Buffer options.
+ * It demonstrates the usage of both standard and custom options at various levels:
+ * - File-level options
+ * - Message-level options
+ * - Field-level options
+ * - Enum and enum value options
+ * - Service and method options
+ * - Oneof options
+ * - Custom options
+ * - Aggregate options
+ *
+ * Purpose: To provide developers with practical examples of protobuf options
+ * that can be used as a reference when implementing their own proto files.
+ *
+ * Usage: This file is meant to be read as documentation. While it is a valid
+ * proto file that can be compiled, its main purpose is to serve as a reference.
+ */
+
+// ===========================================================================
+// File-level options
+// ===========================================================================
+
+
+// Import necessary files for option definitions
+import "google/protobuf/descriptor.proto";
+
+// ===========================================================================
+// Custom Option Definitions
+// ===========================================================================
+
+// File-level custom options
+extend google.protobuf.FileOptions {
+}
+
+// Message-level custom options
+extend google.protobuf.MessageOptions {
+}
+
+// Field-level custom options
+extend google.protobuf.FieldOptions {
+  optional bool rust_wrapper_arc = 50201;
+}
+
+// Enum-level custom options
+extend google.protobuf.EnumOptions {
+}
+
+// Enum value custom options
+extend google.protobuf.EnumValueOptions {
+}
+
+// Service-level custom options
+extend google.protobuf.ServiceOptions {
+  optional bool rust_wrapper_arc = 50201;
+}
+
+// Method-level custom options
+extend google.protobuf.MethodOptions {
+}
+
+// Oneof-level custom options
+extend google.protobuf.OneofOptions {
+}
