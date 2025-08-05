@@ -10,8 +10,6 @@ pub struct Article {
 
     pub status: Status,
 
-    pub images: ::std::vec::Vec<::common::article::image::Image>,
-
     pub common_data: ::common::common::CommonData,
 }
 impl ::pilota::thrift::Message for Article {
@@ -29,15 +27,6 @@ impl ::pilota::thrift::Message for Article {
         __protocol.write_faststr_field(3, (&self.content).clone())?;
         __protocol.write_struct_field(4, &self.author, ::pilota::thrift::TType::Struct)?;
         __protocol.write_i32_field(5, (&self.status).inner())?;
-        __protocol.write_list_field(
-            6,
-            ::pilota::thrift::TType::Struct,
-            &&self.images,
-            |__protocol, val| {
-                __protocol.write_struct(val)?;
-                ::std::result::Result::Ok(())
-            },
-        )?;
         __protocol.write_struct_field(7, &self.common_data, ::pilota::thrift::TType::Struct)?;
         __protocol.write_field_stop()?;
         __protocol.write_struct_end()?;
@@ -55,7 +44,6 @@ impl ::pilota::thrift::Message for Article {
         let mut var_3 = None;
         let mut var_4 = None;
         let mut var_5 = None;
-        let mut var_6 = None;
         let mut var_7 = None;
 
         let mut __pilota_decoding_field_id = None;
@@ -86,21 +74,6 @@ impl ::pilota::thrift::Message for Article {
                     }
                     Some(5) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
                         var_5 = Some(::pilota::thrift::Message::decode(__protocol)?);
-                    }
-                    Some(6) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                        var_6 = Some(unsafe {
-                            let list_ident = __protocol.read_list_begin()?;
-                            let mut val: ::std::vec::Vec<::common::article::image::Image> =
-                                ::std::vec::Vec::with_capacity(list_ident.size);
-                            for i in 0..list_ident.size {
-                                val.as_mut_ptr()
-                                    .offset(i as isize)
-                                    .write(::pilota::thrift::Message::decode(__protocol)?);
-                            }
-                            val.set_len(list_ident.size);
-                            __protocol.read_list_end()?;
-                            val
-                        });
                     }
                     Some(7) if field_ident.field_type == ::pilota::thrift::TType::Struct => {
                         var_7 = Some(::pilota::thrift::Message::decode(__protocol)?);
@@ -155,12 +128,6 @@ impl ::pilota::thrift::Message for Article {
                 "field status is required".to_string(),
             ));
         };
-        let Some(var_6) = var_6 else {
-            return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
-                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                "field images is required".to_string(),
-            ));
-        };
         let Some(var_7) = var_7 else {
             return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -174,7 +141,6 @@ impl ::pilota::thrift::Message for Article {
             content: var_3,
             author: var_4,
             status: var_5,
-            images: var_6,
             common_data: var_7,
         };
         ::std::result::Result::Ok(data)
@@ -196,7 +162,6 @@ impl ::pilota::thrift::Message for Article {
             let mut var_3 = None;
             let mut var_4 = None;
             let mut var_5 = None;
-            let mut var_6 = None;
             let mut var_7 = None;
 
             let mut __pilota_decoding_field_id = None;
@@ -229,17 +194,6 @@ impl ::pilota::thrift::Message for Article {
 
                 },Some(5) if field_ident.field_type == ::pilota::thrift::TType::I32  => {
                     var_5 = Some(<Status as ::pilota::thrift::Message>::decode_async(__protocol).await?);
-
-                },Some(6) if field_ident.field_type == ::pilota::thrift::TType::List  => {
-                    var_6 = Some({
-                            let list_ident = __protocol.read_list_begin().await?;
-                            let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
-                            for _ in 0..list_ident.size {
-                                val.push(<::common::article::image::Image as ::pilota::thrift::Message>::decode_async(__protocol).await?);
-                            };
-                            __protocol.read_list_end().await?;
-                            val
-                        });
 
                 },Some(7) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
                     var_7 = Some(<::common::common::CommonData as ::pilota::thrift::Message>::decode_async(__protocol).await?);
@@ -294,12 +248,6 @@ impl ::pilota::thrift::Message for Article {
                     "field status is required".to_string(),
                 ));
             };
-            let Some(var_6) = var_6 else {
-                return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
-                    ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                    "field images is required".to_string(),
-                ));
-            };
             let Some(var_7) = var_7 else {
                 return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                     ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -313,7 +261,6 @@ impl ::pilota::thrift::Message for Article {
                 content: var_3,
                 author: var_4,
                 status: var_5,
-                images: var_6,
                 common_data: var_7,
             };
             ::std::result::Result::Ok(data)
@@ -329,12 +276,6 @@ impl ::pilota::thrift::Message for Article {
             + __protocol.faststr_field_len(Some(3), &self.content)
             + __protocol.struct_field_len(Some(4), &self.author)
             + __protocol.i32_field_len(Some(5), (&self.status).inner())
-            + __protocol.list_field_len(
-                Some(6),
-                ::pilota::thrift::TType::Struct,
-                &self.images,
-                |__protocol, el| __protocol.struct_len(el),
-            )
             + __protocol.struct_field_len(Some(7), &self.common_data)
             + __protocol.field_stop_len()
             + __protocol.struct_end_len()

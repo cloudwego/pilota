@@ -37,12 +37,15 @@ impl WorkspaceGraph {
                 ty::Path(p) => {
                     graph.add_edge(idx, node_map[&p.did], ());
                 }
-                ty::Vec(ty) | ty::Set(ty) => {
+                ty::Vec(ty) | ty::Set(ty) | ty::BTreeSet(ty) => {
                     visit(graph, idx, node_map, ty);
                 }
-                ty::Map(ty1, ty2) => {
+                ty::Map(ty1, ty2) | ty::BTreeMap(ty1, ty2) => {
                     visit(graph, idx, node_map, ty1);
                     visit(graph, idx, node_map, ty2);
+                }
+                ty::Arc(ty) => {
+                    visit(graph, idx, node_map, ty);
                 }
                 _ => {}
             }

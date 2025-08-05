@@ -529,8 +529,6 @@ pub mod r#gen {
 
             pub email: ::pilota::FastStr,
 
-            pub avatar: super::article::image::Image,
-
             pub common_data: super::common::CommonData,
         }
         impl ::pilota::thrift::Message for Author {
@@ -546,7 +544,6 @@ pub mod r#gen {
                 __protocol.write_i64_field(1, *&self.id)?;
                 __protocol.write_faststr_field(2, (&self.username).clone())?;
                 __protocol.write_faststr_field(3, (&self.email).clone())?;
-                __protocol.write_struct_field(4, &self.avatar, ::pilota::thrift::TType::Struct)?;
                 __protocol.write_struct_field(
                     5,
                     &self.common_data,
@@ -566,7 +563,6 @@ pub mod r#gen {
                 let mut var_1 = None;
                 let mut var_2 = None;
                 let mut var_3 = None;
-                let mut var_4 = None;
                 let mut var_5 = None;
 
                 let mut __pilota_decoding_field_id = None;
@@ -595,11 +591,6 @@ pub mod r#gen {
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 var_3 = Some(__protocol.read_faststr()?);
-                            }
-                            Some(4)
-                                if field_ident.field_type == ::pilota::thrift::TType::Struct =>
-                            {
-                                var_4 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
                             Some(5)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
@@ -644,12 +635,6 @@ pub mod r#gen {
                         "field email is required".to_string(),
                     ));
                 };
-                let Some(var_4) = var_4 else {
-                    return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
-                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                        "field avatar is required".to_string(),
-                    ));
-                };
                 let Some(var_5) = var_5 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -661,7 +646,6 @@ pub mod r#gen {
                     id: var_1,
                     username: var_2,
                     email: var_3,
-                    avatar: var_4,
                     common_data: var_5,
                 };
                 ::std::result::Result::Ok(data)
@@ -681,7 +665,6 @@ pub mod r#gen {
                     let mut var_1 = None;
                     let mut var_2 = None;
                     let mut var_3 = None;
-                    let mut var_4 = None;
                     let mut var_5 = None;
 
                     let mut __pilota_decoding_field_id = None;
@@ -708,9 +691,6 @@ pub mod r#gen {
 
                 },Some(3) if field_ident.field_type == ::pilota::thrift::TType::Binary  => {
                     var_3 = Some(__protocol.read_faststr().await?);
-
-                },Some(4) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    var_4 = Some(<super::article::image::Image as ::pilota::thrift::Message>::decode_async(__protocol).await?);
 
                 },Some(5) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
                     var_5 = Some(<super::common::CommonData as ::pilota::thrift::Message>::decode_async(__protocol).await?);
@@ -759,14 +739,6 @@ pub mod r#gen {
                             ),
                         );
                     };
-                    let Some(var_4) = var_4 else {
-                        return ::std::result::Result::Err(
-                            ::pilota::thrift::new_protocol_exception(
-                                ::pilota::thrift::ProtocolExceptionKind::InvalidData,
-                                "field avatar is required".to_string(),
-                            ),
-                        );
-                    };
                     let Some(var_5) = var_5 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
@@ -780,7 +752,6 @@ pub mod r#gen {
                         id: var_1,
                         username: var_2,
                         email: var_3,
-                        avatar: var_4,
                         common_data: var_5,
                     };
                     ::std::result::Result::Ok(data)
@@ -794,7 +765,6 @@ pub mod r#gen {
                     + __protocol.i64_field_len(Some(1), *&self.id)
                     + __protocol.faststr_field_len(Some(2), &self.username)
                     + __protocol.faststr_field_len(Some(3), &self.email)
-                    + __protocol.struct_field_len(Some(4), &self.avatar)
                     + __protocol.struct_field_len(Some(5), &self.common_data)
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()

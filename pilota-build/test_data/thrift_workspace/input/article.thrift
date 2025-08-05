@@ -15,7 +15,7 @@ struct Article {
     3: required string content,
     4: required author.Author author,
     5: required Status status,
-    6: required list<image.Image> images,
+    6: required list<image.Image> images(pilota.rust_wrapper_arc="true"),
     7: required common.CommonData common_data,
 }
 

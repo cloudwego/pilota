@@ -1018,7 +1018,7 @@ pub mod r#gen {
 
             pub status: Status,
 
-            pub images: ::std::vec::Vec<::common::article::image::Image>,
+            pub images: ::std::vec::Vec<::std::sync::Arc<::common::article::image::Image>>,
 
             pub common_data: ::common::common::CommonData,
         }
@@ -1108,12 +1108,15 @@ pub mod r#gen {
                             Some(6) if field_ident.field_type == ::pilota::thrift::TType::List => {
                                 var_6 = Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
-                                    let mut val: ::std::vec::Vec<::common::article::image::Image> =
-                                        ::std::vec::Vec::with_capacity(list_ident.size);
+                                    let mut val: ::std::vec::Vec<
+                                        ::std::sync::Arc<::common::article::image::Image>,
+                                    > = ::std::vec::Vec::with_capacity(list_ident.size);
                                     for i in 0..list_ident.size {
-                                        val.as_mut_ptr()
-                                            .offset(i as isize)
-                                            .write(::pilota::thrift::Message::decode(__protocol)?);
+                                        val.as_mut_ptr().offset(i as isize).write(
+                                            ::std::sync::Arc::new(
+                                                ::pilota::thrift::Message::decode(__protocol)?,
+                                            ),
+                                        );
                                     }
                                     val.set_len(list_ident.size);
                                     __protocol.read_list_end()?;
@@ -1255,7 +1258,7 @@ pub mod r#gen {
                             let list_ident = __protocol.read_list_begin().await?;
                             let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
                             for _ in 0..list_ident.size {
-                                val.push(<::common::article::image::Image as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                                val.push(::std::sync::Arc::new(<::common::article::image::Image as ::pilota::thrift::Message>::decode_async(__protocol).await?));
                             };
                             __protocol.read_list_end().await?;
                             val
