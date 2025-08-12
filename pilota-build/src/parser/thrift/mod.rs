@@ -42,7 +42,11 @@ impl ThriftSourceDatabase {
 
     fn parse(&self, path: PathBuf) -> Arc<thrift_parser::File> {
         let text = self.file_text(path.clone());
-        let mut ast = thrift_parser::File::parse(&text).unwrap().1;
+        let res = thrift_parser::File::parse(&text);
+        if res.is_err() {
+            println!("cargo:warning={}", path.display());
+        }
+        let mut ast = res.unwrap().1;
         ast.path = Arc::from(path);
         ast.uuid = generate_short_uuid();
         let descriptor = thrift_reflection::FileDescriptor::from(&ast);

@@ -50,15 +50,17 @@ impl Parser for File {
     fn parse(input: &str) -> IResult<&str, File> {
         let mut t: File = Default::default();
 
+        // support empty file/only comment: skip leading and trailing blank, collect 0
+        // or more items, and verify EOF
         let (remain, items) = many_till(
             map(
-                tuple((opt(blank), Item::parse, opt(blank))),
+                tuple((opt(blank), opt(Item::parse), opt(blank))),
                 |(_, item, _)| item,
             ),
             eof,
         )(input)?;
 
-        t.items = items.0;
+        t.items = items.0.into_iter().flatten().collect::<Vec<_>>();
 
         let mut namespaces = t.items.iter().filter_map(|item| {
             if let Item::Namespace(ns) = item {
@@ -187,5 +189,18 @@ service Service {
         let (remain, res) = File::parse(body).unwrap();
         assert!(remain.is_empty());
         assert_eq!(res.items.len(), 6);
+    }
+
+    #[test]
+    fn test_only_comment() {
+        let body = r#"
+        /*** comment test ***/
+        // comment 1
+
+        # comment 2
+        "#;
+        let (remain, res) = File::parse(body).unwrap();
+        assert!(remain.is_empty());
+        assert_eq!(res.items.len(), 0);
     }
 }
