@@ -6,6 +6,10 @@ pub mod fieldmask {
     include!(concat!(env!("OUT_DIR"), "/fieldmask.rs"));
 }
 
+pub mod protobuf_options_reference {
+    include!(concat!(env!("OUT_DIR"), "/protobuf_options_reference.rs"));
+}
+
 #[test]
 fn test_pb_encode_zero_value() {
     use std::sync::Arc;
@@ -207,4 +211,11 @@ fn test_thrift_fieldmask() {
     let mut protocol = pilota::thrift::binary::TBinaryProtocol::new(&mut encoded_buf, true);
     let parsed_request = fieldmask::fieldmask::fieldmask::Request::decode(&mut protocol).unwrap();
     println!("{:?}", parsed_request);
+}
+
+#[test]
+fn test_pb_options() {
+    use pilota::pb::Message as _;
+    let desc = protobuf_options_reference::protobuf_options_reference::file_descriptor();
+    println!("{:?}", desc);
 }

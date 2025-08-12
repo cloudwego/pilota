@@ -10,6 +10,7 @@ fn main() {
         .ignore_unused(false)
         .include_dirs(vec![zero_value_idl.parent().unwrap().to_path_buf()])
         .keep_unknown_fields([zero_value_idl.clone()])
+        .with_descriptor(true)
         .compile_with_config(
             vec![pilota_build::IdlService::from_path(zero_value_idl)],
             pilota_build::Output::File(out_dir.join("zero_value.rs")),
@@ -25,5 +26,21 @@ fn main() {
         .compile_with_config(
             vec![pilota_build::IdlService::from_path(fieldmask_idl)],
             pilota_build::Output::File(out_dir.join("fieldmask.rs")),
+        );
+
+    // For protobuf_options_reference
+    let protobuf_options_reference_idl = idl_dir.join("protobuf_options_reference.proto");
+    pilota_build::Builder::pb()
+        .ignore_unused(false)
+        .include_dirs(vec![protobuf_options_reference_idl
+            .parent()
+            .unwrap()
+            .to_path_buf()])
+        .with_descriptor(true)
+        .compile_with_config(
+            vec![pilota_build::IdlService::from_path(
+                protobuf_options_reference_idl,
+            )],
+            pilota_build::Output::File(out_dir.join("protobuf_options_reference.rs")),
         );
 }

@@ -1,0 +1,562 @@
+syntax = "proto3";
+
+/**
+ * Protocol Buffer Options Reference Guide
+ * ======================================
+ *
+ * This file serves as a comprehensive reference for Protocol Buffer options.
+ * It demonstrates the usage of both standard and custom options at various levels:
+ * - File-level options
+ * - Message-level options
+ * - Field-level options
+ * - Enum and enum value options
+ * - Service and method options
+ * - Oneof options
+ * - Custom options
+ * - Aggregate options
+ *
+ * Purpose: To provide developers with practical examples of protobuf options
+ * that can be used as a reference when implementing their own proto files.
+ *
+ * Usage: This file is meant to be read as documentation. While it is a valid
+ * proto file that can be compiled, its main purpose is to serve as a reference.
+ */
+
+// ===========================================================================
+// File-level options
+// ===========================================================================
+
+// Language-specific package/namespace settings
+option java_package = "com.example.proto.reference";
+option java_outer_classname = "OptionsReferenceProto";
+option java_multiple_files = true;
+option go_package = "github.com/example/proto/reference";
+option csharp_namespace = "Example.Proto.Reference";
+option objc_class_prefix = "EPR";
+option php_namespace = "Example\\Proto\\Reference";
+option ruby_package = "Example::Proto::Reference";
+
+// Optimization settings
+option optimize_for = SPEED;  // Alternatives: CODE_SIZE, LITE_RUNTIME
+option cc_enable_arenas = true;  // Enables memory allocation optimization for C++
+
+// Import necessary files for option definitions
+import "google/protobuf/descriptor.proto";
+
+// ===========================================================================
+// Custom Option Definitions
+// ===========================================================================
+
+// File-level custom options
+extend google.protobuf.FileOptions {
+  // Version of the API defined in this file
+  optional uint64 file_version = 50001;
+  
+  // Author of the proto definition
+  optional string file_author = 50002;
+  
+  // Department responsible for this API
+  optional string file_department = 50003;
+  
+  // Whether this API is for internal use only
+  optional bool internal_api = 50004 [default = false];
+}
+
+// Message-level custom options
+extend google.protobuf.MessageOptions {
+  // Database table name for ORM mapping
+  optional string db_table = 50101;
+  
+  // Whether this message represents a database entity
+  optional bool db_entity = 50102 [default = false];
+  
+  // Cache TTL in seconds for this entity
+  optional int32 cache_ttl_seconds = 50103;
+  
+  // Message-level validation rules
+  optional MessageValidation validate = 50104;
+}
+
+// Field-level custom options
+extend google.protobuf.FieldOptions {
+  // Marks a field as containing sensitive data (e.g., PII)
+  optional bool sensitive = 50206 [default = false];
+  
+  // Field validation rules
+  optional string validation = 50202;
+  
+  // Database column name for ORM mapping
+  optional string db_column = 50203;
+  
+  // Whether this field is indexed in the database
+  optional bool db_index = 50204 [default = false];
+  
+  // Field-level documentation for API generation
+  optional string api_doc = 50205;
+}
+
+// Enum-level custom options
+extend google.protobuf.EnumOptions {
+  // Description of the enum's purpose
+  optional string enum_description = 50301;
+  
+  // Whether this enum is for internal use only
+  optional bool is_internal = 50302 [default = false];
+}
+
+// Enum value custom options
+extend google.protobuf.EnumValueOptions {
+  // Display name for UI rendering
+  optional string display_name = 50401;
+  
+  // Access level required for this enum value
+  optional int32 access_level = 50402 [default = 0];
+  
+  // Color code for UI rendering
+  optional string color = 50403;
+}
+
+// Service-level custom options
+extend google.protobuf.ServiceOptions {
+  // API version
+  optional string service_version = 50501;
+  
+  // Whether authentication is required for this service
+  optional bool require_auth = 50502 [default = false];
+  
+  // Rate limit for the entire service
+  optional string rate_limit = 50503;
+}
+
+// Method-level custom options
+extend google.protobuf.MethodOptions {
+  // Whether authentication is required for this method
+  optional bool method_require_auth = 50601 [default = false];
+  
+  // Rate limit for this specific method
+  optional string method_rate_limit = 50602;
+  
+  // HTTP endpoint path for REST mapping
+  optional string endpoint = 50603;
+  
+  // HTTP method for REST mapping
+  optional string http_method = 50604 [default = "GET"];
+  
+  // Required permission to access this method
+  optional string permission = 50605;
+}
+
+// Oneof-level custom options
+extend google.protobuf.OneofOptions {
+  // Description of the oneof field's purpose
+  optional string oneof_description = 50701;
+  
+  // Whether the fields in this oneof are mutually exclusive
+  optional bool exclusive = 50702 [default = true];
+}
+
+// ===========================================================================
+// Aggregate Option Definitions
+// ===========================================================================
+
+// Validation rules for messages
+message MessageValidation {
+  // Whether all fields are required unless explicitly marked optional
+  optional bool all_fields_required = 1 [default = false];
+  
+  // Maximum allowed nesting depth
+  optional int32 max_nesting_depth = 2;
+  
+  // Custom validation message
+  optional string validation_message = 3;
+}
+
+// Database options for messages
+message DatabaseOptions {
+  // Table name
+  optional string table_name = 1;
+  
+  // Database engine
+  optional string engine = 2 [default = "InnoDB"];
+  
+  // Whether to use auto-increment for primary key
+  optional bool auto_increment = 3 [default = true];
+  
+  // Index configuration
+  message IndexOptions {
+    // Index name
+    optional string index_name = 1;
+    
+    // Whether the index is unique
+    optional bool unique = 2 [default = false];
+    
+    // Fields to include in the index
+    repeated string fields = 3;
+  }
+  
+  // Indexes defined for this table
+  repeated IndexOptions indexes = 4;
+}
+
+// API documentation metadata
+message ApiMetadata {
+  // API endpoint path
+  optional string endpoint = 1;
+  
+  // HTTP method (GET, POST, PUT, DELETE, etc.)
+  optional string method = 2;
+  
+  // Whether this API is deprecated
+  optional bool deprecated = 3 [default = false];
+  
+  // API version
+  optional string version = 4;
+  
+  // Tags for API categorization
+  repeated string tags = 5;
+  
+  // Examples of API usage
+  message Example {
+    // Example name
+    optional string name = 1;
+    
+    // Example request
+    optional string request = 2;
+    
+    // Example response
+    optional string response = 3;
+  }
+  
+  // Usage examples
+  repeated Example examples = 6;
+}
+
+// ===========================================================================
+// Example Messages with Options
+// ===========================================================================
+
+// Example message with various options
+message User {
+  // Message-level options
+  option (db_table) = "users";
+  option (db_entity) = true;
+  option (cache_ttl_seconds) = 3600;
+  option (validate) = {
+    all_fields_required: true
+    max_nesting_depth: 3
+    validation_message: "User validation failed"
+  };
+  option deprecated = false;
+  
+  // Fields with options
+  int32 id = 1 [
+    (db_column) = "user_id",
+    (db_index) = true,
+    (api_doc) = "Unique identifier for the user"
+  ];
+  
+  string username = 2 [
+    (validation) = "required,min=3,max=50",
+    (db_index) = true,
+    json_name = "userName"
+  ];
+  
+  string password = 3 [
+    (sensitive) = true,
+    (validation) = "required,min=8",
+    (api_doc) = "User password (never returned in API responses)"
+  ];
+  
+  string email = 4 [
+    (validation) = "required,email",
+    (db_index) = true
+  ];
+  
+  // Repeated field with packed option
+  repeated int32 role_ids = 5 [packed = true];
+  
+  // Field with jstype option for JavaScript compatibility
+  int64 created_at = 6 [jstype = JS_STRING];
+  
+  // Field with lazy parsing option for large nested messages
+  UserProfile profile = 7 [lazy = true];
+  
+  // Deprecated field
+  string old_field = 8 [deprecated = true];
+}
+
+// Simple message for demonstration
+message UserProfile {
+  string full_name = 1;
+  string avatar_url = 2;
+  string bio = 3;
+}
+
+// Message with oneof field and options
+message PaymentInfo {
+  int32 id = 1;
+  string user_id = 2;
+  double amount = 3;
+  
+  // Oneof with options
+  oneof payment_method {
+    option (oneof_description) = "Payment method details, only one can be selected";
+    option (exclusive) = true;
+    
+    CreditCardInfo credit_card = 4;
+    DebitCardInfo debit_card = 5;
+    BankTransferInfo bank_transfer = 6;
+    CryptoCurrencyInfo crypto = 7;
+  }
+}
+
+// Payment method messages
+message CreditCardInfo {
+  string card_number = 1 [(sensitive) = true];
+  string cardholder_name = 2;
+  string expiration_date = 3;
+}
+
+message DebitCardInfo {
+  string card_number = 1 [(sensitive) = true];
+  string holder_name = 2;
+  string bank_name = 3;
+}
+
+message BankTransferInfo {
+  string account_number = 1 [(sensitive) = true];
+  string bank_name = 2;
+  string swift_code = 3;
+}
+
+message CryptoCurrencyInfo {
+  string wallet_address = 1;
+  string currency_type = 2;
+}
+
+// ===========================================================================
+// Example Enum with Options
+// ===========================================================================
+
+// User status enum with options
+enum UserStatus {
+  // Enum-level options
+  option (enum_description) = "Represents the current status of a user account";
+  option (is_internal) = false;
+  option allow_alias = true;  // Enable value aliases
+  
+  // Enum values with options
+  UNKNOWN = 0 [(display_name) = "Unknown", (color) = "#999999"];
+  ACTIVE = 1 [(display_name) = "Active", (access_level) = 1, (color) = "#00FF00"];
+  ENABLED = 1 [(display_name) = "Enabled", (access_level) = 1, (color) = "#00FF00"]; // Alias for ACTIVE
+  INACTIVE = 2 [(display_name) = "Inactive", (access_level) = 0, (color) = "#FF0000"];
+  SUSPENDED = 3 [(display_name) = "Suspended", (access_level) = 0, (color) = "#FFA500"];
+  DELETED = 4 [(display_name) = "Deleted", (access_level) = 0, (color) = "#000000", deprecated = true];
+}
+
+// Payment type enum
+enum PaymentType {
+  PAYMENT_UNKNOWN = 0;
+  PAYMENT_CREDIT = 1;
+  PAYMENT_DEBIT = 2;
+  PAYMENT_BANK_TRANSFER = 3;
+  PAYMENT_CRYPTO = 4;
+  // Deprecated payment method
+  PAYMENT_CHECK = 5 [deprecated = true];
+}
+
+// ===========================================================================
+// Example Services with Options
+// ===========================================================================
+
+// User service with options
+service UserService {
+  // Service-level options
+  option (service_version) = "v1";
+  option (require_auth) = true;
+  option (rate_limit) = "1000/minute";
+  option deprecated = false;
+  
+  // Methods with options
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (method_require_auth) = true;
+    option (method_rate_limit) = "100/minute";
+    option (endpoint) = "/api/v1/users/{id}";
+    option (http_method) = "GET";
+    option (permission) = "users.read";
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (method_require_auth) = true;
+    option (method_rate_limit) = "10/minute";
+    option (endpoint) = "/api/v1/users";
+    option (http_method) = "POST";
+    option (permission) = "users.create";
+    option idempotency_level = IDEMPOTENT;
+  }
+  
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option (method_require_auth) = true;
+    option (endpoint) = "/api/v1/users/{id}";
+    option (http_method) = "PUT";
+    option (permission) = "users.update";
+    option idempotency_level = IDEMPOTENT;
+  }
+  
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+    option (method_require_auth) = true;
+    option (endpoint) = "/api/v1/users/{id}";
+    option (http_method) = "DELETE";
+    option (permission) = "users.delete";
+  }
+  
+  // Deprecated method
+  rpc GetOldUserFormat(GetOldUserFormatRequest) returns (GetOldUserFormatResponse) {
+    option deprecated = true;
+    option (endpoint) = "/api/v1/users/old/{id}";
+  }
+}
+
+// Request/response messages for service methods
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message CreateUserRequest {
+  User user = 1;
+}
+
+message CreateUserResponse {
+  User user = 1;
+  string message = 2;
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  User user = 2;
+}
+
+message UpdateUserResponse {
+  User user = 1;
+  string message = 2;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message DeleteUserResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetOldUserFormatRequest {
+  string id = 1;
+}
+
+message GetOldUserFormatResponse {
+  // Old format, deprecated
+  option deprecated = true;
+  User user = 1;
+}
+
+// ===========================================================================
+// Best Practices for Protocol Buffer Options
+// ===========================================================================
+
+/**
+ * The following section outlines best practices for using Protocol Buffer options.
+ * These guidelines will help you make effective decisions when designing your proto files.
+ */
+
+// ---------------------------------------------------------------------------
+// 1. Option Level Selection
+// ---------------------------------------------------------------------------
+/**
+ * Choose the appropriate option level based on the principle of minimum scope:
+ * - File-level options: For settings affecting the entire file (package names, code generation)
+ * - Message-level options: For behavior specific to a message type (DB mapping, validation)
+ * - Field-level options: For properties of individual fields (validation, serialization)
+ * - Enum/Enum value options: For metadata about enums and their values
+ * - Service/Method options: For API behavior and routing
+ * 
+ * Always use the most specific level that meets your needs to avoid overly broad effects.
+ */
+
+// ---------------------------------------------------------------------------
+// 2. Naming and Numbering Conventions
+// ---------------------------------------------------------------------------
+/**
+ * When defining custom options:
+ * - Use clear, descriptive names that indicate purpose
+ * - For field-level options, consider verb prefixes (validate_*, require_*)
+ * - For boolean options, use positive phrasing (required vs not_optional)
+ * - Group related options with consistent prefixes (db_table, db_column)
+ * 
+ * Field number allocation:
+ * - 1-49999: Reserved for Google's internal use
+ * - 50000-99999: Available for application-specific options
+ * - Maintain an option registry within your organization to avoid conflicts
+ * - Reserve consecutive ranges for related option groups
+ */
+
+// ---------------------------------------------------------------------------
+// 3. Custom Option Usage
+// ---------------------------------------------------------------------------
+/**
+ * Use custom options judiciously:
+ * - Only create custom options for information needed by code generators or runtime
+ * - Avoid using options for documentation-only purposes (use comments instead)
+ * - Consider using aggregate options to group related metadata
+ * - Provide default values for options when appropriate
+ * - Document the purpose and expected values for each custom option
+ * 
+ * Avoid overusing options:
+ * - Don't use options for language-specific features
+ * - Don't use options for frequently changing configuration (use config files)
+ * - Don't create redundant options that duplicate standard options
+ */
+
+// ---------------------------------------------------------------------------
+// 4. Backward Compatibility
+// ---------------------------------------------------------------------------
+/**
+ * When evolving option definitions:
+ * - Never change the meaning of an existing option
+ * - Never reuse option numbers, even if the previous option is deleted
+ * - Add new options rather than changing existing ones
+ * - When deprecating options, mark them with [deprecated=true] and document alternatives
+ * - For aggregate options, follow standard protobuf evolution rules (don't change field numbers)
+ * 
+ * When changing option values:
+ * - Consider the impact on existing code generators and runtime behavior
+ * - Provide migration paths for users of the old option values
+ * - Update documentation to reflect changes and migration strategies
+ */
+
+// ---------------------------------------------------------------------------
+// 5. Performance Considerations
+// ---------------------------------------------------------------------------
+/**
+ * Some options can affect runtime performance:
+ * - optimize_for affects code size vs. speed tradeoffs
+ * - packed=true can significantly reduce the size of repeated fields
+ * - lazy=true can improve parsing performance for large messages
+ * - cc_enable_arenas=true improves C++ memory management
+ * 
+ * Choose appropriate options based on your performance requirements and constraints.
+ */
+
+// ===========================================================================
+// File-level custom options (applied at the end of the file)
+// ===========================================================================
+
+option (file_version) = 20230801;
+option (file_author) = "王杰";
+option (file_department) = "基础架构部";
+option (internal_api) = false;

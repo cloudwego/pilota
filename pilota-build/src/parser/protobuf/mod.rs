@@ -5,10 +5,13 @@ use faststr::FastStr;
 use itertools::Itertools;
 use normpath::PathExt;
 use pilota::Bytes;
-use protobuf::descriptor::{
-    DescriptorProto, EnumDescriptorProto, EnumValueDescriptorProto, FieldDescriptorProto,
-    MethodDescriptorProto, ServiceDescriptorProto,
-    field_descriptor_proto::{Label, Type},
+use protobuf::{
+    Message as _,
+    descriptor::{
+        DescriptorProto, EnumDescriptorProto, EnumValueDescriptorProto, FieldDescriptorProto,
+        MethodDescriptorProto, ServiceDescriptorProto,
+        field_descriptor_proto::{Label, Type},
+    },
 };
 use rustc_hash::{FxHashMap, FxHashSet};
 
@@ -439,6 +442,13 @@ impl Lower {
                     .map(|m| self.lower_message(m, &mut Vec::new()));
                 let services = f.service.iter().map(|s| self.lower_service(s));
 
+                let descriptor_bytes = {
+                    let bytes_vec = f
+                        .write_to_bytes()
+                        .expect("serialize FileDescriptorProto failed");
+                    Bytes::from(bytes_vec)
+                };
+
                 let f = Arc::from(ir::File {
                     package,
                     uses: f
@@ -458,7 +468,7 @@ impl Lower {
                         .chain(services)
                         .map(Arc::from)
                         .collect::<Vec<_>>(),
-                    descriptor: Bytes::default(),
+                    descriptor: descriptor_bytes,
                 });
 
                 self.cur_package = None;
