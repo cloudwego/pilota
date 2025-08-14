@@ -28,6 +28,7 @@ use crate::{
     },
     rir::{Item, NodeKind},
     symbol::{DefId, EnumRepr, FileId},
+    tags::protobuf::Deprecated,
 };
 
 pub(crate) mod pkg_tree;
@@ -87,6 +88,42 @@ impl<B> Codegen<B>
 where
     B: CodegenBackend + Send,
 {
+    fn is_field_deprecated(&self, field: &rir::Field) -> bool {
+        let node = self.node(field.did);
+        if let Some(node) = node {
+            self.contains_tag::<Deprecated>(node.tags)
+        } else {
+            false
+        }
+    }
+
+    fn is_enum_variant_deprecated(&self, variant_did: DefId) -> bool {
+        let node = self.node(variant_did);
+        if let Some(node) = node {
+            self.contains_tag::<Deprecated>(node.tags)
+        } else {
+            false
+        }
+    }
+
+    fn is_type_deprecated(&self, def_id: DefId) -> bool {
+        let node = self.node(def_id);
+        if let Some(node) = node {
+            self.contains_tag::<Deprecated>(node.tags)
+        } else {
+            false
+        }
+    }
+
+    fn is_method_deprecated(&self, method_did: DefId) -> bool {
+        let node = self.node(method_did);
+        if let Some(node) = node {
+            self.contains_tag::<Deprecated>(node.tags)
+        } else {
+            false
+        }
+    }
+
     pub fn write_struct(&self, def_id: DefId, stream: &mut String, s: &rir::Message) {
         let name = self.rust_name(def_id);
 
@@ -111,9 +148,15 @@ where
 
                     let attrs = adjust.iter().flat_map(|a| a.attrs()).join("");
 
+                    let deprecated_attr = if self.is_field_deprecated(f) {
+                        "#[deprecated]\n"
+                    } else {
+                        ""
+                    };
+
                     format! {
                         r#"{attrs}
-                        pub {name}: {ty},"#
+                        {deprecated_attr}pub {name}: {ty},"#
                     }
                 })
             })
@@ -129,9 +172,15 @@ where
             );
         }
 
+        let deprecated_attr = if self.is_type_deprecated(def_id) {
+            "#[deprecated]\n"
+        } else {
+            ""
+        };
+
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq)]
-                pub struct {name} {{
+                {deprecated_attr}pub struct {name} {{
                     {fields}
                 }}"#
         });
@@ -238,8 +287,15 @@ where
                     Some(EnumRepr::I32) => discr as i32,
                     None => panic!(),
                 };
+
+                let deprecated_attr = if self.is_enum_variant_deprecated(v.did) {
+                    "#[deprecated]\n"
+                } else {
+                    ""
+                };
+
                 (
-                    format!("pub const {name}: Self = Self({discr});"),
+                    format!("{deprecated_attr}pub const {name}: Self = Self({discr});"),
                     format!("Self({discr}) => ::std::string::String::from(\"{name}\"),"),
                 )
             })
@@ -260,10 +316,16 @@ where
             })
             .join("\n");
 
+        let deprecated_attr = if self.is_type_deprecated(def_id) {
+            "#[deprecated]\n"
+        } else {
+            ""
+        };
+
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq, Copy)]
             #[repr(transparent)]
-            pub struct {name}({repr});
+            {deprecated_attr}pub struct {name}({repr});
 
             impl {name} {{
                 {variants_const}
@@ -366,10 +428,22 @@ where
             .map(|m| self.backend.codegen_service_method(def_id, m))
             .join("\n");
 
+        let deprecated_attr = if self.is_type_deprecated(def_id) {
+            "#[deprecated]\n"
+        } else {
+            ""
+        };
+
+        let deprecated_attr_method = if self.is_method_deprecated(def_id) {
+            "#[deprecated]\n"
+        } else {
+            ""
+        };
+
         stream.push_str(&format! {
             r#"
-            pub trait {name} {{
-                {methods}
+            {deprecated_attr}pub trait {name} {{
+                {deprecated_attr_method}{methods}
             }}
             "#
         });
@@ -380,13 +454,14 @@ where
     /// methods
     pub fn get_init_service(&self, def_id: DefId) -> (String, String) {
         CUR_ITEM.set(&def_id, || {
-            let service_name = self.rust_name(def_id);
+            let service_name = self.rust_name(def_id).to_string();
             let mod_prefix = self.mod_path(def_id);
-            let service_path = format!(
-                "{}::{}",
-                mod_prefix.iter().map(|item| item.to_string()).join("::"),
+            let service_path = if mod_prefix.is_empty() {
                 service_name
-            );
+            } else {
+                let mod_path = mod_prefix.iter().map(|item| item.to_string()).join("::");
+                format!("{mod_path}::{service_name}")
+            };
             tracing::debug!("service_path: {}", service_path);
             let methods = self.service_methods(def_id);
 

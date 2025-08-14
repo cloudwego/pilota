@@ -336,6 +336,7 @@ pub mod protobuf_options_reference {
         }
     }
     #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+    #[deprecated]
     pub struct GetOldUserFormatResponse {
         pub user: ::std::option::Option<User>,
     }
@@ -685,6 +686,7 @@ pub mod protobuf_options_reference {
         pub const ENABLED: Self = Self(1);
         pub const INACTIVE: Self = Self(2);
         pub const SUSPENDED: Self = Self(3);
+        #[deprecated]
         pub const DELETED: Self = Self(4);
 
         pub fn inner(&self) -> i32 {
@@ -738,6 +740,7 @@ pub mod protobuf_options_reference {
         pub const PAYMENT_DEBIT: Self = Self(2);
         pub const PAYMENT_BANK_TRANSFER: Self = Self(3);
         pub const PAYMENT_CRYPTO: Self = Self(4);
+        #[deprecated]
         pub const PAYMENT_CHECK: Self = Self(5);
 
         pub fn inner(&self) -> i32 {
@@ -1094,6 +1097,7 @@ pub mod protobuf_options_reference {
 
         pub profile: ::std::option::Option<UserProfile>,
 
+        #[deprecated]
         pub old_field: ::pilota::FastStr,
     }
     impl ::pilota::pb::Message for User {
@@ -2916,6 +2920,7 @@ pub mod protobuf_options_reference {
 
                 pub java_multiple_files: ::std::option::Option<bool>,
 
+                #[deprecated]
                 pub java_generate_equals_and_hash: ::std::option::Option<bool>,
 
                 pub java_string_check_utf8: ::std::option::Option<bool>,

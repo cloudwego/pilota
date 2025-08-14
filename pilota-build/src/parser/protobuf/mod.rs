@@ -6,7 +6,8 @@ use itertools::Itertools;
 use normpath::PathExt;
 use pilota::Bytes;
 use protobuf::descriptor::{
-    DescriptorProto, EnumDescriptorProto, FieldDescriptorProto, ServiceDescriptorProto,
+    DescriptorProto, EnumDescriptorProto, EnumValueDescriptorProto, FieldDescriptorProto,
+    MethodDescriptorProto, ServiceDescriptorProto,
     field_descriptor_proto::{Label, Type},
 };
 use rustc_hash::{FxHashMap, FxHashSet};
@@ -18,7 +19,7 @@ use crate::{
     ir::{self, FieldKind, Item, Path, TyKind},
     symbol::{EnumRepr, FileId, Ident},
     tags::{
-        PilotaName, RustWrapperArc, Tags,
+        PilotaName, RustType, RustWrapperArc, SerdeAttribute, Tags,
         protobuf::{ClientStreaming, Deprecated, OneOf, ProstType, Repeated, ServerStreaming},
     },
 };
@@ -151,7 +152,7 @@ impl Lower {
     fn lower_enum(&self, e: &EnumDescriptorProto) -> ir::Item {
         ir::Item {
             related_items: Default::default(),
-            tags: Default::default(),
+            tags: Arc::new(self.extract_enum_tags(e)),
             kind: ir::ItemKind::Enum(ir::Enum {
                 name: FastStr::new(e.name()).into(),
                 variants: e
@@ -161,7 +162,7 @@ impl Lower {
                         id: v.number,
                         name: FastStr::new(v.name()).into(),
                         discr: v.number.map(|v| v as i64),
-                        tags: Default::default(),
+                        tags: Arc::new(self.extract_enum_value_tags(v)),
                         fields: Default::default(),
                     })
                     .collect_vec(),
@@ -375,7 +376,7 @@ impl Lower {
                     .method
                     .iter()
                     .map(|m| {
-                        let mut tags = Tags::default();
+                        let mut tags = self.extract_method_tags(m);
                         if m.client_streaming() {
                             tags.insert(ClientStreaming);
                         }
@@ -487,7 +488,6 @@ impl Lower {
 
     fn extract_message_tags(&self, message: &DescriptorProto) -> Tags {
         let mut tags = Tags::default();
-
         if message.options.is_some() {
             let options = &message.options;
 
@@ -496,9 +496,16 @@ impl Lower {
                 tags.insert(Deprecated(true));
             }
 
-            // defined in pilota_options.proto
-        }
+            // defined in pilota.proto
+            if let Some(serde_attr) = options.serde_attribute() {
+                tags.insert(SerdeAttribute(serde_attr));
+            }
 
+            // defined in pilota.proto
+            if let Some(name) = options.name() {
+                tags.insert(PilotaName(name));
+            }
+        }
         tags
     }
 
@@ -506,6 +513,44 @@ impl Lower {
         let mut tags = Tags::default();
         if field.options.is_some() {
             let options = &field.options;
+
+            // defined in google.protobuf.EnumOptions
+            if options.deprecated() {
+                tags.insert(Deprecated(true));
+            }
+
+            // defined in pilota.proto
+            if let Some(serde_attr) = options.serde_attribute() {
+                tags.insert(SerdeAttribute(serde_attr));
+            }
+
+            // defined in pilota.proto
+            if let Some(name) = options.name() {
+                tags.insert(PilotaName(name));
+            }
+        }
+        tags
+    }
+
+    fn extract_enum_value_tags(&self, field: &EnumValueDescriptorProto) -> Tags {
+        let mut tags = Tags::default();
+        if field.options.is_some() {
+            let options = &field.options;
+
+            // defined in google.protobuf.EnumValueOptions
+            if options.deprecated() {
+                tags.insert(Deprecated(true));
+            }
+        }
+        tags
+    }
+
+    fn extract_method_tags(&self, field: &MethodDescriptorProto) -> Tags {
+        let mut tags = Tags::default();
+        if field.options.is_some() {
+            let options = &field.options;
+
+            // defined in google.protobuf.MethodOptions
             if options.deprecated() {
                 tags.insert(Deprecated(true));
             }
@@ -515,7 +560,6 @@ impl Lower {
 
     fn extract_field_tags(&self, field: &FieldDescriptorProto) -> Tags {
         let mut tags = Tags::default();
-
         if field.options.is_some() {
             let options = &field.options;
 
@@ -528,8 +572,22 @@ impl Lower {
             if options.rust_wrapper_arc() {
                 tags.insert(RustWrapperArc(true));
             }
-        }
 
+            // defined in pilota.proto
+            if let Some(serde_attr) = options.serde_attribute() {
+                tags.insert(SerdeAttribute(serde_attr));
+            }
+
+            // defined in pilota.proto
+            if let Some(name) = options.name() {
+                tags.insert(PilotaName(name));
+            }
+
+            // defined in pilota.proto
+            if let Some(rust_type) = options.rust_type() {
+                tags.insert(RustType(rust_type));
+            }
+        }
         tags
     }
 }
@@ -685,13 +743,31 @@ macro_rules! define_all_options_traits {
 pub struct PbOptions;
 impl PbOptions {
     // defined in pilota.proto
+    define_pb_option!(serde_attribute, 50101);
+    define_pb_option!(name, 50102);
     define_pb_option!(rust_wrapper_arc, 50201, false);
+    define_pb_option!(rust_type, 50202);
 }
 
 // define all options traits and implementations
 define_all_options_traits! {
+    PilotaMessageOptions for protobuf::descriptor::MessageOptions {
+        ;
+        (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr,
+        (name, PbOptions::NAME_ID) -> FastStr;
+    }
+
     PilotaFieldOptions for protobuf::descriptor::FieldOptions {
         (rust_wrapper_arc, PbOptions::RUST_WRAPPER_ARC_ID, PbOptions::RUST_WRAPPER_ARC_DEFAULT) -> bool;
+        (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr,
+        (name, PbOptions::NAME_ID) -> FastStr,
+        (rust_type, PbOptions::RUST_TYPE_ID) -> FastStr;
+    }
+
+    PilotaEnumOptions for protobuf::descriptor::EnumOptions {
+        ;
+        (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr,
+        (name, PbOptions::NAME_ID) -> FastStr;
     }
 
     PilotaServiceOptions for protobuf::descriptor::ServiceOptions {
