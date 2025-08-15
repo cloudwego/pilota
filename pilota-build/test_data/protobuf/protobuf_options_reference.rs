@@ -4891,81 +4891,6 @@ pub mod protobuf_options_reference {
 
             pub mod descriptor_proto {
 
-                #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
-                pub struct ReservedRange {
-                    pub start: ::std::option::Option<i32>,
-
-                    pub end: ::std::option::Option<i32>,
-                }
-                impl ::pilota::prost::Message for ReservedRange {
-                    #[inline]
-                    fn encoded_len(&self) -> usize {
-                        0 + self.start.as_ref().map_or(0, |value| {
-                            ::pilota::prost::encoding::int32::encoded_len(1, value)
-                        }) + self.end.as_ref().map_or(0, |value| {
-                            ::pilota::prost::encoding::int32::encoded_len(2, value)
-                        })
-                    }
-
-                    #[allow(unused_variables)]
-                    fn encode_raw<B>(&self, buf: &mut B)
-                    where
-                        B: ::pilota::prost::bytes::BufMut,
-                    {
-                        if let Some(_pilota_inner_value) = self.start.as_ref() {
-                            ::pilota::prost::encoding::int32::encode(1, _pilota_inner_value, buf);
-                        };
-                        if let Some(_pilota_inner_value) = self.end.as_ref() {
-                            ::pilota::prost::encoding::int32::encode(2, _pilota_inner_value, buf);
-                        };
-                    }
-
-                    #[allow(unused_variables)]
-                    fn merge_field<B>(
-                        &mut self,
-                        tag: u32,
-                        wire_type: ::pilota::prost::encoding::WireType,
-                        buf: &mut B,
-                        ctx: ::pilota::prost::encoding::DecodeContext,
-                    ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
-                    where
-                        B: ::pilota::prost::bytes::Buf,
-                    {
-                        const STRUCT_NAME: &'static str = stringify!(ReservedRange);
-
-                        match tag {
-                            1 => {
-                                let mut _inner_pilota_value = &mut self.start;
-                                ::pilota::prost::encoding::int32::merge(
-                                    wire_type,
-                                    _inner_pilota_value
-                                        .get_or_insert_with(::core::default::Default::default),
-                                    buf,
-                                    ctx,
-                                )
-                                .map_err(|mut error| {
-                                    error.push(STRUCT_NAME, stringify!(start));
-                                    error
-                                })
-                            }
-                            2 => {
-                                let mut _inner_pilota_value = &mut self.end;
-                                ::pilota::prost::encoding::int32::merge(
-                                    wire_type,
-                                    _inner_pilota_value
-                                        .get_or_insert_with(::core::default::Default::default),
-                                    buf,
-                                    ctx,
-                                )
-                                .map_err(|mut error| {
-                                    error.push(STRUCT_NAME, stringify!(end));
-                                    error
-                                })
-                            }
-                            _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
-                        }
-                    }
-                }
                 #[derive(PartialOrd, Debug, Default, Clone, PartialEq)]
                 pub struct ExtensionRange {
                     pub start: ::std::option::Option<i32>,
@@ -5055,6 +4980,81 @@ pub mod protobuf_options_reference {
                                 )
                                 .map_err(|mut error| {
                                     error.push(STRUCT_NAME, stringify!(options));
+                                    error
+                                })
+                            }
+                            _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
+                        }
+                    }
+                }
+                #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+                pub struct ReservedRange {
+                    pub start: ::std::option::Option<i32>,
+
+                    pub end: ::std::option::Option<i32>,
+                }
+                impl ::pilota::prost::Message for ReservedRange {
+                    #[inline]
+                    fn encoded_len(&self) -> usize {
+                        0 + self.start.as_ref().map_or(0, |value| {
+                            ::pilota::prost::encoding::int32::encoded_len(1, value)
+                        }) + self.end.as_ref().map_or(0, |value| {
+                            ::pilota::prost::encoding::int32::encoded_len(2, value)
+                        })
+                    }
+
+                    #[allow(unused_variables)]
+                    fn encode_raw<B>(&self, buf: &mut B)
+                    where
+                        B: ::pilota::prost::bytes::BufMut,
+                    {
+                        if let Some(_pilota_inner_value) = self.start.as_ref() {
+                            ::pilota::prost::encoding::int32::encode(1, _pilota_inner_value, buf);
+                        };
+                        if let Some(_pilota_inner_value) = self.end.as_ref() {
+                            ::pilota::prost::encoding::int32::encode(2, _pilota_inner_value, buf);
+                        };
+                    }
+
+                    #[allow(unused_variables)]
+                    fn merge_field<B>(
+                        &mut self,
+                        tag: u32,
+                        wire_type: ::pilota::prost::encoding::WireType,
+                        buf: &mut B,
+                        ctx: ::pilota::prost::encoding::DecodeContext,
+                    ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
+                    where
+                        B: ::pilota::prost::bytes::Buf,
+                    {
+                        const STRUCT_NAME: &'static str = stringify!(ReservedRange);
+
+                        match tag {
+                            1 => {
+                                let mut _inner_pilota_value = &mut self.start;
+                                ::pilota::prost::encoding::int32::merge(
+                                    wire_type,
+                                    _inner_pilota_value
+                                        .get_or_insert_with(::core::default::Default::default),
+                                    buf,
+                                    ctx,
+                                )
+                                .map_err(|mut error| {
+                                    error.push(STRUCT_NAME, stringify!(start));
+                                    error
+                                })
+                            }
+                            2 => {
+                                let mut _inner_pilota_value = &mut self.end;
+                                ::pilota::prost::encoding::int32::merge(
+                                    wire_type,
+                                    _inner_pilota_value
+                                        .get_or_insert_with(::core::default::Default::default),
+                                    buf,
+                                    ctx,
+                                )
+                                .map_err(|mut error| {
+                                    error.push(STRUCT_NAME, stringify!(end));
                                     error
                                 })
                             }

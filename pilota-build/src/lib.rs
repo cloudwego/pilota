@@ -148,10 +148,32 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
 
 impl Builder<MkPbBackend, ProtobufParser> {
     pub fn pb() -> Self {
+        let parser = match std::env::var("OUT_DIR") {
+            Ok(out_dir_str) => {
+                let out_dir = PathBuf::from(out_dir_str);
+                let include_dir = out_dir.join("pilota_proto");
+
+                std::fs::create_dir_all(&include_dir)
+                    .expect("Failed to create proto include directory");
+
+                let pilota_proto_src =
+                    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("proto/pilota.proto");
+
+                std::fs::copy(&pilota_proto_src, include_dir.join("pilota.proto"))
+                    .expect("Failed to copy pilota.proto");
+
+                let mut parser = ProtobufParser::default();
+                parser.include_dirs(vec![include_dir]);
+                parser
+            }
+
+            _ => ProtobufParser::default(),
+        };
+
         Builder {
             source_type: SourceType::Protobuf,
             mk_backend: MkPbBackend,
-            parser: ProtobufParser::default(),
+            parser,
             plugins: vec![
                 Box::new(WithAttrsPlugin(Arc::from(["#[derive(Debug)]".into()]))),
                 Box::new(ImplDefaultPlugin),
