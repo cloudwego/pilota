@@ -65,11 +65,21 @@ impl ProtobufBackend {
                 }
             }
             Category::Message => {
+                // 检查原始类型是否是 Arc
+                let is_arc = matches!(ty.kind, ty::TyKind::Arc(_));
+
                 if let ty::TyKind::Vec(_) = ty.kind {
-                    format!(
-                        "::pilota::pb::encoding::message::encoded_len_repeated({tag}, &{ident})"
-                    )
-                    .into()
+                    if is_arc {
+                        format!(
+                            "::pilota::pb::encoding::arc_message::encoded_len_repeated({tag}, &{ident})"
+                        )
+                        .into()
+                    } else {
+                        format!(
+                            "::pilota::pb::encoding::message::encoded_len_repeated({tag}, &{ident})"
+                        )
+                        .into()
+                    }
                 } else {
                     let encoded_len: FastStr = if self.is_one_of(ty) {
                         "msg.encoded_len()".into()
@@ -78,8 +88,15 @@ impl ProtobufBackend {
                             FieldKind::Required => format!("&{ident}").into(),
                             FieldKind::Optional => "msg".into(),
                         };
-                        format!("::pilota::pb::encoding::message::encoded_len({tag}, {ident})")
+                        if is_arc {
+                            format!(
+                                "::pilota::pb::encoding::arc_message::encoded_len({tag}, {ident})"
+                            )
                             .into()
+                        } else {
+                            format!("::pilota::pb::encoding::message::encoded_len({tag}, {ident})")
+                                .into()
+                        }
                     };
 
                     match kind {
@@ -162,6 +179,7 @@ impl ProtobufBackend {
             | ty::TyKind::Bytes => Category::Scalar,
             ty::TyKind::Map(..) => Category::Map,
             ty::TyKind::Path(path) if self.is_plain_enum(path.did) => Category::Scalar,
+            ty::TyKind::Arc(_) => Category::Message, // Arc 类型应该被归类为 Message
             _ => Category::Message,
         }
     }
@@ -176,7 +194,7 @@ impl ProtobufBackend {
             .tags(ty.tags_id)
             .and_then(|tags| tags.get::<ProstType>().copied());
         Ident::new(
-            match ty.kind {
+            match &ty.kind {
                 ty::TyKind::String => "string",
                 ty::TyKind::FastStr => "faststr",
                 ty::TyKind::Bool => "bool",
@@ -193,8 +211,14 @@ impl ProtobufBackend {
                 ty::TyKind::UInt64 => "uint64",
                 ty::TyKind::F32 => "float",
                 ty::TyKind::F64 => "double",
-                ty::TyKind::Path(ref path) if self.is_plain_enum(path.did) => "int32",
+                ty::TyKind::Path(path) if self.is_plain_enum(path.did) => "int32",
                 ty::TyKind::Path(_) => "message",
+                ty::TyKind::Arc(inner) => {
+                    return Ident::new(
+                        &format!("arc_{}", self.ty_module(inner.as_ref())),
+                        Span::call_site(),
+                    );
+                }
                 _ => unreachable!("{:?}", ty.kind),
             },
             Span::call_site(),
@@ -228,13 +252,25 @@ impl ProtobufBackend {
                 }
             }
             Category::Message => {
+                // 检查原始类型是否是 Arc
+                let is_arc = matches!(ty.kind, ty::TyKind::Arc(_));
+
                 if let ty::TyKind::Vec(_) = ty.kind {
-                    format!(
-                        r#"for msg in &{ident} {{
-                            ::pilota::pb::encoding::message::encode({tag}, msg, buf);
-                        }};"#
-                    )
-                    .into()
+                    if is_arc {
+                        format!(
+                            r#"for msg in &{ident} {{
+                                ::pilota::pb::encoding::arc_message::encode({tag}, msg, buf);
+                            }};"#
+                        )
+                        .into()
+                    } else {
+                        format!(
+                            r#"for msg in &{ident} {{
+                                ::pilota::pb::encoding::message::encode({tag}, msg, buf);
+                            }};"#
+                        )
+                        .into()
+                    }
                 } else {
                     let encode: FastStr = if self.is_one_of(ty) {
                         "_pilota_inner_value.encode(buf);".into()
@@ -243,8 +279,15 @@ impl ProtobufBackend {
                             FieldKind::Required => format!("(&{ident})").into(),
                             FieldKind::Optional => "_pilota_inner_value".into(),
                         };
-                        format!("::pilota::pb::encoding::message::encode({tag}, {ident}, buf);")
+                        if is_arc {
+                            format!(
+                                "::pilota::pb::encoding::arc_message::encode({tag}, {ident}, buf);"
+                            )
                             .into()
+                        } else {
+                            format!("::pilota::pb::encoding::message::encode({tag}, {ident}, buf);")
+                                .into()
+                        }
                     };
 
                     match kind {
