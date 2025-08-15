@@ -1384,11 +1384,13 @@ pub mod arc_message {
     where
         M: Message,
     {
-        key_len(tag) * messages.len()
-            + messages
-                .iter()
-                .map(|msg| message::encoded_len(tag, msg.as_ref()))
-                .sum::<usize>()
+        messages
+            .iter()
+            .map(|msg| {
+                let len = msg.encoded_len();
+                key_len(tag) + encoded_len_varint(len as u64) + len
+            })
+            .sum()
     }
 }
 
