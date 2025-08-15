@@ -154,7 +154,7 @@ impl Builder<MkPbBackend, ProtobufParser> {
                 let include_dir = out_dir.join("pilota_proto");
 
                 std::fs::create_dir_all(&include_dir)
-                    .expect("Failed to create proto include directory");
+                    .expect("Failed to create pilota_proto directory");
 
                 let pilota_proto_src =
                     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("proto/pilota.proto");
