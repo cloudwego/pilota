@@ -10,6 +10,41 @@ use crate::{
 
 pub mod visit;
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum PbExtendee {
+    FileOptions,
+    MessageOptions,
+    FieldOptions,
+    EnumOptions,
+    EnumValueOptions,
+    ServiceOptions,
+    MethodOptions,
+    OneofOptions,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum PbFieldType {
+    Bool,
+    Int32,
+    Int64,
+    UInt32,
+    UInt64,
+    Float,
+    Double,
+    String,
+    Bytes,
+    Message,
+}
+
+#[derive(Clone, Debug)]
+pub struct Extension {
+    pub name: Ident,
+    pub number: u32,
+    pub field_ty: PbFieldType,
+    pub extendee: PbExtendee,
+    pub value_ty: Ty,
+}
+
 #[derive(Clone, Debug)]
 pub enum Literal {
     Bool(bool),
@@ -109,6 +144,7 @@ pub struct Message {
     pub name: Ident,
     pub fields: Vec<Field>,
     pub is_wrapper: bool,
+    pub extensions: Vec<Extension>,
 }
 
 #[derive(Clone, Debug)]
@@ -137,6 +173,7 @@ pub struct NewType {
 pub struct Mod {
     pub name: Ident,
     pub items: Vec<Arc<Item>>,
+    pub extensions: Vec<Extension>,
 }
 
 #[derive(Clone, Debug)]
@@ -175,7 +212,7 @@ impl Item {
 pub struct Use {
     pub file: FileId,
 }
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Default)]
 pub struct Path {
     pub segments: Arc<[Ident]>,
 }
@@ -193,4 +230,5 @@ pub struct File {
     pub id: FileId,
     pub uses: Vec<(Path, FileId)>,
     pub descriptor: Bytes,
+    pub extensions: Vec<Extension>,
 }

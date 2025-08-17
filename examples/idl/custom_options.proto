@@ -1,4 +1,5 @@
 syntax = "proto3";
+package custom_options;
 
 /**
  * Protocol Buffer Options Reference Guide
@@ -214,9 +215,14 @@ message ApiMetadata {
   
   // Tags for API categorization
   repeated string tags = 5;
+
+  extend google.protobuf.MessageOptions {
+    optional string test = 51101;
+  }
   
   // Examples of API usage
   message Example {
+    option (test)="test";
     // Example name
     optional string name = 1;
     
@@ -237,6 +243,7 @@ message ApiMetadata {
 
 // Example message with various options
 message User {
+  option (ApiMetadata.test) = "ApiMetadatatest";
   // Message-level options
   option (db_table) = "users";
   option (db_entity) = true;

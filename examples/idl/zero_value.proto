@@ -1,8 +1,10 @@
 syntax = "proto3";
+//package zero_value;
 
 import "pilota.proto";
 import "rustproto.proto";
 import "google/protobuf/descriptor.proto";
+import "custom_options.proto";
 
 message B {
     string s3 = 1;

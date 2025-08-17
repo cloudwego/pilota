@@ -8,10 +8,7 @@ use quote::quote;
 use crate::{
     CodegenBackend, Context, DefId,
     db::RirDatabase,
-    middle::{
-        context::Mode,
-        ty::{self},
-    },
+    middle::ty::{self},
     rir::{self, Field, FieldKind, Item, NodeKind},
     tags::protobuf::{OneOf, ProstType},
     ty::Ty,
@@ -580,75 +577,5 @@ impl CodegenBackend for ProtobufBackend {
 
     fn cx(&self) -> &Context {
         &self.cx
-    }
-
-    fn codegen_file_descriptor(&self, stream: &mut String, f: &rir::File, has_direct: bool) {
-        if has_direct {
-            let descriptor = &f.descriptor;
-            let super_mod = match &*self.mode {
-                Mode::Workspace(_) => "crate::".to_string(),
-                Mode::SingleFile { .. } => "super::".repeat(f.package.len()),
-            };
-
-            // dependency reflect builders
-            let mut deps_builders = String::new();
-            for dep in &f.uses {
-                if let Some(dep_file) = self.file(*dep) {
-                    // only include dependencies with include path in current crate
-                    let has_include_path = self.file_ids_map().iter().any(|(_, id)| *id == *dep);
-                    let pkg = dep_file
-                        .package
-                        .iter()
-                        .map(|s| s.to_string())
-                        .collect::<Vec<_>>()
-                        .join("::");
-                    if pkg == "google::protobuf" {
-                        deps_builders.push_str(
-                            "deps.push(::protobuf::descriptor::file_descriptor().clone());\n",
-                        );
-                    } else if has_include_path && !pkg.is_empty() && pkg != "pilota" {
-                        deps_builders.push_str(&format!(
-                            "deps.push({super_mod}{pkg}::file_descriptor().clone());\n"
-                        ));
-                    }
-                }
-            }
-
-            stream.push_str(&format!(
-                r#"
-static FILE_DESCRIPTOR_BYTES: ::pilota::Bytes = ::pilota::Bytes::from_static({descriptor:?});
-pub fn file_descriptor_proto() -> &'static ::protobuf::descriptor::FileDescriptorProto {{
-    static FILE_DESCRIPTOR_PROTO: ::std::sync::LazyLock<::protobuf::descriptor::FileDescriptorProto> = ::std::sync::LazyLock::new(|| {{
-        let data: &[u8] = FILE_DESCRIPTOR_BYTES.as_ref();
-        ::protobuf::Message::parse_from_bytes(data).expect("Failed to decode file descriptor")
-    }});
-    &*FILE_DESCRIPTOR_PROTO
-}}
-
-pub fn file_descriptor() -> &'static ::protobuf::reflect::FileDescriptor {{
-    static FILE_DESCRIPTOR: ::std::sync::LazyLock<::protobuf::reflect::FileDescriptor> = ::std::sync::LazyLock::new(|| {{
-        let mut deps = ::std::vec::Vec::new();
-        {deps_builders}
-        ::protobuf::reflect::FileDescriptor::new_dynamic(file_descriptor_proto().clone(), &deps)
-            .expect("Failed to build dynamic FileDescriptor")
-    }});
-    &*FILE_DESCRIPTOR
-}}
-"#
-            ));
-        } else {
-            match &*self.mode {
-                Mode::Workspace(_) => {
-                    let mod_prefix = f.package.iter().join("::");
-                    let common_crate_name = &self.common_crate_name;
-                    stream.push_str(&format!(
-                        r#"
-                        pub use ::{common_crate_name}::{mod_prefix}::get_file_descriptor;
-                        "#
-                    ));
-                }
-                Mode::SingleFile { .. } => {}
-            };
-        }
     }
 }

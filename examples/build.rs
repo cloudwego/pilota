@@ -29,7 +29,7 @@ fn main() {
         );
 
     // For protobuf_options_reference
-    let protobuf_options_reference_idl = idl_dir.join("protobuf_options_reference.proto");
+    let protobuf_options_reference_idl = idl_dir.join("custom_options.proto");
     pilota_build::Builder::pb()
         .ignore_unused(false)
         .include_dirs(vec![protobuf_options_reference_idl
@@ -41,6 +41,6 @@ fn main() {
             vec![pilota_build::IdlService::from_path(
                 protobuf_options_reference_idl,
             )],
-            pilota_build::Output::File(out_dir.join("protobuf_options_reference.rs")),
+            pilota_build::Output::File(out_dir.join("custom_options.rs")),
         );
 }

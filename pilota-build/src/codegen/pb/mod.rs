@@ -519,6 +519,9 @@ impl CodegenBackend for ProtobufBackend {
             }}
             "#
         ));
+
+        // nested message exts are injected inside each message's mod by backend
+        // hook
     }
 
     fn codegen_newtype_impl(&self, _def_id: DefId, _stream: &mut String, _t: &rir::NewType) {
@@ -682,6 +685,10 @@ pub fn file_descriptor() -> &'static ::protobuf::reflect::FileDescriptor {{
 }}
 "#
             ));
+
+            if !f.extensions.is_empty() {
+                self.codegen_exts(stream, &f.extensions);
+            }
         } else {
             match &*self.mode {
                 Mode::Workspace(_) => {
@@ -696,5 +703,107 @@ pub fn file_descriptor() -> &'static ::protobuf::reflect::FileDescriptor {{
                 Mode::SingleFile { .. } => {}
             }
         }
+    }
+
+    fn codegen_file_descriptor_at_mod(
+        &self,
+        stream: &mut String,
+        f: &rir::File,
+        mod_path: &[pilota::FastStr],
+        has_direct: bool,
+    ) {
+        // only generate at file root mod, i.e., when mod_path equals package path
+        let pkg: Vec<String> = f.package.iter().map(|s| s.to_string()).collect();
+        let cur: Vec<String> = mod_path.iter().map(|s| s.to_string()).collect();
+        if pkg == cur {
+            self.codegen_file_descriptor(stream, f, has_direct);
+        }
+    }
+
+    fn codegen_exts(&self, stream: &mut String, extensions: &[rir::Extension]) {
+        stream.push_str("pub mod exts {\n");
+        stream.push_str("    use ::protobuf::ext::ExtFieldOptional;\n");
+        for ext in extensions {
+            let number = ext.number as u32;
+            let field_ty = match ext.field_ty {
+                crate::middle::rir::PbFieldType::Bool => {
+                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_BOOL"
+                }
+                crate::middle::rir::PbFieldType::Int32 => {
+                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_INT32"
+                }
+                crate::middle::rir::PbFieldType::Int64 => {
+                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_INT64"
+                }
+                crate::middle::rir::PbFieldType::UInt32 => {
+                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_UINT32"
+                }
+                crate::middle::rir::PbFieldType::UInt64 => {
+                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_UINT64"
+                }
+                crate::middle::rir::PbFieldType::Float => {
+                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_FLOAT"
+                }
+                crate::middle::rir::PbFieldType::Double => {
+                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_DOUBLE"
+                }
+                crate::middle::rir::PbFieldType::String => {
+                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_STRING"
+                }
+                crate::middle::rir::PbFieldType::Bytes => {
+                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_BYTES"
+                }
+                crate::middle::rir::PbFieldType::Message => {
+                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_MESSAGE"
+                }
+            };
+            let extendee_ty = match ext.extendee {
+                crate::middle::rir::PbExtendee::FileOptions => {
+                    "::protobuf::descriptor::FileOptions"
+                }
+                crate::middle::rir::PbExtendee::MessageOptions => {
+                    "::protobuf::descriptor::MessageOptions"
+                }
+                crate::middle::rir::PbExtendee::FieldOptions => {
+                    "::protobuf::descriptor::FieldOptions"
+                }
+                crate::middle::rir::PbExtendee::EnumOptions => {
+                    "::protobuf::descriptor::EnumOptions"
+                }
+                crate::middle::rir::PbExtendee::EnumValueOptions => {
+                    "::protobuf::descriptor::EnumValueOptions"
+                }
+                crate::middle::rir::PbExtendee::ServiceOptions => {
+                    "::protobuf::descriptor::ServiceOptions"
+                }
+                crate::middle::rir::PbExtendee::MethodOptions => {
+                    "::protobuf::descriptor::MethodOptions"
+                }
+                crate::middle::rir::PbExtendee::OneofOptions => {
+                    "::protobuf::descriptor::OneofOptions"
+                }
+            };
+            let val_ty = match &ext.value_ty.kind {
+                ty::TyKind::Path(p) => {
+                    let cg = self.codegen_item_ty(ext.value_ty.kind.clone());
+                    match &*self.mode {
+                        Mode::Workspace(_) => cg.global_path("crate").to_string(),
+                        Mode::SingleFile { .. } => {
+                            let name = self.rust_name(p.did);
+                            format!("super::{name}")
+                        }
+                    }
+                }
+                _ => {
+                    let cg = self.codegen_item_ty(ext.value_ty.kind.clone());
+                    cg.global_path("crate").to_string()
+                }
+            };
+            let const_name = &*ext.name;
+            stream.push_str(&format!(
+                    "    pub const {const_name}: ExtFieldOptional<{extendee_ty}, {val_ty}> = ExtFieldOptional::new({number}, {field_ty});\n"
+                ));
+        }
+        stream.push_str("}\n");
     }
 }

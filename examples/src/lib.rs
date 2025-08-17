@@ -6,8 +6,8 @@ pub mod fieldmask {
     include!(concat!(env!("OUT_DIR"), "/fieldmask.rs"));
 }
 
-pub mod protobuf_options_reference {
-    include!(concat!(env!("OUT_DIR"), "/protobuf_options_reference.rs"));
+pub mod custom_options {
+    include!(concat!(env!("OUT_DIR"), "/custom_options.rs"));
 }
 
 #[test]
@@ -216,6 +216,7 @@ fn test_thrift_fieldmask() {
 #[test]
 fn test_pb_options() {
     use pilota::pb::Message as _;
-    let desc = protobuf_options_reference::protobuf_options_reference::file_descriptor();
+    let desc = custom_options::custom_options::custom_options::file_descriptor();
+
     println!("{:?}", desc);
 }

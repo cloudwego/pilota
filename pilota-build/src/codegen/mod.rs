@@ -197,12 +197,16 @@ where
                                 self.write_item(&mut inner, (*def_id).into(), dup)
                             });
 
+                            if self.with_descriptor && !m.extensions.is_empty() {
+                                self.backend.codegen_exts(&mut inner, &m.extensions);
+                            }
+
                             let name = self.rust_name(def_id);
                             stream.push_str(&format! {
                                 r#"pub mod {name} {{
                                     {inner}
                                 }}"#
-                            })
+                            });
                         }
                     }
                 };
@@ -590,8 +594,50 @@ where
                     let file_id = this.file_id(file_path.to_path_buf()).unwrap();
                     let file = this.file(file_id).unwrap();
                     if this.with_descriptor {
-                        this.backend
-                            .codegen_file_descriptor(&mut stream, &file, *has_direct);
+                        let cur_path: Vec<FastStr> = p.iter().cloned().collect();
+                        this.backend.codegen_file_descriptor_at_mod(
+                            &mut stream,
+                            &file,
+                            &cur_path,
+                            *has_direct,
+                        );
+
+                        // 为当前 mod 注入其 extensions（仅处理 Mod.extensions）
+                        // 通过 cur_path 相对包路径逐层定位到目标 Mod
+                        let pkg_len = file.package.len();
+                        if cur_path.len() > pkg_len {
+                            let mut cur_items = file.items.clone();
+                            for seg in &cur_path[pkg_len..] {
+                                let seg_str = seg.to_string();
+                                let mut next: Option<Vec<DefId>> = None;
+                                for did in &cur_items {
+                                    if let Some(item) = this.item(*did) {
+                                        if let middle::rir::Item::Mod(m) = &*item {
+                                            let name = this.rust_name(*did).to_string();
+                                            if name == seg_str {
+                                                if seg.as_str() == cur_path.last().unwrap().as_str()
+                                                {
+                                                    if !m.extensions.is_empty() {
+                                                        this.backend.codegen_exts(
+                                                            &mut stream,
+                                                            &m.extensions,
+                                                        );
+                                                    }
+                                                    break;
+                                                }
+                                                next = Some(m.items.clone());
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                if let Some(n) = next {
+                                    cur_items = n;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
 
