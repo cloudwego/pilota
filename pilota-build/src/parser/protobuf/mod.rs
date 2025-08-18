@@ -500,8 +500,6 @@ impl Lower {
             if let Some(serde_attr) = options.serde_attribute() {
                 tags.insert(SerdeAttribute(serde_attr));
             }
-
-            // defined in pilota.proto
             if let Some(name) = options.name() {
                 tags.insert(PilotaName(name));
             }
@@ -523,8 +521,6 @@ impl Lower {
             if let Some(serde_attr) = options.serde_attribute() {
                 tags.insert(SerdeAttribute(serde_attr));
             }
-
-            // defined in pilota.proto
             if let Some(name) = options.name() {
                 tags.insert(PilotaName(name));
             }
@@ -572,18 +568,12 @@ impl Lower {
             if options.rust_wrapper_arc() {
                 tags.insert(RustWrapperArc(true));
             }
-
-            // defined in pilota.proto
             if let Some(serde_attr) = options.serde_attribute() {
                 tags.insert(SerdeAttribute(serde_attr));
             }
-
-            // defined in pilota.proto
             if let Some(name) = options.name() {
                 tags.insert(PilotaName(name));
             }
-
-            // defined in pilota.proto
             if let Some(rust_type) = options.rust_type() {
                 tags.insert(RustType(rust_type));
             }
@@ -648,26 +638,29 @@ impl Parser for ProtobufParser {
 
 // define option value extractor
 pub trait PbOptionsValueExtractor<T> {
-    fn extract(&self, value: protobuf::UnknownValueRef) -> Option<T>;
+    fn extract(&self, value: protobuf::UnknownValueRef) -> T;
 }
-pub struct PbOptionsValueExtractorImpl;
+pub struct PbOptionsValueExtractorImpl {
+    id: u32,
+}
 
 impl PbOptionsValueExtractor<bool> for PbOptionsValueExtractorImpl {
-    fn extract(&self, value: protobuf::UnknownValueRef) -> Option<bool> {
+    fn extract(&self, value: protobuf::UnknownValueRef) -> bool {
         match value {
-            protobuf::UnknownValueRef::Varint(v) => Some(v != 0),
-            _ => None,
+            protobuf::UnknownValueRef::Varint(v) => v != 0,
+            _ => panic!("invalid value for option: {}", self.id),
         }
     }
 }
 
 impl PbOptionsValueExtractor<FastStr> for PbOptionsValueExtractorImpl {
-    fn extract(&self, value: protobuf::UnknownValueRef) -> Option<FastStr> {
+    fn extract(&self, value: protobuf::UnknownValueRef) -> FastStr {
         match value {
-            protobuf::UnknownValueRef::LengthDelimited(v) => {
-                Some(unsafe { FastStr::new_u8_slice_unchecked(v) })
-            }
-            _ => None,
+            protobuf::UnknownValueRef::LengthDelimited(v) => match std::str::from_utf8(v) {
+                Ok(s) => FastStr::new(s),
+                Err(_) => panic!("invalid value for option: {}", self.id),
+            },
+            _ => panic!("invalid value for option: {}", self.id),
         }
     }
 }
@@ -724,14 +717,17 @@ macro_rules! define_all_options_traits {
                         let Some(v) = self.special_fields.unknown_fields().get($field_id) else {
                             return $default;
                         };
-                        <PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type>>::extract(&PbOptionsValueExtractorImpl, v)
-                            .unwrap_or($default)
+                        let extractor = PbOptionsValueExtractorImpl { id: $field_id };
+                        <PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type>>::extract(&extractor, v)
                     }
                 )*
                 $(
                     fn $method_opt(&self) -> Option<$ret_type_opt> {
-                        let v = self.special_fields.unknown_fields().get($field_id_opt)?;
-                        <PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type_opt>>::extract(&PbOptionsValueExtractorImpl, v)
+                        let Some(v) = self.special_fields.unknown_fields().get($field_id_opt) else {
+                            return None;
+                        };
+                        let extractor = PbOptionsValueExtractorImpl { id: $field_id_opt };
+                        Some(<PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type_opt>>::extract(&extractor, v))
                     }
                 )*
             }
