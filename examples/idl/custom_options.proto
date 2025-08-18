@@ -563,7 +563,7 @@ message GetOldUserFormatResponse {
 // File-level custom options (applied at the end of the file)
 // ===========================================================================
 
-option (file_version) = 20230801;
-option (file_author) = "王杰";
-option (file_department) = "基础架构部";
+option (file_version) = 20250818;
+option (file_author) = "giggle";
+option (file_department) = "arch";
 option (internal_api) = false;

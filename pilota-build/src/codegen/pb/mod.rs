@@ -794,6 +794,8 @@ pub fn file_descriptor() -> &'static ::protobuf::reflect::FileDescriptor {{
                         }
                     }
                 }
+                // 对于 string 扩展，使用标准 String，便于与 rust-protobuf 反射 API 配合
+                ty::TyKind::String | ty::TyKind::FastStr => "::std::string::String".to_string(),
                 _ => {
                     let cg = self.codegen_item_ty(ext.value_ty.kind.clone());
                     cg.global_path("crate").to_string()
