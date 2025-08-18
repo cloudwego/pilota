@@ -88,40 +88,10 @@ impl<B> Codegen<B>
 where
     B: CodegenBackend + Send,
 {
-    fn is_field_deprecated(&self, field: &rir::Field) -> bool {
-        let node = self.node(field.did);
-        if let Some(node) = node {
-            self.contains_tag::<Deprecated>(node.tags)
-        } else {
-            false
-        }
-    }
-
-    fn is_enum_variant_deprecated(&self, variant_did: DefId) -> bool {
-        let node = self.node(variant_did);
-        if let Some(node) = node {
-            self.contains_tag::<Deprecated>(node.tags)
-        } else {
-            false
-        }
-    }
-
-    fn is_type_deprecated(&self, def_id: DefId) -> bool {
-        let node = self.node(def_id);
-        if let Some(node) = node {
-            self.contains_tag::<Deprecated>(node.tags)
-        } else {
-            false
-        }
-    }
-
-    fn is_method_deprecated(&self, method_did: DefId) -> bool {
-        let node = self.node(method_did);
-        if let Some(node) = node {
-            self.contains_tag::<Deprecated>(node.tags)
-        } else {
-            false
-        }
+    fn is_deprecated(&self, def_id: DefId) -> bool {
+        self.node_tags(def_id)
+            .and_then(|tags| tags.get::<Deprecated>().map(|d| d.0))
+            .unwrap_or_default()
     }
 
     pub fn write_struct(&self, def_id: DefId, stream: &mut String, s: &rir::Message) {
@@ -148,7 +118,7 @@ where
 
                     let attrs = adjust.iter().flat_map(|a| a.attrs()).join("");
 
-                    let deprecated_attr = if self.is_field_deprecated(f) {
+                    let deprecated_attr = if self.is_deprecated(f.did) {
                         "#[deprecated]\n"
                     } else {
                         ""
@@ -172,7 +142,7 @@ where
             );
         }
 
-        let deprecated_attr = if self.is_type_deprecated(def_id) {
+        let deprecated_attr = if self.is_deprecated(def_id) {
             "#[deprecated]\n"
         } else {
             ""
@@ -288,7 +258,7 @@ where
                     None => panic!(),
                 };
 
-                let deprecated_attr = if self.is_enum_variant_deprecated(v.did) {
+                let deprecated_attr = if self.is_deprecated(v.did) {
                     "#[deprecated]\n"
                 } else {
                     ""
@@ -316,7 +286,7 @@ where
             })
             .join("\n");
 
-        let deprecated_attr = if self.is_type_deprecated(def_id) {
+        let deprecated_attr = if self.is_deprecated(def_id) {
             "#[deprecated]\n"
         } else {
             ""
@@ -428,13 +398,7 @@ where
             .map(|m| self.backend.codegen_service_method(def_id, m))
             .join("\n");
 
-        let deprecated_attr = if self.is_type_deprecated(def_id) {
-            "#[deprecated]\n"
-        } else {
-            ""
-        };
-
-        let deprecated_attr_method = if self.is_method_deprecated(def_id) {
+        let deprecated_attr = if self.is_deprecated(def_id) {
             "#[deprecated]\n"
         } else {
             ""
@@ -443,7 +407,7 @@ where
         stream.push_str(&format! {
             r#"
             {deprecated_attr}pub trait {name} {{
-                {deprecated_attr_method}{methods}
+                {methods}
             }}
             "#
         });

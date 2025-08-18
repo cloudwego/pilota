@@ -617,26 +617,6 @@ fn test_duplicate_field_id() {
         );
 }
 
-// #[test]
-// fn test_aggregate_options() {
-//     let test_data_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-//         .join("test_data")
-//         .join("protobuf");
-
-//     let proto_file = test_data_dir.join("protobuf_options_reference.proto");
-//     let rs_file = test_data_dir.join("protobuf_options_reference.rs");
-
-//     test_with_builder(proto_file, rs_file, |source, target| {
-//         crate::Builder::pb()
-//             .ignore_unused(false)
-//             .include_dirs(vec![source.parent().unwrap().to_path_buf()])
-//             .compile_with_config(
-//                 vec![IdlService::from_path(source.to_path_buf())],
-//                 crate::Output::File(target.into()),
-//             )
-//     });
-// }
-
 mod tests {
 
     // use self::decode_error::decode_error::A;
