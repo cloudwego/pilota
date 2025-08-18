@@ -25,14 +25,20 @@ fn test_pb_encode_zero_value() {
         s4: Some("s4".into()),
         ..Default::default()
     });
-    a.c.as_mut().unwrap().b.push(zero_value::zero_value::B {
-        s3: "s5".into(),
-        ..Default::default()
-    });
-    a.c.as_mut().unwrap().b.push(zero_value::zero_value::B {
-        s3: "s6".into(),
-        ..Default::default()
-    });
+    a.c.as_mut()
+        .unwrap()
+        .bb
+        .push(Arc::new(zero_value::zero_value::B {
+            s3: "s5".into(),
+            ..Default::default()
+        }));
+    a.c.as_mut()
+        .unwrap()
+        .bb
+        .push(Arc::new(zero_value::zero_value::B {
+            s3: "s6".into(),
+            ..Default::default()
+        }));
     println!("a: {:?}", a);
 
     // encode a

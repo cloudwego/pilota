@@ -40,6 +40,15 @@ pub enum Category {
 }
 
 impl ProtobufBackend {
+    #[inline]
+    fn is_arc_message(&self, ty: &Ty) -> bool {
+        let mut ty_ref = ty;
+        if let ty::TyKind::Vec(inner) = &ty_ref.kind {
+            ty_ref = inner;
+        }
+        matches!(ty_ref.kind, ty::TyKind::Arc(_))
+    }
+
     fn codegen_encoded_len(&self, ident: FastStr, ty: &Ty, id: u32, kind: FieldKind) -> FastStr {
         let category = self.ty_category(ty);
 
@@ -65,10 +74,9 @@ impl ProtobufBackend {
                 }
             }
             Category::Message => {
-                // check for Arc type
-                let is_arc = matches!(ty.kind, ty::TyKind::Arc(_));
+                let is_arc = self.is_arc_message(ty);
 
-                if let ty::TyKind::Vec(_) = ty.kind {
+                if let ty::TyKind::Vec(_) = &ty.kind {
                     if is_arc {
                         format!(
                             "::pilota::pb::encoding::arc_message::encoded_len_repeated({tag}, &{ident})"
@@ -253,7 +261,7 @@ impl ProtobufBackend {
             }
             Category::Message => {
                 // check for Arc type
-                let is_arc = matches!(ty.kind, ty::TyKind::Arc(_));
+                let is_arc = self.is_arc_message(ty);
 
                 if let ty::TyKind::Vec(_) = ty.kind {
                     if is_arc {
