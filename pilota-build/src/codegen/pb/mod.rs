@@ -65,7 +65,7 @@ impl ProtobufBackend {
                 }
             }
             Category::Message => {
-                // 检查原始类型是否是 Arc
+                // check for Arc type
                 let is_arc = matches!(ty.kind, ty::TyKind::Arc(_));
 
                 if let ty::TyKind::Vec(_) = ty.kind {
@@ -252,7 +252,7 @@ impl ProtobufBackend {
                 }
             }
             Category::Message => {
-                // 检查原始类型是否是 Arc
+                // check for Arc type
                 let is_arc = matches!(ty.kind, ty::TyKind::Arc(_));
 
                 if let ty::TyKind::Vec(_) = ty.kind {
