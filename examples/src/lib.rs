@@ -1,4 +1,3 @@
-// mod fieldmask;
 pub mod zero_value {
     include!(concat!(env!("OUT_DIR"), "/zero_value.rs"));
 }
@@ -9,6 +8,8 @@ pub mod fieldmask {
 
 #[test]
 fn test_pb_encode_zero_value() {
+    use std::sync::Arc;
+
     use pilota::pb::Message as _;
     let mut a = zero_value::zero_value::A::default();
 
@@ -16,22 +17,28 @@ fn test_pb_encode_zero_value() {
     a.str_map.insert("key2".into(), "".into());
     a.s1 = "s1".into();
     a.s2 = Some("s2".into());
-    a.b = zero_value::zero_value::B {
+    a.b = Some(Arc::new(zero_value::zero_value::B {
         s3: "s3".into(),
         ..Default::default()
-    };
-    a.c = zero_value::zero_value::C {
+    }));
+    a.c = Some(zero_value::zero_value::C {
         s4: Some("s4".into()),
         ..Default::default()
-    };
-    a.c.b.push(zero_value::zero_value::B {
-        s3: "s5".into(),
-        ..Default::default()
     });
-    a.c.b.push(zero_value::zero_value::B {
-        s3: "s6".into(),
-        ..Default::default()
-    });
+    a.c.as_mut()
+        .unwrap()
+        .bb
+        .push(Arc::new(zero_value::zero_value::B {
+            s3: "s5".into(),
+            ..Default::default()
+        }));
+    a.c.as_mut()
+        .unwrap()
+        .bb
+        .push(Arc::new(zero_value::zero_value::B {
+            s3: "s6".into(),
+            ..Default::default()
+        }));
     println!("a: {:?}", a);
 
     // encode a
@@ -65,6 +72,9 @@ fn test_pb_encode_zero_value() {
     // decode a
     let decoded_a = zero_value::zero_value::A::decode(decode_a).unwrap();
     println!("decode unknown_a to a: {:?}", decoded_a);
+
+    // test deprecated
+    use zero_value::zero_value::TestService;
 }
 
 #[test]
