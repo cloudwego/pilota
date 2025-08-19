@@ -20,8 +20,8 @@ use crate::{
     IdentName,
     index::Idx,
     ir::{
-        self, Extension as IrExtension, FieldKind, Item, Path, PbExtendee as IrPbExtendee,
-        PbFieldType as IrPbFieldType, TyKind,
+        self, Extension as IrExtension, FieldKind, Item, Path, PbFieldType as IrPbFieldType,
+        PbOptionsExtendee as IrPbExtendee, TyKind,
     },
     symbol::{EnumRepr, FileId, Ident},
     tags::{
@@ -64,14 +64,14 @@ impl Default for Lower {
 impl Lower {
     fn lower_extendee(&self, s: &str) -> Option<IrPbExtendee> {
         match s {
-            ".google.protobuf.FileOptions" => Some(IrPbExtendee::FileOptions),
-            ".google.protobuf.MessageOptions" => Some(IrPbExtendee::MessageOptions),
-            ".google.protobuf.FieldOptions" => Some(IrPbExtendee::FieldOptions),
-            ".google.protobuf.EnumOptions" => Some(IrPbExtendee::EnumOptions),
-            ".google.protobuf.EnumValueOptions" => Some(IrPbExtendee::EnumValueOptions),
-            ".google.protobuf.ServiceOptions" => Some(IrPbExtendee::ServiceOptions),
-            ".google.protobuf.MethodOptions" => Some(IrPbExtendee::MethodOptions),
-            ".google.protobuf.OneofOptions" => Some(IrPbExtendee::OneofOptions),
+            ".google.protobuf.FileOptions" => Some(IrPbExtendee::File),
+            ".google.protobuf.MessageOptions" => Some(IrPbExtendee::Message),
+            ".google.protobuf.FieldOptions" => Some(IrPbExtendee::Field),
+            ".google.protobuf.EnumOptions" => Some(IrPbExtendee::Enum),
+            ".google.protobuf.EnumValueOptions" => Some(IrPbExtendee::EnumValue),
+            ".google.protobuf.ServiceOptions" => Some(IrPbExtendee::Service),
+            ".google.protobuf.MethodOptions" => Some(IrPbExtendee::Method),
+            ".google.protobuf.OneofOptions" => Some(IrPbExtendee::Oneof),
             _ => None,
         }
     }
@@ -81,9 +81,7 @@ impl Lower {
         ty: Option<protobuf::EnumOrUnknown<protobuf::descriptor::field_descriptor_proto::Type>>,
     ) -> Option<IrPbFieldType> {
         use protobuf::descriptor::field_descriptor_proto::Type as T;
-        let Some(ty) = ty else {
-            return None;
-        };
+        let ty = ty?;
         Some(match ty.enum_value().unwrap() {
             T::TYPE_BOOL => IrPbFieldType::Bool,
             T::TYPE_INT32 => IrPbFieldType::Int32,
@@ -567,7 +565,7 @@ impl Lower {
                 tags.insert(Deprecated(true));
             }
 
-            // defined in pilota_options.proto
+            // defined in pilota.proto
             if options.rust_wrapper_arc() {
                 tags.insert(RustWrapperArc(true));
             }
@@ -778,13 +776,13 @@ macro_rules! define_all_options_traits {
             $trait_name:ident for $options_type:ty {
                 $(
                     // with default value
-                    ($method:ident, $field_id:expr, $default:expr) -> $ret_type:ty
-                ),* $(;)?
-                ;
+                    ($method:ident, $field_id:expr, $default:expr) -> $ret_type:ty;
+                )*
+
                 $(
                     // without default value
-                    ($method_opt:ident, $field_id_opt:expr) -> $ret_type_opt:ty
-                ),* $(;)?
+                    opt ($method_opt:ident, $field_id_opt:expr) -> $ret_type_opt:ty;
+                )*
             }
         )*
     ) => {
@@ -812,9 +810,7 @@ macro_rules! define_all_options_traits {
                 )*
                 $(
                     fn $method_opt(&self) -> Option<$ret_type_opt> {
-                        let Some(v) = self.special_fields.unknown_fields().get($field_id_opt) else {
-                            return None;
-                        };
+                        let v = self.special_fields.unknown_fields().get($field_id_opt)?;
                         let extractor = PbOptionsValueExtractorImpl { id: $field_id_opt };
                         Some(<PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type_opt>>::extract(&extractor, v))
                     }
@@ -828,34 +824,50 @@ macro_rules! define_all_options_traits {
 pub struct PbOptions;
 impl PbOptions {
     // defined in pilota.proto
-    define_pb_option!(serde_attribute, 50101);
-    define_pb_option!(name, 50102);
-    define_pb_option!(rust_wrapper_arc, 50201, false);
-    define_pb_option!(rust_type, 50202);
+    // define_pb_option!(rs_package, 1215201); for now, this is impossible to implement, because the parser will directly use the package field: https://github.com/stepancheg/rust-protobuf/blob/master/protobuf-parse/src/pure/convert/mod.rs#L659
+    define_pb_option!(serde_attribute, 1215201);
+    define_pb_option!(name, 1215202);
+    define_pb_option!(rust_wrapper_arc, 1215203, false);
+    define_pb_option!(rust_type, 1215204);
 }
 
 // define all options traits and implementations
 define_all_options_traits! {
+
+    // PilotaFileOptions for protobuf::descriptor::FileOptions {
+    //     opt (rs_package, PbOptions::RS_PACKAGE_ID) -> FastStr;
+    // }
+
     PilotaMessageOptions for protobuf::descriptor::MessageOptions {
-        ;
-        (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr,
-        (name, PbOptions::NAME_ID) -> FastStr;
+        opt (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr;
+        opt (name, PbOptions::NAME_ID) -> FastStr;
     }
 
     PilotaFieldOptions for protobuf::descriptor::FieldOptions {
         (rust_wrapper_arc, PbOptions::RUST_WRAPPER_ARC_ID, PbOptions::RUST_WRAPPER_ARC_DEFAULT) -> bool;
-        (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr,
-        (name, PbOptions::NAME_ID) -> FastStr,
-        (rust_type, PbOptions::RUST_TYPE_ID) -> FastStr;
+        opt (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr;
+        opt (name, PbOptions::NAME_ID) -> FastStr;
+        opt (rust_type, PbOptions::RUST_TYPE_ID) -> FastStr;
     }
 
     PilotaEnumOptions for protobuf::descriptor::EnumOptions {
-        ;
-        (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr,
-        (name, PbOptions::NAME_ID) -> FastStr;
+        opt (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr;
+        opt (name, PbOptions::NAME_ID) -> FastStr;
     }
 
     PilotaServiceOptions for protobuf::descriptor::ServiceOptions {
         (rust_wrapper_arc, PbOptions::RUST_WRAPPER_ARC_ID, PbOptions::RUST_WRAPPER_ARC_DEFAULT) -> bool;
     }
 }
+
+// pub trait FileDescriptorProtoExt {
+//     fn rs_package(&self) -> Option<FastStr>;
+// }
+
+// impl FileDescriptorProtoExt for FileDescriptorProto {
+//     fn rs_package(&self) -> Option<FastStr> {
+//         self.options
+//             .rs_package()
+//             .or_else(|| self.package.as_ref().map(FastStr::new))
+//     }
+// }

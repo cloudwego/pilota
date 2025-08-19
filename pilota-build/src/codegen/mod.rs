@@ -229,7 +229,7 @@ where
         }
         let dup = dup.entry(name.0).or_default();
         for id in dup.iter() {
-            if def_id_equal(&self.nodes(), *id, def_id) {
+            if def_id_equal(self.nodes(), *id, def_id) {
                 return true;
             }
         }
@@ -541,19 +541,16 @@ where
         });
 
         let mods_iter = mods.iter().map(|(p, def_ids)| {
-            let file_path = def_ids
-                .first()
-                .map(|def_id| {
-                    let node = self.node(def_id.def_id).unwrap();
-                    let file_id = node.file_id;
+            let file_path = def_ids.first().and_then(|def_id| {
+                let node = self.node(def_id.def_id).unwrap();
+                let file_id = node.file_id;
 
-                    self.file_ids_map()
-                        .iter()
-                        .find(|(_, id)| **id == file_id)
-                        .map(|(path, _)| path)
-                        .cloned()
-                })
-                .flatten();
+                self.file_ids_map()
+                    .iter()
+                    .find(|(_, id)| **id == file_id)
+                    .map(|(path, _)| path)
+                    .cloned()
+            });
 
             let has_direct = def_ids
                 .iter()

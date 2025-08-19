@@ -20,15 +20,15 @@ pub enum Literal {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub enum PbExtendee {
-    FileOptions,
-    MessageOptions,
-    FieldOptions,
-    EnumOptions,
-    EnumValueOptions,
-    ServiceOptions,
-    MethodOptions,
-    OneofOptions,
+pub enum PbOptionsExtendee {
+    File,
+    Message,
+    Field,
+    Enum,
+    EnumValue,
+    Service,
+    Method,
+    Oneof,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -50,7 +50,7 @@ pub struct Extension {
     pub name: Ident,
     pub number: u32,
     pub field_ty: PbFieldType,
-    pub extendee: PbExtendee,
+    pub extendee: PbOptionsExtendee,
     pub value_ty: Ty,
 }
 

@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+use pilota_build::plugin::SerdePlugin;
+
 fn main() {
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     let idl_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap()).join("idl");
@@ -26,6 +28,17 @@ fn main() {
         .compile_with_config(
             vec![pilota_build::IdlService::from_path(fieldmask_idl)],
             pilota_build::Output::File(out_dir.join("fieldmask.rs")),
+        );
+
+    // for pilota serde plugin
+    let serde_idl = idl_dir.join("serde_pb.proto");
+    pilota_build::Builder::pb()
+        .ignore_unused(false)
+        .include_dirs(vec![serde_idl.parent().unwrap().to_path_buf()])
+        .plugin(SerdePlugin)
+        .compile_with_config(
+            vec![pilota_build::IdlService::from_path(serde_idl)],
+            pilota_build::Output::File(out_dir.join("serde_pb.rs")),
         );
 
     // For protobuf_options_reference

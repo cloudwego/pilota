@@ -13,7 +13,7 @@ use crate::{
         rir::{
             Arg, Const, DefKind, Enum, EnumVariant, Extension as RirExtension, Field, FieldKind,
             File, Item, ItemPath, Literal, Message, Method, MethodSource, NewType, Node, NodeKind,
-            Path, PbExtendee as RirPbExtendee, PbFieldType as RirPbFieldType, Service,
+            Path, PbFieldType as RirPbFieldType, PbOptionsExtendee as RirPbExtendee, Service,
         },
         ty::{self, Ty},
     },
@@ -863,14 +863,14 @@ impl Resolver {
 
     fn lower_extension(&mut self, e: &ir::Extension) -> Option<RirExtension> {
         let extendee = match e.extendee {
-            ir::PbExtendee::FileOptions => RirPbExtendee::FileOptions,
-            ir::PbExtendee::MessageOptions => RirPbExtendee::MessageOptions,
-            ir::PbExtendee::FieldOptions => RirPbExtendee::FieldOptions,
-            ir::PbExtendee::EnumOptions => RirPbExtendee::EnumOptions,
-            ir::PbExtendee::EnumValueOptions => RirPbExtendee::EnumValueOptions,
-            ir::PbExtendee::ServiceOptions => RirPbExtendee::ServiceOptions,
-            ir::PbExtendee::MethodOptions => RirPbExtendee::MethodOptions,
-            ir::PbExtendee::OneofOptions => RirPbExtendee::OneofOptions,
+            ir::PbOptionsExtendee::File => RirPbExtendee::File,
+            ir::PbOptionsExtendee::Message => RirPbExtendee::Message,
+            ir::PbOptionsExtendee::Field => RirPbExtendee::Field,
+            ir::PbOptionsExtendee::Enum => RirPbExtendee::Enum,
+            ir::PbOptionsExtendee::EnumValue => RirPbExtendee::EnumValue,
+            ir::PbOptionsExtendee::Service => RirPbExtendee::Service,
+            ir::PbOptionsExtendee::Method => RirPbExtendee::Method,
+            ir::PbOptionsExtendee::Oneof => RirPbExtendee::Oneof,
         };
         let field_ty = match e.field_ty {
             ir::PbFieldType::Bool => RirPbFieldType::Bool,

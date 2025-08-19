@@ -1,5 +1,4 @@
 syntax = "proto3";
-//package zero_value;
 
 import "pilota.proto";
 import "rustproto.proto";

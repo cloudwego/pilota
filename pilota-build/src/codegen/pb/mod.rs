@@ -724,7 +724,7 @@ pub fn file_descriptor() -> &'static ::protobuf::reflect::FileDescriptor {{
         stream.push_str("pub mod exts {\n");
         stream.push_str("    use ::protobuf::ext::ExtFieldOptional;\n");
         for ext in extensions {
-            let number = ext.number as u32;
+            let number = ext.number;
             let field_ty = match ext.field_ty {
                 crate::middle::rir::PbFieldType::Bool => {
                     "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_BOOL"
@@ -758,28 +758,28 @@ pub fn file_descriptor() -> &'static ::protobuf::reflect::FileDescriptor {{
                 }
             };
             let extendee_ty = match ext.extendee {
-                crate::middle::rir::PbExtendee::FileOptions => {
+                crate::middle::rir::PbOptionsExtendee::File => {
                     "::protobuf::descriptor::FileOptions"
                 }
-                crate::middle::rir::PbExtendee::MessageOptions => {
+                crate::middle::rir::PbOptionsExtendee::Message => {
                     "::protobuf::descriptor::MessageOptions"
                 }
-                crate::middle::rir::PbExtendee::FieldOptions => {
+                crate::middle::rir::PbOptionsExtendee::Field => {
                     "::protobuf::descriptor::FieldOptions"
                 }
-                crate::middle::rir::PbExtendee::EnumOptions => {
+                crate::middle::rir::PbOptionsExtendee::Enum => {
                     "::protobuf::descriptor::EnumOptions"
                 }
-                crate::middle::rir::PbExtendee::EnumValueOptions => {
+                crate::middle::rir::PbOptionsExtendee::EnumValue => {
                     "::protobuf::descriptor::EnumValueOptions"
                 }
-                crate::middle::rir::PbExtendee::ServiceOptions => {
+                crate::middle::rir::PbOptionsExtendee::Service => {
                     "::protobuf::descriptor::ServiceOptions"
                 }
-                crate::middle::rir::PbExtendee::MethodOptions => {
+                crate::middle::rir::PbOptionsExtendee::Method => {
                     "::protobuf::descriptor::MethodOptions"
                 }
-                crate::middle::rir::PbExtendee::OneofOptions => {
+                crate::middle::rir::PbOptionsExtendee::Oneof => {
                     "::protobuf::descriptor::OneofOptions"
                 }
             };

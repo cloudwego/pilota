@@ -329,6 +329,7 @@ impl ContextBuilder {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn build(
         self,
         services: Arc<[crate::IdlService]>,

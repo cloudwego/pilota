@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package serde;
+
+import "pilota.proto";
+
+message A {
+    option (pilota.serde_attribute_message) = "#[serde(rename_all = \"camelCase\")]";
+
+    string a = 1 [(pilota.serde_attribute_field) = "#[serde(rename = \"AA\")]" ];
+    int32 b = 2;
+}
+
+message B {
+    option (pilota.serde_attribute_message) = "#[serde(rename = \"BB\")]";
+
+    int32 value = 1;
+}
+
+enum C {
+    option (pilota.serde_attribute_enum) = "#[serde(untagged)]";
+
+    D = 0;
+    E = 1;
+}
+
+
