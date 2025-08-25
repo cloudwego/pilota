@@ -108,7 +108,7 @@ impl Lower {
         }
         let extendee = self.lower_extendee(extendee_str)?;
         let field_ty = self.lower_pb_field_type(f.type_)?;
-        let value_ty = self.lower_ty(f.type_, f.type_name.as_deref(), nested_messages);
+        let value_ty = self.lower_ty(f.type_, f.type_name.as_deref(), nested_messages, false);
         Some(IrExtension {
             name: FastStr::new(f.name()).into(),
             number: f.number() as u32,
@@ -132,7 +132,13 @@ impl Lower {
         type_: Option<protobuf::EnumOrUnknown<protobuf::descriptor::field_descriptor_proto::Type>>,
         type_name: Option<&str>,
         nested_messages: &AHashMap<FastStr, &DescriptorProto>,
+        is_wrapper_arc: bool,
     ) -> ir::Ty {
+        let mut tags = Tags::default();
+        if is_wrapper_arc {
+            tags.insert(RustWrapperArc(true));
+        }
+
         if let Some(name) = type_name {
             if let Some(msg) = nested_messages.get(name) {
                 if msg.options.has_map_entry() {
@@ -146,14 +152,16 @@ impl Lower {
                                 key.type_,
                                 key.type_name.as_deref(),
                                 nested_messages,
+                                false,
                             )),
                             Arc::from(self.lower_ty(
                                 value.type_,
                                 value.type_name.as_deref(),
                                 nested_messages,
+                                false,
                             )),
                         ),
-                        tags: Default::default(),
+                        tags: Arc::new(tags),
                     };
                 }
             }
@@ -162,12 +170,11 @@ impl Lower {
 
             return ir::Ty {
                 kind: ir::TyKind::Path(self.str2path(&name[1..])),
-                tags: Default::default(),
+                tags: Arc::new(tags),
             };
         }
         let Some(ty) = type_ else { panic!() };
 
-        let mut tags = Tags::default();
         let kind = match ty.enum_value().unwrap() {
             protobuf::descriptor::field_descriptor_proto::Type::TYPE_DOUBLE => ir::TyKind::F64,
             protobuf::descriptor::field_descriptor_proto::Type::TYPE_FLOAT => ir::TyKind::F32,
@@ -300,6 +307,7 @@ impl Lower {
                                     f.type_,
                                     f.type_name.as_deref(),
                                     &nested_messages,
+                                    false,
                                 )],
                                 tags: Default::default(),
                             })
@@ -355,7 +363,7 @@ impl Lower {
                     .iter()
                     .map(|(idx, f)| {
                         let mut ty =
-                            self.lower_ty(f.type_, f.type_name.as_deref(), &nested_messages);
+                            self.lower_ty(f.type_, f.type_name.as_deref(), &nested_messages, false);
 
                         let is_map = matches!(ty.kind, TyKind::Map(_, _));
                         let repeated = !is_map && matches!(f.label(), Label::LABEL_REPEATED);
@@ -442,8 +450,11 @@ impl Lower {
     }
 
     pub fn lower_service(&self, service: &ServiceDescriptorProto) -> ir::Item {
+        let service_tags = self.extract_service_tags(service);
+        let rust_wrapper_arc_all = service_tags.get::<RustWrapperArc>().is_some_and(|v| v.0);
+
         ir::Item {
-            tags: Arc::new(self.extract_service_tags(service)),
+            tags: Arc::new(service_tags),
             related_items: Default::default(),
             kind: ir::ItemKind::Service(ir::Service {
                 name: FastStr::new(service.name()).into(),
@@ -458,6 +469,12 @@ impl Lower {
                         if m.server_streaming() {
                             tags.insert(ServerStreaming);
                         }
+
+                        let mut arg_tags = Tags::default();
+                        if rust_wrapper_arc_all {
+                            arg_tags.insert(RustWrapperArc(true));
+                        }
+
                         ir::Method {
                             name: FastStr::new(m.name()).into(),
                             tags: Arc::new(tags),
@@ -468,12 +485,18 @@ impl Lower {
                                     None,
                                     m.input_type.as_deref(),
                                     &Default::default(),
+                                    rust_wrapper_arc_all,
                                 ),
-                                tags: Arc::new(Tags::default()),
+                                tags: Arc::new(arg_tags),
                                 attribute: FieldKind::Required,
                             }],
                             oneway: false,
-                            ret: self.lower_ty(None, m.output_type.as_deref(), &Default::default()),
+                            ret: self.lower_ty(
+                                None,
+                                m.output_type.as_deref(),
+                                &Default::default(),
+                                rust_wrapper_arc_all,
+                            ),
                             exceptions: None,
                         }
                     })
