@@ -49,7 +49,7 @@ extend google.protobuf.MessageOptions {
 extend google.protobuf.FieldOptions {
   optional string serde_attribute_field = 1215201;
   optional string name_field = 1215202;
-  optional bool rust_wrapper_arc = 1215203;
+  optional bool rust_wrapper_arc_field = 1215203;
   optional string rust_type = 1215204;
 }
 
@@ -65,7 +65,7 @@ extend google.protobuf.EnumValueOptions {
 
 // Service-level custom options
 extend google.protobuf.ServiceOptions {
-  optional bool rust_wrapper_arc = 1215203;
+  optional bool rust_wrapper_arc_all = 1215203;
 }
 
 // Method-level custom options

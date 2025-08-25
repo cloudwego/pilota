@@ -652,9 +652,9 @@ impl CodegenBackend for ProtobufBackend {
                         .collect::<Vec<_>>()
                         .join("::");
                     if pkg == "google::protobuf" {
-                        deps_builders.push_str(
-                            "deps.push(::protobuf::descriptor::file_descriptor().clone());\n",
-                        );
+                        deps_builders.push_str(&format!(
+                            "deps.push(::pilota::pb::descriptor::file_descriptor().clone());\n"
+                        ));
                     } else if has_include_path && !pkg.is_empty() && pkg != "pilota" {
                         deps_builders.push_str(&format!(
                             "deps.push({super_mod}{pkg}::file_descriptor().clone());\n"
@@ -666,19 +666,19 @@ impl CodegenBackend for ProtobufBackend {
             stream.push_str(&format!(
                 r#"
 static FILE_DESCRIPTOR_BYTES: ::pilota::Bytes = ::pilota::Bytes::from_static({descriptor:?});
-pub fn file_descriptor_proto() -> &'static ::protobuf::descriptor::FileDescriptorProto {{
-    static FILE_DESCRIPTOR_PROTO: ::std::sync::LazyLock<::protobuf::descriptor::FileDescriptorProto> = ::std::sync::LazyLock::new(|| {{
+pub fn file_descriptor_proto() -> &'static ::pilota::pb::descriptor::FileDescriptorProto {{
+    static FILE_DESCRIPTOR_PROTO: ::std::sync::LazyLock<::pilota::pb::descriptor::FileDescriptorProto> = ::std::sync::LazyLock::new(|| {{
         let data: &[u8] = FILE_DESCRIPTOR_BYTES.as_ref();
-        ::protobuf::Message::parse_from_bytes(data).expect("Failed to decode file descriptor")
+        ::pilota::pb::PbMessage::parse_from_bytes(data).expect("Failed to decode file descriptor")
     }});
     &*FILE_DESCRIPTOR_PROTO
 }}
 
-pub fn file_descriptor() -> &'static ::protobuf::reflect::FileDescriptor {{
-    static FILE_DESCRIPTOR: ::std::sync::LazyLock<::protobuf::reflect::FileDescriptor> = ::std::sync::LazyLock::new(|| {{
+pub fn file_descriptor() -> &'static ::pilota::pb::reflect::FileDescriptor {{
+    static FILE_DESCRIPTOR: ::std::sync::LazyLock<::pilota::pb::reflect::FileDescriptor> = ::std::sync::LazyLock::new(|| {{
         let mut deps = ::std::vec::Vec::new();
         {deps_builders}
-        ::protobuf::reflect::FileDescriptor::new_dynamic(file_descriptor_proto().clone(), &deps)
+        ::pilota::pb::reflect::FileDescriptor::new_dynamic(file_descriptor_proto().clone(), &deps)
             .expect("Failed to build dynamic FileDescriptor")
     }});
     &*FILE_DESCRIPTOR
@@ -722,65 +722,65 @@ pub fn file_descriptor() -> &'static ::protobuf::reflect::FileDescriptor {{
 
     fn codegen_exts(&self, stream: &mut String, extensions: &[rir::Extension]) {
         stream.push_str("pub mod exts {\n");
-        stream.push_str("    use ::protobuf::ext::ExtFieldOptional;\n");
+        stream.push_str("    use ::pilota::pb::ext::ExtFieldOptional;\n");
         for ext in extensions {
             let number = ext.number;
             let field_ty = match ext.field_ty {
                 crate::middle::rir::PbFieldType::Bool => {
-                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_BOOL"
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_BOOL"
                 }
                 crate::middle::rir::PbFieldType::Int32 => {
-                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_INT32"
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_INT32"
                 }
                 crate::middle::rir::PbFieldType::Int64 => {
-                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_INT64"
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_INT64"
                 }
                 crate::middle::rir::PbFieldType::UInt32 => {
-                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_UINT32"
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_UINT32"
                 }
                 crate::middle::rir::PbFieldType::UInt64 => {
-                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_UINT64"
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_UINT64"
                 }
                 crate::middle::rir::PbFieldType::Float => {
-                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_FLOAT"
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_FLOAT"
                 }
                 crate::middle::rir::PbFieldType::Double => {
-                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_DOUBLE"
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_DOUBLE"
                 }
                 crate::middle::rir::PbFieldType::String => {
-                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_STRING"
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_STRING"
                 }
                 crate::middle::rir::PbFieldType::Bytes => {
-                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_BYTES"
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_BYTES"
                 }
                 crate::middle::rir::PbFieldType::Message => {
-                    "::protobuf::descriptor::field_descriptor_proto::Type::TYPE_MESSAGE"
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_MESSAGE"
                 }
             };
             let extendee_ty = match ext.extendee {
                 crate::middle::rir::PbOptionsExtendee::File => {
-                    "::protobuf::descriptor::FileOptions"
+                    "::pilota::pb::descriptor::FileOptions"
                 }
                 crate::middle::rir::PbOptionsExtendee::Message => {
-                    "::protobuf::descriptor::MessageOptions"
+                    "::pilota::pb::descriptor::MessageOptions"
                 }
                 crate::middle::rir::PbOptionsExtendee::Field => {
-                    "::protobuf::descriptor::FieldOptions"
+                    "::pilota::pb::descriptor::FieldOptions"
                 }
                 crate::middle::rir::PbOptionsExtendee::Enum => {
-                    "::protobuf::descriptor::EnumOptions"
+                    "::pilota::pb::descriptor::EnumOptions"
                 }
                 crate::middle::rir::PbOptionsExtendee::EnumValue => {
-                    "::protobuf::descriptor::EnumValueOptions"
+                    "::pilota::pb::descriptor::EnumValueOptions"
                 }
                 crate::middle::rir::PbOptionsExtendee::Service => {
-                    "::protobuf::descriptor::ServiceOptions"
+                    "::pilota::pb::descriptor::ServiceOptions"
                 }
                 crate::middle::rir::PbOptionsExtendee::Method => {
-                    "::protobuf::descriptor::MethodOptions"
+                    "::pilota::pb::descriptor::MethodOptions"
                 }
                 crate::middle::rir::PbOptionsExtendee::Oneof => {
-                    "::protobuf::descriptor::OneofOptions"
+                    "::pilota::pb::descriptor::OneofOptions"
                 }
             };
             let val_ty = match &ext.value_ty.kind {

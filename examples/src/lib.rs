@@ -279,7 +279,7 @@ fn test_pb_options() {
     }
 
     // message options
-    fn walk_message(md: &::protobuf::reflect::MessageDescriptor, depth: usize) {
+    fn walk_message(md: &::pilota::pb::reflect::MessageDescriptor, depth: usize) {
         use custom_options::custom_options::custom_options::exts;
         let indent = "  ".repeat(depth);
         let dp = md.proto();
@@ -298,7 +298,7 @@ fn test_pb_options() {
             }
             // message type extension validate: decode by unknown_fields
             if let Some(uv) = opts.special_fields.unknown_fields().get(50104) {
-                if let protobuf::UnknownValueRef::LengthDelimited(bytes) = uv {
+                if let ::pilota::pb::UnknownValueRef::LengthDelimited(bytes) = uv {
                     let b = pilota::Bytes::copy_from_slice(bytes);
                     let mv =
                         custom_options::custom_options::custom_options::MessageValidation::decode(

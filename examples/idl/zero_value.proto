@@ -5,25 +5,29 @@ import "rustproto.proto";
 import "google/protobuf/descriptor.proto";
 import "custom_options.proto";
 
+extend google.protobuf.MessageOptions {
+    optional string alias = 1111;
+}
+
 message B {
     string s3 = 1;
 }
 
 message C {
     optional string s4 = 1;
-    repeated B bb = 2[(pilota.rust_wrapper_arc) = true];
+    repeated B bb = 2[(pilota.rust_wrapper_arc_field) = true];
 }
 
 message A {
     C c = 4[deprecated = true];
-    B b = 3[(pilota.rust_wrapper_arc) = true];
+    B b = 3[(pilota.rust_wrapper_arc_field) = true];
     map<string, string> str_map = 1[(rustproto.btreemap_field) = true];
      string s1 = 2;
     optional string s2 = 2047;
 }
 
 message BB {
-    option deprecated = true;
+    option (alias) = "UnknownB";
 }
 
 message CC {
