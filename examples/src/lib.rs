@@ -6,6 +6,10 @@ pub mod fieldmask {
     include!(concat!(env!("OUT_DIR"), "/fieldmask.rs"));
 }
 
+pub mod custom_options {
+    include!(concat!(env!("OUT_DIR"), "/custom_options.rs"));
+}
+
 #[test]
 fn test_pb_encode_zero_value() {
     use std::sync::Arc;
@@ -207,4 +211,215 @@ fn test_thrift_fieldmask() {
     let mut protocol = pilota::thrift::binary::TBinaryProtocol::new(&mut encoded_buf, true);
     let parsed_request = fieldmask::fieldmask::fieldmask::Request::decode(&mut protocol).unwrap();
     println!("{:?}", parsed_request);
+}
+
+#[test]
+fn test_pb_options() {
+    use pilota::pb::Message as _;
+    let fd = custom_options::custom_options::custom_options::file_descriptor();
+
+    // file options
+    let fd_proto = custom_options::custom_options::custom_options::file_descriptor_proto();
+    if let Some(file_opts) = fd_proto.options.as_ref() {
+        use custom_options::custom_options::custom_options::exts;
+        if let Some(v) = exts::file_version.get(file_opts) {
+            println!("file_option file_version: {}", v);
+            assert_eq!(v, 20250818);
+        }
+        if let Some(v) = exts::file_author.get(file_opts) {
+            println!("file_option file_author: {}", v);
+            assert_eq!(v, "giggle");
+        }
+        if let Some(v) = exts::file_department.get(file_opts) {
+            println!("file_option file_department: {}", v);
+            assert_eq!(v, "arch");
+        }
+        if let Some(v) = exts::internal_api.get(file_opts) {
+            println!("file_option internal_api: {}", v);
+            assert_eq!(v, false);
+        }
+    }
+
+    // service options
+    for svc in fd.services() {
+        let svc_proto = svc.proto();
+        if let Some(svc_opts) = svc_proto.options.as_ref() {
+            use custom_options::custom_options::custom_options::exts;
+            if let Some(v) = exts::service_version.get(svc_opts) {
+                println!("service_option service_version: {}", v);
+            }
+            if let Some(v) = exts::require_auth.get(svc_opts) {
+                println!("service_option require_auth: {}", v);
+            }
+            if let Some(v) = exts::rate_limit.get(svc_opts) {
+                println!("service_option rate_limit: {}", v);
+            }
+        }
+        for m in svc.methods() {
+            let m_proto = m.proto();
+            if let Some(m_opts) = m_proto.options.as_ref() {
+                use custom_options::custom_options::custom_options::exts;
+                if let Some(v) = exts::method_require_auth.get(m_opts) {
+                    println!("method_option method_require_auth: {}", v);
+                }
+                if let Some(v) = exts::method_rate_limit.get(m_opts) {
+                    println!("method_option method_rate_limit: {}", v);
+                }
+                if let Some(v) = exts::endpoint.get(m_opts) {
+                    println!("method_option endpoint: {}", v);
+                }
+                if let Some(v) = exts::http_method.get(m_opts) {
+                    println!("method_option http_method: {}", v);
+                }
+                if let Some(v) = exts::permission.get(m_opts) {
+                    println!("method_option permission: {}", v);
+                }
+            }
+        }
+    }
+
+    // message options
+    fn walk_message(md: &::pilota::pb::reflect::MessageDescriptor, depth: usize) {
+        use custom_options::custom_options::custom_options::exts;
+        let indent = "  ".repeat(depth);
+        let dp = md.proto();
+        if let Some(opts) = dp.options.as_ref() {
+            if let Some(v) = exts::db_table.get(opts) {
+                println!("{}message_option db_table: {}", indent, v);
+                assert_eq!(v, "users");
+            }
+            if let Some(v) = exts::db_entity.get(opts) {
+                println!("{}message_option db_entity: {}", indent, v);
+                assert_eq!(v, true);
+            }
+            if let Some(v) = exts::cache_ttl_seconds.get(opts) {
+                println!("{}message_option cache_ttl_seconds: {}", indent, v);
+                assert_eq!(v, 3600);
+            }
+            // message type extension validate: decode by unknown_fields
+            if let Some(uv) = opts.special_fields.unknown_fields().get(50104) {
+                if let ::pilota::pb::UnknownValueRef::LengthDelimited(bytes) = uv {
+                    let b = pilota::Bytes::copy_from_slice(bytes);
+                    let mv =
+                        custom_options::custom_options::custom_options::MessageValidation::decode(
+                            b,
+                        )
+                        .unwrap();
+                    println!(
+                        "{}message_option validate: all_fields_required={:?} max_nesting_depth={:?} validation_message={:?}",
+                        indent,
+                        mv.all_fields_required,
+                        mv.max_nesting_depth,
+                        mv.validation_message
+                    );
+                    assert_eq!(mv.all_fields_required, Some(true));
+                    assert_eq!(mv.max_nesting_depth, Some(3));
+                    assert_eq!(mv.validation_message, Some("User validation failed".into()));
+                }
+            }
+        }
+
+        // nested extension: ApiMetadata.message Example use ApiMetadata::exts::test
+        if let Some(opts) = dp.options.as_ref() {
+            use custom_options::custom_options::custom_options::api_metadata::exts as am_exts;
+            if let Some(v) = am_exts::test.get(opts) {
+                println!("{}api_metadata.test: {}", indent, v);
+            }
+        }
+
+        // field options
+        for f in &dp.field {
+            if let Some(f_opts) = f.options.as_ref() {
+                if let Some(v) = exts::sensitive.get(f_opts) {
+                    println!("{}field_option sensitive: {}", indent, v);
+                }
+                if let Some(v) = exts::validation.get(f_opts) {
+                    println!("{}field_option validation: {}", indent, v);
+                }
+                if let Some(v) = exts::db_column.get(f_opts) {
+                    println!("{}field_option db_column: {}", indent, v);
+                }
+                if let Some(v) = exts::db_index.get(f_opts) {
+                    assert_eq!(v, true);
+                }
+                if let Some(v) = exts::api_doc.get(f_opts) {
+                    println!("{}field_option api_doc: {}", indent, v);
+                }
+            }
+        }
+
+        // oneof options
+        for o in &dp.oneof_decl {
+            if let Some(o_opts) = o.options.as_ref() {
+                if let Some(v) = exts::oneof_description.get(o_opts) {
+                    println!("{}oneof_option oneof_description: {}", indent, v);
+                }
+                if let Some(v) = exts::exclusive.get(o_opts) {
+                    println!("{}oneof_option exclusive: {}", indent, v);
+                }
+            }
+        }
+
+        // enum options
+        for e in &dp.enum_type {
+            if let Some(e_opts) = e.options.as_ref() {
+                if let Some(v) = exts::enum_description.get(e_opts) {
+                    println!("{}enum_option enum_description: {}", indent, v);
+                }
+                if let Some(v) = exts::is_internal.get(e_opts) {
+                    println!("{}enum_option is_internal: {}", indent, v);
+                }
+            }
+            for ev in &e.value {
+                if let Some(ev_opts) = ev.options.as_ref() {
+                    if let Some(v) = exts::display_name.get(ev_opts) {
+                        println!("{}enum_value_option display_name: {}", indent, v);
+                    }
+                    if let Some(v) = exts::access_level.get(ev_opts) {
+                        println!("{}enum_value_option access_level: {}", indent, v);
+                    }
+                    if let Some(v) = exts::color.get(ev_opts) {
+                        println!("{}enum_value_option color: {}", indent, v);
+                    }
+                }
+            }
+        }
+
+        // recursive traverse nested message
+        for nested in md.nested_messages() {
+            walk_message(&nested, depth + 1);
+        }
+    }
+
+    // top level message
+    for m in fd.messages() {
+        walk_message(&m, 0);
+    }
+
+    // top level enum and enum value options
+    for e in fd.enums() {
+        use custom_options::custom_options::custom_options::exts;
+        let ep = e.proto();
+        if let Some(e_opts) = ep.options.as_ref() {
+            if let Some(v) = exts::enum_description.get(e_opts) {
+                println!("top_enum_option enum_description: {}", v);
+            }
+            if let Some(v) = exts::is_internal.get(e_opts) {
+                println!("top_enum_option is_internal: {}", v);
+            }
+        }
+        for ev in &ep.value {
+            if let Some(ev_opts) = ev.options.as_ref() {
+                if let Some(v) = exts::display_name.get(ev_opts) {
+                    println!("top_enum_value_option display_name: {}", v);
+                }
+                if let Some(v) = exts::access_level.get(ev_opts) {
+                    println!("top_enum_value_option access_level: {}", v);
+                }
+                if let Some(v) = exts::color.get(ev_opts) {
+                    println!("top_enum_value_option color: {}", v);
+                }
+            }
+        }
+    }
 }

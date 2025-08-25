@@ -245,6 +245,7 @@ impl PathIterator {
         self.position < self.tokens.len()
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> PathToken {
         if self.position >= self.tokens.len() {
             return PathToken::new_eof(self.tokens.last().map(|t| t.loc[1]).unwrap_or(0));

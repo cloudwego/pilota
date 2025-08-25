@@ -8,7 +8,10 @@ use quote::quote;
 use crate::{
     CodegenBackend, Context, DefId,
     db::RirDatabase,
-    middle::ty::{self},
+    middle::{
+        context::Mode,
+        ty::{self},
+    },
     rir::{self, Field, FieldKind, Item, NodeKind},
     tags::protobuf::{OneOf, ProstType},
     ty::Ty,
@@ -516,6 +519,9 @@ impl CodegenBackend for ProtobufBackend {
             }}
             "#
         ));
+
+        // nested message exts are injected inside each message's mod by backend
+        // hook
     }
 
     fn codegen_newtype_impl(&self, _def_id: DefId, _stream: &mut String, _t: &rir::NewType) {
@@ -623,5 +629,183 @@ impl CodegenBackend for ProtobufBackend {
 
     fn codegen_pilota_buf_trait(&self, stream: &mut String) {
         stream.push_str("use ::pilota::{Buf as _, BufMut as _};");
+    }
+
+    fn codegen_file_descriptor(&self, stream: &mut String, f: &rir::File, has_direct: bool) {
+        if has_direct {
+            let descriptor = &f.descriptor;
+            let super_mod = match &*self.mode {
+                Mode::Workspace(_) => "crate::".to_string(),
+                Mode::SingleFile { .. } => "super::".repeat(f.package.len()),
+            };
+
+            // dependency reflect builders
+            let mut deps_builders = String::new();
+            for dep in &f.uses {
+                if let Some(dep_file) = self.file(*dep) {
+                    // only include dependencies with include path in current crate
+                    let has_include_path = self.file_ids_map().iter().any(|(_, id)| *id == *dep);
+                    let pkg = dep_file
+                        .package
+                        .iter()
+                        .map(|s| s.to_string())
+                        .collect::<Vec<_>>()
+                        .join("::");
+                    if pkg == "google::protobuf" {
+                        deps_builders.push_str(&format!(
+                            "deps.push(::pilota::pb::descriptor::file_descriptor().clone());\n"
+                        ));
+                    } else if has_include_path && !pkg.is_empty() && pkg != "pilota" {
+                        deps_builders.push_str(&format!(
+                            "deps.push({super_mod}{pkg}::file_descriptor().clone());\n"
+                        ));
+                    }
+                }
+            }
+
+            stream.push_str(&format!(
+                r#"
+static FILE_DESCRIPTOR_BYTES: ::pilota::Bytes = ::pilota::Bytes::from_static({descriptor:?});
+pub fn file_descriptor_proto() -> &'static ::pilota::pb::descriptor::FileDescriptorProto {{
+    static FILE_DESCRIPTOR_PROTO: ::std::sync::LazyLock<::pilota::pb::descriptor::FileDescriptorProto> = ::std::sync::LazyLock::new(|| {{
+        let data: &[u8] = FILE_DESCRIPTOR_BYTES.as_ref();
+        ::pilota::pb::PbMessage::parse_from_bytes(data).expect("Failed to decode file descriptor")
+    }});
+    &*FILE_DESCRIPTOR_PROTO
+}}
+
+pub fn file_descriptor() -> &'static ::pilota::pb::reflect::FileDescriptor {{
+    static FILE_DESCRIPTOR: ::std::sync::LazyLock<::pilota::pb::reflect::FileDescriptor> = ::std::sync::LazyLock::new(|| {{
+        let mut deps = ::std::vec::Vec::new();
+        {deps_builders}
+        ::pilota::pb::reflect::FileDescriptor::new_dynamic(file_descriptor_proto().clone(), &deps)
+            .expect("Failed to build dynamic FileDescriptor")
+    }});
+    &*FILE_DESCRIPTOR
+}}
+"#
+            ));
+
+            if !f.extensions.is_empty() {
+                self.codegen_exts(stream, &f.extensions);
+            }
+        } else {
+            match &*self.mode {
+                Mode::Workspace(_) => {
+                    let mod_prefix = f.package.iter().join("::");
+                    let common_crate_name = &self.common_crate_name;
+                    stream.push_str(&format!(
+                        r#"
+                        pub use ::{common_crate_name}::{mod_prefix}::get_file_descriptor;
+                        "#
+                    ));
+                }
+                Mode::SingleFile { .. } => {}
+            }
+        }
+    }
+
+    fn codegen_file_descriptor_at_mod(
+        &self,
+        stream: &mut String,
+        f: &rir::File,
+        mod_path: &[pilota::FastStr],
+        has_direct: bool,
+    ) {
+        // only generate at file root mod, i.e., when mod_path equals package path
+        let pkg: Vec<String> = f.package.iter().map(|s| s.to_string()).collect();
+        let cur: Vec<String> = mod_path.iter().map(|s| s.to_string()).collect();
+        if pkg == cur {
+            self.codegen_file_descriptor(stream, f, has_direct);
+        }
+    }
+
+    fn codegen_exts(&self, stream: &mut String, extensions: &[rir::Extension]) {
+        stream.push_str("pub mod exts {\n");
+        stream.push_str("    use ::pilota::pb::ext::ExtFieldOptional;\n");
+        for ext in extensions {
+            let number = ext.number;
+            let field_ty = match ext.field_ty {
+                crate::middle::rir::PbFieldType::Bool => {
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_BOOL"
+                }
+                crate::middle::rir::PbFieldType::Int32 => {
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_INT32"
+                }
+                crate::middle::rir::PbFieldType::Int64 => {
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_INT64"
+                }
+                crate::middle::rir::PbFieldType::UInt32 => {
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_UINT32"
+                }
+                crate::middle::rir::PbFieldType::UInt64 => {
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_UINT64"
+                }
+                crate::middle::rir::PbFieldType::Float => {
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_FLOAT"
+                }
+                crate::middle::rir::PbFieldType::Double => {
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_DOUBLE"
+                }
+                crate::middle::rir::PbFieldType::String => {
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_STRING"
+                }
+                crate::middle::rir::PbFieldType::Bytes => {
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_BYTES"
+                }
+                crate::middle::rir::PbFieldType::Message => {
+                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_MESSAGE"
+                }
+            };
+            let extendee_ty = match ext.extendee {
+                crate::middle::rir::PbOptionsExtendee::File => {
+                    "::pilota::pb::descriptor::FileOptions"
+                }
+                crate::middle::rir::PbOptionsExtendee::Message => {
+                    "::pilota::pb::descriptor::MessageOptions"
+                }
+                crate::middle::rir::PbOptionsExtendee::Field => {
+                    "::pilota::pb::descriptor::FieldOptions"
+                }
+                crate::middle::rir::PbOptionsExtendee::Enum => {
+                    "::pilota::pb::descriptor::EnumOptions"
+                }
+                crate::middle::rir::PbOptionsExtendee::EnumValue => {
+                    "::pilota::pb::descriptor::EnumValueOptions"
+                }
+                crate::middle::rir::PbOptionsExtendee::Service => {
+                    "::pilota::pb::descriptor::ServiceOptions"
+                }
+                crate::middle::rir::PbOptionsExtendee::Method => {
+                    "::pilota::pb::descriptor::MethodOptions"
+                }
+                crate::middle::rir::PbOptionsExtendee::Oneof => {
+                    "::pilota::pb::descriptor::OneofOptions"
+                }
+            };
+            let val_ty = match &ext.value_ty.kind {
+                ty::TyKind::Path(p) => {
+                    let cg = self.codegen_item_ty(ext.value_ty.kind.clone());
+                    match &*self.mode {
+                        Mode::Workspace(_) => cg.global_path("crate").to_string(),
+                        Mode::SingleFile { .. } => {
+                            let name = self.rust_name(p.did);
+                            format!("super::{name}")
+                        }
+                    }
+                }
+                // 对于 string 扩展，使用标准 String，便于与 rust-protobuf 反射 API 配合
+                ty::TyKind::String | ty::TyKind::FastStr => "::std::string::String".to_string(),
+                _ => {
+                    let cg = self.codegen_item_ty(ext.value_ty.kind.clone());
+                    cg.global_path("crate").to_string()
+                }
+            };
+            let const_name = &*ext.name;
+            stream.push_str(&format!(
+                    "    pub const {const_name}: ExtFieldOptional<{extendee_ty}, {val_ty}> = ExtFieldOptional::new({number}, {field_ty});\n"
+                ));
+        }
+        stream.push_str("}\n");
     }
 }

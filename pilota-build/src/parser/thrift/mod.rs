@@ -269,6 +269,7 @@ impl ThriftLower {
                     .map(|a| self.lower_method_arg_field(a, arc_wrapper))
                     .collect(),
                 is_wrapper: true,
+                extensions: Default::default(),
             });
             related_items.push(name.clone());
             let mut tags = Tags::default();
@@ -285,6 +286,7 @@ impl ThriftLower {
                     .map(|a| self.lower_method_arg_field(a, arc_wrapper))
                     .collect(),
                 is_wrapper: true,
+                extensions: Default::default(),
             });
             related_items.push(name.clone());
             let mut tags: Tags = Tags::default();
@@ -576,6 +578,7 @@ impl ThriftLower {
             name: self.lower_ident(&s.name),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
             is_wrapper: false,
+            extensions: Default::default(),
         }
     }
 
@@ -715,6 +718,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                 id: file_id,
                 uses,
                 descriptor: f.descriptor.clone(),
+                extensions: Default::default(),
             };
 
             this.service_name_duplicates.clear();
