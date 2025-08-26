@@ -2,6 +2,7 @@ extern crate alloc;
 
 use alloc::boxed::Box;
 use core::fmt::Debug;
+use std::sync::Arc;
 
 use bytes::{Buf, BufMut, Bytes};
 use linkedbytes::LinkedBytes;
@@ -144,6 +145,30 @@ where
     ) -> Result<(), DecodeError> {
         (**self).merge_field(tag, wire_type, buf, ctx)
     }
+    fn encoded_len(&self) -> usize {
+        (**self).encoded_len()
+    }
+}
+
+impl<M> Message for std::sync::Arc<M>
+where
+    M: Message + Clone,
+{
+    fn encode_raw(&self, buf: &mut LinkedBytes) {
+        (**self).encode_raw(buf)
+    }
+
+    fn merge_field(
+        &mut self,
+        tag: u32,
+        wire_type: WireType,
+        buf: &mut Bytes,
+        ctx: &mut DecodeContext,
+    ) -> Result<(), DecodeError> {
+        let inner = Arc::<M>::make_mut(self);
+        inner.merge_field(tag, wire_type, buf, ctx)
+    }
+
     fn encoded_len(&self) -> usize {
         (**self).encoded_len()
     }
