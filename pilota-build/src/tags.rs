@@ -213,5 +213,7 @@ pub mod protobuf {
         pub struct ClientStreaming;
         pub struct ServerStreaming;
         pub struct Deprecated(pub bool);
+
+        pub struct OptionalRepeated(pub bool);
     }
 }

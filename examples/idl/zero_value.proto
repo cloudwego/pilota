@@ -11,6 +11,7 @@ extend google.protobuf.MessageOptions {
 
 message B {
     string s3 = 1;
+    repeated int32 int_vec = 2[(pilota.optional_repeated) = true];
 }
 
 message C {

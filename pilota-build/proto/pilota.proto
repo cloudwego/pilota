@@ -51,6 +51,7 @@ extend google.protobuf.FieldOptions {
   optional string name_field = 1215202;
   optional bool rust_wrapper_arc_field = 1215203;
   optional string rust_type = 1215204;
+  optional bool optional_repeated = 1215205;
 }
 
 // Enum-level custom options

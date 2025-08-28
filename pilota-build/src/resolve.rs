@@ -7,8 +7,7 @@ use rustc_hash::{FxHashMap, FxHashSet};
 use crate::{
     errors,
     index::Idx,
-    ir,
-    ir::visit::Visitor,
+    ir::{self, visit::Visitor},
     middle::{
         rir::{
             Arg, Const, DefKind, Enum, EnumVariant, Extension as RirExtension, Field, FieldKind,
@@ -19,7 +18,7 @@ use crate::{
     },
     rir::Mod,
     symbol::{DefId, EnumRepr, FileId, Ident, Symbol},
-    tags::{RustType, RustWrapperArc, TagId, Tags},
+    tags::{RustType, RustWrapperArc, TagId, Tags, protobuf::OptionalRepeated},
     ty::{Folder, TyKind},
 };
 
@@ -368,13 +367,18 @@ impl Resolver {
         let ty = self.lower_type(&f.ty, false);
         let ty = self.modify_ty_by_tags(ty, &f.tags);
 
+        let mut kind = match f.kind {
+            ir::FieldKind::Required => FieldKind::Required,
+            ir::FieldKind::Optional => FieldKind::Optional,
+        };
+        if let Some(OptionalRepeated(true)) = f.tags.get::<OptionalRepeated>() {
+            kind = FieldKind::Optional;
+        }
+
         let f = Arc::from(Field {
             did,
             id: f.id,
-            kind: match f.kind {
-                ir::FieldKind::Required => FieldKind::Required,
-                ir::FieldKind::Optional => FieldKind::Optional,
-            },
+            kind,
             name: f.name.clone(),
             ty,
             tags_id,

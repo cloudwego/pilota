@@ -26,7 +26,10 @@ use crate::{
     symbol::{EnumRepr, FileId, Ident},
     tags::{
         PilotaName, RustType, RustWrapperArc, SerdeAttribute, Tags,
-        protobuf::{ClientStreaming, Deprecated, OneOf, ProstType, Repeated, ServerStreaming},
+        protobuf::{
+            ClientStreaming, Deprecated, OneOf, OptionalRepeated, ProstType, Repeated,
+            ServerStreaming,
+        },
     },
 };
 
@@ -687,6 +690,9 @@ impl Lower {
             if let Some(rust_type) = options.rust_type() {
                 tags.insert(RustType(rust_type));
             }
+            if options.optional_repeated() {
+                tags.insert(OptionalRepeated(true));
+            }
         }
         tags
     }
@@ -797,49 +803,58 @@ macro_rules! define_all_options_traits {
     (
         $(
             $trait_name:ident for $options_type:ty {
-                $(
-                    // with default value
-                    ($method:ident, $field_id:expr, $default:expr) -> $ret_type:ty;
-                )*
-
-                $(
-                    // without default value
-                    opt ($method_opt:ident, $field_id_opt:expr) -> $ret_type_opt:ty;
-                )*
+                $($method_defs:tt)*
             }
         )*
     ) => {
         $(
-            // define trait
-            pub trait $trait_name {
-                $(
-                    fn $method(&self) -> $ret_type;
-                )*
-                $(
-                    fn $method_opt(&self) -> Option<$ret_type_opt>;
-                )*
-            }
-
-            // define implementation
-            impl $trait_name for $options_type {
-                $(
-                    fn $method(&self) -> $ret_type {
-                        let Some(v) = self.special_fields.unknown_fields().get($field_id) else {
-                            return $default;
-                        };
-                        let extractor = PbOptionsValueExtractorImpl { id: $field_id };
-                        <PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type>>::extract(&extractor, v)
-                    }
-                )*
-                $(
-                    fn $method_opt(&self) -> Option<$ret_type_opt> {
-                        let v = self.special_fields.unknown_fields().get($field_id_opt)?;
-                        let extractor = PbOptionsValueExtractorImpl { id: $field_id_opt };
-                        Some(<PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type_opt>>::extract(&extractor, v))
-                    }
-                )*
-            }
+            define_all_options_traits!(@process_trait $trait_name, $options_type, $($method_defs)*);
         )*
+    };
+
+    // Process trait and impl generation
+    (@process_trait $trait_name:ident, $options_type:ty, $($method_defs:tt)*) => {
+        // define trait
+        pub trait $trait_name {
+            define_all_options_traits!(@collect_trait_methods $($method_defs)*);
+        }
+
+        // define implementation
+        impl $trait_name for $options_type {
+            define_all_options_traits!(@collect_impl_methods $($method_defs)*);
+        }
+    };
+
+    // Collect trait methods
+    (@collect_trait_methods) => {};
+    (@collect_trait_methods ($method:ident, $field_id:expr, $default:expr) -> $ret_type:ty; $($rest:tt)*) => {
+        fn $method(&self) -> $ret_type;
+        define_all_options_traits!(@collect_trait_methods $($rest)*);
+    };
+    (@collect_trait_methods opt ($method_opt:ident, $field_id_opt:expr) -> $ret_type_opt:ty; $($rest:tt)*) => {
+        fn $method_opt(&self) -> Option<$ret_type_opt>;
+        define_all_options_traits!(@collect_trait_methods $($rest)*);
+    };
+
+    // Collect implementation methods
+    (@collect_impl_methods) => {};
+    (@collect_impl_methods ($method:ident, $field_id:expr, $default:expr) -> $ret_type:ty; $($rest:tt)*) => {
+        fn $method(&self) -> $ret_type {
+            let Some(v) = self.special_fields.unknown_fields().get($field_id) else {
+                return $default;
+            };
+            let extractor = PbOptionsValueExtractorImpl { id: $field_id };
+            <PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type>>::extract(&extractor, v)
+        }
+        define_all_options_traits!(@collect_impl_methods $($rest)*);
+    };
+    (@collect_impl_methods opt ($method_opt:ident, $field_id_opt:expr) -> $ret_type_opt:ty; $($rest:tt)*) => {
+        fn $method_opt(&self) -> Option<$ret_type_opt> {
+            let v = self.special_fields.unknown_fields().get($field_id_opt)?;
+            let extractor = PbOptionsValueExtractorImpl { id: $field_id_opt };
+            Some(<PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type_opt>>::extract(&extractor, v))
+        }
+        define_all_options_traits!(@collect_impl_methods $($rest)*);
     };
 }
 
@@ -852,6 +867,7 @@ impl PbOptions {
     define_pb_option!(name, 1215202);
     define_pb_option!(rust_wrapper_arc, 1215203, false);
     define_pb_option!(rust_type, 1215204);
+    define_pb_option!(optional_repeated, 1215205, false);
 }
 
 // define all options traits and implementations
@@ -871,6 +887,7 @@ define_all_options_traits! {
         opt (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr;
         opt (name, PbOptions::NAME_ID) -> FastStr;
         opt (rust_type, PbOptions::RUST_TYPE_ID) -> FastStr;
+        (optional_repeated, PbOptions::OPTIONAL_REPEATED_ID, PbOptions::OPTIONAL_REPEATED_DEFAULT) -> bool;
     }
 
     PilotaEnumOptions for protobuf::descriptor::EnumOptions {
@@ -883,6 +900,7 @@ define_all_options_traits! {
     }
 }
 
+// TODO: cannot implement this trait now, because the parser will directly use the package field: https://github.com/stepancheg/rust-protobuf/blob/master/protobuf-parse/src/pure/convert/mod.rs#L659
 // pub trait FileDescriptorProtoExt {
 //     fn rs_package(&self) -> Option<FastStr>;
 // }
