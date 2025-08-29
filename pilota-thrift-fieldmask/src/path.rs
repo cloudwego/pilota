@@ -13,12 +13,8 @@ use thiserror::Error;
 
 #[derive(Debug, Clone, Error)]
 pub enum PathError {
-    #[error("syntax error at position {position}: expected '{expected}', but found '{found}'")]
-    SyntaxError {
-        position: usize,
-        expected: FastStr,
-        found: FastStr,
-    },
+    #[error("syntax error at position {position}")]
+    SyntaxError { position: usize },
     #[error("invalid character '{character}' at position {position}")]
     InvalidCharacter { position: usize, character: char },
     #[error("unterminated string at position {start_position}")]
@@ -27,8 +23,8 @@ pub enum PathError {
     InvalidEscape { position: usize, sequence: FastStr },
     #[error("invalid number '{value}' at position {position}")]
     InvalidNumber { position: usize, value: FastStr },
-    #[error("unexpected EOF at position {position}, expected '{expected}'")]
-    UnexpectedEof { position: usize, expected: FastStr },
+    #[error("unexpected EOF")]
+    UnexpectedEof,
     #[error("path cannot be empty")]
     EmptyPath,
     #[error("parse error at position {position}: {message}")]
@@ -227,10 +223,7 @@ impl PathIterator {
                     return Err(Self::create_parse_error(&e, src.as_ref(), start_pos));
                 }
                 Err(nom::Err::Incomplete(_)) => {
-                    return Err(PathError::UnexpectedEof {
-                        position: start_pos,
-                        expected: "完整的token".into(),
-                    });
+                    return Err(PathError::UnexpectedEof);
                 }
             }
         }
@@ -257,13 +250,12 @@ impl PathIterator {
     }
 
     fn create_parse_error(
-        _nom_error: &nom::error::Error<&str>,
+        nom_error: &nom::error::Error<&str>,
         original: &str,
         position: usize,
     ) -> PathError {
         let remaining = &original[position..];
         let remaining_chars: Vec<char> = remaining.chars().take(3).collect();
-        let context = remaining_chars.iter().collect::<String>();
 
         if remaining.starts_with('"') && !remaining[1..].contains('"') {
             PathError::UnterminatedString {
@@ -281,16 +273,12 @@ impl PathIterator {
                     character: *first_char,
                 }
             } else {
-                PathError::SyntaxError {
-                    position,
-                    expected: FastStr::new("有效的路径token"),
-                    found: FastStr::new(context),
-                }
+                PathError::SyntaxError { position }
             }
         } else {
             PathError::ParseError {
                 position,
-                message: FastStr::new("无法解析token"),
+                message: nom_error.to_string().into(),
             }
         }
     }
@@ -355,7 +343,6 @@ mod tests {
 
     #[test]
     fn test_error_handling() {
-        // 测试无效字符
         let result = PathIterator::new("$@invalid");
         assert!(result.is_err());
         assert!(matches!(
@@ -363,7 +350,6 @@ mod tests {
             PathError::InvalidCharacter { character: '@', .. }
         ));
 
-        // 测试未闭合的字符串
         let result = PathIterator::new("\"unclosed");
         assert!(result.is_err());
         assert!(matches!(
@@ -374,12 +360,10 @@ mod tests {
 
     #[test]
     fn test_path_validation() {
-        // 有效路径
         assert!(PathIterator::new("$.field[0].name").is_ok());
         assert!(PathIterator::new("$[*]").is_ok());
         assert!(PathIterator::new(r#"${"key"}"#).is_ok());
 
-        // 无效路径
         assert!(PathIterator::new("").is_err());
         assert!(PathIterator::new("$@invalid").is_err());
         assert!(PathIterator::new("\"unclosed").is_err());
@@ -416,7 +400,6 @@ mod tests {
 
     #[test]
     fn test_complex_map_access() {
-        // 测试复杂的映射访问语法
         let mut iter = PathIterator::new(r#"$.data{"user name"}.profile{"avatar url"}"#).unwrap();
 
         let tokens: Vec<_> = std::iter::from_fn(|| {
@@ -461,19 +444,15 @@ mod tests {
 
     #[test]
     fn test_path_error_display() {
-        let error = PathError::SyntaxError {
-            position: 5,
-            expected: FastStr::new("数字"),
-            found: FastStr::new("abc"),
-        };
-        assert!(error.to_string().contains("syntax error")); // 英文错误消息
-        assert!(error.to_string().contains("at position 5")); // 修正：实际消息是 "at position 5"
+        let error = PathError::SyntaxError { position: 5 };
+        assert!(error.to_string().contains("syntax error"));
+        assert!(error.to_string().contains("at position 5"));
 
         let error = PathError::InvalidCharacter {
             position: 3,
             character: '@',
         };
-        assert!(error.to_string().contains("invalid character")); // 英文错误消息
+        assert!(error.to_string().contains("invalid character"));
         assert!(error.to_string().contains("'@'"));
     }
 }

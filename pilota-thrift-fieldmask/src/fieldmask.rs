@@ -17,7 +17,7 @@ impl Display for PathDetail {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "in path '{path}' at position {position}",
+            "path '{path}' at position {position}",
             path = self.path,
             position = self.position
         )
@@ -45,46 +45,46 @@ impl Display for TypeMismatchDetail {
 
 #[derive(Debug, Clone, Error)]
 pub enum FieldMaskError {
-    #[error("path '{path}' parse error: {source}")]
+    #[error("path '{path}', parse error: {source}")]
     PathError {
         path: FastStr,
         #[source]
         source: Box<PathError>,
     },
-    #[error("{path}: type descriptor error on '{type_name}': {message}")]
+    #[error("{path}, type descriptor error on '{type_name}': {message}")]
     DescriptorError {
         type_name: FastStr,
         message: FastStr,
         path: Box<PathDetail>,
     },
-    #[error("{path}: field '{field_identifier}' not found in type '{parent_type}'")]
+    #[error("{path}, field '{field_identifier}' not found in type '{parent_type}'")]
     FieldNotFound {
         field_identifier: FastStr,
         parent_type: FastStr,
         path: Box<PathDetail>,
     },
-    #[error("{path}: {detail}")]
+    #[error("{path}, {detail}")]
     TypeMismatch {
         detail: Box<TypeMismatchDetail>,
         path: Box<PathDetail>,
     },
-    #[error("{path}: empty {collection_type} collection")]
+    #[error("{path}, empty {collection_type} collection")]
     EmptyCollection {
         collection_type: FastStr,
         path: Box<PathDetail>,
     },
-    #[error("{path}: conflict error: {message}")]
+    #[error("{path}, conflict error: {message}")]
     ConflictError {
         message: FastStr,
         path: Box<PathDetail>,
     },
-    #[error("{path}: invalid token type '{token_type}', expected '{expected}'")]
+    #[error("{path}, invalid token type '{token_type}', expected '{expected}'")]
     InvalidToken {
         token_type: FastStr,
         expected: FastStr,
         path: Box<PathDetail>,
     },
-    #[error("FieldMask error: {message}")]
+    #[error("field mask error: {message}")]
     GenericError { message: String },
 }
 
@@ -1573,13 +1573,9 @@ mod tests {
     fn test_field_mask_error_display() {
         let err = FieldMaskError::PathError {
             path: FastStr::new("$.invalid"),
-            source: Box::new(PathError::SyntaxError {
-                position: 5,
-                expected: FastStr::new("int"),
-                found: FastStr::new("abc"),
-            }),
+            source: Box::new(PathError::SyntaxError { position: 5 }),
         };
-        assert!(err.to_string().contains("path"));
+        assert!(err.to_string().contains("path '$.invalid', parse error"));
 
         let err = FieldMaskError::TypeMismatch {
             detail: Box::new(TypeMismatchDetail {
@@ -1625,7 +1621,7 @@ mod tests {
         assert!(
             fieldmask_error
                 .to_string()
-                .contains("path '$.invalid' parse error")
+                .contains("path '$.invalid', parse error")
         );
 
         use std::error::Error;
