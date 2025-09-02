@@ -5,10 +5,13 @@ use faststr::FastStr;
 use itertools::Itertools;
 use normpath::PathExt;
 use pilota::Bytes;
-use protobuf::descriptor::{
-    DescriptorProto, EnumDescriptorProto, EnumValueDescriptorProto, FieldDescriptorProto,
-    MethodDescriptorProto, ServiceDescriptorProto,
-    field_descriptor_proto::{Label, Type},
+use protobuf::{
+    Message as _,
+    descriptor::{
+        DescriptorProto, EnumDescriptorProto, EnumValueDescriptorProto, FieldDescriptorProto,
+        MethodDescriptorProto, ServiceDescriptorProto,
+        field_descriptor_proto::{Label, Type},
+    },
 };
 use rustc_hash::{FxHashMap, FxHashSet};
 
@@ -16,11 +19,17 @@ use super::Parser;
 use crate::{
     IdentName,
     index::Idx,
-    ir::{self, FieldKind, Item, Path, TyKind},
+    ir::{
+        self, Extension as IrExtension, FieldKind, Item, Path, PbFieldType as IrPbFieldType,
+        PbOptionsExtendee as IrPbExtendee, TyKind,
+    },
     symbol::{EnumRepr, FileId, Ident},
     tags::{
         PilotaName, RustType, RustWrapperArc, SerdeAttribute, Tags,
-        protobuf::{ClientStreaming, Deprecated, OneOf, ProstType, Repeated, ServerStreaming},
+        protobuf::{
+            ClientStreaming, Deprecated, OneOf, OptionalRepeated, ProstType, Repeated,
+            ServerStreaming,
+        },
     },
 };
 
@@ -56,7 +65,66 @@ impl Default for Lower {
 }
 
 impl Lower {
+    fn lower_extendee(&self, s: &str) -> Option<IrPbExtendee> {
+        match s {
+            ".google.protobuf.FileOptions" => Some(IrPbExtendee::File),
+            ".google.protobuf.MessageOptions" => Some(IrPbExtendee::Message),
+            ".google.protobuf.FieldOptions" => Some(IrPbExtendee::Field),
+            ".google.protobuf.EnumOptions" => Some(IrPbExtendee::Enum),
+            ".google.protobuf.EnumValueOptions" => Some(IrPbExtendee::EnumValue),
+            ".google.protobuf.ServiceOptions" => Some(IrPbExtendee::Service),
+            ".google.protobuf.MethodOptions" => Some(IrPbExtendee::Method),
+            ".google.protobuf.OneofOptions" => Some(IrPbExtendee::Oneof),
+            _ => None,
+        }
+    }
+
+    fn lower_pb_field_type(
+        &self,
+        ty: Option<protobuf::EnumOrUnknown<protobuf::descriptor::field_descriptor_proto::Type>>,
+    ) -> Option<IrPbFieldType> {
+        use protobuf::descriptor::field_descriptor_proto::Type as T;
+        let ty = ty?;
+        Some(match ty.enum_value().unwrap() {
+            T::TYPE_BOOL => IrPbFieldType::Bool,
+            T::TYPE_INT32 => IrPbFieldType::Int32,
+            T::TYPE_INT64 => IrPbFieldType::Int64,
+            T::TYPE_UINT32 => IrPbFieldType::UInt32,
+            T::TYPE_UINT64 => IrPbFieldType::UInt64,
+            T::TYPE_FLOAT => IrPbFieldType::Float,
+            T::TYPE_DOUBLE => IrPbFieldType::Double,
+            T::TYPE_STRING => IrPbFieldType::String,
+            T::TYPE_BYTES => IrPbFieldType::Bytes,
+            T::TYPE_MESSAGE => IrPbFieldType::Message,
+            _ => return None,
+        })
+    }
+
+    fn lower_extension(
+        &self,
+        f: &protobuf::descriptor::FieldDescriptorProto,
+        nested_messages: &AHashMap<FastStr, &DescriptorProto>,
+    ) -> Option<IrExtension> {
+        let extendee_str = f.extendee();
+        if extendee_str.is_empty() {
+            return None;
+        }
+        let extendee = self.lower_extendee(extendee_str)?;
+        let field_ty = self.lower_pb_field_type(f.type_)?;
+        let value_ty = self.lower_ty(f.type_, f.type_name.as_deref(), nested_messages, false);
+        Some(IrExtension {
+            name: FastStr::new(f.name()).into(),
+            number: f.number() as u32,
+            field_ty,
+            extendee,
+            value_ty,
+        })
+    }
+
     fn str2path(&self, s: &str) -> ir::Path {
+        if s.is_empty() {
+            return ir::Path::default();
+        }
         ir::Path {
             segments: Arc::from_iter(s.split('.').map(FastStr::new).map(Ident::from)),
         }
@@ -67,7 +135,13 @@ impl Lower {
         type_: Option<protobuf::EnumOrUnknown<protobuf::descriptor::field_descriptor_proto::Type>>,
         type_name: Option<&str>,
         nested_messages: &AHashMap<FastStr, &DescriptorProto>,
+        is_wrapper_arc: bool,
     ) -> ir::Ty {
+        let mut tags = Tags::default();
+        if is_wrapper_arc {
+            tags.insert(RustWrapperArc(true));
+        }
+
         if let Some(name) = type_name {
             if let Some(msg) = nested_messages.get(name) {
                 if msg.options.has_map_entry() {
@@ -81,14 +155,16 @@ impl Lower {
                                 key.type_,
                                 key.type_name.as_deref(),
                                 nested_messages,
+                                false,
                             )),
                             Arc::from(self.lower_ty(
                                 value.type_,
                                 value.type_name.as_deref(),
                                 nested_messages,
+                                false,
                             )),
                         ),
-                        tags: Default::default(),
+                        tags: Arc::new(tags),
                     };
                 }
             }
@@ -97,12 +173,11 @@ impl Lower {
 
             return ir::Ty {
                 kind: ir::TyKind::Path(self.str2path(&name[1..])),
-                tags: Default::default(),
+                tags: Arc::new(tags),
             };
         }
         let Some(ty) = type_ else { panic!() };
 
-        let mut tags = Tags::default();
         let kind = match ty.enum_value().unwrap() {
             protobuf::descriptor::field_descriptor_proto::Type::TYPE_DOUBLE => ir::TyKind::F64,
             protobuf::descriptor::field_descriptor_proto::Type::TYPE_FLOAT => ir::TyKind::F32,
@@ -235,6 +310,7 @@ impl Lower {
                                     f.type_,
                                     f.type_name.as_deref(),
                                     &nested_messages,
+                                    false,
                                 )],
                                 tags: Default::default(),
                             })
@@ -290,7 +366,7 @@ impl Lower {
                     .iter()
                     .map(|(idx, f)| {
                         let mut ty =
-                            self.lower_ty(f.type_, f.type_name.as_deref(), &nested_messages);
+                            self.lower_ty(f.type_, f.type_name.as_deref(), &nested_messages, false);
 
                         let is_map = matches!(ty.kind, TyKind::Map(_, _));
                         let repeated = !is_map && matches!(f.label(), Label::LABEL_REPEATED);
@@ -343,10 +419,15 @@ impl Lower {
                     .collect(),
                 name: FastStr::new(message.name()).into(),
                 is_wrapper: false,
+                extensions: message
+                    .extension
+                    .iter()
+                    .filter_map(|e| self.lower_extension(e, &nested_messages))
+                    .collect(),
             }),
         };
 
-        if nested_items.is_empty() {
+        if nested_items.is_empty() && message.extension.is_empty() {
             vec![item]
         } else {
             let name = item.name();
@@ -360,6 +441,11 @@ impl Lower {
                     kind: ir::ItemKind::Mod(ir::Mod {
                         name: Ident { sym: name },
                         items: nested_items,
+                        extensions: message
+                            .extension
+                            .iter()
+                            .filter_map(|e| self.lower_extension(e, &nested_messages))
+                            .collect(),
                     }),
                 },
             ]
@@ -367,8 +453,11 @@ impl Lower {
     }
 
     pub fn lower_service(&self, service: &ServiceDescriptorProto) -> ir::Item {
+        let service_tags = self.extract_service_tags(service);
+        let rust_wrapper_arc_all = service_tags.get::<RustWrapperArc>().is_some_and(|v| v.0);
+
         ir::Item {
-            tags: Arc::new(self.extract_service_tags(service)),
+            tags: Arc::new(service_tags),
             related_items: Default::default(),
             kind: ir::ItemKind::Service(ir::Service {
                 name: FastStr::new(service.name()).into(),
@@ -383,6 +472,12 @@ impl Lower {
                         if m.server_streaming() {
                             tags.insert(ServerStreaming);
                         }
+
+                        let mut arg_tags = Tags::default();
+                        if rust_wrapper_arc_all {
+                            arg_tags.insert(RustWrapperArc(true));
+                        }
+
                         ir::Method {
                             name: FastStr::new(m.name()).into(),
                             tags: Arc::new(tags),
@@ -393,12 +488,18 @@ impl Lower {
                                     None,
                                     m.input_type.as_deref(),
                                     &Default::default(),
+                                    rust_wrapper_arc_all,
                                 ),
-                                tags: Arc::new(Tags::default()),
+                                tags: Arc::new(arg_tags),
                                 attribute: FieldKind::Required,
                             }],
                             oneway: false,
-                            ret: self.lower_ty(None, m.output_type.as_deref(), &Default::default()),
+                            ret: self.lower_ty(
+                                None,
+                                m.output_type.as_deref(),
+                                &Default::default(),
+                                rust_wrapper_arc_all,
+                            ),
                             exceptions: None,
                         }
                     })
@@ -439,6 +540,13 @@ impl Lower {
                     .map(|m| self.lower_message(m, &mut Vec::new()));
                 let services = f.service.iter().map(|s| self.lower_service(s));
 
+                let descriptor_bytes = {
+                    let bytes_vec = f
+                        .write_to_bytes()
+                        .expect("serialize FileDescriptorProto failed");
+                    Bytes::from(bytes_vec)
+                };
+
                 let f = Arc::from(ir::File {
                     package,
                     uses: f
@@ -458,7 +566,12 @@ impl Lower {
                         .chain(services)
                         .map(Arc::from)
                         .collect::<Vec<_>>(),
-                    descriptor: Bytes::default(),
+                    descriptor: descriptor_bytes,
+                    extensions: f
+                        .extension
+                        .iter()
+                        .filter_map(|e| self.lower_extension(e, &Default::default()))
+                        .collect(),
                 });
 
                 self.cur_package = None;
@@ -478,7 +591,7 @@ impl Lower {
                 tags.insert(Deprecated(true));
             }
 
-            // defined in pilota_options.proto
+            // defined in pilota.proto
             if options.rust_wrapper_arc() {
                 tags.insert(RustWrapperArc(true));
             }
@@ -576,6 +689,9 @@ impl Lower {
             }
             if let Some(rust_type) = options.rust_type() {
                 tags.insert(RustType(rust_type));
+            }
+            if options.optional_repeated() {
+                tags.insert(OptionalRepeated(true));
             }
         }
         tags
@@ -687,51 +803,58 @@ macro_rules! define_all_options_traits {
     (
         $(
             $trait_name:ident for $options_type:ty {
-                $(
-                    // with default value
-                    ($method:ident, $field_id:expr, $default:expr) -> $ret_type:ty
-                ),* $(;)?
-                ;
-                $(
-                    // without default value
-                    ($method_opt:ident, $field_id_opt:expr) -> $ret_type_opt:ty
-                ),* $(;)?
+                $($method_defs:tt)*
             }
         )*
     ) => {
         $(
-            // define trait
-            pub trait $trait_name {
-                $(
-                    fn $method(&self) -> $ret_type;
-                )*
-                $(
-                    fn $method_opt(&self) -> Option<$ret_type_opt>;
-                )*
-            }
-
-            // define implementation
-            impl $trait_name for $options_type {
-                $(
-                    fn $method(&self) -> $ret_type {
-                        let Some(v) = self.special_fields.unknown_fields().get($field_id) else {
-                            return $default;
-                        };
-                        let extractor = PbOptionsValueExtractorImpl { id: $field_id };
-                        <PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type>>::extract(&extractor, v)
-                    }
-                )*
-                $(
-                    fn $method_opt(&self) -> Option<$ret_type_opt> {
-                        let Some(v) = self.special_fields.unknown_fields().get($field_id_opt) else {
-                            return None;
-                        };
-                        let extractor = PbOptionsValueExtractorImpl { id: $field_id_opt };
-                        Some(<PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type_opt>>::extract(&extractor, v))
-                    }
-                )*
-            }
+            define_all_options_traits!(@process_trait $trait_name, $options_type, $($method_defs)*);
         )*
+    };
+
+    // Process trait and impl generation
+    (@process_trait $trait_name:ident, $options_type:ty, $($method_defs:tt)*) => {
+        // define trait
+        pub trait $trait_name {
+            define_all_options_traits!(@collect_trait_methods $($method_defs)*);
+        }
+
+        // define implementation
+        impl $trait_name for $options_type {
+            define_all_options_traits!(@collect_impl_methods $($method_defs)*);
+        }
+    };
+
+    // Collect trait methods
+    (@collect_trait_methods) => {};
+    (@collect_trait_methods ($method:ident, $field_id:expr, $default:expr) -> $ret_type:ty; $($rest:tt)*) => {
+        fn $method(&self) -> $ret_type;
+        define_all_options_traits!(@collect_trait_methods $($rest)*);
+    };
+    (@collect_trait_methods opt ($method_opt:ident, $field_id_opt:expr) -> $ret_type_opt:ty; $($rest:tt)*) => {
+        fn $method_opt(&self) -> Option<$ret_type_opt>;
+        define_all_options_traits!(@collect_trait_methods $($rest)*);
+    };
+
+    // Collect implementation methods
+    (@collect_impl_methods) => {};
+    (@collect_impl_methods ($method:ident, $field_id:expr, $default:expr) -> $ret_type:ty; $($rest:tt)*) => {
+        fn $method(&self) -> $ret_type {
+            let Some(v) = self.special_fields.unknown_fields().get($field_id) else {
+                return $default;
+            };
+            let extractor = PbOptionsValueExtractorImpl { id: $field_id };
+            <PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type>>::extract(&extractor, v)
+        }
+        define_all_options_traits!(@collect_impl_methods $($rest)*);
+    };
+    (@collect_impl_methods opt ($method_opt:ident, $field_id_opt:expr) -> $ret_type_opt:ty; $($rest:tt)*) => {
+        fn $method_opt(&self) -> Option<$ret_type_opt> {
+            let v = self.special_fields.unknown_fields().get($field_id_opt)?;
+            let extractor = PbOptionsValueExtractorImpl { id: $field_id_opt };
+            Some(<PbOptionsValueExtractorImpl as PbOptionsValueExtractor<$ret_type_opt>>::extract(&extractor, v))
+        }
+        define_all_options_traits!(@collect_impl_methods $($rest)*);
     };
 }
 
@@ -739,34 +862,53 @@ macro_rules! define_all_options_traits {
 pub struct PbOptions;
 impl PbOptions {
     // defined in pilota.proto
-    define_pb_option!(serde_attribute, 50101);
-    define_pb_option!(name, 50102);
-    define_pb_option!(rust_wrapper_arc, 50201, false);
-    define_pb_option!(rust_type, 50202);
+    // define_pb_option!(rs_package, 1215201); for now, this is impossible to implement, because the parser will directly use the package field: https://github.com/stepancheg/rust-protobuf/blob/master/protobuf-parse/src/pure/convert/mod.rs#L659
+    define_pb_option!(serde_attribute, 1215201);
+    define_pb_option!(name, 1215202);
+    define_pb_option!(rust_wrapper_arc, 1215203, false);
+    define_pb_option!(rust_type, 1215204);
+    define_pb_option!(optional_repeated, 1215205, false);
 }
 
 // define all options traits and implementations
 define_all_options_traits! {
+
+    // PilotaFileOptions for protobuf::descriptor::FileOptions {
+    //     opt (rs_package, PbOptions::RS_PACKAGE_ID) -> FastStr;
+    // }
+
     PilotaMessageOptions for protobuf::descriptor::MessageOptions {
-        ;
-        (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr,
-        (name, PbOptions::NAME_ID) -> FastStr;
+        opt (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr;
+        opt (name, PbOptions::NAME_ID) -> FastStr;
     }
 
     PilotaFieldOptions for protobuf::descriptor::FieldOptions {
         (rust_wrapper_arc, PbOptions::RUST_WRAPPER_ARC_ID, PbOptions::RUST_WRAPPER_ARC_DEFAULT) -> bool;
-        (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr,
-        (name, PbOptions::NAME_ID) -> FastStr,
-        (rust_type, PbOptions::RUST_TYPE_ID) -> FastStr;
+        opt (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr;
+        opt (name, PbOptions::NAME_ID) -> FastStr;
+        opt (rust_type, PbOptions::RUST_TYPE_ID) -> FastStr;
+        (optional_repeated, PbOptions::OPTIONAL_REPEATED_ID, PbOptions::OPTIONAL_REPEATED_DEFAULT) -> bool;
     }
 
     PilotaEnumOptions for protobuf::descriptor::EnumOptions {
-        ;
-        (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr,
-        (name, PbOptions::NAME_ID) -> FastStr;
+        opt (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr;
+        opt (name, PbOptions::NAME_ID) -> FastStr;
     }
 
     PilotaServiceOptions for protobuf::descriptor::ServiceOptions {
         (rust_wrapper_arc, PbOptions::RUST_WRAPPER_ARC_ID, PbOptions::RUST_WRAPPER_ARC_DEFAULT) -> bool;
     }
 }
+
+// TODO: cannot implement this trait now, because the parser will directly use the package field: https://github.com/stepancheg/rust-protobuf/blob/master/protobuf-parse/src/pure/convert/mod.rs#L659
+// pub trait FileDescriptorProtoExt {
+//     fn rs_package(&self) -> Option<FastStr>;
+// }
+
+// impl FileDescriptorProtoExt for FileDescriptorProto {
+//     fn rs_package(&self) -> Option<FastStr> {
+//         self.options
+//             .rs_package()
+//             .or_else(|| self.package.as_ref().map(FastStr::new))
+//     }
+// }

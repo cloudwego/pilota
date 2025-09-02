@@ -7,18 +7,18 @@ use rustc_hash::{FxHashMap, FxHashSet};
 use crate::{
     errors,
     index::Idx,
-    ir,
-    ir::visit::Visitor,
+    ir::{self, visit::Visitor},
     middle::{
         rir::{
-            Arg, Const, DefKind, Enum, EnumVariant, Field, FieldKind, File, Item, ItemPath,
-            Literal, Message, Method, MethodSource, NewType, Node, NodeKind, Path, Service,
+            Arg, Const, DefKind, Enum, EnumVariant, Extension as RirExtension, Field, FieldKind,
+            File, Item, ItemPath, Literal, Message, Method, MethodSource, NewType, Node, NodeKind,
+            Path, PbFieldType as RirPbFieldType, PbOptionsExtendee as RirPbExtendee, Service,
         },
         ty::{self, Ty},
     },
     rir::Mod,
     symbol::{DefId, EnumRepr, FileId, Ident, Symbol},
-    tags::{RustType, RustWrapperArc, TagId, Tags},
+    tags::{RustType, RustWrapperArc, TagId, Tags, protobuf::OptionalRepeated},
     ty::{Folder, TyKind},
 };
 
@@ -367,13 +367,18 @@ impl Resolver {
         let ty = self.lower_type(&f.ty, false);
         let ty = self.modify_ty_by_tags(ty, &f.tags);
 
+        let mut kind = match f.kind {
+            ir::FieldKind::Required => FieldKind::Required,
+            ir::FieldKind::Optional => FieldKind::Optional,
+        };
+        if let Some(OptionalRepeated(true)) = f.tags.get::<OptionalRepeated>() {
+            kind = FieldKind::Optional;
+        }
+
         let f = Arc::from(Field {
             did,
             id: f.id,
-            kind: match f.kind {
-                ir::FieldKind::Required => FieldKind::Required,
-                ir::FieldKind::Optional => FieldKind::Optional,
-            },
+            kind,
             name: f.name.clone(),
             ty,
             tags_id,
@@ -590,6 +595,11 @@ impl Resolver {
             name: s.name.clone(),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
             is_wrapper: s.is_wrapper,
+            extensions: s
+                .extensions
+                .iter()
+                .filter_map(|e| self.lower_extension(e))
+                .collect(),
         }
     }
 
@@ -752,6 +762,11 @@ impl Resolver {
         Mod {
             name: m.name.clone(),
             items,
+            extensions: m
+                .extensions
+                .iter()
+                .filter_map(|e| self.lower_extension(e))
+                .collect(),
         }
     }
 
@@ -835,6 +850,11 @@ impl Resolver {
             ),
             uses: file.uses.iter().map(|(_, f)| *f).collect(),
             descriptor: file.descriptor.clone(),
+            extensions: file
+                .extensions
+                .iter()
+                .filter_map(|e| self.lower_extension(e))
+                .collect(),
         };
 
         if should_pop {
@@ -843,5 +863,37 @@ impl Resolver {
 
         self.cur_file = old_file;
         f
+    }
+
+    fn lower_extension(&mut self, e: &ir::Extension) -> Option<RirExtension> {
+        let extendee = match e.extendee {
+            ir::PbOptionsExtendee::File => RirPbExtendee::File,
+            ir::PbOptionsExtendee::Message => RirPbExtendee::Message,
+            ir::PbOptionsExtendee::Field => RirPbExtendee::Field,
+            ir::PbOptionsExtendee::Enum => RirPbExtendee::Enum,
+            ir::PbOptionsExtendee::EnumValue => RirPbExtendee::EnumValue,
+            ir::PbOptionsExtendee::Service => RirPbExtendee::Service,
+            ir::PbOptionsExtendee::Method => RirPbExtendee::Method,
+            ir::PbOptionsExtendee::Oneof => RirPbExtendee::Oneof,
+        };
+        let field_ty = match e.field_ty {
+            ir::PbFieldType::Bool => RirPbFieldType::Bool,
+            ir::PbFieldType::Int32 => RirPbFieldType::Int32,
+            ir::PbFieldType::Int64 => RirPbFieldType::Int64,
+            ir::PbFieldType::UInt32 => RirPbFieldType::UInt32,
+            ir::PbFieldType::UInt64 => RirPbFieldType::UInt64,
+            ir::PbFieldType::Float => RirPbFieldType::Float,
+            ir::PbFieldType::Double => RirPbFieldType::Double,
+            ir::PbFieldType::String => RirPbFieldType::String,
+            ir::PbFieldType::Bytes => RirPbFieldType::Bytes,
+            ir::PbFieldType::Message => RirPbFieldType::Message,
+        };
+        Some(RirExtension {
+            name: e.name.clone(),
+            number: e.number,
+            field_ty,
+            extendee,
+            value_ty: self.lower_type(&e.value_ty, false),
+        })
     }
 }

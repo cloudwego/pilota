@@ -197,12 +197,16 @@ where
                                 self.write_item(&mut inner, (*def_id).into(), dup)
                             });
 
+                            if self.with_descriptor && !m.extensions.is_empty() {
+                                self.backend.codegen_exts(&mut inner, &m.extensions);
+                            }
+
                             let name = self.rust_name(def_id);
                             stream.push_str(&format! {
                                 r#"pub mod {name} {{
                                     {inner}
                                 }}"#
-                            })
+                            });
                         }
                     }
                 };
@@ -225,7 +229,7 @@ where
         }
         let dup = dup.entry(name.0).or_default();
         for id in dup.iter() {
-            if def_id_equal(&self.nodes(), *id, def_id) {
+            if def_id_equal(self.nodes(), *id, def_id) {
                 return true;
             }
         }
@@ -537,19 +541,16 @@ where
         });
 
         let mods_iter = mods.iter().map(|(p, def_ids)| {
-            let file_path = def_ids
-                .first()
-                .map(|def_id| {
-                    let node = self.node(def_id.def_id).unwrap();
-                    let file_id = node.file_id;
+            let file_path = def_ids.first().and_then(|def_id| {
+                let node = self.node(def_id.def_id).unwrap();
+                let file_id = node.file_id;
 
-                    self.file_ids_map()
-                        .iter()
-                        .find(|(_, id)| **id == file_id)
-                        .map(|(path, _)| path)
-                        .cloned()
-                })
-                .flatten();
+                self.file_ids_map()
+                    .iter()
+                    .find(|(_, id)| **id == file_id)
+                    .map(|(path, _)| path)
+                    .cloned()
+            });
 
             let has_direct = def_ids
                 .iter()
@@ -580,7 +581,6 @@ where
         mods.par_iter()
             .for_each_with(this, |this, (p, def_ids, file_path, has_direct)| {
                 let mut stream = pkgs.entry(p.clone()).or_default();
-
                 let span = tracing::span!(tracing::Level::TRACE, "write_mod", path = ?p);
 
                 let _enter = span.enter();
@@ -590,8 +590,32 @@ where
                     let file_id = this.file_id(file_path.to_path_buf()).unwrap();
                     let file = this.file(file_id).unwrap();
                     if this.with_descriptor {
-                        this.backend
-                            .codegen_file_descriptor(&mut stream, &file, *has_direct);
+                        let cur_path: Vec<FastStr> = p.iter().cloned().collect();
+                        this.backend.codegen_file_descriptor_at_mod(
+                            &mut stream,
+                            &file,
+                            &cur_path,
+                            *has_direct,
+                        );
+
+                        // generate exts for extensions defined in nested message
+                        // TODO: only support first level of nested message
+                        if cur_path.len() > file.package.len() {
+                            let cur_seg = match cur_path.last() {
+                                Some(seg) => seg,
+                                None => "",
+                            };
+
+                            file.items.iter().for_each(|did| {
+                                if let middle::rir::Item::Mod(m) = &*this.item(*did).unwrap() {
+                                    if !m.extensions.is_empty()
+                                        && this.rust_name(*did).to_string() == cur_seg
+                                    {
+                                        this.backend.codegen_exts(&mut stream, &m.extensions);
+                                    }
+                                }
+                            });
+                        }
                     }
                 }
 

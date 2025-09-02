@@ -36,4 +36,17 @@ pub trait CodegenBackend: Clone {
     ) {
     }
     fn codegen_pilota_buf_trait(&self, _stream: &mut String) {}
+
+    fn codegen_file_descriptor_at_mod(
+        &self,
+        stream: &mut String,
+        f: &rir::File,
+        _mod_path: &[pilota::FastStr],
+        has_direct: bool,
+    ) {
+        self.codegen_file_descriptor(stream, f, has_direct);
+    }
+
+    // pb only, for pb options
+    fn codegen_exts(&self, _stream: &mut String, _extensions: &[rir::Extension]) {}
 }

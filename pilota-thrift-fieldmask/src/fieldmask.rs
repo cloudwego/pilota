@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Display};
 
 use ahash::AHashMap;
 use pilota::FastStr;
@@ -7,64 +7,84 @@ use thiserror::Error;
 
 use crate::path::{PathError, PathIterator, PathToken, TokenData};
 
+#[derive(Debug, Clone)]
+pub struct PathDetail {
+    path: FastStr,
+    position: usize,
+}
+
+impl Display for PathDetail {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "path '{path}' at position {position}",
+            path = self.path,
+            position = self.position
+        )
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct TypeMismatchDetail {
+    expected: FastStr,
+    actual: FastStr,
+    context: FastStr,
+}
+
+impl Display for TypeMismatchDetail {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "type mismatch in {context}: expected '{expected}', actual '{actual}'",
+            expected = self.expected,
+            actual = self.actual,
+            context = self.context,
+        )
+    }
+}
+
 #[derive(Debug, Clone, Error)]
 pub enum FieldMaskError {
-    #[error("path '{path}' parse error")]
+    #[error("path '{path}', parse error: {source}")]
     PathError {
         path: FastStr,
         #[source]
-        source: PathError,
+        source: Box<PathError>,
     },
-    #[error(
-        "in path '{path}' at position {position}: type descriptor error on '{type_name}': {message}"
-    )]
+    #[error("{path}, type descriptor error on '{type_name}': {message}")]
     DescriptorError {
         type_name: FastStr,
         message: FastStr,
-        path: FastStr,
-        position: usize,
+        path: Box<PathDetail>,
     },
-    #[error(
-        "in path '{path}' at position {position}: field '{field_identifier}' not found in type '{parent_type}'"
-    )]
+    #[error("{path}, field '{field_identifier}' not found in type '{parent_type}'")]
     FieldNotFound {
         field_identifier: FastStr,
         parent_type: FastStr,
-        path: FastStr,
-        position: usize,
+        path: Box<PathDetail>,
     },
-    #[error(
-        "in path '{path}' at position {position}: type mismatch in {context}: expected '{expected}', actual '{actual}'"
-    )]
+    #[error("{path}, {detail}")]
     TypeMismatch {
-        expected: FastStr,
-        actual: FastStr,
-        context: FastStr,
-        path: FastStr,
-        position: usize,
+        detail: Box<TypeMismatchDetail>,
+        path: Box<PathDetail>,
     },
-    #[error("in path '{path}' at position {position}: empty {collection_type} collection")]
+    #[error("{path}, empty {collection_type} collection")]
     EmptyCollection {
         collection_type: FastStr,
-        path: FastStr,
-        position: usize,
+        path: Box<PathDetail>,
     },
-    #[error("in path '{path}' at position {position}: conflict error: {message}")]
+    #[error("{path}, conflict error: {message}")]
     ConflictError {
         message: FastStr,
-        path: FastStr,
-        position: usize,
+        path: Box<PathDetail>,
     },
-    #[error(
-        "in path '{path}' at position {position}: invalid token type '{token_type}', expected '{expected}'"
-    )]
+    #[error("{path}, invalid token type '{token_type}', expected '{expected}'")]
     InvalidToken {
         token_type: FastStr,
         expected: FastStr,
-        path: FastStr,
-        position: usize,
+        path: Box<PathDetail>,
     },
-    #[error("FieldMask error: {message}")]
+    #[error("field mask error: {message}")]
     GenericError { message: String },
 }
 
@@ -726,7 +746,7 @@ impl FieldMask {
     ) -> Result<(Option<Cow<'a, FieldMask>>, bool), FieldMaskError> {
         let mut it = PathIterator::new(path).map_err(|source| FieldMaskError::PathError {
             path: FastStr::new(path),
-            source,
+            source: Box::new(source),
         })?;
 
         let mut cur_fm = self;
@@ -744,20 +764,28 @@ impl FieldMask {
                         cur_desc
                             .get_struct_desc()
                             .ok_or_else(|| FieldMaskError::TypeMismatch {
-                                expected: "Struct".into(),
-                                actual: cur_desc.name.clone(),
-                                context: "descriptor type check for field".into(),
-                                path: FastStr::new(path),
-                                position: token.get_begin_pos(),
+                                detail: Box::new(TypeMismatchDetail {
+                                    expected: "Struct".into(),
+                                    actual: cur_desc.name.clone(),
+                                    context: "descriptor type check for field".into(),
+                                }),
+                                path: Box::new(PathDetail {
+                                    path: FastStr::new(path),
+                                    position: token.get_begin_pos(),
+                                }),
                             })?;
 
                     if !matches!(cur_fm.data, FieldMaskData::Struct { .. }) && !cur_fm.all() {
                         return Err(FieldMaskError::TypeMismatch {
-                            expected: "Struct".into(),
-                            actual: FastStr::new(cur_fm.typ()),
-                            context: "FieldMask type check for field".into(),
-                            path: FastStr::new(path),
-                            position: token.get_begin_pos(),
+                            detail: Box::new(TypeMismatchDetail {
+                                expected: "Struct".into(),
+                                actual: FastStr::new(cur_fm.typ()),
+                                context: "FieldMask type check for field".into(),
+                            }),
+                            path: Box::new(PathDetail {
+                                path: FastStr::new(path),
+                                position: token.get_begin_pos(),
+                            }),
                         });
                     }
 
@@ -774,16 +802,20 @@ impl FieldMask {
                             return Err(FieldMaskError::InvalidToken {
                                 token_type: FastStr::new(format!("{:?}", field_token.data)),
                                 expected: "field name, field id or '*'".into(),
-                                path: FastStr::new(path),
-                                position: field_token.get_begin_pos(),
+                                path: Box::new(PathDetail {
+                                    path: FastStr::new(path),
+                                    position: field_token.get_begin_pos(),
+                                }),
                             });
                         }
                     }
                     .ok_or_else(|| FieldMaskError::FieldNotFound {
                         field_identifier: format!("{:?}", field_token.data).into(),
                         parent_type: cur_desc.name.clone(),
-                        path: FastStr::new(path),
-                        position: field_token.get_begin_pos(),
+                        path: Box::new(PathDetail {
+                            path: FastStr::new(path),
+                            position: field_token.get_begin_pos(),
+                        }),
                     })?;
 
                     let (next_fm, exist) = cur_fm.field(field.id);
@@ -801,18 +833,24 @@ impl FieldMask {
                         FieldMaskError::DescriptorError {
                             type_name: cur_desc.name.clone(),
                             message: "collection has no value type".into(),
-                            path: FastStr::new(path),
-                            position: token.get_begin_pos(),
+                            path: Box::new(PathDetail {
+                                path: FastStr::new(path),
+                                position: token.get_begin_pos(),
+                            }),
                         }
                     })?;
 
                     if !matches!(cur_fm.data, FieldMaskData::List { .. }) && !cur_fm.all() {
                         return Err(FieldMaskError::TypeMismatch {
-                            expected: "List".into(),
-                            actual: FastStr::new(cur_fm.typ()),
-                            context: "FieldMask type check for list".into(),
-                            path: FastStr::new(path),
-                            position: token.get_begin_pos(),
+                            detail: Box::new(TypeMismatchDetail {
+                                expected: "List".into(),
+                                actual: FastStr::new(cur_fm.typ()),
+                                context: "FieldMask type check for list".into(),
+                            }),
+                            path: Box::new(PathDetail {
+                                path: FastStr::new(path),
+                                position: token.get_begin_pos(),
+                            }),
                         });
                     }
 
@@ -829,8 +867,10 @@ impl FieldMask {
                             if empty {
                                 return Err(FieldMaskError::EmptyCollection {
                                     collection_type: "index collection".into(),
-                                    path: FastStr::new(path),
-                                    position: idx_token.get_begin_pos(),
+                                    path: Box::new(PathDetail {
+                                        path: FastStr::new(path),
+                                        position: idx_token.get_begin_pos(),
+                                    }),
                                 });
                             }
                             break;
@@ -863,8 +903,10 @@ impl FieldMask {
                             return Err(FieldMaskError::InvalidToken {
                                 token_type: FastStr::new(format!("{:?}", idx_token.data)),
                                 expected: "integer index or '*'".into(),
-                                path: FastStr::new(path),
-                                position: idx_token.get_begin_pos(),
+                                path: Box::new(PathDetail {
+                                    path: FastStr::new(path),
+                                    position: idx_token.get_begin_pos(),
+                                }),
                             });
                         }
                     }
@@ -881,8 +923,10 @@ impl FieldMask {
                         FieldMaskError::DescriptorError {
                             type_name: cur_desc.name.clone(),
                             message: "map has no value type".into(),
-                            path: FastStr::new(path),
-                            position: token.get_begin_pos(),
+                            path: Box::new(PathDetail {
+                                path: FastStr::new(path),
+                                position: token.get_begin_pos(),
+                            }),
                         }
                     })?;
 
@@ -892,11 +936,15 @@ impl FieldMask {
                     ) && !cur_fm.all()
                     {
                         return Err(FieldMaskError::TypeMismatch {
-                            expected: "IntMap or StrMap".into(),
-                            actual: FastStr::new(cur_fm.typ()),
-                            context: "FieldMask type check for map".into(),
-                            path: FastStr::new(path),
-                            position: token.get_begin_pos(),
+                            detail: Box::new(TypeMismatchDetail {
+                                expected: "IntMap or StrMap".into(),
+                                actual: FastStr::new(cur_fm.typ()),
+                                context: "FieldMask type check for map".into(),
+                            }),
+                            path: Box::new(PathDetail {
+                                path: FastStr::new(path),
+                                position: token.get_begin_pos(),
+                            }),
                         });
                     }
 
@@ -913,8 +961,10 @@ impl FieldMask {
                             if empty {
                                 return Err(FieldMaskError::EmptyCollection {
                                     collection_type: "key collection".into(),
-                                    path: FastStr::new(path),
-                                    position: key_token.get_begin_pos(),
+                                    path: Box::new(PathDetail {
+                                        path: FastStr::new(path),
+                                        position: key_token.get_begin_pos(),
+                                    }),
                                 });
                             }
                             break;
@@ -960,8 +1010,10 @@ impl FieldMask {
                                 return Err(FieldMaskError::InvalidToken {
                                     token_type: FastStr::new(format!("{:?}", key_token.data)),
                                     expected: "integer, string or '*' as key".into(),
-                                    path: FastStr::new(path),
-                                    position: key_token.get_begin_pos(),
+                                    path: Box::new(PathDetail {
+                                        path: FastStr::new(path),
+                                        position: key_token.get_begin_pos(),
+                                    }),
                                 });
                             }
                         }
@@ -978,8 +1030,10 @@ impl FieldMask {
                     return Err(FieldMaskError::InvalidToken {
                         token_type: FastStr::new(format!("{:?}", token.data)),
                         expected: "$ or . or [ or {".into(),
-                        path: FastStr::new(path),
-                        position: token.get_begin_pos(),
+                        path: Box::new(PathDetail {
+                            path: FastStr::new(path),
+                            position: token.get_begin_pos(),
+                        }),
                     });
                 }
             }
@@ -1053,7 +1107,7 @@ impl FieldMask {
         for path in paths {
             let mut it = PathIterator::new(path).map_err(|err| FieldMaskError::PathError {
                 path: path.clone(),
-                source: err,
+                source: Box::new(err),
             })?;
             self.add_path(&mut it, desc, path)?;
         }
@@ -1087,8 +1141,10 @@ impl FieldMask {
             _ => Err(FieldMaskError::InvalidToken {
                 token_type: FastStr::new(format!("{:?}", token.data)),
                 expected: FastStr::new("$ or . or [ or {"),
-                path: original_path.clone(),
-                position: token.get_begin_pos(),
+                path: Box::new(PathDetail {
+                    path: original_path.clone(),
+                    position: token.get_begin_pos(),
+                }),
             }),
         }
     }
@@ -1104,22 +1160,30 @@ impl FieldMask {
             Some(s) => s,
             None => {
                 return Err(FieldMaskError::TypeMismatch {
-                    expected: FastStr::new("Struct"),
-                    actual: cur_desc.name.clone(),
-                    context: FastStr::new("descriptor type check for field"),
-                    path: original_path.clone(),
-                    position: token.get_begin_pos(),
+                    detail: Box::new(TypeMismatchDetail {
+                        expected: "Struct".into(),
+                        actual: cur_desc.name.clone(),
+                        context: "descriptor type check for field".into(),
+                    }),
+                    path: Box::new(PathDetail {
+                        path: original_path.clone(),
+                        position: token.get_begin_pos(),
+                    }),
                 });
             }
         };
 
         if !matches!(self.data, FieldMaskData::Struct { .. }) {
             return Err(FieldMaskError::TypeMismatch {
-                expected: FastStr::new("Struct"),
-                actual: FastStr::new(self.data.type_name()),
-                context: FastStr::new("FieldMask type check for field"),
-                path: original_path.clone(),
-                position: token.get_begin_pos(),
+                detail: Box::new(TypeMismatchDetail {
+                    expected: "Struct".into(),
+                    actual: FastStr::new(self.data.type_name()),
+                    context: "FieldMask type check for field".into(),
+                }),
+                path: Box::new(PathDetail {
+                    path: original_path.clone(),
+                    position: token.get_begin_pos(),
+                }),
             });
         }
 
@@ -1128,8 +1192,10 @@ impl FieldMask {
             return Err(FieldMaskError::InvalidToken {
                 token_type: FastStr::new("EOF"),
                 expected: FastStr::new("field name, field id or '*'"),
-                path: original_path.clone(),
-                position: field_token.get_begin_pos(),
+                path: Box::new(PathDetail {
+                    path: original_path.clone(),
+                    position: field_token.get_begin_pos(),
+                }),
             });
         }
 
@@ -1140,8 +1206,10 @@ impl FieldMask {
                         .ok_or_else(|| FieldMaskError::FieldNotFound {
                             field_identifier: FastStr::new(id.to_string()),
                             parent_type: cur_desc.name.clone(),
-                            path: original_path.clone(),
-                            position: field_token.get_begin_pos(),
+                            path: Box::new(PathDetail {
+                                path: original_path.clone(),
+                                position: field_token.get_begin_pos(),
+                            }),
                         })?;
                 let sub_mask =
                     self.set_and_get_sub_field(field.id, FieldMaskData::new(&field.r#type));
@@ -1153,8 +1221,10 @@ impl FieldMask {
                         .ok_or_else(|| FieldMaskError::FieldNotFound {
                             field_identifier: name.clone(),
                             parent_type: cur_desc.name.clone(),
-                            path: original_path.clone(),
-                            position: field_token.get_begin_pos(),
+                            path: Box::new(PathDetail {
+                                path: original_path.clone(),
+                                position: field_token.get_begin_pos(),
+                            }),
                         })?;
                 let sub_mask =
                     self.set_and_get_sub_field(field.id, FieldMaskData::new(&field.r#type));
@@ -1167,8 +1237,10 @@ impl FieldMask {
             _ => Err(FieldMaskError::InvalidToken {
                 token_type: FastStr::new(format!("{:?}", field_token.data)),
                 expected: FastStr::new("field name, field id or '*'"),
-                path: original_path.clone(),
-                position: field_token.get_begin_pos(),
+                path: Box::new(PathDetail {
+                    path: original_path.clone(),
+                    position: field_token.get_begin_pos(),
+                }),
             }),
         }
     }
@@ -1182,11 +1254,15 @@ impl FieldMask {
     ) -> Result<(), FieldMaskError> {
         if !matches!(self.data, FieldMaskData::List { .. }) {
             return Err(FieldMaskError::TypeMismatch {
-                expected: FastStr::new("List"),
-                actual: FastStr::new(self.data.type_name()),
-                context: FastStr::new("FieldMask type check for list"),
-                path: original_path.clone(),
-                position: token.get_begin_pos(),
+                detail: Box::new(TypeMismatchDetail {
+                    expected: "List".into(),
+                    actual: FastStr::new(self.data.type_name()),
+                    context: "FieldMask type check for list".into(),
+                }),
+                path: Box::new(PathDetail {
+                    path: original_path.clone(),
+                    position: token.get_begin_pos(),
+                }),
             });
         }
 
@@ -1197,8 +1273,10 @@ impl FieldMask {
                 .ok_or_else(|| FieldMaskError::DescriptorError {
                     type_name: cur_desc.name.clone(),
                     message: FastStr::new("collection has no value type"),
-                    path: original_path.clone(),
-                    position: token.get_begin_pos(),
+                    path: Box::new(PathDetail {
+                        path: original_path.clone(),
+                        position: token.get_begin_pos(),
+                    }),
                 })?;
 
         let mut ids = Vec::new();
@@ -1211,8 +1289,10 @@ impl FieldMask {
                 if empty {
                     return Err(FieldMaskError::EmptyCollection {
                         collection_type: FastStr::new("index collection"),
-                        path: original_path.clone(),
-                        position: idx_token.get_begin_pos(),
+                        path: Box::new(PathDetail {
+                            path: original_path.clone(),
+                            position: idx_token.get_begin_pos(),
+                        }),
                     });
                 }
                 break;
@@ -1234,8 +1314,10 @@ impl FieldMask {
                 return Err(FieldMaskError::InvalidToken {
                     token_type: FastStr::new(format!("{:?}", idx_token.data)),
                     expected: FastStr::new("integer index or '*'"),
-                    path: original_path.clone(),
-                    position: idx_token.get_begin_pos(),
+                    path: Box::new(PathDetail {
+                        path: original_path.clone(),
+                        position: idx_token.get_begin_pos(),
+                    }),
                 });
             }
         }
@@ -1274,11 +1356,15 @@ impl FieldMask {
 
         if !is_str_map && !is_int_map {
             return Err(FieldMaskError::TypeMismatch {
-                expected: FastStr::new("IntMap or StrMap"),
-                actual: FastStr::new(self.data.type_name()),
-                context: FastStr::new("FieldMask type check for map"),
-                path: original_path.clone(),
-                position: token.get_begin_pos(),
+                detail: Box::new(TypeMismatchDetail {
+                    expected: "IntMap or StrMap".into(),
+                    actual: FastStr::new(self.data.type_name()),
+                    context: "FieldMask type check for map".into(),
+                }),
+                path: Box::new(PathDetail {
+                    path: original_path.clone(),
+                    position: token.get_begin_pos(),
+                }),
             });
         }
 
@@ -1289,8 +1375,10 @@ impl FieldMask {
                 .ok_or_else(|| FieldMaskError::DescriptorError {
                     type_name: cur_desc.name.clone(),
                     message: FastStr::new("map has no value type"),
-                    path: original_path.clone(),
-                    position: token.get_begin_pos(),
+                    path: Box::new(PathDetail {
+                        path: original_path.clone(),
+                        position: token.get_begin_pos(),
+                    }),
                 })?;
 
         let mut int_keys = Vec::new();
@@ -1304,8 +1392,10 @@ impl FieldMask {
                 if empty {
                     return Err(FieldMaskError::EmptyCollection {
                         collection_type: FastStr::new("key collection"),
-                        path: original_path.clone(),
-                        position: key_token.get_begin_pos(),
+                        path: Box::new(PathDetail {
+                            path: original_path.clone(),
+                            position: key_token.get_begin_pos(),
+                        }),
                     });
                 }
                 break;
@@ -1325,11 +1415,15 @@ impl FieldMask {
                 TokenData::LitInt(id) => {
                     if !is_int_map {
                         return Err(FieldMaskError::TypeMismatch {
-                            expected: FastStr::new("string key"),
-                            actual: FastStr::new("integer key"),
-                            context: FastStr::new("map key type check"),
-                            path: original_path.clone(),
-                            position: key_token.get_begin_pos(),
+                            detail: Box::new(TypeMismatchDetail {
+                                expected: "string key".into(),
+                                actual: "integer key".into(),
+                                context: "map key type check".into(),
+                            }),
+                            path: Box::new(PathDetail {
+                                path: original_path.clone(),
+                                position: key_token.get_begin_pos(),
+                            }),
                         });
                     }
                     int_keys.push(*id);
@@ -1337,11 +1431,15 @@ impl FieldMask {
                 TokenData::Str(key) => {
                     if !is_str_map {
                         return Err(FieldMaskError::TypeMismatch {
-                            expected: FastStr::new("integer key"),
-                            actual: FastStr::new("string key"),
-                            context: FastStr::new("map key type check"),
-                            path: original_path.clone(),
-                            position: key_token.get_begin_pos(),
+                            detail: Box::new(TypeMismatchDetail {
+                                expected: "integer key".into(),
+                                actual: "string key".into(),
+                                context: "map key type check".into(),
+                            }),
+                            path: Box::new(PathDetail {
+                                path: original_path.clone(),
+                                position: key_token.get_begin_pos(),
+                            }),
                         });
                     }
                     str_keys.push(key.clone());
@@ -1350,8 +1448,10 @@ impl FieldMask {
                     return Err(FieldMaskError::InvalidToken {
                         token_type: FastStr::new(format!("{:?}", key_token.data)),
                         expected: FastStr::new("integer, string or '*' as key"),
-                        path: original_path.clone(),
-                        position: key_token.get_begin_pos(),
+                        path: Box::new(PathDetail {
+                            path: original_path.clone(),
+                            position: key_token.get_begin_pos(),
+                        }),
                     });
                 }
             }
@@ -1473,20 +1573,20 @@ mod tests {
     fn test_field_mask_error_display() {
         let err = FieldMaskError::PathError {
             path: FastStr::new("$.invalid"),
-            source: PathError::SyntaxError {
-                position: 5,
-                expected: FastStr::new("int"),
-                found: FastStr::new("abc"),
-            },
+            source: Box::new(PathError::SyntaxError { position: 5 }),
         };
-        assert!(err.to_string().contains("path"));
+        assert!(err.to_string().contains("path '$.invalid', parse error"));
 
         let err = FieldMaskError::TypeMismatch {
-            expected: FastStr::new("Struct"),
-            actual: FastStr::new("List"),
-            context: FastStr::new("field access"),
-            path: FastStr::new("$.test"),
-            position: 0,
+            detail: Box::new(TypeMismatchDetail {
+                expected: "Struct".into(),
+                actual: "List".into(),
+                context: "field access".into(),
+            }),
+            path: Box::new(PathDetail {
+                path: FastStr::new("$.test"),
+                position: 0,
+            }),
         };
         assert!(err.to_string().contains("type mismatch"));
     }
@@ -1515,13 +1615,13 @@ mod tests {
 
         let fieldmask_error = FieldMaskError::PathError {
             path: FastStr::new("$.invalid"),
-            source: path_error.clone(),
+            source: Box::new(path_error.clone()),
         };
 
         assert!(
             fieldmask_error
                 .to_string()
-                .contains("path '$.invalid' parse error")
+                .contains("path '$.invalid', parse error")
         );
 
         use std::error::Error;

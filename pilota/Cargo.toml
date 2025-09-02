@@ -29,6 +29,7 @@ lazy_static.workspace = true
 linkedbytes.workspace = true
 ordered-float.workspace = true
 paste.workspace = true
+protobuf.workspace = true
 smallvec.workspace = true
 serde.workspace = true
 thiserror.workspace = true

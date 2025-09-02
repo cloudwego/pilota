@@ -20,6 +20,41 @@ pub enum Literal {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub enum PbOptionsExtendee {
+    File,
+    Message,
+    Field,
+    Enum,
+    EnumValue,
+    Service,
+    Method,
+    Oneof,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub enum PbFieldType {
+    Bool,
+    Int32,
+    Int64,
+    UInt32,
+    UInt64,
+    Float,
+    Double,
+    String,
+    Bytes,
+    Message,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct Extension {
+    pub name: Ident,
+    pub number: u32,
+    pub field_ty: PbFieldType,
+    pub extendee: PbOptionsExtendee,
+    pub value_ty: Ty,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Arg {
     pub ty: Ty,
     pub def_id: DefId,
@@ -97,6 +132,7 @@ pub struct Message {
     pub name: Ident,
     pub fields: Vec<Arc<Field>>,
     pub is_wrapper: bool,
+    pub extensions: Vec<Extension>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -125,6 +161,7 @@ pub struct NewType {
 pub struct Mod {
     pub name: Ident,
     pub items: Vec<DefId>,
+    pub extensions: Vec<Extension>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -197,6 +234,7 @@ pub struct File {
     pub file_id: FileId,
     pub uses: Vec<FileId>,
     pub descriptor: Bytes,
+    pub extensions: Vec<Extension>,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]

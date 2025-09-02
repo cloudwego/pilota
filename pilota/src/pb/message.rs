@@ -2,6 +2,7 @@ extern crate alloc;
 
 use alloc::boxed::Box;
 use core::fmt::Debug;
+use std::sync::Arc;
 
 use bytes::{Buf, BufMut, Bytes};
 use linkedbytes::LinkedBytes;
@@ -146,6 +147,91 @@ where
     }
     fn encoded_len(&self) -> usize {
         (**self).encoded_len()
+    }
+}
+
+trait ArcMessage<M>
+where
+    M: Message + Default + Clone,
+{
+    fn encode(msg: &Arc<M>, buf: &mut LinkedBytes) -> Result<(), EncodeError>;
+    fn encode_length_delimited(msg: &Arc<M>, buf: &mut LinkedBytes) -> Result<(), EncodeError>;
+    fn encoded_len(msg: &Arc<M>) -> usize;
+    fn decode(buf: Bytes) -> Result<Arc<M>, DecodeError>;
+    fn decode_length_delimited(buf: Bytes) -> Result<Arc<M>, DecodeError>;
+}
+
+impl<M: Message + Default + Clone> ArcMessage<M> for std::sync::Arc<M> {
+    fn encode(msg: &Arc<M>, buf: &mut LinkedBytes) -> Result<(), EncodeError> {
+        msg.encode(buf)
+    }
+
+    fn encode_length_delimited(msg: &Arc<M>, buf: &mut LinkedBytes) -> Result<(), EncodeError> {
+        msg.encode_length_delimited(buf)
+    }
+
+    fn encoded_len(msg: &Arc<M>) -> usize {
+        msg.encoded_len()
+    }
+
+    fn decode(buf: Bytes) -> Result<Arc<M>, DecodeError> {
+        let message = M::decode(buf)?;
+        Ok(Arc::new(message))
+    }
+
+    fn decode_length_delimited(buf: Bytes) -> Result<Arc<M>, DecodeError> {
+        let message = M::decode_length_delimited(buf)?;
+        Ok(Arc::new(message))
+    }
+}
+
+impl<M> Message for Arc<M>
+where
+    M: Message + Default + Clone,
+{
+    fn encode(&self, buf: &mut LinkedBytes) -> Result<(), EncodeError> {
+        <Arc<M> as ArcMessage<M>>::encode(self, buf)
+    }
+
+    fn encode_length_delimited(&self, buf: &mut LinkedBytes) -> Result<(), EncodeError> {
+        <Arc<M> as ArcMessage<M>>::encode_length_delimited(self, buf)
+    }
+
+    fn encode_raw(&self, _buf: &mut LinkedBytes) {
+        unreachable!("Arc<M> does not implement encode_raw")
+    }
+
+    fn encoded_len(&self) -> usize {
+        <Arc<M> as ArcMessage<M>>::encoded_len(self)
+    }
+
+    fn decode(buf: Bytes) -> Result<Arc<M>, DecodeError>
+    where
+        M: Default + Clone,
+    {
+        <Arc<M> as ArcMessage<M>>::decode(buf)
+    }
+
+    fn decode_length_delimited(buf: Bytes) -> Result<Arc<M>, DecodeError> {
+        <Arc<M> as ArcMessage<M>>::decode_length_delimited(buf)
+    }
+
+    fn merge_field(
+        &mut self,
+        _tag: u32,
+        _wire_type: WireType,
+        _buf: &mut Bytes,
+        _ctx: &mut DecodeContext,
+    ) -> Result<(), DecodeError> {
+        unreachable!("Arc<M> does not implement merge_field")
+    }
+
+    fn merge_length_delimited(&mut self, _buf: Bytes) -> Result<(), DecodeError> {
+        unreachable!("Arc<M> does not implement merge_length_delimited")
+    }
+
+    fn merge(&mut self, _buf: Bytes) -> Result<(), DecodeError> {
+        unreachable!("Arc<M> does not implement merge")
     }
 }
 

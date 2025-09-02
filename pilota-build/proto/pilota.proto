@@ -41,22 +41,23 @@ extend google.protobuf.FileOptions {
 
 // Message-level custom options
 extend google.protobuf.MessageOptions {
-  optional string serde_attribute_message = 50101;
-  optional string name_message = 50102;
+  optional string serde_attribute_message = 1215201;
+  optional string name_message = 1215202;
 }
 
 // Field-level custom options
 extend google.protobuf.FieldOptions {
-  optional string serde_attribute_field = 50101;
-  optional string name_field = 50102;
-  optional bool rust_wrapper_arc = 50201;
-  optional string rust_type = 50202;
+  optional string serde_attribute_field = 1215201;
+  optional string name_field = 1215202;
+  optional bool rust_wrapper_arc_field = 1215203;
+  optional string rust_type = 1215204;
+  optional bool optional_repeated = 1215205;
 }
 
 // Enum-level custom options
 extend google.protobuf.EnumOptions {
-  optional string serde_attribute_enum = 50101;
-  optional string name_enum = 50102;
+  optional string serde_attribute_enum = 1215201;
+  optional string name_enum = 1215202;
 }
 
 // Enum value custom options
@@ -65,7 +66,7 @@ extend google.protobuf.EnumValueOptions {
 
 // Service-level custom options
 extend google.protobuf.ServiceOptions {
-  optional bool rust_wrapper_arc = 50201;
+  optional bool rust_wrapper_arc_all = 1215203;
 }
 
 // Method-level custom options

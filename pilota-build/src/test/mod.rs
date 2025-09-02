@@ -328,23 +328,12 @@ fn test_plugin_thrift(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     });
 }
 
-fn test_plugin_proto(source: impl AsRef<Path>, target: impl AsRef<Path>) {
-    test_with_builder(source, target, |source, target| {
-        crate::Builder::protobuf()
-            .ignore_unused(false)
-            .plugin(SerdePlugin)
-            .compile_with_config(
-                vec![IdlService::from_path(source.to_path_buf())],
-                crate::Output::File(target.into()),
-            )
-    });
-}
-
 fn test_plugin_pb(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     test_with_builder(source, target, |source, target| {
         crate::Builder::pb()
             .ignore_unused(false)
             .plugin(SerdePlugin)
+            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
             .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
                 crate::Output::File(target.into()),
@@ -508,12 +497,8 @@ fn test_plugin_gen() {
                 test_plugin_thrift(path, rs_path);
             } else if ext == "proto" {
                 let mut rs_path = path.clone();
-                let mut rs_path_new = path.clone();
-                let path_clone = path.clone();
                 rs_path.set_extension("rs");
-                test_plugin_proto(path, rs_path);
-                rs_path_new.set_extension("new_pb.rs");
-                test_plugin_pb(path_clone, rs_path_new);
+                test_plugin_pb(path, rs_path);
             }
         }
     });
