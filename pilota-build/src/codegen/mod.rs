@@ -581,7 +581,6 @@ where
         mods.par_iter()
             .for_each_with(this, |this, (p, def_ids, file_path, has_direct)| {
                 let mut stream = pkgs.entry(p.clone()).or_default();
-
                 let span = tracing::span!(tracing::Level::TRACE, "write_mod", path = ?p);
 
                 let _enter = span.enter();
@@ -599,41 +598,23 @@ where
                             *has_direct,
                         );
 
-                        // 为当前 mod 注入其 extensions（仅处理 Mod.extensions）
-                        // 通过 cur_path 相对包路径逐层定位到目标 Mod
-                        let pkg_len = file.package.len();
-                        if cur_path.len() > pkg_len {
-                            let mut cur_items = file.items.clone();
-                            for seg in &cur_path[pkg_len..] {
-                                let seg_str = seg.to_string();
-                                let mut next: Option<Vec<DefId>> = None;
-                                for did in &cur_items {
-                                    if let Some(item) = this.item(*did) {
-                                        if let middle::rir::Item::Mod(m) = &*item {
-                                            let name = this.rust_name(*did).to_string();
-                                            if name == seg_str {
-                                                if seg.as_str() == cur_path.last().unwrap().as_str()
-                                                {
-                                                    if !m.extensions.is_empty() {
-                                                        this.backend.codegen_exts(
-                                                            &mut stream,
-                                                            &m.extensions,
-                                                        );
-                                                    }
-                                                    break;
-                                                }
-                                                next = Some(m.items.clone());
-                                                break;
-                                            }
-                                        }
+                        // generate exts for extensions defined in nested message
+                        // TODO: only support first level of nested message
+                        if cur_path.len() > file.package.len() {
+                            let cur_seg = match cur_path.last() {
+                                Some(seg) => seg,
+                                None => "",
+                            };
+
+                            file.items.iter().for_each(|did| {
+                                if let middle::rir::Item::Mod(m) = &*this.item(*did).unwrap() {
+                                    if !m.extensions.is_empty()
+                                        && this.rust_name(*did).to_string() == cur_seg
+                                    {
+                                        this.backend.codegen_exts(&mut stream, &m.extensions);
                                     }
                                 }
-                                if let Some(n) = next {
-                                    cur_items = n;
-                                } else {
-                                    break;
-                                }
-                            }
+                            });
                         }
                     }
                 }
