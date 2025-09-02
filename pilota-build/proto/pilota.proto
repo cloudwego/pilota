@@ -62,6 +62,7 @@ extend google.protobuf.EnumOptions {
 
 // Enum value custom options
 extend google.protobuf.EnumValueOptions {
+  optional string serde_attribute_enum_value = 1215201;
 }
 
 // Service-level custom options

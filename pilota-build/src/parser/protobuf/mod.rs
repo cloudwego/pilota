@@ -650,6 +650,11 @@ impl Lower {
             if options.deprecated() {
                 tags.insert(Deprecated(true));
             }
+
+            // defined in pilota.proto
+            if let Some(serde_attr) = options.serde_attribute() {
+                tags.insert(SerdeAttribute(serde_attr));
+            }
         }
         tags
     }
@@ -893,6 +898,10 @@ define_all_options_traits! {
     PilotaEnumOptions for protobuf::descriptor::EnumOptions {
         opt (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr;
         opt (name, PbOptions::NAME_ID) -> FastStr;
+    }
+
+    PilotaEnumValueOptions for protobuf::descriptor::EnumValueOptions {
+        opt (serde_attribute, PbOptions::SERDE_ATTRIBUTE_ID) -> FastStr;
     }
 
     PilotaServiceOptions for protobuf::descriptor::ServiceOptions {

@@ -19,6 +19,7 @@ mod symbol;
 
 use faststr::FastStr;
 pub use symbol::Symbol;
+use tempfile::tempdir;
 pub mod tags;
 use std::{path::PathBuf, sync::Arc};
 
@@ -96,6 +97,7 @@ pub struct Builder<MkB, P> {
     common_crate_name: FastStr,
     with_descriptor: bool,
     with_field_mask: bool,
+    temp_dir: Option<tempfile::TempDir>,
 }
 
 impl Builder<MkThriftBackend, ThriftParser> {
@@ -118,6 +120,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             split: false,
             with_descriptor: false,
             with_field_mask: false,
+            temp_dir: None,
         }
     }
 }
@@ -142,33 +145,31 @@ impl Builder<MkProtobufBackend, ProtobufParser> {
             split: false,
             with_descriptor: false,
             with_field_mask: false,
+            temp_dir: None,
         }
     }
 }
 
 impl Builder<MkPbBackend, ProtobufParser> {
     pub fn pb() -> Self {
-        let parser = match std::env::var("OUT_DIR") {
-            Ok(out_dir_str) => {
-                let out_dir = PathBuf::from(out_dir_str);
-                let include_dir = out_dir.join("pilota_proto");
-
-                std::fs::create_dir_all(&include_dir)
-                    .expect("Failed to create pilota_proto directory");
-
-                let pilota_proto_src =
-                    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("proto/pilota.proto");
-
-                std::fs::copy(&pilota_proto_src, include_dir.join("pilota.proto"))
-                    .expect("Failed to copy pilota.proto");
-
-                let mut parser = ProtobufParser::default();
-                parser.include_dirs(vec![include_dir]);
-                parser
+        let (out_dir, temp_dir) = match std::env::var("OUT_DIR") {
+            Ok(out_dir_str) => (PathBuf::from(out_dir_str), None),
+            _ => {
+                let temp_dir = tempdir().unwrap();
+                (temp_dir.path().to_path_buf(), Some(temp_dir))
             }
-
-            _ => ProtobufParser::default(),
         };
+        let include_dir = out_dir.join("pilota_proto");
+
+        std::fs::create_dir_all(&include_dir).expect("Failed to create pilota_proto directory");
+
+        let pilota_proto_src = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("proto/pilota.proto");
+
+        std::fs::copy(&pilota_proto_src, include_dir.join("pilota.proto"))
+            .expect("Failed to copy pilota.proto");
+
+        let mut parser = ProtobufParser::default();
+        parser.include_dirs(vec![include_dir]);
 
         Builder {
             source_type: SourceType::Protobuf,
@@ -188,6 +189,7 @@ impl Builder<MkPbBackend, ProtobufParser> {
             split: false,
             with_descriptor: false,
             with_field_mask: false,
+            temp_dir,
         }
     }
 }
@@ -219,6 +221,7 @@ impl<MkB, P> Builder<MkB, P> {
             split: self.split,
             with_descriptor: self.with_descriptor,
             with_field_mask: self.with_field_mask,
+            temp_dir: self.temp_dir,
         }
     }
 
