@@ -80,16 +80,18 @@ impl ProtobufBackend {
                 let is_arc = self.is_arc_message(ty);
 
                 if let ty::TyKind::Vec(_) = &ty.kind {
-                    if is_arc {
-                        format!(
-                            "::pilota::pb::encoding::arc_message::encoded_len_repeated({tag}, &{ident})"
-                        )
-                        .into()
+                    let encoded_len_fn = if is_arc {
+                        format!("::pilota::pb::encoding::arc_message::encoded_len_repeated")
                     } else {
-                        format!(
-                            "::pilota::pb::encoding::message::encoded_len_repeated({tag}, &{ident})"
+                        format!("::pilota::pb::encoding::message::encoded_len_repeated")
+                    };
+
+                    match kind {
+                        FieldKind::Required => format!("{encoded_len_fn}({tag}, &{ident})").into(),
+                        FieldKind::Optional => format!(
+                            "{ident}.as_ref().map_or(0, |msg| {encoded_len_fn}({tag}, msg))"
                         )
-                        .into()
+                        .into(),
                     }
                 } else {
                     let encoded_len: FastStr = if self.is_one_of(ty) {
@@ -267,20 +269,27 @@ impl ProtobufBackend {
                 let is_arc = self.is_arc_message(ty);
 
                 if let ty::TyKind::Vec(_) = ty.kind {
-                    if is_arc {
-                        format!(
-                            r#"for msg in &{ident} {{
-                                ::pilota::pb::encoding::arc_message::encode({tag}, msg, buf);
-                            }};"#
-                        )
-                        .into()
+                    let encode_item_fn = if is_arc {
+                        format!(r#"::pilota::pb::encoding::arc_message::encode({tag}, msg, buf);"#)
                     } else {
-                        format!(
+                        format!(r#"::pilota::pb::encoding::message::encode({tag}, msg, buf);"#)
+                    };
+
+                    match kind {
+                        FieldKind::Required => format!(
                             r#"for msg in &{ident} {{
-                                ::pilota::pb::encoding::message::encode({tag}, msg, buf);
+                                {encode_item_fn}
                             }};"#
                         )
-                        .into()
+                        .into(),
+                        FieldKind::Optional => format!(
+                            r#"if let Some(_pilota_inner_value) = {ident}.as_ref() {{
+                                for msg in _pilota_inner_value {{
+                                    {encode_item_fn}
+                                }}
+                            }}"#
+                        )
+                        .into(),
                     }
                 } else {
                     let encode: FastStr = if self.is_one_of(ty) {
