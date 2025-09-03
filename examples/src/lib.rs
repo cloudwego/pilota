@@ -29,16 +29,19 @@ fn test_pb_encode_zero_value() {
         s4: Some("s4".into()),
         ..Default::default()
     });
-    a.c.as_mut()
+    let c = a.c.as_mut().unwrap();
+    if c.bb.is_none() {
+        c.bb = Some(Vec::new());
+    }
+    c.bb.as_mut()
         .unwrap()
-        .bb
         .push(Arc::new(zero_value::zero_value::B {
             s3: "s5".into(),
             ..Default::default()
         }));
-    a.c.as_mut()
+
+    c.bb.as_mut()
         .unwrap()
-        .bb
         .push(Arc::new(zero_value::zero_value::B {
             s3: "s6".into(),
             ..Default::default()

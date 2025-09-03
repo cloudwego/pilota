@@ -16,7 +16,7 @@ message B {
 
 message C {
     optional string s4 = 1;
-    repeated B bb = 2[(pilota.rust_wrapper_arc_field) = true];
+    repeated B bb = 2[(pilota.rust_wrapper_arc_field) = true,(pilota.optional_repeated) = true];
 }
 
 message A {
