@@ -235,6 +235,14 @@ where
     }
 }
 
+pub trait EnumMessage: Sized {
+    fn inner(&self) -> i32;
+
+    fn to_string(&self) -> ::std::string::String;
+
+    fn try_from_i32(value: i32) -> ::std::option::Option<Self>;
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
