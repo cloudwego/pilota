@@ -191,6 +191,7 @@ where
                         middle::rir::Item::NewType(t) => self.write_new_type(def_id, stream, t),
                         middle::rir::Item::Const(c) => self.write_const(def_id, stream, c),
                         middle::rir::Item::Mod(m) => {
+                            let name = self.rust_name(def_id);
                             let mut inner = Default::default();
                             self.backend.codegen_pilota_buf_trait(&mut inner);
                             m.items.iter().for_each(|def_id| {
@@ -198,7 +199,13 @@ where
                             });
 
                             if self.with_descriptor && !m.extensions.is_empty() {
-                                self.backend.codegen_exts(&mut inner, &m.extensions);
+                                let cur_pkg = self.item_path(def_id);
+                                self.backend.codegen_exts(
+                                    &mut inner,
+                                    &name,
+                                    &cur_pkg,
+                                    &m.extensions,
+                                );
                             }
 
                             let name = self.rust_name(def_id);
@@ -296,6 +303,12 @@ where
             ""
         };
 
+        let impl_enum_message = if self.with_descriptor {
+            self.backend.codegen_impl_enum_message(&name)
+        } else {
+            Default::default()
+        };
+
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq, Copy)]
             #[repr(transparent)]
@@ -322,6 +335,8 @@ where
                     }}
                 }}
             }}
+
+            {impl_enum_message}
 
             impl ::std::convert::From<{repr}> for {name} {{
                 fn from(value: {repr}) -> Self {{
@@ -511,6 +526,10 @@ where
 
         let name = self.rust_name(did);
 
+        if name.to_string().starts_with("__PILOTA_PB_EXT_") {
+            return;
+        }
+
         stream.push_str(&self.def_lit(&name, &c.lit, &mut ty).unwrap())
     }
 
@@ -528,7 +547,6 @@ where
         B: Send,
     {
         let mods = items.into_group_map_by(|CodegenItem { def_id, .. }| {
-            // let path = self.mod_path(*def_id);
             let path = Arc::from_iter(self.mod_path(*def_id).iter().map(|s| s.0.clone()));
             tracing::debug!("ths path of {:?} is {:?}", def_id, path);
 
@@ -540,33 +558,44 @@ where
             }
         });
 
-        let mods_iter = mods.iter().map(|(p, def_ids)| {
-            let file_path = def_ids.first().and_then(|def_id| {
-                let node = self.node(def_id.def_id).unwrap();
-                let file_id = node.file_id;
+        let mod_files = if self.with_descriptor {
+            mods.iter()
+                .map(|(mod_path, items)| {
+                    let collect_has_direct = items
+                        .into_iter()
+                        .into_group_map_by(|CodegenItem { def_id, .. }| {
+                            self.node(*def_id).unwrap().file_id
+                        })
+                        .into_iter()
+                        .filter_map(|(file_id, def_ids)| {
+                            let has_direct = def_ids
+                                .iter()
+                                .any(|def_id| matches!(def_id.kind, CodegenKind::Direct));
+                            if let Some(file_path) = self.file_paths().get(&file_id) {
+                                let file_path = file_path.clone();
+                                Some((file_id, file_path, has_direct))
+                            } else {
+                                None
+                            }
+                        })
+                        .collect::<Vec<_>>();
+                    (mod_path, collect_has_direct)
+                })
+                .collect::<AHashMap<_, _>>()
+        } else {
+            AHashMap::default()
+        };
 
-                self.file_ids_map()
-                    .iter()
-                    .find(|(_, id)| **id == file_id)
-                    .map(|(path, _)| path)
-                    .cloned()
-            });
-
-            let has_direct = def_ids
-                .iter()
-                .any(|def_id| matches!(def_id.kind, CodegenKind::Direct));
-
-            (p.clone(), def_ids, file_path, has_direct)
-        });
-
-        let has_direct_mods = mods_iter.clone().any(|(_, _, _, has_direct)| has_direct);
-
-        if has_direct_mods {
-            let mods_paths = mods_iter
-                .clone()
-                .filter_map(|(p, _, file_path, _)| file_path.map(|file_path| (p, file_path)))
-                .collect::<Vec<_>>();
-            if self.with_descriptor {
+        if self.with_descriptor {
+            let mut mods_paths = Vec::with_capacity(mod_files.len());
+            for (p, collect_has_direct) in mod_files.iter() {
+                for (_, file_path, has_direct) in collect_has_direct.iter() {
+                    if *has_direct {
+                        mods_paths.push(((**p).clone(), file_path.clone()));
+                    }
+                }
+            }
+            if !mods_paths.is_empty() {
                 self.backend
                     .codegen_register_mod_file_descriptor(stream, &mods_paths);
             }
@@ -576,57 +605,59 @@ where
 
         let this = self.clone();
 
-        let mods = mods_iter.clone().collect::<Vec<_>>();
+        mods.par_iter().for_each_with(this, |this, (p, def_ids)| {
+            let mut stream = pkgs.entry(p.clone()).or_default();
+            let span = tracing::span!(tracing::Level::TRACE, "write_mod", path = ?p);
 
-        mods.par_iter()
-            .for_each_with(this, |this, (p, def_ids, file_path, has_direct)| {
-                let mut stream = pkgs.entry(p.clone()).or_default();
-                let span = tracing::span!(tracing::Level::TRACE, "write_mod", path = ?p);
+            let _enter = span.enter();
+            let mut dup = AHashMap::default();
 
-                let _enter = span.enter();
-                let mut dup = AHashMap::default();
+            if this.with_descriptor {
+                let cur_path: Vec<FastStr> = p.iter().cloned().collect();
+                let collect_has_direct = mod_files.get(p).unwrap();
+                for (file_id, _, has_direct) in collect_has_direct.iter() {
+                    let file = this.file(*file_id).unwrap();
+                    this.backend.codegen_file_descriptor_at_mod(
+                        &mut stream,
+                        &file,
+                        &cur_path,
+                        *has_direct,
+                    );
 
-                if let Some(file_path) = file_path {
-                    let file_id = this.file_id(file_path.to_path_buf()).unwrap();
-                    let file = this.file(file_id).unwrap();
-                    if this.with_descriptor {
-                        let cur_path: Vec<FastStr> = p.iter().cloned().collect();
-                        this.backend.codegen_file_descriptor_at_mod(
-                            &mut stream,
-                            &file,
-                            &cur_path,
-                            *has_direct,
-                        );
+                    // generate exts for extensions defined in nested message
+                    // TODO: only support first level of nested message
+                    if cur_path.len() > file.package.len() {
+                        let cur_seg = match cur_path.last() {
+                            Some(seg) => seg,
+                            None => "",
+                        };
 
-                        // generate exts for extensions defined in nested message
-                        // TODO: only support first level of nested message
-                        if cur_path.len() > file.package.len() {
-                            let cur_seg = match cur_path.last() {
-                                Some(seg) => seg,
-                                None => "",
-                            };
-
-                            file.items.iter().for_each(|did| {
-                                if let middle::rir::Item::Mod(m) = &*this.item(*did).unwrap() {
-                                    if !m.extensions.is_empty()
-                                        && this.rust_name(*did).to_string() == cur_seg
-                                    {
-                                        this.backend.codegen_exts(&mut stream, &m.extensions);
-                                    }
+                        file.items.iter().for_each(|did| {
+                            if let middle::rir::Item::Mod(m) = &*this.item(*did).unwrap() {
+                                let name = this.rust_name(*did);
+                                if !m.extensions.is_empty() && name.to_string() == cur_seg {
+                                    let cur_pkg = this.item_path(*did);
+                                    this.backend.codegen_exts(
+                                        &mut stream,
+                                        &name,
+                                        &cur_pkg,
+                                        &m.extensions,
+                                    );
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
                 }
+            }
 
-                if this.split {
-                    Self::write_split_mod(this, base_dir, p, def_ids, &mut stream, &mut dup);
-                } else {
-                    for def_id in def_ids.iter() {
-                        this.write_item(&mut stream, *def_id, &mut dup)
-                    }
+            if this.split {
+                Self::write_split_mod(this, base_dir, p, &def_ids, &mut stream, &mut dup);
+            } else {
+                for def_id in def_ids.iter() {
+                    this.write_item(&mut stream, *def_id, &mut dup)
                 }
-            });
+            }
+        });
 
         let keys = pkgs.iter().map(|kv| kv.key().clone()).collect_vec();
         let pkg_node = PkgNode::from_pkgs(&keys.iter().map(|s| &**s).collect_vec());

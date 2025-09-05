@@ -11,55 +11,6 @@ pub mod serde_pb {
         ::pilota::serde::Serialize,
         ::pilota::serde::Deserialize,
     )]
-    #[serde(rename = "BB")]
-    #[derive(Clone, PartialEq)]
-    pub struct B {
-        pub value: i32,
-    }
-    impl ::pilota::pb::Message for B {
-        #[inline]
-        fn encoded_len(&self) -> usize {
-            0 + ::pilota::pb::encoding::int32::encoded_len(1, &self.value)
-        }
-
-        #[allow(unused_variables)]
-        fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-            ::pilota::pb::encoding::int32::encode(1, &self.value, buf);
-        }
-
-        #[allow(unused_variables)]
-        fn merge_field(
-            &mut self,
-            tag: u32,
-            wire_type: ::pilota::pb::encoding::WireType,
-            buf: &mut ::pilota::Bytes,
-            ctx: &mut ::pilota::pb::encoding::DecodeContext,
-        ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
-            const STRUCT_NAME: &'static str = stringify!(B);
-
-            match tag {
-                1 => {
-                    let mut _inner_pilota_value = &mut self.value;
-                    ::pilota::pb::encoding::int32::merge(wire_type, _inner_pilota_value, buf, ctx)
-                        .map_err(|mut error| {
-                            error.push(STRUCT_NAME, stringify!(value));
-                            error
-                        })
-                }
-                _ => ::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx),
-            }
-        }
-    }
-    #[derive(
-        PartialOrd,
-        Hash,
-        Eq,
-        Ord,
-        Debug,
-        Default,
-        ::pilota::serde::Serialize,
-        ::pilota::serde::Deserialize,
-    )]
     #[serde(rename_all = "camelCase")]
     #[derive(Clone, PartialEq)]
     pub struct A {
@@ -165,6 +116,56 @@ pub mod serde_pb {
     impl ::std::convert::From<C> for i32 {
         fn from(value: C) -> i32 {
             value.0
+        }
+    }
+
+    #[derive(
+        PartialOrd,
+        Hash,
+        Eq,
+        Ord,
+        Debug,
+        Default,
+        ::pilota::serde::Serialize,
+        ::pilota::serde::Deserialize,
+    )]
+    #[serde(rename = "BB")]
+    #[derive(Clone, PartialEq)]
+    pub struct B {
+        pub value: i32,
+    }
+    impl ::pilota::pb::Message for B {
+        #[inline]
+        fn encoded_len(&self) -> usize {
+            0 + ::pilota::pb::encoding::int32::encoded_len(1, &self.value)
+        }
+
+        #[allow(unused_variables)]
+        fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
+            ::pilota::pb::encoding::int32::encode(1, &self.value, buf);
+        }
+
+        #[allow(unused_variables)]
+        fn merge_field(
+            &mut self,
+            tag: u32,
+            wire_type: ::pilota::pb::encoding::WireType,
+            buf: &mut ::pilota::Bytes,
+            ctx: &mut ::pilota::pb::encoding::DecodeContext,
+        ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
+            const STRUCT_NAME: &'static str = stringify!(B);
+
+            match tag {
+                1 => {
+                    let mut _inner_pilota_value = &mut self.value;
+                    ::pilota::pb::encoding::int32::merge(wire_type, _inner_pilota_value, buf, ctx)
+                        .map_err(|mut error| {
+                            error.push(STRUCT_NAME, stringify!(value));
+                            error
+                        })
+                }
+                _ => ::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx),
+            }
         }
     }
 
@@ -4165,5 +4166,9 @@ pub mod serde_pb {
                 }
             }
         }
+    }
+
+    pub mod pilota {
+        use ::pilota::{Buf as _, BufMut as _};
     }
 }

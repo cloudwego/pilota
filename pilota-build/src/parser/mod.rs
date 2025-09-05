@@ -17,6 +17,7 @@ pub struct ParseResult {
     pub files: Vec<Arc<File>>,
     pub(crate) input_files: Vec<FileId>,
     pub(crate) file_ids_map: FxHashMap<Arc<PathBuf>, FileId>,
+    pub(crate) file_paths: FxHashMap<FileId, Arc<PathBuf>>,
 }
 
 pub trait Parser {

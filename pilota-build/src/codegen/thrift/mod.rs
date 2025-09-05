@@ -559,6 +559,16 @@ impl CodegenBackend for ThriftBackend {
     const PROTOCOL: &'static str = "thrift";
 
     fn codegen_struct_impl(&self, def_id: DefId, stream: &mut String, s: &Message) {
+        let filename = self
+            .cx
+            .file_paths()
+            .get(&self.cx.node(def_id).unwrap().file_id)
+            .unwrap()
+            .file_stem()
+            .unwrap()
+            .to_string_lossy()
+            .replace(".", "_");
+        let filename_lower = filename.to_lowercase();
         let keep = self.keep_unknown_fields.contains(&def_id);
         let name = self.cx.rust_name(def_id);
         let mut encode_fields = self.codegen_encode_fields(&s.fields).join("");
@@ -619,7 +629,7 @@ impl CodegenBackend for ThriftBackend {
                 stream.push_str(&format! {
                     r#"impl {name} {{
                         pub fn get_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {{
-                            let file_descriptor = get_file_descriptor();
+                            let file_descriptor = get_file_descriptor_{filename_lower}();
                             file_descriptor.find_struct_by_name("{name}").unwrap()
                         }}
                     }}"#
@@ -716,7 +726,7 @@ impl CodegenBackend for ThriftBackend {
         stream.push_str(&format! {
             r#"impl {name} {{
                 pub fn get_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {{
-                    let file_descriptor = get_file_descriptor();
+                    let file_descriptor = get_file_descriptor_{filename_lower}();
                     file_descriptor.find_struct_by_name("{name}").unwrap()
                 }}
 
@@ -1059,6 +1069,16 @@ impl CodegenBackend for ThriftBackend {
     }
 
     fn codegen_file_descriptor(&self, stream: &mut String, f: &rir::File, has_direct: bool) {
+        let filename = self
+            .file_paths()
+            .get(&f.file_id)
+            .unwrap()
+            .file_stem()
+            .unwrap()
+            .to_string_lossy()
+            .replace(".", "_");
+        let filename_upper = filename.to_uppercase();
+        let filename_lower = filename.to_lowercase();
         if has_direct {
             let descriptor = &f.descriptor;
             let super_mod = match &*self.mode {
@@ -1067,9 +1087,9 @@ impl CodegenBackend for ThriftBackend {
             };
             stream.push_str(&format!(
             r#"
-static FILE_DESCRIPTOR_BYTES: ::pilota::Bytes = ::pilota::Bytes::from_static({descriptor:?});
-pub static FILE_DESCRIPTOR: ::std::sync::LazyLock<::pilota_thrift_reflect::thrift_reflection::FileDescriptor> = ::std::sync::LazyLock::new(|| {{
-    let descriptor = ::pilota_thrift_reflect::thrift_reflection::FileDescriptor::deserialize(FILE_DESCRIPTOR_BYTES.clone())
+static FILE_DESCRIPTOR_BYTES_{filename_upper}: ::pilota::Bytes = ::pilota::Bytes::from_static({descriptor:?});
+static FILE_DESCRIPTOR_{filename_upper}: ::std::sync::LazyLock<::pilota_thrift_reflect::thrift_reflection::FileDescriptor> = ::std::sync::LazyLock::new(|| {{
+    let descriptor = ::pilota_thrift_reflect::thrift_reflection::FileDescriptor::deserialize(FILE_DESCRIPTOR_BYTES_{filename_upper}.clone())
         .expect("Failed to decode file descriptor");
     ::pilota_thrift_reflect::service::Register::register(
         descriptor.filepath.clone(),
@@ -1090,8 +1110,8 @@ pub static FILE_DESCRIPTOR: ::std::sync::LazyLock<::pilota_thrift_reflect::thrif
     }}
     descriptor
 }});
-pub fn get_file_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor {{
-    &*FILE_DESCRIPTOR
+pub fn get_file_descriptor_{filename_lower}() -> &'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor {{
+    &*FILE_DESCRIPTOR_{filename_upper}
 }}"#));
         } else {
             match &*self.mode {
@@ -1101,7 +1121,7 @@ pub fn get_file_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflect
                     let common_crate_name = &self.common_crate_name;
                     stream.push_str(&format!(
                         r#"
-                        pub use ::{common_crate_name}::{mod_prefix}::get_file_descriptor;
+                        pub use ::{common_crate_name}::{mod_prefix}::get_file_descriptor_{filename_lower};
                         "#
                     ));
                 }
@@ -1121,6 +1141,12 @@ pub fn get_file_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflect
             "#);
 
         for (p, path) in mods {
+            let filename = path
+                .file_stem()
+                .expect("must_exist")
+                .to_string_lossy()
+                .to_lowercase()
+                .replace(".", "_");
             let path = path.display();
             stream.push_str(&format!(
                 r#"
@@ -1132,10 +1158,7 @@ pub fn get_file_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflect
             if !prefix.is_empty() {
                 stream.push_str(&format!(r#"{prefix}::"#));
             }
-            stream.push_str(
-                r#"get_file_descriptor()),
-                "#,
-            );
+            stream.push_str(&format!("get_file_descriptor_{filename}()),"));
         }
 
         stream.push_str(

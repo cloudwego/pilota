@@ -5,7 +5,7 @@ use pilota::FastStr;
 use crate::{
     Context,
     middle::rir::{self, Method},
-    symbol::DefId,
+    symbol::{DefId, Symbol},
 };
 
 pub trait CodegenBackend: Clone {
@@ -48,5 +48,17 @@ pub trait CodegenBackend: Clone {
     }
 
     // pb only, for pb options
-    fn codegen_exts(&self, _stream: &mut String, _extensions: &[rir::Extension]) {}
+    fn codegen_exts(
+        &self,
+        _stream: &mut String,
+        _suffix: &str,
+        _cur_pkg: &[Symbol],
+        _extensions: &[rir::Extension],
+    ) {
+    }
+
+    // pb only, for pb options
+    fn codegen_impl_enum_message(&self, _name: &str) -> String {
+        Default::default()
+    }
 }

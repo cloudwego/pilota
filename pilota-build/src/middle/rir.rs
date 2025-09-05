@@ -43,6 +43,7 @@ pub enum PbFieldType {
     String,
     Bytes,
     Message,
+    Enum,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

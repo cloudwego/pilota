@@ -6,13 +6,13 @@ use proc_macro2::{Ident, Span};
 use quote::quote;
 
 use crate::{
-    CodegenBackend, Context, DefId,
+    CodegenBackend, Context, DefId, Symbol,
     db::RirDatabase,
     middle::{
         context::Mode,
         ty::{self},
     },
-    rir::{self, Field, FieldKind, Item, NodeKind},
+    rir::{self, Field, FieldKind, Item, NodeKind, PbFieldType, PbOptionsExtendee},
     tags::protobuf::{OneOf, ProstType},
     ty::Ty,
 };
@@ -641,6 +641,16 @@ impl CodegenBackend for ProtobufBackend {
     }
 
     fn codegen_file_descriptor(&self, stream: &mut String, f: &rir::File, has_direct: bool) {
+        let filename = self
+            .file_paths()
+            .get(&f.file_id)
+            .unwrap()
+            .file_stem()
+            .unwrap()
+            .to_string_lossy()
+            .replace(".", "_");
+        let filename_upper = filename.to_uppercase();
+        let filename_lower = filename.to_lowercase();
         if has_direct {
             let descriptor = &f.descriptor;
             let super_mod = match &*self.mode {
@@ -665,8 +675,17 @@ impl CodegenBackend for ProtobufBackend {
                             "deps.push(::pilota::pb::descriptor::file_descriptor().clone());\n"
                         ));
                     } else if has_include_path && !pkg.is_empty() && pkg != "pilota" {
+                        let dep_filename = self
+                            .file_paths()
+                            .get(dep)
+                            .unwrap()
+                            .file_stem()
+                            .unwrap()
+                            .to_string_lossy()
+                            .replace(".", "_")
+                            .to_lowercase();
                         deps_builders.push_str(&format!(
-                            "deps.push({super_mod}{pkg}::file_descriptor().clone());\n"
+                            "deps.push({super_mod}{pkg}::file_descriptor_{dep_filename}().clone());\n"
                         ));
                     }
                 }
@@ -674,29 +693,30 @@ impl CodegenBackend for ProtobufBackend {
 
             stream.push_str(&format!(
                 r#"
-static FILE_DESCRIPTOR_BYTES: ::pilota::Bytes = ::pilota::Bytes::from_static({descriptor:?});
-pub fn file_descriptor_proto() -> &'static ::pilota::pb::descriptor::FileDescriptorProto {{
-    static FILE_DESCRIPTOR_PROTO: ::std::sync::LazyLock<::pilota::pb::descriptor::FileDescriptorProto> = ::std::sync::LazyLock::new(|| {{
-        let data: &[u8] = FILE_DESCRIPTOR_BYTES.as_ref();
+static FILE_DESCRIPTOR_BYTES_{filename_upper}: ::pilota::Bytes = ::pilota::Bytes::from_static({descriptor:?});
+static FILE_DESCRIPTOR_PROTO_{filename_upper}: ::std::sync::LazyLock<::pilota::pb::descriptor::FileDescriptorProto> = ::std::sync::LazyLock::new(|| {{
+        let data: &[u8] = FILE_DESCRIPTOR_BYTES_{filename_upper}.as_ref();
         ::pilota::pb::PbMessage::parse_from_bytes(data).expect("Failed to decode file descriptor")
-    }});
-    &*FILE_DESCRIPTOR_PROTO
+}});
+pub fn file_descriptor_proto_{filename_lower}() -> &'static ::pilota::pb::descriptor::FileDescriptorProto {{
+    &*FILE_DESCRIPTOR_PROTO_{filename_upper}
 }}
 
-pub fn file_descriptor() -> &'static ::pilota::pb::reflect::FileDescriptor {{
-    static FILE_DESCRIPTOR: ::std::sync::LazyLock<::pilota::pb::reflect::FileDescriptor> = ::std::sync::LazyLock::new(|| {{
-        let mut deps = ::std::vec::Vec::new();
-        {deps_builders}
-        ::pilota::pb::reflect::FileDescriptor::new_dynamic(file_descriptor_proto().clone(), &deps)
-            .expect("Failed to build dynamic FileDescriptor")
-    }});
-    &*FILE_DESCRIPTOR
+static FILE_DESCRIPTOR_{filename_upper}: ::std::sync::LazyLock<::pilota::pb::reflect::FileDescriptor> = ::std::sync::LazyLock::new(|| {{
+    let mut deps = ::std::vec::Vec::new();
+    {deps_builders}
+    ::pilota::pb::reflect::FileDescriptor::new_dynamic(file_descriptor_proto_{filename_lower}().clone(), &deps)
+        .expect("Failed to build dynamic FileDescriptor")
+}});
+
+pub fn file_descriptor_{filename_lower}() -> &'static ::pilota::pb::reflect::FileDescriptor {{
+    &*FILE_DESCRIPTOR_{filename_upper}
 }}
 "#
             ));
 
             if !f.extensions.is_empty() {
-                self.codegen_exts(stream, &f.extensions);
+                self.codegen_exts(stream, &filename_lower, &f.package, &f.extensions);
             }
         } else {
             match &*self.mode {
@@ -705,7 +725,7 @@ pub fn file_descriptor() -> &'static ::pilota::pb::reflect::FileDescriptor {{
                     let common_crate_name = &self.common_crate_name;
                     stream.push_str(&format!(
                         r#"
-                        pub use ::{common_crate_name}::{mod_prefix}::get_file_descriptor;
+                        pub use ::{common_crate_name}::{mod_prefix}::get_file_descriptor_{filename_lower};
                         "#
                     ));
                 }
@@ -729,68 +749,56 @@ pub fn file_descriptor() -> &'static ::pilota::pb::reflect::FileDescriptor {{
         }
     }
 
-    fn codegen_exts(&self, stream: &mut String, extensions: &[rir::Extension]) {
-        stream.push_str("pub mod exts {\n");
+    fn codegen_exts(
+        &self,
+        stream: &mut String,
+        suffix: &str,
+        cur_pkg: &[Symbol],
+        extensions: &[rir::Extension],
+    ) {
+        stream.push_str(&format!("pub mod exts_{suffix} {{\n"));
         stream.push_str("    use ::pilota::pb::ext::ExtFieldOptional;\n");
         for ext in extensions {
             let number = ext.number;
             let field_ty = match ext.field_ty {
-                crate::middle::rir::PbFieldType::Bool => {
-                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_BOOL"
+                PbFieldType::Bool => {
+                    Some("::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_BOOL")
                 }
-                crate::middle::rir::PbFieldType::Int32 => {
-                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_INT32"
+                PbFieldType::Int32 => {
+                    Some("::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_INT32")
                 }
-                crate::middle::rir::PbFieldType::Int64 => {
-                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_INT64"
+                PbFieldType::Int64 => {
+                    Some("::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_INT64")
                 }
-                crate::middle::rir::PbFieldType::UInt32 => {
-                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_UINT32"
+                PbFieldType::UInt32 => {
+                    Some("::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_UINT32")
                 }
-                crate::middle::rir::PbFieldType::UInt64 => {
-                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_UINT64"
+                PbFieldType::UInt64 => {
+                    Some("::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_UINT64")
                 }
-                crate::middle::rir::PbFieldType::Float => {
-                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_FLOAT"
+                PbFieldType::Float => {
+                    Some("::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_FLOAT")
                 }
-                crate::middle::rir::PbFieldType::Double => {
-                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_DOUBLE"
+                PbFieldType::Double => {
+                    Some("::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_DOUBLE")
                 }
-                crate::middle::rir::PbFieldType::String => {
-                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_STRING"
+                PbFieldType::String => {
+                    Some("::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_STRING")
                 }
-                crate::middle::rir::PbFieldType::Bytes => {
-                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_BYTES"
+                PbFieldType::Bytes => {
+                    Some("::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_BYTES")
                 }
-                crate::middle::rir::PbFieldType::Message => {
-                    "::pilota::pb::descriptor::field_descriptor_proto::Type::TYPE_MESSAGE"
-                }
+                _ => None,
             };
             let extendee_ty = match ext.extendee {
-                crate::middle::rir::PbOptionsExtendee::File => {
-                    "::pilota::pb::descriptor::FileOptions"
-                }
-                crate::middle::rir::PbOptionsExtendee::Message => {
-                    "::pilota::pb::descriptor::MessageOptions"
-                }
-                crate::middle::rir::PbOptionsExtendee::Field => {
-                    "::pilota::pb::descriptor::FieldOptions"
-                }
-                crate::middle::rir::PbOptionsExtendee::Enum => {
-                    "::pilota::pb::descriptor::EnumOptions"
-                }
-                crate::middle::rir::PbOptionsExtendee::EnumValue => {
-                    "::pilota::pb::descriptor::EnumValueOptions"
-                }
-                crate::middle::rir::PbOptionsExtendee::Service => {
-                    "::pilota::pb::descriptor::ServiceOptions"
-                }
-                crate::middle::rir::PbOptionsExtendee::Method => {
-                    "::pilota::pb::descriptor::MethodOptions"
-                }
-                crate::middle::rir::PbOptionsExtendee::Oneof => {
-                    "::pilota::pb::descriptor::OneofOptions"
-                }
+                PbOptionsExtendee::File => "::pilota::pb::descriptor::FileOptions",
+                PbOptionsExtendee::Message => "::pilota::pb::descriptor::MessageOptions",
+                PbOptionsExtendee::Field => "::pilota::pb::descriptor::FieldOptions",
+                PbOptionsExtendee::Enum => "::pilota::pb::descriptor::EnumOptions",
+                PbOptionsExtendee::EnumValue => "::pilota::pb::descriptor::EnumValueOptions",
+                PbOptionsExtendee::Service => "::pilota::pb::descriptor::ServiceOptions",
+                PbOptionsExtendee::Method => "::pilota::pb::descriptor::MethodOptions",
+                PbOptionsExtendee::Oneof => "::pilota::pb::descriptor::OneofOptions",
             };
             let val_ty = match &ext.value_ty.kind {
                 ty::TyKind::Path(p) => {
@@ -798,8 +806,9 @@ pub fn file_descriptor() -> &'static ::pilota::pb::reflect::FileDescriptor {{
                     match &*self.mode {
                         Mode::Workspace(_) => cg.global_path("crate").to_string(),
                         Mode::SingleFile { .. } => {
-                            let name = self.rust_name(p.did);
-                            format!("super::{name}")
+                            let target_path = self.item_path(p.did);
+                            let path = self.path_resolver.related_path(cur_pkg, &target_path);
+                            format!("super::{path}")
                         }
                     }
                 }
@@ -810,11 +819,49 @@ pub fn file_descriptor() -> &'static ::pilota::pb::reflect::FileDescriptor {{
                     cg.global_path("crate").to_string()
                 }
             };
+
             let const_name = &*ext.name;
-            stream.push_str(&format!(
-                    "    pub const {const_name}: ExtFieldOptional<{extendee_ty}, {val_ty}> = ExtFieldOptional::new({number}, {field_ty});\n"
-                ));
+            if let Some(field_ty) = field_ty {
+                stream.push_str(&format!(
+                        "pub const {const_name}: ::pilota::pb::ext::ExtFieldOptional<{extendee_ty}, {val_ty}> = ::pilota::pb::ext::ExtFieldOptional::new({number}, {field_ty});\n"
+                    ));
+            } else {
+                match &ext.field_ty {
+                    PbFieldType::Message => {
+                        stream.push_str(&format!(
+                            "pub const {const_name}: ::pilota::pb::extension::CustomExtField<{extendee_ty}, {val_ty}> = ::pilota::pb::extension::CustomExtField::new({number});\n"
+                        ));
+                    }
+
+                    PbFieldType::Enum => {
+                        stream.push_str(&format!(
+                        "pub const {const_name}: ::pilota::pb::extension::CustomExtEnumField<{extendee_ty}, {val_ty}> = ::pilota::pb::extension::CustomExtEnumField::new({number});\n"
+                    ));
+                    }
+                    _ => unreachable!("only message and enum are not processed until now"),
+                }
+            }
         }
         stream.push_str("}\n");
+    }
+
+    fn codegen_impl_enum_message(&self, name: &str) -> String {
+        format!(
+            r#"
+                impl ::pilota::pb::EnumMessage for {name} {{
+                fn inner(&self) -> i32 {{
+                    self.inner()
+                }}
+
+                fn to_string(&self) -> ::std::string::String {{
+                    self.to_string()
+                }}
+
+                fn try_from_i32(value: i32) -> ::std::option::Option<Self> {{
+                    {name}::try_from_i32(value)
+                }}
+            }}
+        "#
+        )
     }
 }

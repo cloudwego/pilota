@@ -887,6 +887,7 @@ impl Resolver {
             ir::PbFieldType::String => RirPbFieldType::String,
             ir::PbFieldType::Bytes => RirPbFieldType::Bytes,
             ir::PbFieldType::Message => RirPbFieldType::Message,
+            ir::PbFieldType::Enum => RirPbFieldType::Enum,
         };
         Some(RirExtension {
             name: e.name.clone(),
