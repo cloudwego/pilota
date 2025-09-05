@@ -59,6 +59,7 @@ impl ThriftSourceDatabase {
 pub struct LowerResult {
     pub files: Vec<Arc<File>>,
     pub file_ids_map: FxHashMap<Arc<PathBuf>, FileId>,
+    pub file_paths: FxHashMap<FileId, Arc<PathBuf>>,
 }
 
 pub trait Lower<Ast> {
@@ -73,6 +74,7 @@ pub struct ThriftLower {
     db: ThriftSourceDatabase,
     files: FxHashMap<FileId, Arc<File>>,
     file_ids_map: FxHashMap<Arc<PathBuf>, FileId>,
+    file_paths: FxHashMap<FileId, Arc<PathBuf>>,
     include_dirs: Vec<PathBuf>,
     packages: FxHashMap<Path, Vec<Arc<PathBuf>>>,
     service_name_duplicates: FxHashSet<String>,
@@ -86,6 +88,7 @@ impl ThriftLower {
             db,
             files: FxHashMap::default(),
             file_ids_map: FxHashMap::default(),
+            file_paths: FxHashMap::default(),
             include_dirs,
             packages: Default::default(),
             service_name_duplicates: Default::default(),
@@ -620,6 +623,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
 
         let file_id = self.next_file_id.inc_one();
         self.file_ids_map.insert(f.path.clone(), file_id);
+        self.file_paths.insert(file_id, f.path.clone());
 
         let file = self.with_cur_file(f.clone(), |this| {
             let include_files = f
@@ -741,6 +745,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
         LowerResult {
             files: self.files.into_values().collect::<Vec<_>>(),
             file_ids_map: self.file_ids_map,
+            file_paths: self.file_paths,
         }
     }
 }
@@ -785,6 +790,7 @@ impl super::Parser for ThriftParser {
             files: result.files,
             input_files,
             file_ids_map: result.file_ids_map,
+            file_paths: result.file_paths,
         }
     }
 }

@@ -44,6 +44,7 @@ pub struct RootDatabase {
     input_files: Arc<Vec<FileId>>,
     args: Arc<FxHashSet<DefId>>,
     workspace_graph: Arc<WorkspaceGraph>,
+    file_paths: Arc<FxHashMap<FileId, Arc<PathBuf>>>,
 }
 
 impl Default for RootDatabase {
@@ -58,6 +59,7 @@ impl Default for RootDatabase {
             input_files: Arc::new(Vec::new()),
             args: Arc::new(FxHashSet::default()),
             workspace_graph: Arc::new(empty_workspace_graph()),
+            file_paths: Arc::new(FxHashMap::default()),
         }
     }
 }
@@ -85,6 +87,11 @@ impl RootDatabase {
 
     pub fn with_file_ids_map(mut self, file_ids_map: FxHashMap<Arc<PathBuf>, FileId>) -> Self {
         self.file_ids_map = Arc::new(file_ids_map);
+        self
+    }
+
+    pub fn with_file_paths(mut self, file_paths: FxHashMap<FileId, Arc<PathBuf>>) -> Self {
+        self.file_paths = Arc::new(file_paths);
         self
     }
 
@@ -269,6 +276,7 @@ pub trait RirDatabase: salsa::Database {
     fn nodes(&self) -> &Arc<FxHashMap<DefId, rir::Node>>;
     fn files(&self) -> &Arc<FxHashMap<FileId, Arc<rir::File>>>;
     fn file_ids_map(&self) -> &Arc<FxHashMap<Arc<PathBuf>, FileId>>;
+    fn file_paths(&self) -> &Arc<FxHashMap<FileId, Arc<PathBuf>>>;
     fn type_graph(&self) -> &Arc<TypeGraph>;
     fn tags_map(&self) -> &Arc<FxHashMap<TagId, Arc<Tags>>>;
     fn input_files(&self) -> &Arc<Vec<FileId>>;
@@ -313,6 +321,10 @@ impl RirDatabase for RootDatabase {
 
     fn file_ids_map(&self) -> &Arc<FxHashMap<Arc<PathBuf>, FileId>> {
         &self.file_ids_map
+    }
+
+    fn file_paths(&self) -> &Arc<FxHashMap<FileId, Arc<PathBuf>>> {
+        &self.file_paths
     }
 
     fn type_graph(&self) -> &Arc<TypeGraph> {
