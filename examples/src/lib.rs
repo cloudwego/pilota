@@ -226,19 +226,19 @@ fn test_pb_options() {
         custom_options::custom_options::custom_options::file_descriptor_proto_custom_options();
     if let Some(file_opts) = fd_proto.options.as_ref() {
         use custom_options::custom_options::custom_options::exts_custom_options;
-        if let Some(v) = exts_custom_options::file_version.get(file_opts) {
+        if let Ok(v) = exts_custom_options::file_version.get(file_opts) {
             println!("file_option file_version: {}", v);
             assert_eq!(v, 20250818);
         }
-        if let Some(v) = exts_custom_options::file_author.get(file_opts) {
+        if let Ok(v) = exts_custom_options::file_author.get(file_opts) {
             println!("file_option file_author: {}", v);
             assert_eq!(v, "giggle");
         }
-        if let Some(v) = exts_custom_options::file_department.get(file_opts) {
+        if let Ok(v) = exts_custom_options::file_department.get(file_opts) {
             println!("file_option file_department: {}", v);
             assert_eq!(v, "arch");
         }
-        if let Some(v) = exts_custom_options::internal_api.get(file_opts) {
+        if let Ok(v) = exts_custom_options::internal_api.get(file_opts) {
             println!("file_option internal_api: {}", v);
             assert_eq!(v, false);
         }
@@ -249,13 +249,13 @@ fn test_pb_options() {
         let svc_proto = svc.proto();
         if let Some(svc_opts) = svc_proto.options.as_ref() {
             use custom_options::custom_options::custom_options::exts_custom_options;
-            if let Some(v) = exts_custom_options::service_version.get(svc_opts) {
+            if let Ok(v) = exts_custom_options::service_version.get(svc_opts) {
                 println!("service_option service_version: {}", v);
             }
-            if let Some(v) = exts_custom_options::require_auth.get(svc_opts) {
+            if let Ok(v) = exts_custom_options::require_auth.get(svc_opts) {
                 println!("service_option require_auth: {}", v);
             }
-            if let Some(v) = exts_custom_options::rate_limit.get(svc_opts) {
+            if let Ok(v) = exts_custom_options::rate_limit.get(svc_opts) {
                 println!("service_option rate_limit: {}", v);
             }
         }
@@ -263,19 +263,19 @@ fn test_pb_options() {
             let m_proto = m.proto();
             if let Some(m_opts) = m_proto.options.as_ref() {
                 use custom_options::custom_options::custom_options::exts_custom_options;
-                if let Some(v) = exts_custom_options::method_require_auth.get(m_opts) {
+                if let Ok(v) = exts_custom_options::method_require_auth.get(m_opts) {
                     println!("method_option method_require_auth: {}", v);
                 }
-                if let Some(v) = exts_custom_options::method_rate_limit.get(m_opts) {
+                if let Ok(v) = exts_custom_options::method_rate_limit.get(m_opts) {
                     println!("method_option method_rate_limit: {}", v);
                 }
-                if let Some(v) = exts_custom_options::endpoint.get(m_opts) {
+                if let Ok(v) = exts_custom_options::endpoint.get(m_opts) {
                     println!("method_option endpoint: {}", v);
                 }
-                if let Some(v) = exts_custom_options::http_method.get(m_opts) {
+                if let Ok(v) = exts_custom_options::http_method.get(m_opts) {
                     println!("method_option http_method: {}", v);
                 }
-                if let Some(v) = exts_custom_options::permission.get(m_opts) {
+                if let Ok(v) = exts_custom_options::permission.get(m_opts) {
                     println!("method_option permission: {}", v);
                 }
             }
@@ -288,15 +288,15 @@ fn test_pb_options() {
         let indent = "  ".repeat(depth);
         let dp = md.proto();
         if let Some(opts) = dp.options.as_ref() {
-            if let Some(v) = exts_custom_options::db_table.get(opts) {
+            if let Ok(v) = exts_custom_options::db_table.get(opts) {
                 println!("{}message_option db_table: {}", indent, v);
                 assert_eq!(v, "users");
             }
-            if let Some(v) = exts_custom_options::db_entity.get(opts) {
+            if let Ok(v) = exts_custom_options::db_entity.get(opts) {
                 println!("{}message_option db_entity: {}", indent, v);
                 assert_eq!(v, true);
             }
-            if let Some(v) = exts_custom_options::cache_ttl_seconds.get(opts) {
+            if let Ok(v) = exts_custom_options::cache_ttl_seconds.get(opts) {
                 println!("{}message_option cache_ttl_seconds: {}", indent, v);
                 assert_eq!(v, 3600);
             }
@@ -318,7 +318,7 @@ fn test_pb_options() {
         // nested extension: ApiMetadata.message Example use ApiMetadata::exts::test
         if let Some(opts) = dp.options.as_ref() {
             use custom_options::custom_options::custom_options::api_metadata::exts_api_metadata as am_exts;
-            if let Some(v) = am_exts::test.get(opts) {
+            if let Ok(v) = am_exts::test.get(opts) {
                 println!("{}api_metadata.test: {}", indent, v);
             }
         }
@@ -326,19 +326,19 @@ fn test_pb_options() {
         // field options
         for f in &dp.field {
             if let Some(f_opts) = f.options.as_ref() {
-                if let Some(v) = exts_custom_options::sensitive.get(f_opts) {
+                if let Ok(v) = exts_custom_options::sensitive.get(f_opts) {
                     println!("{}field_option sensitive: {}", indent, v);
                 }
-                if let Some(v) = exts_custom_options::validation.get(f_opts) {
+                if let Ok(v) = exts_custom_options::validation.get(f_opts) {
                     println!("{}field_option validation: {}", indent, v);
                 }
-                if let Some(v) = exts_custom_options::db_column.get(f_opts) {
+                if let Ok(v) = exts_custom_options::db_column.get(f_opts) {
                     println!("{}field_option db_column: {}", indent, v);
                 }
-                if let Some(v) = exts_custom_options::db_index.get(f_opts) {
+                if let Ok(v) = exts_custom_options::db_index.get(f_opts) {
                     assert_eq!(v, true);
                 }
-                if let Some(v) = exts_custom_options::api_doc.get(f_opts) {
+                if let Ok(v) = exts_custom_options::api_doc.get(f_opts) {
                     println!("{}field_option api_doc: {}", indent, v);
                 }
             }
@@ -347,10 +347,10 @@ fn test_pb_options() {
         // oneof options
         for o in &dp.oneof_decl {
             if let Some(o_opts) = o.options.as_ref() {
-                if let Some(v) = exts_custom_options::oneof_description.get(o_opts) {
+                if let Ok(v) = exts_custom_options::oneof_description.get(o_opts) {
                     println!("{}oneof_option oneof_description: {}", indent, v);
                 }
-                if let Some(v) = exts_custom_options::exclusive.get(o_opts) {
+                if let Ok(v) = exts_custom_options::exclusive.get(o_opts) {
                     println!("{}oneof_option exclusive: {}", indent, v);
                 }
             }
@@ -359,22 +359,22 @@ fn test_pb_options() {
         // enum options
         for e in &dp.enum_type {
             if let Some(e_opts) = e.options.as_ref() {
-                if let Some(v) = exts_custom_options::enum_description.get(e_opts) {
+                if let Ok(v) = exts_custom_options::enum_description.get(e_opts) {
                     println!("{}enum_option enum_description: {}", indent, v);
                 }
-                if let Some(v) = exts_custom_options::is_internal.get(e_opts) {
+                if let Ok(v) = exts_custom_options::is_internal.get(e_opts) {
                     println!("{}enum_option is_internal: {}", indent, v);
                 }
             }
             for ev in &e.value {
                 if let Some(ev_opts) = ev.options.as_ref() {
-                    if let Some(v) = exts_custom_options::display_name.get(ev_opts) {
+                    if let Ok(v) = exts_custom_options::display_name.get(ev_opts) {
                         println!("{}enum_value_option display_name: {}", indent, v);
                     }
-                    if let Some(v) = exts_custom_options::access_level.get(ev_opts) {
+                    if let Ok(v) = exts_custom_options::access_level.get(ev_opts) {
                         println!("{}enum_value_option access_level: {}", indent, v);
                     }
-                    if let Some(v) = exts_custom_options::color.get(ev_opts) {
+                    if let Ok(v) = exts_custom_options::color.get(ev_opts) {
                         println!("{}enum_value_option color: {}", indent, v);
                     }
                 }
@@ -397,22 +397,22 @@ fn test_pb_options() {
         use custom_options::custom_options::custom_options::exts_custom_options;
         let ep = e.proto();
         if let Some(e_opts) = ep.options.as_ref() {
-            if let Some(v) = exts_custom_options::enum_description.get(e_opts) {
+            if let Ok(v) = exts_custom_options::enum_description.get(e_opts) {
                 println!("top_enum_option enum_description: {}", v);
             }
-            if let Some(v) = exts_custom_options::is_internal.get(e_opts) {
+            if let Ok(v) = exts_custom_options::is_internal.get(e_opts) {
                 println!("top_enum_option is_internal: {}", v);
             }
         }
         for ev in &ep.value {
             if let Some(ev_opts) = ev.options.as_ref() {
-                if let Some(v) = exts_custom_options::display_name.get(ev_opts) {
+                if let Ok(v) = exts_custom_options::display_name.get(ev_opts) {
                     println!("top_enum_value_option display_name: {}", v);
                 }
-                if let Some(v) = exts_custom_options::access_level.get(ev_opts) {
+                if let Ok(v) = exts_custom_options::access_level.get(ev_opts) {
                     println!("top_enum_value_option access_level: {}", v);
                 }
-                if let Some(v) = exts_custom_options::color.get(ev_opts) {
+                if let Ok(v) = exts_custom_options::color.get(ev_opts) {
                     println!("top_enum_value_option color: {}", v);
                 }
             }
