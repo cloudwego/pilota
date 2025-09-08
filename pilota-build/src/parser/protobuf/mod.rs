@@ -96,6 +96,7 @@ impl Lower {
             T::TYPE_STRING => IrPbFieldType::String,
             T::TYPE_BYTES => IrPbFieldType::Bytes,
             T::TYPE_MESSAGE => IrPbFieldType::Message,
+            T::TYPE_ENUM => IrPbFieldType::Enum,
             _ => return None,
         })
     }
@@ -547,7 +548,7 @@ impl Lower {
                     Bytes::from(bytes_vec)
                 };
 
-                let f = Arc::from(ir::File {
+                let mut f = ir::File {
                     package,
                     uses: f
                         .dependency
@@ -572,7 +573,25 @@ impl Lower {
                         .iter()
                         .filter_map(|e| self.lower_extension(e, &Default::default()))
                         .collect(),
-                });
+                };
+
+                if f.items.is_empty() && !f.extensions.is_empty() {
+                    f.items.push(Arc::new(ir::Item {
+                        related_items: Default::default(),
+                        tags: Arc::new(Tags::default()),
+                        kind: ir::ItemKind::Const(ir::Const {
+                            name: FastStr::new(format!("__PILOTA_PB_EXT_{}", file_id.as_u32()))
+                                .into(),
+                            ty: ir::Ty {
+                                kind: ir::TyKind::String,
+                                tags: Default::default(),
+                            },
+                            lit: ir::Literal::String(Arc::from("extensions")),
+                        }),
+                    }));
+                }
+
+                let f = Arc::from(f);
 
                 self.cur_package = None;
 
@@ -729,16 +748,17 @@ impl Parser for ProtobufParser {
         let files = lower.lower(&descriptors);
 
         let mut file_ids = FxHashMap::default();
-
+        let mut file_paths = FxHashMap::default();
         descriptors.iter().for_each(|f| {
             self.include_dirs.iter().for_each(|p| {
                 let path = p.join(f.name());
                 if path.exists() {
                     println!("cargo:rerun-if-changed={}", path.display());
-                    file_ids.insert(
-                        Arc::from(path.normalize().unwrap().into_path_buf()),
-                        *lower.files.get(f.name()).unwrap(),
-                    );
+                    let file_id = *lower.files.get(f.name()).unwrap();
+                    let file_path: Arc<PathBuf> =
+                        Arc::from(path.normalize().unwrap().into_path_buf());
+                    file_ids.insert(file_path.clone(), file_id);
+                    file_paths.insert(file_id, file_path);
                     if self
                         .input_files
                         .contains(path.normalize().unwrap().as_path())
@@ -753,6 +773,7 @@ impl Parser for ProtobufParser {
             files,
             input_files: input_file_ids,
             file_ids_map: file_ids,
+            file_paths: file_paths,
         }
     }
 }

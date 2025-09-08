@@ -1,12 +1,13 @@
 syntax = "proto3";
 
 import "pilota.proto";
-import "rustproto.proto";
 import "google/protobuf/descriptor.proto";
 import "custom_options.proto";
 
 extend google.protobuf.MessageOptions {
     optional string alias = 1111;
+    optional float f32 = 1112;
+    optional double f64 = 1113;
 }
 
 message B {
@@ -22,13 +23,15 @@ message C {
 message A {
     C c = 4[deprecated = true];
     B b = 3[(pilota.rust_wrapper_arc_field) = true];
-    map<string, string> str_map = 1[(rustproto.btreemap_field) = true];
+    map<string, string> str_map = 1;
      string s1 = 2;
     optional string s2 = 2047;
 }
 
 message BB {
     option (alias) = "UnknownB";
+    option (f32) = 1.23;
+    option (f64) = 3.21;
 }
 
 message CC {

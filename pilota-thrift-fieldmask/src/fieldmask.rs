@@ -88,7 +88,7 @@ pub enum FieldMaskError {
     GenericError { message: String },
 }
 
-#[derive(Debug, Clone, Eq)]
+#[derive(Debug, Clone, Eq, serde::Serialize, serde::Deserialize)]
 pub enum FieldMaskData {
     Invalid,
     Scalar,
@@ -548,7 +548,18 @@ impl FieldMaskData {
     }
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(
+    Debug,
+    Clone,
+    Default,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize,
+)]
 pub struct FieldMask {
     is_black: bool, // black list mode flag
     data: FieldMaskData,

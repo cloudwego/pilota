@@ -34,6 +34,7 @@ pub enum PbFieldType {
     String,
     Bytes,
     Message,
+    Enum,
 }
 
 #[derive(Clone, Debug)]
@@ -45,7 +46,7 @@ pub struct Extension {
     pub value_ty: Ty,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Literal {
     Bool(bool),
     Path(Path),

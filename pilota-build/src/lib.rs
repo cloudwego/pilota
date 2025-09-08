@@ -360,6 +360,7 @@ where
             files,
             input_files,
             file_ids_map,
+            file_paths,
         } = parser.parse();
 
         let ResolveResult {
@@ -380,6 +381,7 @@ where
         // Build the database using the builder pattern
         let db = RootDatabase::default()
             .with_file_ids_map(file_ids_map)
+            .with_file_paths(file_paths)
             .with_files(files.into_iter())
             .with_nodes(nodes)
             .with_tags(tags, type_graph)
