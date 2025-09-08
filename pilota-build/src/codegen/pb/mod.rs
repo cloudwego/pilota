@@ -674,7 +674,7 @@ impl CodegenBackend for ProtobufBackend {
                         deps_builders.push_str(&format!(
                             "deps.push(::pilota::pb::descriptor::file_descriptor().clone());\n"
                         ));
-                    } else if has_include_path && !pkg.is_empty() && pkg != "pilota" {
+                    } else if has_include_path && !pkg.is_empty() {
                         let dep_filename = self
                             .file_paths()
                             .get(dep)

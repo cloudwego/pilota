@@ -93,7 +93,7 @@ impl OptionValueExtractor for FloatOptionValueExtractor {
     type Value = f32;
     fn get_from_unknown(value: protobuf::UnknownValueRef) -> Result<Self::Value, DecodeError> {
         match value {
-            protobuf::UnknownValueRef::Fixed32(v) => Ok(v as f32),
+            protobuf::UnknownValueRef::Fixed32(v) => Ok(f32::from_bits(v)),
             _ => Err(DecodeError::new("invalid value for f32")),
         }
     }
@@ -105,7 +105,7 @@ impl OptionValueExtractor for DoubleOptionValueExtractor {
     type Value = f64;
     fn get_from_unknown(value: protobuf::UnknownValueRef) -> Result<Self::Value, DecodeError> {
         match value {
-            protobuf::UnknownValueRef::Fixed64(v) => Ok(v as f64),
+            protobuf::UnknownValueRef::Fixed64(v) => Ok(f64::from_bits(v)),
             _ => Err(DecodeError::new("invalid value for f64")),
         }
     }

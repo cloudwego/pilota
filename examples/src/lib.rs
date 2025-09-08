@@ -82,6 +82,24 @@ fn test_pb_encode_zero_value() {
 
     // test deprecated
     use zero_value::zero_value::TestService;
+
+    // test f32 and f64
+    let bb = zero_value::zero_value::file_descriptor_zero_value()
+        .messages()
+        .for_each(|m| {
+            // the name is same with the idl definition
+            if m.name() == "BB" {
+                let opt = m.proto().options.as_ref().unwrap();
+                if let Ok(f32_opt) = zero_value::zero_value::exts_zero_value::f32.get(opt) {
+                    println!("f32_opt: {:?}", f32_opt);
+                    assert_eq!(f32_opt, 1.23);
+                }
+                if let Ok(f64_opt) = zero_value::zero_value::exts_zero_value::f64.get(opt) {
+                    println!("f64_opt: {:?}", f64_opt);
+                    assert_eq!(f64_opt, 3.21);
+                }
+            }
+        });
 }
 
 #[test]
