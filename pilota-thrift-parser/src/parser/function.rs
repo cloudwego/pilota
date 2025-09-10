@@ -1,65 +1,98 @@
-use nom::{
-    IResult,
-    bytes::complete::tag,
-    combinator::{map, opt},
-    multi::many1,
-    sequence::tuple,
-};
+use chumsky::prelude::*;
 
 use super::super::{
     Attribute,
-    descriptor::{Annotations, Field, Function, Ident, Type},
+    descriptor::Function,
     parser::{Parser, blank, list_separator},
 };
+use crate::{Annotation, Field, Type, parser::*};
 
-impl Parser for Function {
-    fn parse(input: &str) -> IResult<&str, Function> {
-        map(
-            tuple((
-                map(opt(tuple((tag("oneway"), blank))), |x| x.is_some()),
-                Type::parse,
-                blank,
-                Ident::parse,
-                opt(blank),
-                tag("("),
-                opt(many1(map(
-                    tuple((opt(blank), Field::parse)),
-                    |(_, field)| field,
-                ))),
-                opt(blank),
-                tag(")"),
-                opt(blank),
-                opt(map(
-                    tuple((
-                        tag("throws"),
-                        opt(blank),
-                        tag("("),
-                        many1(map(tuple((opt(blank), Field::parse)), |(_, field)| field)),
-                        opt(blank),
-                        tag(")"),
-                    )),
-                    |(_, _, _, fields, _, _)| fields,
-                )),
-                opt(blank),
-                opt(Annotations::parse),
-                opt(list_separator),
-            )),
-            |(oneway, r#type, _, name, _, _, arguments, _, _, _, throws, _, annotations, _)| {
-                let mut args = arguments.unwrap_or_default();
-                args.iter_mut().for_each(|f| {
-                    if f.attribute == Attribute::Default {
-                        f.attribute = Attribute::Required
+impl Function {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, Function, extra::Err<Rich<'a, char>>> {
+        let fields = Field::parse()
+            .padded_by(blank().or_not())
+            .repeated()
+            .at_least(1)
+            .collect::<Vec<_>>()
+            .boxed();
+
+        let throws = just("throws")
+            .ignore_then(blank().or_not())
+            .ignore_then(just("("))
+            .ignore_then(fields.clone())
+            .then_ignore(blank().or_not())
+            .then_ignore(just(")"));
+
+        just("oneway")
+            .then_ignore(blank())
+            .or_not()
+            .then(Type::parse())
+            .then_ignore(blank())
+            .then(Ident::parse())
+            .then_ignore(just("(").padded_by(blank().or_not()))
+            .then(fields.clone().or_not())
+            .then_ignore(just(")"))
+            .padded_by(blank().or_not())
+            .then(throws.or_not())
+            .then_ignore(blank().or_not())
+            .then(Annotation::parse().or_not())
+            .then_ignore(list_separator().or_not())
+            .map(
+                |(((((oneway, r#type), name), arguments), throws), annotations)| {
+                    let ow = oneway.is_some();
+                    let mut args = arguments.unwrap_or_default();
+                    args.iter_mut().for_each(|f| {
+                        if f.attribute == Attribute::Default {
+                            f.attribute = Attribute::Required
+                        }
+                    });
+                    Function {
+                        name: Ident(name.into()),
+                        oneway: ow,
+                        result_type: r#type,
+                        arguments: args,
+                        throws: throws.unwrap_or_default(),
+                        annotations: annotations.unwrap_or_default(),
                     }
-                });
-                Function {
-                    name,
-                    oneway,
-                    result_type: r#type,
-                    arguments: args,
-                    throws: throws.unwrap_or_default(),
-                    annotations: annotations.unwrap_or_default(),
-                }
-            },
-        )(input)
+                },
+            )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_func() {
+        let _f = Function::parse()
+            .parse(
+                r#"map<i64, shared.ProcessingStatus> processUserData(
+                            1: required list<UserProfile> profiles,
+                            2: optional map<string, string(go.tag='json:"config_value"')> config = {"timeout": "10s", "retries": "3"},
+                            3: i32(some.annotation = "for_i32_type") executionPriority = 1
+                        ) throws (1: ServiceException ex),"#
+            )
+            .unwrap();
+    }
+
+    #[test]
+    fn test_func2() {
+        let _f = Function::parse()
+            .parse(
+                r#"oneway void pingServer(
+                            1: required string(go.tag = 'json:"source_service"') source,
+                            2: optional list<map<i64, set<double>>> nestedDataPoints
+                        ) (api.version = "2.5", deprecated = "false")"#,
+            )
+            .unwrap();
+    }
+
+    #[test]
+    fn test_func3() {
+        let _f = Function::parse()
+            .parse(r#"Err test_enum_var_type_name_conflict (1: Request req);"#)
+            .unwrap();
     }
 }
