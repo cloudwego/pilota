@@ -1,140 +1,125 @@
-use std::{num::ParseIntError, str::FromStr};
-
-use nom::{
-    IResult,
-    branch::alt,
-    bytes::complete::{tag, tag_no_case},
-    character::complete::{digit1, hex_digit1},
-    combinator::{map, map_res, opt, recognize},
-    multi::many0,
-    sequence::{delimited, preceded, tuple},
-};
+use chumsky::prelude::*;
 
 use super::super::{
-    descriptor::{
-        Annotations, ConstValue, Constant, DoubleConstant, Ident, IntConstant, Literal, Type,
-    },
+    descriptor::{ConstValue, Constant, DoubleConstant, IntConstant},
     parser::*,
 };
+use crate::{Annotation, Literal, Type};
 
-impl Parser for ConstValue {
-    fn parse(input: &str) -> IResult<&str, ConstValue> {
-        alt((
-            map(Literal::parse, ConstValue::String),
-            map(tag("true"), |_| ConstValue::Bool(true)),
-            map(tag("false"), |_| ConstValue::Bool(false)),
-            map(Path::parse, ConstValue::Path),
-            map(DoubleConstant::parse, ConstValue::Double),
-            map(IntConstant::parse, ConstValue::Int),
-            map(
-                tuple((
-                    tag("["),
-                    many0(map(
-                        tuple((
-                            opt(blank),
-                            ConstValue::parse,
-                            opt(blank),
-                            opt(list_separator),
-                        )),
-                        |(_, elements, _, _)| elements,
-                    )),
-                    opt(blank),
-                    tag("]"),
-                )),
-                |(_, elements, _, _)| ConstValue::List(elements),
-            ),
-            map(
-                tuple((
-                    tag("{"),
-                    many0(map(
-                        tuple((
-                            opt(blank),
-                            ConstValue::parse,
-                            opt(blank),
-                            tag(":"),
-                            opt(blank),
-                            ConstValue::parse,
-                            opt(blank),
-                            opt(list_separator),
-                        )),
-                        |(_, key, _, _, _, value, _, _)| (key, value),
-                    )),
-                    opt(blank),
-                    tag("}"),
-                )),
-                |(_, key_value_pairs, _, _)| ConstValue::Map(key_value_pairs),
-            ),
-        ))(input)
+impl ConstValue {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, ConstValue, extra::Err<Rich<'a, char>>> {
+        recursive(|const_value| {
+            let list_value = just("[")
+                .ignore_then(
+                    const_value
+                        .clone()
+                        .padded_by(blank().or_not())
+                        .then_ignore(list_separator().or_not())
+                        .repeated()
+                        .collect(),
+                )
+                .then_ignore(blank().or_not())
+                .then_ignore(just("]"))
+                .map(|elements| ConstValue::List(elements));
+
+            let map_value = just("{")
+                .ignore_then(
+                    const_value
+                        .clone()
+                        .padded_by(blank().or_not())
+                        .then_ignore(just(":"))
+                        .then(const_value.clone().padded_by(blank().or_not()))
+                        .then_ignore(list_separator().or_not())
+                        .repeated()
+                        .collect(),
+                )
+                .then_ignore(blank().or_not())
+                .then_ignore(just("}"))
+                .map(|elements| ConstValue::Map(elements));
+
+            choice((
+                Literal::parse().map(ConstValue::String),
+                just("true").to(ConstValue::Bool(true)),
+                just("false").to(ConstValue::Bool(false)),
+                Path::parse().map(ConstValue::Path),
+                DoubleConstant::parse().map(ConstValue::Double),
+                IntConstant::parse().map(ConstValue::Int),
+                list_value,
+                map_value,
+            ))
+            .boxed()
+        })
     }
 }
 
-impl Parser for Constant {
-    fn parse(input: &str) -> IResult<&str, Constant> {
-        map(
-            tuple((
-                tag("const"),
-                preceded(blank, Type::parse),
-                preceded(blank, Ident::parse),
-                preceded(opt(blank), tag("=")),
-                preceded(opt(blank), ConstValue::parse),
-                opt(blank),
-                opt(Annotations::parse),
-                opt(list_separator),
-            )),
-            |(_, r#type, name, _, value, _, annotations, _)| Constant {
-                name,
+impl Constant {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, Constant, extra::Err<Rich<'a, char>>> {
+        just("const")
+            .ignore_then(Type::parse().padded_by(blank()))
+            .then(Ident::parse())
+            .then_ignore(just("=").padded_by(blank().or_not()))
+            .then(ConstValue::parse())
+            .then_ignore(blank().or_not())
+            .then(Annotation::parse().or_not())
+            .then_ignore(list_separator().padded_by(blank().or_not()).or_not())
+            .map(|(((r#type, name), value), annotations)| Constant {
+                name: Ident(name.into()),
                 r#type,
                 value,
                 annotations: annotations.unwrap_or_default(),
-            },
-        )(input)
+            })
     }
 }
 
-impl Parser for IntConstant {
-    fn parse(input: &str) -> IResult<&str, IntConstant> {
-        alt((
-            preceded(tag("-"), map(IntConstant::parse, |d| IntConstant(-d.0))),
-            preceded(
-                tag("0x"),
-                map_res(hex_digit1, |d| i64::from_str_radix(d, 16).map(IntConstant)),
-            ),
-            map_res(digit1, |d| {
-                let d = FromStr::from_str(d)?;
-                Ok::<_, ParseIntError>(IntConstant(d))
-            }),
-        ))(input)
+impl IntConstant {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, IntConstant, extra::Err<Rich<'a, char>>> {
+        recursive(|int_constant| {
+            choice((
+                just("-")
+                    .ignore_then(int_constant)
+                    .map(|d: IntConstant| IntConstant(-d.0)),
+                just("0x")
+                    .ignore_then(
+                        any()
+                            .filter(|c: &char| c.is_ascii_hexdigit())
+                            .repeated()
+                            .at_least(1)
+                            .collect::<String>(),
+                    )
+                    .map(|d| IntConstant(i64::from_str_radix(d.as_str(), 16).unwrap())),
+                any()
+                    .filter(|c: &char| c.is_ascii_digit())
+                    .repeated()
+                    .at_least(1)
+                    .collect::<String>()
+                    .map(|d| IntConstant(i64::from_str_radix(d.as_str(), 10).unwrap())),
+            ))
+        })
     }
 }
 
-impl Parser for DoubleConstant {
-    fn parse(input: &str) -> IResult<&str, DoubleConstant> {
-        map_res(
-            recognize(tuple((
-                opt(tag("-")),
-                opt(tag("+")),
-                alt((
-                    delimited(
-                        digit1,
-                        tag("."),
-                        tuple((
-                            opt(digit1),
-                            opt(tuple((tag_no_case("e"), IntConstant::parse))),
-                        )),
-                    ),
-                    delimited(
-                        opt(digit1),
-                        tag("."),
-                        tuple((digit1, opt(tuple((tag_no_case("e"), IntConstant::parse))))),
-                    ),
-                    delimited(digit1, tag_no_case("e"), IntConstant::parse),
-                )),
-            ))),
-            |d_str| -> Result<DoubleConstant, std::num::ParseFloatError> {
-                Ok(DoubleConstant(d_str.to_owned().into()))
-            },
-        )(input)
-        // map(double, DoubleConstant)(input)
+impl DoubleConstant {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, DoubleConstant, extra::Err<Rich<'a, char>>> {
+        let digits = any()
+            .filter(|c: &char| c.is_ascii_digit())
+            .repeated()
+            .at_least(1);
+        let sign = one_of("+-").or_not();
+        let integer_part = digits;
+        let fractional_part = just('.').then(digits);
+        let exponent_part = one_of("eE").then(one_of("+-").or_not()).then(digits);
+        let with_fraction = sign
+            .then(integer_part)
+            .then(fractional_part)
+            .then(exponent_part.or_not())
+            .to_slice()
+            .map(|s: &str| DoubleConstant(s.into()));
+        let with_exponent_only = sign
+            .then(integer_part)
+            .then(exponent_part)
+            .to_slice()
+            .map(|s: &str| DoubleConstant(s.into()));
+        choice((with_fraction, with_exponent_only))
     }
 }
 
@@ -145,48 +130,55 @@ mod tests {
 
     #[test]
     fn test_int_constant() {
-        let _i = IntConstant::parse("0x").unwrap().1;
-        let _i = IntConstant::parse("1.01e10").unwrap().1;
+        let _i = IntConstant::parse().parse("0x01").unwrap();
+        let _i = IntConstant::parse().parse("1").unwrap();
     }
+
+    #[test]
+    fn test_list_constant() {
+        let _i = ConstValue::parse().parse("[1, 2]").unwrap();
+        let _i = ConstValue::parse().parse("[1, 0xBC]").unwrap();
+    }
+
     #[test]
     fn test_map() {
         let input = r#"const map<i32,set<i32>> aXa1 = {1:[1,1], 2:[2,2]}"#;
-        let _c = Constant::parse(input).unwrap().1;
+        let _c = Constant::parse().parse(input).unwrap();
     }
 
     #[test]
     fn test_list() {
         let input = r#"const list<i32> aXa1 = [1,2]"#;
-        let _c = Constant::parse(input).unwrap().1;
+        let _c = Constant::parse().parse(input).unwrap();
     }
 
     #[test]
     fn test_set() {
         let input = r#"const set<i32> aXa1 = [1,2]"#;
-        let _c = Constant::parse(input).unwrap().1;
+        let _c = Constant::parse().parse(input).unwrap();
     }
 
     #[test]
     fn test_bool() {
         let input = r#"const bool aXa1 = true"#;
-        let _c = Constant::parse(input).unwrap().1;
+        let _c = Constant::parse().parse(input).unwrap();
     }
 
     #[test]
     fn test_i64() {
-        let input = r#"const i64 aXa1 = 1"#;
-        let _c = Constant::parse(input).unwrap().1;
+        let input = r#"const i64 aXa1 = 0x1"#;
+        let _c = Constant::parse().parse(input).unwrap();
     }
 
     #[test]
     fn test_f64() {
         let input = r#"const double aXa1 = 1.01e10"#;
-        let _c = Constant::parse(input).unwrap().1;
+        let _c = Constant::parse().parse(input).unwrap();
     }
 
     #[test]
     fn test_str() {
         let input = r#"const string aXa1 = "hello""#;
-        let _c = Constant::parse(input).unwrap().1;
+        let _c = Constant::parse().parse(input).unwrap();
     }
 }
