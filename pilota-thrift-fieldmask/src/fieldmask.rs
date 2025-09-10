@@ -1508,7 +1508,8 @@ impl FieldMask {
 mod tests {
     use std::{path::PathBuf, sync::Arc};
 
-    use pilota_thrift_parser::parser::Parser as _;
+    use chumsky::prelude::*;
+    use pilota_thrift_parser::parser::*;
 
     use super::*;
 
@@ -1644,7 +1645,7 @@ mod tests {
     #[test]
     fn test_get_path() {
         let content = std::fs::read_to_string("../examples/idl/fieldmask.thrift").unwrap();
-        let mut ast = pilota_thrift_parser::File::parse(&content).unwrap().1;
+        let mut ast = thrift::file().parse(&content).unwrap();
         ast.path = Arc::from(
             PathBuf::from("../examples/idl/fieldmask.thrift")
                 .canonicalize()
@@ -1655,7 +1656,7 @@ mod tests {
         pilota_thrift_reflect::service::Register::register(key, desc.clone());
 
         let content = std::fs::read_to_string("../examples/idl/base.thrift").unwrap();
-        let mut ast = pilota_thrift_parser::File::parse(&content).unwrap().1;
+        let mut ast = thrift::file().parse(&content).unwrap();
         ast.path = Arc::from(
             PathBuf::from("../examples/idl/base.thrift")
                 .canonicalize()

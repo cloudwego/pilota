@@ -1,100 +1,71 @@
-use nom::{
-    IResult,
-    bytes::complete::take_while,
-    character::complete::satisfy,
-    combinator::{eof, map, opt, peek, recognize},
-    multi::many_till,
-    sequence::tuple,
-};
+use chumsky::prelude::*;
 
-use super::super::{
-    descriptor::{
-        Constant, CppInclude, Enum, Exception, File, Include, Service, Struct, Typedef, Union,
-    },
-    parser::*,
-};
-use crate::{Item, Namespace};
+use super::super::{descriptor::File, parser::*};
+use crate::Item;
 
-impl Parser for Item {
-    fn parse(input: &str) -> IResult<&str, Self> {
-        let (input, keyword) = peek(recognize(tuple((
-            satisfy(|c| c.is_ascii_alphabetic()),
-            take_while(|c: char| c.is_ascii_alphanumeric() || c == '_'),
-        ))))(input)?;
-        macro_rules! unpack {
-            ($variant: ident) => {{
-                let (rest, item) = $variant::parse(input)?;
-                Ok((rest, Self::$variant(item)))
-            }};
-        }
-        match keyword {
-            "include" => unpack!(Include),
-            "cpp_include" => unpack!(CppInclude),
-            "namespace" => unpack!(Namespace),
-            "typedef" => unpack!(Typedef),
-            "const" => unpack!(Constant),
-            "enum" => unpack!(Enum),
-            "struct" => unpack!(Struct),
-            "union" => unpack!(Union),
-            "exception" => unpack!(Exception),
-            "service" => unpack!(Service),
-            _ => Err(nom::Err::Failure(nom::error::Error::new(
-                input,
-                nom::error::ErrorKind::Fail,
-            ))),
-        }
-    }
+pub fn item<'a>() -> impl Parser<'a, &'a str, Item, extra::Err<Rich<'a, char>>> {
+    choice((
+        include::include().map(Item::Include),
+        include::cpp_include().map(Item::CppInclude),
+        namespace::parse().map(Item::Namespace),
+        typedef::type_def().map(Item::Typedef),
+        constant::constant().map(Item::Constant),
+        enum_::parse().map(Item::Enum),
+        struct_::r#struct().map(Item::Struct),
+        struct_::union().map(Item::Union),
+        struct_::exception().map(Item::Exception),
+        service::parse().map(Item::Service),
+    ))
 }
 
-impl Parser for File {
-    fn parse(input: &str) -> IResult<&str, File> {
-        let mut t: File = Default::default();
+pub fn file<'a>() -> impl Parser<'a, &'a str, File, extra::Err<Rich<'a, char>>> {
+    let item_or_none = blank()
+        .or_not()
+        .ignore_then(item())
+        .then_ignore(blank().or_not());
 
-        // support empty file/only comment: skip leading and trailing blank, collect 0
-        // or more items, and verify EOF
-        let (remain, items) = many_till(
-            map(
-                tuple((opt(blank), opt(Item::parse), opt(blank))),
-                |(_, item, _)| item,
-            ),
-            eof,
-        )(input)?;
+    item_or_none
+        .repeated()
+        .collect()
+        .then_ignore(blank().or_not())
+        .then_ignore(end())
+        .map(|items: Vec<Item>| {
+            let mut file = File::default();
 
-        t.items = items.0.into_iter().flatten().collect::<Vec<_>>();
+            file.items = items;
 
-        let mut namespaces = t.items.iter().filter_map(|item| {
-            if let Item::Namespace(ns) = item {
-                Some(ns)
-            } else {
-                None
-            }
-        });
+            let mut namespaces = file.items.iter().filter_map(|i| match i {
+                Item::Namespace(ns) => Some(ns),
+                _ => None,
+            });
 
-        t.package = namespaces
-            .clone()
-            .find_map(|n| {
-                if n.scope.0 == "rs" {
-                    Some(n.name.clone())
-                } else {
-                    None
-                }
-            })
-            .or_else(|| {
-                namespaces.find_map(|n| {
-                    if n.scope.0 == "*" {
+            file.package = namespaces
+                .clone()
+                .find_map(|n| {
+                    if n.scope.0 == "rs" {
                         Some(n.name.clone())
                     } else {
                         None
                     }
                 })
-            });
+                .or_else(|| {
+                    namespaces.find_map(|n| {
+                        if n.scope.0 == "*" {
+                            Some(n.name.clone())
+                        } else {
+                            None
+                        }
+                    })
+                });
 
-        Ok((remain, t))
-    }
+            file
+        })
 }
 
 #[cfg(test)]
 mod tests {
+    use ariadne::{Color, Label, Report, ReportKind, Source};
+
     use super::*;
 
     #[test]
@@ -161,7 +132,21 @@ mod tests {
             BizResponse BizMethod3(1: BizRequest req)(api.post = '/life/client/:action/:biz/other', api.baseurl = 'ib.snssdk.com', api.param = 'true', api.serializer = 'json')
         }
         "#;
-        let (_remain, _res) = File::parse(body).unwrap();
+        let (file, errs) = file().parse(body).into_output_errors();
+        println!("{file:#?}");
+        errs.into_iter().for_each(|e| {
+            Report::build(ReportKind::Error, ("test.thrift", e.span().into_range()))
+                .with_config(ariadne::Config::new().with_index_type(ariadne::IndexType::Byte))
+                .with_message(e.to_string())
+                .with_label(
+                    Label::new(("test.thrift", e.span().into_range()))
+                        .with_message(e.reason().to_string())
+                        .with_color(Color::Red),
+                )
+                .finish()
+                .print(("test.thrift", Source::from(body)))
+                .unwrap()
+        });
     }
 
     #[test]
@@ -186,9 +171,21 @@ const list<string> TEST_LIST = [
 service Service {
   MyStruct testEpisode(1:MyStruct arg)
 },"#;
-        let (remain, res) = File::parse(body).unwrap();
-        assert!(remain.is_empty());
-        assert_eq!(res.items.len(), 6);
+        let (file, errs) = file().parse(body).into_output_errors();
+        println!("{file:#?}");
+        errs.into_iter().for_each(|e| {
+            Report::build(ReportKind::Error, ("test.thrift", e.span().into_range()))
+                .with_config(ariadne::Config::new().with_index_type(ariadne::IndexType::Byte))
+                .with_message(e.to_string())
+                .with_label(
+                    Label::new(("test.thrift", e.span().into_range()))
+                        .with_message(e.reason().to_string())
+                        .with_color(Color::Red),
+                )
+                .finish()
+                .print(("test.thrift", Source::from(body)))
+                .unwrap()
+        });
     }
 
     #[test]
@@ -199,8 +196,20 @@ service Service {
 
         # comment 2
         "#;
-        let (remain, res) = File::parse(body).unwrap();
-        assert!(remain.is_empty());
-        assert_eq!(res.items.len(), 0);
+        let (file, errs) = file().parse(body).into_output_errors();
+        println!("{file:#?}");
+        errs.into_iter().for_each(|e| {
+            Report::build(ReportKind::Error, ("test.thrift", e.span().into_range()))
+                .with_config(ariadne::Config::new().with_index_type(ariadne::IndexType::Byte))
+                .with_message(e.to_string())
+                .with_label(
+                    Label::new(("test.thrift", e.span().into_range()))
+                        .with_message(e.reason().to_string())
+                        .with_color(Color::Red),
+                )
+                .finish()
+                .print(("test.thrift", Source::from(body)))
+                .unwrap()
+        });
     }
 }

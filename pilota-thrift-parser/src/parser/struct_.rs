@@ -1,70 +1,58 @@
-use nom::{
-    IResult,
-    bytes::complete::tag,
-    combinator::{map, opt},
-};
+use chumsky::prelude::*;
+
+use crate::Ident;
 
 use super::super::{
-    descriptor::{Annotations, Exception, Field, Ident, Struct, StructLike, Union},
+    descriptor::{Exception, Struct, StructLike, Union},
     parser::*,
 };
 
-impl Parser for Struct {
-    fn parse(input: &str) -> IResult<&str, Struct> {
-        map(
-            tuple((tag("struct"), blank, StructLike::parse)),
-            |(_, _, st)| Struct(st),
-        )(input)
-    }
+pub fn r#struct<'a>() -> impl Parser<'a, &'a str, Struct, extra::Err<Rich<'a, char>>> {
+    just("struct")
+        .ignore_then(blank())
+        .ignore_then(struct_like())
+        .map(Struct)
 }
 
-impl Parser for Union {
-    fn parse(input: &str) -> IResult<&str, Union> {
-        let u: IResult<&str, Union> = map(
-            tuple((tag("union"), blank, StructLike::parse)),
-            |(_, _, st)| Union(st),
-        )(input);
-
-        u
-    }
+pub fn union<'a>() -> impl Parser<'a, &'a str, Union, extra::Err<Rich<'a, char>>> {
+    just("union")
+        .ignore_then(blank())
+        .ignore_then(struct_like())
+        .map(Union)
 }
 
-impl Parser for Exception {
-    fn parse(input: &str) -> IResult<&str, Exception> {
-        map(
-            tuple((tag("exception"), blank, StructLike::parse)),
-            |(_, _, st)| Exception(st),
-        )(input)
-    }
+pub fn exception<'a>() -> impl Parser<'a, &'a str, Exception, extra::Err<Rich<'a, char>>> {
+    just("exception")
+        .ignore_then(blank())
+        .ignore_then(struct_like())
+        .map(Exception)
 }
 
-impl Parser for StructLike {
-    fn parse(input: &str) -> IResult<&str, StructLike> {
-        let (r, a) = map(
-            tuple((
-                Ident::parse,
-                opt(blank),
-                tag("{"),
-                many0(map(tuple((opt(blank), Field::parse)), |(_, field)| field)),
-                opt(blank),
-                tag("}"),
-                opt(blank),
-                opt(Annotations::parse),
-                opt(list_separator),
-            )),
-            |(name, _, _, fields, _, _, _, annotations, _)| StructLike {
-                name,
-                fields,
-                annotations: annotations.unwrap_or_default(),
-            },
-        )(input)?;
-        Ok((r, a))
-    }
+pub fn struct_like<'a>() -> impl Parser<'a, &'a str, StructLike, extra::Err<Rich<'a, char>>> {
+    identifier::parse()
+        .then_ignore(blank().or_not())
+        .then_ignore(just("{"))
+        .then(
+            blank()
+                .ignore_then(field::parse())
+                .repeated()
+                .collect::<Vec<_>>(),
+        )
+        .then_ignore(blank().or_not())
+        .then_ignore(just("}"))
+        .then_ignore(blank().or_not())
+        .then(annotation::parse().or_not())
+        .then_ignore(list_separator().or_not())
+        .map(|((name, fields), annotations)| StructLike {
+            name: Ident(Arc::from(name)),
+            fields,
+            annotations: annotations.unwrap_or_default(),
+        })
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{super::Parser, Struct};
+    use super::*;
 
     #[test]
     fn test_struct() {
@@ -79,7 +67,7 @@ mod tests {
         }
         "#;
 
-        Struct::parse(str).unwrap();
+        r#struct().parse(str).unwrap();
     }
 
     #[test]
@@ -88,7 +76,7 @@ mod tests {
             // 1
         }
         "#;
-        Struct::parse(str).unwrap();
+        r#struct().parse(str).unwrap();
     }
 
     #[test]
@@ -97,7 +85,7 @@ mod tests {
             1: string user_id (go.tag = 'json:\"user_id,omitempty\"'),
             2: string __files (go.tag = 'json:\"__files,omitempty\"'),
         }"#;
-        Struct::parse(str).unwrap();
+        r#struct().parse(str).unwrap();
     }
 
     #[test]
@@ -106,6 +94,6 @@ mod tests {
             1: required string(pilota.annotation="test") Service,      // required service
             2: required bytet_i.Injection Injection,
         }"#;
-        Struct::parse(str).unwrap();
+        r#struct().parse(str).unwrap();
     }
 }

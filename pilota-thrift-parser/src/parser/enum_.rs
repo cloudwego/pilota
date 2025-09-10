@@ -1,62 +1,49 @@
-use nom::{
-    IResult,
-    bytes::complete::tag,
-    combinator::{map, opt},
-    sequence::tuple,
-};
+use chumsky::prelude::*;
+
+use crate::parser::constant::int_constant;
 
 use super::super::{
-    descriptor::{Annotations, Enum, EnumValue, Ident, IntConstant},
+    descriptor::{Enum, EnumValue},
     parser::*,
 };
 
-impl Parser for EnumValue {
-    fn parse(input: &str) -> IResult<&str, EnumValue> {
-        map(
-            tuple((
-                Ident::parse,
-                opt(blank),
-                opt(map(
-                    tuple((tag("="), opt(blank), IntConstant::parse)),
-                    |(_, _, value)| value,
-                )),
-                opt(blank),
-                opt(Annotations::parse),
-                opt(list_separator),
-                opt(blank),
-            )),
-            |(name, _, value, _, annotations, _, _)| EnumValue {
-                name,
-                value,
-                annotations: annotations.unwrap_or_default(),
-            },
-        )(input)
-    }
+pub fn enum_value<'a>() -> impl Parser<'a, &'a str, EnumValue, extra::Err<Rich<'a, char>>> {
+    blank()
+        .or_not()
+        .ignore_then(identifier::parse())
+        .then_ignore(blank().or_not())
+        .then(
+            just("=")
+                .ignore_then(blank().or_not())
+                .ignore_then(int_constant())
+                .or_not(),
+        )
+        .then_ignore(blank().or_not())
+        .then(annotation::parse().or_not())
+        .then_ignore(list_separator().or_not())
+        .map(|((name, value), annotations)| EnumValue {
+            name: Ident(Arc::from(name)),
+            value,
+            annotations: annotations.unwrap_or_default(),
+        })
 }
 
-impl Parser for Enum {
-    fn parse(input: &str) -> IResult<&str, Enum> {
-        map(
-            tuple((
-                tag("enum"),
-                blank,
-                Ident::parse,
-                opt(blank),
-                tag("{"),
-                opt(blank),
-                many0(EnumValue::parse),
-                opt(blank),
-                tag("}"),
-                opt(blank),
-                opt(Annotations::parse),
-            )),
-            |(_, _, name, _, _, _, values, _, _, _, annotations)| Enum {
-                name,
-                values,
-                annotations: annotations.unwrap_or_default(),
-            },
-        )(input)
-    }
+pub fn parse<'a>() -> impl Parser<'a, &'a str, Enum, extra::Err<Rich<'a, char>>> {
+    just("enum")
+        .ignore_then(blank())
+        .ignore_then(identifier::parse())
+        .then_ignore(blank().or_not())
+        .then_ignore(just("{"))
+        .then(enum_value().repeated().collect())
+        .then_ignore(blank().or_not())
+        .then_ignore(just("}"))
+        .then_ignore(blank().or_not())
+        .then(annotation::parse().or_not())
+        .map(|((name, values), annotations)| Enum {
+            name: Ident(Arc::from(name)),
+            values,
+            annotations: annotations.unwrap_or_default(),
+        })
 }
 
 #[cfg(test)]
@@ -64,13 +51,26 @@ mod tests {
     use super::*;
     #[test]
     fn test_enum() {
-        let (_remain, _e) = Enum::parse(
-            r#"enum Sex {
-                UNKNOWN = 0,
-                MALE = 1 (pilota.key="male") // male
-                FEMALE = 2,
-            }"#,
-        )
-        .unwrap();
+        let _ = enum_::parse()
+            .parse(
+                r#"enum Sex {
+                            UNKNOWN = 0,
+                            MALE = 1 (pilota.key="male") // male
+                            FEMALE = 2,
+                        }"#,
+            )
+            .unwrap();
+    }
+
+    #[test]
+    fn test_enum2() {
+        let _ = enum_::parse()
+            .parse(
+                r#"enum Index {
+                            A = 0x01,
+                            B = 0x10,
+                        }"#,
+            )
+            .unwrap();
     }
 }

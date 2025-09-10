@@ -1,143 +1,118 @@
+use chumsky::prelude::*;
 use std::sync::Arc;
 
-use nom::{
-    self, IResult,
-    branch::{alt, permutation},
-    bytes::complete::tag,
-    combinator::{map, not, opt, peek},
-    sequence::{preceded, tuple},
-};
-
 use super::super::{
-    descriptor::{Annotations, CppType, Literal, Path, Ty, Type},
+    descriptor::{CppType, Ty, Type},
     parser::*,
 };
 
-impl Parser for Type {
-    fn parse(input: &str) -> IResult<&str, Type> {
-        map(
-            tuple((
-                Ty::parse,
-                opt(map(
-                    permutation((opt(blank), Annotations::parse)),
-                    |(_, an)| an,
-                )),
-            )),
-            |(ty, an)| Type(ty, an.unwrap_or_default()),
-        )(input)
-    }
+pub fn cpp_type<'a>() -> impl Parser<'a, &'a str, CppType, extra::Err<Rich<'a, char>>> {
+    just("cpp_type")
+        .ignore_then(blank())
+        .ignore_then(literal::parse())
+        .map(CppType)
 }
 
-impl Parser for CppType {
-    fn parse(input: &str) -> IResult<&str, CppType> {
-        map(
-            tuple((tag("cpp_type"), blank, Literal::parse)),
-            |(_, _, cpp_type)| CppType(cpp_type),
-        )(input)
-    }
+pub fn r#type<'a>() -> impl Parser<'a, &'a str, Type, extra::Err<Rich<'a, char>>> {
+    recursive(|self_parser| {
+        let base_ty = choice((
+            just("string").to(Ty::String),
+            just("void").to(Ty::Void),
+            just("byte").to(Ty::Byte),
+            just("bool").to(Ty::Bool),
+            just("binary").to(Ty::Binary),
+            just("i8").to(Ty::I8),
+            just("i16").to(Ty::I16),
+            just("i32").to(Ty::I32),
+            just("i64").to(Ty::I64),
+            just("double").to(Ty::Double),
+            just("uuid").to(Ty::Uuid),
+        ))
+        .then_ignore(any().and_is(not_alphanumeric_or_underscore()).rewind());
+
+        let list = just("list")
+            .ignore_then(blank().or_not())
+            .ignore_then(just("<"))
+            .ignore_then(blank().or_not())
+            .ignore_then(self_parser.clone())
+            .then_ignore(blank().or_not())
+            .then_ignore(just(">"))
+            .then(blank().ignore_then(cpp_type()).or_not())
+            .map(|(inner_type, cpp_type)| Ty::List {
+                value: Arc::new(inner_type),
+                cpp_type,
+            })
+            .boxed();
+
+        let set = just("set")
+            .ignore_then(blank().ignore_then(cpp_type()).or_not())
+            .then_ignore(blank().or_not())
+            .then_ignore(just("<"))
+            .then_ignore(blank().or_not())
+            .then(self_parser.clone())
+            .then_ignore(blank().or_not())
+            .then_ignore(just(">"))
+            .map(|(cpp_type, inner_type)| Ty::Set {
+                value: Arc::new(inner_type),
+                cpp_type,
+            })
+            .boxed();
+
+        let map_parser = just("map")
+            .ignore_then(blank().ignore_then(cpp_type()).or_not())
+            .then_ignore(blank().or_not())
+            .then_ignore(just("<"))
+            .then_ignore(blank().or_not())
+            .then(self_parser.clone())
+            .then_ignore(blank().or_not())
+            .then_ignore(list_separator())
+            .then_ignore(blank().or_not())
+            .then(self_parser.clone())
+            .then_ignore(blank().or_not())
+            .then_ignore(just(">"))
+            .map(|((cpp_type, key_type), value_type)| Ty::Map {
+                key: Arc::new(key_type),
+                value: Arc::new(value_type),
+                cpp_type,
+            })
+            .boxed();
+
+        let ty_parser = choice((base_ty, list, set, map_parser, path().map(Ty::Path)));
+
+        ty_parser
+            .then(
+                blank()
+                    .or_not()
+                    .ignore_then(annotation::parse())
+                    .or_not()
+                    .then_ignore(blank().or_not()),
+            )
+            .map(|(ty, an)| {
+                // println!("type: {:?}, an: {:?}", ty, an);
+                Type(ty, an.unwrap_or_default())
+            })
+            .boxed()
+    })
+    .boxed()
 }
 
-impl Parser for Ty {
-    fn parse(input: &str) -> IResult<&str, Ty> {
-        alt((
-            map(
-                tuple((tag("string"), peek(not(alphanumeric_or_underscore)))),
-                |_| Ty::String,
-            ),
-            map(
-                tuple((tag("void"), peek(not(alphanumeric_or_underscore)))),
-                |_| Ty::Void,
-            ),
-            map(
-                tuple((tag("byte"), peek(not(alphanumeric_or_underscore)))),
-                |_| Ty::Byte,
-            ),
-            map(
-                tuple((tag("bool"), peek(not(alphanumeric_or_underscore)))),
-                |_| Ty::Bool,
-            ),
-            map(
-                tuple((tag("binary"), peek(not(alphanumeric_or_underscore)))),
-                |_| Ty::Binary,
-            ),
-            map(
-                tuple((tag("i8"), peek(not(alphanumeric_or_underscore)))),
-                |_| Ty::I8,
-            ),
-            map(
-                tuple((tag("i16"), peek(not(alphanumeric_or_underscore)))),
-                |_| Ty::I16,
-            ),
-            map(
-                tuple((tag("i32"), peek(not(alphanumeric_or_underscore)))),
-                |_| Ty::I32,
-            ),
-            map(
-                tuple((tag("i64"), peek(not(alphanumeric_or_underscore)))),
-                |_| Ty::I64,
-            ),
-            map(
-                tuple((tag("double"), peek(not(alphanumeric_or_underscore)))),
-                |_| Ty::Double,
-            ),
-            map(
-                tuple((tag("uuid"), peek(not(alphanumeric_or_underscore)))),
-                |_| Ty::Uuid,
-            ),
-            map(
-                tuple((
-                    tag("list"),
-                    opt(blank),
-                    tag("<"),
-                    opt(blank),
-                    Type::parse,
-                    opt(blank),
-                    tag(">"),
-                    opt(preceded(blank, CppType::parse)),
-                )),
-                |(_, _, _, _, inner_type, _, _, cpp_type)| Ty::List {
-                    value: Arc::new(inner_type),
-                    cpp_type,
-                },
-            ),
-            map(
-                tuple((
-                    tag("set"),
-                    opt(preceded(blank, CppType::parse)),
-                    opt(blank),
-                    tag("<"),
-                    opt(blank),
-                    Type::parse,
-                    opt(blank),
-                    tag(">"),
-                )),
-                |(_, cpp_type, _, _, _, inner_type, _, _)| Ty::Set {
-                    value: Arc::new(inner_type),
-                    cpp_type,
-                },
-            ),
-            map(
-                tuple((
-                    tag("map"),
-                    opt(preceded(blank, CppType::parse)),
-                    opt(blank),
-                    tag("<"),
-                    opt(blank),
-                    Type::parse,
-                    opt(blank),
-                    list_separator,
-                    opt(blank),
-                    Type::parse,
-                    opt(blank),
-                    tag(">"),
-                )),
-                |(_, cpp_type, _, _, _, key_type, _, _, _, value_type, _, _)| Ty::Map {
-                    key: Arc::new(key_type),
-                    value: Arc::new(value_type),
-                    cpp_type,
-                },
-            ),
-            map(Path::parse, Ty::Path),
-        ))(input)
+//test
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_type() {
+        let parser = r#type();
+        let input = "map<i32, string>";
+        let _res = parser.parse(input).unwrap();
+    }
+
+    #[test]
+    fn test_type_path() {
+        let parser = r#type();
+        let input = "bytet_i.Injection";
+        let _res = parser.parse(input).unwrap();
     }
 }

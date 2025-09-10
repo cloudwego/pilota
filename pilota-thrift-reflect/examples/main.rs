@@ -1,15 +1,17 @@
 use std::path::PathBuf;
 
 use bytes::BytesMut;
+use chumsky::prelude::*;
 use pilota::thrift::Message as _;
-use pilota_thrift_parser::parser::Parser as _;
 
 fn main() {
     let idl_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("examples/idl/apache.thrift");
     println!("{}", idl_path.display());
 
     let content = std::fs::read_to_string(&idl_path).unwrap();
-    let mut parsed_file = pilota_thrift_parser::File::parse(&content).unwrap().1;
+    let mut parsed_file = pilota_thrift_parser::parser::thrift::file()
+        .parse(&content)
+        .unwrap();
     parsed_file.path = idl_path.into();
 
     let descriptor: pilota_thrift_reflect::thrift_reflection::FileDescriptor =
