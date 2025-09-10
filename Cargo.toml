@@ -20,8 +20,10 @@ rust-version = "1.85.0"
 [workspace.dependencies]
 ahash = "0.8"
 anyhow = "1"
+ariadne = "0.5"
 async-recursion = "1"
 bytes = { version = "1", features = ["serde"] }
+chumsky = "0.10"
 criterion = { version = "0.7", features = ["html_reports"] }
 dashmap = "6"
 diffy = "0.4"

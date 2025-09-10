@@ -1,33 +1,28 @@
-use nom::{
-    IResult,
-    bytes::complete::tag,
-    combinator::{map, opt},
-    sequence::tuple,
-};
+use chumsky::prelude::*;
 
-use super::super::{
-    descriptor::{Annotations, Ident, Type, Typedef},
-    parser::*,
-};
+use super::super::{descriptor::Typedef, parser::*};
+use crate::{Annotation, Type, descriptor::Ident};
 
-impl Parser for Typedef {
-    fn parse(input: &str) -> IResult<&str, Typedef> {
-        map(
-            tuple((
-                tag("typedef"),
-                blank,
-                Type::parse,
-                blank,
-                Ident::parse,
-                opt(blank),
-                opt(Annotations::parse),
-                opt(list_separator),
-            )),
-            |(_, _, r#type, _, alias, _, annotations, _)| Typedef {
-                r#type,
-                alias,
-                annotations: annotations.unwrap_or_default(),
-            },
-        )(input)
+pub fn type_def<'a>() -> impl Parser<'a, &'a str, Typedef, extra::Err<Rich<'a, char>>> {
+    just("typedef")
+        .ignore_then(Type::parse().padded_by(blank()))
+        .then(Ident::parse())
+        .then_ignore(blank().or_not())
+        .then(Annotation::parse().or_not())
+        .then_ignore(list_separator().or_not())
+        .map(|((r#type, alias), annotations)| Typedef {
+            r#type,
+            alias: Ident(alias.into()),
+            annotations: annotations.unwrap_or_default(),
+        })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_type_def() {
+        let _td = type_def().parse("typedef i32 Int32,").unwrap();
     }
 }
