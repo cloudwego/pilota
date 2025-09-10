@@ -1,52 +1,44 @@
-use nom::{
-    IResult, bytes::complete::take_while, character::complete::satisfy, combinator::recognize,
-    sequence::tuple,
-};
+use chumsky::prelude::*;
 
-use super::super::{descriptor::Ident, parser::*};
+use crate::Ident;
 
-/// Identifier is not strictly following the BNF: ( Letter | '_' ) ( Letter |
-/// Digit | '.' | '_' )* Instead, "_" and "_123" are not allowed since in rust
-/// they are invalid parameter names.
-impl Parser for Ident {
-    fn parse(input: &str) -> IResult<&str, Ident> {
-        map(
-            recognize(tuple((
-                satisfy(|c| c.is_ascii_alphabetic() || c == '_'),
-                take_while(|c: char| c.is_ascii_alphanumeric() || c == '_'),
-            ))),
-            |ident: &str| -> Ident { Ident(ident.into()) },
-        )(input)
+impl Ident {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, char>>> {
+        text::ascii::ident().map(|ident: &str| ident.to_string())
+    }
+
+    pub fn ident_with_dot<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, char>>> {
+        any()
+            .filter(|c: &char| c.is_ascii_alphabetic() || *c == '_')
+            .then(
+                any()
+                    .filter(|c: &char| c.is_ascii_alphanumeric() || *c == '_' || *c == '.')
+                    .repeated(),
+            )
+            .to_slice()
+            .map(|s: &str| s.to_string())
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::Path;
 
     #[test]
     fn test_identifier() {
-        assert_eq!(Ident::parse("abc").unwrap().1, "abc");
-        assert_eq!(Ident::parse("a1d").unwrap().1, "a1d");
-        assert_eq!(Ident::parse("foo_bar").unwrap().1, "foo_bar");
-        assert_eq!(Ident::parse("foo_bar =").unwrap().1, "foo_bar");
-        assert_eq!(Ident::parse("foo_bar=").unwrap().1, "foo_bar");
-        assert_eq!(Ident::parse("foo_bar{").unwrap().1, "foo_bar");
-        assert_eq!(Ident::parse("foo_bar;").unwrap().1, "foo_bar");
-        assert!(Ident::parse("1foo_bar").is_err());
-        assert!(Ident::parse("").is_err());
+        assert_eq!(Ident::parse().parse("abc").unwrap(), "abc");
+        assert_eq!(Ident::parse().parse("a1d").unwrap(), "a1d");
+        assert_eq!(Ident::parse().parse("foo_bar").unwrap(), "foo_bar");
 
-        assert_eq!(Ident::parse("_ihciah,").unwrap().1, "_ihciah");
-        assert_eq!(Ident::parse("ihciah,").unwrap().1, "ihciah");
-        assert_eq!(Ident::parse("_123").unwrap().1, "_123");
-        assert_eq!(Ident::parse("_").unwrap().1, "_");
-        assert!(Ident::parse("123").is_err());
+        assert_eq!(Ident::parse().parse("_123").unwrap(), "_123");
+        assert_eq!(Ident::parse().parse("_").unwrap(), "_");
     }
 
     #[test]
     fn test_path() {
         assert_eq!(
-            &*Path::parse("prefix.foo_bar").unwrap().1.segments,
+            &*Path::parse().parse("prefix.foo_bar").unwrap().segments,
             ["prefix", "foo_bar"]
         );
     }

@@ -28,3 +28,4 @@ ahash.workspace = true
 faststr.workspace = true
 thiserror.workspace = true
 serde.workspace = true
+chumsky.workspace = true

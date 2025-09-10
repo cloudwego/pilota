@@ -27,6 +27,7 @@ bytes.workspace = true
 dashmap.workspace = true
 faststr.workspace = true
 thiserror.workspace = true
+chumsky.workspace = true
 
 [build-dependencies]
 # pilota-build = { path = "../pilota-build" }
