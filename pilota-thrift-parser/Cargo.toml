@@ -21,3 +21,5 @@ maintenance = { status = "actively-developed" }
 nom.workspace = true
 bytes.workspace = true
 faststr.workspace = true
+chumsky.workspace = true
+ariadne.workspace = true

@@ -1,34 +1,46 @@
-use nom::{
-    IResult,
-    branch::alt,
-    bytes::complete::{escaped, tag},
-    character::complete::none_of,
-    combinator::map,
-    sequence::delimited,
-};
+use super::super::descriptor::Literal;
+use chumsky::prelude::*;
 
-use super::super::{descriptor::Literal, parser::*};
+fn quoted_string<'a>(quote: char) -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, char>>> {
+    let normal_char = none_of([quote, '\\']);
 
-macro_rules! gen_parse_quote {
-    ($func_name: ident, $char: tt) => {
-        fn $func_name(input: &str) -> IResult<&str, &str> {
-            let esc = escaped(none_of(concat!("\\", $char)), '\\', one_of(r#"'"n\"#));
-            let esc_or_empty = alt((esc, tag("")));
-            let res = delimited(tag($char), esc_or_empty, tag($char))(input)?;
+    let escape_char = just('\\').ignore_then(one_of(['\'', '"', 'n', '\\']));
 
-            Ok(res)
-        }
-    };
+    let content_char = escape_char
+        .map(|c| match c {
+            'n' => '\n',
+            other => other,
+        })
+        .or(normal_char);
+
+    just(quote)
+        .ignore_then(content_char.repeated().collect::<String>())
+        .then_ignore(just(quote))
 }
 
-gen_parse_quote!(single_quote, "\'");
-gen_parse_quote!(double_quote, "\"");
+fn single_quote<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, char>>> {
+    quoted_string('\'')
+}
 
-impl Parser for Literal {
-    fn parse(input: &str) -> IResult<&str, Literal> {
-        alt((
-            map(single_quote, |x| Literal(x.into())),
-            map(double_quote, |x| Literal(x.into())),
-        ))(input)
+fn double_quote<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, char>>> {
+    quoted_string('"')
+}
+
+pub fn parse<'a>() -> impl Parser<'a, &'a str, Literal, extra::Err<Rich<'a, char>>> {
+    single_quote().map(Literal).or(double_quote().map(Literal))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_literal() {
+        let _ = parse().parse(r#""hello""#).unwrap();
+        let _ = parse().parse(r#"'hello'"#).unwrap();
+        let _ = parse().parse(r#"'hello\'world'"#).unwrap();
+        let _ = parse().parse(r#"'hello\nworld'"#).unwrap();
+        let _ = parse().parse(r#"'hello\\world'"#).unwrap();
+        let _ = parse().parse(r#"'hello\"world'"#).unwrap();
     }
 }

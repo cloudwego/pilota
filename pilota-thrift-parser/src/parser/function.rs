@@ -1,50 +1,56 @@
-use nom::{
-    IResult,
-    bytes::complete::tag,
-    combinator::{map, opt},
-    multi::many1,
-    sequence::tuple,
-};
+use chumsky::prelude::*;
+
+use crate::parser::*;
 
 use super::super::{
     Attribute,
-    descriptor::{Annotations, Field, Function, Ident, Type},
+    descriptor::Function,
     parser::{Parser, blank, list_separator},
 };
 
-impl Parser for Function {
-    fn parse(input: &str) -> IResult<&str, Function> {
-        map(
-            tuple((
-                map(opt(tuple((tag("oneway"), blank))), |x| x.is_some()),
-                Type::parse,
-                blank,
-                Ident::parse,
-                opt(blank),
-                tag("("),
-                opt(many1(map(
-                    tuple((opt(blank), Field::parse)),
-                    |(_, field)| field,
-                ))),
-                opt(blank),
-                tag(")"),
-                opt(blank),
-                opt(map(
-                    tuple((
-                        tag("throws"),
-                        opt(blank),
-                        tag("("),
-                        many1(map(tuple((opt(blank), Field::parse)), |(_, field)| field)),
-                        opt(blank),
-                        tag(")"),
-                    )),
-                    |(_, _, _, fields, _, _)| fields,
-                )),
-                opt(blank),
-                opt(Annotations::parse),
-                opt(list_separator),
-            )),
-            |(oneway, r#type, _, name, _, _, arguments, _, _, _, throws, _, annotations, _)| {
+pub fn parse<'a>() -> impl Parser<'a, &'a str, Function, extra::Err<Rich<'a, char>>> {
+    any()
+        .rewind()
+        .ignore_then(just("oneway").then_ignore(blank()).or_not())
+        .then(ty::r#type())
+        .then_ignore(blank())
+        .then(identifier::parse())
+        .then_ignore(blank().or_not())
+        .then_ignore(just("("))
+        .then(
+            any()
+                .rewind()
+                .ignore_then(blank().or_not().ignore_then(field::parse()))
+                .repeated()
+                .at_least(1)
+                .collect::<Vec<_>>()
+                .or_not(),
+        )
+        .then_ignore(blank().or_not())
+        .then_ignore(just(")"))
+        .then_ignore(blank().or_not())
+        .then(
+            just("throws")
+                .ignore_then(blank().or_not())
+                .ignore_then(just("("))
+                .ignore_then(
+                    any()
+                        .rewind()
+                        .ignore_then(blank().or_not().ignore_then(field::parse()))
+                        .repeated()
+                        .at_least(1)
+                        .collect(),
+                )
+                .then_ignore(blank().or_not())
+                .then_ignore(just(")"))
+                .or_not(),
+        )
+        .then_ignore(blank().or_not())
+        .then(annotation::parse().or_not())
+        .then_ignore(list_separator().or_not())
+        .map(
+            |(((((oneway, r#type), name), arguments), throws), annotations)| {
+                let ow = oneway.is_some();
                 let mut args = arguments.unwrap_or_default();
                 args.iter_mut().for_each(|f| {
                     if f.attribute == Attribute::Default {
@@ -52,14 +58,44 @@ impl Parser for Function {
                     }
                 });
                 Function {
-                    name,
-                    oneway,
+                    name: Ident(Arc::from(name)),
+                    oneway: ow,
                     result_type: r#type,
                     arguments: args,
                     throws: throws.unwrap_or_default(),
                     annotations: annotations.unwrap_or_default(),
                 }
             },
-        )(input)
+        )
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_func() {
+        let _f = function::parse()
+            .parse(
+                r#"map<i64, shared.ProcessingStatus> processUserData(
+                            1: required list<UserProfile> profiles,
+                            2: optional map<string, string(go.tag='json:"config_value"')> config = {"timeout": "10s", "retries": "3"},
+                            3: i32(some.annotation = "for_i32_type") executionPriority = 1
+                        ) throws (1: ServiceException ex),"#
+            )
+            .unwrap();
+    }
+
+    #[test]
+    fn test_func2() {
+        let _f = function::parse()
+            .parse(
+                r#"oneway void pingServer(
+                            1: required string(go.tag = 'json:"source_service"') source,
+                            2: optional list<map<i64, set<double>>> nestedDataPoints
+                        ) (api.version = "2.5", deprecated = "false")"#,
+            )
+            .unwrap();
     }
 }

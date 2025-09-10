@@ -1,13 +1,13 @@
+use ariadne::{Color, Label, Report, ReportKind, Source};
+use chumsky::prelude::*;
+use core::panic;
 use std::{path::PathBuf, str::FromStr, sync::Arc};
 
 use faststr::FastStr;
 use heck::ToUpperCamelCase;
 use itertools::Itertools;
 use normpath::PathExt;
-use pilota_thrift_parser::{
-    parser::Parser as _,
-    {self as thrift_parser},
-};
+use pilota_thrift_parser::{self as thrift_parser};
 use pilota_thrift_reflect::thrift_reflection;
 use rustc_hash::{FxHashMap, FxHashSet};
 use thrift_parser::Annotations;
@@ -42,11 +42,31 @@ impl ThriftSourceDatabase {
 
     fn parse(&self, path: PathBuf) -> Arc<thrift_parser::File> {
         let text = self.file_text(path.clone());
-        let res = thrift_parser::File::parse(&text);
-        if res.is_err() {
-            println!("cargo:warning={}", path.display());
+        let (res, errs) = thrift_parser::parser::thrift::file()
+            .parse(&text)
+            .into_output_errors();
+
+        if !errs.is_empty() {
+            errs.into_iter().for_each(|e| {
+                Report::build(
+                    ReportKind::Error,
+                    (path.to_str().unwrap(), e.span().into_range()),
+                )
+                .with_config(ariadne::Config::new().with_index_type(ariadne::IndexType::Byte))
+                .with_message(e.to_string())
+                .with_label(
+                    Label::new((path.to_str().unwrap(), e.span().into_range()))
+                        .with_message(e.reason().to_string())
+                        .with_color(Color::Red),
+                )
+                .finish()
+                .print((path.to_str().unwrap(), Source::from(&text)))
+                .unwrap()
+            });
+            panic!("thrift file parse failed");
         }
-        let mut ast = res.unwrap().1;
+
+        let mut ast = res.unwrap();
         ast.path = Arc::from(path);
         ast.uuid = generate_short_uuid();
         let descriptor = thrift_reflection::FileDescriptor::from(&ast);
