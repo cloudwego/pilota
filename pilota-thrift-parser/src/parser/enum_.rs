@@ -8,10 +8,8 @@ use super::super::{
 };
 
 pub fn enum_value<'a>() -> impl Parser<'a, &'a str, EnumValue, extra::Err<Rich<'a, char>>> {
-    blank()
-        .or_not()
-        .ignore_then(identifier::parse())
-        .then_ignore(blank().or_not())
+    identifier::parse()
+        .padded_by(blank().or_not())
         .then(
             just("=")
                 .ignore_then(blank().or_not())

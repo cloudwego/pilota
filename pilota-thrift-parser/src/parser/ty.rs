@@ -31,9 +31,7 @@ pub fn r#type<'a>() -> impl Parser<'a, &'a str, Type, extra::Err<Rich<'a, char>>
         .then_ignore(any().and_is(not_alphanumeric_or_underscore()).rewind());
 
         let list = just("list")
-            .ignore_then(blank().or_not())
-            .ignore_then(just("<"))
-            .ignore_then(blank().or_not())
+            .ignore_then(just("<").padded_by(blank().or_not()))
             .ignore_then(self_parser.clone())
             .then_ignore(blank().or_not())
             .then_ignore(just(">"))
@@ -46,9 +44,8 @@ pub fn r#type<'a>() -> impl Parser<'a, &'a str, Type, extra::Err<Rich<'a, char>>
 
         let set = just("set")
             .ignore_then(blank().ignore_then(cpp_type()).or_not())
-            .then_ignore(blank().or_not())
             .then_ignore(just("<"))
-            .then_ignore(blank().or_not())
+            .padded_by(blank().or_not())
             .then(self_parser.clone())
             .then_ignore(blank().or_not())
             .then_ignore(just(">"))
@@ -60,13 +57,9 @@ pub fn r#type<'a>() -> impl Parser<'a, &'a str, Type, extra::Err<Rich<'a, char>>
 
         let map_parser = just("map")
             .ignore_then(blank().ignore_then(cpp_type()).or_not())
-            .then_ignore(blank().or_not())
-            .then_ignore(just("<"))
-            .then_ignore(blank().or_not())
+            .then_ignore(just("<").padded_by(blank().or_not()))
             .then(self_parser.clone())
-            .then_ignore(blank().or_not())
-            .then_ignore(list_separator())
-            .then_ignore(blank().or_not())
+            .then_ignore(list_separator().padded_by(blank().or_not()))
             .then(self_parser.clone())
             .then_ignore(blank().or_not())
             .then_ignore(just(">"))
@@ -80,13 +73,7 @@ pub fn r#type<'a>() -> impl Parser<'a, &'a str, Type, extra::Err<Rich<'a, char>>
         let ty_parser = choice((base_ty, list, set, map_parser, path().map(Ty::Path)));
 
         ty_parser
-            .then(
-                blank()
-                    .or_not()
-                    .ignore_then(annotation::parse())
-                    .or_not()
-                    .then_ignore(blank().or_not()),
-            )
+            .then(annotation::parse().or_not().padded_by(blank().or_not()))
             .map(|(ty, an)| {
                 // println!("type: {:?}, an: {:?}", ty, an);
                 Type(ty, an.unwrap_or_default())

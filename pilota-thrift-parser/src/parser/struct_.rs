@@ -38,9 +38,7 @@ pub fn struct_like<'a>() -> impl Parser<'a, &'a str, StructLike, extra::Err<Rich
                 .repeated()
                 .collect::<Vec<_>>(),
         )
-        .then_ignore(blank().or_not())
-        .then_ignore(just("}"))
-        .then_ignore(blank().or_not())
+        .then_ignore(just("}").padded_by(blank().or_not()))
         .then(annotation::parse().or_not())
         .then_ignore(list_separator().or_not())
         .map(|((name, fields), annotations)| StructLike {
