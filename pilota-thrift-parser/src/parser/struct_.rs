@@ -1,11 +1,10 @@
 use chumsky::prelude::*;
 
-use crate::Ident;
-
 use super::super::{
     descriptor::{Exception, Struct, StructLike, Union},
     parser::*,
 };
+use crate::Ident;
 
 pub fn r#struct<'a>() -> impl Parser<'a, &'a str, Struct, extra::Err<Rich<'a, char>>> {
     just("struct")

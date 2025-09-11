@@ -1,8 +1,7 @@
 use chumsky::prelude::*;
 
-use crate::Ident;
-
 use super::super::{descriptor::Service, parser::*};
+use crate::Ident;
 
 pub fn parse<'a>() -> impl Parser<'a, &'a str, Service, extra::Err<Rich<'a, char>>> {
     let extends = just("extends").padded_by(blank()).ignore_then(path());

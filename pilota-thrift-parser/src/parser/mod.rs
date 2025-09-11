@@ -17,12 +17,12 @@ pub mod thrift;
 mod ty;
 mod typedef;
 
-use chumsky::prelude::*;
 use std::sync::Arc;
 
-use crate::Ident;
+use chumsky::prelude::*;
 
 use super::descriptor::Path;
+use crate::Ident;
 
 pub(crate) fn path<'a>() -> impl Parser<'a, &'a str, Path, extra::Err<Rich<'a, char>>> {
     identifier::parse()
