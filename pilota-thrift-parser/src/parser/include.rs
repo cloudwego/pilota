@@ -1,8 +1,9 @@
+use chumsky::prelude::*;
+
 use super::super::{
     descriptor::{CppInclude, Include},
     parser::*,
 };
-use chumsky::prelude::*;
 
 pub fn include<'a>() -> impl Parser<'a, &'a str, Include, extra::Err<Rich<'a, char>>> {
     just("include")
@@ -34,6 +35,8 @@ mod tests {
 
     #[test]
     fn test_cpp_include() {
-        let _f = cpp_include().parse(r#"cpp_include "shared.thrift""#).unwrap();
+        let _f = cpp_include()
+            .parse(r#"cpp_include "shared.thrift""#)
+            .unwrap();
     }
 }

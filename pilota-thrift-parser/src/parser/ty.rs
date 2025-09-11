@@ -1,5 +1,6 @@
-use chumsky::prelude::*;
 use std::sync::Arc;
+
+use chumsky::prelude::*;
 
 use super::super::{
     descriptor::{CppType, Ty, Type},

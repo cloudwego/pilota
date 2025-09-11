@@ -1,5 +1,6 @@
-use super::super::descriptor::Literal;
 use chumsky::prelude::*;
+
+use super::super::descriptor::Literal;
 
 fn quoted_string<'a>(quote: char) -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, char>>> {
     let normal_char = none_of([quote, '\\']);

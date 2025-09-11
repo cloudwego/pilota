@@ -18,9 +18,8 @@ pub fn ident_with_dot<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<
 
 #[cfg(test)]
 mod test {
-    use crate::parser::path;
-
     use super::*;
+    use crate::parser::path;
 
     #[test]
     fn test_identifier() {

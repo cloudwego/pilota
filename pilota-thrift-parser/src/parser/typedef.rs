@@ -1,8 +1,7 @@
 use chumsky::prelude::*;
 
-use crate::descriptor::Ident;
-
 use super::super::{descriptor::Typedef, parser::*};
+use crate::descriptor::Ident;
 
 pub fn type_def<'a>() -> impl Parser<'a, &'a str, Typedef, extra::Err<Rich<'a, char>>> {
     just("typedef")

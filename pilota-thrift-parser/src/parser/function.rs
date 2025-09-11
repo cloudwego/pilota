@@ -1,12 +1,11 @@
 use chumsky::prelude::*;
 
-use crate::parser::*;
-
 use super::super::{
     Attribute,
     descriptor::Function,
     parser::{Parser, blank, list_separator},
 };
+use crate::parser::*;
 
 pub fn parse<'a>() -> impl Parser<'a, &'a str, Function, extra::Err<Rich<'a, char>>> {
     let fields = field::parse()

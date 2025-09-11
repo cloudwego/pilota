@@ -1,8 +1,8 @@
-use ariadne::{Color, Label, Report, ReportKind, Source};
-use chumsky::prelude::*;
 use core::panic;
 use std::{path::PathBuf, str::FromStr, sync::Arc};
 
+use ariadne::{Color, Label, Report, ReportKind, Source};
+use chumsky::prelude::*;
 use faststr::FastStr;
 use heck::ToUpperCamelCase;
 use itertools::Itertools;

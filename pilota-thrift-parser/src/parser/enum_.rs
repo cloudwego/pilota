@@ -1,11 +1,10 @@
 use chumsky::prelude::*;
 
-use crate::parser::constant::int_constant;
-
 use super::super::{
     descriptor::{Enum, EnumValue},
     parser::*,
 };
+use crate::parser::constant::int_constant;
 
 pub fn enum_value<'a>() -> impl Parser<'a, &'a str, EnumValue, extra::Err<Rich<'a, char>>> {
     identifier::parse()
