@@ -7,6 +7,34 @@ use super::super::{
 
 pub fn const_value<'a>() -> impl Parser<'a, &'a str, ConstValue, extra::Err<Rich<'a, char>>> {
     recursive(|const_value| {
+        let list_value = just("[")
+            .ignore_then(
+                const_value
+                    .clone()
+                    .padded_by(blank().or_not())
+                    .then_ignore(list_separator().or_not())
+                    .repeated()
+                    .collect(),
+            )
+            .then_ignore(blank().or_not())
+            .then_ignore(just("]"))
+            .map(|elements| ConstValue::List(elements));
+
+        let map_value = just("{")
+            .ignore_then(
+                const_value
+                    .clone()
+                    .padded_by(blank().or_not())
+                    .then_ignore(just(":"))
+                    .then(const_value.clone().padded_by(blank().or_not()))
+                    .then_ignore(list_separator().or_not())
+                    .repeated()
+                    .collect(),
+            )
+            .then_ignore(blank().or_not())
+            .then_ignore(just("}"))
+            .map(|elements| ConstValue::Map(elements));
+
         choice((
             literal::parse().map(ConstValue::String),
             just("true").to(ConstValue::Bool(true)),
@@ -14,36 +42,8 @@ pub fn const_value<'a>() -> impl Parser<'a, &'a str, ConstValue, extra::Err<Rich
             path().map(ConstValue::Path),
             double_constant().map(ConstValue::Double),
             int_constant().map(ConstValue::Int),
-            just("[")
-                .ignore_then(
-                    blank()
-                        .or_not()
-                        .ignore_then(const_value.clone())
-                        .then_ignore(blank().or_not())
-                        .then_ignore(list_separator().or_not())
-                        .repeated()
-                        .collect(),
-                )
-                .then_ignore(blank().or_not())
-                .then_ignore(just("]"))
-                .map(|elements| ConstValue::List(elements)),
-            just("{")
-                .ignore_then(
-                    blank()
-                        .or_not()
-                        .ignore_then(const_value.clone())
-                        .then_ignore(blank().or_not())
-                        .then_ignore(just(":"))
-                        .then_ignore(blank().or_not())
-                        .then(const_value.clone())
-                        .then_ignore(blank().or_not())
-                        .then_ignore(list_separator().or_not())
-                        .repeated()
-                        .collect(),
-                )
-                .then_ignore(blank().or_not())
-                .then_ignore(just("}"))
-                .map(|elements| ConstValue::Map(elements)),
+            list_value,
+            map_value,
         ))
         .boxed()
     })
@@ -51,17 +51,13 @@ pub fn const_value<'a>() -> impl Parser<'a, &'a str, ConstValue, extra::Err<Rich
 
 pub fn constant<'a>() -> impl Parser<'a, &'a str, Constant, extra::Err<Rich<'a, char>>> {
     just("const")
-        .ignore_then(blank())
-        .ignore_then(ty::r#type())
-        .then_ignore(blank())
+        .ignore_then(ty::r#type().padded_by(blank()))
         .then(identifier::parse())
-        .then_ignore(blank().or_not())
-        .then_ignore(just("="))
-        .then_ignore(blank().or_not())
+        .then_ignore(just("=").padded_by(blank().or_not()))
         .then(const_value())
         .then_ignore(blank().or_not())
         .then(annotation::parse().or_not())
-        .then_ignore(list_separator().or_not())
+        .then_ignore(list_separator().padded_by(blank().or_not()).or_not())
         .map(|(((r#type, name), value), annotations)| Constant {
             name: Ident(Arc::from(name)),
             r#type,

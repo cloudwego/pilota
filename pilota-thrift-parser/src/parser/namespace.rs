@@ -5,13 +5,9 @@ use crate::{Namespace, Scope};
 
 pub fn parse<'a>() -> impl Parser<'a, &'a str, Namespace, extra::Err<Rich<'a, char>>> {
     just("namespace")
-        .ignore_then(blank())
-        .ignore_then(scope())
-        .then_ignore(blank())
+        .ignore_then(scope().padded_by(blank()))
         .then(path())
-        .then_ignore(blank().or_not())
-        .then(annotation::parse().or_not())
-        .then_ignore(blank().or_not())
+        .then(annotation::parse().or_not().padded_by(blank().or_not()))
         .then_ignore(list_separator().or_not())
         .map(|((scope, name), annotations)| Namespace {
             scope,

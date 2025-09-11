@@ -46,22 +46,20 @@ impl ThriftSourceDatabase {
             .parse(&text)
             .into_output_errors();
 
+        let path_str = &path.display().to_string();
         if !errs.is_empty() {
             errs.into_iter().for_each(|e| {
-                Report::build(
-                    ReportKind::Error,
-                    (path.to_str().unwrap(), e.span().into_range()),
-                )
-                .with_config(ariadne::Config::new().with_index_type(ariadne::IndexType::Byte))
-                .with_message(e.to_string())
-                .with_label(
-                    Label::new((path.to_str().unwrap(), e.span().into_range()))
-                        .with_message(e.reason().to_string())
-                        .with_color(Color::Red),
-                )
-                .finish()
-                .print((path.to_str().unwrap(), Source::from(&text)))
-                .unwrap()
+                Report::build(ReportKind::Error, (path_str, e.span().into_range()))
+                    .with_config(ariadne::Config::new().with_index_type(ariadne::IndexType::Byte))
+                    .with_message(e.to_string())
+                    .with_label(
+                        Label::new((path_str, e.span().into_range()))
+                            .with_message(e.reason().to_string())
+                            .with_color(Color::Red),
+                    )
+                    .finish()
+                    .print((path_str, Source::from(&text)))
+                    .unwrap()
             });
             panic!("thrift file parse failed");
         }

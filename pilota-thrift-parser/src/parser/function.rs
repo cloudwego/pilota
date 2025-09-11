@@ -9,42 +9,31 @@ use super::super::{
 };
 
 pub fn parse<'a>() -> impl Parser<'a, &'a str, Function, extra::Err<Rich<'a, char>>> {
-    any()
-        .rewind()
-        .ignore_then(just("oneway").then_ignore(blank()).or_not())
+    let fields = field::parse()
+        .padded_by(blank().or_not())
+        .repeated()
+        .at_least(1)
+        .collect::<Vec<_>>()
+        .boxed();
+
+    let throws = just("throws")
+        .ignore_then(blank().or_not())
+        .ignore_then(just("("))
+        .ignore_then(fields.clone())
+        .then_ignore(blank().or_not())
+        .then_ignore(just(")"));
+
+    just("oneway")
+        .then_ignore(blank())
+        .or_not()
         .then(ty::r#type())
         .then_ignore(blank())
         .then(identifier::parse())
-        .then_ignore(blank().or_not())
-        .then_ignore(just("("))
-        .then(
-            any()
-                .rewind()
-                .ignore_then(blank().or_not().ignore_then(field::parse()))
-                .repeated()
-                .at_least(1)
-                .collect::<Vec<_>>()
-                .or_not(),
-        )
-        .then_ignore(blank().or_not())
+        .then_ignore(just("(").padded_by(blank().or_not()))
+        .then(fields.clone().or_not())
         .then_ignore(just(")"))
-        .then_ignore(blank().or_not())
-        .then(
-            just("throws")
-                .ignore_then(blank().or_not())
-                .ignore_then(just("("))
-                .ignore_then(
-                    any()
-                        .rewind()
-                        .ignore_then(blank().or_not().ignore_then(field::parse()))
-                        .repeated()
-                        .at_least(1)
-                        .collect(),
-                )
-                .then_ignore(blank().or_not())
-                .then_ignore(just(")"))
-                .or_not(),
-        )
+        .padded_by(blank().or_not())
+        .then(throws.or_not())
         .then_ignore(blank().or_not())
         .then(annotation::parse().or_not())
         .then_ignore(list_separator().or_not())
@@ -96,6 +85,13 @@ mod tests {
                             2: optional list<map<i64, set<double>>> nestedDataPoints
                         ) (api.version = "2.5", deprecated = "false")"#,
             )
+            .unwrap();
+    }
+
+    #[test]
+    fn test_func3() {
+        let _f = function::parse()
+            .parse(r#"Err test_enum_var_type_name_conflict (1: Request req);"#)
             .unwrap();
     }
 }

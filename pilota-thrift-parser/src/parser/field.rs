@@ -15,25 +15,17 @@ pub fn attribute<'a>() -> impl Parser<'a, &'a str, Attribute, extra::Err<Rich<'a
 pub fn parse<'a>() -> impl Parser<'a, &'a str, Field, extra::Err<Rich<'a, char>>> {
     // 1: required i32 name = 123;
     text::int(10)
-        .then_ignore(blank().or_not())
-        .then_ignore(just(":"))
-        .then_ignore(blank().or_not())
+        .then_ignore(just(":").padded_by(blank().or_not()))
         .then(attribute().or_not())
-        .then_ignore(blank().or_not())
-        .then(ty::r#type())
-        .then_ignore(blank().or_not())
+        .then(ty::r#type().padded_by(blank().or_not()))
         .then(identifier::parse())
         .then(
-            blank()
-                .or_not()
-                .ignore_then(just("="))
-                .ignore_then(blank().or_not())
+            just("=")
+                .padded_by(blank().or_not())
                 .ignore_then(constant::const_value())
                 .or_not(),
         )
-        .then_ignore(blank().or_not())
-        .then(annotation::parse().or_not())
-        .then_ignore(blank().or_not())
+        .then(annotation::parse().or_not().padded_by(blank().or_not()))
         .then_ignore(list_separator().or_not())
         .map(
             |(((((id, attribute), r#type), name), value), annotations)| Field {

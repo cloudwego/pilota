@@ -4,6 +4,18 @@ pub fn parse<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, char>
     text::ascii::ident().map(|ident: &str| ident.to_string())
 }
 
+pub fn ident_with_dot<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, char>>> {
+    any()
+        .filter(|c: &char| c.is_ascii_alphabetic() || *c == '_')
+        .then(
+            any()
+                .filter(|c: &char| c.is_ascii_alphanumeric() || *c == '_' || *c == '.')
+                .repeated(),
+        )
+        .to_slice()
+        .map(|s: &str| s.to_string())
+}
+
 #[cfg(test)]
 mod test {
     use crate::parser::path;

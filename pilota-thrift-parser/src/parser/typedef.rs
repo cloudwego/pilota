@@ -6,9 +6,7 @@ use super::super::{descriptor::Typedef, parser::*};
 
 pub fn type_def<'a>() -> impl Parser<'a, &'a str, Typedef, extra::Err<Rich<'a, char>>> {
     just("typedef")
-        .ignore_then(blank())
-        .ignore_then(ty::r#type())
-        .then_ignore(blank())
+        .ignore_then(ty::r#type().padded_by(blank()))
         .then(identifier::parse())
         .then_ignore(blank().or_not())
         .then(annotation::parse().or_not())

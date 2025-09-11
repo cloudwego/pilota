@@ -6,24 +6,16 @@ use crate::{
 };
 
 pub fn parse<'a>() -> impl Parser<'a, &'a str, Annotations, extra::Err<Rich<'a, char>>> {
+    let key = identifier::ident_with_dot();
+
+    let value = literal::parse();
+
     just("(")
         .ignore_then(
-            blank()
-                .or_not()
-                .ignore_then(any().filter(|c: &char| c.is_ascii_alphabetic() || *c == '_'))
-                .then(
-                    any()
-                        .filter(|c: &char| c.is_ascii_alphanumeric() || *c == '_' || *c == '.')
-                        .repeated(),
-                )
-                .to_slice()
-                .map(|s| s.to_string())
-                .then_ignore(blank().or_not())
-                .then_ignore(just("="))
-                .then_ignore(blank().or_not())
-                .then(literal::parse())
-                .padded_by(blank())
-                .then_ignore(list_separator().or_not())
+            key.padded_by(blank().or_not())
+                .then_ignore(just("=").padded_by(blank().or_not()))
+                .then(value)
+                .then_ignore(list_separator().padded_by(blank().or_not()).or_not())
                 .map(|(key, value)| Annotation { key, value })
                 .repeated()
                 .at_least(1)
@@ -44,8 +36,8 @@ mod tests {
 
         let input = r#"(
             cpp.type = "DenseFoo",
-            python.type = "DenseFoo",
-            java.final = "",
+            python.type ="DenseFoo",
+            java.final="",
             )"#;
         let res = parse().parse(input).unwrap();
         assert_eq!(res.len(), 3);

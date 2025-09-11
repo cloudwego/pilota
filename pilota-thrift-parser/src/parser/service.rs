@@ -5,28 +5,21 @@ use crate::Ident;
 use super::super::{descriptor::Service, parser::*};
 
 pub fn parse<'a>() -> impl Parser<'a, &'a str, Service, extra::Err<Rich<'a, char>>> {
+    let extends = just("extends").padded_by(blank()).ignore_then(path());
+    let functions = blank()
+        .or_not()
+        .ignore_then(function::parse())
+        .repeated()
+        .collect::<Vec<_>>();
+
     just("service")
         .ignore_then(blank())
         .ignore_then(identifier::parse())
-        .then(
-            blank()
-                .ignore_then(just("extends"))
-                .ignore_then(blank())
-                .ignore_then(path())
-                .or_not(),
-        )
+        .then(extends.or_not())
         .then_ignore(blank().or_not())
         .then_ignore(just("{"))
-        .then(
-            any()
-                .rewind()
-                .ignore_then(blank().or_not().ignore_then(function::parse()))
-                .repeated()
-                .collect::<Vec<_>>(),
-        )
-        .then_ignore(blank().or_not())
-        .then_ignore(just("}"))
-        .then_ignore(blank().or_not())
+        .then(functions)
+        .then_ignore(just("}").padded_by(blank().or_not()))
         .then(annotation::parse().or_not())
         .then_ignore(list_separator().or_not())
         .map(|(((name, extends), functions), annotations)| Service {
@@ -44,7 +37,7 @@ mod tests {
     fn test_service() {
         let _ = parse().parse(
             r#"service ComplexService {
-            
+
                         /**
                          * 函数1: processUserData
                          * 这是一个复杂的 RPC 调用，用于处理用户数据。
@@ -70,5 +63,17 @@ mod tests {
 
                         }"#,
         );
+    }
+
+    #[test]
+    fn test_service2() {
+        let _ = parse()
+            .parse(
+                r#"service Test {
+                            Err test_enum(1: Ok req);
+                            Err test_enum_var_type_name_conflict (1: Request req);
+                        }"#,
+            )
+            .unwrap();
     }
 }
