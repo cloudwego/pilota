@@ -25,7 +25,7 @@ impl Service {
             .then(Annotation::parse().or_not())
             .then_ignore(list_separator().or_not())
             .map(|(((name, extends), functions), annotations)| Service {
-                name: Ident(Arc::from(name)),
+                name: Ident(name.into()),
                 extends,
                 functions,
                 annotations: annotations.unwrap_or_default(),

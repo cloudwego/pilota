@@ -33,7 +33,7 @@ impl Type {
                 just("double").to(Ty::Double),
                 just("uuid").to(Ty::Uuid),
             ))
-            .then_ignore(any().and_is(not_alphanumeric_or_underscore()).rewind());
+            .then_ignore(not_alphanumeric_or_underscore());
 
             let list = just("list")
                 .ignore_then(just("<").padded_by(blank().or_not()))

@@ -47,7 +47,7 @@ impl Function {
                         }
                     });
                     Function {
-                        name: Ident(Arc::from(name)),
+                        name: Ident(name.into()),
                         oneway: ow,
                         result_type: r#type,
                         arguments: args,

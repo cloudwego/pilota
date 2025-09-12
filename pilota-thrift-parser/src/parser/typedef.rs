@@ -12,7 +12,7 @@ pub fn type_def<'a>() -> impl Parser<'a, &'a str, Typedef, extra::Err<Rich<'a, c
         .then_ignore(list_separator().or_not())
         .map(|((r#type, alias), annotations)| Typedef {
             r#type,
-            alias: Ident(Arc::from(alias)),
+            alias: Ident(alias.into()),
             annotations: annotations.unwrap_or_default(),
         })
 }

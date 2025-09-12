@@ -63,7 +63,7 @@ impl Constant {
             .then(Annotation::parse().or_not())
             .then_ignore(list_separator().padded_by(blank().or_not()).or_not())
             .map(|(((r#type, name), value), annotations)| Constant {
-                name: Ident(Arc::from(name)),
+                name: Ident(name.into()),
                 r#type,
                 value,
                 annotations: annotations.unwrap_or_default(),
@@ -113,12 +113,12 @@ impl DoubleConstant {
             .then(fractional_part)
             .then(exponent_part.or_not())
             .to_slice()
-            .map(|s: &str| DoubleConstant(Arc::from(s.to_string())));
+            .map(|s: &str| DoubleConstant(s.into()));
         let with_exponent_only = sign
             .then(integer_part)
             .then(exponent_part)
             .to_slice()
-            .map(|s: &str| DoubleConstant(Arc::from(s.to_string())));
+            .map(|s: &str| DoubleConstant(s.into()));
         choice((with_fraction, with_exponent_only))
     }
 }

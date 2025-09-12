@@ -20,7 +20,7 @@ impl EnumValue {
             .then(Annotation::parse().or_not())
             .then_ignore(list_separator().or_not())
             .map(|((name, value), annotations)| EnumValue {
-                name: Ident(Arc::from(name)),
+                name: Ident(name.into()),
                 value,
                 annotations: annotations.unwrap_or_default(),
             })
@@ -40,7 +40,7 @@ impl Enum {
             .then_ignore(blank().or_not())
             .then(Annotation::parse().or_not())
             .map(|((name, values), annotations)| Enum {
-                name: Ident(Arc::from(name)),
+                name: Ident(name.into()),
                 values,
                 annotations: annotations.unwrap_or_default(),
             })
