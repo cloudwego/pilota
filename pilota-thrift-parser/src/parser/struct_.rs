@@ -48,7 +48,7 @@ impl StructLike {
             .then(Annotation::parse().or_not())
             .then_ignore(list_separator().or_not())
             .map(|((name, fields), annotations)| StructLike {
-                name: Ident(Arc::from(name)),
+                name: Ident(name.into()),
                 fields,
                 annotations: annotations.unwrap_or_default(),
             })

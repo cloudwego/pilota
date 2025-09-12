@@ -33,7 +33,7 @@ impl Path {
             .map(|s: Vec<String>| {
                 let idents: Vec<Ident> = s.into_iter().map(Ident::from).collect();
                 Path {
-                    segments: Arc::from(idents),
+                    segments: idents.into(),
                 }
             })
             .padded_by(blank())

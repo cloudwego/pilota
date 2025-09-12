@@ -36,7 +36,7 @@ impl Field {
                     id: id.parse().unwrap(),
                     attribute: attribute.unwrap_or_default(),
                     ty: r#type,
-                    name: Ident(Arc::from(name)),
+                    name: Ident(name.into()),
                     default: value,
                     annotations: annotations.unwrap_or_default(),
                 },
