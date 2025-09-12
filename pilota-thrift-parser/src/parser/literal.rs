@@ -27,8 +27,10 @@ fn double_quote<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, ch
     quoted_string('"')
 }
 
-pub fn parse<'a>() -> impl Parser<'a, &'a str, Literal, extra::Err<Rich<'a, char>>> {
-    single_quote().map(Literal).or(double_quote().map(Literal))
+impl Literal {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, Literal, extra::Err<Rich<'a, char>>> {
+        single_quote().map(Literal).or(double_quote().map(Literal))
+    }
 }
 
 #[cfg(test)]
@@ -37,11 +39,11 @@ mod tests {
 
     #[test]
     fn test_literal() {
-        let _ = parse().parse(r#""hello""#).unwrap();
-        let _ = parse().parse(r#"'hello'"#).unwrap();
-        let _ = parse().parse(r#"'hello\'world'"#).unwrap();
-        let _ = parse().parse(r#"'hello\nworld'"#).unwrap();
-        let _ = parse().parse(r#"'hello\\world'"#).unwrap();
-        let _ = parse().parse(r#"'hello\"world'"#).unwrap();
+        let _ = Literal::parse().parse(r#""hello""#).unwrap();
+        let _ = Literal::parse().parse(r#"'hello'"#).unwrap();
+        let _ = Literal::parse().parse(r#"'hello\'world'"#).unwrap();
+        let _ = Literal::parse().parse(r#"'hello\nworld'"#).unwrap();
+        let _ = Literal::parse().parse(r#"'hello\\world'"#).unwrap();
+        let _ = Literal::parse().parse(r#"'hello\"world'"#).unwrap();
     }
 }

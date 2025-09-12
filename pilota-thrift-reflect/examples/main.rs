@@ -9,7 +9,7 @@ fn main() {
     println!("{}", idl_path.display());
 
     let content = std::fs::read_to_string(&idl_path).unwrap();
-    let mut parsed_file = pilota_thrift_parser::parser::thrift::file()
+    let mut parsed_file = pilota_thrift_parser::descriptor::File::parse()
         .parse(&content)
         .unwrap();
     parsed_file.path = idl_path.into();
