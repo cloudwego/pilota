@@ -1,65 +1,71 @@
 use chumsky::prelude::*;
 
 use super::super::{descriptor::File, parser::*};
-use crate::Item;
+use crate::{
+    Constant, CppInclude, Enum, Exception, Include, Item, Namespace, Service, Struct, Union,
+};
 
-pub fn item<'a>() -> impl Parser<'a, &'a str, Item, extra::Err<Rich<'a, char>>> {
-    choice((
-        include::include().map(Item::Include),
-        include::cpp_include().map(Item::CppInclude),
-        namespace::parse().map(Item::Namespace),
-        typedef::type_def().map(Item::Typedef),
-        constant::constant().map(Item::Constant),
-        enum_::parse().map(Item::Enum),
-        struct_::r#struct().map(Item::Struct),
-        struct_::union().map(Item::Union),
-        struct_::exception().map(Item::Exception),
-        service::parse().map(Item::Service),
-    ))
+impl Item {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, Item, extra::Err<Rich<'a, char>>> {
+        choice((
+            Include::parse().map(Item::Include),
+            CppInclude::parse().map(Item::CppInclude),
+            Namespace::parse().map(Item::Namespace),
+            typedef::type_def().map(Item::Typedef),
+            Constant::parse().map(Item::Constant),
+            Enum::parse().map(Item::Enum),
+            Struct::parse().map(Item::Struct),
+            Union::parse().map(Item::Union),
+            Exception::parse().map(Item::Exception),
+            Service::parse().map(Item::Service),
+        ))
+    }
 }
 
-pub fn file<'a>() -> impl Parser<'a, &'a str, File, extra::Err<Rich<'a, char>>> {
-    let item_or_none = blank()
-        .or_not()
-        .ignore_then(item())
-        .then_ignore(blank().or_not());
+impl File {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, File, extra::Err<Rich<'a, char>>> {
+        let item_or_none = blank()
+            .or_not()
+            .ignore_then(Item::parse())
+            .then_ignore(blank().or_not());
 
-    item_or_none
-        .repeated()
-        .collect()
-        .then_ignore(blank().or_not())
-        .then_ignore(end())
-        .map(|items: Vec<Item>| {
-            let mut file = File::default();
+        item_or_none
+            .repeated()
+            .collect()
+            .then_ignore(blank().or_not())
+            .then_ignore(end())
+            .map(|items: Vec<Item>| {
+                let mut file = File::default();
 
-            file.items = items;
+                file.items = items;
 
-            let mut namespaces = file.items.iter().filter_map(|i| match i {
-                Item::Namespace(ns) => Some(ns),
-                _ => None,
-            });
+                let mut namespaces = file.items.iter().filter_map(|i| match i {
+                    Item::Namespace(ns) => Some(ns),
+                    _ => None,
+                });
 
-            file.package = namespaces
-                .clone()
-                .find_map(|n| {
-                    if n.scope.0 == "rs" {
-                        Some(n.name.clone())
-                    } else {
-                        None
-                    }
-                })
-                .or_else(|| {
-                    namespaces.find_map(|n| {
-                        if n.scope.0 == "*" {
+                file.package = namespaces
+                    .clone()
+                    .find_map(|n| {
+                        if n.scope.0 == "rs" {
                             Some(n.name.clone())
                         } else {
                             None
                         }
                     })
-                });
+                    .or_else(|| {
+                        namespaces.find_map(|n| {
+                            if n.scope.0 == "*" {
+                                Some(n.name.clone())
+                            } else {
+                                None
+                            }
+                        })
+                    });
 
-            file
-        })
+                file
+            })
+    }
 }
 
 #[cfg(test)]
@@ -132,7 +138,7 @@ mod tests {
             BizResponse BizMethod3(1: BizRequest req)(api.post = '/life/client/:action/:biz/other', api.baseurl = 'ib.snssdk.com', api.param = 'true', api.serializer = 'json')
         }
         "#;
-        let (file, errs) = file().parse(body).into_output_errors();
+        let (file, errs) = File::parse().parse(body).into_output_errors();
         println!("{file:#?}");
         errs.into_iter().for_each(|e| {
             Report::build(ReportKind::Error, ("test.thrift", e.span().into_range()))
@@ -171,7 +177,7 @@ const list<string> TEST_LIST = [
 service Service {
   MyStruct testEpisode(1:MyStruct arg)
 },"#;
-        let (file, errs) = file().parse(body).into_output_errors();
+        let (file, errs) = File::parse().parse(body).into_output_errors();
         println!("{file:#?}");
         errs.into_iter().for_each(|e| {
             Report::build(ReportKind::Error, ("test.thrift", e.span().into_range()))
@@ -196,7 +202,7 @@ service Service {
 
         # comment 2
         "#;
-        let (file, errs) = file().parse(body).into_output_errors();
+        let (file, errs) = File::parse().parse(body).into_output_errors();
         println!("{file:#?}");
         errs.into_iter().for_each(|e| {
             Report::build(ReportKind::Error, ("test.thrift", e.span().into_range()))

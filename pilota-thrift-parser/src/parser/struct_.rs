@@ -4,47 +4,55 @@ use super::super::{
     descriptor::{Exception, Struct, StructLike, Union},
     parser::*,
 };
-use crate::Ident;
+use crate::{Annotation, Field, Ident};
 
-pub fn r#struct<'a>() -> impl Parser<'a, &'a str, Struct, extra::Err<Rich<'a, char>>> {
-    just("struct")
-        .ignore_then(blank())
-        .ignore_then(struct_like())
-        .map(Struct)
+impl Struct {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, Struct, extra::Err<Rich<'a, char>>> {
+        just("struct")
+            .ignore_then(blank())
+            .ignore_then(StructLike::parse())
+            .map(Struct)
+    }
 }
 
-pub fn union<'a>() -> impl Parser<'a, &'a str, Union, extra::Err<Rich<'a, char>>> {
-    just("union")
-        .ignore_then(blank())
-        .ignore_then(struct_like())
-        .map(Union)
+impl Union {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, Union, extra::Err<Rich<'a, char>>> {
+        just("union")
+            .ignore_then(blank())
+            .ignore_then(StructLike::parse())
+            .map(Union)
+    }
 }
 
-pub fn exception<'a>() -> impl Parser<'a, &'a str, Exception, extra::Err<Rich<'a, char>>> {
-    just("exception")
-        .ignore_then(blank())
-        .ignore_then(struct_like())
-        .map(Exception)
+impl Exception {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, Exception, extra::Err<Rich<'a, char>>> {
+        just("exception")
+            .ignore_then(blank())
+            .ignore_then(StructLike::parse())
+            .map(Exception)
+    }
 }
 
-pub fn struct_like<'a>() -> impl Parser<'a, &'a str, StructLike, extra::Err<Rich<'a, char>>> {
-    identifier::parse()
-        .then_ignore(blank().or_not())
-        .then_ignore(just("{"))
-        .then(
-            blank()
-                .ignore_then(field::parse())
-                .repeated()
-                .collect::<Vec<_>>(),
-        )
-        .then_ignore(just("}").padded_by(blank().or_not()))
-        .then(annotation::parse().or_not())
-        .then_ignore(list_separator().or_not())
-        .map(|((name, fields), annotations)| StructLike {
-            name: Ident(Arc::from(name)),
-            fields,
-            annotations: annotations.unwrap_or_default(),
-        })
+impl StructLike {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, StructLike, extra::Err<Rich<'a, char>>> {
+        Ident::parse()
+            .then_ignore(blank().or_not())
+            .then_ignore(just("{"))
+            .then(
+                blank()
+                    .ignore_then(Field::parse())
+                    .repeated()
+                    .collect::<Vec<_>>(),
+            )
+            .then_ignore(just("}").padded_by(blank().or_not()))
+            .then(Annotation::parse().or_not())
+            .then_ignore(list_separator().or_not())
+            .map(|((name, fields), annotations)| StructLike {
+                name: Ident(Arc::from(name)),
+                fields,
+                annotations: annotations.unwrap_or_default(),
+            })
+    }
 }
 
 #[cfg(test)]
@@ -64,7 +72,7 @@ mod tests {
         }
         "#;
 
-        r#struct().parse(str).unwrap();
+        Struct::parse().parse(str).unwrap();
     }
 
     #[test]
@@ -73,7 +81,7 @@ mod tests {
             // 1
         }
         "#;
-        r#struct().parse(str).unwrap();
+        Struct::parse().parse(str).unwrap();
     }
 
     #[test]
@@ -82,7 +90,7 @@ mod tests {
             1: string user_id (go.tag = 'json:\"user_id,omitempty\"'),
             2: string __files (go.tag = 'json:\"__files,omitempty\"'),
         }"#;
-        r#struct().parse(str).unwrap();
+        Struct::parse().parse(str).unwrap();
     }
 
     #[test]
@@ -91,6 +99,6 @@ mod tests {
             1: required string(pilota.annotation="test") Service,      // required service
             2: required bytet_i.Injection Injection,
         }"#;
-        r#struct().parse(str).unwrap();
+        Struct::parse().parse(str).unwrap();
     }
 }

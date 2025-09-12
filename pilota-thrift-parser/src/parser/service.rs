@@ -1,32 +1,36 @@
 use chumsky::prelude::*;
 
 use super::super::{descriptor::Service, parser::*};
-use crate::Ident;
+use crate::{Annotation, Function, Ident};
 
-pub fn parse<'a>() -> impl Parser<'a, &'a str, Service, extra::Err<Rich<'a, char>>> {
-    let extends = just("extends").padded_by(blank()).ignore_then(path());
-    let functions = blank()
-        .or_not()
-        .ignore_then(function::parse())
-        .repeated()
-        .collect::<Vec<_>>();
+impl Service {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, Service, extra::Err<Rich<'a, char>>> {
+        let extends = just("extends")
+            .padded_by(blank())
+            .ignore_then(Path::parse());
+        let functions = blank()
+            .or_not()
+            .ignore_then(Function::parse())
+            .repeated()
+            .collect::<Vec<_>>();
 
-    just("service")
-        .ignore_then(blank())
-        .ignore_then(identifier::parse())
-        .then(extends.or_not())
-        .then_ignore(blank().or_not())
-        .then_ignore(just("{"))
-        .then(functions)
-        .then_ignore(just("}").padded_by(blank().or_not()))
-        .then(annotation::parse().or_not())
-        .then_ignore(list_separator().or_not())
-        .map(|(((name, extends), functions), annotations)| Service {
-            name: Ident(Arc::from(name)),
-            extends,
-            functions,
-            annotations: annotations.unwrap_or_default(),
-        })
+        just("service")
+            .ignore_then(blank())
+            .ignore_then(Ident::parse())
+            .then(extends.or_not())
+            .then_ignore(blank().or_not())
+            .then_ignore(just("{"))
+            .then(functions)
+            .then_ignore(just("}").padded_by(blank().or_not()))
+            .then(Annotation::parse().or_not())
+            .then_ignore(list_separator().or_not())
+            .map(|(((name, extends), functions), annotations)| Service {
+                name: Ident(Arc::from(name)),
+                extends,
+                functions,
+                annotations: annotations.unwrap_or_default(),
+            })
+    }
 }
 
 #[cfg(test)]
@@ -34,7 +38,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_service() {
-        let _ = parse().parse(
+        let _ = Service::parse().parse(
             r#"service ComplexService {
 
                         /**
@@ -66,7 +70,7 @@ mod tests {
 
     #[test]
     fn test_service2() {
-        let _ = parse()
+        let _ = Service::parse()
             .parse(
                 r#"service Test {
                             Err test_enum(1: Ok req);

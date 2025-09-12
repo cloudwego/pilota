@@ -24,18 +24,20 @@ use chumsky::prelude::*;
 use super::descriptor::Path;
 use crate::Ident;
 
-pub(crate) fn path<'a>() -> impl Parser<'a, &'a str, Path, extra::Err<Rich<'a, char>>> {
-    identifier::parse()
-        .separated_by(just('.').padded_by(blank()))
-        .at_least(1)
-        .collect()
-        .map(|s: Vec<String>| {
-            let idents: Vec<Ident> = s.into_iter().map(Ident::from).collect();
-            Path {
-                segments: Arc::from(idents),
-            }
-        })
-        .padded_by(blank())
+impl Path {
+    pub fn parse<'a>() -> impl Parser<'a, &'a str, Path, extra::Err<Rich<'a, char>>> {
+        Ident::parse()
+            .separated_by(just('.').padded_by(blank()))
+            .at_least(1)
+            .collect()
+            .map(|s: Vec<String>| {
+                let idents: Vec<Ident> = s.into_iter().map(Ident::from).collect();
+                Path {
+                    segments: Arc::from(idents),
+                }
+            })
+            .padded_by(blank())
+    }
 }
 
 pub fn list_separator<'a>() -> impl Parser<'a, &'a str, char, extra::Err<Rich<'a, char>>> {
@@ -78,13 +80,13 @@ mod tests {
 
     #[test]
     fn test_path() {
-        let p = path().parse("foo.bar.baz").unwrap();
+        let p = Path::parse().parse("foo.bar.baz").unwrap();
         assert_eq!(p.segments.len(), 3);
         assert_eq!(p.segments[0].as_str(), "foo");
         assert_eq!(p.segments[1].as_str(), "bar");
         assert_eq!(p.segments[2].as_str(), "baz");
 
-        let p = path().parse("foo").unwrap();
+        let p = Path::parse().parse("foo").unwrap();
         assert_eq!(p.segments.len(), 1);
         assert_eq!(p.segments[0].as_str(), "foo");
     }

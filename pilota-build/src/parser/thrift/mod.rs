@@ -45,7 +45,7 @@ impl ThriftSourceDatabase {
 
     fn parse(&self, path: PathBuf) -> Arc<thrift_parser::File> {
         let text = self.file_text(path.clone());
-        let (res, errs) = thrift_parser::parser::thrift::file()
+        let (res, errs) = thrift_parser::descriptor::File::parse()
             .parse(&text)
             .into_output_errors();
 
