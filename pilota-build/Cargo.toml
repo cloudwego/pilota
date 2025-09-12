@@ -50,6 +50,8 @@ tracing-subscriber.workspace = true
 
 protobuf-parse.workspace = true
 protobuf.workspace = true
+chumsky.workspace = true
+ariadne.workspace = true
 
 [dev-dependencies]
 pilota-thrift-fieldmask = { path = "../pilota-thrift-fieldmask" }
