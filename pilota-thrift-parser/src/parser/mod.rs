@@ -17,8 +17,6 @@ pub mod thrift;
 mod ty;
 mod typedef;
 
-use std::sync::Arc;
-
 use chumsky::prelude::*;
 
 use super::descriptor::Path;

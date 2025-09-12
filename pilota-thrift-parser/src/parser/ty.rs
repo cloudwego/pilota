@@ -79,10 +79,7 @@ impl Type {
 
             ty_parser
                 .then(Annotation::parse().or_not().padded_by(blank().or_not()))
-                .map(|(ty, an)| {
-                    // println!("type: {:?}, an: {:?}", ty, an);
-                    Type(ty, an.unwrap_or_default())
-                })
+                .map(|(ty, an)| Type(ty, an.unwrap_or_default()))
                 .boxed()
         })
         .boxed()
