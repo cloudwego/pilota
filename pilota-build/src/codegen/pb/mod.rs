@@ -366,11 +366,17 @@ impl CodegenBackend for ProtobufBackend {
             })
             .join("");
 
+        // if has repeated field, disable short circuit
+        let mut has_repeated = false;
+
         let mut encode = s
             .fields
             .iter()
             .map(|field| {
                 let field_name = self.cx.rust_name(field.did);
+                if matches!(field.ty.kind, ty::TyKind::Vec(_)) {
+                    has_repeated = true;
+                }
                 self.codegen_encode(
                     format!("self.{field_name}").into(),
                     &field.ty,
@@ -384,7 +390,7 @@ impl CodegenBackend for ProtobufBackend {
         let keep = self.keep_unknown_fields.contains(&def_id);
 
         let mut inc_decoded_fields_num = String::new();
-        if keep {
+        if keep && !has_repeated {
             inc_decoded_fields_num = "if is_root { ctx.inc_root_decoded_fields_num(tag); }".into();
         }
 
@@ -438,20 +444,22 @@ impl CodegenBackend for ProtobufBackend {
                 format!("&& !matches!(tag, {tags_repr})")
             };
 
-            short_circuit = format!(
-                r#"// short circuit
-                if is_root {tags_dismatch} && ctx.root_decoded_fields_num() == {fields_num} {{
-                    // advance buf
-                    let cur = buf.chunk().as_ptr();
-                    let len = ctx.raw_bytes_len() - (cur as usize - ctx.raw_bytes_cursor());
-                    buf.advance(len);
+            if !has_repeated {
+                short_circuit = format!(
+                    r#"// short circuit
+                    if is_root {tags_dismatch} && ctx.root_decoded_fields_num() == {fields_num} {{
+                        // advance buf
+                        let cur = buf.chunk().as_ptr();
+                        let len = ctx.raw_bytes_len() - (cur as usize - ctx.raw_bytes_cursor());
+                        buf.advance(len);
 
-                    // read rest bytes
-                    let val = ctx.raw_bytes_split_to(ctx.raw_bytes_len());
-                    _unknown_fields.push_back(val);
-                    return Ok(());
-                }}"#
-            );
+                        // read rest bytes
+                        let val = ctx.raw_bytes_split_to(ctx.raw_bytes_len());
+                        _unknown_fields.push_back(val);
+                        return Ok(());
+                    }}"#
+                )
+            }
 
             skip_field = format!(
                 r#"{{
