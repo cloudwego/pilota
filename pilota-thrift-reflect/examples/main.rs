@@ -9,9 +9,22 @@ fn main() {
     println!("{}", idl_path.display());
 
     let content = std::fs::read_to_string(&idl_path).unwrap();
-    let mut parsed_file = pilota_thrift_parser::descriptor::File::parse()
-        .parse(&content)
-        .unwrap();
+    let ret = pilota_thrift_parser::parser::thrift::FileParser::new(
+        pilota_thrift_parser::FileSource::new_with_path(idl_path.clone(), &content).unwrap(),
+    )
+    .parse();
+    let mut parsed_file = match ret {
+        Ok(parsed_file) => parsed_file,
+        Err(e) => {
+            eprintln!("{}", e);
+            return;
+        }
+    };
+    // let mut parsed_file =
+    // pilota_thrift_parser::parser::thrift::FileParser::new(idl_path.clone())
+    //     .parse()
+    //     .unwrap();
+
     parsed_file.path = idl_path.into();
 
     let descriptor: pilota_thrift_reflect::thrift_reflection::FileDescriptor =
