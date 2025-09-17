@@ -20,7 +20,7 @@ rust-version = "1.85.0"
 [workspace.dependencies]
 ahash = "0.8"
 anyhow = "1"
-ariadne = "0.5"
+ariadne = { version = "0.5", features = ["auto-color"] }
 async-recursion = "1"
 bytes = { version = "1", features = ["serde"] }
 chumsky = "0.10"

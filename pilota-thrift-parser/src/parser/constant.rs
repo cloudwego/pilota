@@ -7,7 +7,7 @@ use super::super::{
 use crate::{Annotation, Literal, Type};
 
 impl ConstValue {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, ConstValue, extra::Err<Rich<'a, char>>> {
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, ConstValue, extra::Err<Rich<'a, char>>> {
         recursive(|const_value| {
             let list_value = just("[")
                 .ignore_then(
@@ -20,7 +20,7 @@ impl ConstValue {
                 )
                 .then_ignore(blank().or_not())
                 .then_ignore(just("]"))
-                .map(|elements| ConstValue::List(elements));
+                .map(ConstValue::List);
 
             let map_value = just("{")
                 .ignore_then(
@@ -35,7 +35,7 @@ impl ConstValue {
                 )
                 .then_ignore(blank().or_not())
                 .then_ignore(just("}"))
-                .map(|elements| ConstValue::Map(elements));
+                .map(ConstValue::Map);
 
             choice((
                 Literal::parse().map(ConstValue::String),
@@ -53,14 +53,14 @@ impl ConstValue {
 }
 
 impl Constant {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, Constant, extra::Err<Rich<'a, char>>> {
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Constant, extra::Err<Rich<'a, char>>> {
         just("const")
-            .ignore_then(Type::parse().padded_by(blank()))
-            .then(Ident::parse())
+            .ignore_then(Type::get_parser().padded_by(blank()))
+            .then(Ident::get_parser())
             .then_ignore(just("=").padded_by(blank().or_not()))
-            .then(ConstValue::parse())
+            .then(ConstValue::get_parser())
             .then_ignore(blank().or_not())
-            .then(Annotation::parse().or_not())
+            .then(Annotation::get_parser().or_not())
             .then_ignore(list_separator().padded_by(blank().or_not()).or_not())
             .map(|(((r#type, name), value), annotations)| Constant {
                 name: Ident(name.into()),
@@ -92,7 +92,7 @@ impl IntConstant {
                     .repeated()
                     .at_least(1)
                     .collect::<String>()
-                    .map(|d| IntConstant(i64::from_str_radix(d.as_str(), 10).unwrap())),
+                    .map(|d| IntConstant(d.as_str().parse::<i64>().unwrap())),
             ))
         })
     }
@@ -136,49 +136,49 @@ mod tests {
 
     #[test]
     fn test_list_constant() {
-        let _i = ConstValue::parse().parse("[1, 2]").unwrap();
-        let _i = ConstValue::parse().parse("[1, 0xBC]").unwrap();
+        let _i = ConstValue::get_parser().parse("[1, 2]").unwrap();
+        let _i = ConstValue::get_parser().parse("[1, 0xBC]").unwrap();
     }
 
     #[test]
     fn test_map() {
         let input = r#"const map<i32,set<i32>> aXa1 = {1:[1,1], 2:[2,2]}"#;
-        let _c = Constant::parse().parse(input).unwrap();
+        let _c = Constant::get_parser().parse(input).unwrap();
     }
 
     #[test]
     fn test_list() {
         let input = r#"const list<i32> aXa1 = [1,2]"#;
-        let _c = Constant::parse().parse(input).unwrap();
+        let _c = Constant::get_parser().parse(input).unwrap();
     }
 
     #[test]
     fn test_set() {
         let input = r#"const set<i32> aXa1 = [1,2]"#;
-        let _c = Constant::parse().parse(input).unwrap();
+        let _c = Constant::get_parser().parse(input).unwrap();
     }
 
     #[test]
     fn test_bool() {
         let input = r#"const bool aXa1 = true"#;
-        let _c = Constant::parse().parse(input).unwrap();
+        let _c = Constant::get_parser().parse(input).unwrap();
     }
 
     #[test]
     fn test_i64() {
         let input = r#"const i64 aXa1 = 0x1"#;
-        let _c = Constant::parse().parse(input).unwrap();
+        let _c = Constant::get_parser().parse(input).unwrap();
     }
 
     #[test]
     fn test_f64() {
         let input = r#"const double aXa1 = 1.01e10"#;
-        let _c = Constant::parse().parse(input).unwrap();
+        let _c = Constant::get_parser().parse(input).unwrap();
     }
 
     #[test]
     fn test_str() {
         let input = r#"const string aXa1 = "hello""#;
-        let _c = Constant::parse().parse(input).unwrap();
+        let _c = Constant::get_parser().parse(input).unwrap();
     }
 }
