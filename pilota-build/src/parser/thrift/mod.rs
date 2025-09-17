@@ -1,8 +1,6 @@
 use core::panic;
 use std::{path::PathBuf, str::FromStr, sync::Arc};
 
-use ariadne::{Color, Label, Report, ReportKind, Source};
-use chumsky::prelude::*;
 use faststr::FastStr;
 use heck::ToUpperCamelCase;
 use itertools::Itertools;
@@ -45,26 +43,14 @@ impl ThriftSourceDatabase {
 
     fn parse(&self, path: PathBuf) -> Arc<thrift_parser::File> {
         let text = self.file_text(path.clone());
-        let (res, errs) = thrift_parser::descriptor::File::parse()
-            .parse(&text)
-            .into_output_errors();
+        let res = thrift_parser::FileParser::new(
+            thrift_parser::FileSource::new_with_path(path.clone(), text.as_ref()).unwrap(),
+        )
+        .parse();
 
-        let path_str = &path.display().to_string();
-        if !errs.is_empty() {
-            errs.into_iter().for_each(|e| {
-                Report::build(ReportKind::Error, (path_str, e.span().into_range()))
-                    .with_config(ariadne::Config::new().with_index_type(ariadne::IndexType::Byte))
-                    .with_message(e.to_string())
-                    .with_label(
-                        Label::new((path_str, e.span().into_range()))
-                            .with_message(e.reason().to_string())
-                            .with_color(Color::Red),
-                    )
-                    .finish()
-                    .print((path_str, Source::from(&text)))
-                    .unwrap()
-            });
-            panic!("thrift file parse failed");
+        if res.is_err() {
+            eprintln!("{}", res.err().unwrap());
+            std::process::exit(1);
         }
 
         let mut ast = res.unwrap();
