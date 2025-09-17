@@ -3,7 +3,7 @@ use chumsky::prelude::*;
 use crate::Ident;
 
 impl Ident {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, char>>> {
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, char>>> {
         text::ascii::ident().map(|ident: &str| ident.to_string())
     }
 
@@ -27,12 +27,12 @@ mod test {
 
     #[test]
     fn test_identifier() {
-        assert_eq!(Ident::parse().parse("abc").unwrap(), "abc");
-        assert_eq!(Ident::parse().parse("a1d").unwrap(), "a1d");
-        assert_eq!(Ident::parse().parse("foo_bar").unwrap(), "foo_bar");
+        assert_eq!(Ident::get_parser().parse("abc").unwrap(), "abc");
+        assert_eq!(Ident::get_parser().parse("a1d").unwrap(), "a1d");
+        assert_eq!(Ident::get_parser().parse("foo_bar").unwrap(), "foo_bar");
 
-        assert_eq!(Ident::parse().parse("_123").unwrap(), "_123");
-        assert_eq!(Ident::parse().parse("_").unwrap(), "_");
+        assert_eq!(Ident::get_parser().parse("_123").unwrap(), "_123");
+        assert_eq!(Ident::get_parser().parse("_").unwrap(), "_");
     }
 
     #[test]

@@ -18,7 +18,7 @@ impl CppType {
 }
 
 impl Type {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, Type, extra::Err<Rich<'a, char>>> {
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Type, extra::Err<Rich<'a, char>>> {
         recursive(|self_parser| {
             let base_ty = choice((
                 just("string").to(Ty::String),
@@ -78,7 +78,11 @@ impl Type {
             let ty_parser = choice((base_ty, list, set, map_parser, Path::parse().map(Ty::Path)));
 
             ty_parser
-                .then(Annotation::parse().or_not().padded_by(blank().or_not()))
+                .then(
+                    Annotation::get_parser()
+                        .or_not()
+                        .padded_by(blank().or_not()),
+                )
                 .map(|(ty, an)| Type(ty, an.unwrap_or_default()))
                 .boxed()
         })
@@ -94,14 +98,14 @@ mod tests {
 
     #[test]
     fn test_type() {
-        let parser = Type::parse();
+        let parser = Type::get_parser();
         let input = "map<i32, string>";
         let _res = parser.parse(input).unwrap();
     }
 
     #[test]
     fn test_type_path() {
-        let parser = Type::parse();
+        let parser = Type::get_parser();
         let input = "bytet_i.Injection";
         let _res = parser.parse(input).unwrap();
     }
