@@ -18,8 +18,10 @@ keywords = ["serialization", "thrift", "parser"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-nom.workspace = true
-bytes.workspace = true
-faststr.workspace = true
-chumsky.workspace = true
+anyhow.workspace = true
 ariadne.workspace = true
+bytes.workspace = true
+chumsky.workspace = true
+faststr.workspace = true
+nom.workspace = true
+thiserror.workspace = true
