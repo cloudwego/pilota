@@ -7,7 +7,7 @@ use crate::{
 };
 
 impl Annotation {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, Annotations, extra::Err<Rich<'a, char>>> {
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Annotations, extra::Err<Rich<'a, char>>> {
         let key = Ident::ident_with_dot();
 
         let value = Literal::parse();
@@ -33,7 +33,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_annotations() {
-        let _a = Annotation::parse()
+        let _a = Annotation::get_parser()
             .parse(r#"(go.tag = "json:\"Ids\" split:\"type=tenant\"")"#)
             .unwrap();
 
@@ -42,7 +42,7 @@ mod tests {
             python.type ="DenseFoo",
             java.final="",
             )"#;
-        let res = Annotation::parse().parse(input).unwrap();
+        let res = Annotation::get_parser().parse(input).unwrap();
         assert_eq!(res.len(), 3);
     }
 }

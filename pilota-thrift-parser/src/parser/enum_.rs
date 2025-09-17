@@ -7,8 +7,8 @@ use super::super::{
 use crate::{Annotation, IntConstant};
 
 impl EnumValue {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, EnumValue, extra::Err<Rich<'a, char>>> {
-        Ident::parse()
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, EnumValue, extra::Err<Rich<'a, char>>> {
+        Ident::get_parser()
             .padded_by(blank().or_not())
             .then(
                 just("=")
@@ -17,7 +17,7 @@ impl EnumValue {
                     .or_not(),
             )
             .then_ignore(blank().or_not())
-            .then(Annotation::parse().or_not())
+            .then(Annotation::get_parser().or_not())
             .then_ignore(list_separator().or_not())
             .map(|((name, value), annotations)| EnumValue {
                 name: Ident(name.into()),
@@ -28,17 +28,17 @@ impl EnumValue {
 }
 
 impl Enum {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, Enum, extra::Err<Rich<'a, char>>> {
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Enum, extra::Err<Rich<'a, char>>> {
         just("enum")
             .ignore_then(blank())
-            .ignore_then(Ident::parse())
+            .ignore_then(Ident::get_parser())
             .then_ignore(blank().or_not())
             .then_ignore(just("{"))
-            .then(EnumValue::parse().repeated().collect())
+            .then(EnumValue::get_parser().repeated().collect())
             .then_ignore(blank().or_not())
             .then_ignore(just("}"))
             .then_ignore(blank().or_not())
-            .then(Annotation::parse().or_not())
+            .then(Annotation::get_parser().or_not())
             .map(|((name, values), annotations)| Enum {
                 name: Ident(name.into()),
                 values,
@@ -52,7 +52,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_enum() {
-        let _ = Enum::parse()
+        let _ = Enum::get_parser()
             .parse(
                 r#"enum Sex {
                             UNKNOWN = 0,
@@ -65,7 +65,7 @@ mod tests {
 
     #[test]
     fn test_enum2() {
-        let _ = Enum::parse()
+        let _ = Enum::get_parser()
             .parse(
                 r#"enum Index {
                             A = 0x01,

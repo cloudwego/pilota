@@ -8,8 +8,8 @@ use super::super::{
 use crate::{Annotation, Field, Type, parser::*};
 
 impl Function {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, Function, extra::Err<Rich<'a, char>>> {
-        let fields = Field::parse()
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Function, extra::Err<Rich<'a, char>>> {
+        let fields = Field::get_parser()
             .padded_by(blank().or_not())
             .repeated()
             .at_least(1)
@@ -26,16 +26,16 @@ impl Function {
         just("oneway")
             .then_ignore(blank())
             .or_not()
-            .then(Type::parse())
+            .then(Type::get_parser())
             .then_ignore(blank())
-            .then(Ident::parse())
+            .then(Ident::get_parser())
             .then_ignore(just("(").padded_by(blank().or_not()))
             .then(fields.clone().or_not())
             .then_ignore(just(")"))
             .padded_by(blank().or_not())
             .then(throws.or_not())
             .then_ignore(blank().or_not())
-            .then(Annotation::parse().or_not())
+            .then(Annotation::get_parser().or_not())
             .then_ignore(list_separator().or_not())
             .map(
                 |(((((oneway, r#type), name), arguments), throws), annotations)| {
@@ -66,7 +66,7 @@ mod tests {
 
     #[test]
     fn test_func() {
-        let _f = Function::parse()
+        let _f = Function::get_parser()
             .parse(
                 r#"map<i64, shared.ProcessingStatus> processUserData(
                             1: required list<UserProfile> profiles,
@@ -79,7 +79,7 @@ mod tests {
 
     #[test]
     fn test_func2() {
-        let _f = Function::parse()
+        let _f = Function::get_parser()
             .parse(
                 r#"oneway void pingServer(
                             1: required string(go.tag = 'json:"source_service"') source,
@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn test_func3() {
-        let _f = Function::parse()
+        let _f = Function::get_parser()
             .parse(r#"Err test_enum_var_type_name_conflict (1: Request req);"#)
             .unwrap();
     }
