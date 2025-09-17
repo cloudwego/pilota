@@ -438,11 +438,16 @@ impl CodegenBackend for ProtobufBackend {
             })
             .join("");
 
+        let mut has_repeated = false;
+
         let mut encode = s
             .fields
             .iter()
             .map(|field| {
                 let field_name = self.cx.rust_name(field.did);
+                if matches!(field.ty.kind, ty::TyKind::Vec(_)) {
+                    has_repeated = true;
+                }
                 self.codegen_encode(
                     format!("self.{field_name}").into(),
                     &field.ty,
@@ -456,7 +461,7 @@ impl CodegenBackend for ProtobufBackend {
         let keep = self.cache.keep_unknown_fields.contains(&def_id);
 
         let mut inc_decoded_fields_num = String::new();
-        if keep {
+        if keep && !has_repeated {
             inc_decoded_fields_num = "if is_root { ctx.inc_root_decoded_fields_num(tag); }".into();
         }
 
@@ -494,7 +499,6 @@ impl CodegenBackend for ProtobufBackend {
             String::from("::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx)");
 
         if keep {
-            let fields_num = s.fields.len() as u32;
             unknown_fields = r#"let mut _unknown_fields = &mut self._unknown_fields;"#;
             encoded_len.push_str(" + self._unknown_fields.size()");
             encode.push_str(
@@ -503,27 +507,30 @@ impl CodegenBackend for ProtobufBackend {
                 }"#,
             );
 
-            let tags_repr = s.fields.iter().flat_map(|f| self.field_tags(f)).join("|");
-            let tags_dismatch = if tags_repr.is_empty() {
-                "".into()
-            } else {
-                format!("&& !matches!(tag, {tags_repr})")
-            };
+            if !has_repeated {
+                let fields_num = s.fields.len() as u32;
+                let tags_repr = s.fields.iter().flat_map(|f| self.field_tags(f)).join("|");
+                let tags_dismatch = if tags_repr.is_empty() {
+                    "".into()
+                } else {
+                    format!("&& !matches!(tag, {tags_repr})")
+                };
 
-            short_circuit = format!(
-                r#"// short circuit
-                if is_root {tags_dismatch} && ctx.root_decoded_fields_num() == {fields_num} {{
-                    // advance buf
-                    let cur = buf.chunk().as_ptr();
-                    let len = ctx.raw_bytes_len() - (cur as usize - ctx.raw_bytes_cursor());
-                    buf.advance(len);
+                short_circuit = format!(
+                    r#"// short circuit
+                    if is_root {tags_dismatch} && ctx.root_decoded_fields_num() == {fields_num} {{
+                        // advance buf
+                        let cur = buf.chunk().as_ptr();
+                        let len = ctx.raw_bytes_len() - (cur as usize - ctx.raw_bytes_cursor());
+                        buf.advance(len);
 
-                    // read rest bytes
-                    let val = ctx.raw_bytes_split_to(ctx.raw_bytes_len());
-                    _unknown_fields.push_back(val);
-                    return Ok(());
-                }}"#
-            );
+                        // read rest bytes
+                        let val = ctx.raw_bytes_split_to(ctx.raw_bytes_len());
+                        _unknown_fields.push_back(val);
+                        return Ok(());
+                    }}"#
+                )
+            }
 
             skip_field = format!(
                 r#"{{
