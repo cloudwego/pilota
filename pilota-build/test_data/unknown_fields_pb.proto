@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 message A {
-  int32 a = 1;
+  repeated int32 a = 1;
 }
 
 message B {
