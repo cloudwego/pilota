@@ -4,11 +4,15 @@ use super::super::parser::*;
 use crate::{Annotation, Namespace, Scope};
 
 impl Namespace {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, Namespace, extra::Err<Rich<'a, char>>> {
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Namespace, extra::Err<Rich<'a, char>>> {
         just("namespace")
             .ignore_then(Scope::parse().padded_by(blank()))
             .then(Path::parse())
-            .then(Annotation::parse().or_not().padded_by(blank().or_not()))
+            .then(
+                Annotation::get_parser()
+                    .or_not()
+                    .padded_by(blank().or_not()),
+            )
             .then_ignore(list_separator().or_not())
             .map(|((scope, name), annotations)| Namespace {
                 scope,
@@ -39,8 +43,10 @@ mod tests {
 
     #[test]
     fn test_namespace() {
-        let _ = Namespace::parse().parse("namespace * foo.bar").unwrap();
-        let _ = Namespace::parse()
+        let _ = Namespace::get_parser()
+            .parse("namespace * foo.bar")
+            .unwrap();
+        let _ = Namespace::get_parser()
             .parse("namespace py.twisted ThriftTest")
             .unwrap();
     }

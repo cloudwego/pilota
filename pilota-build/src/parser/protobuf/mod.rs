@@ -773,7 +773,7 @@ impl Parser for ProtobufParser {
             files,
             input_files: input_file_ids,
             file_ids_map: file_ids,
-            file_paths: file_paths,
+            file_paths,
         }
     }
 }

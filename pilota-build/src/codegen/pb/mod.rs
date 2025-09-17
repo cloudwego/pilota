@@ -81,9 +81,9 @@ impl ProtobufBackend {
 
                 if let ty::TyKind::Vec(_) = &ty.kind {
                     let encoded_len_fn = if is_arc {
-                        format!("::pilota::pb::encoding::arc_message::encoded_len_repeated")
+                        "::pilota::pb::encoding::arc_message::encoded_len_repeated"
                     } else {
-                        format!("::pilota::pb::encoding::message::encoded_len_repeated")
+                        "::pilota::pb::encoding::message::encoded_len_repeated"
                     };
 
                     match kind {
@@ -671,9 +671,9 @@ impl CodegenBackend for ProtobufBackend {
                         .collect::<Vec<_>>()
                         .join("::");
                     if pkg == "google::protobuf" {
-                        deps_builders.push_str(&format!(
-                            "deps.push(::pilota::pb::descriptor::file_descriptor().clone());\n"
-                        ));
+                        deps_builders.push_str(
+                            "deps.push(::pilota::pb::descriptor::file_descriptor().clone());\n",
+                        );
                     } else if has_include_path && !pkg.is_empty() {
                         let dep_filename = self
                             .file_paths()

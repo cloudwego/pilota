@@ -562,7 +562,7 @@ where
             mods.iter()
                 .map(|(mod_path, items)| {
                     let collect_has_direct = items
-                        .into_iter()
+                        .iter()
                         .into_group_map_by(|CodegenItem { def_id, .. }| {
                             self.node(*def_id).unwrap().file_id
                         })
@@ -651,7 +651,7 @@ where
             }
 
             if this.split {
-                Self::write_split_mod(this, base_dir, p, &def_ids, &mut stream, &mut dup);
+                Self::write_split_mod(this, base_dir, p, def_ids, &mut stream, &mut dup);
             } else {
                 for def_id in def_ids.iter() {
                     this.write_item(&mut stream, *def_id, &mut dup)
