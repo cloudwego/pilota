@@ -5,6 +5,7 @@
 mod annotation;
 mod constant;
 mod enum_;
+pub mod error;
 mod field;
 mod function;
 mod identifier;
@@ -24,7 +25,7 @@ use crate::Ident;
 
 impl Path {
     pub fn parse<'a>() -> impl Parser<'a, &'a str, Path, extra::Err<Rich<'a, char>>> {
-        Ident::parse()
+        Ident::get_parser()
             .separated_by(just('.').padded_by(blank()))
             .at_least(1)
             .collect()
