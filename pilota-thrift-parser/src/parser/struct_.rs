@@ -7,7 +7,7 @@ use super::super::{
 use crate::{Annotation, Field, Ident};
 
 impl Struct {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, Struct, extra::Err<Rich<'a, char>>> {
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Struct, extra::Err<Rich<'a, char>>> {
         just("struct")
             .ignore_then(blank())
             .ignore_then(StructLike::parse())
@@ -35,17 +35,17 @@ impl Exception {
 
 impl StructLike {
     pub fn parse<'a>() -> impl Parser<'a, &'a str, StructLike, extra::Err<Rich<'a, char>>> {
-        Ident::parse()
+        Ident::get_parser()
             .then_ignore(blank().or_not())
             .then_ignore(just("{"))
             .then(
                 blank()
-                    .ignore_then(Field::parse())
+                    .ignore_then(Field::get_parser())
                     .repeated()
                     .collect::<Vec<_>>(),
             )
             .then_ignore(just("}").padded_by(blank().or_not()))
-            .then(Annotation::parse().or_not())
+            .then(Annotation::get_parser().or_not())
             .then_ignore(list_separator().or_not())
             .map(|((name, fields), annotations)| StructLike {
                 name: Ident(name.into()),
@@ -72,7 +72,7 @@ mod tests {
         }
         "#;
 
-        Struct::parse().parse(str).unwrap();
+        Struct::get_parser().parse(str).unwrap();
     }
 
     #[test]
@@ -81,7 +81,7 @@ mod tests {
             // 1
         }
         "#;
-        Struct::parse().parse(str).unwrap();
+        Struct::get_parser().parse(str).unwrap();
     }
 
     #[test]
@@ -90,7 +90,7 @@ mod tests {
             1: string user_id (go.tag = 'json:\"user_id,omitempty\"'),
             2: string __files (go.tag = 'json:\"__files,omitempty\"'),
         }"#;
-        Struct::parse().parse(str).unwrap();
+        Struct::get_parser().parse(str).unwrap();
     }
 
     #[test]
@@ -99,6 +99,6 @@ mod tests {
             1: required string(pilota.annotation="test") Service,      // required service
             2: required bytet_i.Injection Injection,
         }"#;
-        Struct::parse().parse(str).unwrap();
+        Struct::get_parser().parse(str).unwrap();
     }
 }

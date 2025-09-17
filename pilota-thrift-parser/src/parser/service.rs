@@ -4,25 +4,25 @@ use super::super::{descriptor::Service, parser::*};
 use crate::{Annotation, Function, Ident};
 
 impl Service {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, Service, extra::Err<Rich<'a, char>>> {
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Service, extra::Err<Rich<'a, char>>> {
         let extends = just("extends")
             .padded_by(blank())
             .ignore_then(Path::parse());
         let functions = blank()
             .or_not()
-            .ignore_then(Function::parse())
+            .ignore_then(Function::get_parser())
             .repeated()
             .collect::<Vec<_>>();
 
         just("service")
             .ignore_then(blank())
-            .ignore_then(Ident::parse())
+            .ignore_then(Ident::get_parser())
             .then(extends.or_not())
             .then_ignore(blank().or_not())
             .then_ignore(just("{"))
             .then(functions)
             .then_ignore(just("}").padded_by(blank().or_not()))
-            .then(Annotation::parse().or_not())
+            .then(Annotation::get_parser().or_not())
             .then_ignore(list_separator().or_not())
             .map(|(((name, extends), functions), annotations)| Service {
                 name: Ident(name.into()),
@@ -38,7 +38,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_service() {
-        let _ = Service::parse().parse(
+        let _ = Service::get_parser().parse(
             r#"service ComplexService {
 
                         /**
@@ -70,7 +70,7 @@ mod tests {
 
     #[test]
     fn test_service2() {
-        let _ = Service::parse()
+        let _ = Service::get_parser()
             .parse(
                 r#"service Test {
                             Err test_enum(1: Ok req);
