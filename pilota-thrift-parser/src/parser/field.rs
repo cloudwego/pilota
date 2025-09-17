@@ -7,7 +7,7 @@ use super::super::{
 use crate::{Annotation, ConstValue, Type};
 
 impl Attribute {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, Attribute, extra::Err<Rich<'a, char>>> {
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Attribute, extra::Err<Rich<'a, char>>> {
         choice((
             just("required").to(Attribute::Required),
             just("optional").to(Attribute::Optional),
@@ -16,20 +16,24 @@ impl Attribute {
 }
 
 impl Field {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, Field, extra::Err<Rich<'a, char>>> {
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Field, extra::Err<Rich<'a, char>>> {
         // 1: required i32 name = 123;
         text::int(10)
             .then_ignore(just(":").padded_by(blank().or_not()))
-            .then(Attribute::parse().or_not())
-            .then(Type::parse().padded_by(blank().or_not()))
-            .then(Ident::parse())
+            .then(Attribute::get_parser().or_not())
+            .then(Type::get_parser().padded_by(blank().or_not()))
+            .then(Ident::get_parser())
             .then(
                 just("=")
                     .padded_by(blank().or_not())
-                    .ignore_then(ConstValue::parse())
+                    .ignore_then(ConstValue::get_parser())
                     .or_not(),
             )
-            .then(Annotation::parse().or_not().padded_by(blank().or_not()))
+            .then(
+                Annotation::get_parser()
+                    .or_not()
+                    .padded_by(blank().or_not()),
+            )
             .then_ignore(list_separator().or_not())
             .map(
                 |(((((id, attribute), r#type), name), value), annotations)| Field {
@@ -51,21 +55,21 @@ mod tests {
 
     #[test]
     fn test_field() {
-        let _f = Field::parse()
+        let _f = Field::get_parser()
             .parse(r#"1: required string(foo="1", bar='2') LogID = "xxx" (foo = '1', bar="2"),"#)
             .unwrap();
     }
 
     #[test]
     fn test_field2() {
-        let _f = Field::parse()
+        let _f = Field::get_parser()
             .parse(r#"1: set<i64> Ids (go.tag = "json:\"Ids\" split:\"type=tenant\""),"#)
             .unwrap();
     }
 
     #[test]
     fn test_field3() {
-        let _f = Field::parse()
+        let _f = Field::get_parser()
             .parse(r#"2: required bytet_i.Injection Injection,"#)
             .unwrap();
     }
