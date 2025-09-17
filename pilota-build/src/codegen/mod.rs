@@ -644,11 +644,10 @@ where
                     }
                 }
 
-                // 2.3 items
-                if this.config.split {
-                    Self::write_split_mod(this, base_dir, mod_path, items, &mut stream, &mut dup);
+                if this.split {
+                    Self::write_split_mod(this, base_dir, p, &def_ids, &mut stream, &mut dup);
                 } else {
-                    for def_id in items.iter() {
+                    for def_id in def_ids.iter() {
                         this.write_item(&mut stream, *def_id, &mut dup)
                     }
                 }

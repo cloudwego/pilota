@@ -63,8 +63,7 @@ const Numberz myNumberz = Numberz.ONE;
 
 typedef i64 UserId
 
-struct Bonk
-{
+struct Bonk {
   1: string message,
   2: i32 type
 }

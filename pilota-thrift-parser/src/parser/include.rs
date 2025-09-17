@@ -7,7 +7,7 @@ use super::super::{
 use crate::Literal;
 
 impl Include {
-    pub fn parse<'a>() -> impl Parser<'a, &'a str, Include, extra::Err<Rich<'a, char>>> {
+    pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Include, extra::Err<Rich<'a, char>>> {
         just("include")
             .ignore_then(blank())
             .ignore_then(Literal::parse())
@@ -24,7 +24,7 @@ impl CppInclude {
             .ignore_then(Literal::parse())
             .then_ignore(blank().or_not())
             .then_ignore(list_separator().or_not())
-            .map(|path| CppInclude(path))
+            .map(CppInclude)
     }
 }
 
@@ -35,7 +35,7 @@ mod tests {
 
     #[test]
     fn test_include() {
-        let _f = Include::parse()
+        let _f = Include::get_parser()
             .parse(r#"include "shared.thrift""#)
             .unwrap();
     }
