@@ -14,19 +14,19 @@ pub mod unknown_fields_pb_new {
         PartialEq,
     )]
     pub struct A {
-        pub a: i32,
+        pub a: ::std::vec::Vec<i32>,
         pub _unknown_fields: ::pilota::BytesVec,
     }
     impl ::pilota::pb::Message for A {
         #[inline]
         fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-            0 + ::pilota::pb::encoding::int32::encoded_len(ctx, 1, &self.a)
+            0 + ::pilota::pb::encoding::int32::encoded_len_repeated(ctx, 1, &self.a)
                 + self._unknown_fields.size()
         }
 
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-            ::pilota::pb::encoding::int32::encode(1, &self.a, buf);
+            ::pilota::pb::encoding::int32::encode_repeated(1, &self.a, buf);
             for bytes in self._unknown_fields.list.iter() {
                 buf.insert(bytes.clone());
             }
@@ -43,29 +43,20 @@ pub mod unknown_fields_pb_new {
         ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
             const STRUCT_NAME: &'static str = stringify!(A);
             let mut _unknown_fields = &mut self._unknown_fields;
-            // short circuit
-            if is_root && !matches!(tag, 1) && ctx.root_decoded_fields_num() == 1 {
-                // advance buf
-                let cur = buf.chunk().as_ptr();
-                let len = ctx.raw_bytes_len() - (cur as usize - ctx.raw_bytes_cursor());
-                buf.advance(len);
 
-                // read rest bytes
-                let val = ctx.raw_bytes_split_to(ctx.raw_bytes_len());
-                _unknown_fields.push_back(val);
-                return Ok(());
-            }
             match tag {
                 1 => {
-                    if is_root {
-                        ctx.inc_root_decoded_fields_num(tag);
-                    }
                     let mut _inner_pilota_value = &mut self.a;
-                    ::pilota::pb::encoding::int32::merge(wire_type, _inner_pilota_value, buf, ctx)
-                        .map_err(|mut error| {
-                            error.push(STRUCT_NAME, stringify!(a));
-                            error
-                        })
+                    ::pilota::pb::encoding::int32::merge_repeated(
+                        wire_type,
+                        _inner_pilota_value,
+                        buf,
+                        ctx,
+                    )
+                    .map_err(|mut error| {
+                        error.push(STRUCT_NAME, stringify!(a));
+                        error
+                    })
                 }
                 _ => {
                     ::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx)?;

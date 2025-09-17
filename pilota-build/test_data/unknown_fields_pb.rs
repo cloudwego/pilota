@@ -13,13 +13,13 @@ pub mod unknown_fields_pb {
         PartialEq,
     )]
     pub struct A {
-        pub a: i32,
+        pub a: ::std::vec::Vec<i32>,
         pub _unknown_fields: ::pilota::BytesVec,
     }
     impl ::pilota::prost::Message for A {
         #[inline]
         fn encoded_len(&self) -> usize {
-            0 + ::pilota::prost::encoding::int32::encoded_len(1, &self.a)
+            0 + ::pilota::prost::encoding::int32::encoded_len_repeated(1, &self.a)
                 + self._unknown_fields.size()
         }
 
@@ -28,7 +28,7 @@ pub mod unknown_fields_pb {
         where
             B: ::pilota::prost::bytes::BufMut,
         {
-            ::pilota::prost::encoding::int32::encode(1, &self.a, buf);
+            ::pilota::prost::encoding::int32::encode_repeated(1, &self.a, buf);
             for bytes in self._unknown_fields.list.iter() {
                 buf.put_slice(bytes.as_ref());
             }
@@ -51,7 +51,7 @@ pub mod unknown_fields_pb {
             match tag {
                 1 => {
                     let mut _inner_pilota_value = &mut self.a;
-                    ::pilota::prost::encoding::int32::merge(
+                    ::pilota::prost::encoding::int32::merge_repeated(
                         wire_type,
                         _inner_pilota_value,
                         buf,
