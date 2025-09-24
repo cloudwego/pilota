@@ -44,21 +44,39 @@ pub fn list_separator<'a>() -> impl Parser<'a, &'a str, char, extra::Err<Rich<'a
 }
 
 pub fn blank<'a>() -> impl Parser<'a, &'a str, (), extra::Err<Rich<'a, char>>> {
+    one_of(" \t\r\n").repeated().ignored()
+}
+
+pub fn comment<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, char>>> {
     choice((
         just("//")
-            .then(any().and_is(just('\n').not()).repeated())
-            .ignored(),
+            .then(
+                any()
+                    .and_is(just('\n').not())
+                    .repeated()
+                    .collect::<String>(),
+            )
+            .then(just("\n").or_not())
+            .map(|((start, content), end)| format!("{}{}{}", start, content, end.unwrap_or("\n"))),
         just("#")
-            .then(any().and_is(just('\n').not()).repeated())
-            .ignored(),
+            .then(
+                any()
+                    .and_is(just('\n').not())
+                    .repeated()
+                    .collect::<String>(),
+            )
+            .then(just("\n").or_not())
+            .map(|((start, content), end)| format!("{}{}{}", start, content, end.unwrap_or("\n"))),
         just("/*")
-            .then(any().and_is(just("*/").not()).repeated())
+            .then(
+                any()
+                    .and_is(just("*/").not())
+                    .repeated()
+                    .collect::<String>(),
+            )
             .then(just("*/"))
-            .ignored(),
-        one_of(" \t\r\n").ignored(),
+            .map(|((start, content), end)| format!("{}{}{}", start, content, end)),
     ))
-    .repeated()
-    .ignored()
 }
 
 pub fn not_alphanumeric_or_underscore<'a>()
