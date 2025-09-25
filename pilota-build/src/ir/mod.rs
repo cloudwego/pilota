@@ -102,6 +102,7 @@ pub struct ExceptionVariant {
 
 #[derive(Clone, Debug)]
 pub struct Method {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub args: Vec<Arg>,
     pub ret: Ty,
@@ -112,6 +113,7 @@ pub struct Method {
 
 #[derive(Clone, Debug)]
 pub struct Service {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub methods: Vec<Method>,
     pub extend: Vec<Path>,
@@ -119,6 +121,7 @@ pub struct Service {
 
 #[derive(Clone, Debug)]
 pub struct Const {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub ty: Ty,
     pub lit: Literal,
@@ -132,6 +135,7 @@ pub enum FieldKind {
 
 #[derive(Clone, Debug)]
 pub struct Field {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub id: i32,
     pub ty: Ty,
@@ -142,6 +146,7 @@ pub struct Field {
 
 #[derive(Clone, Debug)]
 pub struct Message {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub fields: Vec<Field>,
     pub is_wrapper: bool,
@@ -150,6 +155,7 @@ pub struct Message {
 
 #[derive(Clone, Debug)]
 pub struct EnumVariant {
+    pub comments: Arc<String>,
     pub id: Option<i32>,
     pub name: Ident,
     pub discr: Option<i64>,
@@ -159,6 +165,7 @@ pub struct EnumVariant {
 
 #[derive(Clone, Debug)]
 pub struct Enum {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub variants: Vec<EnumVariant>,
     pub repr: Option<EnumRepr>,
@@ -166,6 +173,7 @@ pub struct Enum {
 
 #[derive(Clone, Debug)]
 pub struct NewType {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub ty: Ty,
 }
