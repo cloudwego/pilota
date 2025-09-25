@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use chumsky::prelude::*;
 
 use super::super::{
@@ -23,9 +25,11 @@ impl Function {
             .then_ignore(blank().or_not())
             .then_ignore(just(")"));
 
-        just("oneway")
-            .then_ignore(blank())
-            .or_not()
+        comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(blank().or_not())
+            .then(just("oneway").then_ignore(blank()).or_not())
             .then(Type::get_parser())
             .then_ignore(blank())
             .then(Ident::get_parser())
@@ -38,7 +42,7 @@ impl Function {
             .then(Annotation::get_parser().or_not())
             .then_ignore(list_separator().or_not())
             .map(
-                |(((((oneway, r#type), name), arguments), throws), annotations)| {
+                |((((((comments, oneway), r#type), name), arguments), throws), annotations)| {
                     let ow = oneway.is_some();
                     let mut args = arguments.unwrap_or_default();
                     args.iter_mut().for_each(|f| {
@@ -47,6 +51,7 @@ impl Function {
                         }
                     });
                     Function {
+                        comments: Arc::new(comments.join("\n\n")),
                         name: Ident(name.into()),
                         oneway: ow,
                         result_type: r#type,

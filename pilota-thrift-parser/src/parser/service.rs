@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use chumsky::prelude::*;
 
 use super::super::{descriptor::Service, parser::*};
@@ -14,9 +16,13 @@ impl Service {
             .repeated()
             .collect::<Vec<_>>();
 
-        just("service")
-            .ignore_then(blank())
-            .ignore_then(Ident::get_parser())
+        comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(blank().or_not())
+            .then_ignore(just("service"))
+            .then_ignore(blank())
+            .then(Ident::get_parser())
             .then(extends.or_not())
             .then_ignore(blank().or_not())
             .then_ignore(just("{"))
@@ -24,12 +30,15 @@ impl Service {
             .then_ignore(just("}").padded_by(blank().or_not()))
             .then(Annotation::get_parser().or_not())
             .then_ignore(list_separator().or_not())
-            .map(|(((name, extends), functions), annotations)| Service {
-                name: Ident(name.into()),
-                extends,
-                functions,
-                annotations: annotations.unwrap_or_default(),
-            })
+            .map(
+                |((((comments, name), extends), functions), annotations)| Service {
+                    comments: Arc::new(comments.join("\n\n")),
+                    name: Ident(name.into()),
+                    extends,
+                    functions,
+                    annotations: annotations.unwrap_or_default(),
+                },
+            )
     }
 }
 
@@ -39,7 +48,8 @@ mod tests {
     #[test]
     fn test_service() {
         let _ = Service::get_parser().parse(
-            r#"service ComplexService {
+            r#"
+            service ComplexService {
 
                         /**
                          * 函数1: processUserData

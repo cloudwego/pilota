@@ -56,8 +56,8 @@ pub fn comment<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, cha
                     .repeated()
                     .collect::<String>(),
             )
-            .then(just("\n").or_not())
-            .map(|((start, content), end)| format!("{}{}{}", start, content, end.unwrap_or("\n"))),
+            .padded_by(blank().or_not())
+            .map(|(start, content)| format!("{}{}", start, content)),
         just("#")
             .then(
                 any()
@@ -65,8 +65,8 @@ pub fn comment<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, cha
                     .repeated()
                     .collect::<String>(),
             )
-            .then(just("\n").or_not())
-            .map(|((start, content), end)| format!("{}{}{}", start, content, end.unwrap_or("\n"))),
+            .padded_by(blank().or_not())
+            .map(|(start, content)| format!("{}{}", start, content)),
         just("/*")
             .then(
                 any()
@@ -75,8 +75,27 @@ pub fn comment<'a>() -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, cha
                     .collect::<String>(),
             )
             .then(just("*/"))
+            .padded_by(blank().or_not())
             .map(|((start, content), end)| format!("{}{}{}", start, content, end)),
     ))
+}
+
+pub fn blank_with_comments<'a>() -> impl Parser<'a, &'a str, (), extra::Err<Rich<'a, char>>> {
+    choice((
+        just("//")
+            .then(any().and_is(just('\n').not()).repeated())
+            .ignored(),
+        just("#")
+            .then(any().and_is(just('\n').not()).repeated())
+            .ignored(),
+        just("/*")
+            .then(any().and_is(just("*/").not()).repeated())
+            .then(just("*/"))
+            .ignored(),
+        one_of(" \t\r\n").ignored(),
+    ))
+    .repeated()
+    .ignored()
 }
 
 pub fn not_alphanumeric_or_underscore<'a>()

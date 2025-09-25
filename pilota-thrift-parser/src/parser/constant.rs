@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use chumsky::prelude::*;
 
 use super::super::{
@@ -54,20 +56,27 @@ impl ConstValue {
 
 impl Constant {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Constant, extra::Err<Rich<'a, char>>> {
-        just("const")
-            .ignore_then(Type::get_parser().padded_by(blank()))
+        comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(blank().or_not())
+            .then_ignore(just("const"))
+            .then(Type::get_parser().padded_by(blank()))
             .then(Ident::get_parser())
             .then_ignore(just("=").padded_by(blank().or_not()))
             .then(ConstValue::get_parser())
             .then_ignore(blank().or_not())
             .then(Annotation::get_parser().or_not())
             .then_ignore(list_separator().padded_by(blank().or_not()).or_not())
-            .map(|(((r#type, name), value), annotations)| Constant {
-                name: Ident(name.into()),
-                r#type,
-                value,
-                annotations: annotations.unwrap_or_default(),
-            })
+            .map(
+                |((((comments, r#type), name), value), annotations)| Constant {
+                    comments: Arc::new(comments.join("\n\n")),
+                    name: Ident(name.into()),
+                    r#type,
+                    value,
+                    annotations: annotations.unwrap_or_default(),
+                },
+            )
     }
 }
 

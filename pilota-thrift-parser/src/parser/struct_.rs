@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use chumsky::prelude::*;
 
 use super::super::{
@@ -8,28 +10,49 @@ use crate::{Annotation, Field, Ident};
 
 impl Struct {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Struct, extra::Err<Rich<'a, char>>> {
-        just("struct")
-            .ignore_then(blank())
-            .ignore_then(StructLike::parse())
-            .map(Struct)
+        comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(blank().or_not())
+            .then_ignore(just("struct"))
+            .then_ignore(blank())
+            .then(StructLike::parse())
+            .map(|(comments, struct_like)| Struct {
+                comments: Arc::new(comments.join("\n\n")),
+                struct_like,
+            })
     }
 }
 
 impl Union {
     pub fn parse<'a>() -> impl Parser<'a, &'a str, Union, extra::Err<Rich<'a, char>>> {
-        just("union")
-            .ignore_then(blank())
-            .ignore_then(StructLike::parse())
-            .map(Union)
+        comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(blank().or_not())
+            .then_ignore(just("union"))
+            .then_ignore(blank())
+            .then(StructLike::parse())
+            .map(|(comments, struct_like)| Union {
+                comments: Arc::new(comments.join("\n\n")),
+                struct_like,
+            })
     }
 }
 
 impl Exception {
     pub fn parse<'a>() -> impl Parser<'a, &'a str, Exception, extra::Err<Rich<'a, char>>> {
-        just("exception")
-            .ignore_then(blank())
-            .ignore_then(StructLike::parse())
-            .map(Exception)
+        comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(blank().or_not())
+            .then_ignore(just("exception"))
+            .then_ignore(blank())
+            .then(StructLike::parse())
+            .map(|(comments, struct_like)| Exception {
+                comments: Arc::new(comments.join("\n\n")),
+                struct_like,
+            })
     }
 }
 
@@ -44,7 +67,7 @@ impl StructLike {
                     .repeated()
                     .collect::<Vec<_>>(),
             )
-            .then_ignore(just("}").padded_by(blank().or_not()))
+            .then_ignore(just("}").padded_by(blank_with_comments().or_not()))
             .then(Annotation::get_parser().or_not())
             .then_ignore(list_separator().or_not())
             .map(|((name, fields), annotations)| StructLike {
@@ -86,7 +109,8 @@ mod tests {
 
     #[test]
     fn test_tag() {
-        let str = r#"struct ImMsgContent {
+        let str = r#"
+        struct ImMsgContent {
             1: string user_id (go.tag = 'json:\"user_id,omitempty\"'),
             2: string __files (go.tag = 'json:\"__files,omitempty\"'),
         }"#;

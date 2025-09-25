@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use super::{Annotations, ConstValue, Ident, Type};
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -10,6 +12,7 @@ pub enum Attribute {
 
 #[derive(Debug, Clone)]
 pub struct Field {
+    pub comments: Arc<String>,
     pub id: i32,
     pub name: Ident,
     pub attribute: Attribute,

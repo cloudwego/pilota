@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use chumsky::prelude::*;
 
 use super::super::{
@@ -17,8 +19,11 @@ impl Attribute {
 
 impl Field {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Field, extra::Err<Rich<'a, char>>> {
-        // 1: required i32 name = 123;
-        text::int(10)
+        comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(blank().or_not())
+            .then(text::int(10))
             .then_ignore(just(":").padded_by(blank().or_not()))
             .then(Attribute::get_parser().or_not())
             .then(Type::get_parser().padded_by(blank().or_not()))
@@ -36,7 +41,8 @@ impl Field {
             )
             .then_ignore(list_separator().or_not())
             .map(
-                |(((((id, attribute), r#type), name), value), annotations)| Field {
+                |((((((comments, id), attribute), r#type), name), value), annotations)| Field {
+                    comments: Arc::new(comments.join("\n\n")),
                     id: id.parse().unwrap(),
                     attribute: attribute.unwrap_or_default(),
                     ty: r#type,

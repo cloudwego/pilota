@@ -188,15 +188,10 @@ impl std::error::Error for CustomSyntaxError {}
 
 impl File {
     pub(crate) fn get_parser<'a>() -> impl Parser<'a, &'a str, File, extra::Err<Rich<'a, char>>> {
-        let item_or_none = blank()
-            .or_not()
-            .ignore_then(Item::parse())
-            .then_ignore(blank().or_not());
-
-        item_or_none
+        Item::parse()
             .repeated()
             .collect()
-            .then_ignore(blank().or_not())
+            .then_ignore(blank_with_comments())
             .then_ignore(end())
             .map(|items: Vec<Item>| {
                 let mut file = File {
@@ -367,6 +362,45 @@ service Service {
 
         # comment 2
         "#;
+        let (file, errs) = File::get_parser().parse(body).into_output_errors();
+        println!("{file:#?}");
+        errs.into_iter().for_each(|e| {
+            Report::build(ReportKind::Error, ("test.thrift", e.span().into_range()))
+                .with_config(ariadne::Config::new().with_index_type(ariadne::IndexType::Byte))
+                .with_message(e.to_string())
+                .with_label(
+                    Label::new(("test.thrift", e.span().into_range()))
+                        .with_message(e.reason().to_string())
+                        .with_color(Color::Red),
+                )
+                .finish()
+                .print(("test.thrift", Source::from(body)))
+                .unwrap()
+        });
+    }
+
+    #[test]
+    fn test_enum() {
+        let body = r#"
+struct TEST {
+    1: required string ID,
+}(pilota.name="Test2")
+
+const string id = "id" (pilota.name="LANG_ID");
+
+struct Test {
+    1: required string ID,
+    2: required string Id (pilota.name="hello"),
+}(pilota.name="Test1")
+
+enum Index {
+    A (pilota.name="AA"),
+    B,
+}
+
+service TestService {
+    Test test(1: TEST req);
+}"#;
         let (file, errs) = File::get_parser().parse(body).into_output_errors();
         println!("{file:#?}");
         errs.into_iter().for_each(|e| {

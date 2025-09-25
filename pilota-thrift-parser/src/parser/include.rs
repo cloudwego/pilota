@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use chumsky::prelude::*;
 
 use super::super::{
@@ -8,23 +10,37 @@ use crate::Literal;
 
 impl Include {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Include, extra::Err<Rich<'a, char>>> {
-        just("include")
-            .ignore_then(blank())
-            .ignore_then(Literal::parse())
+        comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(blank().or_not())
+            .then_ignore(just("include"))
+            .then_ignore(blank())
+            .then(Literal::parse())
             .then_ignore(blank().or_not())
             .then_ignore(list_separator().or_not())
-            .map(|path| Include { path })
+            .map(|(comments, path)| Include {
+                comments: Arc::new(comments.join("\n\n")),
+                path,
+            })
     }
 }
 
 impl CppInclude {
     pub fn parse<'a>() -> impl Parser<'a, &'a str, CppInclude, extra::Err<Rich<'a, char>>> {
-        just("cpp_include")
-            .ignore_then(blank())
-            .ignore_then(Literal::parse())
+        comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(blank().or_not())
+            .then_ignore(just("cpp_include"))
+            .then_ignore(blank())
+            .then(Literal::parse())
             .then_ignore(blank().or_not())
             .then_ignore(list_separator().or_not())
-            .map(CppInclude)
+            .map(|(comments, path)| CppInclude {
+                comments: Arc::new(comments.join("\n\n")),
+                path,
+            })
     }
 }
 

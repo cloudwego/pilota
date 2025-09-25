@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use chumsky::prelude::*;
 
 use super::super::parser::*;
@@ -5,8 +7,13 @@ use crate::{Annotation, Namespace, Scope};
 
 impl Namespace {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Namespace, extra::Err<Rich<'a, char>>> {
-        just("namespace")
-            .ignore_then(Scope::parse().padded_by(blank()))
+        comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(blank().or_not())
+            .then_ignore(just("namespace"))
+            .then_ignore(blank())
+            .then(Scope::parse().padded_by(blank()))
             .then(Path::parse())
             .then(
                 Annotation::get_parser()
@@ -14,7 +21,8 @@ impl Namespace {
                     .padded_by(blank().or_not()),
             )
             .then_ignore(list_separator().or_not())
-            .map(|((scope, name), annotations)| Namespace {
+            .map(|(((comments, scope), name), annotations)| Namespace {
+                comments: Arc::new(comments.join("\n\n")),
                 scope,
                 name,
                 annotations,

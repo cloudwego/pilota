@@ -15,6 +15,7 @@ pub enum ConstValue {
 
 #[derive(Debug)]
 pub struct Constant {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub r#type: Type,
     pub value: ConstValue,
