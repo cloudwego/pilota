@@ -375,7 +375,10 @@ impl Resolver {
             kind = FieldKind::Optional;
         }
 
+        let comments = f.comments.clone();
+
         let f = Arc::from(Field {
+            comments,
             did,
             id: f.id,
             kind,
@@ -592,6 +595,7 @@ impl Resolver {
     #[tracing::instrument(level = "debug", skip(self, s), fields(name = &**s.name))]
     fn lower_message(&mut self, s: &ir::Message) -> Message {
         Message {
+            comments: s.comments.clone(),
             name: s.name.clone(),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
             is_wrapper: s.is_wrapper,
@@ -606,6 +610,7 @@ impl Resolver {
     fn lower_enum(&mut self, e: &ir::Enum) -> Enum {
         let mut next_discr = 0;
         Enum {
+            comments: e.comments.clone(),
             name: e.name.clone(),
             variants: e
                 .variants
@@ -618,6 +623,7 @@ impl Resolver {
                     }
                     let discr = v.discr.unwrap_or(next_discr);
                     let e = Arc::from(EnumVariant {
+                        comments: v.comments.clone(),
                         id: v.id,
                         did,
                         name: v.name.clone(),
@@ -647,6 +653,7 @@ impl Resolver {
 
     fn lower_service(&mut self, s: &ir::Service) -> Service {
         Service {
+            comments: s.comments.clone(),
             name: s.name.clone(),
             methods: s
                 .methods
@@ -657,6 +664,7 @@ impl Resolver {
                     self.tags.insert(tags_id, m.tags.clone());
                     let old_parent = self.parent_node.replace(def_id);
                     let method = Arc::from(Method {
+                        comments: m.comments.clone(),
                         def_id,
                         source: MethodSource::Own,
                         name: m.name.clone(),
@@ -711,6 +719,7 @@ impl Resolver {
 
     fn lower_type_alias(&mut self, t: &ir::NewType, tags: &Tags) -> NewType {
         NewType {
+            comments: t.comments.clone(),
             name: t.name.clone(),
             ty: {
                 let ty = self.lower_type(&t.ty, false);
@@ -737,6 +746,7 @@ impl Resolver {
 
     fn lower_const(&mut self, c: &ir::Const, tags: &Tags) -> Const {
         Const {
+            comments: c.comments.clone(),
             name: c.name.clone(),
             ty: {
                 let ty = self.lower_type(&c.ty, false);

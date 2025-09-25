@@ -78,6 +78,7 @@ pub enum MethodSource {
 }
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Method {
+    pub comments: Arc<String>,
     pub def_id: DefId,
     pub name: Ident,
     pub args: Vec<Arc<Arg>>,
@@ -89,6 +90,7 @@ pub struct Method {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Service {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub methods: Vec<Arc<Method>>,
     pub extend: Vec<Path>,
@@ -96,6 +98,7 @@ pub struct Service {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Const {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub ty: Ty,
     pub lit: Literal,
@@ -109,6 +112,7 @@ pub enum FieldKind {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Field {
+    pub comments: Arc<String>,
     pub did: DefId,
     pub name: Ident,
     pub id: i32,
@@ -130,6 +134,7 @@ impl Field {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Message {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub fields: Vec<Arc<Field>>,
     pub is_wrapper: bool,
@@ -138,6 +143,7 @@ pub struct Message {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct EnumVariant {
+    pub comments: Arc<String>,
     pub id: Option<i32>,
     pub did: DefId,
     pub name: Ident,
@@ -147,6 +153,7 @@ pub struct EnumVariant {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Enum {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub variants: Vec<Arc<EnumVariant>>,
     pub repr: Option<EnumRepr>,
@@ -154,6 +161,7 @@ pub struct Enum {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct NewType {
+    pub comments: Arc<String>,
     pub name: Ident,
     pub ty: Ty,
 }
