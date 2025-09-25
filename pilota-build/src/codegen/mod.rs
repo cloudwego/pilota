@@ -124,8 +124,12 @@ where
                         ""
                     };
 
+                    let comment = f.comments.to_string();
+
                     format! {
-                        r#"{attrs}
+                        r#"
+                        {comment}
+                        {attrs}
                         {deprecated_attr}pub {name}: {ty},"#
                     }
                 })
@@ -170,6 +174,20 @@ where
                     let def_id = item.def_id;
                     let item = self.item(def_id).unwrap();
                     tracing::trace!("write item {}", item.symbol_name());
+
+                    // write prefix comments
+                    let comments = match &*item {
+                        middle::rir::Item::Message(s) => s.comments.to_string(),
+                        middle::rir::Item::Enum(e) => e.comments.to_string(),
+                        middle::rir::Item::Service(s) => s.comments.to_string(),
+                        middle::rir::Item::NewType(t) => t.comments.to_string(),
+                        middle::rir::Item::Const(c) => c.comments.to_string(),
+                        _ => String::new(),
+                    };
+                    if !comments.is_empty() {
+                        stream.push_str(&format!("\n{comments}\n"));
+                    }
+
                     self.with_adjust(def_id, |adjust| {
                         let attrs = adjust.iter().flat_map(|a| a.attrs()).join("\n");
 
@@ -385,8 +403,11 @@ where
                         format!("({fields})")
                     };
 
+                    let comment = v.comments.to_string();
+
                     format!(
-                        r#"{attrs}
+                        r#"{comment}
+                        {attrs}
                         {name} {fields_stream},"#
                     )
                 })
@@ -414,7 +435,10 @@ where
 
         let methods = methods
             .iter()
-            .map(|m| self.backend.codegen_service_method(def_id, m))
+            .map(|m| {
+                let method = self.backend.codegen_service_method(def_id, m);
+                format!("{method}")
+            })
             .join("\n");
 
         let deprecated_attr = if self.is_deprecated(def_id) {

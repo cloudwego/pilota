@@ -7,6 +7,9 @@ pub mod apache {
 
             pub mod test {
 
+                /**
+                 * Docstring!
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
                 #[repr(transparent)]
                 pub struct Numberz(i32);
@@ -570,6 +573,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testI32("%d")' with thing as '%d'
+                 * @param i32 thing - the i32 to print
+                 * @return i32 - returns the i32 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestI32ArgsSend {
                     pub thing: i32,
@@ -735,6 +743,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testSet("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param set<i32> thing - the set<i32> to print
+                 * @return set<i32> - returns the set<i32> 'thing'
+                 */
                 #[derive(Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestSetArgsRecv {
                     pub thing: ::pilota::AHashSet<i32>,
@@ -927,6 +941,15 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                 * @param string arg - a string indicating what type of exception to throw
+                 * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                 * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
+                 * else do not throw anything
+                 * @return Xtruct - an Xtruct with string_thing = arg1
+                 */
+
                 impl ::std::default::Default for ThriftTestTestMultiExceptionException {
                     fn default() -> Self {
                         ThriftTestTestMultiExceptionException::Err1(
@@ -1129,6 +1152,9 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints "testVoid()" and returns nothing.
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestVoidArgsSend {}
                 impl ::pilota::thrift::Message for ThriftTestTestVoidArgsSend {
@@ -1260,6 +1286,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testStruct("{%s}")' where thing has been formatted into a string of comma separated values
+                 * @param Xtruct thing - the Xtruct to print
+                 * @return Xtruct - returns the Xtruct 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestStructArgsRecv {
                     pub thing: Xtruct,
@@ -1430,6 +1461,18 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testMulti()'
+                 * @param i8 arg0 -
+                 * @param i32 arg1 -
+                 * @param i64 arg2 -
+                 * @param map<i16, string> arg3 -
+                 * @param Numberz arg4 -
+                 * @param UserId arg5 -
+                 * @return Xtruct - returns an Xtruct with string_thing = "Hello2, byte_thing = arg0, i32_thing = arg1
+                 *    and i64_thing = arg2
+                 */
+
                 impl ::std::default::Default for ThriftTestTestMultiResultRecv {
                     fn default() -> Self {
                         ThriftTestTestMultiResultRecv::Ok(::std::default::Default::default())
@@ -1437,6 +1480,17 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestMultiResultRecv {
+                    /**
+                     * Prints 'testMulti()'
+                     * @param i8 arg0 -
+                     * @param i32 arg1 -
+                     * @param i64 arg2 -
+                     * @param map<i16, string> arg3 -
+                     * @param Numberz arg4 -
+                     * @param UserId arg5 -
+                     * @return Xtruct - returns an Xtruct with string_thing = "Hello2, byte_thing = arg0, i32_thing = arg1
+                     *    and i64_thing = arg2
+                     */
                     Ok(Xtruct),
                 }
 
@@ -1767,6 +1821,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testI64("%d")' with thing as '%d'
+                 * @param i64 thing - the i64 to print
+                 * @return i64 - returns the i64 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestI64ArgsRecv {
                     pub thing: i64,
@@ -1932,6 +1991,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testEnum("%d")' where thing has been formatted into its numeric value
+                 * @param Numberz thing - the Numberz to print
+                 * @return Numberz - returns the Numberz 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestEnumResultRecv {
                     fn default() -> Self {
                         ThriftTestTestEnumResultRecv::Ok(::std::default::Default::default())
@@ -1939,6 +2004,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestEnumResultRecv {
+                    /**
+                     * Prints 'testEnum("%d")' where thing has been formatted into its numeric value
+                     * @param Numberz thing - the Numberz to print
+                     * @return Numberz - returns the Numberz 'thing'
+                     */
                     Ok(Numberz),
                 }
 
@@ -2082,6 +2152,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testOneway(%d): Sleeping...' with secondsToSleep as '%d'
+                 * sleep 'secondsToSleep'
+                 * Print 'testOneway(%d): done sleeping!' with secondsToSleep as '%d'
+                 * @param i32 secondsToSleep - the number of seconds to sleep
+                 */
+
                 impl ::std::default::Default for ThriftTestTestOnewayResultSend {
                     fn default() -> Self {
                         ThriftTestTestOnewayResultSend::Ok(::std::default::Default::default())
@@ -2089,6 +2166,12 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestOnewayResultSend {
+                    /**
+                     * Print 'testOneway(%d): Sleeping...' with secondsToSleep as '%d'
+                     * sleep 'secondsToSleep'
+                     * Print 'testOneway(%d): done sleeping!' with secondsToSleep as '%d'
+                     * @param i32 secondsToSleep - the number of seconds to sleep
+                     */
                     Ok(()),
                 }
 
@@ -2194,6 +2277,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testString("%s")' with thing as '%s'
+                 * @param string thing - the string to print
+                 * @return string - returns the string 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestStringArgsRecv {
                     pub thing: ::pilota::FastStr,
@@ -2359,6 +2447,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testMap("{%s")' where thing has been formatted into a string of 'key => value' pairs
+                 *  separated by commas and new lines
+                 * @param map<i32,i32> thing - the map<i32,i32> to print
+                 * @return map<i32,i32> - returns the map<i32,i32> 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestMapResultRecv {
                     fn default() -> Self {
                         ThriftTestTestMapResultRecv::Ok(::std::default::Default::default())
@@ -2366,6 +2461,12 @@ pub mod apache {
                 }
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestMapResultRecv {
+                    /**
+                     * Prints 'testMap("{%s")' where thing has been formatted into a string of 'key => value' pairs
+                     *  separated by commas and new lines
+                     * @param map<i32,i32> thing - the map<i32,i32> to print
+                     * @return map<i32,i32> - returns the map<i32,i32> 'thing'
+                     */
                     Ok(::pilota::AHashMap<i32, i32>),
                 }
 
@@ -2780,6 +2881,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testBinary("%s")' where '%s' is a hex-formatted string of thing's data
+                 * @param binary  thing - the binary data to print
+                 * @return binary  - returns the binary 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestBinaryResultRecv {
                     fn default() -> Self {
                         ThriftTestTestBinaryResultRecv::Ok(::std::default::Default::default())
@@ -2787,6 +2894,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestBinaryResultRecv {
+                    /**
+                     * Prints 'testBinary("%s")' where '%s' is a hex-formatted string of thing's data
+                     * @param binary  thing - the binary data to print
+                     * @return binary  - returns the binary 'thing'
+                     */
                     Ok(::pilota::Bytes),
                 }
 
@@ -2930,6 +3042,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testString("%s")' with thing as '%s'
+                 * @param string thing - the string to print
+                 * @return string - returns the string 'thing'
+                 */
+
                 impl ::std::default::Default for SecondServiceSecondtestStringResultSend {
                     fn default() -> Self {
                         SecondServiceSecondtestStringResultSend::Ok(
@@ -2939,6 +3057,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum SecondServiceSecondtestStringResultSend {
+                    /**
+                     * Prints 'testString("%s")' with thing as '%s'
+                     * @param string thing - the string to print
+                     * @return string - returns the string 'thing'
+                     */
                     Ok(::pilota::FastStr),
                 }
 
@@ -3085,6 +3208,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testByte("%d")' with thing as '%d'
+                 * The types i8 and byte are synonyms, use of i8 is encouraged, byte still exists for the sake of compatibility.
+                 * @param byte thing - the i8/byte to print
+                 * @return i8 - returns the i8/byte 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestByteResultRecv {
                     fn default() -> Self {
                         ThriftTestTestByteResultRecv::Ok(::std::default::Default::default())
@@ -3092,6 +3222,12 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestByteResultRecv {
+                    /**
+                     * Prints 'testByte("%d")' with thing as '%d'
+                     * The types i8 and byte are synonyms, use of i8 is encouraged, byte still exists for the sake of compatibility.
+                     * @param byte thing - the i8/byte to print
+                     * @return i8 - returns the i8/byte 'thing'
+                     */
                     Ok(i8),
                 }
 
@@ -3234,6 +3370,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testException(%s)' with arg as '%s'
+                 * @param string arg - a string indication what type of exception to throw
+                 * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
+                 * else if arg == "TException" throw TException
+                 * else do not throw anything
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestExceptionArgsSend {
                     pub arg: ::pilota::FastStr,
@@ -3399,6 +3542,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testMapMap("%d")' with hello as '%d'
+                 * @param i32 hello - the i32 to print
+                 * @return map<i32,map<i32,i32>> - returns a dictionary with these values:
+                 *   {-4 => {-4 => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3, 4 => 4, }, }
+                 */
+
                 impl ::std::default::Default for ThriftTestTestMapMapResultSend {
                     fn default() -> Self {
                         ThriftTestTestMapMapResultSend::Ok(::std::default::Default::default())
@@ -3406,6 +3556,12 @@ pub mod apache {
                 }
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestMapMapResultSend {
+                    /**
+                     * Prints 'testMapMap("%d")' with hello as '%d'
+                     * @param i32 hello - the i32 to print
+                     * @return map<i32,map<i32,i32>> - returns a dictionary with these values:
+                     *   {-4 => {-4 => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3, 4 => 4, }, }
+                     */
                     Ok(::pilota::AHashMap<i32, ::pilota::AHashMap<i32, i32>>),
                 }
 
@@ -3857,6 +4013,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testSet("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param set<i32> thing - the set<i32> to print
+                 * @return set<i32> - returns the set<i32> 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestSetResultSend {
                     fn default() -> Self {
                         ThriftTestTestSetResultSend::Ok(::std::default::Default::default())
@@ -3864,6 +4027,12 @@ pub mod apache {
                 }
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestSetResultSend {
+                    /**
+                     * Prints 'testSet("{%s}")' where thing has been formatted into a string of values
+                     *  separated by commas and new lines
+                     * @param set<i32> thing - the set<i32> to print
+                     * @return set<i32> - returns the set<i32> 'thing'
+                     */
                     Ok(::pilota::AHashSet<i32>),
                 }
 
@@ -4041,6 +4210,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testStruct("{%s}")' where thing has been formatted into a string of comma separated values
+                 * @param Xtruct thing - the Xtruct to print
+                 * @return Xtruct - returns the Xtruct 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestStructResultSend {
                     fn default() -> Self {
                         ThriftTestTestStructResultSend::Ok(::std::default::Default::default())
@@ -4048,6 +4223,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestStructResultSend {
+                    /**
+                     * Prints 'testStruct("{%s}")' where thing has been formatted into a string of comma separated values
+                     * @param Xtruct thing - the Xtruct to print
+                     * @return Xtruct - returns the Xtruct 'thing'
+                     */
                     Ok(Xtruct),
                 }
 
@@ -4632,6 +4812,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testI64("%d")' with thing as '%d'
+                 * @param i64 thing - the i64 to print
+                 * @return i64 - returns the i64 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestI64ResultSend {
                     fn default() -> Self {
                         ThriftTestTestI64ResultSend::Ok(::std::default::Default::default())
@@ -4639,6 +4825,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestI64ResultSend {
+                    /**
+                     * Prints 'testI64("%d")' with thing as '%d'
+                     * @param i64 thing - the i64 to print
+                     * @return i64 - returns the i64 'thing'
+                     */
                     Ok(i64),
                 }
 
@@ -4781,6 +4972,14 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                 * @param string arg - a string indicating what type of exception to throw
+                 * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                 * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
+                 * else do not throw anything
+                 * @return Xtruct - an Xtruct with string_thing = arg1
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestMultiExceptionArgsRecv {
                     pub arg0: ::pilota::FastStr,
@@ -4983,6 +5182,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testString("%s")' with thing as '%s'
+                 * @param string thing - the string to print
+                 * @return string - returns the string 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestStringResultSend {
                     fn default() -> Self {
                         ThriftTestTestStringResultSend::Ok(::std::default::Default::default())
@@ -4990,6 +5195,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestStringResultSend {
+                    /**
+                     * Prints 'testString("%s")' with thing as '%s'
+                     * @param string thing - the string to print
+                     * @return string - returns the string 'thing'
+                     */
                     Ok(::pilota::FastStr),
                 }
 
@@ -5133,6 +5343,17 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testMulti()'
+                 * @param i8 arg0 -
+                 * @param i32 arg1 -
+                 * @param i64 arg2 -
+                 * @param map<i16, string> arg3 -
+                 * @param Numberz arg4 -
+                 * @param UserId arg5 -
+                 * @return Xtruct - returns an Xtruct with string_thing = "Hello2, byte_thing = arg0, i32_thing = arg1
+                 *    and i64_thing = arg2
+                 */
                 #[derive(Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestMultiArgsSend {
                     pub arg0: i8,
@@ -5705,6 +5926,7 @@ pub mod apache {
                 }
                 #[derive(Debug, Clone, PartialEq)]
                 pub struct OptionalBinary {
+                    //1: optional set<binary> bin_set = []
                     pub bin_map: ::std::option::Option<::pilota::AHashMap<::pilota::Bytes, i32>>,
                 }
                 impl ::pilota::thrift::Message for OptionalBinary {
@@ -5912,6 +6134,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testEnum("%d")' where thing has been formatted into its numeric value
+                 * @param Numberz thing - the Numberz to print
+                 * @return Numberz - returns the Numberz 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestEnumArgsSend {
                     pub thing: Numberz,
@@ -6079,6 +6306,13 @@ pub mod apache {
                     }
                 }
                 pub trait ThriftTest {}
+
+                /**
+                 * Prints 'testMap("{%s")' where thing has been formatted into a string of 'key => value' pairs
+                 *  separated by commas and new lines
+                 * @param map<i32,i32> thing - the map<i32,i32> to print
+                 * @return map<i32,i32> - returns the map<i32,i32> 'thing'
+                 */
                 #[derive(Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestMapArgsSend {
                     pub thing: ::pilota::AHashMap<i32, i32>,
@@ -6283,6 +6517,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testBinary("%s")' where '%s' is a hex-formatted string of thing's data
+                 * @param binary  thing - the binary data to print
+                 * @return binary  - returns the binary 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestBinaryArgsSend {
                     pub thing: ::pilota::Bytes,
@@ -6448,6 +6687,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testTypedef("%d")' with thing as '%d'
+                 * @param UserId thing - the UserId to print
+                 * @return UserId - returns the UserId 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestTypedefArgsRecv {
                     pub thing: UserId,
@@ -6619,6 +6863,13 @@ pub mod apache {
                     }
                 }
                 pub trait SecondService {}
+
+                /**
+                 * Prints 'testByte("%d")' with thing as '%d'
+                 * The types i8 and byte are synonyms, use of i8 is encouraged, byte still exists for the sake of compatibility.
+                 * @param byte thing - the i8/byte to print
+                 * @return i8 - returns the i8/byte 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestByteArgsSend {
                     pub thing: i8,
@@ -6784,6 +7035,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testStringMap("{%s}")' where thing has been formatted into a string of 'key => value' pairs
+                 *  separated by commas and new lines
+                 * @param map<string,string> thing - the map<string,string> to print
+                 * @return map<string,string> - returns the map<string,string> 'thing'
+                 */
                 #[derive(Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestStringMapArgsRecv {
                     pub thing: ::pilota::AHashMap<::pilota::FastStr, ::pilota::FastStr>,
@@ -7122,6 +7379,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testUuid("%s")' where '%s' is the uuid given. Note that the uuid byte order should be correct.
+                 * @param uuid  thing - the uuid to print
+                 * @return uuid  - returns the uuid 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestUuidArgsRecv {
                     pub thing: [u8; 16],
@@ -7287,6 +7549,18 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * So you think you've got this all worked out, eh?
+                 *
+                 * Creates a map with these values and prints it out:
+                 *   { 1 => { 2 => argument,
+                 *            3 => argument,
+                 *          },
+                 *     2 => { 6 => <empty Insanity struct>, },
+                 *   }
+                 * @return map<UserId, map<Numberz,Insanity>> - a map with the above values
+                 */
+
                 impl ::std::default::Default for ThriftTestTestInsanityResultRecv {
                     fn default() -> Self {
                         ThriftTestTestInsanityResultRecv::Ok(::std::default::Default::default())
@@ -7294,6 +7568,17 @@ pub mod apache {
                 }
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestInsanityResultRecv {
+                    /**
+                     * So you think you've got this all worked out, eh?
+                     *
+                     * Creates a map with these values and prints it out:
+                     *   { 1 => { 2 => argument,
+                     *            3 => argument,
+                     *          },
+                     *     2 => { 6 => <empty Insanity struct>, },
+                     *   }
+                     * @return map<UserId, map<Numberz,Insanity>> - a map with the above values
+                     */
                     Ok(::pilota::AHashMap<UserId, ::pilota::AHashMap<Numberz, Insanity>>),
                 }
 
@@ -7757,6 +8042,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testI32("%d")' with thing as '%d'
+                 * @param i32 thing - the i32 to print
+                 * @return i32 - returns the i32 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestI32ArgsRecv {
                     pub thing: i32,
@@ -7922,6 +8212,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testList("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param list<i32> thing - the list<i32> to print
+                 * @return list<i32> - returns the list<i32> 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestListResultRecv {
                     fn default() -> Self {
                         ThriftTestTestListResultRecv::Ok(::std::default::Default::default())
@@ -7929,6 +8226,12 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestListResultRecv {
+                    /**
+                     * Prints 'testList("{%s}")' where thing has been formatted into a string of values
+                     *  separated by commas and new lines
+                     * @param list<i32> thing - the list<i32> to print
+                     * @return list<i32> - returns the list<i32> 'thing'
+                     */
                     Ok(::std::vec::Vec<i32>),
                 }
 
@@ -8108,6 +8411,9 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints "testVoid()" and returns nothing.
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestVoidArgsRecv {}
                 impl ::pilota::thrift::Message for ThriftTestTestVoidArgsRecv {
@@ -8239,6 +8545,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testNest("{%s}")' where thing has been formatted into a string of the nested struct
+                 * @param Xtruct2 thing - the Xtruct2 to print
+                 * @return Xtruct2 - returns the Xtruct2 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestNestResultRecv {
                     fn default() -> Self {
                         ThriftTestTestNestResultRecv::Ok(::std::default::Default::default())
@@ -8246,6 +8558,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestNestResultRecv {
+                    /**
+                     * Prints 'testNest("{%s}")' where thing has been formatted into a string of the nested struct
+                     * @param Xtruct2 thing - the Xtruct2 to print
+                     * @return Xtruct2 - returns the Xtruct2 'thing'
+                     */
                     Ok(Xtruct2),
                 }
 
@@ -8393,6 +8710,9 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                // the following is expected to fail:
+
+                // const Numberz urNumberz = ONE;
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct UserId(pub i64);
 
@@ -8624,6 +8944,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testDouble("%f")' with thing as '%f'
+                 * @param double thing - the double to print
+                 * @return double - returns the double 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestDoubleResultRecv {
                     fn default() -> Self {
                         ThriftTestTestDoubleResultRecv::Ok(::std::default::Default::default())
@@ -8631,6 +8957,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestDoubleResultRecv {
+                    /**
+                     * Prints 'testDouble("%f")' with thing as '%f'
+                     * @param double thing - the double to print
+                     * @return double - returns the double 'thing'
+                     */
                     Ok(f64),
                 }
 
@@ -8774,6 +9105,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testBool("%s")' where '%s' with thing as 'true' or 'false'
+                 * @param bool  thing - the bool data to print
+                 * @return bool  - returns the bool 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestBoolResultRecv {
                     fn default() -> Self {
                         ThriftTestTestBoolResultRecv::Ok(::std::default::Default::default())
@@ -8781,6 +9118,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestBoolResultRecv {
+                    /**
+                     * Prints 'testBool("%s")' where '%s' with thing as 'true' or 'false'
+                     * @param bool  thing - the bool data to print
+                     * @return bool  - returns the bool 'thing'
+                     */
                     Ok(bool),
                 }
 
@@ -9171,6 +9513,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testTypedef("%d")' with thing as '%d'
+                 * @param UserId thing - the UserId to print
+                 * @return UserId - returns the UserId 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestTypedefResultSend {
                     fn default() -> Self {
                         ThriftTestTestTypedefResultSend::Ok(::std::default::Default::default())
@@ -9178,6 +9526,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestTypedefResultSend {
+                    /**
+                     * Prints 'testTypedef("%d")' with thing as '%d'
+                     * @param UserId thing - the UserId to print
+                     * @return UserId - returns the UserId 'thing'
+                     */
                     Ok(UserId),
                 }
 
@@ -9327,6 +9680,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testStringMap("{%s}")' where thing has been formatted into a string of 'key => value' pairs
+                 *  separated by commas and new lines
+                 * @param map<string,string> thing - the map<string,string> to print
+                 * @return map<string,string> - returns the map<string,string> 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestStringMapResultSend {
                     fn default() -> Self {
                         ThriftTestTestStringMapResultSend::Ok(::std::default::Default::default())
@@ -9334,6 +9694,12 @@ pub mod apache {
                 }
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestStringMapResultSend {
+                    /**
+                     * Prints 'testStringMap("{%s}")' where thing has been formatted into a string of 'key => value' pairs
+                     *  separated by commas and new lines
+                     * @param map<string,string> thing - the map<string,string> to print
+                     * @return map<string,string> - returns the map<string,string> 'thing'
+                     */
                     Ok(::pilota::AHashMap<::pilota::FastStr, ::pilota::FastStr>),
                 }
 
@@ -9529,6 +9895,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testException(%s)' with arg as '%s'
+                 * @param string arg - a string indication what type of exception to throw
+                 * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
+                 * else if arg == "TException" throw TException
+                 * else do not throw anything
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestExceptionArgsRecv {
                     pub arg: ::pilota::FastStr,
@@ -9694,6 +10067,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testUuid("%s")' where '%s' is the uuid given. Note that the uuid byte order should be correct.
+                 * @param uuid  thing - the uuid to print
+                 * @return uuid  - returns the uuid 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestUuidResultSend {
                     fn default() -> Self {
                         ThriftTestTestUuidResultSend::Ok(::std::default::Default::default())
@@ -9701,6 +10080,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestUuidResultSend {
+                    /**
+                     * Prints 'testUuid("%s")' where '%s' is the uuid given. Note that the uuid byte order should be correct.
+                     * @param uuid  thing - the uuid to print
+                     * @return uuid  - returns the uuid 'thing'
+                     */
                     Ok([u8; 16]),
                 }
 
@@ -10052,6 +10436,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testI32("%d")' with thing as '%d'
+                 * @param i32 thing - the i32 to print
+                 * @return i32 - returns the i32 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestI32ResultSend {
                     fn default() -> Self {
                         ThriftTestTestI32ResultSend::Ok(::std::default::Default::default())
@@ -10059,6 +10449,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestI32ResultSend {
+                    /**
+                     * Prints 'testI32("%d")' with thing as '%d'
+                     * @param i32 thing - the i32 to print
+                     * @return i32 - returns the i32 'thing'
+                     */
                     Ok(i32),
                 }
 
@@ -10201,6 +10596,10 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints "testVoid()" and returns nothing.
+                 */
+
                 impl ::std::default::Default for ThriftTestTestVoidResultSend {
                     fn default() -> Self {
                         ThriftTestTestVoidResultSend::Ok(::std::default::Default::default())
@@ -10208,6 +10607,9 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestVoidResultSend {
+                    /**
+                     * Prints "testVoid()" and returns nothing.
+                     */
                     Ok(()),
                 }
 
@@ -10313,6 +10715,17 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * So you think you've got this all worked out, eh?
+                 *
+                 * Creates a map with these values and prints it out:
+                 *   { 1 => { 2 => argument,
+                 *            3 => argument,
+                 *          },
+                 *     2 => { 6 => <empty Insanity struct>, },
+                 *   }
+                 * @return map<UserId, map<Numberz,Insanity>> - a map with the above values
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestInsanityArgsSend {
                     pub argument: Insanity,
@@ -10668,6 +11081,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testList("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param list<i32> thing - the list<i32> to print
+                 * @return list<i32> - returns the list<i32> 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestListArgsSend {
                     pub thing: ::std::vec::Vec<i32>,
@@ -10865,6 +11284,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testOneway(%d): Sleeping...' with secondsToSleep as '%d'
+                 * sleep 'secondsToSleep'
+                 * Print 'testOneway(%d): done sleeping!' with secondsToSleep as '%d'
+                 * @param i32 secondsToSleep - the number of seconds to sleep
+                 */
+
                 impl ::std::default::Default for ThriftTestTestOnewayResultRecv {
                     fn default() -> Self {
                         ThriftTestTestOnewayResultRecv::Ok(::std::default::Default::default())
@@ -10872,6 +11298,12 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestOnewayResultRecv {
+                    /**
+                     * Print 'testOneway(%d): Sleeping...' with secondsToSleep as '%d'
+                     * sleep 'secondsToSleep'
+                     * Print 'testOneway(%d): done sleeping!' with secondsToSleep as '%d'
+                     * @param i32 secondsToSleep - the number of seconds to sleep
+                     */
                     Ok(()),
                 }
 
@@ -10977,6 +11409,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testNest("{%s}")' where thing has been formatted into a string of the nested struct
+                 * @param Xtruct2 thing - the Xtruct2 to print
+                 * @return Xtruct2 - returns the Xtruct2 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestNestArgsSend {
                     pub thing: Xtruct2,
@@ -11147,6 +11584,17 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testMulti()'
+                 * @param i8 arg0 -
+                 * @param i32 arg1 -
+                 * @param i64 arg2 -
+                 * @param map<i16, string> arg3 -
+                 * @param Numberz arg4 -
+                 * @param UserId arg5 -
+                 * @return Xtruct - returns an Xtruct with string_thing = "Hello2, byte_thing = arg0, i32_thing = arg1
+                 *    and i64_thing = arg2
+                 */
                 #[derive(Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestMultiArgsRecv {
                     pub arg0: i8,
@@ -11750,6 +12198,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testDouble("%f")' with thing as '%f'
+                 * @param double thing - the double to print
+                 * @return double - returns the double 'thing'
+                 */
                 #[derive(PartialOrd, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestDoubleArgsSend {
                     pub thing: f64,
@@ -11915,6 +12368,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testEnum("%d")' where thing has been formatted into its numeric value
+                 * @param Numberz thing - the Numberz to print
+                 * @return Numberz - returns the Numberz 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestEnumArgsRecv {
                     pub thing: Numberz,
@@ -12081,6 +12539,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testString("%s")' with thing as '%s'
+                 * @param string thing - the string to print
+                 * @return string - returns the string 'thing'
+                 */
+
                 impl ::std::default::Default for SecondServiceSecondtestStringResultRecv {
                     fn default() -> Self {
                         SecondServiceSecondtestStringResultRecv::Ok(
@@ -12090,6 +12554,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum SecondServiceSecondtestStringResultRecv {
+                    /**
+                     * Prints 'testString("%s")' with thing as '%s'
+                     * @param string thing - the string to print
+                     * @return string - returns the string 'thing'
+                     */
                     Ok(::pilota::FastStr),
                 }
 
@@ -12236,6 +12705,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testBool("%s")' where '%s' with thing as 'true' or 'false'
+                 * @param bool  thing - the bool data to print
+                 * @return bool  - returns the bool 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestBoolArgsSend {
                     pub thing: bool,
@@ -12401,6 +12875,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testMap("{%s")' where thing has been formatted into a string of 'key => value' pairs
+                 *  separated by commas and new lines
+                 * @param map<i32,i32> thing - the map<i32,i32> to print
+                 * @return map<i32,i32> - returns the map<i32,i32> 'thing'
+                 */
                 #[derive(Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestMapArgsRecv {
                     pub thing: ::pilota::AHashMap<i32, i32>,
@@ -12605,6 +13085,14 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testException(%s)' with arg as '%s'
+                 * @param string arg - a string indication what type of exception to throw
+                 * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
+                 * else if arg == "TException" throw TException
+                 * else do not throw anything
+                 */
+
                 impl ::std::default::Default for ThriftTestTestExceptionException {
                     fn default() -> Self {
                         ThriftTestTestExceptionException::Err1(::std::default::Default::default())
@@ -12762,6 +13250,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testBinary("%s")' where '%s' is a hex-formatted string of thing's data
+                 * @param binary  thing - the binary data to print
+                 * @return binary  - returns the binary 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestBinaryArgsRecv {
                     pub thing: ::pilota::Bytes,
@@ -12927,6 +13420,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testMapMap("%d")' with hello as '%d'
+                 * @param i32 hello - the i32 to print
+                 * @return map<i32,map<i32,i32>> - returns a dictionary with these values:
+                 *   {-4 => {-4 => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3, 4 => 4, }, }
+                 */
+
                 impl ::std::default::Default for ThriftTestTestMapMapResultRecv {
                     fn default() -> Self {
                         ThriftTestTestMapMapResultRecv::Ok(::std::default::Default::default())
@@ -12934,6 +13434,12 @@ pub mod apache {
                 }
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestMapMapResultRecv {
+                    /**
+                     * Prints 'testMapMap("%d")' with hello as '%d'
+                     * @param i32 hello - the i32 to print
+                     * @return map<i32,map<i32,i32>> - returns a dictionary with these values:
+                     *   {-4 => {-4 => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3, 4 => 4, }, }
+                     */
                     Ok(::pilota::AHashMap<i32, ::pilota::AHashMap<i32, i32>>),
                 }
 
@@ -13376,6 +13882,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testByte("%d")' with thing as '%d'
+                 * The types i8 and byte are synonyms, use of i8 is encouraged, byte still exists for the sake of compatibility.
+                 * @param byte thing - the i8/byte to print
+                 * @return i8 - returns the i8/byte 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestByteArgsRecv {
                     pub thing: i8,
@@ -13541,6 +14053,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testSet("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param set<i32> thing - the set<i32> to print
+                 * @return set<i32> - returns the set<i32> 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestSetResultRecv {
                     fn default() -> Self {
                         ThriftTestTestSetResultRecv::Ok(::std::default::Default::default())
@@ -13548,6 +14067,12 @@ pub mod apache {
                 }
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestSetResultRecv {
+                    /**
+                     * Prints 'testSet("{%s}")' where thing has been formatted into a string of values
+                     *  separated by commas and new lines
+                     * @param set<i32> thing - the set<i32> to print
+                     * @return set<i32> - returns the set<i32> 'thing'
+                     */
                     Ok(::pilota::AHashSet<i32>),
                 }
 
@@ -13883,6 +14408,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testStruct("{%s}")' where thing has been formatted into a string of comma separated values
+                 * @param Xtruct thing - the Xtruct to print
+                 * @return Xtruct - returns the Xtruct 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestStructResultRecv {
                     fn default() -> Self {
                         ThriftTestTestStructResultRecv::Ok(::std::default::Default::default())
@@ -13890,6 +14421,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestStructResultRecv {
+                    /**
+                     * Prints 'testStruct("{%s}")' where thing has been formatted into a string of comma separated values
+                     * @param Xtruct thing - the Xtruct to print
+                     * @return Xtruct - returns the Xtruct 'thing'
+                     */
                     Ok(Xtruct),
                 }
 
@@ -14298,6 +14834,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testI64("%d")' with thing as '%d'
+                 * @param i64 thing - the i64 to print
+                 * @return i64 - returns the i64 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestI64ResultRecv {
                     fn default() -> Self {
                         ThriftTestTestI64ResultRecv::Ok(::std::default::Default::default())
@@ -14305,6 +14847,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestI64ResultRecv {
+                    /**
+                     * Prints 'testI64("%d")' with thing as '%d'
+                     * @param i64 thing - the i64 to print
+                     * @return i64 - returns the i64 'thing'
+                     */
                     Ok(i64),
                 }
 
@@ -14447,6 +14994,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testString("%s")' with thing as '%s'
+                 * @param string thing - the string to print
+                 * @return string - returns the string 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestStringResultRecv {
                     fn default() -> Self {
                         ThriftTestTestStringResultRecv::Ok(::std::default::Default::default())
@@ -14454,6 +15007,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestStringResultRecv {
+                    /**
+                     * Prints 'testString("%s")' with thing as '%s'
+                     * @param string thing - the string to print
+                     * @return string - returns the string 'thing'
+                     */
                     Ok(::pilota::FastStr),
                 }
 
@@ -14597,6 +15155,18 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testMulti()'
+                 * @param i8 arg0 -
+                 * @param i32 arg1 -
+                 * @param i64 arg2 -
+                 * @param map<i16, string> arg3 -
+                 * @param Numberz arg4 -
+                 * @param UserId arg5 -
+                 * @return Xtruct - returns an Xtruct with string_thing = "Hello2, byte_thing = arg0, i32_thing = arg1
+                 *    and i64_thing = arg2
+                 */
+
                 impl ::std::default::Default for ThriftTestTestMultiResultSend {
                     fn default() -> Self {
                         ThriftTestTestMultiResultSend::Ok(::std::default::Default::default())
@@ -14604,6 +15174,17 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestMultiResultSend {
+                    /**
+                     * Prints 'testMulti()'
+                     * @param i8 arg0 -
+                     * @param i32 arg1 -
+                     * @param i64 arg2 -
+                     * @param map<i16, string> arg3 -
+                     * @param Numberz arg4 -
+                     * @param UserId arg5 -
+                     * @return Xtruct - returns an Xtruct with string_thing = "Hello2, byte_thing = arg0, i32_thing = arg1
+                     *    and i64_thing = arg2
+                     */
                     Ok(Xtruct),
                 }
 
@@ -15133,6 +15714,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testEnum("%d")' where thing has been formatted into its numeric value
+                 * @param Numberz thing - the Numberz to print
+                 * @return Numberz - returns the Numberz 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestEnumResultSend {
                     fn default() -> Self {
                         ThriftTestTestEnumResultSend::Ok(::std::default::Default::default())
@@ -15140,6 +15727,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestEnumResultSend {
+                    /**
+                     * Prints 'testEnum("%d")' where thing has been formatted into its numeric value
+                     * @param Numberz thing - the Numberz to print
+                     * @return Numberz - returns the Numberz 'thing'
+                     */
                     Ok(Numberz),
                 }
 
@@ -15283,6 +15875,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testOneway(%d): Sleeping...' with secondsToSleep as '%d'
+                 * sleep 'secondsToSleep'
+                 * Print 'testOneway(%d): done sleeping!' with secondsToSleep as '%d'
+                 * @param i32 secondsToSleep - the number of seconds to sleep
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestOnewayArgsSend {
                     pub seconds_to_sleep: i32,
@@ -15452,6 +16050,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testMap("{%s")' where thing has been formatted into a string of 'key => value' pairs
+                 *  separated by commas and new lines
+                 * @param map<i32,i32> thing - the map<i32,i32> to print
+                 * @return map<i32,i32> - returns the map<i32,i32> 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestMapResultSend {
                     fn default() -> Self {
                         ThriftTestTestMapResultSend::Ok(::std::default::Default::default())
@@ -15459,6 +16064,12 @@ pub mod apache {
                 }
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestMapResultSend {
+                    /**
+                     * Prints 'testMap("{%s")' where thing has been formatted into a string of 'key => value' pairs
+                     *  separated by commas and new lines
+                     * @param map<i32,i32> thing - the map<i32,i32> to print
+                     * @return map<i32,i32> - returns the map<i32,i32> 'thing'
+                     */
                     Ok(::pilota::AHashMap<i32, i32>),
                 }
 
@@ -15650,6 +16261,14 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testException(%s)' with arg as '%s'
+                 * @param string arg - a string indication what type of exception to throw
+                 * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
+                 * else if arg == "TException" throw TException
+                 * else do not throw anything
+                 */
+
                 impl ::std::default::Default for ThriftTestTestExceptionResultSend {
                     fn default() -> Self {
                         ThriftTestTestExceptionResultSend::Ok(::std::default::Default::default())
@@ -15657,6 +16276,13 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestExceptionResultSend {
+                    /**
+                     * Print 'testException(%s)' with arg as '%s'
+                     * @param string arg - a string indication what type of exception to throw
+                     * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
+                     * else if arg == "TException" throw TException
+                     * else do not throw anything
+                     */
                     Ok(()),
 
                     Err1(Xception),
@@ -15809,6 +16435,7 @@ pub mod apache {
 
                     pub set_field: ::std::option::Option<::pilota::AHashSet<Insanity>>,
 
+                    // Do not insert line break as test/go/Makefile.am is removing this line with pattern match
                     pub list_field: ::std::vec::Vec<
                         ::std::collections::BTreeMap<
                             ::std::collections::BTreeSet<i32>,
@@ -16255,6 +16882,12 @@ pub mod apache {
                     }) +self.binary_field.as_ref().map_or(0, |value| __protocol.bytes_field_len(Some(4), value)) +self.uuid_field.as_ref().map_or(0, |value| __protocol.uuid_field_len(Some(5), *value) ) + __protocol.field_stop_len() + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testBinary("%s")' where '%s' is a hex-formatted string of thing's data
+                 * @param binary  thing - the binary data to print
+                 * @return binary  - returns the binary 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestBinaryResultSend {
                     fn default() -> Self {
                         ThriftTestTestBinaryResultSend::Ok(::std::default::Default::default())
@@ -16262,6 +16895,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestBinaryResultSend {
+                    /**
+                     * Prints 'testBinary("%s")' where '%s' is a hex-formatted string of thing's data
+                     * @param binary  thing - the binary data to print
+                     * @return binary  - returns the binary 'thing'
+                     */
                     Ok(::pilota::Bytes),
                 }
 
@@ -16405,6 +17043,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testString("%s")' with thing as '%s'
+                 * @param string thing - the string to print
+                 * @return string - returns the string 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct SecondServiceSecondtestStringArgsSend {
                     pub thing: ::pilota::FastStr,
@@ -16570,6 +17213,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testByte("%d")' with thing as '%d'
+                 * The types i8 and byte are synonyms, use of i8 is encouraged, byte still exists for the sake of compatibility.
+                 * @param byte thing - the i8/byte to print
+                 * @return i8 - returns the i8/byte 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestByteResultSend {
                     fn default() -> Self {
                         ThriftTestTestByteResultSend::Ok(::std::default::Default::default())
@@ -16577,6 +17227,12 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestByteResultSend {
+                    /**
+                     * Prints 'testByte("%d")' with thing as '%d'
+                     * The types i8 and byte are synonyms, use of i8 is encouraged, byte still exists for the sake of compatibility.
+                     * @param byte thing - the i8/byte to print
+                     * @return i8 - returns the i8/byte 'thing'
+                     */
                     Ok(i8),
                 }
 
@@ -16719,6 +17375,15 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                 * @param string arg - a string indicating what type of exception to throw
+                 * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                 * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
+                 * else do not throw anything
+                 * @return Xtruct - an Xtruct with string_thing = arg1
+                 */
+
                 impl ::std::default::Default for ThriftTestTestMultiExceptionResultRecv {
                     fn default() -> Self {
                         ThriftTestTestMultiExceptionResultRecv::Ok(
@@ -16728,6 +17393,14 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestMultiExceptionResultRecv {
+                    /**
+                     * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                     * @param string arg - a string indicating what type of exception to throw
+                     * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                     * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
+                     * else do not throw anything
+                     * @return Xtruct - an Xtruct with string_thing = arg1
+                     */
                     Ok(Xtruct),
 
                     Err1(Xception),
@@ -17141,6 +17814,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testMapMap("%d")' with hello as '%d'
+                 * @param i32 hello - the i32 to print
+                 * @return map<i32,map<i32,i32>> - returns a dictionary with these values:
+                 *   {-4 => {-4 => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3, 4 => 4, }, }
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestMapMapArgsSend {
                     pub hello: i32,
@@ -17498,6 +18177,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testSet("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param set<i32> thing - the set<i32> to print
+                 * @return set<i32> - returns the set<i32> 'thing'
+                 */
                 #[derive(Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestSetArgsSend {
                     pub thing: ::pilota::AHashSet<i32>,
@@ -17690,6 +18375,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testStruct("{%s}")' where thing has been formatted into a string of comma separated values
+                 * @param Xtruct thing - the Xtruct to print
+                 * @return Xtruct - returns the Xtruct 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestStructArgsSend {
                     pub thing: Xtruct,
@@ -17860,6 +18550,17 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * So you think you've got this all worked out, eh?
+                 *
+                 * Creates a map with these values and prints it out:
+                 *   { 1 => { 2 => argument,
+                 *            3 => argument,
+                 *          },
+                 *     2 => { 6 => <empty Insanity struct>, },
+                 *   }
+                 * @return map<UserId, map<Numberz,Insanity>> - a map with the above values
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestInsanityArgsRecv {
                     pub argument: Insanity,
@@ -18274,6 +18975,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testI64("%d")' with thing as '%d'
+                 * @param i64 thing - the i64 to print
+                 * @return i64 - returns the i64 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestI64ArgsSend {
                     pub thing: i64,
@@ -18439,6 +19145,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testList("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param list<i32> thing - the list<i32> to print
+                 * @return list<i32> - returns the list<i32> 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestListArgsRecv {
                     pub thing: ::std::vec::Vec<i32>,
@@ -18636,6 +19348,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testString("%s")' with thing as '%s'
+                 * @param string thing - the string to print
+                 * @return string - returns the string 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestStringArgsSend {
                     pub thing: ::pilota::FastStr,
@@ -18801,6 +19518,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testNest("{%s}")' where thing has been formatted into a string of the nested struct
+                 * @param Xtruct2 thing - the Xtruct2 to print
+                 * @return Xtruct2 - returns the Xtruct2 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestNestArgsRecv {
                     pub thing: Xtruct2,
@@ -18971,6 +19693,14 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testException(%s)' with arg as '%s'
+                 * @param string arg - a string indication what type of exception to throw
+                 * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
+                 * else if arg == "TException" throw TException
+                 * else do not throw anything
+                 */
+
                 impl ::std::default::Default for ThriftTestTestExceptionResultRecv {
                     fn default() -> Self {
                         ThriftTestTestExceptionResultRecv::Ok(::std::default::Default::default())
@@ -18978,6 +19708,13 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestExceptionResultRecv {
+                    /**
+                     * Print 'testException(%s)' with arg as '%s'
+                     * @param string arg - a string indication what type of exception to throw
+                     * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
+                     * else if arg == "TException" throw TException
+                     * else do not throw anything
+                     */
                     Ok(()),
 
                     Err1(Xception),
@@ -19128,6 +19865,7 @@ pub mod apache {
                 pub struct Xtruct2 {
                     pub byte_thing: ::std::option::Option<i8>,
 
+                    // used to be byte, hence the name
                     pub struct_thing: ::std::option::Option<Xtruct>,
 
                     pub i32_thing: ::std::option::Option<i32>,
@@ -19330,6 +20068,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testDouble("%f")' with thing as '%f'
+                 * @param double thing - the double to print
+                 * @return double - returns the double 'thing'
+                 */
                 #[derive(PartialOrd, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestDoubleArgsRecv {
                     pub thing: f64,
@@ -19495,6 +20238,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testTypedef("%d")' with thing as '%d'
+                 * @param UserId thing - the UserId to print
+                 * @return UserId - returns the UserId 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestTypedefResultRecv {
                     fn default() -> Self {
                         ThriftTestTestTypedefResultRecv::Ok(::std::default::Default::default())
@@ -19502,6 +20251,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestTypedefResultRecv {
+                    /**
+                     * Prints 'testTypedef("%d")' with thing as '%d'
+                     * @param UserId thing - the UserId to print
+                     * @return UserId - returns the UserId 'thing'
+                     */
                     Ok(UserId),
                 }
 
@@ -19651,6 +20405,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testBool("%s")' where '%s' with thing as 'true' or 'false'
+                 * @param bool  thing - the bool data to print
+                 * @return bool  - returns the bool 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestBoolArgsRecv {
                     pub thing: bool,
@@ -19816,6 +20575,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testStringMap("{%s}")' where thing has been formatted into a string of 'key => value' pairs
+                 *  separated by commas and new lines
+                 * @param map<string,string> thing - the map<string,string> to print
+                 * @return map<string,string> - returns the map<string,string> 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestStringMapResultRecv {
                     fn default() -> Self {
                         ThriftTestTestStringMapResultRecv::Ok(::std::default::Default::default())
@@ -19823,6 +20589,12 @@ pub mod apache {
                 }
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestStringMapResultRecv {
+                    /**
+                     * Prints 'testStringMap("{%s}")' where thing has been formatted into a string of 'key => value' pairs
+                     *  separated by commas and new lines
+                     * @param map<string,string> thing - the map<string,string> to print
+                     * @return map<string,string> - returns the map<string,string> 'thing'
+                     */
                     Ok(::pilota::AHashMap<::pilota::FastStr, ::pilota::FastStr>),
                 }
 
@@ -20018,6 +20790,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testUuid("%s")' where '%s' is the uuid given. Note that the uuid byte order should be correct.
+                 * @param uuid  thing - the uuid to print
+                 * @return uuid  - returns the uuid 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestUuidResultRecv {
                     fn default() -> Self {
                         ThriftTestTestUuidResultRecv::Ok(::std::default::Default::default())
@@ -20025,6 +20803,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestUuidResultRecv {
+                    /**
+                     * Prints 'testUuid("%s")' where '%s' is the uuid given. Note that the uuid byte order should be correct.
+                     * @param uuid  thing - the uuid to print
+                     * @return uuid  - returns the uuid 'thing'
+                     */
                     Ok([u8; 16]),
                 }
 
@@ -20668,6 +21451,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testI32("%d")' with thing as '%d'
+                 * @param i32 thing - the i32 to print
+                 * @return i32 - returns the i32 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestI32ResultRecv {
                     fn default() -> Self {
                         ThriftTestTestI32ResultRecv::Ok(::std::default::Default::default())
@@ -20675,6 +21464,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestI32ResultRecv {
+                    /**
+                     * Prints 'testI32("%d")' with thing as '%d'
+                     * @param i32 thing - the i32 to print
+                     * @return i32 - returns the i32 'thing'
+                     */
                     Ok(i32),
                 }
 
@@ -20817,6 +21611,15 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                 * @param string arg - a string indicating what type of exception to throw
+                 * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                 * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
+                 * else do not throw anything
+                 * @return Xtruct - an Xtruct with string_thing = arg1
+                 */
+
                 impl ::std::default::Default for ThriftTestTestMultiExceptionResultSend {
                     fn default() -> Self {
                         ThriftTestTestMultiExceptionResultSend::Ok(
@@ -20826,6 +21629,14 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestMultiExceptionResultSend {
+                    /**
+                     * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                     * @param string arg - a string indicating what type of exception to throw
+                     * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                     * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
+                     * else do not throw anything
+                     * @return Xtruct - an Xtruct with string_thing = arg1
+                     */
                     Ok(Xtruct),
 
                     Err1(Xception),
@@ -21060,6 +21871,10 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints "testVoid()" and returns nothing.
+                 */
+
                 impl ::std::default::Default for ThriftTestTestVoidResultRecv {
                     fn default() -> Self {
                         ThriftTestTestVoidResultRecv::Ok(::std::default::Default::default())
@@ -21067,6 +21882,9 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestVoidResultRecv {
+                    /**
+                     * Prints "testVoid()" and returns nothing.
+                     */
                     Ok(()),
                 }
 
@@ -21172,6 +21990,18 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * So you think you've got this all worked out, eh?
+                 *
+                 * Creates a map with these values and prints it out:
+                 *   { 1 => { 2 => argument,
+                 *            3 => argument,
+                 *          },
+                 *     2 => { 6 => <empty Insanity struct>, },
+                 *   }
+                 * @return map<UserId, map<Numberz,Insanity>> - a map with the above values
+                 */
+
                 impl ::std::default::Default for ThriftTestTestInsanityResultSend {
                     fn default() -> Self {
                         ThriftTestTestInsanityResultSend::Ok(::std::default::Default::default())
@@ -21179,6 +22009,17 @@ pub mod apache {
                 }
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestInsanityResultSend {
+                    /**
+                     * So you think you've got this all worked out, eh?
+                     *
+                     * Creates a map with these values and prints it out:
+                     *   { 1 => { 2 => argument,
+                     *            3 => argument,
+                     *          },
+                     *     2 => { 6 => <empty Insanity struct>, },
+                     *   }
+                     * @return map<UserId, map<Numberz,Insanity>> - a map with the above values
+                     */
                     Ok(::pilota::AHashMap<UserId, ::pilota::AHashMap<Numberz, Insanity>>),
                 }
 
@@ -21642,6 +22483,13 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testList("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param list<i32> thing - the list<i32> to print
+                 * @return list<i32> - returns the list<i32> 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestListResultSend {
                     fn default() -> Self {
                         ThriftTestTestListResultSend::Ok(::std::default::Default::default())
@@ -21649,6 +22497,12 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestListResultSend {
+                    /**
+                     * Prints 'testList("{%s}")' where thing has been formatted into a string of values
+                     *  separated by commas and new lines
+                     * @param list<i32> thing - the list<i32> to print
+                     * @return list<i32> - returns the list<i32> 'thing'
+                     */
                     Ok(::std::vec::Vec<i32>),
                 }
 
@@ -21828,6 +22682,14 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                 * @param string arg - a string indicating what type of exception to throw
+                 * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                 * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
+                 * else do not throw anything
+                 * @return Xtruct - an Xtruct with string_thing = arg1
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestMultiExceptionArgsSend {
                     pub arg0: ::pilota::FastStr,
@@ -22030,6 +22892,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testNest("{%s}")' where thing has been formatted into a string of the nested struct
+                 * @param Xtruct2 thing - the Xtruct2 to print
+                 * @return Xtruct2 - returns the Xtruct2 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestNestResultSend {
                     fn default() -> Self {
                         ThriftTestTestNestResultSend::Ok(::std::default::Default::default())
@@ -22037,6 +22905,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestNestResultSend {
+                    /**
+                     * Prints 'testNest("{%s}")' where thing has been formatted into a string of the nested struct
+                     * @param Xtruct2 thing - the Xtruct2 to print
+                     * @return Xtruct2 - returns the Xtruct2 'thing'
+                     */
                     Ok(Xtruct2),
                 }
 
@@ -22495,6 +23368,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testDouble("%f")' with thing as '%f'
+                 * @param double thing - the double to print
+                 * @return double - returns the double 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestDoubleResultSend {
                     fn default() -> Self {
                         ThriftTestTestDoubleResultSend::Ok(::std::default::Default::default())
@@ -22502,6 +23381,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestDoubleResultSend {
+                    /**
+                     * Prints 'testDouble("%f")' with thing as '%f'
+                     * @param double thing - the double to print
+                     * @return double - returns the double 'thing'
+                     */
                     Ok(f64),
                 }
 
@@ -22645,6 +23529,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Print 'testOneway(%d): Sleeping...' with secondsToSleep as '%d'
+                 * sleep 'secondsToSleep'
+                 * Print 'testOneway(%d): done sleeping!' with secondsToSleep as '%d'
+                 * @param i32 secondsToSleep - the number of seconds to sleep
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestOnewayArgsRecv {
                     pub seconds_to_sleep: i32,
@@ -22814,6 +23704,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testBool("%s")' where '%s' with thing as 'true' or 'false'
+                 * @param bool  thing - the bool data to print
+                 * @return bool  - returns the bool 'thing'
+                 */
+
                 impl ::std::default::Default for ThriftTestTestBoolResultSend {
                     fn default() -> Self {
                         ThriftTestTestBoolResultSend::Ok(::std::default::Default::default())
@@ -22821,6 +23717,11 @@ pub mod apache {
                 }
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestBoolResultSend {
+                    /**
+                     * Prints 'testBool("%s")' where '%s' with thing as 'true' or 'false'
+                     * @param bool  thing - the bool data to print
+                     * @return bool  - returns the bool 'thing'
+                     */
                     Ok(bool),
                 }
 
@@ -23293,6 +24194,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testTypedef("%d")' with thing as '%d'
+                 * @param UserId thing - the UserId to print
+                 * @return UserId - returns the UserId 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestTypedefArgsSend {
                     pub thing: UserId,
@@ -23463,6 +24369,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testString("%s")' with thing as '%s'
+                 * @param string thing - the string to print
+                 * @return string - returns the string 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct SecondServiceSecondtestStringArgsRecv {
                     pub thing: ::pilota::FastStr,
@@ -23628,6 +24539,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testStringMap("{%s}")' where thing has been formatted into a string of 'key => value' pairs
+                 *  separated by commas and new lines
+                 * @param map<string,string> thing - the map<string,string> to print
+                 * @return map<string,string> - returns the map<string,string> 'thing'
+                 */
                 #[derive(Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestStringMapArgsSend {
                     pub thing: ::pilota::AHashMap<::pilota::FastStr, ::pilota::FastStr>,
@@ -24017,6 +24934,11 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testUuid("%s")' where '%s' is the uuid given. Note that the uuid byte order should be correct.
+                 * @param uuid  thing - the uuid to print
+                 * @return uuid  - returns the uuid 'thing'
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestUuidArgsSend {
                     pub thing: [u8; 16],
@@ -24182,6 +25104,12 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+                /**
+                 * Prints 'testMapMap("%d")' with hello as '%d'
+                 * @param i32 hello - the i32 to print
+                 * @return map<i32,map<i32,i32>> - returns a dictionary with these values:
+                 *   {-4 => {-4 => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3, 4 => 4, }, }
+                 */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestMapMapArgsRecv {
                     pub hello: i32,

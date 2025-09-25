@@ -398,6 +398,7 @@ enum Index {
     B,
 }
 
+// Test Service
 service TestService {
     Test test(1: TEST req);
 }"#;
