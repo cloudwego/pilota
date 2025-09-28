@@ -10,9 +10,13 @@ use crate::{
     db::RirDatabase,
     middle::{
         context::Mode,
+        ext::{
+            FileExts, ModExts,
+            pb::{Extendee, ExtendeeKind, FieldType},
+        },
         ty::{self},
     },
-    rir::{self, Field, FieldKind, Item, NodeKind, PbFieldType, PbOptionsExtendee},
+    rir::{self, Field, FieldKind, Item, NodeKind},
     tags::protobuf::{OneOf, ProstType},
     ty::Ty,
 };
@@ -716,7 +720,7 @@ pub fn file_descriptor_{filename_lower}() -> &'static ::pilota::pb::reflect::Fil
             ));
 
             if !f.extensions.is_empty() {
-                self.codegen_exts(stream, &filename_lower, &f.package, &f.extensions);
+                self.codegen_file_exts(stream, &filename_lower, &f.package, &f.extensions);
             }
         } else {
             match &*self.mode {
@@ -749,81 +753,38 @@ pub fn file_descriptor_{filename_lower}() -> &'static ::pilota::pb::reflect::Fil
         }
     }
 
-    fn codegen_exts(
+    fn codegen_file_exts(
         &self,
         stream: &mut String,
         suffix: &str,
         cur_pkg: &[Symbol],
-        extensions: &[rir::Extension],
+        extensions: &FileExts,
     ) {
         stream.push_str(&format!("pub mod exts_{suffix} {{\n"));
-        for ext in extensions {
-            let number = ext.number;
-            let extendee_ty = match ext.extendee {
-                PbOptionsExtendee::File => "::pilota::pb::descriptor::FileOptions",
-                PbOptionsExtendee::Message => "::pilota::pb::descriptor::MessageOptions",
-                PbOptionsExtendee::Field => "::pilota::pb::descriptor::FieldOptions",
-                PbOptionsExtendee::Enum => "::pilota::pb::descriptor::EnumOptions",
-                PbOptionsExtendee::EnumValue => "::pilota::pb::descriptor::EnumValueOptions",
-                PbOptionsExtendee::Service => "::pilota::pb::descriptor::ServiceOptions",
-                PbOptionsExtendee::Method => "::pilota::pb::descriptor::MethodOptions",
-                PbOptionsExtendee::Oneof => "::pilota::pb::descriptor::OneofOptions",
-            };
-            let val_ty = match &ext.value_ty.kind {
-                ty::TyKind::Path(p) => {
-                    let cg = self.codegen_item_ty(ext.value_ty.kind.clone());
-                    match &*self.mode {
-                        Mode::Workspace(_) => cg.global_path("crate").to_string(),
-                        Mode::SingleFile { .. } => {
-                            let target_path = self.item_path(p.did);
-                            let path = self.path_resolver.related_path(cur_pkg, &target_path);
-                            format!("super::{path}")
-                        }
-                    }
-                }
-                ty::TyKind::String | ty::TyKind::FastStr => {
-                    "::pilota::pb::extension::StrOptionValueExtractor".to_string()
-                }
-                ty::TyKind::Bytes => {
-                    "::pilota::pb::extension::BytesOptionValueExtractor".to_string()
-                }
-                ty::TyKind::Bool => "::pilota::pb::extension::BoolOptionValueExtractor".to_string(),
-                ty::TyKind::I32 => "::pilota::pb::extension::Int32OptionValueExtractor".to_string(),
-                ty::TyKind::I64 => "::pilota::pb::extension::Int64OptionValueExtractor".to_string(),
-                ty::TyKind::UInt32 => {
-                    "::pilota::pb::extension::UInt32OptionValueExtractor".to_string()
-                }
-                ty::TyKind::UInt64 => {
-                    "::pilota::pb::extension::UInt64OptionValueExtractor".to_string()
-                }
-                ty::TyKind::F32 => "::pilota::pb::extension::FloatOptionValueExtractor".to_string(),
-                ty::TyKind::F64 => {
-                    "::pilota::pb::extension::DoubleOptionValueExtractor".to_string()
-                }
-                _ => {
-                    unreachable!("invalid pb extension type: {:?}", ext.value_ty.kind)
-                }
-            };
+        let pb_options_exts = match extensions {
+            FileExts::Pb(pb_exts) => &pb_exts.extendees,
+            _ => &Vec::new(),
+        };
+        for ext in pb_options_exts {
+            self.codgen_pb_custom_ext_field(stream, cur_pkg, &ext);
+        }
+        stream.push_str("}\n");
+    }
 
-            let const_name = &*ext.name;
-
-            match &ext.field_ty {
-                PbFieldType::Enum => {
-                    stream.push_str(&format!(
-                        "pub const {const_name}: ::pilota::pb::extension::CustomExtEnumField<{extendee_ty}, {val_ty}> = ::pilota::pb::extension::CustomExtEnumField::new({number});\n"
-                    ));
-                }
-                PbFieldType::Message => {
-                    stream.push_str(&format!(
-                        "pub const {const_name}: ::pilota::pb::extension::CustomExtField<{extendee_ty}, ::pilota::pb::extension::MessageOptionValueExtractor<{val_ty}>> = ::pilota::pb::extension::CustomExtField::new({number});\n"
-                    ));
-                }
-                _ => {
-                    stream.push_str(&format!(
-                        "pub const {const_name}: ::pilota::pb::extension::CustomExtField<{extendee_ty}, {val_ty}> = ::pilota::pb::extension::CustomExtField::new({number});\n"
-                    ));
-                }
-            }
+    fn codegen_mod_exts(
+        &self,
+        stream: &mut String,
+        suffix: &str,
+        cur_pkg: &[Symbol],
+        extensions: &ModExts,
+    ) {
+        stream.push_str(&format!("pub mod exts_{suffix} {{\n"));
+        let pb_options_exts = match extensions {
+            ModExts::Pb(pb_exts) => &pb_exts.extendees,
+            _ => &Vec::new(),
+        };
+        for ext in pb_options_exts {
+            self.codgen_pb_custom_ext_field(stream, cur_pkg, &ext);
         }
         stream.push_str("}\n");
     }
@@ -846,5 +807,71 @@ pub fn file_descriptor_{filename_lower}() -> &'static ::pilota::pb::reflect::Fil
             }}
         "#
         )
+    }
+}
+
+impl ProtobufBackend {
+    fn codgen_pb_custom_ext_field(&self, stream: &mut String, cur_pkg: &[Symbol], ext: &Extendee) {
+        let tag_id = ext.index.tag_id;
+        let extendee_ty = match ext.index.extendee_kind {
+            ExtendeeKind::File => "::pilota::pb::descriptor::FileOptions",
+            ExtendeeKind::Message => "::pilota::pb::descriptor::MessageOptions",
+            ExtendeeKind::Field => "::pilota::pb::descriptor::FieldOptions",
+            ExtendeeKind::Enum => "::pilota::pb::descriptor::EnumOptions",
+            ExtendeeKind::EnumValue => "::pilota::pb::descriptor::EnumValueOptions",
+            ExtendeeKind::Service => "::pilota::pb::descriptor::ServiceOptions",
+            ExtendeeKind::Method => "::pilota::pb::descriptor::MethodOptions",
+            ExtendeeKind::Oneof => "::pilota::pb::descriptor::OneofOptions",
+        };
+        let val_ty = match &ext.extendee_ty.item_ty.kind {
+            ty::TyKind::Path(p) => {
+                let cg = self.codegen_item_ty(ext.extendee_ty.item_ty.kind.clone());
+                match &*self.mode {
+                    Mode::Workspace(_) => cg.global_path("crate").to_string(),
+                    Mode::SingleFile { .. } => {
+                        let target_path = self.item_path(p.did);
+                        let path = self.path_resolver.related_path(cur_pkg, &target_path);
+                        format!("super::{path}")
+                    }
+                }
+            }
+            ty::TyKind::String | ty::TyKind::FastStr => {
+                "::pilota::pb::extension::StrOptionValueExtractor".to_string()
+            }
+            ty::TyKind::Bytes => "::pilota::pb::extension::BytesOptionValueExtractor".to_string(),
+            ty::TyKind::Bool => "::pilota::pb::extension::BoolOptionValueExtractor".to_string(),
+            ty::TyKind::I32 => "::pilota::pb::extension::Int32OptionValueExtractor".to_string(),
+            ty::TyKind::I64 => "::pilota::pb::extension::Int64OptionValueExtractor".to_string(),
+            ty::TyKind::UInt32 => "::pilota::pb::extension::UInt32OptionValueExtractor".to_string(),
+            ty::TyKind::UInt64 => "::pilota::pb::extension::UInt64OptionValueExtractor".to_string(),
+            ty::TyKind::F32 => "::pilota::pb::extension::FloatOptionValueExtractor".to_string(),
+            ty::TyKind::F64 => "::pilota::pb::extension::DoubleOptionValueExtractor".to_string(),
+            _ => {
+                unreachable!(
+                    "invalid pb extension type: {:?}",
+                    ext.extendee_ty.item_ty.kind
+                )
+            }
+        };
+
+        let const_name = &*ext.name;
+
+        match &ext.extendee_ty.field_ty {
+            FieldType::Enum => {
+                stream.push_str(&format!(
+                    "pub const {const_name}: ::pilota::pb::extension::CustomExtEnumField<{extendee_ty}, {val_ty}> = ::pilota::pb::extension::CustomExtEnumField::new({tag_id});\n"
+                ));
+            }
+            FieldType::Message => {
+                stream.push_str(&format!(
+                    "pub const {const_name}: ::pilota::pb::extension::CustomExtField<{extendee_ty}, ::pilota::pb::extension::MessageOptionValueExtractor<{val_ty}>> = ::pilota::pb::extension::CustomExtField::new({tag_id});\n"
+                ));
+            }
+            _ => {
+                stream.push_str(&format!(
+                    "pub const {const_name}: ::pilota::pb::extension::CustomExtField<{extendee_ty}, {val_ty}> = ::pilota::pb::extension::CustomExtField::new({tag_id});\n"
+                ));
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 pub mod adjust;
 pub mod context;
+pub mod ext;
 pub mod resolver;
 pub mod rir;
 pub mod ty;
