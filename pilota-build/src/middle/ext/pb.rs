@@ -91,11 +91,35 @@ impl From<ir::ext::pb::FieldType> for FieldType {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct UsedOptions(pub Vec<ExtendeeIndex>);
+
+impl UsedOptions {
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct Extendees(pub Vec<Arc<Extendee>>);
+
+impl Extendees {
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct FileExts {
-    pub extendees: Vec<Arc<Extendee>>,
+    pub extendees: Extendees,
+    pub used_options: UsedOptions,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ModExts {
-    pub extendees: Vec<Arc<Extendee>>,
+    pub extendees: Extendees,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ItemExts {
+    pub used_options: UsedOptions,
 }

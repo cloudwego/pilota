@@ -260,6 +260,11 @@ fn test_pb_options() {
             println!("file_option internal_api: {}", v);
             assert_eq!(v, false);
         }
+        if let Ok(v) = exts_custom_options::file_kv.get(file_opts) {
+            println!("file_option file_kv: {:?}", v);
+            assert_eq!(v.key.unwrap_or_default(), "file_key");
+            assert_eq!(v.value.unwrap_or_default(), "file_val");
+        }
     }
 
     // service options
@@ -335,9 +340,13 @@ fn test_pb_options() {
 
         // nested extension: ApiMetadata.message Example use ApiMetadata::exts::test
         if let Some(opts) = dp.options.as_ref() {
+            use custom_options::custom_options::custom_options::api_metadata::example::exts_example as ex_exts;
             use custom_options::custom_options::custom_options::api_metadata::exts_api_metadata as am_exts;
             if let Ok(v) = am_exts::test.get(opts) {
                 println!("{}api_metadata.test: {}", indent, v);
+            }
+            if let Ok(v) = ex_exts::level.get(opts) {
+                println!("{}api_metadata.example.level: {}", indent, v);
             }
         }
 

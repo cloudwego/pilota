@@ -1,5 +1,6 @@
 use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
 
+use ahash::AHashMap;
 use anyhow::Context as _;
 use dashmap::DashMap;
 use faststr::FastStr;
@@ -71,6 +72,8 @@ pub struct Context {
     pub names: FxHashMap<DefId, usize>,
     pub with_descriptor: bool,
     pub with_field_mask: bool,
+    pub touch_all: bool,
+    pub mod_idxes: AHashMap<Arc<[FastStr]>, DefId>,
 }
 
 impl Clone for Context {
@@ -94,6 +97,8 @@ impl Clone for Context {
             names: self.names.clone(),
             with_descriptor: self.with_descriptor,
             with_field_mask: self.with_field_mask,
+            touch_all: self.touch_all,
+            mod_idxes: self.mod_idxes.clone(),
         }
     }
 }
@@ -192,24 +197,48 @@ impl ContextBuilder {
         struct PathCollector<'a> {
             set: &'a mut FxHashSet<DefId>,
             cx: &'a ContextBuilder,
+            file_ids: &'a mut FxHashSet<FileId>,
         }
 
         impl super::ty::Visitor for PathCollector<'_> {
             fn visit_path(&mut self, path: &crate::rir::Path) {
-                collect(self.cx, path.did, self.set)
+                collect(self.cx, path.did, self.set, self.file_ids)
             }
         }
 
-        fn collect(cx: &ContextBuilder, def_id: DefId, set: &mut FxHashSet<DefId>) {
+        fn collect(
+            cx: &ContextBuilder,
+            def_id: DefId,
+            set: &mut FxHashSet<DefId>,
+            file_ids: &mut FxHashSet<FileId>,
+        ) {
             if set.contains(&def_id) {
                 return;
             }
 
             let node = cx.db.node(def_id).unwrap();
 
+            if !file_ids.contains(&node.file_id) {
+                file_ids.insert(node.file_id);
+
+                let file = cx.db.file(node.file_id).unwrap();
+                if file.extensions.has_used_options() {
+                    file.extensions
+                        .unwrap_as_pb()
+                        .used_options
+                        .0
+                        .iter()
+                        .for_each(|option| {
+                            let extendee = cx.db.pb_ext(option).unwrap();
+                            PathCollector { cx, set, file_ids }
+                                .visit(&extendee.extendee_ty.item_ty);
+                        });
+                }
+            }
+
             match node.kind {
                 NodeKind::Item(_) => {}
-                _ => return collect(cx, node.parent.unwrap(), set),
+                _ => return collect(cx, node.parent.unwrap(), set, file_ids),
             }
 
             if !matches!(&*cx.db.item(def_id).unwrap(), rir::Item::Mod(_)) {
@@ -221,48 +250,142 @@ impl ContextBuilder {
 
             node.related_nodes
                 .iter()
-                .for_each(|def_id| collect(cx, *def_id, set));
+                .for_each(|def_id| collect(cx, *def_id, set, file_ids));
 
             let item = node.expect_item();
 
             match item {
-                rir::Item::Message(m) => m.fields.iter().for_each(|f| {
-                    PathCollector { cx, set }.visit(&f.ty);
-                    if let Some(Literal::Path(p)) = &f.default {
-                        PathCollector { cx, set }.visit_path(p);
+                rir::Item::Message(m) => {
+                    // collect fields
+                    m.fields.iter().for_each(|f| {
+                        PathCollector { cx, set, file_ids }.visit(&f.ty);
+                        if let Some(Literal::Path(p)) = &f.default {
+                            PathCollector { cx, set, file_ids }.visit_path(p);
+                        }
+                        // collect extensions
+                        if f.item_exts.has_used_options() {
+                            f.item_exts
+                                .unwrap_as_pb()
+                                .used_options
+                                .0
+                                .iter()
+                                .for_each(|index| {
+                                    let extendee = cx.db.pb_ext(index).unwrap();
+                                    PathCollector { cx, set, file_ids }
+                                        .visit(&extendee.extendee_ty.item_ty);
+                                });
+                        }
+                    });
+                    // collect extensions
+                    if m.item_exts.has_used_options() {
+                        m.item_exts
+                            .unwrap_as_pb()
+                            .used_options
+                            .0
+                            .iter()
+                            .for_each(|index| {
+                                let extendee = cx.db.pb_ext(index).unwrap();
+                                PathCollector { cx, set, file_ids }
+                                    .visit(&extendee.extendee_ty.item_ty);
+                            });
                     }
-                }),
-                rir::Item::Enum(e) => e
-                    .variants
-                    .iter()
-                    .flat_map(|v| &v.fields)
-                    .for_each(|ty| PathCollector { cx, set }.visit(ty)),
-                rir::Item::Service(s) => {
-                    s.extend.iter().for_each(|p| collect(cx, p.did, set));
-                    s.methods
-                        .iter()
-                        .flat_map(|m| m.args.iter().map(|f| &f.ty).chain(std::iter::once(&m.ret)))
-                        .for_each(|ty| PathCollector { cx, set }.visit(ty));
                 }
-                rir::Item::NewType(n) => PathCollector { cx, set }.visit(&n.ty),
+                rir::Item::Enum(e) => {
+                    e.variants.iter().for_each(|v| {
+                        for ty in &v.fields {
+                            PathCollector { cx, set, file_ids }.visit(ty);
+                        }
+                        if v.item_exts.has_used_options() {
+                            v.item_exts
+                                .unwrap_as_pb()
+                                .used_options
+                                .0
+                                .iter()
+                                .for_each(|index| {
+                                    let extendee = cx.db.pb_ext(index).unwrap();
+                                    PathCollector { cx, set, file_ids }
+                                        .visit(&extendee.extendee_ty.item_ty);
+                                });
+                        }
+                    });
+                    if e.item_exts.has_used_options() {
+                        e.item_exts
+                            .unwrap_as_pb()
+                            .used_options
+                            .0
+                            .iter()
+                            .for_each(|index| {
+                                let extendee = cx.db.pb_ext(index).unwrap();
+                                PathCollector { cx, set, file_ids }
+                                    .visit(&extendee.extendee_ty.item_ty);
+                            });
+                    }
+                }
+                rir::Item::Service(s) => {
+                    s.extend
+                        .iter()
+                        .for_each(|p| collect(cx, p.did, set, file_ids));
+                    s.methods.iter().for_each(|m| {
+                        // collect args
+                        m.args
+                            .iter()
+                            .for_each(|f| PathCollector { cx, set, file_ids }.visit(&f.ty));
+                        // collect ret
+                        PathCollector { cx, set, file_ids }.visit(&m.ret);
+                        // collect exceptions
+                        if let Some(exceptions) = &m.exceptions {
+                            PathCollector { cx, set, file_ids }.visit_path(exceptions);
+                        }
+                        // collect extensions
+                        if m.item_exts.has_used_options() {
+                            m.item_exts
+                                .unwrap_as_pb()
+                                .used_options
+                                .0
+                                .iter()
+                                .for_each(|index| {
+                                    let extendee = cx.db.pb_ext(index).unwrap();
+                                    PathCollector { cx, set, file_ids }
+                                        .visit(&extendee.extendee_ty.item_ty);
+                                });
+                        }
+                    });
+
+                    // collect extensions
+                    if s.item_exts.has_used_options() {
+                        s.item_exts
+                            .unwrap_as_pb()
+                            .used_options
+                            .0
+                            .iter()
+                            .for_each(|index| {
+                                let extendee = cx.db.pb_ext(index).unwrap();
+                                PathCollector { cx, set, file_ids }
+                                    .visit(&extendee.extendee_ty.item_ty);
+                            });
+                    }
+                }
+                rir::Item::NewType(n) => PathCollector { cx, set, file_ids }.visit(&n.ty),
                 rir::Item::Const(c) => {
-                    PathCollector { cx, set }.visit(&c.ty);
+                    PathCollector { cx, set, file_ids }.visit(&c.ty);
                 }
                 rir::Item::Mod(m) => {
-                    m.items.iter().for_each(|i| collect(cx, *i, set));
+                    m.items.iter().for_each(|i| collect(cx, *i, set, file_ids));
                 }
             }
         }
         let mut set = FxHashSet::default();
 
+        let mut file_ids = FxHashSet::default();
+
         input.iter().for_each(|def_id| {
-            collect(self, *def_id, &mut set);
+            collect(self, *def_id, &mut set, &mut file_ids);
         });
 
         self.db.nodes().iter().for_each(|(def_id, node)| {
             if let NodeKind::Item(item) = &node.kind {
                 if let rir::Item::Const(_) = &**item {
-                    collect(self, *def_id, &mut set);
+                    collect(self, *def_id, &mut set, &mut file_ids);
                 }
             }
         });
@@ -341,6 +464,7 @@ impl ContextBuilder {
         split: bool,
         with_descriptor: bool,
         with_field_mask: bool,
+        touch_all: bool,
     ) -> Context {
         SPECIAL_NAMINGS.get_or_init(|| special_namings);
         let mut cx = Context {
@@ -365,12 +489,22 @@ impl ContextBuilder {
             names: Default::default(),
             with_descriptor,
             with_field_mask,
+            touch_all,
+            mod_idxes: Default::default(),
         };
         let mut map: FxHashMap<(Vec<DefId>, String), Vec<DefId>> = FxHashMap::default();
+        let mut mod_idxes = AHashMap::default();
         cx.nodes()
             .iter()
-            .for_each(|(def_id, node)| match node.kind {
-                NodeKind::Item(_) => {
+            .for_each(|(def_id, node)| match &node.kind {
+                NodeKind::Item(item) => {
+                    if let crate::rir::Item::Mod(_) = &**item {
+                        mod_idxes.insert(
+                            Arc::from_iter(cx.mod_path(*def_id).iter().map(|s| s.0.clone())),
+                            *def_id,
+                        );
+                        return;
+                    }
                     if let Mode::Workspace(_) = &*cx.mode {
                         if !cx.location_map.contains_key(def_id) {
                             return;
@@ -399,6 +533,7 @@ impl ContextBuilder {
                 .flat_map(|v| v.into_iter().enumerate().map(|(i, def_id)| (def_id, i)))
                 .collect::<HashMap<DefId, usize>>(),
         );
+        cx.mod_idxes.extend(mod_idxes);
         cx
     }
 }
