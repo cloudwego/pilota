@@ -137,6 +137,27 @@ impl OptionValueExtractor for BytesOptionValueExtractor {
     }
 }
 
+/// CustomExtField is used to extract the value of option used in pb item
+/// - field_number, the defined tag id number of the option
+/// - M, the option extendee type, including
+///     - FileOptions
+///     - MessageOptions
+///     - FieldOptions
+///     - EnumOptions
+///     - ServiceOptions
+///     - MethodOptions
+///     - OneofOptions
+/// - V, the option value type, including
+///     - BoolOptionValueExtractor
+///     - Int32OptionValueExtractor
+///     - Int64OptionValueExtractor
+///     - UInt32OptionValueExtractor
+///     - UInt64OptionValueExtractor
+///     - FloatOptionValueExtractor
+///     - DoubleOptionValueExtractor
+///     - StrOptionValueExtractor
+///     - BytesOptionValueExtractor
+///     - MessageOptionValueExtractor
 pub struct CustomExtField<M, V> {
     field_number: u32,
     phantom: PhantomData<(M, V)>,
@@ -189,6 +210,17 @@ where
     }
 }
 
+/// CustomExtEnumField is used to extract the value of enum option used in pb item
+/// - field_number, the defined tag id number of the option
+/// - M, the option extendee type, including
+///     - FileOptions
+///     - MessageOptions
+///     - FieldOptions
+///     - EnumOptions
+///     - ServiceOptions
+///     - MethodOptions
+///     - OneofOptions
+/// - T, the enum value generic type, which implements EnumMessage
 pub struct CustomExtEnumField<M, T> {
     field_number: u32,
     phantom: PhantomData<(M, T)>,

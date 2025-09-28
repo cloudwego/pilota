@@ -198,7 +198,7 @@ where
                                 self.write_item(&mut inner, (*def_id).into(), dup)
                             });
 
-                            if self.with_descriptor && !m.extensions.is_empty() {
+                            if self.with_descriptor && m.extensions.has_extendees() {
                                 let cur_pkg = self.item_path(def_id);
                                 self.backend.codegen_mod_exts(
                                     &mut inner,
@@ -549,7 +549,6 @@ where
         let mods = items.into_group_map_by(|CodegenItem { def_id, .. }| {
             let path = Arc::from_iter(self.mod_path(*def_id).iter().map(|s| s.0.clone()));
             tracing::debug!("ths path of {:?} is {:?}", def_id, path);
-
             match &*self.mode {
                 Mode::Workspace(_) => Arc::from(&path[1..]), /* the first element for
                                                                 * workspace */
@@ -624,28 +623,20 @@ where
                         *has_direct,
                     );
 
-                    // generate exts for extensions defined in nested message
-                    // TODO: only support first level of nested message
-                    if cur_path.len() > file.package.len() {
-                        let cur_seg = match cur_path.last() {
-                            Some(seg) => seg,
-                            None => "",
-                        };
-
-                        file.items.iter().for_each(|did| {
-                            if let middle::rir::Item::Mod(m) = &*this.item(*did).unwrap() {
-                                let name = this.rust_name(*did);
-                                if !m.extensions.is_empty() && name.to_string() == cur_seg {
-                                    let cur_pkg = this.item_path(*did);
-                                    this.backend.codegen_mod_exts(
-                                        &mut stream,
-                                        &name,
-                                        &cur_pkg,
-                                        &m.extensions,
-                                    );
-                                }
+                    if let Some(mod_idx) = this.mod_idxes.get(p) {
+                        let item = this.item(*mod_idx).unwrap();
+                        if let middle::rir::Item::Mod(m) = &*item {
+                            let name = this.rust_name(*mod_idx);
+                            if m.extensions.has_extendees() {
+                                let cur_pkg = this.item_path(*mod_idx);
+                                this.backend.codegen_mod_exts(
+                                    &mut stream,
+                                    &name,
+                                    &cur_pkg,
+                                    &m.extensions,
+                                );
                             }
-                        });
+                        }
                     }
                 }
             }

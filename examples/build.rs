@@ -44,7 +44,7 @@ fn main() {
     // For protobuf_options_reference
     let protobuf_options_reference_idl = idl_dir.join("custom_options.proto");
     pilota_build::Builder::pb()
-        .ignore_unused(false)
+        // .ignore_unused(false)
         .include_dirs(vec![protobuf_options_reference_idl
             .parent()
             .unwrap()

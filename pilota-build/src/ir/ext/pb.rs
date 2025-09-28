@@ -39,7 +39,7 @@ pub struct ExtendeeType {
 }
 
 /// The field type defined in [field type](https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/descriptor.proto#L244)
-#[derive(Clone, Debug, PartialEq, Eq, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum FieldType {
     Bool,
     Int32,
@@ -67,16 +67,80 @@ pub enum ExtendeeKind {
     Oneof,
 }
 
+#[derive(Clone, Debug)]
+pub struct UsedOptions(pub Vec<ExtendeeIndex>);
+
+impl UsedOptions {
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    pub fn from_pb_unknown_fields(
+        extendee_kind: ExtendeeKind,
+        unknown_fields: &protobuf::UnknownFields,
+    ) -> Self {
+        Self(
+            unknown_fields
+                .iter()
+                .map(|(k, _)| ExtendeeIndex {
+                    extendee_kind,
+                    tag_id: k,
+                })
+                .collect::<Vec<_>>(),
+        )
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Extendees(pub Vec<Arc<Extendee>>);
+
+impl Extendees {
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
 /// The extension for file
 /// - extendees, the nested extendees
+/// - used_options, the used options
 #[derive(Clone, Debug)]
 pub struct FileExts {
-    pub extendees: Vec<Arc<Extendee>>,
+    pub extendees: Extendees,
+    pub used_options: UsedOptions,
+}
+
+impl FileExts {
+    pub fn has_extendees(&self) -> bool {
+        !self.extendees.is_empty()
+    }
+
+    pub fn has_used_options(&self) -> bool {
+        !self.used_options.is_empty()
+    }
 }
 
 /// The extension for mod
 /// - extendees, the nested extendees
 #[derive(Clone, Debug)]
 pub struct ModExts {
-    pub extendees: Vec<Arc<Extendee>>,
+    pub extendees: Extendees,
+}
+
+impl ModExts {
+    pub fn has_extendees(&self) -> bool {
+        !self.extendees.is_empty()
+    }
+}
+
+/// The extension for item
+/// - used_options, the used options
+#[derive(Clone, Debug)]
+pub struct ItemExts {
+    pub used_options: UsedOptions,
+}
+
+impl ItemExts {
+    pub fn has_used_options(&self) -> bool {
+        !self.used_options.is_empty()
+    }
 }
