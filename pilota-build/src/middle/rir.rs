@@ -4,6 +4,7 @@ use pilota::Bytes;
 
 use super::ty::Ty;
 use crate::{
+    middle::ext::{FileExts, ModExts},
     symbol::{DefId, EnumRepr, FileId, Ident, Symbol},
     tags::TagId,
 };
@@ -17,42 +18,6 @@ pub enum Literal {
     Float(Arc<str>),
     List(Vec<Literal>),
     Map(Vec<(Literal, Literal)>),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub enum PbOptionsExtendee {
-    File,
-    Message,
-    Field,
-    Enum,
-    EnumValue,
-    Service,
-    Method,
-    Oneof,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub enum PbFieldType {
-    Bool,
-    Int32,
-    Int64,
-    UInt32,
-    UInt64,
-    Float,
-    Double,
-    String,
-    Bytes,
-    Message,
-    Enum,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct Extension {
-    pub name: Ident,
-    pub number: u32,
-    pub field_ty: PbFieldType,
-    pub extendee: PbOptionsExtendee,
-    pub value_ty: Ty,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -133,7 +98,6 @@ pub struct Message {
     pub name: Ident,
     pub fields: Vec<Arc<Field>>,
     pub is_wrapper: bool,
-    pub extensions: Vec<Extension>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -162,7 +126,7 @@ pub struct NewType {
 pub struct Mod {
     pub name: Ident,
     pub items: Vec<DefId>,
-    pub extensions: Vec<Extension>,
+    pub extensions: ModExts,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -235,7 +199,7 @@ pub struct File {
     pub file_id: FileId,
     pub uses: Vec<FileId>,
     pub descriptor: Bytes,
-    pub extensions: Vec<Extension>,
+    pub extensions: FileExts,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]

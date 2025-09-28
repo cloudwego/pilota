@@ -4,7 +4,10 @@ use pilota::FastStr;
 
 use crate::{
     Context,
-    middle::rir::{self, Method},
+    middle::{
+        ext::{FileExts, ModExts},
+        rir::{self, Method},
+    },
     symbol::{DefId, Symbol},
 };
 
@@ -48,12 +51,22 @@ pub trait CodegenBackend: Clone {
     }
 
     // pb only, for pb options
-    fn codegen_exts(
+    fn codegen_file_exts(
         &self,
         _stream: &mut String,
         _suffix: &str,
         _cur_pkg: &[Symbol],
-        _extensions: &[rir::Extension],
+        _extensions: &FileExts,
+    ) {
+    }
+
+    // pb only, for pb options
+    fn codegen_mod_exts(
+        &self,
+        _stream: &mut String,
+        _suffix: &str,
+        _cur_pkg: &[Symbol],
+        _extensions: &ModExts,
     ) {
     }
 

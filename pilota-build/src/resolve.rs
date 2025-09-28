@@ -9,10 +9,11 @@ use crate::{
     index::Idx,
     ir::{self, visit::Visitor},
     middle::{
+        self,
+        ext::pb::ExtendeeType,
         rir::{
-            Arg, Const, DefKind, Enum, EnumVariant, Extension as RirExtension, Field, FieldKind,
-            File, Item, ItemPath, Literal, Message, Method, MethodSource, NewType, Node, NodeKind,
-            Path, PbFieldType as RirPbFieldType, PbOptionsExtendee as RirPbExtendee, Service,
+            Arg, Const, DefKind, Enum, EnumVariant, Field, FieldKind, File, Item, ItemPath,
+            Literal, Message, Method, MethodSource, NewType, Node, NodeKind, Path, Service,
         },
         ty::{self, Ty},
     },
@@ -595,11 +596,6 @@ impl Resolver {
             name: s.name.clone(),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
             is_wrapper: s.is_wrapper,
-            extensions: s
-                .extensions
-                .iter()
-                .filter_map(|e| self.lower_extension(e))
-                .collect(),
         }
     }
 
@@ -762,11 +758,16 @@ impl Resolver {
         Mod {
             name: m.name.clone(),
             items,
-            extensions: m
-                .extensions
-                .iter()
-                .filter_map(|e| self.lower_extension(e))
-                .collect(),
+            extensions: match &m.extensions {
+                ir::ext::ModExts::Pb(exts) => middle::ext::ModExts::Pb(middle::ext::pb::ModExts {
+                    extendees: exts
+                        .extendees
+                        .iter()
+                        .map(|e| self.lower_pb_extendee(e))
+                        .collect::<Vec<_>>(),
+                }),
+                ir::ext::ModExts::Thrift => middle::ext::ModExts::Thrift,
+            },
         }
     }
 
@@ -850,11 +851,18 @@ impl Resolver {
             ),
             uses: file.uses.iter().map(|(_, f)| *f).collect(),
             descriptor: file.descriptor.clone(),
-            extensions: file
-                .extensions
-                .iter()
-                .filter_map(|e| self.lower_extension(e))
-                .collect(),
+            extensions: match &file.extensions {
+                ir::ext::FileExts::Pb(exts) => {
+                    middle::ext::FileExts::Pb(middle::ext::pb::FileExts {
+                        extendees: exts
+                            .extendees
+                            .iter()
+                            .map(|e| self.lower_pb_extendee(e))
+                            .collect::<Vec<_>>(),
+                    })
+                }
+                ir::ext::FileExts::Thrift => middle::ext::FileExts::Thrift,
+            },
         };
 
         if should_pop {
@@ -865,36 +873,15 @@ impl Resolver {
         f
     }
 
-    fn lower_extension(&mut self, e: &ir::Extension) -> Option<RirExtension> {
-        let extendee = match e.extendee {
-            ir::PbOptionsExtendee::File => RirPbExtendee::File,
-            ir::PbOptionsExtendee::Message => RirPbExtendee::Message,
-            ir::PbOptionsExtendee::Field => RirPbExtendee::Field,
-            ir::PbOptionsExtendee::Enum => RirPbExtendee::Enum,
-            ir::PbOptionsExtendee::EnumValue => RirPbExtendee::EnumValue,
-            ir::PbOptionsExtendee::Service => RirPbExtendee::Service,
-            ir::PbOptionsExtendee::Method => RirPbExtendee::Method,
-            ir::PbOptionsExtendee::Oneof => RirPbExtendee::Oneof,
-        };
-        let field_ty = match e.field_ty {
-            ir::PbFieldType::Bool => RirPbFieldType::Bool,
-            ir::PbFieldType::Int32 => RirPbFieldType::Int32,
-            ir::PbFieldType::Int64 => RirPbFieldType::Int64,
-            ir::PbFieldType::UInt32 => RirPbFieldType::UInt32,
-            ir::PbFieldType::UInt64 => RirPbFieldType::UInt64,
-            ir::PbFieldType::Float => RirPbFieldType::Float,
-            ir::PbFieldType::Double => RirPbFieldType::Double,
-            ir::PbFieldType::String => RirPbFieldType::String,
-            ir::PbFieldType::Bytes => RirPbFieldType::Bytes,
-            ir::PbFieldType::Message => RirPbFieldType::Message,
-            ir::PbFieldType::Enum => RirPbFieldType::Enum,
-        };
-        Some(RirExtension {
+    fn lower_pb_extendee(&mut self, e: &ir::ext::pb::Extendee) -> Arc<middle::ext::pb::Extendee> {
+        let extendee_index = e.index.into();
+        Arc::new(middle::ext::pb::Extendee {
             name: e.name.clone(),
-            number: e.number,
-            field_ty,
-            extendee,
-            value_ty: self.lower_type(&e.value_ty, false),
+            index: extendee_index,
+            extendee_ty: ExtendeeType {
+                field_ty: e.extendee_ty.field_ty.into(),
+                item_ty: self.lower_type(&e.extendee_ty.item_ty, false),
+            },
         })
     }
 }
