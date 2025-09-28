@@ -11,6 +11,7 @@ pub use salsa_ids::{IntoSalsa, SalsaDefId, SalsaFileId, SalsaTyKind};
 use crate::{
     middle::{
         context::{CrateId, DefLocation},
+        ext::pb::{Extendee, ExtendeeIndex},
         ty::{CodegenTy, TyKind},
     },
     rir::{self, File, Item, Node},
@@ -45,6 +46,8 @@ pub struct RootDatabase {
     args: Arc<FxHashSet<DefId>>,
     workspace_graph: Arc<WorkspaceGraph>,
     file_paths: Arc<FxHashMap<FileId, Arc<PathBuf>>>,
+    pb_ext_indexes: Arc<FxHashMap<ExtendeeIndex, Arc<Extendee>>>,
+    pb_exts_used: Arc<FxHashSet<ExtendeeIndex>>,
 }
 
 impl Default for RootDatabase {
@@ -60,6 +63,8 @@ impl Default for RootDatabase {
             args: Arc::new(FxHashSet::default()),
             workspace_graph: Arc::new(empty_workspace_graph()),
             file_paths: Arc::new(FxHashMap::default()),
+            pb_ext_indexes: Arc::new(FxHashMap::default()),
+            pb_exts_used: Arc::new(FxHashSet::default()),
         }
     }
 }
@@ -107,6 +112,19 @@ impl RootDatabase {
 
     pub fn with_args(mut self, args: FxHashSet<DefId>) -> Self {
         self.args = Arc::new(args);
+        self
+    }
+
+    pub fn with_pb_ext_indexes(
+        mut self,
+        pb_ext_indexes: FxHashMap<ExtendeeIndex, Arc<Extendee>>,
+    ) -> Self {
+        self.pb_ext_indexes = Arc::new(pb_ext_indexes);
+        self
+    }
+
+    pub fn with_pb_exts_used(mut self, pb_exts_used: FxHashSet<ExtendeeIndex>) -> Self {
+        self.pb_exts_used = Arc::new(pb_exts_used);
         self
     }
 
@@ -282,6 +300,8 @@ pub trait RirDatabase: salsa::Database {
     fn input_files(&self) -> &Arc<Vec<FileId>>;
     fn args(&self) -> &Arc<FxHashSet<DefId>>;
     fn workspace_graph(&self) -> &Arc<WorkspaceGraph>;
+    fn pb_ext_indexes(&self) -> &Arc<FxHashMap<ExtendeeIndex, Arc<Extendee>>>;
+    fn pb_exts_used(&self) -> &Arc<FxHashSet<ExtendeeIndex>>;
 
     // 查询方法
     fn node(&self, def_id: DefId) -> Option<Node>;
@@ -307,6 +327,10 @@ pub trait RirDatabase: salsa::Database {
     fn service_methods(&self, def_id: DefId) -> Arc<[Arc<rir::Method>]>;
 
     fn is_arg(&self, def_id: DefId) -> bool;
+
+    fn pb_ext(&self, index: &ExtendeeIndex) -> Option<Arc<Extendee>>;
+
+    fn pb_ext_used(&self, index: &ExtendeeIndex) -> bool;
 }
 
 // 为 RootDatabase 实现 RirDatabase trait
@@ -347,6 +371,14 @@ impl RirDatabase for RootDatabase {
         &self.workspace_graph
     }
 
+    fn pb_ext_indexes(&self) -> &Arc<FxHashMap<ExtendeeIndex, Arc<Extendee>>> {
+        &self.pb_ext_indexes
+    }
+
+    fn pb_exts_used(&self) -> &Arc<FxHashSet<ExtendeeIndex>> {
+        &self.pb_exts_used
+    }
+
     // 使用缓存实现查询方法
     fn node(&self, def_id: DefId) -> Option<Node> {
         use cached_queries::{CachedQueries, get_node};
@@ -376,6 +408,14 @@ impl RirDatabase for RootDatabase {
         use cached_queries::{CachedQueries, is_arg_cached};
         let salsa_id = def_id.into_salsa(self as &dyn CachedQueries);
         is_arg_cached(self as &dyn CachedQueries, salsa_id)
+    }
+
+    fn pb_ext(&self, index: &ExtendeeIndex) -> Option<Arc<Extendee>> {
+        self.pb_ext_indexes().get(&index).cloned()
+    }
+
+    fn pb_ext_used(&self, index: &ExtendeeIndex) -> bool {
+        self.pb_exts_used().contains(index)
     }
 
     fn codegen_item_ty(&self, ty: TyKind) -> CodegenTy {

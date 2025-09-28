@@ -10,7 +10,10 @@ use crate::{
     ir::{self, visit::Visitor},
     middle::{
         self,
-        ext::pb::ExtendeeType,
+        ext::{
+            FileExts, ItemExts, ModExts,
+            pb::{self, Extendee, ExtendeeIndex, ExtendeeType, Extendees, UsedOptions},
+        },
         rir::{
             Arg, Const, DefKind, Enum, EnumVariant, Field, FieldKind, File, Item, ItemPath,
             Literal, Message, Method, MethodSource, NewType, Node, NodeKind, Path, Service,
@@ -197,6 +200,8 @@ pub struct Resolver {
     ir_files: FxHashMap<FileId, Arc<ir::File>>,
     errors: errors::Handler,
     args: FxHashSet<DefId>,
+    pb_ext_indexes: FxHashMap<ExtendeeIndex, Arc<Extendee>>, // for collecting pb options references
+    pb_ext_indexes_used: FxHashSet<ExtendeeIndex>,
 }
 
 impl Default for Resolver {
@@ -214,6 +219,8 @@ impl Default for Resolver {
             cur_file: None,
             parent_node: None,
             args: Default::default(),
+            pb_ext_indexes: Default::default(),
+            pb_ext_indexes_used: Default::default(),
         }
     }
 }
@@ -223,6 +230,8 @@ pub struct ResolveResult {
     pub nodes: FxHashMap<DefId, Node>,
     pub tags: FxHashMap<TagId, Arc<Tags>>,
     pub args: FxHashSet<DefId>,
+    pub pb_ext_indexes: FxHashMap<ExtendeeIndex, Arc<Extendee>>,
+    pub pb_ext_indexes_used: FxHashSet<ExtendeeIndex>,
 }
 
 pub struct ResolvedSymbols {
@@ -272,6 +281,8 @@ impl Resolver {
             files,
             nodes: self.nodes,
             args: self.args,
+            pb_ext_indexes: self.pb_ext_indexes,
+            pb_ext_indexes_used: self.pb_ext_indexes_used,
         }
     }
 
@@ -359,6 +370,57 @@ impl Resolver {
         }
     }
 
+    fn lower_pb_extendees(&mut self, extendees: &ir::ext::pb::Extendees) -> Extendees {
+        Extendees(
+            extendees
+                .0
+                .iter()
+                .map(|e| self.lower_pb_extendee(e))
+                .collect::<Vec<_>>(),
+        )
+    }
+
+    fn lower_file_exts(&mut self, exts: &ir::ext::FileExts) -> FileExts {
+        match exts {
+            ir::ext::FileExts::Pb(exts) => FileExts::Pb(pb::FileExts {
+                extendees: self.lower_pb_extendees(&exts.extendees),
+                used_options: self.lower_used_options(&exts.used_options),
+            }),
+            ir::ext::FileExts::Thrift => FileExts::Thrift,
+        }
+    }
+
+    fn lower_mod_exts(&mut self, exts: &ir::ext::ModExts) -> ModExts {
+        match exts {
+            ir::ext::ModExts::Pb(exts) => ModExts::Pb(pb::ModExts {
+                extendees: self.lower_pb_extendees(&exts.extendees),
+            }),
+            ir::ext::ModExts::Thrift => ModExts::Thrift,
+        }
+    }
+
+    fn lower_item_exts(&mut self, exts: &ir::ext::ItemExts) -> ItemExts {
+        match exts {
+            ir::ext::ItemExts::Pb(exts) => ItemExts::Pb(pb::ItemExts {
+                used_options: self.lower_used_options(&exts.used_options),
+            }),
+            ir::ext::ItemExts::Thrift => ItemExts::Thrift,
+        }
+    }
+
+    fn lower_used_options(&mut self, exts: &ir::ext::pb::UsedOptions) -> UsedOptions {
+        UsedOptions(
+            exts.0
+                .iter()
+                .map(|index| {
+                    let idx = (*index).into();
+                    self.pb_ext_indexes_used.insert(idx);
+                    idx
+                })
+                .collect(),
+        )
+    }
+
     #[tracing::instrument(level = "debug", skip_all, fields(name = &**f.name))]
     fn lower_field(&mut self, f: &ir::Field) -> Arc<Field> {
         tracing::info!("lower filed {}, ty: {:?}", f.name, f.ty.kind);
@@ -384,6 +446,7 @@ impl Resolver {
             ty,
             tags_id,
             default: f.default.as_ref().map(|d| self.lower_lit(d)),
+            item_exts: self.lower_item_exts(&f.item_exts),
         });
 
         self.nodes
@@ -596,6 +659,7 @@ impl Resolver {
             name: s.name.clone(),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
             is_wrapper: s.is_wrapper,
+            item_exts: self.lower_item_exts(&s.item_exts),
         }
     }
 
@@ -630,6 +694,7 @@ impl Resolver {
                                 self.modify_ty_by_tags(ty, &p.tags)
                             })
                             .collect(),
+                        item_exts: self.lower_item_exts(&v.item_exts),
                     });
                     next_discr = discr + 1;
                     self.nodes
@@ -638,6 +703,7 @@ impl Resolver {
                 })
                 .collect(),
             repr: e.repr,
+            item_exts: self.lower_item_exts(&e.item_exts),
         }
     }
 
@@ -687,6 +753,7 @@ impl Resolver {
                             .exceptions
                             .as_ref()
                             .map(|p| self.lower_path(p, Namespace::Ty, true)),
+                        item_exts: self.lower_item_exts(&m.item_exts),
                     });
                     self.parent_node = old_parent;
                     self.nodes.insert(
@@ -702,6 +769,7 @@ impl Resolver {
                 .iter()
                 .map(|p| self.lower_path(p, Namespace::Ty, false))
                 .collect(),
+            item_exts: self.lower_item_exts(&s.item_exts),
         }
     }
 
@@ -758,16 +826,7 @@ impl Resolver {
         Mod {
             name: m.name.clone(),
             items,
-            extensions: match &m.extensions {
-                ir::ext::ModExts::Pb(exts) => middle::ext::ModExts::Pb(middle::ext::pb::ModExts {
-                    extendees: exts
-                        .extendees
-                        .iter()
-                        .map(|e| self.lower_pb_extendee(e))
-                        .collect::<Vec<_>>(),
-                }),
-                ir::ext::ModExts::Thrift => middle::ext::ModExts::Thrift,
-            },
+            extensions: self.lower_mod_exts(&m.extensions),
         }
     }
 
@@ -851,18 +910,7 @@ impl Resolver {
             ),
             uses: file.uses.iter().map(|(_, f)| *f).collect(),
             descriptor: file.descriptor.clone(),
-            extensions: match &file.extensions {
-                ir::ext::FileExts::Pb(exts) => {
-                    middle::ext::FileExts::Pb(middle::ext::pb::FileExts {
-                        extendees: exts
-                            .extendees
-                            .iter()
-                            .map(|e| self.lower_pb_extendee(e))
-                            .collect::<Vec<_>>(),
-                    })
-                }
-                ir::ext::FileExts::Thrift => middle::ext::FileExts::Thrift,
-            },
+            extensions: self.lower_file_exts(&file.extensions),
         };
 
         if should_pop {
@@ -875,13 +923,16 @@ impl Resolver {
 
     fn lower_pb_extendee(&mut self, e: &ir::ext::pb::Extendee) -> Arc<middle::ext::pb::Extendee> {
         let extendee_index = e.index.into();
-        Arc::new(middle::ext::pb::Extendee {
+        let extendee = Arc::new(middle::ext::pb::Extendee {
             name: e.name.clone(),
             index: extendee_index,
             extendee_ty: ExtendeeType {
                 field_ty: e.extendee_ty.field_ty.into(),
                 item_ty: self.lower_type(&e.extendee_ty.item_ty, false),
             },
-        })
+        });
+
+        self.pb_ext_indexes.insert(extendee_index, extendee.clone());
+        extendee
     }
 }

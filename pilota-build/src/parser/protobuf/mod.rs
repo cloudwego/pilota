@@ -245,9 +245,21 @@ impl Lower {
                         discr: v.number.map(|v| v as i64),
                         tags: Arc::new(self.extract_enum_value_tags(v)),
                         fields: Default::default(),
+                        item_exts: ext::ItemExts::Pb(ext::pb::ItemExts {
+                            used_options: ext::pb::UsedOptions::from_pb_unknown_fields(
+                                ExtendeeKind::EnumValue,
+                                v.options.special_fields.unknown_fields(),
+                            ),
+                        }),
                     })
                     .collect_vec(),
                 repr: Some(EnumRepr::I32),
+                item_exts: ext::ItemExts::Pb(ext::pb::ItemExts {
+                    used_options: ext::pb::UsedOptions::from_pb_unknown_fields(
+                        ExtendeeKind::Enum,
+                        e.options.special_fields.unknown_fields(),
+                    ),
+                }),
             }),
         }
     }
@@ -319,8 +331,20 @@ impl Lower {
                                     false,
                                 )],
                                 tags: Default::default(),
+                                item_exts: ext::ItemExts::Pb(ext::pb::ItemExts {
+                                    used_options: ext::pb::UsedOptions::from_pb_unknown_fields(
+                                        ExtendeeKind::Field,
+                                        f.options.special_fields.unknown_fields(),
+                                    ),
+                                }),
                             })
                             .collect_vec(),
+                        item_exts: ext::ItemExts::Pb(ext::pb::ItemExts {
+                            used_options: ext::pb::UsedOptions::from_pb_unknown_fields(
+                                ExtendeeKind::Oneof,
+                                d.options.special_fields.unknown_fields(),
+                            ),
+                        }),
                     }),
                 }));
 
@@ -341,6 +365,12 @@ impl Lower {
                         tags: Arc::new(crate::tags!(OneOf)),
                         kind: ir::FieldKind::Optional,
                         default: None,
+                        item_exts: ext::ItemExts::Pb(ext::pb::ItemExts {
+                            used_options: ext::pb::UsedOptions::from_pb_unknown_fields(
+                                ExtendeeKind::Field,
+                                d.options.special_fields.unknown_fields(),
+                            ),
+                        }),
                     },
                 ));
             }
@@ -416,6 +446,12 @@ impl Lower {
                                 } else {
                                     FieldKind::Required
                                 },
+                                item_exts: ext::ItemExts::Pb(ext::pb::ItemExts {
+                                    used_options: ext::pb::UsedOptions::from_pb_unknown_fields(
+                                        ExtendeeKind::Field,
+                                        f.options.special_fields.unknown_fields(),
+                                    ),
+                                }),
                             },
                         )
                     })
@@ -425,6 +461,12 @@ impl Lower {
                     .collect(),
                 name: FastStr::new(message.name()).into(),
                 is_wrapper: false,
+                item_exts: ext::ItemExts::Pb(ext::pb::ItemExts {
+                    used_options: ext::pb::UsedOptions::from_pb_unknown_fields(
+                        ExtendeeKind::Message,
+                        message.options.special_fields.unknown_fields(),
+                    ),
+                }),
             }),
         };
 
@@ -441,6 +483,20 @@ impl Lower {
             let name = item.name();
             let mut tags = Tags::default();
             tags.insert(PilotaName(name.0.mod_ident()));
+            if !extendees.is_empty() {
+                nested_items.push(Arc::new(ir::Item {
+                    related_items: Default::default(),
+                    tags: Arc::new(Tags::default()),
+                    kind: ir::ItemKind::Const(ir::Const {
+                        name: FastStr::new(format!("__PILOTA_PB_EXT_{}", name)).into(),
+                        ty: ir::Ty {
+                            kind: ir::TyKind::String,
+                            tags: Default::default(),
+                        },
+                        lit: ir::Literal::String(Arc::from("extensions")),
+                    }),
+                }));
+            }
             vec![
                 item,
                 Item {
@@ -450,7 +506,7 @@ impl Lower {
                         name: Ident { sym: name },
                         items: nested_items,
                         extensions: ext::ModExts::Pb(ext::pb::ModExts {
-                            extendees: extendees.into_iter().map(|e| e.clone()).collect(),
+                            extendees: ext::pb::Extendees(extendees),
                         }),
                     }),
                 },
@@ -507,10 +563,22 @@ impl Lower {
                                 rust_wrapper_arc_all,
                             ),
                             exceptions: None,
+                            item_exts: ext::ItemExts::Pb(ext::pb::ItemExts {
+                                used_options: ext::pb::UsedOptions::from_pb_unknown_fields(
+                                    ExtendeeKind::Method,
+                                    m.options.special_fields.unknown_fields(),
+                                ),
+                            }),
                         }
                     })
                     .collect_vec(),
                 extend: vec![],
+                item_exts: ext::ItemExts::Pb(ext::pb::ItemExts {
+                    used_options: ext::pb::UsedOptions::from_pb_unknown_fields(
+                        ExtendeeKind::Service,
+                        service.options.special_fields.unknown_fields(),
+                    ),
+                }),
             }),
         }
     }
@@ -566,14 +634,6 @@ impl Lower {
                     Bytes::from(bytes_vec)
                 };
 
-                // collect file-level custom option extendees first
-                let file_extendees = f
-                    .extension
-                    .iter()
-                    .filter_map(|e| self.lower_extension(e, &Default::default()))
-                    .collect::<Vec<_>>();
-                let has_extendees = !file_extendees.is_empty();
-
                 let mut f = ir::File {
                     package,
                     uses: f
@@ -594,11 +654,20 @@ impl Lower {
                         .collect::<Vec<_>>(),
                     descriptor: descriptor_bytes,
                     extensions: ext::FileExts::Pb(ext::pb::FileExts {
-                        extendees: file_extendees,
+                        extendees: ext::pb::Extendees(
+                            f.extension
+                                .iter()
+                                .filter_map(|e| self.lower_extension(e, &Default::default()))
+                                .collect::<Vec<_>>(),
+                        ),
+                        used_options: ext::pb::UsedOptions::from_pb_unknown_fields(
+                            ExtendeeKind::File,
+                            f.options.special_fields.unknown_fields(),
+                        ),
                     }),
                 };
 
-                if f.items.is_empty() && has_extendees {
+                if f.items.is_empty() && f.extensions.has_extendees() {
                     f.items.push(Arc::new(ir::Item {
                         related_items: Default::default(),
                         tags: Arc::new(Tags::default()),

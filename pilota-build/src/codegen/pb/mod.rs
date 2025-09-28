@@ -12,7 +12,7 @@ use crate::{
         context::Mode,
         ext::{
             FileExts, ModExts,
-            pb::{Extendee, ExtendeeKind, FieldType},
+            pb::{Extendee, ExtendeeKind, Extendees, FieldType},
         },
         ty::{self},
     },
@@ -719,7 +719,7 @@ pub fn file_descriptor_{filename_lower}() -> &'static ::pilota::pb::reflect::Fil
 "#
             ));
 
-            if !f.extensions.is_empty() {
+            if f.extensions.has_extendees() {
                 self.codegen_file_exts(stream, &filename_lower, &f.package, &f.extensions);
             }
         } else {
@@ -760,15 +760,8 @@ pub fn file_descriptor_{filename_lower}() -> &'static ::pilota::pb::reflect::Fil
         cur_pkg: &[Symbol],
         extensions: &FileExts,
     ) {
-        stream.push_str(&format!("pub mod exts_{suffix} {{\n"));
-        let pb_options_exts = match extensions {
-            FileExts::Pb(pb_exts) => &pb_exts.extendees,
-            _ => &Vec::new(),
-        };
-        for ext in pb_options_exts {
-            self.codgen_pb_custom_ext_field(stream, cur_pkg, &ext);
-        }
-        stream.push_str("}\n");
+        let pb_extendees = &extensions.unwrap_as_pb().extendees;
+        self.codgen_pb_extendees(suffix, stream, cur_pkg, pb_extendees);
     }
 
     fn codegen_mod_exts(
@@ -778,15 +771,8 @@ pub fn file_descriptor_{filename_lower}() -> &'static ::pilota::pb::reflect::Fil
         cur_pkg: &[Symbol],
         extensions: &ModExts,
     ) {
-        stream.push_str(&format!("pub mod exts_{suffix} {{\n"));
-        let pb_options_exts = match extensions {
-            ModExts::Pb(pb_exts) => &pb_exts.extendees,
-            _ => &Vec::new(),
-        };
-        for ext in pb_options_exts {
-            self.codgen_pb_custom_ext_field(stream, cur_pkg, &ext);
-        }
-        stream.push_str("}\n");
+        let pb_extendees = &extensions.unwrap_as_pb().extendees;
+        self.codgen_pb_extendees(suffix, stream, cur_pkg, pb_extendees);
     }
 
     fn codegen_impl_enum_message(&self, name: &str) -> String {
@@ -811,6 +797,21 @@ pub fn file_descriptor_{filename_lower}() -> &'static ::pilota::pb::reflect::Fil
 }
 
 impl ProtobufBackend {
+    fn codgen_pb_extendees(
+        &self,
+        suffix: &str,
+        stream: &mut String,
+        cur_pkg: &[Symbol],
+        extendees: &Extendees,
+    ) {
+        stream.push_str(&format!("pub mod exts_{suffix} {{\n"));
+        for ext in &extendees.0 {
+            if self.cx.touch_all || self.cx.db.pb_ext_used(&ext.index) {
+                self.codgen_pb_custom_ext_field(stream, cur_pkg, &ext);
+            }
+        }
+        stream.push_str("}\n");
+    }
     fn codgen_pb_custom_ext_field(&self, stream: &mut String, cur_pkg: &[Symbol], ext: &Extendee) {
         let tag_id = ext.index.tag_id;
         let extendee_ty = match ext.index.extendee_kind {

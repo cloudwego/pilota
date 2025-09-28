@@ -48,6 +48,11 @@ import "google/protobuf/descriptor.proto";
 // Custom Option Definitions
 // ===========================================================================
 
+message FileCustomOptions {
+  optional string key = 50005;
+  optional string value = 50006;
+}
+
 // File-level custom options
 extend google.protobuf.FileOptions {
   // Version of the API defined in this file
@@ -61,6 +66,8 @@ extend google.protobuf.FileOptions {
   
   // Whether this API is for internal use only
   optional bool internal_api = 50004 [default = false];
+
+  optional FileCustomOptions file_kv = 50005; 
 }
 
 // Message-level custom options
@@ -231,6 +238,10 @@ message ApiMetadata {
     
     // Example response
     optional string response = 3;
+
+    extend google.protobuf.MessageOptions {
+      optional string level = 51102;
+    }
   }
   
   // Usage examples
@@ -244,6 +255,7 @@ message ApiMetadata {
 // Example message with various options
 message User {
   option (ApiMetadata.test) = "ApiMetadatatest";
+  option (ApiMetadata.Example.level) = "2";
   // Message-level options
   option (db_table) = "users";
   option (db_entity) = true;
@@ -567,3 +579,7 @@ option (file_version) = 20250818;
 option (file_author) = "giggle";
 option (file_department) = "arch";
 option (internal_api) = false;
+option (file_kv) = {
+  key: "file_key"
+  value: "file_val"
+};

@@ -15,7 +15,10 @@ use thrift_parser::Annotations;
 use crate::{
     IdentName,
     index::Idx,
-    ir::{self, Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path, ext::FileExts},
+    ir::{
+        self, Arg, Enum, EnumVariant, FieldKind, File, Item, ItemKind, Path,
+        ext::{self, FileExts},
+    },
     symbol::{EnumRepr, FileId, Ident},
     tags::{Annotation, PilotaName, RustWrapperArc, Tags},
     util::error_abort,
@@ -168,6 +171,7 @@ impl ThriftLower {
                     self.lower_method(&service_name, f, &function_name_duplicates, arc_wrapper)
                 })
                 .collect(),
+            item_exts: ext::ItemExts::Thrift,
         });
         let mut service_item = self.mk_item(kind, Default::default());
         let mut result = vec![];
@@ -193,6 +197,7 @@ impl ThriftLower {
                     tags: Default::default(),
                     discr: None,
                     fields: vec![self.lower_ty(&f.ty)],
+                    item_exts: ext::ItemExts::Thrift,
                 })
                 .collect::<Vec<_>>();
 
@@ -218,10 +223,12 @@ impl ThriftLower {
                     tags: Default::default(),
                     discr: None,
                     fields: vec![self.lower_method_relative_ty(&f.result_type, arc_wrapper)],
+                    item_exts: ext::ItemExts::Thrift,
                 })
                 .chain(exception.clone())
                 .collect(),
                 repr: None,
+                item_exts: ext::ItemExts::Thrift,
             });
             related_items.push(name.clone());
             let mut tags = Tags::default();
@@ -238,10 +245,12 @@ impl ThriftLower {
                     tags: Default::default(),
                     discr: None,
                     fields: vec![self.lower_method_relative_ty(&f.result_type, arc_wrapper)],
+                    item_exts: ext::ItemExts::Thrift,
                 })
                 .chain(exception.clone())
                 .collect(),
                 repr: None,
+                item_exts: ext::ItemExts::Thrift,
             });
             related_items.push(name.clone());
             let mut tags = Tags::default();
@@ -255,6 +264,7 @@ impl ThriftLower {
                     name: name.clone(),
                     variants: exception,
                     repr: None,
+                    item_exts: ext::ItemExts::Thrift,
                 });
                 related_items.push(name.clone());
                 let mut tags = Tags::default();
@@ -272,6 +282,7 @@ impl ThriftLower {
                     .map(|a| self.lower_method_arg_field(a, arc_wrapper))
                     .collect(),
                 is_wrapper: true,
+                item_exts: ext::ItemExts::Thrift,
             });
             related_items.push(name.clone());
             let mut tags = Tags::default();
@@ -288,6 +299,7 @@ impl ThriftLower {
                     .map(|a| self.lower_method_arg_field(a, arc_wrapper))
                     .collect(),
                 is_wrapper: true,
+                item_exts: ext::ItemExts::Thrift,
             });
             related_items.push(name.clone());
             let mut tags: Tags = Tags::default();
@@ -356,6 +368,7 @@ impl ThriftLower {
                     ))]),
                 })
             },
+            item_exts: ext::ItemExts::Thrift,
         }
     }
 
@@ -371,9 +384,11 @@ impl ThriftLower {
                     discr: v.value.map(|v| v.0),
                     fields: vec![],
                     tags: self.extract_tags(&v.annotations).into(),
+                    item_exts: ext::ItemExts::Thrift,
                 })
                 .collect(),
             repr: Some(EnumRepr::I32),
+            item_exts: ext::ItemExts::Thrift,
         }
     }
 
@@ -452,9 +467,11 @@ impl ThriftLower {
                     discr: None,
                     fields: vec![self.lower_ty(&f.ty)],
                     tags: Default::default(),
+                    item_exts: ext::ItemExts::Thrift,
                 })
                 .collect(),
             repr: None,
+            item_exts: ext::ItemExts::Thrift,
         }
     }
 
@@ -522,6 +539,7 @@ impl ThriftLower {
             },
             tags: tags.into(),
             default: f.default.as_ref().map(|c| self.lower_lit(c)),
+            item_exts: ext::ItemExts::Thrift,
         }
     }
 
@@ -541,6 +559,7 @@ impl ThriftLower {
             },
             default: f.default.as_ref().map(|c| self.lower_lit(c)),
             tags: tags.into(),
+            item_exts: ext::ItemExts::Thrift,
         }
     }
 
@@ -579,6 +598,7 @@ impl ThriftLower {
             name: self.lower_ident(&s.name),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
             is_wrapper: false,
+            item_exts: ext::ItemExts::Thrift,
         }
     }
 
