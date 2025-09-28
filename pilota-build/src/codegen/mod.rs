@@ -200,7 +200,7 @@ where
 
                             if self.with_descriptor && !m.extensions.is_empty() {
                                 let cur_pkg = self.item_path(def_id);
-                                self.backend.codegen_exts(
+                                self.backend.codegen_mod_exts(
                                     &mut inner,
                                     &name,
                                     &cur_pkg,
@@ -637,7 +637,7 @@ where
                                 let name = this.rust_name(*did);
                                 if !m.extensions.is_empty() && name.to_string() == cur_seg {
                                     let cur_pkg = this.item_path(*did);
-                                    this.backend.codegen_exts(
+                                    this.backend.codegen_mod_exts(
                                         &mut stream,
                                         &name,
                                         &cur_pkg,

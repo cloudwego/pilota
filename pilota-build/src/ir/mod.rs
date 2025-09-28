@@ -1,3 +1,4 @@
+/// The mod is the core module of the ir, including the core types both for thrift and protobuf
 use std::{fmt::Display, sync::Arc};
 
 use itertools::Itertools;
@@ -8,44 +9,19 @@ use crate::{
     tags::Tags,
 };
 
+/// The extension module for the ir, including the extension types relative to the concrete idl syntax, seperated for thrift and protobuf
+pub mod ext;
+/// The visit module for the ir, including the visit traits for the ir items
 pub mod visit;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum PbOptionsExtendee {
-    File,
-    Message,
-    Field,
-    Enum,
-    EnumValue,
-    Service,
-    Method,
-    Oneof,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum PbFieldType {
-    Bool,
-    Int32,
-    Int64,
-    UInt32,
-    UInt64,
-    Float,
-    Double,
-    String,
-    Bytes,
-    Message,
-    Enum,
-}
-
-#[derive(Clone, Debug)]
-pub struct Extension {
-    pub name: Ident,
-    pub number: u32,
-    pub field_ty: PbFieldType,
-    pub extendee: PbOptionsExtendee,
-    pub value_ty: Ty,
-}
-
+/// The literal type
+/// - Bool, true or false
+/// - Path, the referenced path of the item
+/// - String, the string value
+/// - Int, the integer value
+/// - Float, the float value
+/// - List, the list of literals
+/// - Map, the map of key-value pairs
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Literal {
     Bool(bool),
@@ -57,6 +33,7 @@ pub enum Literal {
     Map(Vec<(Literal, Literal)>),
 }
 
+/// The type kind supports all syntax for idl items, including thrift and protobuf
 #[derive(Clone, Debug)]
 pub enum TyKind {
     String,
@@ -79,6 +56,8 @@ pub enum TyKind {
     Path(Path),
 }
 
+/// Ty is the combination of type syntax and attributes syntax
+/// - tags, just the annotations defined in pilota
 #[derive(Clone, Debug)]
 pub struct Ty {
     pub tags: Arc<Tags>,
@@ -145,7 +124,6 @@ pub struct Message {
     pub name: Ident,
     pub fields: Vec<Field>,
     pub is_wrapper: bool,
-    pub extensions: Vec<Extension>,
 }
 
 #[derive(Clone, Debug)]
@@ -170,11 +148,12 @@ pub struct NewType {
     pub ty: Ty,
 }
 
+/// Mod is for protobuf nested messages
 #[derive(Clone, Debug)]
 pub struct Mod {
     pub name: Ident,
     pub items: Vec<Arc<Item>>,
-    pub extensions: Vec<Extension>,
+    pub extensions: ext::ModExts,
 }
 
 #[derive(Clone, Debug)]
@@ -231,5 +210,5 @@ pub struct File {
     pub id: FileId,
     pub uses: Vec<(Path, FileId)>,
     pub descriptor: Bytes,
-    pub extensions: Vec<Extension>,
+    pub extensions: ext::FileExts,
 }
