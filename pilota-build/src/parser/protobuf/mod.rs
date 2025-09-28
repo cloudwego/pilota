@@ -20,8 +20,11 @@ use crate::{
     IdentName,
     index::Idx,
     ir::{
-        self, Extension as IrExtension, FieldKind, Item, Path, PbFieldType as IrPbFieldType,
-        PbOptionsExtendee as IrPbExtendee, TyKind,
+        self, FieldKind, Item, Path, TyKind,
+        ext::{
+            self,
+            pb::{ExtendeeIndex, ExtendeeKind, FieldType},
+        },
     },
     symbol::{EnumRepr, FileId, Ident},
     tags::{
@@ -65,16 +68,16 @@ impl Default for Lower {
 }
 
 impl Lower {
-    fn lower_extendee(&self, s: &str) -> Option<IrPbExtendee> {
+    fn lower_extendee(&self, s: &str) -> Option<ExtendeeKind> {
         match s {
-            ".google.protobuf.FileOptions" => Some(IrPbExtendee::File),
-            ".google.protobuf.MessageOptions" => Some(IrPbExtendee::Message),
-            ".google.protobuf.FieldOptions" => Some(IrPbExtendee::Field),
-            ".google.protobuf.EnumOptions" => Some(IrPbExtendee::Enum),
-            ".google.protobuf.EnumValueOptions" => Some(IrPbExtendee::EnumValue),
-            ".google.protobuf.ServiceOptions" => Some(IrPbExtendee::Service),
-            ".google.protobuf.MethodOptions" => Some(IrPbExtendee::Method),
-            ".google.protobuf.OneofOptions" => Some(IrPbExtendee::Oneof),
+            ".google.protobuf.FileOptions" => Some(ExtendeeKind::File),
+            ".google.protobuf.MessageOptions" => Some(ExtendeeKind::Message),
+            ".google.protobuf.FieldOptions" => Some(ExtendeeKind::Field),
+            ".google.protobuf.EnumOptions" => Some(ExtendeeKind::Enum),
+            ".google.protobuf.EnumValueOptions" => Some(ExtendeeKind::EnumValue),
+            ".google.protobuf.ServiceOptions" => Some(ExtendeeKind::Service),
+            ".google.protobuf.MethodOptions" => Some(ExtendeeKind::Method),
+            ".google.protobuf.OneofOptions" => Some(ExtendeeKind::Oneof),
             _ => None,
         }
     }
@@ -82,44 +85,46 @@ impl Lower {
     fn lower_pb_field_type(
         &self,
         ty: Option<protobuf::EnumOrUnknown<protobuf::descriptor::field_descriptor_proto::Type>>,
-    ) -> Option<IrPbFieldType> {
+    ) -> Option<ext::pb::FieldType> {
         use protobuf::descriptor::field_descriptor_proto::Type as T;
         let ty = ty?;
         Some(match ty.enum_value().unwrap() {
-            T::TYPE_BOOL => IrPbFieldType::Bool,
-            T::TYPE_INT32 => IrPbFieldType::Int32,
-            T::TYPE_INT64 => IrPbFieldType::Int64,
-            T::TYPE_UINT32 => IrPbFieldType::UInt32,
-            T::TYPE_UINT64 => IrPbFieldType::UInt64,
-            T::TYPE_FLOAT => IrPbFieldType::Float,
-            T::TYPE_DOUBLE => IrPbFieldType::Double,
-            T::TYPE_STRING => IrPbFieldType::String,
-            T::TYPE_BYTES => IrPbFieldType::Bytes,
-            T::TYPE_MESSAGE => IrPbFieldType::Message,
-            T::TYPE_ENUM => IrPbFieldType::Enum,
+            T::TYPE_BOOL => FieldType::Bool,
+            T::TYPE_INT32 => FieldType::Int32,
+            T::TYPE_INT64 => FieldType::Int64,
+            T::TYPE_UINT32 => FieldType::UInt32,
+            T::TYPE_UINT64 => FieldType::UInt64,
+            T::TYPE_FLOAT => FieldType::Float,
+            T::TYPE_DOUBLE => FieldType::Double,
+            T::TYPE_STRING => FieldType::String,
+            T::TYPE_BYTES => FieldType::Bytes,
+            T::TYPE_MESSAGE => FieldType::Message,
+            T::TYPE_ENUM => FieldType::Enum,
             _ => return None,
         })
     }
 
     fn lower_extension(
-        &self,
+        &mut self,
         f: &protobuf::descriptor::FieldDescriptorProto,
         nested_messages: &AHashMap<FastStr, &DescriptorProto>,
-    ) -> Option<IrExtension> {
+    ) -> Option<Arc<ext::pb::Extendee>> {
         let extendee_str = f.extendee();
         if extendee_str.is_empty() {
             return None;
         }
         let extendee = self.lower_extendee(extendee_str)?;
         let field_ty = self.lower_pb_field_type(f.type_)?;
-        let value_ty = self.lower_ty(f.type_, f.type_name.as_deref(), nested_messages, false);
-        Some(IrExtension {
+        let item_ty = self.lower_ty(f.type_, f.type_name.as_deref(), nested_messages, false);
+        let extendee = Arc::new(ext::pb::Extendee {
             name: FastStr::new(f.name()).into(),
-            number: f.number() as u32,
-            field_ty,
-            extendee,
-            value_ty,
-        })
+            index: ExtendeeIndex {
+                extendee_kind: extendee,
+                tag_id: f.number() as u32,
+            },
+            extendee_ty: ext::pb::ExtendeeType { field_ty, item_ty },
+        });
+        Some(extendee)
     }
 
     fn str2path(&self, s: &str) -> ir::Path {
@@ -248,7 +253,7 @@ impl Lower {
     }
 
     fn lower_message(
-        &self,
+        &mut self,
         message: &DescriptorProto,
         parent_messages: &mut Vec<String>,
     ) -> Vec<ir::Item> {
@@ -420,15 +425,17 @@ impl Lower {
                     .collect(),
                 name: FastStr::new(message.name()).into(),
                 is_wrapper: false,
-                extensions: message
-                    .extension
-                    .iter()
-                    .filter_map(|e| self.lower_extension(e, &nested_messages))
-                    .collect(),
             }),
         };
 
-        if nested_items.is_empty() && message.extension.is_empty() {
+        // nested extendees
+        let extendees = message
+            .extension
+            .iter()
+            .filter_map(|e| self.lower_extension(e, &nested_messages))
+            .collect::<Vec<_>>();
+
+        if nested_items.is_empty() && extendees.is_empty() {
             vec![item]
         } else {
             let name = item.name();
@@ -442,11 +449,9 @@ impl Lower {
                     kind: ir::ItemKind::Mod(ir::Mod {
                         name: Ident { sym: name },
                         items: nested_items,
-                        extensions: message
-                            .extension
-                            .iter()
-                            .filter_map(|e| self.lower_extension(e, &nested_messages))
-                            .collect(),
+                        extensions: ext::ModExts::Pb(ext::pb::ModExts {
+                            extendees: extendees.into_iter().map(|e| e.clone()).collect(),
+                        }),
                     }),
                 },
             ]
@@ -534,12 +539,25 @@ impl Lower {
 
                 let package = self.str2path(f.package());
 
-                let enums = f.enum_type.iter().map(|e| self.lower_enum(e));
                 let messages = f
                     .message_type
                     .iter()
-                    .map(|m| self.lower_message(m, &mut Vec::new()));
-                let services = f.service.iter().map(|s| self.lower_service(s));
+                    .map(|m| self.lower_message(m, &mut Vec::new()))
+                    .flatten()
+                    .collect_vec()
+                    .into_iter();
+                let enums = f
+                    .enum_type
+                    .iter()
+                    .map(|e| self.lower_enum(e))
+                    .collect_vec()
+                    .into_iter();
+                let services = f
+                    .service
+                    .iter()
+                    .map(|s| self.lower_service(s))
+                    .collect_vec()
+                    .into_iter();
 
                 let descriptor_bytes = {
                     let bytes_vec = f
@@ -547,6 +565,14 @@ impl Lower {
                         .expect("serialize FileDescriptorProto failed");
                     Bytes::from(bytes_vec)
                 };
+
+                // collect file-level custom option extendees first
+                let file_extendees = f
+                    .extension
+                    .iter()
+                    .filter_map(|e| self.lower_extension(e, &Default::default()))
+                    .collect::<Vec<_>>();
+                let has_extendees = !file_extendees.is_empty();
 
                 let mut f = ir::File {
                     package,
@@ -562,20 +588,17 @@ impl Lower {
                         .collect(),
                     id: file_id,
                     items: messages
-                        .flatten()
                         .chain(enums)
                         .chain(services)
                         .map(Arc::from)
                         .collect::<Vec<_>>(),
                     descriptor: descriptor_bytes,
-                    extensions: f
-                        .extension
-                        .iter()
-                        .filter_map(|e| self.lower_extension(e, &Default::default()))
-                        .collect(),
+                    extensions: ext::FileExts::Pb(ext::pb::FileExts {
+                        extendees: file_extendees,
+                    }),
                 };
 
-                if f.items.is_empty() && !f.extensions.is_empty() {
+                if f.items.is_empty() && has_extendees {
                     f.items.push(Arc::new(ir::Item {
                         related_items: Default::default(),
                         tags: Arc::new(Tags::default()),
