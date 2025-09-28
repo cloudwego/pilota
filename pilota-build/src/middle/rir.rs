@@ -4,7 +4,7 @@ use pilota::Bytes;
 
 use super::ty::Ty;
 use crate::{
-    middle::ext::{FileExts, ModExts},
+    middle::ext::{FileExts, ItemExts, ModExts},
     symbol::{DefId, EnumRepr, FileId, Ident, Symbol},
     tags::TagId,
 };
@@ -50,6 +50,7 @@ pub struct Method {
     pub oneway: bool,
     pub exceptions: Option<Path>,
     pub source: MethodSource,
+    pub item_exts: ItemExts,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -57,6 +58,7 @@ pub struct Service {
     pub name: Ident,
     pub methods: Vec<Arc<Method>>,
     pub extend: Vec<Path>,
+    pub item_exts: ItemExts,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -81,6 +83,7 @@ pub struct Field {
     pub kind: FieldKind,
     pub tags_id: TagId,
     pub default: Option<Literal>,
+    pub item_exts: ItemExts,
 }
 
 impl Field {
@@ -98,6 +101,7 @@ pub struct Message {
     pub name: Ident,
     pub fields: Vec<Arc<Field>>,
     pub is_wrapper: bool,
+    pub item_exts: ItemExts,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -107,6 +111,7 @@ pub struct EnumVariant {
     pub name: Ident,
     pub discr: Option<i64>,
     pub fields: Vec<Ty>,
+    pub item_exts: ItemExts,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -114,6 +119,7 @@ pub struct Enum {
     pub name: Ident,
     pub variants: Vec<Arc<EnumVariant>>,
     pub repr: Option<EnumRepr>,
+    pub item_exts: ItemExts,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

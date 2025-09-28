@@ -5,6 +5,7 @@ use std::sync::Arc;
 use pilota_build::{
     DefId, TagId,
     db::{RirDatabase, RootDatabase},
+    middle::ext::ItemExts,
     rir::{self, Method, MethodSource, Node, NodeKind},
     ty::{Ty, TyKind},
 };
@@ -42,8 +43,10 @@ fn main() {
             oneway: false,
             exceptions: None,
             source: MethodSource::Own,
+            item_exts: ItemExts::Thrift,
         })],
         extend: vec![],
+        item_exts: ItemExts::Thrift,
     });
 
     // Create nodes

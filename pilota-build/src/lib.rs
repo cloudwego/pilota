@@ -368,6 +368,8 @@ where
             nodes,
             tags,
             args,
+            pb_ext_indexes,
+            pb_ext_indexes_used,
         } = Resolver::default().resolve_files(&files);
 
         let items = nodes.iter().filter_map(|(k, v)| match &v.kind {
@@ -387,7 +389,9 @@ where
             .with_tags(tags, type_graph)
             .with_args(args)
             .with_workspace_graph(workspace_graph)
-            .with_input_files(input_files.clone());
+            .with_input_files(input_files.clone())
+            .with_pb_ext_indexes(pb_ext_indexes)
+            .with_pb_exts_used(pb_ext_indexes_used);
 
         let mut input = Vec::with_capacity(input_files.len());
         for file_id in &input_files {
@@ -437,6 +441,7 @@ where
             split,
             with_descriptor,
             with_field_mask,
+            !ignore_unused,
         )
     }
 
