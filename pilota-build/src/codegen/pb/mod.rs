@@ -529,9 +529,9 @@ impl CodegenBackend for ProtobufBackend {
                     stream.push_str(&format!(
                     r#"
                     impl MessageDescriptorGetter for {name} {{
-                        fn get_descriptor_proto(&self) -> &::pilota::pb::descriptor::DescriptorProto {{
+                        fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::DescriptorProto> {{
                             let file_descriptor = {super_mods}file_descriptor_proto_{filename_lower}();
-                            file_descriptor.get_message_descriptor_proto("{idl_name}").unwrap()
+                            file_descriptor.get_message_descriptor_proto("{idl_name}")
                         }}
                     }}
                     "#

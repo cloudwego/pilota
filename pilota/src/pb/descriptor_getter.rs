@@ -15,5 +15,5 @@ impl ItemDescriptorGetter for descriptor::FileDescriptorProto {
 }
 
 pub trait MessageDescriptorGetter {
-    fn get_descriptor_proto(&self) -> &descriptor::DescriptorProto;
+    fn get_descriptor_proto(&self) -> Option<&descriptor::DescriptorProto>;
 }
