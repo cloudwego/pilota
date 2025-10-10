@@ -502,6 +502,46 @@ impl CodegenBackend for ProtobufBackend {
             }"#;
         }
 
+        if self.cx.with_descriptor {
+            match &self
+                .cx
+                .file_paths()
+                .get(&self.cx.node(def_id).unwrap().file_id)
+            {
+                Some(path) => {
+                    let filename = path
+                        .file_stem()
+                        .unwrap()
+                        .to_string_lossy()
+                        .replace(".", "_");
+                    let filename_lower = filename.to_lowercase();
+
+                    let file = &self
+                        .cx
+                        .files()
+                        .get(&self.cx.node(def_id).unwrap().file_id)
+                        .unwrap()
+                        .package;
+                    let path = self.cx.item_path(def_id);
+                    let super_mods = "super::".repeat(path.len() - file.len() - 1);
+
+                    stream.push_str(&format!(
+                    r#"
+                    use ::pilota::pb::getter::*;
+                    
+                    impl ::pilota::pb::getter::MessageDescriptorGetter for {name} {{
+                        fn get_descriptor_proto(&self) -> &::pilota::pb::descriptor::DescriptorProto {{
+                            let file_descriptor = {super_mods}file_descriptor_proto_{filename_lower}();
+                            file_descriptor.get_message_descriptor_proto("{name}").unwrap()
+                        }}
+                    }}
+                    "#
+                ));
+                }
+                None => {}
+            }
+        }
+
         stream.push_str(&format!(
             r#"
             impl ::pilota::pb::Message for {name} {{
@@ -704,6 +744,8 @@ impl CodegenBackend for ProtobufBackend {
 
             stream.push_str(&format!(
                 r#"
+use ::pilota::pb::getter::*;
+
 static FILE_DESCRIPTOR_BYTES_{filename_upper}: ::pilota::Bytes = ::pilota::Bytes::from_static({descriptor:?});
 static FILE_DESCRIPTOR_PROTO_{filename_upper}: ::std::sync::LazyLock<::pilota::pb::descriptor::FileDescriptorProto> = ::std::sync::LazyLock::new(|| {{
         let data: &[u8] = FILE_DESCRIPTOR_BYTES_{filename_upper}.as_ref();

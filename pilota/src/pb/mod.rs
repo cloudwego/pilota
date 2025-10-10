@@ -8,6 +8,7 @@ mod types;
 #[doc(hidden)]
 pub mod encoding;
 pub mod extension;
+pub mod getter;
 
 use bytes::{BufMut, Bytes};
 use encoding::{decode_varint, encode_varint, encoded_len_varint};
