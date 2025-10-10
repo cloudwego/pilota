@@ -527,9 +527,7 @@ impl CodegenBackend for ProtobufBackend {
 
                     stream.push_str(&format!(
                     r#"
-                    use ::pilota::pb::getter::*;
-                    
-                    impl ::pilota::pb::getter::MessageDescriptorGetter for {name} {{
+                    impl MessageDescriptorGetter for {name} {{
                         fn get_descriptor_proto(&self) -> &::pilota::pb::descriptor::DescriptorProto {{
                             let file_descriptor = {super_mods}file_descriptor_proto_{filename_lower}();
                             file_descriptor.get_message_descriptor_proto("{name}").unwrap()
@@ -681,8 +679,8 @@ impl CodegenBackend for ProtobufBackend {
         &self.cx
     }
 
-    fn codegen_pilota_buf_trait(&self, stream: &mut String) {
-        stream.push_str("use ::pilota::{Buf as _, BufMut as _};");
+    fn codegen_pilota_trait(&self, stream: &mut String) {
+        stream.push_str("use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};");
     }
 
     fn codegen_file_descriptor(&self, stream: &mut String, f: &rir::File, has_direct: bool) {
@@ -744,8 +742,6 @@ impl CodegenBackend for ProtobufBackend {
 
             stream.push_str(&format!(
                 r#"
-use ::pilota::pb::getter::*;
-
 static FILE_DESCRIPTOR_BYTES_{filename_upper}: ::pilota::Bytes = ::pilota::Bytes::from_static({descriptor:?});
 static FILE_DESCRIPTOR_PROTO_{filename_upper}: ::std::sync::LazyLock<::pilota::pb::descriptor::FileDescriptorProto> = ::std::sync::LazyLock::new(|| {{
         let data: &[u8] = FILE_DESCRIPTOR_BYTES_{filename_upper}.as_ref();
