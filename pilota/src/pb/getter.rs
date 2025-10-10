@@ -1,5 +1,6 @@
-use protobuf::descriptor;
 use std::option::Option;
+
+use protobuf::descriptor;
 
 pub trait ItemDescriptorGetter {
     fn get_message_descriptor_proto(&self, name: &str) -> Option<&descriptor::DescriptorProto>;
