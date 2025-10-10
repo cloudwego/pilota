@@ -5,6 +5,7 @@ mod error;
 mod message;
 mod types;
 
+pub mod descriptor_getter;
 #[doc(hidden)]
 pub mod encoding;
 pub mod extension;

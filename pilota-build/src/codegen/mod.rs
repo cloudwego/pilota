@@ -212,7 +212,7 @@ where
                         middle::rir::Item::Mod(m) => {
                             let name = self.rust_name(def_id);
                             let mut inner = Default::default();
-                            self.backend.codegen_pilota_buf_trait(&mut inner);
+                            self.backend.codegen_pilota_trait(&mut inner);
                             m.items.iter().for_each(|def_id| {
                                 self.write_item(&mut inner, (*def_id).into(), dup)
                             });
@@ -714,7 +714,7 @@ where
 
             let name = Symbol::from(name.unwrap());
             let mut pilota_buf_trait = Default::default();
-            self.backend.codegen_pilota_buf_trait(&mut pilota_buf_trait);
+            self.backend.codegen_pilota_trait(&mut pilota_buf_trait);
             stream.push_str(&format! {
                 r#"
                 pub mod {name} {{

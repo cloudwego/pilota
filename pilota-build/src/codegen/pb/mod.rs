@@ -543,6 +543,44 @@ impl CodegenBackend for ProtobufBackend {
             .into();
         }
 
+        if self.cx.with_descriptor {
+            match &self
+                .cx
+                .file_paths()
+                .get(&self.cx.node(def_id).unwrap().file_id)
+            {
+                Some(path) => {
+                    let filename = path
+                        .file_stem()
+                        .unwrap()
+                        .to_string_lossy()
+                        .replace(".", "_");
+                    let filename_lower = filename.to_lowercase();
+
+                    let file = &self
+                        .cx
+                        .files()
+                        .get(&self.cx.node(def_id).unwrap().file_id)
+                        .unwrap()
+                        .package;
+                    let path = self.cx.item_path(def_id);
+                    let super_mods = "super::".repeat(path.len() - file.len() - 1);
+
+                    stream.push_str(&format!(
+                    r#"
+                    impl MessageDescriptorGetter for {name} {{
+                        fn get_descriptor_proto(&self) -> &::pilota::pb::descriptor::DescriptorProto {{
+                            let file_descriptor = {super_mods}file_descriptor_proto_{filename_lower}();
+                            file_descriptor.get_message_descriptor_proto("{name}").unwrap()
+                        }}
+                    }}
+                    "#
+                ));
+                }
+                None => {}
+            }
+        }
+
         stream.push_str(&format!(
             r#"
             impl ::pilota::pb::Message for {name} {{
@@ -684,8 +722,8 @@ impl CodegenBackend for ProtobufBackend {
         &self.cx
     }
 
-    fn codegen_pilota_buf_trait(&self, stream: &mut String) {
-        stream.push_str("use ::pilota::{Buf as _, BufMut as _};");
+    fn codegen_pilota_trait(&self, stream: &mut String) {
+        stream.push_str("use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};");
     }
 
     fn codegen_file_descriptor(&self, stream: &mut String, f: &rir::File, has_direct: bool) {
