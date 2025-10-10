@@ -1,6 +1,6 @@
 pub mod nested_message {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};
+    use ::pilota::{Buf as _, BufMut as _};
     #[derive(Debug, Default, Clone, PartialEq)]
     pub struct Tt1 {
         pub t2: tt1::T2,
@@ -65,7 +65,7 @@ pub mod nested_message {
     }
 
     pub mod tt1 {
-        use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};
+        use ::pilota::{Buf as _, BufMut as _};
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Label(i32);
@@ -155,7 +155,7 @@ pub mod nested_message {
         }
 
         pub mod t2 {
-            use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};
+            use ::pilota::{Buf as _, BufMut as _};
             #[derive(Debug, Default, Clone, PartialEq)]
             pub struct Tt3 {
                 pub a: ::std::option::Option<i32>,

@@ -39,11 +39,9 @@ pub mod message {
             pub age: i32,
         }
         impl MessageDescriptorGetter for Person {
-            fn get_descriptor_proto(&self) -> &::pilota::pb::descriptor::DescriptorProto {
+            fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_message();
-                file_descriptor
-                    .get_message_descriptor_proto("Person")
-                    .unwrap()
+                file_descriptor.get_message_descriptor_proto("Person")
             }
         }
 
@@ -104,11 +102,9 @@ pub mod message {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Self_ {}
         impl MessageDescriptorGetter for Self_ {
-            fn get_descriptor_proto(&self) -> &::pilota::pb::descriptor::DescriptorProto {
+            fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_message();
-                file_descriptor
-                    .get_message_descriptor_proto("Self")
-                    .unwrap()
+                file_descriptor.get_message_descriptor_proto("Self")
             }
         }
 
@@ -141,11 +137,9 @@ pub mod message {
             pub employees: ::std::vec::Vec<Person>,
         }
         impl MessageDescriptorGetter for Company {
-            fn get_descriptor_proto(&self) -> &::pilota::pb::descriptor::DescriptorProto {
+            fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_message();
-                file_descriptor
-                    .get_message_descriptor_proto("Company")
-                    .unwrap()
+                file_descriptor.get_message_descriptor_proto("Company")
             }
         }
 
