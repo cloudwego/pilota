@@ -121,6 +121,19 @@ fn test_pb(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     });
 }
 
+fn test_pb_with_descriptor(source: impl AsRef<Path>, target: impl AsRef<Path>) {
+    test_with_builder(source, target, |source, target| {
+        crate::Builder::pb()
+            .ignore_unused(false)
+            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
+            .with_descriptor(true)
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            )
+    });
+}
+
 fn test_pb_with_split(
     source: impl AsRef<Path>,
     target: impl AsRef<Path>,

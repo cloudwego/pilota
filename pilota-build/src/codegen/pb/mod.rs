@@ -422,6 +422,7 @@ impl CodegenBackend for ProtobufBackend {
     const PROTOCOL: &'static str = "protobuf";
 
     fn codegen_struct_impl(&self, def_id: DefId, stream: &mut String, s: &rir::Message) {
+        let idl_name = s.name.sym.0.clone();
         let name = self.cx.rust_name(def_id);
         let mut encoded_len = s
             .fields
@@ -569,9 +570,9 @@ impl CodegenBackend for ProtobufBackend {
                     stream.push_str(&format!(
                     r#"
                     impl MessageDescriptorGetter for {name} {{
-                        fn get_descriptor_proto(&self) -> &::pilota::pb::descriptor::DescriptorProto {{
+                        fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::DescriptorProto> {{
                             let file_descriptor = {super_mods}file_descriptor_proto_{filename_lower}();
-                            file_descriptor.get_message_descriptor_proto("{name}").unwrap()
+                            file_descriptor.get_message_descriptor_proto("{idl_name}")
                         }}
                     }}
                     "#
@@ -722,8 +723,13 @@ impl CodegenBackend for ProtobufBackend {
         &self.cx
     }
 
-    fn codegen_pilota_trait(&self, stream: &mut String) {
-        stream.push_str("use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};");
+    fn codegen_pilota_buf_descriptor_trait(&self, stream: &mut String) {
+        match &self.cx.with_descriptor {
+            true => {
+                stream.push_str("use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};")
+            }
+            false => stream.push_str("use ::pilota::{Buf as _, BufMut as _};"),
+        }
     }
 
     fn codegen_file_descriptor(&self, stream: &mut String, f: &rir::File, has_direct: bool) {

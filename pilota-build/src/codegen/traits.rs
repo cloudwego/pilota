@@ -36,7 +36,7 @@ pub trait CodegenBackend: Clone {
         _mods: &[(ModPath, Arc<PathBuf>)],
     ) {
     }
-    fn codegen_pilota_trait(&self, _stream: &mut String) {}
+    fn codegen_pilota_buf_descriptor_trait(&self, _stream: &mut String) {}
 
     fn codegen_file_descriptor_at_mod(
         &self,
