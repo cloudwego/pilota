@@ -622,11 +622,12 @@ impl CodegenBackend for ThriftBackend {
             ));
 
             if !s.is_wrapper && self.config.with_descriptor {
+                let idl_name = s.name.sym.0.clone();
                 stream.push_str(&format! {
                     r#"impl {name} {{
-                        pub fn get_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {{
+                        pub fn get_descriptor() -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
                             let file_descriptor = get_file_descriptor_{filename_lower}();
-                            file_descriptor.find_struct_by_name("{name}").unwrap()
+                            file_descriptor.find_struct_by_name("{idl_name}")
                         }}
                     }}"#
                 });
@@ -719,11 +720,12 @@ impl CodegenBackend for ThriftBackend {
             })
             .join("");
 
+        let idl_name = s.name.sym.0.clone();
         stream.push_str(&format! {
             r#"impl {name} {{
-                pub fn get_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {{
+                pub fn get_descriptor() -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
                     let file_descriptor = get_file_descriptor_{filename_lower}();
-                    file_descriptor.find_struct_by_name("{name}").unwrap()
+                    file_descriptor.find_struct_by_name("{idl_name}")
                 }}
 
                 pub fn set_field_mask(&mut self, field_mask: ::pilota_thrift_fieldmask::FieldMask) {{
@@ -1026,7 +1028,7 @@ impl CodegenBackend for ThriftBackend {
 
                 stream.push_str(&format!(
                         r#"impl {name} {{
-                            pub fn get_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {{
+                            pub fn get_descriptor() -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
                                 {inner_name}::get_descriptor()
                             }}
                             pub fn set_field_mask(&mut self, field_mask: ::pilota_thrift_fieldmask::FieldMask) {{

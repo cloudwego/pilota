@@ -1,6 +1,6 @@
 pub mod unknown_fields_pb_new {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};
+    use ::pilota::{Buf as _, BufMut as _};
     #[derive(
         PartialOrd,
         Hash,
