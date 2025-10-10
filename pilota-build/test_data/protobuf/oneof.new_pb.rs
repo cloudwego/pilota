@@ -1,6 +1,6 @@
 pub mod oneof {
     #![allow(warnings, clippy::all)]
-    use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};
+    use ::pilota::{Buf as _, BufMut as _};
     #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
     pub struct Test {
         pub c: i32,
@@ -83,7 +83,7 @@ pub mod oneof {
     }
 
     pub mod test {
-        use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};
+        use ::pilota::{Buf as _, BufMut as _};
 
         impl ::std::default::Default for Test {
             fn default() -> Self {

@@ -191,7 +191,7 @@ where
                         middle::rir::Item::Mod(m) => {
                             let name = self.rust_name(def_id);
                             let mut inner = Default::default();
-                            self.backend.codegen_pilota_trait(&mut inner);
+                            self.backend.codegen_pilota_buf_descriptor_trait(&mut inner);
                             m.items.iter().for_each(|def_id| {
                                 self.write_item(&mut inner, (*def_id).into(), dup)
                             });
@@ -681,7 +681,8 @@ where
 
             let name = Symbol::from(name.unwrap());
             let mut pilota_buf_trait = Default::default();
-            self.backend.codegen_pilota_trait(&mut pilota_buf_trait);
+            self.backend
+                .codegen_pilota_buf_descriptor_trait(&mut pilota_buf_trait);
             stream.push_str(&format! {
                 r#"
                 pub mod {name} {{
@@ -802,7 +803,8 @@ where
     pub fn write_file(self, ns_name: Symbol, file_name: impl AsRef<Path>) {
         let base_dir = file_name.as_ref().parent().unwrap();
         let mut stream = String::default();
-        self.backend.codegen_pilota_buf_trait(&mut stream);
+        self.backend
+            .codegen_pilota_buf_descriptor_buf_trait(&mut stream);
 
         let (mod_items, file_has_direct) = self.collect_codegen_items();
 
