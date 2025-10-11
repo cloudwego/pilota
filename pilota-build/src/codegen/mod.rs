@@ -307,6 +307,12 @@ where
             Default::default()
         };
 
+        let impl_enum_descriptor_getter = if self.with_descriptor {
+            self.backend.codegen_impl_enum_descriptor_getter(def_id, e)
+        } else {
+            Default::default()
+        };
+
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq, Copy)]
             #[repr(transparent)]
@@ -335,6 +341,8 @@ where
             }}
 
             {impl_enum_message}
+
+            {impl_enum_descriptor_getter}
 
             impl ::std::convert::From<{repr}> for {name} {{
                 fn from(value: {repr}) -> Self {{

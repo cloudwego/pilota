@@ -586,7 +586,6 @@ impl CodegenBackend for ProtobufBackend {
         if !self.cx.contains_tag::<OneOf>(node.tags) {
             return;
         }
-        let idl_name = e.name.sym.0.clone();
         let name = self.cx.rust_name(def_id);
 
         let encoded_len = e
@@ -643,44 +642,6 @@ impl CodegenBackend for ProtobufBackend {
                 }},"#
             }
         }).join("");
-
-        if self.cx.with_descriptor {
-            match &self
-                .cx
-                .file_paths()
-                .get(&self.cx.node(def_id).unwrap().file_id)
-            {
-                Some(path) => {
-                    let filename = path
-                        .file_stem()
-                        .unwrap()
-                        .to_string_lossy()
-                        .replace(".", "_");
-                    let filename_lower = filename.to_lowercase();
-
-                    let file = &self
-                        .cx
-                        .files()
-                        .get(&self.cx.node(def_id).unwrap().file_id)
-                        .unwrap()
-                        .package;
-                    let path = self.cx.item_path(def_id);
-                    let super_mods = "super::".repeat(path.len() - file.len() - 1);
-
-                    stream.push_str(&format!(
-                    r#"
-                    impl EnumDescriptorGetter for {name} {{
-                        fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::EnumDescriptorProto> {{
-                            let file_descriptor = {super_mods}file_descriptor_proto_{filename_lower}();
-                            file_descriptor.get_enum_descriptor_proto("{idl_name}")
-                        }}
-                    }}
-                    "#
-                ));
-                }
-                None => {}
-            }
-        }
 
         stream.push_str(&format! {
             r#"impl {name} {{
@@ -878,6 +839,46 @@ pub fn file_descriptor_{filename_lower}() -> &'static ::pilota::pb::reflect::Fil
             }}
         "#
         )
+    }
+
+    fn codegen_impl_enum_descriptor_getter(&self, def_id: DefId, e: &rir::Enum) -> String {
+        match &self
+            .cx
+            .file_paths()
+            .get(&self.cx.node(def_id).unwrap().file_id)
+        {
+            Some(path) => {
+                let name = self.cx.rust_name(def_id);
+                let idl_name = e.name.sym.0.clone();
+                let filename = path
+                    .file_stem()
+                    .unwrap()
+                    .to_string_lossy()
+                    .replace(".", "_");
+                let filename_lower = filename.to_lowercase();
+
+                let file = &self
+                    .cx
+                    .files()
+                    .get(&self.cx.node(def_id).unwrap().file_id)
+                    .unwrap()
+                    .package;
+                let path = self.cx.item_path(def_id);
+                let super_mods = "super::".repeat(path.len() - file.len() - 1);
+
+                format!(
+                    r#"
+                    impl EnumDescriptorGetter for {name} {{
+                        fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::EnumDescriptorProto> {{
+                            let file_descriptor = {super_mods}file_descriptor_proto_{filename_lower}();
+                            file_descriptor.get_enum_descriptor_proto("{idl_name}")
+                        }}
+                    }}
+                    "#
+                )
+            }
+            None => "".to_string(),
+        }
     }
 }
 

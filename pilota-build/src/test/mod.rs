@@ -418,6 +418,28 @@ fn test_protobuf_gen() {
 }
 
 #[test]
+fn test_protobuf_with_descriptor() {
+    let test_data_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("protobuf_with_descriptor");
+
+    test_data_dir.read_dir().unwrap().for_each(|f| {
+        let f = f.unwrap();
+
+        let path = f.path();
+
+        if let Some(ext) = path.extension() {
+            if ext == "proto" {
+                let mut rs_path = path.clone();
+                let path_clone = path.clone();
+                rs_path.set_extension(".rs");
+                test_pb_with_descriptor(path_clone, rs_path);
+            }
+        }
+    });
+}
+
+#[test]
 fn test_protobuf_gen_with_split() {
     let test_data_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("test_data")
