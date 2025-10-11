@@ -397,74 +397,74 @@ fn walk_message(md: &::pilota::pb::reflect::MessageDescriptor, depth: usize) {
         }
     }
 
-    //         // field options
-    //         for f in &dp.field {
-    //             if let Some(f_opts) = f.options.as_ref() {
-    //                 if let Ok(v) = exts_custom_options::sensitive.get(f_opts) {
-    //                     println!("{}field_option sensitive: {}", indent, v);
-    //                 }
-    //                 if let Ok(v) = exts_custom_options::validation.get(f_opts) {
-    //                     println!("{}field_option validation: {}", indent, v);
-    //                 }
-    //                 if let Ok(v) = exts_custom_options::db_column.get(f_opts) {
-    //                     println!("{}field_option db_column: {}", indent, v);
-    //                 }
-    //                 if let Ok(v) = exts_custom_options::db_index.get(f_opts) {
-    //                     assert_eq!(v, true);
-    //                 }
-    //                 if let Ok(v) = exts_custom_options::api_doc.get(f_opts) {
-    //                     println!("{}field_option api_doc: {}", indent, v);
-    //                 }
-    //             }
-    //         }
+//         // field options
+//         for f in &dp.field {
+//             if let Some(f_opts) = f.options.as_ref() {
+//                 if let Ok(v) = exts_custom_options::sensitive.get(f_opts) {
+//                     println!("{}field_option sensitive: {}", indent, v);
+//                 }
+//                 if let Ok(v) = exts_custom_options::validation.get(f_opts) {
+//                     println!("{}field_option validation: {}", indent, v);
+//                 }
+//                 if let Ok(v) = exts_custom_options::db_column.get(f_opts) {
+//                     println!("{}field_option db_column: {}", indent, v);
+//                 }
+//                 if let Ok(v) = exts_custom_options::db_index.get(f_opts) {
+//                     assert_eq!(v, true);
+//                 }
+//                 if let Ok(v) = exts_custom_options::api_doc.get(f_opts) {
+//                     println!("{}field_option api_doc: {}", indent, v);
+//                 }
+//             }
+//         }
 
-    // oneof options
-    for o in &dp.oneof_decl {
-        if let Some(o_opts) = o.options.as_ref() {
-            if let Ok(v) = exts_custom_options::oneof_description.get(o_opts) {
-                println!("{}oneof_option oneof_description: {}", indent, v);
-            }
-            if let Ok(v) = exts_custom_options::exclusive.get(o_opts) {
-                println!("{}oneof_option exclusive: {}", indent, v);
-            }
-        }
-    }
+//         // oneof options
+//         for o in &dp.oneof_decl {
+//             if let Some(o_opts) = o.options.as_ref() {
+//                 if let Ok(v) =
+// exts_custom_options::oneof_description.get(o_opts) {
+// println!("{}oneof_option oneof_description: {}", indent, v);
+// }                 if let Ok(v) = exts_custom_options::exclusive.get(o_opts) {
+//                     println!("{}oneof_option exclusive: {}", indent, v);
+//                 }
+//             }
+//         }
 
-    // enum options
-    for e in &dp.enum_type {
-        if let Some(e_opts) = e.options.as_ref() {
-            if let Ok(v) = exts_custom_options::enum_description.get(e_opts) {
-                println!("{}enum_option enum_description: {}", indent, v);
-            }
-            if let Ok(v) = exts_custom_options::is_internal.get(e_opts) {
-                println!("{}enum_option is_internal: {}", indent, v);
-            }
-        }
-        for ev in &e.value {
-            if let Some(ev_opts) = ev.options.as_ref() {
-                if let Ok(v) = exts_custom_options::display_name.get(ev_opts) {
-                    println!("{}enum_value_option display_name: {}", indent, v);
-                }
-                if let Ok(v) = exts_custom_options::access_level.get(ev_opts) {
-                    println!("{}enum_value_option access_level: {}", indent, v);
-                }
-                if let Ok(v) = exts_custom_options::color.get(ev_opts) {
-                    println!("{}enum_value_option color: {}", indent, v);
-                }
-            }
-        }
-    }
+//         // enum options
+//         for e in &dp.enum_type {
+//             if let Some(e_opts) = e.options.as_ref() {
+//                 if let Ok(v) =
+// exts_custom_options::enum_description.get(e_opts) {
+// println!("{}enum_option enum_description: {}", indent, v);                 }
+//                 if let Ok(v) = exts_custom_options::is_internal.get(e_opts) {
+//                     println!("{}enum_option is_internal: {}", indent, v);
+//                 }
+//             }
+//             for ev in &e.value {
+//                 if let Some(ev_opts) = ev.options.as_ref() {
+//                     if let Ok(v) =
+// exts_custom_options::display_name.get(ev_opts) {
+// println!("{}enum_value_option display_name: {}", indent, v);
+// }                     if let Ok(v) =
+// exts_custom_options::access_level.get(ev_opts) {
+// println!("{}enum_value_option access_level: {}", indent, v);
+// }                     if let Ok(v) = exts_custom_options::color.get(ev_opts)
+// {                         println!("{}enum_value_option color: {}", indent,
+// v);                     }
+//                 }
+//             }
+//         }
 
-    //         // recursive traverse nested message
-    //         for nested in md.nested_messages() {
-    //             walk_message(&nested, depth + 1);
-    //         }
-    //     }
+//         // recursive traverse nested message
+//         for nested in md.nested_messages() {
+//             walk_message(&nested, depth + 1);
+//         }
+//     }
 
-    //     // top level message
-    //     for m in fd.messages() {
-    //         walk_message(&m, 0);
-    //     }
+//     // top level message
+//     for m in fd.messages() {
+//         walk_message(&m, 0);
+//     }
 
 //     // top level enum and enum value options
 //     for e in fd.enums() {
