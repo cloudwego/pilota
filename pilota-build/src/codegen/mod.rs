@@ -328,6 +328,12 @@ where
             Default::default()
         };
 
+        let impl_enum_descriptor_getter = if self.config.with_descriptor {
+            self.backend.codegen_impl_enum_descriptor_getter(def_id, e)
+        } else {
+            Default::default()
+        };
+
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq, Copy)]
             #[repr(transparent)]
@@ -356,6 +362,8 @@ where
             }}
 
             {impl_enum_message}
+
+            {impl_enum_descriptor_getter}
 
             impl ::std::convert::From<{repr}> for {name} {{
                 fn from(value: {repr}) -> Self {{
@@ -837,7 +845,7 @@ where
         let base_dir = file_name.as_ref().parent().unwrap();
         let mut stream = String::default();
         self.backend
-            .codegen_pilota_buf_descriptor_buf_trait(&mut stream);
+            .codegen_pilota_buf_descriptor_trait(&mut stream);
 
         let (mod_items, file_has_direct) = self.collect_codegen_items();
 
