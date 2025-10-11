@@ -72,4 +72,9 @@ pub trait CodegenBackend: Clone {
     fn codegen_impl_enum_message(&self, _name: &str) -> String {
         Default::default()
     }
+
+    // pb only
+    fn codegen_impl_enum_descriptor_getter(&self, def_id: DefId, e: &rir::Enum) -> String {
+        Default::default()
+    }
 }

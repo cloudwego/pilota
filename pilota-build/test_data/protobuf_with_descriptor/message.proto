@@ -13,3 +13,9 @@ message Company {
 }
 
 message Self {}
+
+enum Status {
+  UNKNOWN = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+}
