@@ -73,10 +73,6 @@ harness = false
 name = "unknown_pb"
 harness = false
 
-[[bench]]
-name = "unknown_pb_new"
-harness = false
-
 [[example]]
 name = "salsa_cache_demo"
 path = "examples/salsa_cache_demo.rs"

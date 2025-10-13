@@ -365,14 +365,14 @@ impl Plugin for ImplDefaultPlugin {
                         })
                         .join(",\n");
 
-                    if cx.keep_unknown_fields.contains(&def_id) {
+                    if cx.cache.keep_unknown_fields.contains(&def_id) {
                         if !fields.is_empty() {
                             fields.push_str(",\n");
                         }
                         fields.push_str("_unknown_fields: ::pilota::BytesVec::new()");
                     }
 
-                    if !m.is_wrapper && cx.with_field_mask {
+                    if !m.is_wrapper && cx.config.with_field_mask {
                         if !fields.is_empty() {
                             fields.push_str(",\n");
                         }

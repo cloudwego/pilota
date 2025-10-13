@@ -1,6 +1,6 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use pilota::{
-    prost::bytes::BytesMut,
+    pb::bytes::BytesMut,
     thrift::{Message, binary::TBinaryProtocol},
 };
 

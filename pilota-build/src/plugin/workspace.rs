@@ -10,8 +10,8 @@ pub struct _WorkspacePlugin;
 
 impl Plugin for _WorkspacePlugin {
     fn on_codegen_uint(&mut self, cx: &crate::Context, _items: &[crate::DefId]) {
-        cx.entry_map.iter().for_each(|(k, v)| {
-            cx.plugin_gen.insert(k.clone(), "".to_string());
+        cx.cache.entry_map.iter().for_each(|(k, v)| {
+            cx.cache.plugin_gen.insert(k.clone(), "".to_string());
             v.iter().for_each(|(def_id, _)| {
                 CUR_ITEM.set(def_id, || {
                     let node = cx.node(*def_id).unwrap();
@@ -30,8 +30,8 @@ impl Plugin for _WorkspacePlugin {
         item: std::sync::Arc<crate::rir::Item>,
     ) {
         if let Item::Service(s) = &*item {
-            if let Some(loc) = cx.location_map.get(&def_id) {
-                if let Some(mut r#gen) = cx.plugin_gen.get_mut(loc) {
+            if let Some(loc) = cx.cache.location_map.get(&def_id) {
+                if let Some(mut r#gen) = cx.cache.plugin_gen.get_mut(loc) {
                     r#gen.push_str(&format!("pub struct {};", s.name.sym));
                 }
             };

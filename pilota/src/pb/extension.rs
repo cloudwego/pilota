@@ -81,7 +81,7 @@ impl OptionValueExtractor for UInt64OptionValueExtractor {
     type Value = u64;
     fn get_from_unknown(value: protobuf::UnknownValueRef) -> Result<Self::Value, DecodeError> {
         match value {
-            protobuf::UnknownValueRef::Varint(v) => Ok(v as u64),
+            protobuf::UnknownValueRef::Varint(v) => Ok(v),
             _ => Err(DecodeError::new("invalid value for u64")),
         }
     }

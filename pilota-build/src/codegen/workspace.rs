@@ -90,13 +90,13 @@ where
         })
         .unwrap();
 
-        let reflect_dep = if self.cg.with_descriptor {
+        let reflect_dep = if self.cg.config.with_descriptor {
             r#"pilota-thrift-reflect = "*""#
         } else {
             r#""#
         };
 
-        let fieldmask_dep = if self.cg.with_field_mask {
+        let fieldmask_dep = if self.cg.config.with_field_mask {
             r#"pilota-thrift-fieldmask = "*""#
         } else {
             r#""#
@@ -170,7 +170,7 @@ where
                         re_pubs,
                         items: entry_map[*k].iter().map(|(k, _)| **k).collect_vec(),
                         deps,
-                        user_gen: this.cx().plugin_gen.get(k).map(|v| v.value().clone()),
+                        user_gen: this.cx().cache.plugin_gen.get(k).map(|v| v.value().clone()),
                     },
                 )
             })?;
@@ -289,6 +289,6 @@ where
     }
 
     pub(crate) fn write_crates(self) -> anyhow::Result<()> {
-        self.group_defs(&self.cx().codegen_items)
+        self.group_defs(&self.cx().cache.codegen_items)
     }
 }
