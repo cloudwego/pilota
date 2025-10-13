@@ -15,7 +15,9 @@ pub use error::{DecodeError, EncodeError};
 pub use linkedbytes::LinkedBytes;
 pub use message::{EnumMessage, Message};
 // pb custom options
-pub use protobuf::{EnumOrUnknown, Message as PbMessage, UnknownValueRef, descriptor, reflect};
+pub use protobuf::{
+    EnumOrUnknown, Message as PbMessage, UnknownValueRef, descriptor, reflect, well_known_types,
+};
 
 // See `encoding::DecodeContext` for more info.
 // 100 is the default recursion limit in the C++ implementation.

@@ -11,7 +11,7 @@ use crate::{
         rir::{self, Enum, Field, Message, Method, NewType, Service},
     },
     rir::EnumVariant,
-    symbol::{DefId, EnumRepr, Symbol},
+    symbol::{DefId, EnumRepr, ModPath, Symbol},
     tags::thrift::EntryMessage,
     ty::TyKind,
 };
@@ -561,12 +561,8 @@ impl CodegenBackend for ThriftBackend {
     fn codegen_struct_impl(&self, def_id: DefId, stream: &mut String, s: &Message) {
         let filename = self
             .cx
-            .file_paths()
-            .get(&self.cx.node(def_id).unwrap().file_id)
+            .file_name(self.cx.node(def_id).unwrap().file_id)
             .unwrap()
-            .file_stem()
-            .unwrap()
-            .to_string_lossy()
             .replace(".", "_");
         let filename_lower = filename.to_lowercase();
         let keep = self.cache.keep_unknown_fields.contains(&def_id);
@@ -1069,14 +1065,7 @@ impl CodegenBackend for ThriftBackend {
     }
 
     fn codegen_file_descriptor(&self, stream: &mut String, f: &rir::File, has_direct: bool) {
-        let filename = self
-            .file_paths()
-            .get(&f.file_id)
-            .unwrap()
-            .file_stem()
-            .unwrap()
-            .to_string_lossy()
-            .replace(".", "_");
+        let filename = self.file_name(f.file_id).unwrap().replace(".", "_");
         let filename_upper = filename.to_uppercase();
         let filename_lower = filename.to_lowercase();
         if has_direct {
@@ -1133,7 +1122,7 @@ pub fn get_file_descriptor_{filename_lower}() -> &'static ::pilota_thrift_reflec
     fn codegen_register_mod_file_descriptor(
         &self,
         stream: &mut String,
-        mods: &[(Arc<[FastStr]>, Arc<PathBuf>)],
+        mods: &[(ModPath, Arc<PathBuf>)],
     ) {
         stream.push_str(r#"
                 pub fn find_mod_file_descriptor(path: &str) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
@@ -1143,7 +1132,7 @@ pub fn get_file_descriptor_{filename_lower}() -> &'static ::pilota_thrift_reflec
         for (p, path) in mods {
             let filename = path
                 .file_stem()
-                .expect("must_exist")
+                .unwrap()
                 .to_string_lossy()
                 .to_lowercase()
                 .replace(".", "_");

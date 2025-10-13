@@ -200,7 +200,8 @@ pub struct Resolver {
     ir_files: FxHashMap<FileId, Arc<ir::File>>,
     errors: errors::Handler,
     args: FxHashSet<DefId>,
-    pb_ext_indexes: FxHashMap<ExtendeeIndex, Arc<Extendee>>, // for collecting pb options references
+    pb_ext_indexes: FxHashMap<ExtendeeIndex, Arc<Extendee>>, /* for collecting pb options
+                                                              * references */
     pb_ext_indexes_used: FxHashSet<ExtendeeIndex>,
 }
 
@@ -383,6 +384,7 @@ impl Resolver {
     fn lower_file_exts(&mut self, exts: &ir::ext::FileExts) -> FileExts {
         match exts {
             ir::ext::FileExts::Pb(exts) => FileExts::Pb(pb::FileExts {
+                well_known_file_name: exts.well_known_file_name,
                 extendees: self.lower_pb_extendees(&exts.extendees),
                 used_options: self.lower_used_options(&exts.used_options),
             }),
