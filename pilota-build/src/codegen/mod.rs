@@ -27,7 +27,7 @@ use crate::{
         rir,
     },
     rir::{Item, NodeKind},
-    symbol::{DefId, EnumRepr, FileId},
+    symbol::{DefId, EnumRepr, FileId, ModPath},
     tags::protobuf::Deprecated,
 };
 
@@ -38,7 +38,6 @@ pub(crate) mod traits;
 mod workspace;
 
 pub mod pb;
-pub mod protobuf;
 pub mod thrift;
 
 #[derive(Clone)]
@@ -132,11 +131,11 @@ where
             })
             .join("\n");
 
-        if self.keep_unknown_fields.contains(&def_id) {
+        if self.cache.keep_unknown_fields.contains(&def_id) {
             fields.push_str("pub _unknown_fields: ::pilota::BytesVec,");
         }
 
-        if !s.is_wrapper && self.with_field_mask {
+        if !s.is_wrapper && self.config.with_field_mask {
             fields.push_str(
                 "pub _field_mask: ::std::option::Option<::pilota_thrift_fieldmask::FieldMask>,",
             );
@@ -198,7 +197,7 @@ where
                                 self.write_item(&mut inner, (*def_id).into(), dup)
                             });
 
-                            if self.with_descriptor && m.extensions.has_extendees() {
+                            if self.config.with_descriptor && m.extensions.has_extendees() {
                                 let cur_pkg = self.item_path(def_id);
                                 self.backend.codegen_mod_exts(
                                     &mut inner,
@@ -231,7 +230,7 @@ where
 
     fn duplicate(&self, dup: &mut AHashMap<FastStr, Vec<DefId>>, def_id: DefId) -> bool {
         let name = self.rust_name(def_id);
-        if !self.dedups.contains(&name.0) {
+        if !self.cache.dedups.contains(&name.0) {
             return false;
         }
         let dup = dup.entry(name.0).or_default();
@@ -303,7 +302,7 @@ where
             ""
         };
 
-        let impl_enum_message = if self.with_descriptor {
+        let impl_enum_message = if self.config.with_descriptor {
             self.backend.codegen_impl_enum_message(&name)
         } else {
             Default::default()
@@ -393,7 +392,7 @@ where
             })
             .join("\n");
 
-        if self.keep_unknown_fields.contains(&def_id) && keep {
+        if self.cache.keep_unknown_fields.contains(&def_id) && keep {
             variants.push_str("_UnknownFields(::pilota::BytesVec),");
         }
         stream.push_str(&format! {
@@ -476,6 +475,7 @@ where
         tracing::debug!("path {:?}", path);
         let file_id: FileId = self.file_id(path).unwrap();
         let item = self
+            .cache
             .codegen_items
             .iter()
             .copied()
@@ -549,7 +549,7 @@ where
         let mods = items.into_group_map_by(|CodegenItem { def_id, .. }| {
             let path = Arc::from_iter(self.mod_path(*def_id).iter().map(|s| s.0.clone()));
             tracing::debug!("ths path of {:?} is {:?}", def_id, path);
-            match &*self.mode {
+            match &*self.source.mode {
                 Mode::Workspace(_) => Arc::from(&path[1..]), /* the first element for
                                                                 * workspace */
                 // path is crate name
@@ -557,11 +557,11 @@ where
             }
         });
 
-        let mod_files = if self.with_descriptor {
+        let mod_files = if self.config.with_descriptor {
             mods.iter()
                 .map(|(mod_path, items)| {
                     let collect_has_direct = items
-                        .into_iter()
+                        .iter()
                         .into_group_map_by(|CodegenItem { def_id, .. }| {
                             self.node(*def_id).unwrap().file_id
                         })
@@ -585,7 +585,7 @@ where
             AHashMap::default()
         };
 
-        if self.with_descriptor {
+        if self.config.with_descriptor {
             let mut mods_paths = Vec::with_capacity(mod_files.len());
             for (p, collect_has_direct) in mod_files.iter() {
                 for (_, file_path, has_direct) in collect_has_direct.iter() {
@@ -611,7 +611,7 @@ where
             let _enter = span.enter();
             let mut dup = AHashMap::default();
 
-            if this.with_descriptor {
+            if this.config.with_descriptor {
                 let cur_path: Vec<FastStr> = p.iter().cloned().collect();
                 let collect_has_direct = mod_files.get(p).unwrap();
                 for (file_id, _, has_direct) in collect_has_direct.iter() {
@@ -623,7 +623,7 @@ where
                         *has_direct,
                     );
 
-                    if let Some(mod_idx) = this.mod_idxes.get(p) {
+                    if let Some(mod_idx) = this.cache.mod_idxes.get(&ModPath::from(p.clone())) {
                         let item = this.item(*mod_idx).unwrap();
                         if let middle::rir::Item::Mod(m) = &*item {
                             let name = this.rust_name(*mod_idx);
@@ -641,8 +641,8 @@ where
                 }
             }
 
-            if this.split {
-                Self::write_split_mod(this, base_dir, p, &def_ids, &mut stream, &mut dup);
+            if this.config.split {
+                Self::write_split_mod(this, base_dir, p, def_ids, &mut stream, &mut dup);
             } else {
                 for def_id in def_ids.iter() {
                     this.write_item(&mut stream, *def_id, &mut dup)
@@ -772,7 +772,11 @@ where
         let base_dir = file_name.as_ref().parent().unwrap();
         let mut stream = String::default();
         self.backend.codegen_pilota_buf_trait(&mut stream);
-        let items = self.codegen_items.iter().map(|def_id| (*def_id).into());
+        let items = self
+            .cache
+            .codegen_items
+            .iter()
+            .map(|def_id| (*def_id).into());
 
         self.write_items(&mut stream, items, base_dir);
 
@@ -788,7 +792,7 @@ where
     }
 
     pub fn r#gen(self) -> anyhow::Result<()> {
-        match &*self.mode.clone() {
+        match &*self.source.mode.clone() {
             Mode::Workspace(info) => self.write_workspace(info.dir.clone()),
             Mode::SingleFile { file_path: p } => {
                 self.write_file(

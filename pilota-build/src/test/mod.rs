@@ -106,39 +106,10 @@ fn check_cargo_build(target: impl AsRef<Path>) {
     }
 }
 
-fn test_protobuf(source: impl AsRef<Path>, target: impl AsRef<Path>) {
-    test_with_builder(source, target, |source, target| {
-        crate::Builder::protobuf()
-            .ignore_unused(false)
-            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
-            .compile_with_config(
-                vec![IdlService::from_path(source.to_path_buf())],
-                crate::Output::File(target.into()),
-            )
-    });
-}
-
 fn test_pb(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     test_with_builder(source, target, |source, target| {
         crate::Builder::pb()
             .ignore_unused(false)
-            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
-            .compile_with_config(
-                vec![IdlService::from_path(source.to_path_buf())],
-                crate::Output::File(target.into()),
-            )
-    });
-}
-
-fn test_protobuf_with_split(
-    source: impl AsRef<Path>,
-    target: impl AsRef<Path>,
-    gen_dir: impl AsRef<Path>,
-) {
-    test_with_split_builder(source, target, gen_dir, |source, target| {
-        crate::Builder::protobuf()
-            .ignore_unused(false)
-            .split_generated_files(true)
             .include_dirs(vec![source.parent().unwrap().to_path_buf()])
             .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
@@ -426,12 +397,8 @@ fn test_protobuf_gen() {
         if let Some(ext) = path.extension() {
             if ext == "proto" {
                 let mut rs_path = path.clone();
-                let mut rs_path_new = path.clone();
-                let path_clone = path.clone();
                 rs_path.set_extension("rs");
-                test_protobuf(path, rs_path);
-                rs_path_new.set_extension("new_pb.rs");
-                test_pb(path_clone, rs_path_new);
+                test_pb(path, rs_path);
             }
         }
     });
@@ -452,28 +419,17 @@ fn test_protobuf_gen_with_split() {
             if ext == "proto" {
                 let file_name = path.file_name().unwrap();
                 let mut path_clone = path.clone();
-                let mut path_clone_new = path.clone();
 
                 path_clone.pop();
                 path_clone.push("pb");
                 path_clone.push(file_name);
                 path_clone.set_extension("rs");
 
-                path_clone_new.pop();
-                path_clone_new.push("new_pb");
-                path_clone_new.push(file_name);
-                path_clone_new.set_extension("rs");
-
                 let mut gen_dir = path_clone.clone();
                 gen_dir.pop();
                 gen_dir.push(path_clone.file_stem().unwrap());
 
-                let mut gen_dir_new = path_clone_new.clone();
-                gen_dir_new.pop();
-                gen_dir_new.push(path_clone_new.file_stem().unwrap());
-
-                test_protobuf_with_split(&path, path_clone, gen_dir.as_path());
-                test_pb_with_split(&path, path_clone_new, gen_dir_new.as_path());
+                test_pb_with_split(&path, path_clone, gen_dir.as_path());
             }
         }
     });
@@ -543,33 +499,13 @@ fn test_unknown_fields() {
             )
     });
 
-    // pb
-    let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("test_data")
-        .join("unknown_fields_pb.proto");
-
-    let mut out_path = file_path.clone();
-    out_path.set_extension("rs");
-
-    test_with_builder(file_path, out_path, |source, target| {
-        crate::Builder::protobuf()
-            .ignore_unused(false)
-            .keep_unknown_fields([source.into()])
-            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
-            .plugin(SerdePlugin)
-            .compile_with_config(
-                vec![IdlService::from_path(source.to_path_buf())],
-                crate::Output::File(target.into()),
-            )
-    });
-
     // new pb
     let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("test_data")
         .join("unknown_fields_pb.proto");
 
     let mut out_path = file_path.clone();
-    out_path.set_file_name("unknown_fields_pb_new.rs");
+    out_path.set_file_name("unknown_fields_pb.rs");
 
     test_with_builder(file_path, out_path, |source, target| {
         crate::Builder::pb()

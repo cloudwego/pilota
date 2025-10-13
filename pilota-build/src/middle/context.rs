@@ -18,7 +18,7 @@ use crate::{
     Plugin,
     db::{RirDatabase, RootDatabase},
     rir::{self, Field, Item, ItemPath, Literal},
-    symbol::{DefId, FileId, IdentName, SPECIAL_NAMINGS, Symbol},
+    symbol::{DefId, FileId, IdentName, ModPath, SPECIAL_NAMINGS, Symbol},
     tags::{TagId, Tags},
     ty::{AdtDef, AdtKind, CodegenTy, Visitor},
 };
@@ -54,51 +54,50 @@ pub enum Mode {
 }
 
 pub struct Context {
-    pub source_type: SourceType,
     pub db: RootDatabase,
-    pub adjusts: Arc<DashMap<DefId, Adjust>>,
+    pub source: Source,
+    pub config: Config,
+    pub cache: Cache,
+}
+
+#[derive(Clone)]
+pub struct Source {
+    pub source_type: SourceType,
     pub services: Arc<[crate::IdlService]>,
-    pub(crate) change_case: bool,
-    pub(crate) codegen_items: Arc<[DefId]>,
-    pub(crate) path_resolver: Arc<dyn PathResolver>,
     pub mode: Arc<Mode>,
+    pub path_resolver: Arc<dyn PathResolver>,
+}
+
+#[derive(Clone)]
+pub struct Config {
+    pub change_case: bool,
     pub split: bool,
-    pub(crate) keep_unknown_fields: Arc<FxHashSet<DefId>>,
-    pub location_map: Arc<FxHashMap<DefId, DefLocation>>,
-    pub entry_map: Arc<HashMap<DefLocation, Vec<(DefId, DefLocation)>>>,
-    pub plugin_gen: Arc<DashMap<DefLocation, String>>,
-    pub(crate) dedups: Vec<FastStr>,
-    pub(crate) common_crate_name: FastStr,
-    pub names: FxHashMap<DefId, usize>,
     pub with_descriptor: bool,
     pub with_field_mask: bool,
     pub touch_all: bool,
-    pub mod_idxes: AHashMap<Arc<[FastStr]>, DefId>,
+    pub common_crate_name: FastStr,
+}
+
+#[derive(Clone)]
+pub struct Cache {
+    pub adjusts: Arc<DashMap<DefId, Adjust>>,
+    pub codegen_items: Arc<[DefId]>,
+    pub keep_unknown_fields: Arc<FxHashSet<DefId>>,
+    pub location_map: Arc<FxHashMap<DefId, DefLocation>>,
+    pub entry_map: Arc<HashMap<DefLocation, Vec<(DefId, DefLocation)>>>,
+    pub plugin_gen: Arc<DashMap<DefLocation, String>>,
+    pub dedups: Vec<FastStr>,
+    pub names: FxHashMap<DefId, usize>,
+    pub mod_idxes: AHashMap<ModPath, DefId>,
 }
 
 impl Clone for Context {
     fn clone(&self) -> Self {
         Self {
-            source_type: self.source_type,
             db: self.db.clone(),
-            adjusts: self.adjusts.clone(),
-            change_case: self.change_case,
-            codegen_items: self.codegen_items.clone(),
-            path_resolver: self.path_resolver.clone(),
-            mode: self.mode.clone(),
-            split: self.split,
-            services: self.services.clone(),
-            keep_unknown_fields: self.keep_unknown_fields.clone(),
-            location_map: self.location_map.clone(),
-            entry_map: self.entry_map.clone(),
-            plugin_gen: self.plugin_gen.clone(),
-            dedups: self.dedups.clone(),
-            common_crate_name: self.common_crate_name.clone(),
-            names: self.names.clone(),
-            with_descriptor: self.with_descriptor,
-            with_field_mask: self.with_field_mask,
-            touch_all: self.touch_all,
-            mod_idxes: self.mod_idxes.clone(),
+            source: self.source.clone(),
+            config: self.config.clone(),
+            cache: self.cache.clone(),
         }
     }
 }
@@ -466,31 +465,38 @@ impl ContextBuilder {
         with_field_mask: bool,
         touch_all: bool,
     ) -> Context {
+        let mode = Arc::new(self.mode);
         SPECIAL_NAMINGS.get_or_init(|| special_namings);
         let mut cx = Context {
-            adjusts: Default::default(),
-            source_type,
             db: self.db.clone(),
-            change_case,
-            services,
-            codegen_items: Arc::from(self.codegen_items),
-            path_resolver: match &self.mode {
-                Mode::Workspace(_) => Arc::new(WorkspacePathResolver),
-                Mode::SingleFile { .. } => Arc::new(DefaultPathResolver),
+            source: Source {
+                source_type,
+                services,
+                mode: mode.clone(),
+                path_resolver: match &*mode {
+                    Mode::Workspace(_) => Arc::new(WorkspacePathResolver),
+                    Mode::SingleFile { .. } => Arc::new(DefaultPathResolver),
+                },
             },
-            mode: Arc::new(self.mode),
-            split,
-            keep_unknown_fields: Arc::new(self.keep_unknown_fields),
-            location_map: Arc::new(self.location_map),
-            entry_map: Arc::new(self.entry_map),
-            plugin_gen: Default::default(),
-            dedups,
-            common_crate_name,
-            names: Default::default(),
-            with_descriptor,
-            with_field_mask,
-            touch_all,
-            mod_idxes: Default::default(),
+            config: Config {
+                change_case,
+                split,
+                with_descriptor,
+                with_field_mask,
+                touch_all,
+                common_crate_name,
+            },
+            cache: Cache {
+                adjusts: Default::default(),
+                codegen_items: Arc::from(self.codegen_items),
+                keep_unknown_fields: Arc::new(self.keep_unknown_fields),
+                location_map: Arc::new(self.location_map),
+                entry_map: Arc::new(self.entry_map),
+                plugin_gen: Default::default(),
+                dedups,
+                names: Default::default(),
+                mod_idxes: Default::default(),
+            },
         };
         let mut map: FxHashMap<(Vec<DefId>, String), Vec<DefId>> = FxHashMap::default();
         let mut mod_idxes = AHashMap::default();
@@ -500,13 +506,15 @@ impl ContextBuilder {
                 NodeKind::Item(item) => {
                     if let crate::rir::Item::Mod(_) = &**item {
                         mod_idxes.insert(
-                            Arc::from_iter(cx.mod_path(*def_id).iter().map(|s| s.0.clone())),
+                            ModPath::from(Arc::from_iter(
+                                cx.mod_path(*def_id).iter().map(|s| s.0.clone()),
+                            )),
                             *def_id,
                         );
                         return;
                     }
-                    if let Mode::Workspace(_) = &*cx.mode {
-                        if !cx.location_map.contains_key(def_id) {
+                    if let Mode::Workspace(_) = &*cx.source.mode {
+                        if !cx.cache.location_map.contains_key(def_id) {
                             return;
                         }
                     }
@@ -526,14 +534,14 @@ impl ContextBuilder {
                         .push(*def_id);
                 }
             });
-        cx.names.extend(
+        cx.cache.names.extend(
             map.into_iter()
                 .filter(|(_, v)| v.len() > 1)
                 .map(|(_, v)| v)
                 .flat_map(|v| v.into_iter().enumerate().map(|(i, def_id)| (def_id, i)))
                 .collect::<HashMap<DefId, usize>>(),
         );
-        cx.mod_idxes.extend(mod_idxes);
+        cx.cache.mod_idxes.extend(mod_idxes);
         cx
     }
 }
@@ -553,11 +561,23 @@ pub enum SourceType {
 }
 
 impl Context {
+    pub fn config_data(&self) -> &Config {
+        &self.config
+    }
+
+    pub fn cache_data(&self) -> &Cache {
+        &self.cache
+    }
+
+    pub fn source_data(&self) -> &Source {
+        &self.source
+    }
+
     pub fn with_adjust<T, F>(&self, def_id: DefId, f: F) -> T
     where
         F: FnOnce(Option<&Adjust>) -> T,
     {
-        match self.adjusts.get(&def_id) {
+        match self.cache.adjusts.get(&def_id) {
             Some(adj) => f(Some(&*adj)),
             None => f(None),
         }
@@ -567,7 +587,7 @@ impl Context {
     where
         F: FnOnce(&mut Adjust) -> T,
     {
-        let adjust = &mut *self.adjusts.entry(def_id).or_default();
+        let adjust = &mut *self.cache.adjusts.entry(def_id).or_default();
         f(adjust)
     }
 
@@ -1012,7 +1032,7 @@ impl Context {
             return name.0.into();
         }
 
-        if !self.change_case || self.names.contains_key(&def_id) {
+        if !self.config.change_case || self.cache.names.contains_key(&def_id) {
             return node.name();
         }
 
@@ -1047,15 +1067,15 @@ impl Context {
     }
 
     pub fn mod_path(&self, def_id: DefId) -> Arc<[Symbol]> {
-        self.path_resolver.mod_prefix(self, def_id)
+        self.source.path_resolver.mod_prefix(self, def_id)
     }
 
     pub fn item_path(&self, def_id: DefId) -> Arc<[Symbol]> {
-        self.path_resolver.path_for_def_id(self, def_id)
+        self.source.path_resolver.path_for_def_id(self, def_id)
     }
 
     fn related_path(&self, p1: &[Symbol], p2: &[Symbol]) -> FastStr {
-        self.path_resolver.related_path(p1, p2)
+        self.source.path_resolver.related_path(p1, p2)
     }
 
     pub fn cur_related_item_path(&self, did: DefId) -> FastStr {
@@ -1079,14 +1099,17 @@ impl Context {
 
     #[allow(clippy::single_match)]
     pub fn exec_plugin<P: Plugin>(&self, mut p: P) {
-        p.on_codegen_uint(self, &self.codegen_items);
+        p.on_codegen_uint(self, &self.cache.codegen_items);
 
         p.on_emit(self)
     }
 
     pub(crate) fn workspace_info(&self) -> &WorkspaceInfo {
-        let Mode::Workspace(info) = &*self.mode else {
-            panic!("can not access workspace info in mode `{:?}`", self.mode)
+        let Mode::Workspace(info) = &*self.source.mode else {
+            panic!(
+                "can not access workspace info in mode `{:?}`",
+                self.source.mode
+            )
         };
         info
     }
@@ -1127,12 +1150,13 @@ impl Context {
                             .into()
                     })
             }
-            DefLocation::Dynamic => self.common_crate_name.clone(),
+            DefLocation::Dynamic => self.config.common_crate_name.clone(),
         }
     }
 
     fn find_service(&self, file_id: FileId) -> &crate::IdlService {
-        self.services
+        self.source
+            .services
             .iter()
             .find(|s| {
                 let path = s

@@ -2,7 +2,7 @@ use criterion::{Criterion, criterion_group, criterion_main};
 use faststr::FastStr;
 use pilota::{
     Bytes,
-    prost::bytes::BytesMut,
+    pb::bytes::BytesMut,
     thrift::{
         Message, TLengthProtocol,
         binary::TBinaryProtocol,
