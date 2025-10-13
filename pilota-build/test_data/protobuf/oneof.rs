@@ -1,5 +1,6 @@
 pub mod oneof {
     #![allow(warnings, clippy::all)]
+    use ::pilota::{Buf as _, BufMut as _};
     #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
     pub struct Test {
         pub c: i32,
@@ -10,56 +11,45 @@ pub mod oneof {
 
         pub test: ::std::option::Option<test::Test>,
     }
-    impl ::pilota::prost::Message for Test {
+    impl ::pilota::pb::Message for Test {
         #[inline]
         fn encoded_len(&self) -> usize {
-            0 + ::pilota::prost::encoding::int32::encoded_len(1, &self.c)
+            0 + ::pilota::pb::encoding::int32::encoded_len(1, &self.c)
                 + self.r#type.as_ref().map_or(0, |msg| msg.encoded_len())
-                + ::pilota::prost::encoding::int64::encoded_len(5, &self.j)
+                + ::pilota::pb::encoding::int64::encoded_len(5, &self.j)
                 + self.test.as_ref().map_or(0, |msg| msg.encoded_len())
         }
 
         #[allow(unused_variables)]
-        fn encode_raw<B>(&self, buf: &mut B)
-        where
-            B: ::pilota::prost::bytes::BufMut,
-        {
-            ::pilota::prost::encoding::int32::encode(1, &self.c, buf);
+        fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
+            ::pilota::pb::encoding::int32::encode(1, &self.c, buf);
             if let Some(_pilota_inner_value) = self.r#type.as_ref() {
                 _pilota_inner_value.encode(buf);
             }
-            ::pilota::prost::encoding::int64::encode(5, &self.j, buf);
+            ::pilota::pb::encoding::int64::encode(5, &self.j, buf);
             if let Some(_pilota_inner_value) = self.test.as_ref() {
                 _pilota_inner_value.encode(buf);
             }
         }
 
         #[allow(unused_variables)]
-        fn merge_field<B>(
+        fn merge_field(
             &mut self,
             tag: u32,
-            wire_type: ::pilota::prost::encoding::WireType,
-            buf: &mut B,
-            ctx: ::pilota::prost::encoding::DecodeContext,
-        ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
-        where
-            B: ::pilota::prost::bytes::Buf,
-        {
+            wire_type: ::pilota::pb::encoding::WireType,
+            buf: &mut ::pilota::Bytes,
+            ctx: &mut ::pilota::pb::encoding::DecodeContext,
+        ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
             const STRUCT_NAME: &'static str = stringify!(Test);
 
             match tag {
                 1 => {
                     let mut _inner_pilota_value = &mut self.c;
-                    ::pilota::prost::encoding::int32::merge(
-                        wire_type,
-                        _inner_pilota_value,
-                        buf,
-                        ctx,
-                    )
-                    .map_err(|mut error| {
-                        error.push(STRUCT_NAME, stringify!(c));
-                        error
-                    })
+                    ::pilota::pb::encoding::int32::merge(wire_type, _inner_pilota_value, buf, ctx)
+                        .map_err(|mut error| {
+                            error.push(STRUCT_NAME, stringify!(c));
+                            error
+                        })
                 }
                 2 | 4 => {
                     let mut _inner_pilota_value = &mut self.r#type;
@@ -72,16 +62,11 @@ pub mod oneof {
                 }
                 5 => {
                     let mut _inner_pilota_value = &mut self.j;
-                    ::pilota::prost::encoding::int64::merge(
-                        wire_type,
-                        _inner_pilota_value,
-                        buf,
-                        ctx,
-                    )
-                    .map_err(|mut error| {
-                        error.push(STRUCT_NAME, stringify!(j));
-                        error
-                    })
+                    ::pilota::pb::encoding::int64::merge(wire_type, _inner_pilota_value, buf, ctx)
+                        .map_err(|mut error| {
+                            error.push(STRUCT_NAME, stringify!(j));
+                            error
+                        })
                 }
                 6 | 8 => {
                     let mut _inner_pilota_value = &mut self.test;
@@ -92,12 +77,13 @@ pub mod oneof {
                         },
                     )
                 }
-                _ => ::pilota::prost::encoding::skip_field(wire_type, tag, buf, ctx),
+                _ => ::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx),
             }
         }
     }
 
     pub mod test {
+        use ::pilota::{Buf as _, BufMut as _};
 
         impl ::std::default::Default for Test {
             fn default() -> Self {
@@ -111,16 +97,13 @@ pub mod oneof {
             B(i32),
         }
         impl Test {
-            pub fn encode<B>(&self, buf: &mut B)
-            where
-                B: ::pilota::prost::bytes::BufMut,
-            {
+            pub fn encode(&self, buf: &mut ::pilota::LinkedBytes) {
                 match self {
                     Test::A(value) => {
-                        ::pilota::prost::encoding::faststr::encode(6, &*value, buf);
+                        ::pilota::pb::encoding::faststr::encode(6, &*value, buf);
                     }
                     Test::B(value) => {
-                        ::pilota::prost::encoding::int32::encode(8, &*value, buf);
+                        ::pilota::pb::encoding::int32::encode(8, &*value, buf);
                     }
                 }
             }
@@ -128,42 +111,39 @@ pub mod oneof {
             #[inline]
             pub fn encoded_len(&self) -> usize {
                 match self {
-                    Test::A(value) => ::pilota::prost::encoding::faststr::encoded_len(6, &*value),
-                    Test::B(value) => ::pilota::prost::encoding::int32::encoded_len(8, &*value),
+                    Test::A(value) => ::pilota::pb::encoding::faststr::encoded_len(6, &*value),
+                    Test::B(value) => ::pilota::pb::encoding::int32::encoded_len(8, &*value),
                 }
             }
 
             #[inline]
-            pub fn merge<B>(
+            pub fn merge(
                 field: &mut ::core::option::Option<Self>,
                 tag: u32,
-                wire_type: ::pilota::prost::encoding::WireType,
-                buf: &mut B,
-                ctx: ::pilota::prost::encoding::DecodeContext,
-            ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
-            where
-                B: ::pilota::prost::bytes::Buf,
-            {
+                wire_type: ::pilota::pb::encoding::WireType,
+                buf: &mut ::pilota::Bytes,
+                ctx: &mut ::pilota::pb::encoding::DecodeContext,
+            ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 match tag {
                     6 => match field {
                         ::core::option::Option::Some(Test::A(value)) => {
-                            ::pilota::prost::encoding::faststr::merge(wire_type, value, buf, ctx)?;
+                            ::pilota::pb::encoding::faststr::merge(wire_type, value, buf, ctx)?;
                         }
                         _ => {
                             let mut owned_value = ::core::default::Default::default();
                             let value = &mut owned_value;
-                            ::pilota::prost::encoding::faststr::merge(wire_type, value, buf, ctx)?;
+                            ::pilota::pb::encoding::faststr::merge(wire_type, value, buf, ctx)?;
                             *field = ::core::option::Option::Some(Test::A(owned_value));
                         }
                     },
                     8 => match field {
                         ::core::option::Option::Some(Test::B(value)) => {
-                            ::pilota::prost::encoding::int32::merge(wire_type, value, buf, ctx)?;
+                            ::pilota::pb::encoding::int32::merge(wire_type, value, buf, ctx)?;
                         }
                         _ => {
                             let mut owned_value = ::core::default::Default::default();
                             let value = &mut owned_value;
-                            ::pilota::prost::encoding::int32::merge(wire_type, value, buf, ctx)?;
+                            ::pilota::pb::encoding::int32::merge(wire_type, value, buf, ctx)?;
                             *field = ::core::option::Option::Some(Test::B(owned_value));
                         }
                     },
@@ -184,16 +164,13 @@ pub mod oneof {
             I(i32),
         }
         impl Type {
-            pub fn encode<B>(&self, buf: &mut B)
-            where
-                B: ::pilota::prost::bytes::BufMut,
-            {
+            pub fn encode(&self, buf: &mut ::pilota::LinkedBytes) {
                 match self {
                     Type::S(value) => {
-                        ::pilota::prost::encoding::faststr::encode(2, &*value, buf);
+                        ::pilota::pb::encoding::faststr::encode(2, &*value, buf);
                     }
                     Type::I(value) => {
-                        ::pilota::prost::encoding::int32::encode(4, &*value, buf);
+                        ::pilota::pb::encoding::int32::encode(4, &*value, buf);
                     }
                 }
             }
@@ -201,42 +178,39 @@ pub mod oneof {
             #[inline]
             pub fn encoded_len(&self) -> usize {
                 match self {
-                    Type::S(value) => ::pilota::prost::encoding::faststr::encoded_len(2, &*value),
-                    Type::I(value) => ::pilota::prost::encoding::int32::encoded_len(4, &*value),
+                    Type::S(value) => ::pilota::pb::encoding::faststr::encoded_len(2, &*value),
+                    Type::I(value) => ::pilota::pb::encoding::int32::encoded_len(4, &*value),
                 }
             }
 
             #[inline]
-            pub fn merge<B>(
+            pub fn merge(
                 field: &mut ::core::option::Option<Self>,
                 tag: u32,
-                wire_type: ::pilota::prost::encoding::WireType,
-                buf: &mut B,
-                ctx: ::pilota::prost::encoding::DecodeContext,
-            ) -> ::core::result::Result<(), ::pilota::prost::DecodeError>
-            where
-                B: ::pilota::prost::bytes::Buf,
-            {
+                wire_type: ::pilota::pb::encoding::WireType,
+                buf: &mut ::pilota::Bytes,
+                ctx: &mut ::pilota::pb::encoding::DecodeContext,
+            ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 match tag {
                     2 => match field {
                         ::core::option::Option::Some(Type::S(value)) => {
-                            ::pilota::prost::encoding::faststr::merge(wire_type, value, buf, ctx)?;
+                            ::pilota::pb::encoding::faststr::merge(wire_type, value, buf, ctx)?;
                         }
                         _ => {
                             let mut owned_value = ::core::default::Default::default();
                             let value = &mut owned_value;
-                            ::pilota::prost::encoding::faststr::merge(wire_type, value, buf, ctx)?;
+                            ::pilota::pb::encoding::faststr::merge(wire_type, value, buf, ctx)?;
                             *field = ::core::option::Option::Some(Type::S(owned_value));
                         }
                     },
                     4 => match field {
                         ::core::option::Option::Some(Type::I(value)) => {
-                            ::pilota::prost::encoding::int32::merge(wire_type, value, buf, ctx)?;
+                            ::pilota::pb::encoding::int32::merge(wire_type, value, buf, ctx)?;
                         }
                         _ => {
                             let mut owned_value = ::core::default::Default::default();
                             let value = &mut owned_value;
-                            ::pilota::prost::encoding::int32::merge(wire_type, value, buf, ctx)?;
+                            ::pilota::pb::encoding::int32::merge(wire_type, value, buf, ctx)?;
                             *field = ::core::option::Option::Some(Type::I(owned_value));
                         }
                     },

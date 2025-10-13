@@ -610,8 +610,7 @@ impl Lower {
                 let messages = f
                     .message_type
                     .iter()
-                    .map(|m| self.lower_message(m, &mut Vec::new()))
-                    .flatten()
+                    .flat_map(|m| self.lower_message(m, &mut Vec::new()))
                     .collect_vec()
                     .into_iter();
                 let enums = f
@@ -865,7 +864,7 @@ impl Parser for ProtobufParser {
             files,
             input_files: input_file_ids,
             file_ids_map: file_ids,
-            file_paths: file_paths,
+            file_paths,
         }
     }
 }

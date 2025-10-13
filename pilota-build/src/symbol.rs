@@ -1,4 +1,8 @@
-use std::{fmt::Display, ops::Deref, sync::OnceLock};
+use std::{
+    fmt::Display,
+    ops::Deref,
+    sync::{Arc, OnceLock},
+};
 
 use faststr::FastStr;
 use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
@@ -110,6 +114,25 @@ where
     }
 }
 
+#[derive(Hash, PartialEq, Eq, Clone, Debug)]
+pub struct ModPath(Arc<[FastStr]>);
+
+impl Deref for ModPath {
+    type Target = [FastStr];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<T> From<T> for ModPath
+where
+    T: Into<Arc<[FastStr]>>,
+{
+    fn from(t: T) -> Self {
+        ModPath(t.into())
+    }
+}
 pub trait IdentName {
     fn struct_ident(&self) -> FastStr {
         self.upper_camel_ident()
