@@ -85,9 +85,9 @@ impl ProtobufBackend {
 
                 if let ty::TyKind::Vec(_) = &ty.kind {
                     let encoded_len_fn = if is_arc {
-                        format!("::pilota::pb::encoding::arc_message::encoded_len_repeated")
+                        "::pilota::pb::encoding::arc_message::encoded_len_repeated".to_string()
                     } else {
-                        format!("::pilota::pb::encoding::message::encoded_len_repeated")
+                        "::pilota::pb::encoding::message::encoded_len_repeated".to_string()
                     };
 
                     match kind {
@@ -476,7 +476,7 @@ impl CodegenBackend for ProtobufBackend {
         };
 
         // add unknown fields
-        let keep = self.keep_unknown_fields.contains(&def_id);
+        let keep = self.cache.keep_unknown_fields.contains(&def_id);
 
         let mut unknown_fields = "";
         let mut skip_field = "::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx)";
@@ -657,7 +657,7 @@ impl CodegenBackend for ProtobufBackend {
         let filename_lower = filename.to_lowercase();
         if has_direct {
             let descriptor = &f.descriptor;
-            let super_mod = match &*self.mode {
+            let super_mod = match &*self.source.mode {
                 Mode::Workspace(_) => "crate::".to_string(),
                 Mode::SingleFile { .. } => "super::".repeat(f.package.len()),
             };
@@ -675,9 +675,9 @@ impl CodegenBackend for ProtobufBackend {
                         .collect::<Vec<_>>()
                         .join("::");
                     if pkg == "google::protobuf" {
-                        deps_builders.push_str(&format!(
-                            "deps.push(::pilota::pb::descriptor::file_descriptor().clone());\n"
-                        ));
+                        deps_builders.push_str(
+                            "deps.push(::pilota::pb::descriptor::file_descriptor().clone());\n",
+                        );
                     } else if has_include_path && !pkg.is_empty() {
                         let dep_filename = self
                             .file_paths()
@@ -723,10 +723,10 @@ pub fn file_descriptor_{filename_lower}() -> &'static ::pilota::pb::reflect::Fil
                 self.codegen_file_exts(stream, &filename_lower, &f.package, &f.extensions);
             }
         } else {
-            match &*self.mode {
+            match &*self.source.mode {
                 Mode::Workspace(_) => {
                     let mod_prefix = f.package.iter().join("::");
-                    let common_crate_name = &self.common_crate_name;
+                    let common_crate_name = &self.config.common_crate_name;
                     stream.push_str(&format!(
                         r#"
                         pub use ::{common_crate_name}::{mod_prefix}::get_file_descriptor_{filename_lower};
@@ -806,8 +806,8 @@ impl ProtobufBackend {
     ) {
         stream.push_str(&format!("pub mod exts_{suffix} {{\n"));
         for ext in &extendees.0 {
-            if self.cx.touch_all || self.cx.db.pb_ext_used(&ext.index) {
-                self.codgen_pb_custom_ext_field(stream, cur_pkg, &ext);
+            if self.cx.config.touch_all || self.cx.db.pb_ext_used(&ext.index) {
+                self.codgen_pb_custom_ext_field(stream, cur_pkg, ext);
             }
         }
         stream.push_str("}\n");
@@ -827,11 +827,14 @@ impl ProtobufBackend {
         let val_ty = match &ext.extendee_ty.item_ty.kind {
             ty::TyKind::Path(p) => {
                 let cg = self.codegen_item_ty(ext.extendee_ty.item_ty.kind.clone());
-                match &*self.mode {
+                match &*self.source.mode {
                     Mode::Workspace(_) => cg.global_path("crate").to_string(),
                     Mode::SingleFile { .. } => {
                         let target_path = self.item_path(p.did);
-                        let path = self.path_resolver.related_path(cur_pkg, &target_path);
+                        let path = self
+                            .source
+                            .path_resolver
+                            .related_path(cur_pkg, &target_path);
                         format!("super::{path}")
                     }
                 }

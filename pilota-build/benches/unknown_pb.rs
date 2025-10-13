@@ -1,6 +1,6 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use faststr::FastStr;
-use pilota::{Bytes, LinkedBytes, prost::Message};
+use pilota::{Bytes, LinkedBytes, pb::Message};
 use rand::{Rng, distr::Alphanumeric};
 
 include!("../test_data/protobuf/normal.rs");
@@ -39,50 +39,57 @@ fn prepare_obj_req_pb(size: usize) -> normal::ObjReq {
     let sub_msg_2 = normal::SubMessage {
         value: Some(generate_random_string_pb(size / 2)),
     };
+
+    // size
     let sub_msg_list = vec![sub_msg_1.clone(), sub_msg_2.clone()];
 
-    let msg = normal::Message {
-        uid: "".into(),
-        value: Some(generate_random_string_pb(size)),
-        sub_messages: sub_msg_list.clone(),
-    };
-
-    let msg_map_key = normal::Message {
+    // size
+    let msg_key = normal::Message {
         uid: "".into(),
         value: None,
-        sub_messages: sub_msg_list.clone(),
+        sub_messages: vec![sub_msg_1.clone()],
     };
 
-    let msg_map_val = normal::SubMessage {
+    // size
+    let msg_val = normal::SubMessage {
         value: Some(generate_random_string_pb(size)),
     };
 
+    // size * 2
     let msg_map_entry = normal::obj_req::MsgMapEntry {
-        key: Some(msg_map_key),
-        value: Some(msg_map_val),
+        key: Some(msg_key),
+        value: Some(msg_val),
     };
-    let mut sub_msg_list2 = vec![sub_msg_1.clone(), sub_msg_2.clone()];
+
+    // size * 2
+    let msg_for_set_and_field = normal::Message {
+        uid: "".into(),
+        value: Some(generate_random_string_pb(size)),
+        sub_messages: sub_msg_list.clone(),
+    };
+
+    // size * 2
+    let mut sub_msg_list2 = vec![sub_msg_1, sub_msg_2];
     sub_msg_list2.extend(sub_msg_list.clone());
 
     normal::ObjReq {
-        msg: Some(msg.clone()),       // 2 * size
-        msg_map: vec![msg_map_entry], // 2 * size
-        sub_msgs: sub_msg_list2,      // 2 * size
-        msg_set: vec![msg],           // 2 * size
+        msg: Some(msg_for_set_and_field.clone()), // size * 2
+        msg_map: vec![msg_map_entry],             // size * 2
+        sub_msgs: sub_msg_list2,                  // size * 2
+        msg_set: vec![msg_for_set_and_field],     // size * 2
         flag_msg: "".into(),
         mock_cost: None,
     }
 }
 
 fn pb_codegen(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Protobuf Bench Unknown Fields");
+    let mut group = c.benchmark_group("Protobuf_New Bench Unknown Fields");
     let lens = [16, 64, 128, 512, 2 * 1024, 128 * 1024, 10 * 128 * 1024];
     for len_param in lens {
-        // Prepare data using the "normal" struct definition
         let req_instance = prepare_obj_req_pb(len_param);
-        let mut encoded_known_bytes = LinkedBytes::with_capacity(req_instance.encoded_len());
-        req_instance.encode(&mut encoded_known_bytes).unwrap();
-        let encoded_known_bytes = encoded_known_bytes.bytes().clone().freeze();
+        let mut encoded_known_bytes_lb = LinkedBytes::with_capacity(req_instance.encoded_len());
+        req_instance.encode(&mut encoded_known_bytes_lb).unwrap();
+        let encoded_known_bytes = encoded_known_bytes_lb.bytes().clone().freeze();
 
         group.bench_function(
             format!("PB KnownFields DecodeEncode {} bytes", len_param * 8),

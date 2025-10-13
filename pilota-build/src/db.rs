@@ -37,15 +37,15 @@ fn empty_workspace_graph() -> WorkspaceGraph {
 pub struct RootDatabase {
     storage: salsa::Storage<Self>,
     // 直接在数据库中存储数据
+    input_files: Arc<Vec<FileId>>,
     nodes: Arc<FxHashMap<DefId, rir::Node>>,
     files: Arc<FxHashMap<FileId, Arc<rir::File>>>,
     file_ids_map: Arc<FxHashMap<Arc<PathBuf>, FileId>>,
-    type_graph: Arc<TypeGraph>,
-    tags_map: Arc<FxHashMap<TagId, Arc<Tags>>>,
-    input_files: Arc<Vec<FileId>>,
-    args: Arc<FxHashSet<DefId>>,
-    workspace_graph: Arc<WorkspaceGraph>,
     file_paths: Arc<FxHashMap<FileId, Arc<PathBuf>>>,
+    type_graph: Arc<TypeGraph>,
+    args: Arc<FxHashSet<DefId>>,
+    tags_map: Arc<FxHashMap<TagId, Arc<Tags>>>,
+    workspace_graph: Arc<WorkspaceGraph>,
     pb_ext_indexes: Arc<FxHashMap<ExtendeeIndex, Arc<Extendee>>>,
     pb_exts_used: Arc<FxHashSet<ExtendeeIndex>>,
 }
@@ -411,7 +411,7 @@ impl RirDatabase for RootDatabase {
     }
 
     fn pb_ext(&self, index: &ExtendeeIndex) -> Option<Arc<Extendee>> {
-        self.pb_ext_indexes().get(&index).cloned()
+        self.pb_ext_indexes().get(index).cloned()
     }
 
     fn pb_ext_used(&self, index: &ExtendeeIndex) -> bool {

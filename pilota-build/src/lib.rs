@@ -26,9 +26,7 @@ use std::{path::PathBuf, sync::Arc};
 mod dedup;
 pub mod plugin;
 
-pub use codegen::{
-    Codegen, protobuf::ProtobufBackend, thrift::ThriftBackend, traits::CodegenBackend,
-};
+pub use codegen::{Codegen, thrift::ThriftBackend, traits::CodegenBackend};
 use db::{RirDatabase, RootDatabase};
 use middle::{
     context::{CollectMode, ContextBuilder, Mode, WorkspaceInfo, tls::CONTEXT},
@@ -47,6 +45,8 @@ use resolve::{ResolveResult, Resolver};
 pub use symbol::{DefId, IdentName};
 pub use tags::TagId;
 
+use crate::codegen::pb::ProtobufBackend;
+
 pub trait MakeBackend: Sized {
     type Target: CodegenBackend;
     fn make_backend(self, context: Context) -> Self::Target;
@@ -62,23 +62,13 @@ impl MakeBackend for MkThriftBackend {
     }
 }
 
-pub struct MkProtobufBackend;
+pub struct MkPbBackend;
 
-impl MakeBackend for MkProtobufBackend {
+impl MakeBackend for MkPbBackend {
     type Target = ProtobufBackend;
 
     fn make_backend(self, context: Context) -> Self::Target {
         ProtobufBackend::new(context)
-    }
-}
-
-pub struct MkPbBackend;
-
-impl MakeBackend for MkPbBackend {
-    type Target = codegen::pb::ProtobufBackend;
-
-    fn make_backend(self, context: Context) -> Self::Target {
-        codegen::pb::ProtobufBackend::new(context)
     }
 }
 
@@ -106,31 +96,6 @@ impl Builder<MkThriftBackend, ThriftParser> {
             source_type: SourceType::Thrift,
             mk_backend: MkThriftBackend,
             parser: ThriftParser::default(),
-            plugins: vec![
-                Box::new(WithAttrsPlugin(Arc::from(["#[derive(Debug)]".into()]))),
-                Box::new(ImplDefaultPlugin),
-            ],
-            touches: Vec::default(),
-            ignore_unused: true,
-            change_case: true,
-            keep_unknown_fields: Vec::default(),
-            dedups: Vec::default(),
-            special_namings: Vec::default(),
-            common_crate_name: "common".into(),
-            split: false,
-            with_descriptor: false,
-            with_field_mask: false,
-            temp_dir: None,
-        }
-    }
-}
-
-impl Builder<MkProtobufBackend, ProtobufParser> {
-    pub fn protobuf() -> Self {
-        Builder {
-            source_type: SourceType::Protobuf,
-            mk_backend: MkProtobufBackend,
-            parser: ProtobufParser::default(),
             plugins: vec![
                 Box::new(WithAttrsPlugin(Arc::from(["#[derive(Debug)]".into()]))),
                 Box::new(ImplDefaultPlugin),

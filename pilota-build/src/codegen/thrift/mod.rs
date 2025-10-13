@@ -406,7 +406,7 @@ impl ThriftBackend {
             }
         }
 
-        if !s.is_wrapper && self.with_field_mask {
+        if !s.is_wrapper && self.config.with_field_mask {
             if !fields.is_empty() {
                 fields.push_str(", ");
             }
@@ -569,7 +569,7 @@ impl CodegenBackend for ThriftBackend {
             .to_string_lossy()
             .replace(".", "_");
         let filename_lower = filename.to_lowercase();
-        let keep = self.keep_unknown_fields.contains(&def_id);
+        let keep = self.cache.keep_unknown_fields.contains(&def_id);
         let name = self.cx.rust_name(def_id);
         let mut encode_fields = self.codegen_encode_fields(&s.fields).join("");
         let mut encode_fields_with_field_mask = self
@@ -601,7 +601,7 @@ impl CodegenBackend for ThriftBackend {
             encode_fields_size_with_field_mask.push_str("self._unknown_fields.size() +");
         }
 
-        if s.is_wrapper || !self.with_field_mask {
+        if s.is_wrapper || !self.config.with_field_mask {
             stream.push_str(&self.codegen_impl_message_with_helper(
                 def_id,
                 name.clone(),
@@ -625,7 +625,7 @@ impl CodegenBackend for ThriftBackend {
                 |helper| self.codegen_decode(helper, s, name.clone(), keep, self.is_arg(def_id)),
             ));
 
-            if !s.is_wrapper && self.with_descriptor {
+            if !s.is_wrapper && self.config.with_descriptor {
                 stream.push_str(&format! {
                     r#"impl {name} {{
                         pub fn get_descriptor() -> &'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor {{
@@ -638,7 +638,7 @@ impl CodegenBackend for ThriftBackend {
             return;
         }
 
-        if self.with_field_mask {
+        if self.config.with_field_mask {
             stream.push_str(&self.codegen_impl_message_with_helper(
                 def_id,
                 name.clone(),
@@ -745,7 +745,7 @@ impl CodegenBackend for ThriftBackend {
     }
 
     fn codegen_enum_impl(&self, def_id: DefId, stream: &mut String, e: &Enum) {
-        let keep = self.keep_unknown_fields.contains(&def_id);
+        let keep = self.cache.keep_unknown_fields.contains(&def_id);
         let name = self.rust_name(def_id);
         let is_entry_message = self.node_contains_tag::<EntryMessage>(def_id);
         let v = "self.inner()";
@@ -989,7 +989,7 @@ impl CodegenBackend for ThriftBackend {
         let encode = self.codegen_encode_ty(&t.ty, "(&**self)".into());
         let encode_size = self.codegen_ty_size(&t.ty, "&**self".into());
 
-        if !self.with_field_mask {
+        if !self.config.with_field_mask {
             stream.push_str(&self.codegen_impl_message_with_helper(
                 def_id,
                 name.clone(),
@@ -1081,7 +1081,7 @@ impl CodegenBackend for ThriftBackend {
         let filename_lower = filename.to_lowercase();
         if has_direct {
             let descriptor = &f.descriptor;
-            let super_mod = match &*self.mode {
+            let super_mod = match &*self.source.mode {
                 Mode::Workspace(_) => "crate::".to_string(),
                 Mode::SingleFile { .. } => "super::".repeat(f.package.len()),
             };
@@ -1114,11 +1114,11 @@ pub fn get_file_descriptor_{filename_lower}() -> &'static ::pilota_thrift_reflec
     &*FILE_DESCRIPTOR_{filename_upper}
 }}"#));
         } else {
-            match &*self.mode {
+            match &*self.source.mode {
                 Mode::Workspace(_) => {
                     // 使用 pub use 的形式，从 common crate 中引入
                     let mod_prefix = f.package.iter().join("::");
-                    let common_crate_name = &self.common_crate_name;
+                    let common_crate_name = &self.config.common_crate_name;
                     stream.push_str(&format!(
                         r#"
                         pub use ::{common_crate_name}::{mod_prefix}::get_file_descriptor_{filename_lower};
