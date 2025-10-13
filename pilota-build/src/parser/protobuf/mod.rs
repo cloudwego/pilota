@@ -67,6 +67,89 @@ impl Default for Lower {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Copy)]
+pub enum WellKnownFileName {
+    Descriptor,
+    Any,
+    Api,
+    Duration,
+    Empty,
+    FieldMask,
+    SourceContext,
+    Struct,
+    Timestamp,
+    Type,
+    Wrappers,
+    NotWellKnown,
+}
+
+pub const DESCRIPTOR_PROTO_NAME: &str = "google/protobuf/descriptor.proto";
+pub const ANY_PROTO_NAME: &str = "google/protobuf/any.proto";
+pub const API_PROTO_NAME: &str = "google/protobuf/api.proto";
+pub const DURATION_PROTO_NAME: &str = "google/protobuf/duration.proto";
+pub const EMPTY_PROTO_NAME: &str = "google/protobuf/empty.proto";
+pub const FIELD_MASK_PROTO_NAME: &str = "google/protobuf/field_mask.proto";
+pub const SOURCE_CONTEXT_PROTO_NAME: &str = "google/protobuf/source_context.proto";
+pub const STRUCT_PROTO_NAME: &str = "google/protobuf/struct.proto";
+pub const TIMESTAMP_PROTO_NAME: &str = "google/protobuf/timestamp.proto";
+pub const TYPE_PROTO_NAME: &str = "google/protobuf/type.proto";
+pub const WRAPPERS_PROTO_NAME: &str = "google/protobuf/wrappers.proto";
+
+impl WellKnownFileName {
+    pub fn name(&self) -> &str {
+        match self {
+            WellKnownFileName::Descriptor => DESCRIPTOR_PROTO_NAME,
+            WellKnownFileName::Any => ANY_PROTO_NAME,
+            WellKnownFileName::Api => API_PROTO_NAME,
+            WellKnownFileName::Duration => DURATION_PROTO_NAME,
+            WellKnownFileName::Empty => EMPTY_PROTO_NAME,
+            WellKnownFileName::FieldMask => FIELD_MASK_PROTO_NAME,
+            WellKnownFileName::SourceContext => SOURCE_CONTEXT_PROTO_NAME,
+            WellKnownFileName::Struct => STRUCT_PROTO_NAME,
+            WellKnownFileName::Timestamp => TIMESTAMP_PROTO_NAME,
+            WellKnownFileName::Type => TYPE_PROTO_NAME,
+            WellKnownFileName::Wrappers => WRAPPERS_PROTO_NAME,
+            WellKnownFileName::NotWellKnown => "",
+        }
+    }
+
+    pub fn mod_name(&self) -> &'static str {
+        match self {
+            WellKnownFileName::Descriptor => "::pilota::pb::descriptor",
+            WellKnownFileName::Any => "::pilota::pb::well_known_types::any",
+            WellKnownFileName::Api => "::pilota::pb::well_known_types::api",
+            WellKnownFileName::Duration => "::pilota::pb::well_known_types::duration",
+            WellKnownFileName::Empty => "::pilota::pb::well_known_types::empty",
+            WellKnownFileName::FieldMask => "::pilota::pb::well_known_types::field_mask",
+            WellKnownFileName::SourceContext => "::pilota::pb::well_known_types::source_context",
+            WellKnownFileName::Struct => "::pilota::pb::well_known_types::struct_",
+            WellKnownFileName::Timestamp => "::pilota::pb::well_known_types::timestamp",
+            WellKnownFileName::Type => "::pilota::pb::well_known_types::type_",
+            WellKnownFileName::Wrappers => "::pilota::pb::well_known_types::wrappers",
+            WellKnownFileName::NotWellKnown => "",
+        }
+    }
+}
+
+impl From<&str> for WellKnownFileName {
+    fn from(s: &str) -> Self {
+        match s {
+            DESCRIPTOR_PROTO_NAME => WellKnownFileName::Descriptor,
+            ANY_PROTO_NAME => WellKnownFileName::Any,
+            API_PROTO_NAME => WellKnownFileName::Api,
+            DURATION_PROTO_NAME => WellKnownFileName::Duration,
+            EMPTY_PROTO_NAME => WellKnownFileName::Empty,
+            FIELD_MASK_PROTO_NAME => WellKnownFileName::FieldMask,
+            SOURCE_CONTEXT_PROTO_NAME => WellKnownFileName::SourceContext,
+            STRUCT_PROTO_NAME => WellKnownFileName::Struct,
+            TIMESTAMP_PROTO_NAME => WellKnownFileName::Timestamp,
+            TYPE_PROTO_NAME => WellKnownFileName::Type,
+            WRAPPERS_PROTO_NAME => WellKnownFileName::Wrappers,
+            _ => WellKnownFileName::NotWellKnown,
+        }
+    }
+}
+
 impl Lower {
     fn lower_extendee(&self, s: &str) -> Option<ExtendeeKind> {
         match s {
@@ -653,6 +736,7 @@ impl Lower {
                         .collect::<Vec<_>>(),
                     descriptor: descriptor_bytes,
                     extensions: ext::FileExts::Pb(ext::pb::FileExts {
+                        well_known_file_name: WellKnownFileName::from(f.name()),
                         extendees: ext::pb::Extendees(
                             f.extension
                                 .iter()
@@ -840,6 +924,7 @@ impl Parser for ProtobufParser {
 
         let mut file_ids = FxHashMap::default();
         let mut file_paths = FxHashMap::default();
+        let mut file_names = FxHashMap::default();
         descriptors.iter().for_each(|f| {
             self.include_dirs.iter().for_each(|p| {
                 let path = p.join(f.name());
@@ -849,7 +934,12 @@ impl Parser for ProtobufParser {
                     let file_path: Arc<PathBuf> =
                         Arc::from(path.normalize().unwrap().into_path_buf());
                     file_ids.insert(file_path.clone(), file_id);
+                    file_names.insert(
+                        file_id,
+                        FastStr::new(file_path.file_stem().unwrap().to_string_lossy()),
+                    );
                     file_paths.insert(file_id, file_path);
+
                     if self
                         .input_files
                         .contains(path.normalize().unwrap().as_path())
@@ -865,6 +955,7 @@ impl Parser for ProtobufParser {
             input_files: input_file_ids,
             file_ids_map: file_ids,
             file_paths,
+            file_names,
         }
     }
 }

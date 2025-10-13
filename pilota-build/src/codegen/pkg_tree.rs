@@ -3,9 +3,11 @@ use std::sync::Arc;
 use itertools::Itertools;
 use pilota::FastStr;
 
+use crate::symbol::ModPath;
+
 #[derive(Debug)]
 pub struct PkgNode {
-    pub path: Arc<[FastStr]>,
+    pub path: Arc<ModPath>,
     pub children: Arc<[PkgNode]>,
 }
 
@@ -16,7 +18,7 @@ fn from_pkgs(base_path: &[FastStr], pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
 
     if pkgs.iter().filter(|p| !p.is_empty()).count() == 0 {
         return Arc::from([PkgNode {
-            path: Arc::from(base_path),
+            path: ModPath::from(base_path).into(),
             children: Arc::new([]),
         }]);
     }
@@ -37,7 +39,7 @@ fn from_pkgs(base_path: &[FastStr], pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
 
         let children = from_pkgs(&path, &pkgs);
         PkgNode {
-            path: Arc::from(path),
+            path: ModPath::from(path).into(),
             children,
         }
     }))
@@ -46,7 +48,7 @@ fn from_pkgs(base_path: &[FastStr], pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
 impl PkgNode {
     pub fn from_pkgs(pkgs: &[&[FastStr]]) -> Arc<[PkgNode]> {
         Arc::from([PkgNode {
-            path: Arc::new([]),
+            path: ModPath::from([]).into(),
             children: from_pkgs(&[], pkgs),
         }])
     }

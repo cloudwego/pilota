@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::Deref, path::PathBuf, sync::Arc};
 
-use ahash::AHashMap;
+use ahash::{AHashMap, HashSet};
 use anyhow::Context as _;
 use dashmap::DashMap;
 use faststr::FastStr;
@@ -81,14 +81,17 @@ pub struct Config {
 #[derive(Clone)]
 pub struct Cache {
     pub adjusts: Arc<DashMap<DefId, Adjust>>,
-    pub codegen_items: Arc<[DefId]>,
+    pub mod_idxes: AHashMap<ModPath, DefId>, // mod kind index
+    pub codegen_items: Vec<DefId>,
+    pub mod_items: HashMap<ModPath, Vec<DefId>>,
+    pub def_mod: HashMap<DefId, ModPath>,
+    pub mod_files: HashMap<ModPath, Vec<FileId>>,
     pub keep_unknown_fields: Arc<FxHashSet<DefId>>,
     pub location_map: Arc<FxHashMap<DefId, DefLocation>>,
     pub entry_map: Arc<HashMap<DefLocation, Vec<(DefId, DefLocation)>>>,
     pub plugin_gen: Arc<DashMap<DefLocation, String>>,
     pub dedups: Vec<FastStr>,
     pub names: FxHashMap<DefId, usize>,
-    pub mod_idxes: AHashMap<ModPath, DefId>,
 }
 
 impl Clone for Context {
@@ -488,7 +491,7 @@ impl ContextBuilder {
             },
             cache: Cache {
                 adjusts: Default::default(),
-                codegen_items: Arc::from(self.codegen_items),
+                codegen_items: self.codegen_items,
                 keep_unknown_fields: Arc::new(self.keep_unknown_fields),
                 location_map: Arc::new(self.location_map),
                 entry_map: Arc::new(self.entry_map),
@@ -496,6 +499,9 @@ impl ContextBuilder {
                 dedups,
                 names: Default::default(),
                 mod_idxes: Default::default(),
+                mod_items: Default::default(),
+                mod_files: Default::default(),
+                def_mod: Default::default(),
             },
         };
         let mut map: FxHashMap<(Vec<DefId>, String), Vec<DefId>> = FxHashMap::default();
@@ -542,6 +548,35 @@ impl ContextBuilder {
                 .collect::<HashMap<DefId, usize>>(),
         );
         cx.cache.mod_idxes.extend(mod_idxes);
+
+        let mut mod_files = HashMap::<ModPath, HashSet<FileId>>::default();
+        let mod_items = cx
+            .cache
+            .codegen_items
+            .clone()
+            .into_iter()
+            .into_group_map_by(|def_id| {
+                let file_id = cx.node(*def_id).unwrap().file_id;
+
+                let path = Arc::from_iter(cx.mod_path(*def_id).iter().map(|s| s.0.clone()));
+                let mod_path = match &*cx.source.mode {
+                    Mode::SingleFile { .. } => path,
+                    Mode::Workspace(_) => Arc::from(&path[1..]),
+                };
+                let mod_path = ModPath::from(mod_path);
+                let set = mod_files.entry(mod_path.clone()).or_default();
+                if !set.contains(&file_id) {
+                    set.insert(file_id);
+                }
+                cx.cache.def_mod.insert(*def_id, mod_path.clone());
+                mod_path
+            });
+        cx.cache.mod_items.extend(mod_items);
+        cx.cache.mod_files.extend(
+            mod_files
+                .into_iter()
+                .map(|(k, v)| (k, v.into_iter().collect())),
+        );
         cx
     }
 }

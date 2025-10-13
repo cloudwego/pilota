@@ -2,7 +2,6 @@ use std::{
     io::Write,
     ops::Deref,
     path::{Path, PathBuf},
-    sync::Arc,
 };
 
 use ahash::{AHashMap, AHashSet};
@@ -541,114 +540,119 @@ where
     pub fn write_items(
         &self,
         stream: &mut String,
-        items: impl Iterator<Item = CodegenItem>,
+        mod_items: AHashMap<ModPath, Vec<CodegenItem>>,
+        file_has_direct: AHashMap<FileId, bool>,
         base_dir: &Path,
-    ) where
-        B: Send,
-    {
-        let mods = items.into_group_map_by(|CodegenItem { def_id, .. }| {
-            let path = Arc::from_iter(self.mod_path(*def_id).iter().map(|s| s.0.clone()));
-            tracing::debug!("ths path of {:?} is {:?}", def_id, path);
-            match &*self.source.mode {
-                Mode::Workspace(_) => Arc::from(&path[1..]), /* the first element for
-                                                                * workspace */
-                // path is crate name
-                Mode::SingleFile { .. } => path,
-            }
-        });
-
-        let mod_files = if self.config.with_descriptor {
-            mods.iter()
-                .map(|(mod_path, items)| {
-                    let collect_has_direct = items
+    ) {
+        // 1. global level
+        // 1.1 register mod file descriptor
+        if self.config.with_descriptor {
+            let mods_files_with_direct_items = mod_items
+                .keys()
+                .flat_map(|mod_path| {
+                    self.cache
+                        .mod_files
+                        .get(mod_path)
+                        .unwrap()
                         .iter()
-                        .into_group_map_by(|CodegenItem { def_id, .. }| {
-                            self.node(*def_id).unwrap().file_id
-                        })
-                        .into_iter()
-                        .filter_map(|(file_id, def_ids)| {
-                            let has_direct = def_ids
-                                .iter()
-                                .any(|def_id| matches!(def_id.kind, CodegenKind::Direct));
-                            if let Some(file_path) = self.file_paths().get(&file_id) {
-                                let file_path = file_path.clone();
-                                Some((file_id, file_path, has_direct))
+                        .filter_map(|file_id| {
+                            if *file_has_direct.get(file_id).unwrap()
+                                && let Some(file_path) = self.file_paths().get(file_id)
+                            {
+                                Some((mod_path.clone(), file_path.clone()))
                             } else {
                                 None
                             }
                         })
-                        .collect::<Vec<_>>();
-                    (mod_path, collect_has_direct)
+                        .collect::<Vec<_>>()
                 })
-                .collect::<AHashMap<_, _>>()
-        } else {
-            AHashMap::default()
-        };
-
-        if self.config.with_descriptor {
-            let mut mods_paths = Vec::with_capacity(mod_files.len());
-            for (p, collect_has_direct) in mod_files.iter() {
-                for (_, file_path, has_direct) in collect_has_direct.iter() {
-                    if *has_direct {
-                        mods_paths.push(((**p).clone(), file_path.clone()));
-                    }
-                }
-            }
-            if !mods_paths.is_empty() {
+                .collect::<Vec<_>>();
+            if !mods_files_with_direct_items.is_empty() {
                 self.backend
-                    .codegen_register_mod_file_descriptor(stream, &mods_paths);
+                    .codegen_register_mod_file_descriptor(stream, &mods_files_with_direct_items);
             }
         }
 
-        let mut pkgs: DashMap<Arc<[FastStr]>, String> = Default::default();
-
+        // 2. mod stream level
+        let mut pkgs: DashMap<ModPath, String> = Default::default();
         let this = self.clone();
+        mod_items
+            .par_iter()
+            .for_each_with(this, |this, (mod_path, items)| {
+                let mut stream = pkgs.entry(mod_path.clone()).or_default();
+                // 2.1 file
+                for file_id in this.cache.mod_files.get(mod_path).unwrap().iter() {
+                    if this.config.with_descriptor && *file_has_direct.get(file_id).unwrap() {
+                        let file = this.file(*file_id).unwrap();
+                        // 2.1.1 file descriptor
+                        this.backend.codegen_file_descriptor_at_mod(
+                            &mut stream,
+                            &file,
+                            mod_path,
+                            *file_has_direct.get(file_id).unwrap(),
+                        );
 
-        mods.par_iter().for_each_with(this, |this, (p, def_ids)| {
-            let mut stream = pkgs.entry(p.clone()).or_default();
-            let span = tracing::span!(tracing::Level::TRACE, "write_mod", path = ?p);
-
-            let _enter = span.enter();
-            let mut dup = AHashMap::default();
-
-            if this.config.with_descriptor {
-                let cur_path: Vec<FastStr> = p.iter().cloned().collect();
-                let collect_has_direct = mod_files.get(p).unwrap();
-                for (file_id, _, has_direct) in collect_has_direct.iter() {
-                    let file = this.file(*file_id).unwrap();
-                    this.backend.codegen_file_descriptor_at_mod(
-                        &mut stream,
-                        &file,
-                        &cur_path,
-                        *has_direct,
-                    );
-
-                    if let Some(mod_idx) = this.cache.mod_idxes.get(&ModPath::from(p.clone())) {
-                        let item = this.item(*mod_idx).unwrap();
-                        if let middle::rir::Item::Mod(m) = &*item {
-                            let name = this.rust_name(*mod_idx);
-                            if m.extensions.has_extendees() {
-                                let cur_pkg = this.item_path(*mod_idx);
-                                this.backend.codegen_mod_exts(
+                        // 2.1.2 file extensions
+                        let file_pkg = file
+                            .package
+                            .iter()
+                            .map(|s| s.0.clone())
+                            .collect::<Vec<_>>()
+                            .join("::");
+                        if file_pkg == "google::protobuf" {
+                            continue;
+                        }
+                        let mod_pkg = mod_path.iter().cloned().collect::<Vec<_>>().join("::");
+                        if file_pkg == mod_pkg {
+                            let filename_lower = this
+                                .file_name(*file_id)
+                                .unwrap()
+                                .replace(".", "_")
+                                .to_lowercase();
+                            if file.extensions.has_extendees() {
+                                this.backend.codegen_file_exts(
                                     &mut stream,
-                                    &name,
-                                    &cur_pkg,
-                                    &m.extensions,
+                                    &filename_lower,
+                                    &file.package,
+                                    &file.extensions,
                                 );
                             }
                         }
                     }
                 }
-            }
 
-            if this.config.split {
-                Self::write_split_mod(this, base_dir, p, def_ids, &mut stream, &mut dup);
-            } else {
-                for def_id in def_ids.iter() {
-                    this.write_item(&mut stream, *def_id, &mut dup)
+                // 2.2 mod
+                let mut dup = AHashMap::default();
+
+                let span = tracing::span!(tracing::Level::TRACE, "write_mod", path = ?mod_path);
+                let _enter = span.enter();
+
+                if let Some(mod_idx) = this.cache.mod_idxes.get(mod_path) {
+                    let mod_item = this.item(*mod_idx).unwrap();
+
+                    if let middle::rir::Item::Mod(m) = &*mod_item {
+                        if this.config.with_descriptor && m.extensions.has_extendees() {
+                            let name = this.rust_name(*mod_idx);
+                            let cur_pkg = this.item_path(*mod_idx).clone();
+                            this.backend.codegen_mod_exts(
+                                &mut stream,
+                                &name,
+                                &cur_pkg,
+                                &m.extensions,
+                            );
+                        }
+                    }
                 }
-            }
-        });
+
+                // 2.3 items
+                if this.config.split {
+                    Self::write_split_mod(this, base_dir, mod_path, items, &mut stream, &mut dup);
+                } else {
+                    for def_id in items.iter() {
+                        this.write_item(&mut stream, *def_id, &mut dup)
+                    }
+                }
+            });
 
         let keys = pkgs.iter().map(|kv| kv.key().clone()).collect_vec();
         let pkg_node = PkgNode::from_pkgs(&keys.iter().map(|s| &**s).collect_vec());
@@ -659,7 +663,7 @@ where
 
     fn write_stream(
         &self,
-        pkgs: &mut DashMap<Arc<[FastStr]>, String>,
+        pkgs: &mut DashMap<ModPath, String>,
         stream: &mut String,
         nodes: &[PkgNode],
     ) {
@@ -693,12 +697,12 @@ where
     fn write_split_mod(
         this: &mut Codegen<B>,
         base_dir: &Path,
-        p: &Arc<[FastStr]>,
+        mod_path: &ModPath,
         def_ids: &[CodegenItem],
-        stream: &mut RefMut<Arc<[FastStr]>, String>,
+        stream: &mut RefMut<ModPath, String>,
         dup: &mut AHashMap<FastStr, Vec<DefId>>,
     ) {
-        let base_mod_name = p.iter().map(|s| s.to_string()).join("/");
+        let base_mod_name = mod_path.iter().map(|s| s.to_string()).join("/");
         let mod_file_name = format!("{base_mod_name}/mod.rs");
         let mut mod_stream = String::new();
 
@@ -768,17 +772,42 @@ where
         name
     }
 
+    fn collect_codegen_items(
+        &self,
+    ) -> (AHashMap<ModPath, Vec<CodegenItem>>, AHashMap<FileId, bool>) {
+        let mut file_has_direct = AHashMap::default();
+
+        let mod_items = self
+            .cache
+            .mod_items
+            .iter()
+            .map(|(mod_path, items)| {
+                file_has_direct.extend(
+                    self.cache
+                        .mod_files
+                        .values()
+                        .flat_map(|file_ids| file_ids.iter().map(|file_id| (*file_id, true))),
+                );
+                (
+                    mod_path.clone(),
+                    items
+                        .iter()
+                        .map(|def_id| (*def_id).into())
+                        .collect::<Vec<_>>(),
+                )
+            })
+            .collect::<AHashMap<_, _>>();
+        (mod_items, file_has_direct)
+    }
+
     pub fn write_file(self, ns_name: Symbol, file_name: impl AsRef<Path>) {
         let base_dir = file_name.as_ref().parent().unwrap();
         let mut stream = String::default();
         self.backend.codegen_pilota_buf_trait(&mut stream);
-        let items = self
-            .cache
-            .codegen_items
-            .iter()
-            .map(|def_id| (*def_id).into());
 
-        self.write_items(&mut stream, items, base_dir);
+        let (mod_items, file_has_direct) = self.collect_codegen_items();
+
+        self.write_items(&mut stream, mod_items, file_has_direct, base_dir);
 
         stream = format! {r#"pub mod {ns_name} {{
                 #![allow(warnings, clippy::all)]

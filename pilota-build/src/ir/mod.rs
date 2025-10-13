@@ -1,4 +1,5 @@
-/// The mod is the core module of the ir, including the core types both for thrift and protobuf
+/// The mod is the core module of the ir, including the core types both for
+/// thrift and protobuf
 use std::{fmt::Display, sync::Arc};
 
 use itertools::Itertools;
@@ -9,7 +10,8 @@ use crate::{
     tags::Tags,
 };
 
-/// The extension module for the ir, including the extension types relative to the concrete idl syntax, seperated for thrift and protobuf
+/// The extension module for the ir, including the extension types relative to
+/// the concrete idl syntax, seperated for thrift and protobuf
 pub mod ext;
 /// The visit module for the ir, including the visit traits for the ir items
 pub mod visit;
@@ -33,7 +35,8 @@ pub enum Literal {
     Map(Vec<(Literal, Literal)>),
 }
 
-/// The type kind supports all syntax for idl items, including thrift and protobuf
+/// The type kind supports all syntax for idl items, including thrift and
+/// protobuf
 #[derive(Clone, Debug)]
 pub enum TyKind {
     String,
