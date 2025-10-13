@@ -42,6 +42,7 @@ pub struct RootDatabase {
     files: Arc<FxHashMap<FileId, Arc<rir::File>>>,
     file_ids_map: Arc<FxHashMap<Arc<PathBuf>, FileId>>,
     file_paths: Arc<FxHashMap<FileId, Arc<PathBuf>>>,
+    file_names: Arc<FxHashMap<FileId, FastStr>>,
     type_graph: Arc<TypeGraph>,
     args: Arc<FxHashSet<DefId>>,
     tags_map: Arc<FxHashMap<TagId, Arc<Tags>>>,
@@ -57,6 +58,7 @@ impl Default for RootDatabase {
             nodes: Arc::new(FxHashMap::default()),
             files: Arc::new(FxHashMap::default()),
             file_ids_map: Arc::new(FxHashMap::default()),
+            file_names: Arc::new(FxHashMap::default()),
             type_graph: Arc::new(empty_type_graph()),
             tags_map: Arc::new(FxHashMap::default()),
             input_files: Arc::new(Vec::new()),
@@ -97,6 +99,11 @@ impl RootDatabase {
 
     pub fn with_file_paths(mut self, file_paths: FxHashMap<FileId, Arc<PathBuf>>) -> Self {
         self.file_paths = Arc::new(file_paths);
+        self
+    }
+
+    pub fn with_file_names(mut self, file_names: FxHashMap<FileId, FastStr>) -> Self {
+        self.file_names = Arc::new(file_names);
         self
     }
 
@@ -312,6 +319,8 @@ pub trait RirDatabase: salsa::Database {
         self.file_ids_map().get(&path).cloned()
     }
 
+    fn file_name(&self, file_id: FileId) -> Option<FastStr>;
+
     fn item(&self, def_id: DefId) -> Option<Arc<Item>>;
 
     fn expect_item(&self, def_id: DefId) -> Arc<Item> {
@@ -390,6 +399,10 @@ impl RirDatabase for RootDatabase {
         use cached_queries::{CachedQueries, get_file};
         let salsa_id = file_id.into_salsa(self as &dyn CachedQueries);
         get_file(self as &dyn CachedQueries, salsa_id)
+    }
+
+    fn file_name(&self, file_id: FileId) -> Option<FastStr> {
+        self.file_names.get(&file_id).cloned()
     }
 
     fn item(&self, def_id: DefId) -> Option<Arc<Item>> {

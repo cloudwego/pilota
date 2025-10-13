@@ -1,10 +1,12 @@
 use std::sync::Arc;
 
-use crate::{ir::Ty, symbol::Ident};
+use crate::{ir::Ty, parser::protobuf::WellKnownFileName, symbol::Ident};
 
 /// Extension for protobuf custom options
 /// As defined in [google/protobuf/descriptor.proto](https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/descriptor.proto#L124), the extendee is following the syntax of [FieldDescriptorProto](https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/descriptor.proto#L243)
-/// The extension is used to store the definition of the custom option, for example
+/// The extension is used to store the definition of the custom option, for
+/// example
+///
 /// ```proto
 /// extend {extendee_kind} {
 ///     optional {extendee_ty} {name} = {tag_id};
@@ -21,7 +23,8 @@ pub struct Extendee {
 }
 
 /// Index of the extendee, uniquely identify the extendee
-/// - extendee_kind, the extendee level, including file, message, field, enum, enum value, service, method
+/// - extendee_kind, the extendee level, including file, message, field, enum,
+///   enum value, service, method
 /// - tag_id, the tag id of the extendee
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Copy)]
 pub struct ExtendeeIndex {
@@ -54,7 +57,8 @@ pub enum FieldType {
     Enum,
 }
 
-/// The extendee level, including file, message, field, enum, enum value, service, method
+/// The extendee level, including file, message, field, enum, enum value,
+/// service, method
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Copy)]
 pub enum ExtendeeKind {
     File,
@@ -105,6 +109,7 @@ impl Extendees {
 /// - used_options, the used options
 #[derive(Clone, Debug)]
 pub struct FileExts {
+    pub well_known_file_name: WellKnownFileName,
     pub extendees: Extendees,
     pub used_options: UsedOptions,
 }

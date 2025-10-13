@@ -1,14 +1,12 @@
 use std::{path::PathBuf, sync::Arc};
 
-use pilota::FastStr;
-
 use crate::{
     Context,
     middle::{
         ext::{FileExts, ModExts},
         rir::{self, Method},
     },
-    symbol::{DefId, Symbol},
+    symbol::{DefId, ModPath, Symbol},
 };
 
 pub trait CodegenBackend: Clone {
@@ -35,7 +33,7 @@ pub trait CodegenBackend: Clone {
     fn codegen_register_mod_file_descriptor(
         &self,
         _stream: &mut String,
-        _mods: &[(Arc<[FastStr]>, Arc<PathBuf>)],
+        _mods: &[(ModPath, Arc<PathBuf>)],
     ) {
     }
     fn codegen_pilota_buf_trait(&self, _stream: &mut String) {}
@@ -44,7 +42,7 @@ pub trait CodegenBackend: Clone {
         &self,
         stream: &mut String,
         f: &rir::File,
-        _mod_path: &[pilota::FastStr],
+        _mod_path: &ModPath,
         has_direct: bool,
     ) {
         self.codegen_file_descriptor(stream, f, has_direct);

@@ -17,6 +17,7 @@ use crate::{
         ty::{self},
     },
     rir::{self, Field, FieldKind, Item, NodeKind},
+    symbol::ModPath,
     tags::protobuf::{OneOf, ProstType},
     ty::Ty,
 };
@@ -645,14 +646,11 @@ impl CodegenBackend for ProtobufBackend {
     }
 
     fn codegen_file_descriptor(&self, stream: &mut String, f: &rir::File, has_direct: bool) {
-        let filename = self
-            .file_paths()
-            .get(&f.file_id)
-            .unwrap()
-            .file_stem()
-            .unwrap()
-            .to_string_lossy()
-            .replace(".", "_");
+        if self.file_paths().get(&f.file_id).is_none() {
+            return;
+        }
+
+        let filename = self.file_name(f.file_id).unwrap().replace(".", "_");
         let filename_upper = filename.to_uppercase();
         let filename_lower = filename.to_lowercase();
         if has_direct {
@@ -674,18 +672,27 @@ impl CodegenBackend for ProtobufBackend {
                         .map(|s| s.to_string())
                         .collect::<Vec<_>>()
                         .join("::");
+
                     if pkg == "google::protobuf" {
-                        deps_builders.push_str(
-                            "deps.push(::pilota::pb::descriptor::file_descriptor().clone());\n",
-                        );
+                        let mod_path = dep_file
+                            .extensions
+                            .unwrap_as_pb()
+                            .well_known_file_name
+                            .mod_name();
+                        if mod_path.is_empty() {
+                            unreachable!(
+                                "invalid well known file name: {:?}",
+                                dep_file.extensions.unwrap_as_pb().well_known_file_name
+                            );
+                        }
+
+                        deps_builders.push_str(&format!(
+                            "deps.push({mod_path}::file_descriptor().clone());\n"
+                        ));
                     } else if has_include_path && !pkg.is_empty() {
                         let dep_filename = self
-                            .file_paths()
-                            .get(dep)
+                            .file_name(*dep)
                             .unwrap()
-                            .file_stem()
-                            .unwrap()
-                            .to_string_lossy()
                             .replace(".", "_")
                             .to_lowercase();
                         deps_builders.push_str(&format!(
@@ -718,10 +725,6 @@ pub fn file_descriptor_{filename_lower}() -> &'static ::pilota::pb::reflect::Fil
 }}
 "#
             ));
-
-            if f.extensions.has_extendees() {
-                self.codegen_file_exts(stream, &filename_lower, &f.package, &f.extensions);
-            }
         } else {
             match &*self.source.mode {
                 Mode::Workspace(_) => {
@@ -742,7 +745,7 @@ pub fn file_descriptor_{filename_lower}() -> &'static ::pilota::pb::reflect::Fil
         &self,
         stream: &mut String,
         f: &rir::File,
-        mod_path: &[pilota::FastStr],
+        mod_path: &ModPath,
         has_direct: bool,
     ) {
         // only generate at file root mod, i.e., when mod_path equals package path
