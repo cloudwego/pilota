@@ -8,6 +8,7 @@ use crate::{ir::File, symbol::FileId};
 pub(crate) mod protobuf;
 pub(crate) mod thrift;
 
+use pilota::FastStr;
 use rustc_hash::FxHashMap;
 pub use thrift::ThriftParser;
 
@@ -18,6 +19,7 @@ pub struct ParseResult {
     pub(crate) input_files: Vec<FileId>,
     pub(crate) file_ids_map: FxHashMap<Arc<PathBuf>, FileId>,
     pub(crate) file_paths: FxHashMap<FileId, Arc<PathBuf>>,
+    pub(crate) file_names: FxHashMap<FileId, FastStr>,
 }
 
 pub trait Parser {

@@ -210,7 +210,8 @@ where
     }
 }
 
-/// CustomExtEnumField is used to extract the value of enum option used in pb item
+/// CustomExtEnumField is used to extract the value of enum option used in pb
+/// item
 /// - field_number, the defined tag id number of the option
 /// - M, the option extendee type, including
 ///     - FileOptions

@@ -3,6 +3,13 @@ syntax = "proto3";
 import "pilota.proto";
 import "google/protobuf/descriptor.proto";
 import "custom_options.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/empty.proto";
 
 extend google.protobuf.MessageOptions {
     optional string alias = 1111;
@@ -43,6 +50,16 @@ message UnknownA {
      CC c = 4;
 }
 
+message WellKnownStruct {
+  google.protobuf.Timestamp created_at = 1;
+  google.protobuf.Duration  ttl        = 2;
+  google.protobuf.StringValue  nickname = 3;
+  google.protobuf.Int64Value   age      = 4;
+  google.protobuf.FieldMask update_mask = 5;
+  google.protobuf.Struct  props     = 6;
+  google.protobuf.Any     payload   = 7;
+  google.protobuf.Empty   reserved  = 8;
+}
 
 service TestService {
     option deprecated = true;

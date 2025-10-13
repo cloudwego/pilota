@@ -18,7 +18,7 @@ mod resolve;
 mod symbol;
 
 use faststr::FastStr;
-pub use symbol::Symbol;
+pub use symbol::{ModPath, Symbol};
 use tempfile::tempdir;
 pub mod tags;
 use std::{path::PathBuf, sync::Arc};
@@ -326,6 +326,7 @@ where
             input_files,
             file_ids_map,
             file_paths,
+            file_names,
         } = parser.parse();
 
         let ResolveResult {
@@ -349,6 +350,7 @@ where
         let db = RootDatabase::default()
             .with_file_ids_map(file_ids_map)
             .with_file_paths(file_paths)
+            .with_file_names(file_names)
             .with_files(files.into_iter())
             .with_nodes(nodes)
             .with_tags(tags, type_graph)

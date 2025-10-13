@@ -63,6 +63,7 @@ pub struct LowerResult {
     pub files: Vec<Arc<File>>,
     pub file_ids_map: FxHashMap<Arc<PathBuf>, FileId>,
     pub file_paths: FxHashMap<FileId, Arc<PathBuf>>,
+    pub file_names: FxHashMap<FileId, FastStr>,
 }
 
 pub trait Lower<Ast> {
@@ -78,6 +79,7 @@ pub struct ThriftLower {
     files: FxHashMap<FileId, Arc<File>>,
     file_ids_map: FxHashMap<Arc<PathBuf>, FileId>,
     file_paths: FxHashMap<FileId, Arc<PathBuf>>,
+    file_names: FxHashMap<FileId, FastStr>,
     include_dirs: Vec<PathBuf>,
     packages: FxHashMap<Path, Vec<Arc<PathBuf>>>,
     service_name_duplicates: FxHashSet<String>,
@@ -92,6 +94,7 @@ impl ThriftLower {
             files: FxHashMap::default(),
             file_ids_map: FxHashMap::default(),
             file_paths: FxHashMap::default(),
+            file_names: FxHashMap::default(),
             include_dirs,
             packages: Default::default(),
             service_name_duplicates: Default::default(),
@@ -641,6 +644,10 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
         let file_id = self.next_file_id.inc_one();
         self.file_ids_map.insert(f.path.clone(), file_id);
         self.file_paths.insert(file_id, f.path.clone());
+        self.file_names.insert(
+            file_id,
+            FastStr::new(f.path.file_stem().unwrap().to_string_lossy()),
+        );
 
         let file = self.with_cur_file(f.clone(), |this| {
             let include_files = f
@@ -763,6 +770,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
             files: self.files.into_values().collect::<Vec<_>>(),
             file_ids_map: self.file_ids_map,
             file_paths: self.file_paths,
+            file_names: self.file_names,
         }
     }
 }
@@ -808,6 +816,7 @@ impl super::Parser for ThriftParser {
             input_files,
             file_ids_map: result.file_ids_map,
             file_paths: result.file_paths,
+            file_names: result.file_names,
         }
     }
 }

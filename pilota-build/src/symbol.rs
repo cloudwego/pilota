@@ -114,7 +114,7 @@ where
     }
 }
 
-#[derive(Hash, PartialEq, Eq, Clone, Debug)]
+#[derive(Hash, PartialEq, Eq, Clone, Debug, Ord, PartialOrd)]
 pub struct ModPath(Arc<[FastStr]>);
 
 impl Deref for ModPath {
