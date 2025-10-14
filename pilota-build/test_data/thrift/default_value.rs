@@ -100,6 +100,7 @@ pub mod default_value {
                 __protocol.i32_len(self.inner())
             }
         }
+
         impl ::std::default::Default for C {
             fn default() -> Self {
                 C {
@@ -275,6 +276,7 @@ pub mod default_value {
                     + __protocol.struct_end_len()
             }
         }
+
         impl ::std::default::Default for A {
             fn default() -> Self {
                 A {

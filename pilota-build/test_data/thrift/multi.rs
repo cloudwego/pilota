@@ -276,6 +276,7 @@ pub mod multi {
                 __protocol.i32_len(self.inner())
             }
         }
+
         impl ::std::default::Default for A {
             fn default() -> Self {
                 A {
@@ -1115,6 +1116,7 @@ pub mod multi {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct B {
             pub a: ::std::option::Option<super::recursive_type::A>,
@@ -1449,6 +1451,7 @@ pub mod multi {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub a: ::std::option::Option<::std::boxed::Box<A>>,
@@ -1629,6 +1632,7 @@ pub mod multi {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct B {
             pub b_a: ::std::option::Option<::std::boxed::Box<A>>,

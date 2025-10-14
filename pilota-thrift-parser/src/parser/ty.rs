@@ -11,7 +11,7 @@ use crate::{Annotation, Literal};
 impl CppType {
     pub fn parse<'a>() -> impl Parser<'a, &'a str, CppType, extra::Err<Rich<'a, char>>> {
         just("cpp_type")
-            .ignore_then(blank())
+            .ignore_then(Components::blank())
             .ignore_then(Literal::parse())
             .map(CppType)
     }
@@ -33,14 +33,14 @@ impl Type {
                 just("double").to(Ty::Double),
                 just("uuid").to(Ty::Uuid),
             ))
-            .then_ignore(not_alphanumeric_or_underscore());
+            .then_ignore(Components::not_alphanumeric_or_underscore());
 
             let list = just("list")
-                .ignore_then(just("<").padded_by(blank().or_not()))
+                .ignore_then(just("<").padded_by(Components::blank().or_not()))
                 .ignore_then(self_parser.clone())
-                .then_ignore(blank().or_not())
+                .then_ignore(Components::blank().or_not())
                 .then_ignore(just(">"))
-                .then(blank().ignore_then(CppType::parse()).or_not())
+                .then(Components::blank().ignore_then(CppType::parse()).or_not())
                 .map(|(inner_type, cpp_type)| Ty::List {
                     value: Arc::new(inner_type),
                     cpp_type,
@@ -48,11 +48,11 @@ impl Type {
                 .boxed();
 
             let set = just("set")
-                .ignore_then(blank().ignore_then(CppType::parse()).or_not())
+                .ignore_then(Components::blank().ignore_then(CppType::parse()).or_not())
                 .then_ignore(just("<"))
-                .padded_by(blank().or_not())
+                .padded_by(Components::blank().or_not())
                 .then(self_parser.clone())
-                .then_ignore(blank().or_not())
+                .then_ignore(Components::blank().or_not())
                 .then_ignore(just(">"))
                 .map(|(cpp_type, inner_type)| Ty::Set {
                     value: Arc::new(inner_type),
@@ -61,12 +61,12 @@ impl Type {
                 .boxed();
 
             let map_parser = just("map")
-                .ignore_then(blank().ignore_then(CppType::parse()).or_not())
-                .then_ignore(just("<").padded_by(blank().or_not()))
+                .ignore_then(Components::blank().ignore_then(CppType::parse()).or_not())
+                .then_ignore(just("<").padded_by(Components::blank().or_not()))
                 .then(self_parser.clone())
-                .then_ignore(list_separator().padded_by(blank().or_not()))
+                .then_ignore(Components::list_separator().padded_by(Components::blank().or_not()))
                 .then(self_parser.clone())
-                .then_ignore(blank().or_not())
+                .then_ignore(Components::blank().or_not())
                 .then_ignore(just(">"))
                 .map(|((cpp_type, key_type), value_type)| Ty::Map {
                     key: Arc::new(key_type),
@@ -81,7 +81,7 @@ impl Type {
                 .then(
                     Annotation::get_parser()
                         .or_not()
-                        .padded_by(blank().or_not()),
+                        .padded_by(Components::blank().or_not()),
                 )
                 .map(|(ty, an)| Type(ty, an.unwrap_or_default()))
                 .boxed()

@@ -12,12 +12,18 @@ impl Annotation {
 
         let value = Literal::parse();
 
-        just("(")
+        Components::blank()
+            .or_not()
+            .ignore_then(just("("))
             .ignore_then(
-                key.padded_by(blank().or_not())
-                    .then_ignore(just("=").padded_by(blank().or_not()))
+                key.padded_by(Components::blank().or_not())
+                    .then_ignore(just("=").padded_by(Components::blank().or_not()))
                     .then(value)
-                    .then_ignore(list_separator().padded_by(blank().or_not()).or_not())
+                    .then_ignore(
+                        Components::list_separator()
+                            .padded_by(Components::blank().or_not())
+                            .or_not(),
+                    )
                     .map(|(key, value)| Annotation { key, value })
                     .repeated()
                     .at_least(1)

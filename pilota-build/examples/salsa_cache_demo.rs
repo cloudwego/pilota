@@ -31,8 +31,12 @@ fn main() {
 
     // Create a service item
     let service = rir::Item::Service(rir::Service {
+        leading_comments: "".into(),
+        trailing_comments: "".into(),
         name: "TestService".into(),
         methods: vec![Arc::new(Method {
+            leading_comments: "".into(),
+            trailing_comments: "".into(),
             def_id: DefId::from_u32(1),
             name: "method1".into(),
             args: vec![],
