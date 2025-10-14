@@ -503,7 +503,7 @@ impl CodegenBackend for ProtobufBackend {
             }"#;
         }
 
-        if self.cx.with_descriptor {
+        if self.cx.config.with_descriptor {
             match &self
                 .cx
                 .file_paths()
@@ -681,7 +681,7 @@ impl CodegenBackend for ProtobufBackend {
     }
 
     fn codegen_pilota_buf_descriptor_trait(&self, stream: &mut String) {
-        if self.cx.with_descriptor {
+        if self.cx.config.with_descriptor {
             stream.push_str("use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};");
         } else {
             stream.push_str("use ::pilota::{Buf as _, BufMut as _};");

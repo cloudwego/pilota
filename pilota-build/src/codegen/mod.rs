@@ -307,7 +307,7 @@ where
             Default::default()
         };
 
-        let impl_enum_descriptor_getter = if self.with_descriptor {
+        let impl_enum_descriptor_getter = if self.config.with_descriptor {
             self.backend.codegen_impl_enum_descriptor_getter(def_id, e)
         } else {
             Default::default()
@@ -812,7 +812,7 @@ where
         let base_dir = file_name.as_ref().parent().unwrap();
         let mut stream = String::default();
         self.backend
-            .codegen_pilota_buf_descriptor_buf_trait(&mut stream);
+            .codegen_pilota_buf_descriptor_trait(&mut stream);
 
         let (mod_items, file_has_direct) = self.collect_codegen_items();
 
