@@ -1034,6 +1034,7 @@ pub mod wrapper_arc {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct Test {
             pub id: ::pilota::FastStr,

@@ -1,5 +1,7 @@
 use std::{ops::Deref, sync::Arc};
 
+use faststr::FastStr;
+
 use super::{Annotations, Ident, Literal, Path, Type};
 
 #[derive(Debug, Clone)]
@@ -19,6 +21,8 @@ pub struct Constant {
     pub r#type: Type,
     pub value: ConstValue,
     pub annotations: Annotations,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
 }
 
 #[derive(Debug, Clone, Copy)]

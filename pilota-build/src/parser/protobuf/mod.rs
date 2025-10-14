@@ -318,11 +318,15 @@ impl Lower {
             related_items: Default::default(),
             tags: Arc::new(self.extract_enum_tags(e)),
             kind: ir::ItemKind::Enum(ir::Enum {
+                leading_comments: "".into(),
+                trailing_comments: "".into(),
                 name: FastStr::new(e.name()).into(),
                 variants: e
                     .value
                     .iter()
                     .map(|v| ir::EnumVariant {
+                        leading_comments: "".into(),
+                        trailing_comments: "".into(),
                         id: v.number,
                         name: FastStr::new(v.name()).into(),
                         discr: v.number.map(|v| v as i64),
@@ -399,11 +403,15 @@ impl Lower {
                     related_items: Default::default(),
                     tags: Arc::new(crate::tags!(OneOf)),
                     kind: ir::ItemKind::Enum(ir::Enum {
+                        leading_comments: "".into(),
+                        trailing_comments: "".into(),
                         name: FastStr::new(d.name()).into(),
                         repr: None,
                         variants: fields
                             .iter()
                             .map(|(_, f)| ir::EnumVariant {
+                                leading_comments: "".into(),
+                                trailing_comments: "".into(),
                                 discr: None,
                                 id: f.number,
                                 name: FastStr::new(f.name()).into(),
@@ -434,6 +442,8 @@ impl Lower {
                 extra_fields.push((
                     fields[0].0,
                     ir::Field {
+                        leading_comments: "".into(),
+                        trailing_comments: "".into(),
                         name: FastStr::new(d.name()).into(),
                         id: -1,
                         ty: ir::Ty {
@@ -481,6 +491,8 @@ impl Lower {
             related_items: Default::default(),
             tags: Arc::new(self.extract_message_tags(message)),
             kind: ir::ItemKind::Message(ir::Message {
+                leading_comments: "".into(),
+                trailing_comments: "".into(),
                 fields: fields
                     .iter()
                     .map(|(idx, f)| {
@@ -519,6 +531,8 @@ impl Lower {
                         (
                             *idx,
                             ir::Field {
+                                leading_comments: "".into(),
+                                trailing_comments: "".into(),
                                 default: None,
                                 id: f.number(),
                                 name: FastStr::new(f.name()).into(),
@@ -605,6 +619,8 @@ impl Lower {
             tags: Arc::new(service_tags),
             related_items: Default::default(),
             kind: ir::ItemKind::Service(ir::Service {
+                leading_comments: "".into(),
+                trailing_comments: "".into(),
                 name: FastStr::new(service.name()).into(),
                 methods: service
                     .method
@@ -624,6 +640,8 @@ impl Lower {
                         }
 
                         ir::Method {
+                            leading_comments: "".into(),
+                            trailing_comments: "".into(),
                             name: FastStr::new(m.name()).into(),
                             tags: Arc::new(tags),
                             args: vec![ir::Arg {
@@ -755,6 +773,8 @@ impl Lower {
                         related_items: Default::default(),
                         tags: Arc::new(Tags::default()),
                         kind: ir::ItemKind::Const(ir::Const {
+                            leading_comments: "".into(),
+                            trailing_comments: "".into(),
                             name: FastStr::new(format!("__PILOTA_PB_EXT_{}", file_id.as_u32()))
                                 .into(),
                             ty: ir::Ty {

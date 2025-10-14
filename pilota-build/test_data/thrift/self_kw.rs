@@ -100,6 +100,7 @@ pub mod self_kw {
                 __protocol.i32_len(self.inner())
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub r#type: ::pilota::FastStr,

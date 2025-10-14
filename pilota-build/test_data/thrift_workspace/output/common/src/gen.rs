@@ -529,6 +529,7 @@ pub mod r#gen {
 
             pub email: ::pilota::FastStr,
 
+            //4: required image.Image avatar,
             pub common_data: super::common::CommonData,
         }
         impl ::pilota::thrift::Message for Author {

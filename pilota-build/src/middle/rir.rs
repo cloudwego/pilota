@@ -1,5 +1,6 @@
 use std::{ops::Deref, sync::Arc};
 
+use faststr::FastStr;
 use pilota::Bytes;
 
 use super::ty::Ty;
@@ -50,6 +51,8 @@ pub struct Method {
     pub oneway: bool,
     pub exceptions: Option<Path>,
     pub source: MethodSource,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
     pub item_exts: ItemExts,
 }
 
@@ -58,6 +61,8 @@ pub struct Service {
     pub name: Ident,
     pub methods: Vec<Arc<Method>>,
     pub extend: Vec<Path>,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
     pub item_exts: ItemExts,
 }
 
@@ -66,6 +71,8 @@ pub struct Const {
     pub name: Ident,
     pub ty: Ty,
     pub lit: Literal,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Copy)]
@@ -83,6 +90,8 @@ pub struct Field {
     pub kind: FieldKind,
     pub tags_id: TagId,
     pub default: Option<Literal>,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
     pub item_exts: ItemExts,
 }
 
@@ -102,6 +111,8 @@ pub struct Message {
     pub fields: Vec<Arc<Field>>,
     pub is_wrapper: bool,
     pub item_exts: ItemExts,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -111,6 +122,8 @@ pub struct EnumVariant {
     pub name: Ident,
     pub discr: Option<i64>,
     pub fields: Vec<Ty>,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
     pub item_exts: ItemExts,
 }
 
@@ -119,6 +132,8 @@ pub struct Enum {
     pub name: Ident,
     pub variants: Vec<Arc<EnumVariant>>,
     pub repr: Option<EnumRepr>,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
     pub item_exts: ItemExts,
 }
 
@@ -126,6 +141,8 @@ pub struct Enum {
 pub struct NewType {
     pub name: Ident,
     pub ty: Ty,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

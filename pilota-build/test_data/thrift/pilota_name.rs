@@ -457,6 +457,7 @@ pub mod pilota_name {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Test1 {
             pub id: ::pilota::FastStr,

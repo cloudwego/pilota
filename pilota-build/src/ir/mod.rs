@@ -3,7 +3,7 @@
 use std::{fmt::Display, sync::Arc};
 
 use itertools::Itertools;
-use pilota::Bytes;
+use pilota::{Bytes, FastStr};
 
 use crate::{
     symbol::{EnumRepr, FileId, Ident, Symbol},
@@ -90,14 +90,18 @@ pub struct Method {
     pub oneway: bool,
     pub exceptions: Option<Path>,
     pub tags: Arc<Tags>,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
     pub item_exts: ext::ItemExts,
 }
 
 #[derive(Clone, Debug)]
 pub struct Service {
+    pub leading_comments: FastStr,
     pub name: Ident,
     pub methods: Vec<Method>,
     pub extend: Vec<Path>,
+    pub trailing_comments: FastStr,
     pub item_exts: ext::ItemExts,
 }
 
@@ -106,6 +110,8 @@ pub struct Const {
     pub name: Ident,
     pub ty: Ty,
     pub lit: Literal,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
 }
 
 #[derive(Clone, Debug)]
@@ -122,6 +128,8 @@ pub struct Field {
     pub kind: FieldKind,
     pub tags: Arc<Tags>,
     pub default: Option<Literal>,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
     pub item_exts: ext::ItemExts,
 }
 
@@ -131,6 +139,8 @@ pub struct Message {
     pub fields: Vec<Field>,
     pub is_wrapper: bool,
     pub item_exts: ext::ItemExts,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
 }
 
 #[derive(Clone, Debug)]
@@ -140,6 +150,8 @@ pub struct EnumVariant {
     pub discr: Option<i64>,
     pub fields: Vec<Ty>,
     pub tags: Arc<Tags>,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
     pub item_exts: ext::ItemExts,
 }
 
@@ -148,6 +160,8 @@ pub struct Enum {
     pub name: Ident,
     pub variants: Vec<EnumVariant>,
     pub repr: Option<EnumRepr>,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
     pub item_exts: ext::ItemExts,
 }
 
@@ -155,6 +169,8 @@ pub struct Enum {
 pub struct NewType {
     pub name: Ident,
     pub ty: Ty,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
 }
 
 /// Mod is for protobuf nested messages

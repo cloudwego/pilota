@@ -10,6 +10,7 @@ pub struct Article {
 
     pub status: Status,
 
+    //6: required list<image.Image> images,
     pub common_data: ::common::common::CommonData,
 }
 impl ::pilota::thrift::Message for Article {

@@ -122,9 +122,14 @@ where
                         ""
                     };
 
+                    let leading_comment = f.leading_comments.to_string();
+                    let trailing_comment = f.trailing_comments.to_string();
+
                     format! {
-                        r#"{attrs}
-                        {deprecated_attr}pub {name}: {ty},"#
+                        r#"
+                        {leading_comment}
+                        {attrs}
+                        {deprecated_attr}pub {name}: {ty},{trailing_comment}"#
                     }
                 })
             })
@@ -146,11 +151,13 @@ where
             ""
         };
 
+        let trailing_comment = s.trailing_comments.to_string();
+
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq)]
                 {deprecated_attr}pub struct {name} {{
                     {fields}
-                }}"#
+                }}{trailing_comment}"#
         });
 
         self.backend.codegen_struct_impl(def_id, stream, s);
@@ -168,6 +175,20 @@ where
                     let def_id = item.def_id;
                     let item = self.item(def_id).unwrap();
                     tracing::trace!("write item {}", item.symbol_name());
+
+                    // write leading comments
+                    let comments = match &*item {
+                        middle::rir::Item::Message(s) => s.leading_comments.to_string(),
+                        middle::rir::Item::Enum(e) => e.leading_comments.to_string(),
+                        middle::rir::Item::Service(s) => s.leading_comments.to_string(),
+                        middle::rir::Item::NewType(t) => t.leading_comments.to_string(),
+                        middle::rir::Item::Const(c) => c.leading_comments.to_string(),
+                        _ => String::new(),
+                    };
+                    if !comments.is_empty() {
+                        stream.push_str(&format!("\n{comments}\n"));
+                    }
+
                     self.with_adjust(def_id, |adjust| {
                         let attrs = adjust.iter().flat_map(|a| a.attrs()).join("\n");
 
@@ -383,8 +404,11 @@ where
                         format!("({fields})")
                     };
 
+                    let leading_comment = v.leading_comments.to_string();
+
                     format!(
-                        r#"{attrs}
+                        r#"{leading_comment}
+                        {attrs}
                         {name} {fields_stream},"#
                     )
                 })
@@ -394,12 +418,13 @@ where
         if self.cache.keep_unknown_fields.contains(&def_id) && keep {
             variants.push_str("_UnknownFields(::pilota::BytesVec),");
         }
+        let trailing_comment = e.trailing_comments.to_string();
         stream.push_str(&format! {
             r#"
             #[derive(Clone, PartialEq)]
             pub enum {name} {{
                 {variants}
-            }}
+            }}{trailing_comment}
             "#
         });
 
@@ -412,7 +437,10 @@ where
 
         let methods = methods
             .iter()
-            .map(|m| self.backend.codegen_service_method(def_id, m))
+            .map(|m| {
+                let method = self.backend.codegen_service_method(def_id, m);
+                format!("{method}")
+            })
             .join("\n");
 
         let deprecated_attr = if self.is_deprecated(def_id) {

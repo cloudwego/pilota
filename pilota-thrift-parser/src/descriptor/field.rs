@@ -1,3 +1,5 @@
+use faststr::FastStr;
+
 use super::{Annotations, ConstValue, Ident, Type};
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -16,4 +18,6 @@ pub struct Field {
     pub ty: Type,
     pub default: Option<ConstValue>,
     pub annotations: Annotations,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
 }
