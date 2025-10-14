@@ -172,6 +172,7 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(
             PartialOrd,
             Hash,
@@ -567,6 +568,7 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(
             PartialOrd,
             Hash,
@@ -882,6 +884,7 @@ pub mod unknown_fields {
             }
         }
         pub const TEST_LIST: [&'static str; 2] = ["hello", "world"];
+
         #[derive(
             PartialOrd,
             Hash,
@@ -1196,6 +1199,7 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(
             PartialOrd,
             Hash,
@@ -1655,6 +1659,7 @@ pub mod unknown_fields {
             map.insert(1i32, ::std::vec!["hello"]);
             map
         });
+
         #[derive(
             PartialOrd,
             Hash,
@@ -1838,6 +1843,7 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(
             PartialOrd,
             Hash,
@@ -2777,6 +2783,7 @@ pub mod unknown_fields {
                 __protocol.i32_len(self.inner())
             }
         }
+
         #[derive(
             PartialOrd,
             Hash,

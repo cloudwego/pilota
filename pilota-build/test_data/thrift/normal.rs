@@ -262,6 +262,7 @@ pub mod normal {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct ObjReq {
             pub msg: Message,
@@ -644,6 +645,7 @@ pub mod normal {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct B {
             pub a: ::std::option::Option<A>,
@@ -1312,6 +1314,7 @@ pub mod normal {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct SubMessage {
             pub value: ::std::option::Option<::pilota::FastStr>,
@@ -2235,6 +2238,7 @@ pub mod normal {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Message {
             pub uid: ::std::option::Option<[u8; 16]>,

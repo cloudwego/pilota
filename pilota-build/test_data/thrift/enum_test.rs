@@ -1102,6 +1102,7 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Request {
             pub Index: Index,

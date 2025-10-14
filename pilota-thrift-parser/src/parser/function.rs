@@ -1,44 +1,52 @@
 use chumsky::prelude::*;
+use faststr::FastStr;
 
 use super::super::{
-    Attribute,
-    descriptor::Function,
-    parser::{Parser, blank, list_separator},
+    descriptor::{Attribute, Function},
+    parser::*,
 };
-use crate::{Annotation, Field, Type, parser::*};
+use crate::{Annotation, Field, Type};
 
 impl Function {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Function, extra::Err<Rich<'a, char>>> {
         let fields = Field::get_parser()
-            .padded_by(blank().or_not())
+            .padded_by(Components::blank().or_not())
             .repeated()
             .at_least(1)
             .collect::<Vec<_>>()
             .boxed();
 
-        let throws = just("throws")
-            .ignore_then(blank().or_not())
+        let throws = Components::blank()
+            .or_not()
+            .ignore_then(just("throws"))
+            .ignore_then(Components::blank().or_not())
             .ignore_then(just("("))
             .ignore_then(fields.clone())
-            .then_ignore(blank().or_not())
+            .then_ignore(Components::blank().or_not())
             .then_ignore(just(")"));
 
-        just("oneway")
-            .then_ignore(blank())
-            .or_not()
+        Components::comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(Components::blank().or_not())
+            .then(just("oneway").then_ignore(Components::blank()).or_not())
             .then(Type::get_parser())
-            .then_ignore(blank())
+            .then_ignore(Components::blank())
             .then(Ident::get_parser())
-            .then_ignore(just("(").padded_by(blank().or_not()))
+            .then_ignore(just("(").padded_by(Components::blank().or_not()))
             .then(fields.clone().or_not())
+            .then_ignore(Components::blank().or_not())
             .then_ignore(just(")"))
-            .padded_by(blank().or_not())
             .then(throws.or_not())
-            .then_ignore(blank().or_not())
             .then(Annotation::get_parser().or_not())
-            .then_ignore(list_separator().or_not())
+            .then_ignore(Components::list_separator().or_not())
+            .then(Components::trailing_comment().or_not())
+            .then_ignore(Components::blank().or_not())
             .map(
-                |(((((oneway, r#type), name), arguments), throws), annotations)| {
+                |(
+                    ((((((comments, oneway), r#type), name), arguments), throws), annotations),
+                    trailing_comments,
+                )| {
                     let ow = oneway.is_some();
                     let mut args = arguments.unwrap_or_default();
                     args.iter_mut().for_each(|f| {
@@ -47,12 +55,14 @@ impl Function {
                         }
                     });
                     Function {
+                        leading_comments: FastStr::from(comments.join("\n\n")),
                         name: Ident(name.into()),
                         oneway: ow,
                         result_type: r#type,
                         arguments: args,
                         throws: throws.unwrap_or_default(),
                         annotations: annotations.unwrap_or_default(),
+                        trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
                     }
                 },
             )

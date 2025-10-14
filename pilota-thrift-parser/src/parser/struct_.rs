@@ -1,4 +1,5 @@
 use chumsky::prelude::*;
+use faststr::FastStr;
 
 use super::super::{
     descriptor::{Exception, Struct, StructLike, Union},
@@ -8,49 +9,89 @@ use crate::{Annotation, Field, Ident};
 
 impl Struct {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Struct, extra::Err<Rich<'a, char>>> {
-        just("struct")
-            .ignore_then(blank())
-            .ignore_then(StructLike::parse())
-            .map(Struct)
+        Components::comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(Components::blank().or_not())
+            .then_ignore(just("struct"))
+            .then_ignore(Components::blank())
+            .then(StructLike::parse())
+            .then(Components::trailing_comment().or_not())
+            .then_ignore(Components::blank().or_not())
+            .map(|((comments, struct_like), trailing_comments)| {
+                let leading_comments = FastStr::from(format!(
+                    "{}\n\n{}",
+                    comments.join("\n\n"),
+                    struct_like.comments
+                ));
+                Struct {
+                    leading_comments,
+                    struct_like,
+                    trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                }
+            })
     }
 }
 
 impl Union {
     pub fn parse<'a>() -> impl Parser<'a, &'a str, Union, extra::Err<Rich<'a, char>>> {
-        just("union")
-            .ignore_then(blank())
-            .ignore_then(StructLike::parse())
-            .map(Union)
+        Components::comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(Components::blank().or_not())
+            .then_ignore(just("union"))
+            .then_ignore(Components::blank())
+            .then(StructLike::parse())
+            .then(Components::trailing_comment().or_not())
+            .then_ignore(Components::blank().or_not())
+            .map(|((comments, struct_like), trailing_comments)| Union {
+                leading_comments: FastStr::from(comments.join("\n\n")),
+                struct_like,
+                trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+            })
     }
 }
 
 impl Exception {
     pub fn parse<'a>() -> impl Parser<'a, &'a str, Exception, extra::Err<Rich<'a, char>>> {
-        just("exception")
-            .ignore_then(blank())
-            .ignore_then(StructLike::parse())
-            .map(Exception)
+        Components::comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(Components::blank().or_not())
+            .then_ignore(just("exception"))
+            .then_ignore(Components::blank())
+            .then(StructLike::parse())
+            .then(Components::trailing_comment().or_not())
+            .then_ignore(Components::blank().or_not())
+            .map(|((comments, struct_like), trailing_comments)| Exception {
+                leading_comments: FastStr::from(comments.join("\n\n")),
+                struct_like,
+                trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+            })
     }
 }
 
 impl StructLike {
     pub fn parse<'a>() -> impl Parser<'a, &'a str, StructLike, extra::Err<Rich<'a, char>>> {
         Ident::get_parser()
-            .then_ignore(blank().or_not())
+            .then_ignore(Components::blank().or_not())
             .then_ignore(just("{"))
             .then(
-                blank()
+                Components::blank()
                     .ignore_then(Field::get_parser())
                     .repeated()
                     .collect::<Vec<_>>(),
             )
-            .then_ignore(just("}").padded_by(blank().or_not()))
+            .then(Components::comment().repeated().collect::<Vec<_>>())
+            .then_ignore(Components::blank().or_not())
+            .then_ignore(just("}"))
             .then(Annotation::get_parser().or_not())
-            .then_ignore(list_separator().or_not())
-            .map(|((name, fields), annotations)| StructLike {
+            .then_ignore(Components::list_separator().or_not())
+            .map(|(((name, fields), comments), annotations)| StructLike {
                 name: Ident(name.into()),
                 fields,
                 annotations: annotations.unwrap_or_default(),
+                comments: FastStr::from(comments.join("\n\n")),
             })
     }
 }
@@ -86,7 +127,8 @@ mod tests {
 
     #[test]
     fn test_tag() {
-        let str = r#"struct ImMsgContent {
+        let str = r#"
+        struct ImMsgContent {
             1: string user_id (go.tag = 'json:\"user_id,omitempty\"'),
             2: string __files (go.tag = 'json:\"__files,omitempty\"'),
         }"#;

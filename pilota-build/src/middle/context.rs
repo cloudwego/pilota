@@ -1309,6 +1309,8 @@ mod tests {
             fields: Vec::new(),
             is_wrapper: false,
             item_exts: ItemExts::Thrift,
+            leading_comments: FastStr::new(""),
+            trailing_comments: FastStr::new(""),
         }));
 
         let dep_node = rir::Node {
@@ -1336,6 +1338,8 @@ mod tests {
             tags_id: tag_id,
             default: None,
             item_exts: ItemExts::Thrift,
+            leading_comments: FastStr::new(""),
+            trailing_comments: FastStr::new(""),
         });
 
         let root_message = Arc::new(rir::Item::Message(Message {
@@ -1343,6 +1347,8 @@ mod tests {
             fields: vec![field],
             is_wrapper: false,
             item_exts: ItemExts::Thrift,
+            leading_comments: FastStr::new(""),
+            trailing_comments: FastStr::new(""),
         }));
 
         let root_node = rir::Node {
@@ -1367,6 +1373,7 @@ mod tests {
             uses: Vec::new(),
             descriptor: Bytes::new(),
             extensions: FileExts::Thrift,
+            comments: FastStr::new(""),
         };
 
         let file_arc = Arc::new(file);

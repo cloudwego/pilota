@@ -1,4 +1,5 @@
 use chumsky::prelude::*;
+use faststr::FastStr;
 
 use super::super::{
     descriptor::{ConstValue, Constant, DoubleConstant, IntConstant},
@@ -13,12 +14,12 @@ impl ConstValue {
                 .ignore_then(
                     const_value
                         .clone()
-                        .padded_by(blank().or_not())
-                        .then_ignore(list_separator().or_not())
+                        .padded_by(Components::blank().or_not())
+                        .then_ignore(Components::list_separator().or_not())
                         .repeated()
                         .collect(),
                 )
-                .then_ignore(blank().or_not())
+                .then_ignore(Components::blank().or_not())
                 .then_ignore(just("]"))
                 .map(ConstValue::List);
 
@@ -26,14 +27,14 @@ impl ConstValue {
                 .ignore_then(
                     const_value
                         .clone()
-                        .padded_by(blank().or_not())
+                        .padded_by(Components::blank().or_not())
                         .then_ignore(just(":"))
-                        .then(const_value.clone().padded_by(blank().or_not()))
-                        .then_ignore(list_separator().or_not())
+                        .then(const_value.clone().padded_by(Components::blank().or_not()))
+                        .then_ignore(Components::list_separator().or_not())
                         .repeated()
                         .collect(),
                 )
-                .then_ignore(blank().or_not())
+                .then_ignore(Components::blank().or_not())
                 .then_ignore(just("}"))
                 .map(ConstValue::Map);
 
@@ -54,20 +55,31 @@ impl ConstValue {
 
 impl Constant {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Constant, extra::Err<Rich<'a, char>>> {
-        just("const")
-            .ignore_then(Type::get_parser().padded_by(blank()))
+        Components::comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(Components::blank().or_not())
+            .then_ignore(just("const"))
+            .then(Type::get_parser().padded_by(Components::blank()))
             .then(Ident::get_parser())
-            .then_ignore(just("=").padded_by(blank().or_not()))
+            .then_ignore(just("=").padded_by(Components::blank().or_not()))
             .then(ConstValue::get_parser())
-            .then_ignore(blank().or_not())
             .then(Annotation::get_parser().or_not())
-            .then_ignore(list_separator().padded_by(blank().or_not()).or_not())
-            .map(|(((r#type, name), value), annotations)| Constant {
-                name: Ident(name.into()),
-                r#type,
-                value,
-                annotations: annotations.unwrap_or_default(),
-            })
+            .then_ignore(Components::list_separator().or_not())
+            .then(Components::trailing_comment().or_not())
+            .then_ignore(Components::blank().or_not())
+            .map(
+                |(((((comments, r#type), name), value), annotations), trailing_comments)| {
+                    Constant {
+                        leading_comments: FastStr::from(comments.join("\n\n")),
+                        name: Ident(name.into()),
+                        r#type,
+                        value,
+                        annotations: annotations.unwrap_or_default(),
+                        trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                    }
+                },
+            )
     }
 }
 

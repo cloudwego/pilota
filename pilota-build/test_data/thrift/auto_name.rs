@@ -462,6 +462,7 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestException {}
         impl ::pilota::thrift::Message for TestException {
@@ -2552,6 +2553,7 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Test {
             pub ID: ::pilota::FastStr,

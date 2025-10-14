@@ -1,4 +1,5 @@
 use chumsky::prelude::*;
+use faststr::FastStr;
 
 use super::super::{
     descriptor::{Attribute, Field},
@@ -17,32 +18,38 @@ impl Attribute {
 
 impl Field {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Field, extra::Err<Rich<'a, char>>> {
-        // 1: required i32 name = 123;
-        text::int(10)
-            .then_ignore(just(":").padded_by(blank().or_not()))
+        Components::comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(Components::blank().or_not())
+            .then(text::int(10))
+            .then_ignore(just(":").padded_by(Components::blank().or_not()))
             .then(Attribute::get_parser().or_not())
-            .then(Type::get_parser().padded_by(blank().or_not()))
+            .then(Type::get_parser().padded_by(Components::blank().or_not()))
             .then(Ident::get_parser())
             .then(
                 just("=")
-                    .padded_by(blank().or_not())
+                    .padded_by(Components::blank().or_not())
                     .ignore_then(ConstValue::get_parser())
                     .or_not(),
             )
-            .then(
-                Annotation::get_parser()
-                    .or_not()
-                    .padded_by(blank().or_not()),
-            )
-            .then_ignore(list_separator().or_not())
+            .then(Annotation::get_parser().or_not())
+            .then_ignore(Components::list_separator().or_not())
+            .then(Components::trailing_comment().or_not())
+            .then_ignore(Components::blank().or_not())
             .map(
-                |(((((id, attribute), r#type), name), value), annotations)| Field {
+                |(
+                    ((((((comments, id), attribute), r#type), name), value), annotations),
+                    trailing_comments,
+                )| Field {
+                    leading_comments: FastStr::from(comments.join("\n\n")),
                     id: id.parse().unwrap(),
                     attribute: attribute.unwrap_or_default(),
                     ty: r#type,
                     name: Ident(name.into()),
                     default: value,
                     annotations: annotations.unwrap_or_default(),
+                    trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
                 },
             )
     }
