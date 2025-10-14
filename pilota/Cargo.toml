@@ -44,7 +44,6 @@ rand.workspace = true
 unstable = []
 pb-encode-default-value = []
 no-recursion-limit = []
-prost-derive = []
 
 [[bench]]
 name = "faststr"

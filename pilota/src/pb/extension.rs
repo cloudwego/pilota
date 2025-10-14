@@ -253,3 +253,249 @@ where
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::pb::{Message, encoding::DecodeContext};
+    use linkedbytes::LinkedBytes;
+    use protobuf::Message as PbMessage;
+
+    use super::*;
+
+    #[test]
+    fn test_custom_ext_bool_field() {
+        let field: CustomExtField<protobuf::descriptor::FileOptions, BoolOptionValueExtractor> =
+            CustomExtField::new(1);
+        let mut m = protobuf::descriptor::FileOptions::new();
+        m.mut_unknown_fields().add_varint(1, 1);
+        let v = field.get(&m).unwrap();
+        assert_eq!(v, true);
+    }
+
+    #[test]
+    fn test_custom_ext_int32_field() {
+        let field: CustomExtField<protobuf::descriptor::FileOptions, Int32OptionValueExtractor> =
+            CustomExtField::new(1);
+        let mut m = protobuf::descriptor::FileOptions::new();
+        m.mut_unknown_fields().add_varint(1, 1);
+        let v = field.get(&m).unwrap();
+        assert_eq!(v, 1);
+    }
+
+    #[test]
+    fn test_custom_ext_int64_field() {
+        let field: CustomExtField<protobuf::descriptor::FileOptions, Int64OptionValueExtractor> =
+            CustomExtField::new(1);
+        let mut m = protobuf::descriptor::FileOptions::new();
+        m.mut_unknown_fields().add_varint(1, 1);
+        let v = field.get(&m).unwrap();
+        assert_eq!(v, 1);
+    }
+
+    #[test]
+    fn test_custom_ext_uint32_field() {
+        let field: CustomExtField<protobuf::descriptor::FileOptions, UInt32OptionValueExtractor> =
+            CustomExtField::new(1);
+        let mut m = protobuf::descriptor::FileOptions::new();
+        m.mut_unknown_fields().add_varint(1, 1);
+        let v = field.get(&m).unwrap();
+        assert_eq!(v, 1);
+    }
+
+    #[test]
+    fn test_custom_ext_uint64_field() {
+        let field: CustomExtField<protobuf::descriptor::FileOptions, UInt64OptionValueExtractor> =
+            CustomExtField::new(1);
+        let mut m = protobuf::descriptor::FileOptions::new();
+        m.mut_unknown_fields().add_varint(1, 1);
+        let v = field.get(&m).unwrap();
+        assert_eq!(v, 1);
+    }
+
+    #[test]
+    fn test_custom_ext_float_field() {
+        let field: CustomExtField<protobuf::descriptor::FileOptions, FloatOptionValueExtractor> =
+            CustomExtField::new(1);
+        let mut m = protobuf::descriptor::FileOptions::new();
+        m.mut_unknown_fields().add_fixed32(1, 1.0f32.to_bits());
+        let v = field.get(&m).unwrap();
+        assert_eq!(v, 1.0);
+    }
+
+    #[test]
+    fn test_custom_ext_double_field() {
+        let field: CustomExtField<protobuf::descriptor::FileOptions, DoubleOptionValueExtractor> =
+            CustomExtField::new(1);
+        let mut m = protobuf::descriptor::FileOptions::new();
+        m.mut_unknown_fields().add_fixed64(1, 1.0f64.to_bits());
+        let v = field.get(&m).unwrap();
+        assert_eq!(v, 1.0);
+    }
+
+    #[test]
+    fn test_custom_ext_str_field() {
+        let field: CustomExtField<protobuf::descriptor::FileOptions, StrOptionValueExtractor> =
+            CustomExtField::new(1);
+        let mut m = protobuf::descriptor::FileOptions::new();
+        m.mut_unknown_fields()
+            .add_length_delimited(1, b"hello".to_vec());
+        let v = field.get(&m).unwrap();
+        assert_eq!(v, "hello");
+    }
+
+    #[test]
+    fn test_custom_ext_bytes_field() {
+        let field: CustomExtField<protobuf::descriptor::FileOptions, BytesOptionValueExtractor> =
+            CustomExtField::new(1);
+        let mut m = protobuf::descriptor::FileOptions::new();
+        m.mut_unknown_fields()
+            .add_length_delimited(1, b"hello".to_vec());
+        let v = field.get(&m).unwrap();
+        assert_eq!(v, Bytes::copy_from_slice(b"hello"));
+    }
+
+    #[test]
+    fn test_custom_ext_message_field() {
+        use crate::{Buf as _, BufMut as _};
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        pub struct A {
+            pub a: ::std::option::Option<bytes::Bytes>,
+        }
+        impl crate::pb::Message for A {
+            #[inline]
+            fn encoded_len(&self) -> usize {
+                0 + self
+                    .a
+                    .as_ref()
+                    .map_or(0, |value| crate::pb::encoding::bytes::encoded_len(1, value))
+            }
+
+            #[allow(unused_variables)]
+            fn encode_raw(&self, buf: &mut crate::LinkedBytes) {
+                if let Some(_pilota_inner_value) = self.a.as_ref() {
+                    crate::pb::encoding::bytes::encode(1, _pilota_inner_value, buf);
+                };
+            }
+
+            #[allow(unused_variables)]
+            fn merge_field(
+                &mut self,
+                tag: u32,
+                wire_type: crate::pb::encoding::WireType,
+                buf: &mut crate::Bytes,
+                ctx: &mut crate::pb::encoding::DecodeContext,
+            ) -> ::core::result::Result<(), crate::pb::DecodeError> {
+                const STRUCT_NAME: &'static str = stringify!(A);
+
+                match tag {
+                    1 => {
+                        let mut _inner_pilota_value = &mut self.a;
+                        crate::pb::encoding::bytes::merge(
+                            wire_type,
+                            _inner_pilota_value
+                                .get_or_insert_with(::core::default::Default::default),
+                            buf,
+                            ctx,
+                        )
+                        .map_err(|mut error| {
+                            error.push(STRUCT_NAME, stringify!(a));
+                            error
+                        })
+                    }
+                    _ => crate::pb::encoding::skip_field(wire_type, tag, buf, ctx),
+                }
+            }
+        }
+
+        let field: CustomExtField<
+            protobuf::descriptor::FileOptions,
+            MessageOptionValueExtractor<A>,
+        > = CustomExtField::new(1);
+        let mut m = protobuf::descriptor::FileOptions::new();
+        let mut buf = crate::LinkedBytes::new();
+        A::default().encode(&mut buf).unwrap();
+        m.mut_unknown_fields()
+            .add_length_delimited(1, buf.bytes().clone().freeze().to_vec());
+        let v = field.get(&m).unwrap();
+        assert_eq!(v, A::default());
+    }
+
+    #[test]
+    fn test_custom_ext_enum_field() {
+        use crate::{Buf as _, BufMut as _};
+
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
+        #[repr(transparent)]
+        pub struct PaymentType(i32);
+
+        impl PaymentType {
+            pub const PAYMENT_UNKNOWN: Self = Self(0);
+            pub const PAYMENT_CREDIT: Self = Self(1);
+            pub const PAYMENT_DEBIT: Self = Self(2);
+            pub const PAYMENT_BANK_TRANSFER: Self = Self(3);
+            pub const PAYMENT_CRYPTO: Self = Self(4);
+            pub const PAYMENT_CHECK: Self = Self(5);
+
+            pub fn inner(&self) -> i32 {
+                self.0
+            }
+
+            pub fn to_string(&self) -> ::std::string::String {
+                match self {
+                    Self(0) => ::std::string::String::from("PAYMENT_UNKNOWN"),
+                    Self(1) => ::std::string::String::from("PAYMENT_CREDIT"),
+                    Self(2) => ::std::string::String::from("PAYMENT_DEBIT"),
+                    Self(3) => ::std::string::String::from("PAYMENT_BANK_TRANSFER"),
+                    Self(4) => ::std::string::String::from("PAYMENT_CRYPTO"),
+                    Self(5) => ::std::string::String::from("PAYMENT_CHECK"),
+                    Self(val) => val.to_string(),
+                }
+            }
+
+            pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
+                match value {
+                    0 => Some(Self::PAYMENT_UNKNOWN),
+                    1 => Some(Self::PAYMENT_CREDIT),
+                    2 => Some(Self::PAYMENT_DEBIT),
+                    3 => Some(Self::PAYMENT_BANK_TRANSFER),
+                    4 => Some(Self::PAYMENT_CRYPTO),
+                    5 => Some(Self::PAYMENT_CHECK),
+                    _ => None,
+                }
+            }
+        }
+
+        impl crate::pb::EnumMessage for PaymentType {
+            fn inner(&self) -> i32 {
+                self.inner()
+            }
+
+            fn to_string(&self) -> ::std::string::String {
+                self.to_string()
+            }
+
+            fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
+                PaymentType::try_from_i32(value)
+            }
+        }
+
+        impl ::std::convert::From<i32> for PaymentType {
+            fn from(value: i32) -> Self {
+                Self(value)
+            }
+        }
+
+        impl ::std::convert::From<PaymentType> for i32 {
+            fn from(value: PaymentType) -> i32 {
+                value.0
+            }
+        }
+
+        let field: CustomExtEnumField<protobuf::descriptor::FileOptions, PaymentType> =
+            CustomExtEnumField::new(1);
+        let mut m = protobuf::descriptor::FileOptions::new();
+        m.mut_unknown_fields().add_varint(1, 1);
+        let v = field.get(&m).unwrap();
+        assert_eq!(v, PaymentType::PAYMENT_CREDIT);
+    }
+}
