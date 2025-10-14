@@ -212,7 +212,7 @@ where
                         middle::rir::Item::Mod(m) => {
                             let name = self.rust_name(def_id);
                             let mut inner = Default::default();
-                            self.backend.codegen_pilota_buf_descriptor_trait(&mut inner);
+                            self.backend.codegen_pilota_trait(&mut inner);
                             m.items.iter().for_each(|def_id| {
                                 self.write_item(&mut inner, (*def_id).into(), dup)
                             });
@@ -328,12 +328,6 @@ where
             Default::default()
         };
 
-        let impl_enum_descriptor_getter = if self.config.with_descriptor {
-            self.backend.codegen_impl_enum_descriptor_getter(def_id, e)
-        } else {
-            Default::default()
-        };
-
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq, Copy)]
             #[repr(transparent)]
@@ -362,8 +356,6 @@ where
             }}
 
             {impl_enum_message}
-
-            {impl_enum_descriptor_getter}
 
             impl ::std::convert::From<{repr}> for {name} {{
                 fn from(value: {repr}) -> Self {{
@@ -685,10 +677,11 @@ where
                     }
                 }
 
+                // 2.3 items
                 if this.config.split {
-                    Self::write_split_mod(this, base_dir, p, def_ids, &mut stream, &mut dup);
+                    Self::write_split_mod(this, base_dir, mod_path, items, &mut stream, &mut dup);
                 } else {
-                    for def_id in def_ids.iter() {
+                    for def_id in items.iter() {
                         this.write_item(&mut stream, *def_id, &mut dup)
                     }
                 }
@@ -722,8 +715,7 @@ where
 
             let name = Symbol::from(name.unwrap());
             let mut pilota_buf_trait = Default::default();
-            self.backend
-                .codegen_pilota_buf_descriptor_trait(&mut pilota_buf_trait);
+            self.backend.codegen_pilota_trait(&mut pilota_buf_trait);
             stream.push_str(&format! {
                 r#"
                 pub mod {name} {{
@@ -844,8 +836,7 @@ where
     pub fn write_file(self, ns_name: Symbol, file_name: impl AsRef<Path>) {
         let base_dir = file_name.as_ref().parent().unwrap();
         let mut stream = String::default();
-        self.backend
-            .codegen_pilota_buf_descriptor_trait(&mut stream);
+        self.backend.codegen_pilota_trait(&mut stream);
 
         let (mod_items, file_has_direct) = self.collect_codegen_items();
 
