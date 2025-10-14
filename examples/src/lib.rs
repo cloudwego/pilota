@@ -105,7 +105,8 @@ fn test_pb_encode_zero_value() {
 // #[test]
 // fn test_thrift_fieldmask() {
 //     use pilota::thrift::Message as _;
-//     let desc = fieldmask::fieldmask::fieldmask::Request::get_descriptor().type_descriptor();
+//     let desc =
+// fieldmask::fieldmask::fieldmask::Request::get_descriptor().type_descriptor();
 //     println!("{:?}", desc);
 
 //     let request_fieldmask = pilota_thrift_fieldmask::FieldMaskBuilder::new(
@@ -122,8 +123,8 @@ fn test_pb_encode_zero_value() {
 //             "$.base.Addr",
 //         ],
 //     )
-//     .with_options(pilota_thrift_fieldmask::Options::new().with_black_list_mode(true))
-//     .build()
+//     .with_options(pilota_thrift_fieldmask::Options::new().
+// with_black_list_mode(true))     .build()
 //     .unwrap();
 //     println!("{:?}", request_fieldmask);
 
@@ -215,8 +216,8 @@ fn test_pb_encode_zero_value() {
 
 //     let request_clone = request.clone();
 //     let mut buf = pilota::BytesMut::new();
-//     let mut protocol = pilota::thrift::binary::TBinaryProtocol::new(&mut buf, true);
-//     request_clone.encode(&mut protocol).unwrap();
+//     let mut protocol = pilota::thrift::binary::TBinaryProtocol::new(&mut buf,
+// true);     request_clone.encode(&mut protocol).unwrap();
 //     println!("before mask:{:?}", buf);
 
 //     request.set_field_mask(request_fieldmask);
@@ -224,26 +225,30 @@ fn test_pb_encode_zero_value() {
 //     println!("{:?}", request);
 
 //     let mut buf = pilota::BytesMut::new();
-//     let mut protocol = pilota::thrift::binary::TBinaryProtocol::new(&mut buf, true);
-//     request.encode(&mut protocol).unwrap();
+//     let mut protocol = pilota::thrift::binary::TBinaryProtocol::new(&mut buf,
+// true);     request.encode(&mut protocol).unwrap();
 //     println!("{:?}", buf);
 
 //     let mut encoded_buf = buf.freeze();
-//     let mut protocol = pilota::thrift::binary::TBinaryProtocol::new(&mut encoded_buf, true);
-//     let parsed_request = fieldmask::fieldmask::fieldmask::Request::decode(&mut protocol).unwrap();
+//     let mut protocol = pilota::thrift::binary::TBinaryProtocol::new(&mut
+// encoded_buf, true);     let parsed_request =
+// fieldmask::fieldmask::fieldmask::Request::decode(&mut protocol).unwrap();
 //     println!("{:?}", parsed_request);
 // }
 
 // #[test]
 // fn test_pb_options() {
 //     use pilota::pb::Message as _;
-//     let fd = custom_options::custom_options::custom_options::file_descriptor_custom_options();
+//     let fd =
+// custom_options::custom_options::custom_options::file_descriptor_custom_options();
+//
 
 //     // file options
 //     let fd_proto =
 //         custom_options::custom_options::custom_options::file_descriptor_proto_custom_options();
 //     if let Some(file_opts) = fd_proto.options.as_ref() {
-//         use custom_options::custom_options::custom_options::exts_custom_options;
+//         use
+// custom_options::custom_options::custom_options::exts_custom_options;
 //         if let Ok(v) = exts_custom_options::file_version.get(file_opts) {
 //             println!("file_option file_version: {}", v);
 //             assert_eq!(v, 20250818);
@@ -271,9 +276,10 @@ fn test_pb_encode_zero_value() {
 //     for svc in fd.services() {
 //         let svc_proto = svc.proto();
 //         if let Some(svc_opts) = svc_proto.options.as_ref() {
-//             use custom_options::custom_options::custom_options::exts_custom_options;
-//             if let Ok(v) = exts_custom_options::service_version.get(svc_opts) {
-//                 println!("service_option service_version: {}", v);
+//             use
+// custom_options::custom_options::custom_options::exts_custom_options;
+//             if let Ok(v) = exts_custom_options::service_version.get(svc_opts)
+// {                 println!("service_option service_version: {}", v);
 //             }
 //             if let Ok(v) = exts_custom_options::require_auth.get(svc_opts) {
 //                 println!("service_option require_auth: {}", v);
@@ -422,11 +428,12 @@ fn walk_message(md: &::pilota::pb::reflect::MessageDescriptor, depth: usize) {
 
 //     // top level enum and enum value options
 //     for e in fd.enums() {
-//         use custom_options::custom_options::custom_options::exts_custom_options;
+//         use
+// custom_options::custom_options::custom_options::exts_custom_options;
 //         let ep = e.proto();
 //         if let Some(e_opts) = ep.options.as_ref() {
-//             if let Ok(v) = exts_custom_options::enum_description.get(e_opts) {
-//                 println!("top_enum_option enum_description: {}", v);
+//             if let Ok(v) = exts_custom_options::enum_description.get(e_opts)
+// {                 println!("top_enum_option enum_description: {}", v);
 //             }
 //             if let Ok(v) = exts_custom_options::is_internal.get(e_opts) {
 //                 println!("top_enum_option is_internal: {}", v);
@@ -434,11 +441,11 @@ fn walk_message(md: &::pilota::pb::reflect::MessageDescriptor, depth: usize) {
 //         }
 //         for ev in &ep.value {
 //             if let Some(ev_opts) = ev.options.as_ref() {
-//                 if let Ok(v) = exts_custom_options::display_name.get(ev_opts) {
-//                     println!("top_enum_value_option display_name: {}", v);
+//                 if let Ok(v) = exts_custom_options::display_name.get(ev_opts)
+// {                     println!("top_enum_value_option display_name: {}", v);
 //                 }
-//                 if let Ok(v) = exts_custom_options::access_level.get(ev_opts) {
-//                     println!("top_enum_value_option access_level: {}", v);
+//                 if let Ok(v) = exts_custom_options::access_level.get(ev_opts)
+// {                     println!("top_enum_value_option access_level: {}", v);
 //                 }
 //                 if let Ok(v) = exts_custom_options::color.get(ev_opts) {
 //                     println!("top_enum_value_option color: {}", v);
