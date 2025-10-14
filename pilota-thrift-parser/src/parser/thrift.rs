@@ -196,11 +196,6 @@ impl File {
             .then_ignore(end())
             .map(|(items, c): (Vec<Item>, Vec<FastStr>)| {
                 let mut comments = String::default();
-                for comment in c {
-                    comments.push_str("\n");
-                    comments.push_str(&comment);
-                    comments.push_str("\n");
-                }
                 for item in &items {
                     match item {
                         Item::Include(i) => {
@@ -218,6 +213,12 @@ impl File {
                         _ => {}
                     }
                 }
+                for comment in c {
+                    comments.push_str("\n");
+                    comments.push_str(&comment);
+                    comments.push_str("\n");
+                }
+
                 let mut file = File {
                     items,
                     comments: comments.into(),
