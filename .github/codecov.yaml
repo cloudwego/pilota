@@ -1,0 +1,10 @@
+coverage:
+  status:
+    project:                 # 可选：总覆盖率门禁（想只卡 patch 也行）
+      default:
+        informational: true  # 仅展示，不卡死 CI（想卡就设 false 并配 target）
+    patch:
+      default:
+        target: 70%          # 新增/修改的 diff 区域覆盖率必须 ≥ 70%
+        threshold: 0%        # 不允许低于目标（留有回旋可设 2% 之类）
+        informational: false # 失败时让检查变红，阻止合并（配合分支保护）
