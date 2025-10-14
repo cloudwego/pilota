@@ -664,7 +664,7 @@ impl ThriftLower {
             name: self.lower_ident(&e.name),
             fields: e.fields.iter().map(|f| self.lower_field(f)).collect(),
             is_wrapper: false,
-            extensions: Default::default(),
+            item_exts: ext::ItemExts::Thrift,
         }
     }
 

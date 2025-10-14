@@ -585,6 +585,8 @@ impl Lower {
                     related_items: Default::default(),
                     tags: Arc::new(Tags::default()),
                     kind: ir::ItemKind::Const(ir::Const {
+                        leading_comments: "".into(),
+                        trailing_comments: "".into(),
                         name: FastStr::new(format!("__PILOTA_PB_EXT_{}", name)).into(),
                         ty: ir::Ty {
                             kind: ir::TyKind::String,
