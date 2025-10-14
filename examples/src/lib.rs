@@ -357,26 +357,26 @@ fn walk_message(md: &::pilota::pb::reflect::MessageDescriptor, depth: usize) {
         }
     }
 
-    //         // field options
-    //         for f in &dp.field {
-    //             if let Some(f_opts) = f.options.as_ref() {
-    //                 if let Ok(v) = exts_custom_options::sensitive.get(f_opts) {
-    //                     println!("{}field_option sensitive: {}", indent, v);
-    //                 }
-    //                 if let Ok(v) = exts_custom_options::validation.get(f_opts) {
-    //                     println!("{}field_option validation: {}", indent, v);
-    //                 }
-    //                 if let Ok(v) = exts_custom_options::db_column.get(f_opts) {
-    //                     println!("{}field_option db_column: {}", indent, v);
-    //                 }
-    //                 if let Ok(v) = exts_custom_options::db_index.get(f_opts) {
-    //                     assert_eq!(v, true);
-    //                 }
-    //                 if let Ok(v) = exts_custom_options::api_doc.get(f_opts) {
-    //                     println!("{}field_option api_doc: {}", indent, v);
-    //                 }
-    //             }
-    //         }
+//         // field options
+//         for f in &dp.field {
+//             if let Some(f_opts) = f.options.as_ref() {
+//                 if let Ok(v) = exts_custom_options::sensitive.get(f_opts) {
+//                     println!("{}field_option sensitive: {}", indent, v);
+//                 }
+//                 if let Ok(v) = exts_custom_options::validation.get(f_opts) {
+//                     println!("{}field_option validation: {}", indent, v);
+//                 }
+//                 if let Ok(v) = exts_custom_options::db_column.get(f_opts) {
+//                     println!("{}field_option db_column: {}", indent, v);
+//                 }
+//                 if let Ok(v) = exts_custom_options::db_index.get(f_opts) {
+//                     assert_eq!(v, true);
+//                 }
+//                 if let Ok(v) = exts_custom_options::api_doc.get(f_opts) {
+//                     println!("{}field_option api_doc: {}", indent, v);
+//                 }
+//             }
+//         }
 
     // oneof options
     for o in &dp.oneof_decl {
@@ -415,16 +415,16 @@ fn walk_message(md: &::pilota::pb::reflect::MessageDescriptor, depth: usize) {
         }
     }
 
-    //         // recursive traverse nested message
-    //         for nested in md.nested_messages() {
-    //             walk_message(&nested, depth + 1);
-    //         }
-    //     }
+//         // recursive traverse nested message
+//         for nested in md.nested_messages() {
+//             walk_message(&nested, depth + 1);
+//         }
+//     }
 
-    //     // top level message
-    //     for m in fd.messages() {
-    //         walk_message(&m, 0);
-    //     }
+//     // top level message
+//     for m in fd.messages() {
+//         walk_message(&m, 0);
+//     }
 
 //     // top level enum and enum value options
 //     for e in fd.enums() {
