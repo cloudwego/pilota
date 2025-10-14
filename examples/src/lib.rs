@@ -352,50 +352,53 @@ fn test_pb_encode_zero_value() {
 //         }
 //     }
 
-// message options
-fn walk_message(md: &::pilota::pb::reflect::MessageDescriptor, depth: usize) {
-    use custom_options::custom_options::custom_options::exts_custom_options;
-    let indent = "  ".repeat(depth);
-    let dp = md.proto();
-    if let Some(opts) = dp.options.as_ref() {
-        if let Ok(v) = exts_custom_options::db_table.get(opts) {
-            println!("{}message_option db_table: {}", indent, v);
-            assert_eq!(v, "users");
-        }
-        if let Ok(v) = exts_custom_options::db_entity.get(opts) {
-            println!("{}message_option db_entity: {}", indent, v);
-            assert_eq!(v, true);
-        }
-        if let Ok(v) = exts_custom_options::cache_ttl_seconds.get(opts) {
-            println!("{}message_option cache_ttl_seconds: {}", indent, v);
-            assert_eq!(v, 3600);
-        }
-        // message type extension validate: decode by unknown_fields
-        if let Ok(mv) = exts_custom_options::validate.get(opts) {
-            println!(
-                    "{}message_option validate: all_fields_required={:?} max_nesting_depth={:?} validation_message={:?}",
-                    indent,
-                    mv.all_fields_required,
-                    mv.max_nesting_depth,
-                    mv.validation_message
-                );
-            assert_eq!(mv.all_fields_required, Some(true));
-            assert_eq!(mv.max_nesting_depth, Some(3));
-            assert_eq!(mv.validation_message, Some("User validation failed".into()));
-        }
-    }
+//     // message options
+//     fn walk_message(md: &::pilota::pb::reflect::MessageDescriptor, depth:
+// usize) {         use
+// custom_options::custom_options::custom_options::exts_custom_options;
+//         let indent = "  ".repeat(depth);
+//         let dp = md.proto();
+//         if let Some(opts) = dp.options.as_ref() {
+//             if let Ok(v) = exts_custom_options::db_table.get(opts) {
+//                 println!("{}message_option db_table: {}", indent, v);
+//                 assert_eq!(v, "users");
+//             }
+//             if let Ok(v) = exts_custom_options::db_entity.get(opts) {
+//                 println!("{}message_option db_entity: {}", indent, v);
+//                 assert_eq!(v, true);
+//             }
+//             if let Ok(v) = exts_custom_options::cache_ttl_seconds.get(opts) {
+//                 println!("{}message_option cache_ttl_seconds: {}", indent,
+// v);                 assert_eq!(v, 3600);
+//             }
+//             // message type extension validate: decode by unknown_fields
+//             if let Ok(mv) = exts_custom_options::validate.get(opts) {
+//                 println!(
+//                     "{}message_option validate: all_fields_required={:?}
+// max_nesting_depth={:?} validation_message={:?}",                     indent,
+//                     mv.all_fields_required,
+//                     mv.max_nesting_depth,
+//                     mv.validation_message
+//                 );
+//                 assert_eq!(mv.all_fields_required, Some(true));
+//                 assert_eq!(mv.max_nesting_depth, Some(3));
+//                 assert_eq!(mv.validation_message, Some("User validation
+// failed".into()));             }
+//         }
 
-    // nested extension: ApiMetadata.message Example use ApiMetadata::exts::test
-    if let Some(opts) = dp.options.as_ref() {
-        use custom_options::custom_options::custom_options::api_metadata::example::exts_example as ex_exts;
-        use custom_options::custom_options::custom_options::api_metadata::exts_api_metadata as am_exts;
-        if let Ok(v) = am_exts::test.get(opts) {
-            println!("{}api_metadata.test: {}", indent, v);
-        }
-        if let Ok(v) = ex_exts::level.get(opts) {
-            println!("{}api_metadata.example.level: {}", indent, v);
-        }
-    }
+//         // nested extension: ApiMetadata.message Example use
+// ApiMetadata::exts::test         if let Some(opts) = dp.options.as_ref() {
+//             use
+// custom_options::custom_options::custom_options::api_metadata::example::exts_example
+// as ex_exts;             use
+// custom_options::custom_options::custom_options::api_metadata::exts_api_metadata
+// as am_exts;             if let Ok(v) = am_exts::test.get(opts) {
+//                 println!("{}api_metadata.test: {}", indent, v);
+//             }
+//             if let Ok(v) = ex_exts::level.get(opts) {
+//                 println!("{}api_metadata.example.level: {}", indent, v);
+//             }
+//         }
 
 //         // field options
 //         for f in &dp.field {

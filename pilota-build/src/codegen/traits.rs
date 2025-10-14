@@ -36,7 +36,7 @@ pub trait CodegenBackend: Clone {
         _mods: &[(ModPath, Arc<PathBuf>)],
     ) {
     }
-    fn codegen_pilota_buf_descriptor_trait(&self, _stream: &mut String) {}
+    fn codegen_pilota_trait(&self, _stream: &mut String) {}
 
     fn codegen_file_descriptor_at_mod(
         &self,
@@ -70,11 +70,6 @@ pub trait CodegenBackend: Clone {
 
     // pb only, for pb options
     fn codegen_impl_enum_message(&self, _name: &str) -> String {
-        Default::default()
-    }
-
-    // pb only
-    fn codegen_impl_enum_descriptor_getter(&self, def_id: DefId, e: &rir::Enum) -> String {
         Default::default()
     }
 }
