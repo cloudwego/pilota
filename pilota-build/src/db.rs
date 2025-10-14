@@ -455,3 +455,192 @@ impl Debug for RootDatabase {
         write!(f, "RootDatabase {{ .. }}")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use std::sync::Arc;
+
+    use pilota::Bytes;
+    use rustc_hash::FxHashMap;
+
+    use crate::{
+        middle::{
+            context::{CrateId, DefLocation},
+            ext::{FileExts, ItemExts},
+            rir::{self, FieldKind},
+            ty::{Ty, TyKind},
+        },
+        symbol::{DefId, FileId, Ident, Symbol},
+        tags::TagId,
+    };
+
+    fn make_item_path(parts: &[&str]) -> rir::ItemPath {
+        let symbols: Vec<Symbol> = parts
+            .iter()
+            .map(|p| Symbol::from(FastStr::new((*p).to_string())))
+            .collect();
+        let boxed: Box<[Symbol]> = symbols.into_boxed_slice();
+        rir::ItemPath::from(boxed)
+    }
+
+    fn make_message_item(name: &str, fields: Vec<Arc<rir::Field>>) -> Arc<rir::Item> {
+        Arc::new(rir::Item::Message(rir::Message {
+            name: Ident::from(FastStr::new(name.to_string())),
+            fields,
+            is_wrapper: false,
+            item_exts: ItemExts::Thrift,
+        }))
+    }
+
+    fn make_node(file_id: FileId, item: Arc<rir::Item>, related_nodes: Vec<DefId>) -> rir::Node {
+        rir::Node {
+            file_id,
+            kind: rir::NodeKind::Item(item),
+            parent: None,
+            tags: TagId::from_u32(0),
+            related_nodes,
+        }
+    }
+
+    fn make_file(file_id: FileId, package: rir::ItemPath, items: Vec<DefId>) -> Arc<rir::File> {
+        Arc::new(rir::File {
+            package,
+            items,
+            file_id,
+            uses: vec![],
+            descriptor: Bytes::new(),
+            extensions: FileExts::Thrift,
+        })
+    }
+
+    #[test]
+    fn collect_def_ids_uses_provided_locations() {
+        let root = DefId::from_u32(1);
+        let child = DefId::from_u32(2);
+        let file_id = FileId::from_u32(10);
+
+        let root_item = make_message_item("Root", Vec::new());
+        let child_item = make_message_item("Child", Vec::new());
+
+        let mut nodes = FxHashMap::default();
+        nodes.insert(root, make_node(file_id, root_item.clone(), vec![child]));
+        nodes.insert(child, make_node(file_id, child_item.clone(), vec![]));
+
+        let package = make_item_path(&["pkg", "root"]);
+        let files = vec![(
+            file_id,
+            make_file(file_id, package.clone(), vec![root, child]),
+        )];
+
+        let workspace_graph = WorkspaceGraph::from_items(
+            vec![(root, root_item.clone()), (child, child_item.clone())].into_iter(),
+        );
+
+        let db = RootDatabase::default()
+            .with_nodes(nodes)
+            .with_files(files.into_iter())
+            .with_workspace_graph(workspace_graph)
+            .with_input_files(vec![file_id]);
+
+        let mut provided = FxHashMap::default();
+        provided.insert(
+            root,
+            DefLocation::Fixed(CrateId { main_file: file_id }, package.clone()),
+        );
+        provided.insert(child, DefLocation::Dynamic);
+
+        let result = db.collect_def_ids(&[root], Some(&provided));
+
+        assert_eq!(result.get(&root), provided.get(&root));
+        assert_eq!(result.get(&child), provided.get(&child));
+    }
+
+    #[test]
+    fn collect_def_ids_infers_locations_from_workspace() {
+        let file_main = FileId::from_u32(20);
+        let file_other = FileId::from_u32(30);
+
+        let def_main = DefId::from_u32(100);
+        let def_standalone = DefId::from_u32(200);
+        let def_referrer = DefId::from_u32(300);
+
+        let main_item = make_message_item("Main", Vec::new());
+        let standalone_item = make_message_item("Standalone", Vec::new());
+
+        let dep_ty = Ty {
+            kind: TyKind::Path(rir::Path {
+                kind: rir::DefKind::Type,
+                did: def_main,
+            }),
+            tags_id: TagId::from_u32(0),
+        };
+        let dep_field = Arc::new(rir::Field {
+            did: DefId::from_u32(400),
+            name: Ident::from(FastStr::new("dep".to_string())),
+            id: 1,
+            ty: dep_ty,
+            kind: FieldKind::Required,
+            tags_id: TagId::from_u32(0),
+            default: None,
+            item_exts: ItemExts::Thrift,
+        });
+        let referrer_item = make_message_item("Ref", vec![dep_field]);
+
+        let mut nodes = FxHashMap::default();
+        nodes.insert(def_main, make_node(file_main, main_item.clone(), vec![]));
+        nodes.insert(
+            def_standalone,
+            make_node(file_main, standalone_item.clone(), vec![]),
+        );
+        nodes.insert(
+            def_referrer,
+            make_node(file_other, referrer_item.clone(), vec![]),
+        );
+
+        let main_package = make_item_path(&["pkg", "main"]);
+        let other_package = make_item_path(&["pkg", "other"]);
+        let files = vec![
+            (
+                file_main,
+                make_file(
+                    file_main,
+                    main_package.clone(),
+                    vec![def_main, def_standalone],
+                ),
+            ),
+            (
+                file_other,
+                make_file(file_other, other_package, vec![def_referrer]),
+            ),
+        ];
+
+        let workspace_graph = WorkspaceGraph::from_items(
+            vec![
+                (def_main, main_item.clone()),
+                (def_standalone, standalone_item.clone()),
+                (def_referrer, referrer_item.clone()),
+            ]
+            .into_iter(),
+        );
+
+        let db = RootDatabase::default()
+            .with_nodes(nodes)
+            .with_files(files.into_iter())
+            .with_workspace_graph(workspace_graph)
+            .with_input_files(vec![file_main]);
+
+        let result = db.collect_def_ids(&[def_main, def_standalone], None);
+
+        assert_eq!(result.get(&def_main), Some(&DefLocation::Dynamic));
+
+        let expected_fixed = DefLocation::Fixed(
+            CrateId {
+                main_file: file_main,
+            },
+            main_package,
+        );
+        assert_eq!(result.get(&def_standalone), Some(&expected_fixed));
+    }
+}

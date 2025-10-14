@@ -1124,3 +1124,101 @@ define_all_options_traits! {
 //             .or_else(|| self.package.as_ref().map(FastStr::new))
 //     }
 // }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use protobuf::descriptor::{MessageOptions, field_descriptor_proto};
+
+    #[test]
+    fn lower_message_converts_map_entry_to_ir_map() {
+        let mut lower = Lower::default();
+        lower.cur_package = Some("pkg".into());
+        lower.cur_syntax = Syntax::Proto3;
+
+        let mut map_entry = DescriptorProto::new();
+        map_entry.set_name("EntriesEntry".into());
+
+        let mut entry_options = MessageOptions::new();
+        entry_options.set_map_entry(true);
+        map_entry.options = protobuf::MessageField::some(entry_options);
+
+        let mut key_field = FieldDescriptorProto::new();
+        key_field.set_name("key".into());
+        key_field.set_number(1);
+        key_field.set_label(field_descriptor_proto::Label::LABEL_OPTIONAL);
+        key_field.set_type(field_descriptor_proto::Type::TYPE_STRING);
+        map_entry.field.push(key_field);
+
+        let mut value_field = FieldDescriptorProto::new();
+        value_field.set_name("value".into());
+        value_field.set_number(2);
+        value_field.set_label(field_descriptor_proto::Label::LABEL_OPTIONAL);
+        value_field.set_type(field_descriptor_proto::Type::TYPE_INT32);
+        map_entry.field.push(value_field);
+
+        let mut message = DescriptorProto::new();
+        message.set_name("Outer".into());
+        message.nested_type.push(map_entry);
+
+        let mut field = FieldDescriptorProto::new();
+        field.set_name("entries".into());
+        field.set_number(1);
+        field.set_label(field_descriptor_proto::Label::LABEL_REPEATED);
+        field.set_type(field_descriptor_proto::Type::TYPE_MESSAGE);
+        field.set_type_name(".pkg.Outer.EntriesEntry".into());
+        message.field.push(field);
+
+        let items = lower.lower_message(&message, &mut Vec::new());
+
+        assert_eq!(items.len(), 1);
+
+        let ir::ItemKind::Message(ir::Message { fields, .. }) = &items[0].kind else {
+            panic!("expected message item");
+        };
+
+        assert_eq!(fields.len(), 1);
+        let map_field = &fields[0];
+        assert!(matches!(map_field.kind, FieldKind::Required));
+
+        let ir::TyKind::Map(key_ty, value_ty) = &map_field.ty.kind else {
+            panic!("expected map type");
+        };
+
+        match (&key_ty.kind, &value_ty.kind) {
+            (ir::TyKind::String, ir::TyKind::I32) => {}
+            other => panic!("unexpected key/value types: {:?}", other),
+        }
+    }
+
+    #[test]
+    fn lower_message_marks_proto3_optional_scalar_as_optional() {
+        let mut lower = Lower::default();
+        lower.cur_package = Some("pkg".into());
+        lower.cur_syntax = Syntax::Proto3;
+
+        let mut message = DescriptorProto::new();
+        message.set_name("Foo".into());
+
+        let mut field = FieldDescriptorProto::new();
+        field.set_name("value".into());
+        field.set_number(1);
+        field.set_label(field_descriptor_proto::Label::LABEL_OPTIONAL);
+        field.set_type(field_descriptor_proto::Type::TYPE_INT32);
+        field.set_proto3_optional(true);
+        message.field.push(field);
+
+        let items = lower.lower_message(&message, &mut Vec::new());
+
+        assert_eq!(items.len(), 1);
+
+        let ir::ItemKind::Message(ir::Message { fields, .. }) = &items[0].kind else {
+            panic!("expected message item");
+        };
+
+        assert_eq!(fields.len(), 1);
+        let optional_field = &fields[0];
+        assert!(matches!(optional_field.kind, FieldKind::Optional));
+        assert!(matches!(optional_field.ty.kind, ir::TyKind::I32));
+    }
+}

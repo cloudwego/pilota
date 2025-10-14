@@ -109,11 +109,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
+
         with:
           components: rustfmt, clippy
       - uses: taiki-e/install-action@v2
+
         with:
           tool: cargo-llvm-cov
+
 
       - name: Generate coverage (LCOV + HTML)
         run: |
@@ -126,8 +129,10 @@ jobs:
           name: coverage-html
           path: target/llvm-cov/html
 
+
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4
+
         with:
           files: lcov.info
           fail_ci_if_error: true

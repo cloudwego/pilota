@@ -938,3 +938,123 @@ impl Resolver {
         extendee
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::{str::FromStr as _, sync::Arc};
+
+    fn mk_ty(kind: TyKind) -> Ty {
+        Ty {
+            kind,
+            tags_id: TagId::from_usize(0),
+        }
+    }
+
+    fn vec_ty(inner: Ty) -> Ty {
+        mk_ty(TyKind::Vec(Arc::new(inner)))
+    }
+
+    fn set_ty(inner: Ty) -> Ty {
+        mk_ty(TyKind::Set(Arc::new(inner)))
+    }
+
+    fn map_ty(key: Ty, value: Ty) -> Ty {
+        mk_ty(TyKind::Map(Arc::new(key), Arc::new(value)))
+    }
+
+    #[test]
+    fn converts_faststr_to_string_with_string_tag() {
+        let mut resolver = Resolver::default();
+        let ty = mk_ty(TyKind::FastStr);
+        let tags = {
+            let mut tags = Tags::default();
+            tags.insert(RustType::from_str("string").unwrap());
+            tags
+        };
+
+        let result = resolver.modify_ty_by_tags(ty, &tags);
+
+        assert!(matches!(result.kind, TyKind::String));
+    }
+
+    #[test]
+    fn converts_bytes_to_bytes_vec_with_vec_tag() {
+        let mut resolver = Resolver::default();
+        let ty = mk_ty(TyKind::Bytes);
+        let tags = {
+            let mut tags = Tags::default();
+            tags.insert(RustType::from_str("vec").unwrap());
+            tags
+        };
+
+        let result = resolver.modify_ty_by_tags(ty, &tags);
+
+        assert!(matches!(result.kind, TyKind::BytesVec));
+    }
+
+    #[test]
+    fn converts_collections_to_btree_variants() {
+        let mut resolver = Resolver::default();
+        let ty = map_ty(
+            set_ty(mk_ty(TyKind::FastStr)),
+            vec_ty(mk_ty(TyKind::FastStr)),
+        );
+        let tags = {
+            let mut tags = Tags::default();
+            tags.insert(RustType::from_str("btree").unwrap());
+            tags
+        };
+
+        let result = resolver.modify_ty_by_tags(ty, &tags);
+
+        match result.kind {
+            TyKind::BTreeMap(key, value) => {
+                match &key.as_ref().kind {
+                    TyKind::BTreeSet(inner) => {
+                        assert!(matches!(inner.as_ref().kind, TyKind::FastStr));
+                    }
+                    other => panic!("expected BTreeSet key, got {:?}", other),
+                }
+
+                assert!(matches!(value.as_ref().kind, TyKind::Vec(_)));
+            }
+            other => panic!("expected BTreeMap, got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn converts_f64_to_ordered_f64_with_ordered_tag() {
+        let mut resolver = Resolver::default();
+        let ty = mk_ty(TyKind::F64);
+        let tags = {
+            let mut tags = Tags::default();
+            tags.insert(RustType::from_str("ordered_f64").unwrap());
+            tags
+        };
+
+        let result = resolver.modify_ty_by_tags(ty, &tags);
+
+        assert!(matches!(result.kind, TyKind::OrderedF64));
+    }
+
+    #[test]
+    fn wraps_collection_elements_with_arc_when_tagged() {
+        let mut resolver = Resolver::default();
+        let ty = vec_ty(mk_ty(TyKind::String));
+        let mut tags = Tags::default();
+        tags.insert(RustWrapperArc(true));
+
+        let result = resolver.modify_ty_by_tags(ty, &tags);
+
+        match result.kind {
+            TyKind::Vec(inner) => match &inner.as_ref().kind {
+                TyKind::Arc(arc_inner) => {
+                    assert!(matches!(arc_inner.as_ref().kind, TyKind::String));
+                }
+                other => panic!("expected Arc, got {:?}", other),
+            },
+            other => panic!("expected Vec, got {:?}", other),
+        }
+    }
+}
