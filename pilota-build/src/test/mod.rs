@@ -562,3 +562,24 @@ mod tests {
     // field(#1) failed, caused by: invalid ttype 100\" })"     )
     // }
 }
+
+#[test]
+fn test_pb_options() {
+    let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("custom_options.proto");
+
+    let mut out_path = file_path.clone();
+    out_path.set_extension("rs");
+
+    test_with_builder(file_path, out_path, |source, target| {
+        crate::Builder::pb()
+            .ignore_unused(true)
+            .with_descriptor(true)
+            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            );
+    });
+}

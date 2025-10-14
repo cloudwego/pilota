@@ -1237,3 +1237,189 @@ pub mod tls {
         CUR_ITEM.with(|def_id| f(*def_id))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use std::{collections::HashMap, path::PathBuf, sync::Arc};
+
+    use anyhow::Result;
+    use faststr::FastStr;
+    use pilota::Bytes;
+    use rustc_hash::{FxHashMap, FxHashSet};
+
+    use crate::{
+        middle::{
+            ext::{FileExts, ItemExts},
+            rir::{self, FieldKind, Message},
+            ty::{CodegenTy, Ty, TyKind},
+        },
+        symbol::{Ident, Symbol},
+    };
+
+    fn make_test_context() -> Context {
+        let mode = Arc::new(Mode::SingleFile {
+            file_path: PathBuf::from("dummy.rs"),
+        });
+        let services: Arc<[crate::IdlService]> =
+            Arc::from(Vec::<crate::IdlService>::new().into_boxed_slice());
+        Context {
+            db: RootDatabase::default(),
+            source: Source {
+                source_type: SourceType::Thrift,
+                services,
+                mode: mode.clone(),
+                path_resolver: Arc::new(DefaultPathResolver),
+            },
+            config: Config {
+                change_case: false,
+                split: false,
+                with_descriptor: false,
+                with_field_mask: false,
+                touch_all: false,
+                common_crate_name: "common".into(),
+            },
+            cache: Cache {
+                adjusts: Arc::new(DashMap::default()),
+                mod_idxes: AHashMap::new(),
+                codegen_items: Vec::new(),
+                mod_items: HashMap::new(),
+                def_mod: HashMap::new(),
+                mod_files: HashMap::new(),
+                keep_unknown_fields: Arc::new(FxHashSet::default()),
+                location_map: Arc::new(FxHashMap::default()),
+                entry_map: Arc::new(HashMap::default()),
+                plugin_gen: Arc::new(DashMap::default()),
+                dedups: Vec::new(),
+                names: FxHashMap::default(),
+            },
+        }
+    }
+
+    #[test]
+    fn collect_items_traverses_field_dependencies() {
+        let file_id = FileId::from_u32(0);
+        let root_id = DefId::from_u32(0);
+        let dep_id = DefId::from_u32(1);
+        let field_id = DefId::from_u32(2);
+        let tag_id = TagId::from_u32(0);
+
+        let dep_message = Arc::new(rir::Item::Message(Message {
+            name: Ident::from("Dep"),
+            fields: Vec::new(),
+            is_wrapper: false,
+            item_exts: ItemExts::Thrift,
+        }));
+
+        let dep_node = rir::Node {
+            file_id,
+            kind: rir::NodeKind::Item(dep_message.clone()),
+            parent: None,
+            tags: tag_id,
+            related_nodes: Vec::new(),
+        };
+
+        let field_ty = Ty {
+            kind: TyKind::Path(rir::Path {
+                kind: rir::DefKind::Type,
+                did: dep_id,
+            }),
+            tags_id: tag_id,
+        };
+
+        let field = Arc::new(rir::Field {
+            did: field_id,
+            name: Ident::from("dep"),
+            id: 1,
+            ty: field_ty,
+            kind: FieldKind::Required,
+            tags_id: tag_id,
+            default: None,
+            item_exts: ItemExts::Thrift,
+        });
+
+        let root_message = Arc::new(rir::Item::Message(Message {
+            name: Ident::from("Root"),
+            fields: vec![field],
+            is_wrapper: false,
+            item_exts: ItemExts::Thrift,
+        }));
+
+        let root_node = rir::Node {
+            file_id,
+            kind: rir::NodeKind::Item(root_message.clone()),
+            parent: None,
+            tags: tag_id,
+            related_nodes: Vec::new(),
+        };
+
+        let mut nodes = FxHashMap::default();
+        nodes.insert(root_id, root_node);
+        nodes.insert(dep_id, dep_node);
+
+        let package = ItemPath::from(Arc::<[Symbol]>::from(
+            Vec::<Symbol>::new().into_boxed_slice(),
+        ));
+        let file = rir::File {
+            package,
+            items: vec![root_id, dep_id],
+            file_id,
+            uses: Vec::new(),
+            descriptor: Bytes::new(),
+            extensions: FileExts::Thrift,
+        };
+
+        let file_arc = Arc::new(file);
+
+        let mut file_ids_map = FxHashMap::default();
+        let normalized = Arc::new(PathBuf::from("/tmp/test.thrift"));
+        file_ids_map.insert(normalized.clone(), file_id);
+
+        let mut file_paths = FxHashMap::default();
+        file_paths.insert(file_id, normalized);
+
+        let mut file_names = FxHashMap::default();
+        file_names.insert(file_id, FastStr::from_static_str("test.thrift"));
+
+        let db = RootDatabase::default()
+            .with_nodes(nodes)
+            .with_files(vec![(file_id, file_arc)].into_iter())
+            .with_file_ids_map(file_ids_map)
+            .with_file_paths(file_paths)
+            .with_file_names(file_names)
+            .with_input_files(vec![file_id]);
+
+        let builder = ContextBuilder::new(
+            db,
+            Mode::SingleFile {
+                file_path: PathBuf::from("/tmp/output.rs"),
+            },
+            vec![root_id],
+        );
+
+        let collected = builder.collect_items(&[root_id]);
+
+        assert!(collected.contains(&root_id));
+        assert!(collected.contains(&dep_id));
+        assert_eq!(collected.len(), 2);
+    }
+
+    #[test]
+    fn lit_into_ty_handles_basic_literals() -> Result<()> {
+        let cx = make_test_context();
+
+        let (expr, is_const) =
+            cx.lit_into_ty(&Literal::String(Arc::from("hello")), &CodegenTy::FastStr)?;
+        assert_eq!(&*expr, "::pilota::FastStr::from_static_str(\"hello\")");
+        assert!(is_const);
+
+        let list_lit = Literal::List(vec![Literal::Int(1), Literal::Int(2)]);
+        let vec_ty = CodegenTy::Vec(Arc::new(CodegenTy::I32));
+        let (expr, is_const) = cx.lit_into_ty(&list_lit, &vec_ty)?;
+        assert_eq!(&*expr, "::std::vec![1i32,2i32]");
+        assert!(!is_const);
+
+        Ok(())
+    }
+}

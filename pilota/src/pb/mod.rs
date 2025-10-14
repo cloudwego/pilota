@@ -72,14 +72,21 @@ pub fn decode_length_delimiter(mut buf: Bytes) -> Result<usize, DecodeError> {
     Ok(length as usize)
 }
 
-// Re-export #[derive(Message, Enumeration, Oneof)].
-// Based on serde's equivalent re-export [1], but enabled by default.
-//
-// [1]: https://github.com/serde-rs/serde/blob/v1.0.89/serde/src/lib.rs#L245-L256
-#[cfg(feature = "prost-derive")]
-#[allow(unused_imports)]
-#[macro_use]
-extern crate prost_derive;
-#[cfg(feature = "prost-derive")]
-#[doc(hidden)]
-pub use prost_derive::*;
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_length_delimiter_len() {
+        let length = length_delimiter_len(10);
+        assert_eq!(length, 1);
+    }
+
+    #[test]
+    fn test_encode_and_decode_length_delimiter() {
+        let mut buf = LinkedBytes::new();
+        encode_length_delimiter(10, &mut buf).unwrap();
+        let length = decode_length_delimiter(buf.bytes().clone().freeze()).unwrap();
+        assert_eq!(length, 10);
+        assert_eq!(buf.bytes().len(), 1);
+    }
+}
