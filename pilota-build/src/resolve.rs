@@ -929,6 +929,7 @@ impl Resolver {
             uses: file.uses.iter().map(|(_, f)| *f).collect(),
             descriptor: file.descriptor.clone(),
             extensions: self.lower_file_exts(&file.extensions),
+            comments: file.comments.clone(),
         };
 
         if should_pop {

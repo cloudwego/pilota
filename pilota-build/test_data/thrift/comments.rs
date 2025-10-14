@@ -7,6 +7,12 @@ pub mod comments {
 
             pub mod example {
 
+                // File comments test
+
+                // Another file comment line
+
+                // namespace declaration
+
                 /*
                  * Item struct represents an item with id, title, content, and extra metadata
                  */

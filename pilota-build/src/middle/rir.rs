@@ -223,6 +223,7 @@ pub struct File {
     pub uses: Vec<FileId>,
     pub descriptor: Bytes,
     pub extensions: FileExts,
+    pub comments: FastStr,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]

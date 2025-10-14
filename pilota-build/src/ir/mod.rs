@@ -236,4 +236,5 @@ pub struct File {
     pub uses: Vec<(Path, FileId)>,
     pub descriptor: Bytes,
     pub extensions: ext::FileExts,
+    pub comments: FastStr,
 }

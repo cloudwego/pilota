@@ -1,3 +1,4 @@
+// namespace declaration
 namespace rs volo.rpc.example
 
 /*
@@ -44,3 +45,6 @@ service TestService {
     // method to get an item
     GetItemResponse getItem(1: GetItemRequest req),
 }
+
+// File comments test
+// Another file comment line

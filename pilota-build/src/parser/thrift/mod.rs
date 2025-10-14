@@ -810,6 +810,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                 uses,
                 descriptor: f.descriptor.clone(),
                 extensions: FileExts::Thrift,
+                comments: f.comments.clone(),
             };
 
             this.service_name_duplicates.clear();

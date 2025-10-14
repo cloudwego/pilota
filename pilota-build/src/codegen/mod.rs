@@ -610,8 +610,13 @@ where
                 let mut stream = pkgs.entry(mod_path.clone()).or_default();
                 // 2.1 file
                 for file_id in this.cache.mod_files.get(mod_path).unwrap().iter() {
+                    let file = this.file(*file_id).unwrap();
+                    // 2.1.0 comments
+                    if !file.comments.is_empty() {
+                        stream.push_str(&format!("\n{}\n", file.comments));
+                    }
+
                     if this.config.with_descriptor && *file_has_direct.get(file_id).unwrap() {
-                        let file = this.file(*file_id).unwrap();
                         // 2.1.1 file descriptor
                         this.backend.codegen_file_descriptor_at_mod(
                             &mut stream,

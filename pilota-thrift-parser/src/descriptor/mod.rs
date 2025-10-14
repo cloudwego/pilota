@@ -87,6 +87,7 @@ pub struct File {
     pub package: Option<Path>,
     pub items: Vec<Item>,
     pub descriptor: Bytes,
+    pub comments: FastStr,
 }
 
 impl PartialEq for File {

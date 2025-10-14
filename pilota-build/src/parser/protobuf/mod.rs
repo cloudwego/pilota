@@ -768,6 +768,7 @@ impl Lower {
                             f.options.special_fields.unknown_fields(),
                         ),
                     }),
+                    comments: FastStr::from("".to_string()),
                 };
 
                 if f.items.is_empty() && f.extensions.has_extendees() {
