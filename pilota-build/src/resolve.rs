@@ -441,6 +441,8 @@ impl Resolver {
         }
 
         let f = Arc::from(Field {
+            leading_comments: f.leading_comments.clone(),
+            trailing_comments: f.trailing_comments.clone(),
             did,
             id: f.id,
             kind,
@@ -658,6 +660,8 @@ impl Resolver {
     #[tracing::instrument(level = "debug", skip(self, s), fields(name = &**s.name))]
     fn lower_message(&mut self, s: &ir::Message) -> Message {
         Message {
+            leading_comments: s.leading_comments.clone(),
+            trailing_comments: s.trailing_comments.clone(),
             name: s.name.clone(),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
             is_wrapper: s.is_wrapper,
@@ -668,6 +672,8 @@ impl Resolver {
     fn lower_enum(&mut self, e: &ir::Enum) -> Enum {
         let mut next_discr = 0;
         Enum {
+            leading_comments: e.leading_comments.clone(),
+            trailing_comments: e.trailing_comments.clone(),
             name: e.name.clone(),
             variants: e
                 .variants
@@ -680,6 +686,8 @@ impl Resolver {
                     }
                     let discr = v.discr.unwrap_or(next_discr);
                     let e = Arc::from(EnumVariant {
+                        leading_comments: v.leading_comments.clone(),
+                        trailing_comments: v.trailing_comments.clone(),
                         id: v.id,
                         did,
                         name: v.name.clone(),
@@ -711,6 +719,8 @@ impl Resolver {
 
     fn lower_service(&mut self, s: &ir::Service) -> Service {
         Service {
+            leading_comments: s.leading_comments.clone(),
+            trailing_comments: s.trailing_comments.clone(),
             name: s.name.clone(),
             methods: s
                 .methods
@@ -721,6 +731,8 @@ impl Resolver {
                     self.tags.insert(tags_id, m.tags.clone());
                     let old_parent = self.parent_node.replace(def_id);
                     let method = Arc::from(Method {
+                        leading_comments: m.leading_comments.clone(),
+                        trailing_comments: m.trailing_comments.clone(),
                         def_id,
                         source: MethodSource::Own,
                         name: m.name.clone(),
@@ -777,6 +789,8 @@ impl Resolver {
 
     fn lower_type_alias(&mut self, t: &ir::NewType, tags: &Tags) -> NewType {
         NewType {
+            leading_comments: t.leading_comments.clone(),
+            trailing_comments: t.trailing_comments.clone(),
             name: t.name.clone(),
             ty: {
                 let ty = self.lower_type(&t.ty, false);
@@ -803,6 +817,8 @@ impl Resolver {
 
     fn lower_const(&mut self, c: &ir::Const, tags: &Tags) -> Const {
         Const {
+            leading_comments: c.leading_comments.clone(),
+            trailing_comments: c.trailing_comments.clone(),
             name: c.name.clone(),
             ty: {
                 let ty = self.lower_type(&c.ty, false);
@@ -913,6 +929,7 @@ impl Resolver {
             uses: file.uses.iter().map(|(_, f)| *f).collect(),
             descriptor: file.descriptor.clone(),
             extensions: self.lower_file_exts(&file.extensions),
+            comments: file.comments.clone(),
         };
 
         if should_pop {

@@ -259,6 +259,7 @@ pub mod btree {
                 )
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct B {
             pub m: ::std::collections::BTreeMap<i32, ::std::vec::Vec<::std::sync::Arc<A>>>,
@@ -737,6 +738,7 @@ pub mod btree {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Vec {}
         impl ::pilota::thrift::Message for Vec {

@@ -122,9 +122,14 @@ where
                         ""
                     };
 
+                    let leading_comment = f.leading_comments.to_string();
+                    let trailing_comment = f.trailing_comments.to_string();
+
                     format! {
-                        r#"{attrs}
-                        {deprecated_attr}pub {name}: {ty},"#
+                        r#"
+                        {leading_comment}
+                        {attrs}
+                        {deprecated_attr}pub {name}: {ty},{trailing_comment}"#
                     }
                 })
             })
@@ -146,11 +151,13 @@ where
             ""
         };
 
+        let trailing_comment = s.trailing_comments.to_string();
+
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq)]
                 {deprecated_attr}pub struct {name} {{
                     {fields}
-                }}"#
+                }}{trailing_comment}"#
         });
 
         self.backend.codegen_struct_impl(def_id, stream, s);
@@ -168,6 +175,20 @@ where
                     let def_id = item.def_id;
                     let item = self.item(def_id).unwrap();
                     tracing::trace!("write item {}", item.symbol_name());
+
+                    // write leading comments
+                    let comments = match &*item {
+                        middle::rir::Item::Message(s) => s.leading_comments.to_string(),
+                        middle::rir::Item::Enum(e) => e.leading_comments.to_string(),
+                        middle::rir::Item::Service(s) => s.leading_comments.to_string(),
+                        middle::rir::Item::NewType(t) => t.leading_comments.to_string(),
+                        middle::rir::Item::Const(c) => c.leading_comments.to_string(),
+                        _ => String::new(),
+                    };
+                    if !comments.is_empty() {
+                        stream.push_str(&format!("\n{comments}\n"));
+                    }
+
                     self.with_adjust(def_id, |adjust| {
                         let attrs = adjust.iter().flat_map(|a| a.attrs()).join("\n");
 
@@ -383,8 +404,11 @@ where
                         format!("({fields})")
                     };
 
+                    let leading_comment = v.leading_comments.to_string();
+
                     format!(
-                        r#"{attrs}
+                        r#"{leading_comment}
+                        {attrs}
                         {name} {fields_stream},"#
                     )
                 })
@@ -394,12 +418,13 @@ where
         if self.cache.keep_unknown_fields.contains(&def_id) && keep {
             variants.push_str("_UnknownFields(::pilota::BytesVec),");
         }
+        let trailing_comment = e.trailing_comments.to_string();
         stream.push_str(&format! {
             r#"
             #[derive(Clone, PartialEq)]
             pub enum {name} {{
                 {variants}
-            }}
+            }}{trailing_comment}
             "#
         });
 
@@ -412,7 +437,10 @@ where
 
         let methods = methods
             .iter()
-            .map(|m| self.backend.codegen_service_method(def_id, m))
+            .map(|m| {
+                let method = self.backend.codegen_service_method(def_id, m);
+                format!("{method}")
+            })
             .join("\n");
 
         let deprecated_attr = if self.is_deprecated(def_id) {
@@ -582,9 +610,14 @@ where
                 let mut stream = pkgs.entry(mod_path.clone()).or_default();
                 // 2.1 file
                 for file_id in this.cache.mod_files.get(mod_path).unwrap().iter() {
+                    let file = this.file(*file_id).unwrap();
+                    // 2.1.1 comments
+                    if !file.comments.is_empty() {
+                        stream.push_str(&format!("\n{}\n", file.comments));
+                    }
+
                     if this.config.with_descriptor && *file_has_direct.get(file_id).unwrap() {
-                        let file = this.file(*file_id).unwrap();
-                        // 2.1.1 file descriptor
+                        // 2.1.2 file descriptor
                         this.backend.codegen_file_descriptor_at_mod(
                             &mut stream,
                             &file,
@@ -592,7 +625,7 @@ where
                             *file_has_direct.get(file_id).unwrap(),
                         );
 
-                        // 2.1.2 file extensions
+                        // 2.1.3 file extensions
                         let file_pkg = file
                             .package
                             .iter()
@@ -644,10 +677,11 @@ where
                     }
                 }
 
-                if this.split {
-                    Self::write_split_mod(this, base_dir, p, &def_ids, &mut stream, &mut dup);
+                // 2.3 items
+                if this.config.split {
+                    Self::write_split_mod(this, base_dir, mod_path, items, &mut stream, &mut dup);
                 } else {
-                    for def_id in def_ids.iter() {
+                    for def_id in items.iter() {
                         this.write_item(&mut stream, *def_id, &mut dup)
                     }
                 }

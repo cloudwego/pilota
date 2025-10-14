@@ -490,6 +490,8 @@ mod tests {
             fields,
             is_wrapper: false,
             item_exts: ItemExts::Thrift,
+            leading_comments: FastStr::new(""),
+            trailing_comments: FastStr::new(""),
         }))
     }
 
@@ -511,6 +513,7 @@ mod tests {
             uses: vec![],
             descriptor: Bytes::new(),
             extensions: FileExts::Thrift,
+            comments: FastStr::new(""),
         })
     }
 
@@ -584,6 +587,8 @@ mod tests {
             tags_id: TagId::from_u32(0),
             default: None,
             item_exts: ItemExts::Thrift,
+            leading_comments: FastStr::new(""),
+            trailing_comments: FastStr::new(""),
         });
         let referrer_item = make_message_item("Ref", vec![dep_field]);
 

@@ -1,3 +1,5 @@
+use faststr::FastStr;
+
 use super::{Annotations, Function, Ident, Path};
 
 #[derive(Debug)]
@@ -6,4 +8,6 @@ pub struct Service {
     pub extends: Option<Path>,
     pub functions: Vec<Function>,
     pub annotations: Annotations,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
 }

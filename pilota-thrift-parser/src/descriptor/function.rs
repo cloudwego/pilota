@@ -1,3 +1,5 @@
+use faststr::FastStr;
+
 use super::{Annotations, Field, Ident, Type};
 
 #[derive(Debug)]
@@ -8,4 +10,6 @@ pub struct Function {
     pub arguments: Vec<Field>,
     pub throws: Vec<Field>, // throws as an exception
     pub annotations: Annotations,
+    pub leading_comments: FastStr,
+    pub trailing_comments: FastStr,
 }

@@ -1,4 +1,5 @@
 use chumsky::prelude::*;
+use faststr::FastStr;
 
 use super::super::{descriptor::Service, parser::*};
 use crate::{Annotation, Function, Ident};
@@ -6,30 +7,43 @@ use crate::{Annotation, Function, Ident};
 impl Service {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Service, extra::Err<Rich<'a, char>>> {
         let extends = just("extends")
-            .padded_by(blank())
+            .padded_by(Components::blank())
             .ignore_then(Path::parse());
-        let functions = blank()
+        let functions = Components::blank()
             .or_not()
             .ignore_then(Function::get_parser())
             .repeated()
             .collect::<Vec<_>>();
 
-        just("service")
-            .ignore_then(blank())
-            .ignore_then(Ident::get_parser())
+        Components::comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(Components::blank().or_not())
+            .then_ignore(just("service"))
+            .then_ignore(Components::blank())
+            .then(Ident::get_parser())
             .then(extends.or_not())
-            .then_ignore(blank().or_not())
+            .then_ignore(Components::blank().or_not())
             .then_ignore(just("{"))
             .then(functions)
-            .then_ignore(just("}").padded_by(blank().or_not()))
+            .then_ignore(Components::blank().or_not())
+            .then_ignore(just("}"))
             .then(Annotation::get_parser().or_not())
-            .then_ignore(list_separator().or_not())
-            .map(|(((name, extends), functions), annotations)| Service {
-                name: Ident(name.into()),
-                extends,
-                functions,
-                annotations: annotations.unwrap_or_default(),
-            })
+            .then_ignore(Components::list_separator().or_not())
+            .then(Components::trailing_comment().or_not())
+            .then_ignore(Components::blank().or_not())
+            .map(
+                |(((((comments, name), extends), functions), annotations), trailing_comments)| {
+                    Service {
+                        leading_comments: FastStr::from(comments.join("\n\n")),
+                        name: Ident(name.into()),
+                        extends,
+                        functions,
+                        annotations: annotations.unwrap_or_default(),
+                        trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                    }
+                },
+            )
     }
 }
 
@@ -39,7 +53,8 @@ mod tests {
     #[test]
     fn test_service() {
         let _ = Service::get_parser().parse(
-            r#"service ComplexService {
+            r#"
+            service ComplexService {
 
                         /**
                          * 函数1: processUserData

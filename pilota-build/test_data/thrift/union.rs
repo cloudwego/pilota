@@ -176,6 +176,7 @@ pub mod union {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Default {}
         impl ::pilota::thrift::Message for Default {
@@ -398,6 +399,7 @@ pub mod union {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub u: ::std::option::Option<Union>,

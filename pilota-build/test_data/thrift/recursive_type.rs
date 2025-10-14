@@ -183,6 +183,7 @@ pub mod recursive_type {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct C {
             pub c: ::std::option::Option<::pilota::AHashSet<::pilota::FastStr>>,
@@ -352,6 +353,7 @@ pub mod recursive_type {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct B {
             pub b_a: ::std::option::Option<::std::boxed::Box<A>>,
