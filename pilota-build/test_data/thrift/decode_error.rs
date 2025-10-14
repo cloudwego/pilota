@@ -159,6 +159,7 @@ pub mod decode_error {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct C {
             pub a: ::pilota::FastStr,
@@ -312,6 +313,7 @@ pub mod decode_error {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct B {
             pub c: C,

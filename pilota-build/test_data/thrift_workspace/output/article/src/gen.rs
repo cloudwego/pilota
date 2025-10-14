@@ -395,6 +395,7 @@ pub mod r#gen {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct GetArticleResponse {
             pub article: Article,
@@ -709,6 +710,7 @@ pub mod r#gen {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct GetArticleRequest {
             pub id: i64,
@@ -1006,6 +1008,7 @@ pub mod r#gen {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Article {
             pub id: i64,

@@ -30,6 +30,8 @@ pub use struct_::{Exception, Struct, StructLike, Union};
 pub use ty::{CppType, Ty, Type};
 pub use typedef::Typedef;
 
+pub struct Components {}
+
 #[derive(Debug, Clone)]
 pub struct Path {
     pub segments: Arc<[Ident]>,
@@ -85,6 +87,7 @@ pub struct File {
     pub package: Option<Path>,
     pub items: Vec<Item>,
     pub descriptor: Bytes,
+    pub comments: FastStr,
 }
 
 impl PartialEq for File {

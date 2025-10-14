@@ -164,6 +164,8 @@ impl ThriftLower {
             .collect::<FxHashSet<_>>();
 
         let kind = ir::ItemKind::Service(ir::Service {
+            leading_comments: service.leading_comments.clone(),
+            trailing_comments: service.trailing_comments.clone(),
             name: self.lower_ident(&service.name),
             extend: service
                 .extends
@@ -190,6 +192,8 @@ impl ThriftLower {
                 .throws
                 .iter()
                 .map(|f| ir::EnumVariant {
+                    leading_comments: f.leading_comments.clone(),
+                    trailing_comments: f.trailing_comments.clone(),
                     id: Some(f.id),
                     name: if f.name.is_empty() {
                         match &f.ty.0 {
@@ -223,8 +227,12 @@ impl ThriftLower {
 
             let name: Ident = format!("{}{}ResultRecv", service_name, method_name).into();
             let kind = ir::ItemKind::Enum(ir::Enum {
+                leading_comments: f.leading_comments.clone(),
+                trailing_comments: f.trailing_comments.clone(),
                 name: name.clone(),
                 variants: std::iter::once(ir::EnumVariant {
+                    leading_comments: f.leading_comments.clone(),
+                    trailing_comments: f.trailing_comments.clone(),
                     id: Some(0),
                     name: "Ok".into(),
                     tags: Default::default(),
@@ -245,8 +253,12 @@ impl ThriftLower {
 
             let name: Ident = format!("{service_name}{method_name}ResultSend").into();
             let kind = ir::ItemKind::Enum(ir::Enum {
+                leading_comments: f.leading_comments.clone(),
+                trailing_comments: f.trailing_comments.clone(),
                 name: name.clone(),
                 variants: std::iter::once(ir::EnumVariant {
+                    leading_comments: f.leading_comments.clone(),
+                    trailing_comments: f.trailing_comments.clone(),
                     id: Some(0),
                     name: "Ok".into(),
                     tags: Default::default(),
@@ -268,6 +280,8 @@ impl ThriftLower {
             if !exception.is_empty() {
                 let name: Ident = format!("{service_name}{method_name}Exception").into();
                 let kind = ir::ItemKind::Enum(ir::Enum {
+                    leading_comments: f.leading_comments.clone(),
+                    trailing_comments: f.trailing_comments.clone(),
                     name: name.clone(),
                     variants: exception,
                     repr: None,
@@ -282,6 +296,8 @@ impl ThriftLower {
 
             let name: Ident = format!("{service_name}{method_name}ArgsSend").into();
             let kind = ir::ItemKind::Message(ir::Message {
+                leading_comments: f.leading_comments.clone(),
+                trailing_comments: f.trailing_comments.clone(),
                 name: name.clone(),
                 fields: f
                     .arguments
@@ -299,6 +315,8 @@ impl ThriftLower {
 
             let name: Ident = format!("{service_name}{method_name}ArgsRecv").into();
             let kind = ir::ItemKind::Message(ir::Message {
+                leading_comments: f.leading_comments.clone(),
+                trailing_comments: f.trailing_comments.clone(),
                 name: name.clone(),
                 fields: f
                     .arguments
@@ -341,6 +359,8 @@ impl ThriftLower {
         };
 
         ir::Method {
+            leading_comments: method.leading_comments.clone(),
+            trailing_comments: method.trailing_comments.clone(),
             name: self.lower_ident(&method.name),
             args: method
                 .arguments
@@ -381,11 +401,15 @@ impl ThriftLower {
 
     fn lower_enum(&self, e: &thrift_parser::Enum) -> ir::Enum {
         ir::Enum {
+            leading_comments: e.leading_comments.clone(),
+            trailing_comments: e.trailing_comments.clone(),
             name: self.lower_ident(&e.name),
             variants: e
                 .values
                 .iter()
                 .map(|v| ir::EnumVariant {
+                    leading_comments: v.leading_comments.clone(),
+                    trailing_comments: v.trailing_comments.clone(),
                     id: None,
                     name: self.lower_ident(&v.name),
                     discr: v.value.map(|v| v.0),
@@ -419,6 +443,8 @@ impl ThriftLower {
 
     fn lower_const(&self, c: &thrift_parser::Constant) -> ir::Const {
         ir::Const {
+            leading_comments: c.leading_comments.clone(),
+            trailing_comments: c.trailing_comments.clone(),
             name: self.lower_ident(&c.name),
             ty: self.lower_ty(&c.r#type),
             lit: self.lower_lit(&c.value),
@@ -427,6 +453,8 @@ impl ThriftLower {
 
     fn lower_typedef(&self, t: &thrift_parser::Typedef) -> ir::NewType {
         ir::NewType {
+            leading_comments: t.leading_comments.clone(),
+            trailing_comments: t.trailing_comments.clone(),
             name: self.lower_ident(&t.alias),
             ty: self.lower_ty(&t.r#type),
         }
@@ -439,7 +467,7 @@ impl ThriftLower {
             thrift_parser::Item::Enum(e) => ir::ItemKind::Enum(self.lower_enum(e)),
             thrift_parser::Item::Struct(s) => ir::ItemKind::Message(self.lower_struct(s)),
             thrift_parser::Item::Union(u) => ir::ItemKind::Enum(self.lower_union(u)),
-            thrift_parser::Item::Exception(s) => ir::ItemKind::Message(self.lower_struct(s)),
+            thrift_parser::Item::Exception(e) => ir::ItemKind::Message(self.lower_exception(e)),
             thrift_parser::Item::Service(s) => return self.lower_service(s),
             _ => return vec![],
         };
@@ -464,11 +492,15 @@ impl ThriftLower {
 
     fn lower_union(&self, union: &thrift_parser::Union) -> Enum {
         Enum {
+            leading_comments: union.leading_comments.clone(),
+            trailing_comments: union.trailing_comments.clone(),
             name: self.lower_ident(&union.name),
             variants: union
                 .fields
                 .iter()
                 .map(|f| EnumVariant {
+                    leading_comments: f.leading_comments.clone(),
+                    trailing_comments: f.trailing_comments.clone(),
                     id: Some(f.id),
                     name: self.lower_ident(&f.name),
                     discr: None,
@@ -537,6 +569,8 @@ impl ThriftLower {
         }
 
         ir::Field {
+            leading_comments: f.leading_comments.clone(),
+            trailing_comments: f.trailing_comments.clone(),
             name: self.lower_ident(&f.name),
             id: f.id,
             ty: self.lower_method_relative_ty(&f.ty, arc_wrapper),
@@ -557,6 +591,8 @@ impl ThriftLower {
 
     fn lower_field_with_tags(&self, f: &thrift_parser::Field, tags: Tags) -> ir::Field {
         ir::Field {
+            leading_comments: f.leading_comments.clone(),
+            trailing_comments: f.trailing_comments.clone(),
             name: self.lower_ident(&f.name),
             id: f.id,
             ty: self.lower_ty(&f.ty),
@@ -590,7 +626,7 @@ impl ThriftLower {
         tags
     }
 
-    fn lower_struct(&self, s: &thrift_parser::StructLike) -> ir::Message {
+    fn lower_struct(&self, s: &thrift_parser::Struct) -> ir::Message {
         let mut seen_ids = FxHashSet::default();
         for field in &s.fields {
             if !seen_ids.insert(field.id) {
@@ -602,8 +638,31 @@ impl ThriftLower {
             }
         }
         ir::Message {
+            leading_comments: s.leading_comments.clone(),
+            trailing_comments: s.trailing_comments.clone(),
             name: self.lower_ident(&s.name),
             fields: s.fields.iter().map(|f| self.lower_field(f)).collect(),
+            is_wrapper: false,
+            item_exts: ext::ItemExts::Thrift,
+        }
+    }
+
+    fn lower_exception(&self, e: &thrift_parser::Exception) -> ir::Message {
+        let mut seen_ids = FxHashSet::default();
+        for field in &e.fields {
+            if !seen_ids.insert(field.id) {
+                panic!(
+                    "duplicate ID `{}` in struct `{}`",
+                    field.id,
+                    self.lower_ident(&e.name),
+                );
+            }
+        }
+        ir::Message {
+            leading_comments: e.leading_comments.clone(),
+            trailing_comments: e.trailing_comments.clone(),
+            name: self.lower_ident(&e.name),
+            fields: e.fields.iter().map(|f| self.lower_field(f)).collect(),
             is_wrapper: false,
             item_exts: ext::ItemExts::Thrift,
         }
@@ -751,6 +810,7 @@ impl Lower<Arc<thrift_parser::File>> for ThriftLower {
                 uses,
                 descriptor: f.descriptor.clone(),
                 extensions: FileExts::Thrift,
+                comments: f.comments.clone(),
             };
 
             this.service_name_duplicates.clear();

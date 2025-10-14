@@ -116,6 +116,7 @@ pub mod const_val {
             map.insert(1i32, ::std::vec!["hello"]);
             map
         });
+
         #[derive(Debug, Default, Clone, PartialEq)]
         pub struct Test {
             pub name:

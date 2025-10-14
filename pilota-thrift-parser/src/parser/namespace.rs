@@ -1,24 +1,32 @@
 use chumsky::prelude::*;
+use faststr::FastStr;
 
 use super::super::parser::*;
 use crate::{Annotation, Namespace, Scope};
 
 impl Namespace {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Namespace, extra::Err<Rich<'a, char>>> {
-        just("namespace")
-            .ignore_then(Scope::parse().padded_by(blank()))
+        Components::comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(Components::blank().or_not())
+            .then_ignore(just("namespace"))
+            .then_ignore(Components::blank())
+            .then(Scope::parse().padded_by(Components::blank()))
             .then(Path::parse())
-            .then(
-                Annotation::get_parser()
-                    .or_not()
-                    .padded_by(blank().or_not()),
+            .then(Annotation::get_parser().or_not())
+            .then_ignore(Components::list_separator().or_not())
+            .then(Components::trailing_comment().or_not())
+            .then_ignore(Components::blank().or_not())
+            .map(
+                |((((comments, scope), name), annotations), trailing_comments)| Namespace {
+                    leading_comments: FastStr::from(comments.join("\n\n")),
+                    scope,
+                    name,
+                    annotations,
+                    trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                },
             )
-            .then_ignore(list_separator().or_not())
-            .map(|((scope, name), annotations)| Namespace {
-                scope,
-                name,
-                annotations,
-            })
     }
 }
 
