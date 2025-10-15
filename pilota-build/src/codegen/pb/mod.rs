@@ -504,25 +504,13 @@ impl CodegenBackend for ProtobufBackend {
         }
 
         if self.cx.config.with_descriptor {
-            match &self
-                .cx
-                .file_paths()
-                .get(&self.cx.node(def_id).unwrap().file_id)
-            {
-                Some(path) => {
-                    let filename = path
-                        .file_stem()
-                        .unwrap()
-                        .to_string_lossy()
-                        .replace(".", "_");
+            let file_id = self.cx.node(def_id).unwrap().file_id;
+            match &self.cx.file_paths().get(&file_id) {
+                Some(_) => {
+                    let filename = self.file_name(file_id).unwrap().replace(".", "_");
                     let filename_lower = filename.to_lowercase();
 
-                    let file = &self
-                        .cx
-                        .files()
-                        .get(&self.cx.node(def_id).unwrap().file_id)
-                        .unwrap()
-                        .package;
+                    let file = &self.cx.files().get(&file_id).unwrap().package;
                     let path = self.cx.item_path(def_id);
                     let super_mods = "super::".repeat(path.len() - file.len() - 1);
 
@@ -535,9 +523,9 @@ impl CodegenBackend for ProtobufBackend {
                         }}
                     }}
                     "#
-                ));
+                    ));
                 }
-                None => {}
+                _ => {}
             }
         }
 
@@ -643,27 +631,16 @@ impl CodegenBackend for ProtobufBackend {
             }
         }).join("");
 
-        let getter_impl = match &self
-            .cx
-            .file_paths()
-            .get(&self.cx.node(def_id).unwrap().file_id)
-        {
-            Some(path) => {
+        let file_id = self.cx.node(def_id).unwrap().file_id;
+
+        let getter_impl = match self.cx.file_paths().get(&file_id) {
+            Some(_) => {
                 let name = self.cx.rust_name(def_id);
                 let idl_name = e.name.sym.0.clone();
-                let filename = path
-                    .file_stem()
-                    .unwrap()
-                    .to_string_lossy()
-                    .replace(".", "_");
+                let filename = self.file_name(file_id).unwrap().replace(".", "_");
                 let filename_lower = filename.to_lowercase();
 
-                let file = &self
-                    .cx
-                    .files()
-                    .get(&self.cx.node(def_id).unwrap().file_id)
-                    .unwrap()
-                    .package;
+                let file = &self.cx.files().get(&file_id).unwrap().package;
                 let path = self.cx.item_path(def_id);
                 let super_mods = "super::".repeat(path.len() - file.len() - 1);
 
@@ -678,7 +655,7 @@ impl CodegenBackend for ProtobufBackend {
                     "#
                 )
             }
-            None => "".to_string(),
+            _ => "".to_string(),
         };
 
         stream.push_str(&format! {
