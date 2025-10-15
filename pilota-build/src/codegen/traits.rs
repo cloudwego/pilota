@@ -28,6 +28,13 @@ pub trait CodegenBackend: Clone {
         Default::default()
     }
     fn codegen_enum_impl(&self, _def_id: DefId, _stream: &mut String, _e: &rir::Enum) {}
+    fn codegen_enum_descrptor_getter_impl(
+        &self,
+        _def_id: DefId,
+        _stream: &mut String,
+        _e: &rir::Enum,
+    ) {
+    }
     fn codegen_newtype_impl(&self, _def_id: DefId, _stream: &mut String, _t: &rir::NewType) {}
     fn codegen_file_descriptor(&self, _stream: &mut String, _f: &rir::File, _has_direct: bool) {}
     fn codegen_register_mod_file_descriptor(
