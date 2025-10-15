@@ -50,6 +50,22 @@ pub trait MessageDescriptorGetter {
     fn get_descriptor_proto(&self) -> Option<&descriptor::DescriptorProto>;
 }
 
+pub trait OneofDescriptorGetter {
+    fn get_oneof_descriptor_proto(&self, name: &str) -> Option<&descriptor::OneofDescriptorProto>;
+}
+
+impl OneofDescriptorGetter for descriptor::DescriptorProto {
+    fn get_oneof_descriptor_proto(&self, name: &str) -> Option<&descriptor::OneofDescriptorProto> {
+        if name == "" {
+            return None;
+        }
+
+        self.oneof_decl
+            .iter()
+            .find(|s| s.name.as_deref().unwrap_or("") == name)
+    }
+}
+
 pub trait EnumDescriptorGetter {
     fn get_descriptor_proto(&self) -> Option<&descriptor::EnumDescriptorProto>;
 }
