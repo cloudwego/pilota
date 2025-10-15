@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package example;
+
+// Demonstrates oneof usage: only one of email or phone is set.
+message UserContact {
+	string name = 1;
+
+	oneof contact {
+		string email = 2;
+		string phone = 3;
+	}
+}
