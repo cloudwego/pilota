@@ -435,7 +435,7 @@ fn test_protobuf_with_descriptor() {
             if ext == "proto" {
                 let mut rs_path = path.clone();
                 let path_clone = path.clone();
-                rs_path.set_extension(".rs");
+                rs_path.set_extension("rs");
                 test_pb_with_descriptor(path_clone, rs_path);
             }
         }
