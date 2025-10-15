@@ -245,15 +245,6 @@ pub mod message {
             }
         }
 
-        impl EnumDescriptorGetter for Status {
-            fn get_descriptor_proto(
-                &self,
-            ) -> Option<&::pilota::pb::descriptor::EnumDescriptorProto> {
-                let file_descriptor = file_descriptor_proto_message();
-                file_descriptor.get_enum_descriptor_proto("Status")
-            }
-        }
-
         impl ::std::convert::From<i32> for Status {
             fn from(value: i32) -> Self {
                 Self(value)
