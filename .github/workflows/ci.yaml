@@ -19,6 +19,7 @@ jobs:
       - test-macos
       - test-windows
       - lint
+      - coverage
     steps:
       - run: exit 0
 
@@ -88,7 +89,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
       # - uses: Swatinem/rust-cache@v1
@@ -98,3 +99,36 @@ jobs:
       - name: Format check
         run: |
           cargo fmt -- --check
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+
+      - name: Generate coverage (LCOV + HTML)
+        run: |
+          cargo llvm-cov --workspace --doctests \
+            --lcov --output-path lcov.info
+          cargo llvm-cov --workspace --doctests --html
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: target/llvm-cov/html
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: lcov.info
+          fail_ci_if_error: true
+          verbose: true
