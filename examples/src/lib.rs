@@ -86,6 +86,7 @@ fn test_pb_encode_zero_value() {
     // decode a
     let decoded_a = zero_value::zero_value::A::decode(decode_a.clone()).unwrap();
     println!("decode unknown_a to a: {:?}", decoded_a);
+    assert_eq!(decoded_a, a);
 
     println!("--------------------------------");
 

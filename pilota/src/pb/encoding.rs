@@ -406,6 +406,7 @@ where
 
     let limit = remaining - len as usize;
     while buf.remaining() > limit {
+        // align the buffer to the start of the next field
         ctx.align_with_buf(buf);
         merge(value, buf, ctx)?;
     }
@@ -1747,6 +1748,9 @@ macro_rules! map {
                 let len = (if skip_key {
                     0
                 } else {
+                    //  EncodeLengthContext is used to count the zero copy length before encoding,
+                    // and during encoding, we only need the total length, so we pass an empty
+                    // context to the key_encoded_len function.
                     key_encoded_len(&mut EncodeLengthContext::default(), 1, key)
                 }) + (if skip_val {
                     0

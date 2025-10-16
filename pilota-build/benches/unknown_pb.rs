@@ -1,6 +1,9 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use faststr::FastStr;
-use pilota::{Bytes, LinkedBytes, pb::Message};
+use pilota::{
+    Bytes, LinkedBytes,
+    pb::{EncodeLengthContext, Message},
+};
 use rand::{Rng, distr::Alphanumeric};
 
 include!("../test_data/protobuf/normal.rs");
@@ -9,14 +12,23 @@ include!("../test_data/unknown_fields_pb.rs");
 fn decode_encode_known_fields_pb(bytes: Bytes) {
     let req = normal::ObjReq::decode(bytes).unwrap();
 
-    let mut out_buf = LinkedBytes::with_capacity(req.encoded_len());
+    let mut ctx = EncodeLengthContext::default();
+    let real_size = req.encoded_len(&mut ctx);
+    let zero_copy_size = ctx.zero_copy_len;
+    let malloc_size = real_size - zero_copy_size;
+    let mut out_buf = LinkedBytes::with_capacity(malloc_size);
     req.encode(&mut out_buf).unwrap();
 }
 
 fn decode_encode_unknown_fields_pb(bytes: Bytes) {
     let req = unknown_fields_pb::ObjReq::decode(bytes).unwrap();
 
-    let mut out_buf = LinkedBytes::with_capacity(req.encoded_len());
+    let mut ctx = EncodeLengthContext::default();
+    let real_size = req.encoded_len(&mut ctx);
+    let zero_copy_size = ctx.zero_copy_len;
+    let malloc_size = real_size - zero_copy_size;
+    // println!("real_size: {}, malloc_size: {}", real_size, malloc_size);
+    let mut out_buf = LinkedBytes::with_capacity(malloc_size);
     req.encode(&mut out_buf).unwrap();
 }
 
@@ -46,7 +58,7 @@ fn prepare_obj_req_pb(size: usize) -> normal::ObjReq {
     // size
     let msg_key = normal::Message {
         uid: "".into(),
-        value: None,
+        value: Some(generate_random_string_pb(size / 2)),
         sub_messages: vec![sub_msg_1.clone()],
     };
 
@@ -87,9 +99,13 @@ fn pb_codegen(c: &mut Criterion) {
     let lens = [16, 64, 128, 512, 2 * 1024, 128 * 1024, 10 * 128 * 1024];
     for len_param in lens {
         let req_instance = prepare_obj_req_pb(len_param);
-        let mut encoded_known_bytes_lb = LinkedBytes::with_capacity(req_instance.encoded_len());
+        let mut ctx = EncodeLengthContext::default();
+        let real_size = req_instance.encoded_len(&mut ctx);
+        let zero_copy_size = ctx.zero_copy_len;
+        let malloc_size = real_size - zero_copy_size;
+        let mut encoded_known_bytes_lb = LinkedBytes::with_capacity(malloc_size);
         req_instance.encode(&mut encoded_known_bytes_lb).unwrap();
-        let encoded_known_bytes = encoded_known_bytes_lb.bytes().clone().freeze();
+        let encoded_known_bytes = encoded_known_bytes_lb.concat().freeze();
 
         group.bench_function(
             format!("PB KnownFields DecodeEncode {} bytes", len_param * 8),

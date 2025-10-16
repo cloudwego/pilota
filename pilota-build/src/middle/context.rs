@@ -1240,8 +1240,6 @@ pub mod tls {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
     use anyhow::Result;
@@ -1249,6 +1247,7 @@ mod tests {
     use pilota::Bytes;
     use rustc_hash::{FxHashMap, FxHashSet};
 
+    use super::*;
     use crate::{
         middle::{
             ext::{FileExts, ItemExts},
