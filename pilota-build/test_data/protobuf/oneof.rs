@@ -97,15 +97,6 @@ pub mod oneof {
             B(i32),
         }
 
-        impl EnumDescriptorGetter for Test {
-            fn get_descriptor_proto(
-                &self,
-            ) -> Option<&::pilota::pb::descriptor::EnumDescriptorProto> {
-                let file_descriptor = super::file_descriptor_proto_oneof();
-                file_descriptor.get_enum_descriptor_proto("test")
-            }
-        }
-
         impl Test {
             pub fn encode(&self, buf: &mut ::pilota::LinkedBytes) {
                 match self {
@@ -172,15 +163,6 @@ pub mod oneof {
             S(::pilota::FastStr),
 
             I(i32),
-        }
-
-        impl EnumDescriptorGetter for Type {
-            fn get_descriptor_proto(
-                &self,
-            ) -> Option<&::pilota::pb::descriptor::EnumDescriptorProto> {
-                let file_descriptor = super::file_descriptor_proto_oneof();
-                file_descriptor.get_enum_descriptor_proto("type")
-            }
         }
 
         impl Type {

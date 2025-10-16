@@ -428,6 +428,7 @@ impl Resolver {
         tracing::info!("lower filed {}, ty: {:?}", f.name, f.ty.kind);
         let did = self.did_counter.inc_one();
         let tags_id = self.tags_id_counter.inc_one();
+        self.tags.insert(tags_id, f.tags.clone());
         let ty = self.lower_type(&f.ty, false);
         let ty = self.modify_ty_by_tags(ty, &f.tags);
 

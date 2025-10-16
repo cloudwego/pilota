@@ -206,7 +206,7 @@ pub mod protobuf {
 
     new_type! {
         #[derive(Debug)]
-        pub struct OneOf;
+        pub struct OneOf(pub crate::FastStr);
 
         pub struct Repeated;
 
