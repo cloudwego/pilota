@@ -532,8 +532,7 @@ impl CodegenBackend for ProtobufBackend {
                 )
             }
 
-            skip_field = format!(
-                r#"{{
+            skip_field = r#"{{
                 ::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx)?;
                 let end = buf.chunk().as_ptr();
                 let len = end as usize - ctx.raw_bytes_cursor();
@@ -541,7 +540,7 @@ impl CodegenBackend for ProtobufBackend {
                 _unknown_fields.push_back(val);
                 Ok(())
             }}"#
-            );
+            .into();
         }
 
         stream.push_str(&format!(

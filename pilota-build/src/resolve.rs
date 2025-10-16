@@ -941,8 +941,9 @@ impl Resolver {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::{str::FromStr as _, sync::Arc};
+
+    use super::*;
 
     fn mk_ty(kind: TyKind) -> Ty {
         Ty {

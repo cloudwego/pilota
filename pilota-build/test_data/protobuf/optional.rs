@@ -7,9 +7,9 @@ pub mod optional {
     }
     impl ::pilota::pb::Message for SearchRequest {
         #[inline]
-        fn encoded_len(&self) -> usize {
+        fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
             0 + self.page_number.as_ref().map_or(0, |value| {
-                ::pilota::pb::encoding::int32::encoded_len(2, value)
+                ::pilota::pb::encoding::int32::encoded_len(ctx, 2, value)
             })
         }
 
@@ -27,6 +27,7 @@ pub mod optional {
             wire_type: ::pilota::pb::encoding::WireType,
             buf: &mut ::pilota::Bytes,
             ctx: &mut ::pilota::pb::encoding::DecodeContext,
+            is_root: bool,
         ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
             const STRUCT_NAME: &'static str = stringify!(SearchRequest);
 

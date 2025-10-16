@@ -11,10 +11,10 @@ pub mod nested_message {
     }
     impl ::pilota::pb::Message for Tt1 {
         #[inline]
-        fn encoded_len(&self) -> usize {
-            0 + ::pilota::pb::encoding::message::encoded_len(1, &self.t2)
-                + ::pilota::pb::encoding::int32::encoded_len(2, &self.t3)
-                + ::pilota::pb::encoding::message::encoded_len(4, &self.t4)
+        fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+            0 + ::pilota::pb::encoding::message::encoded_len(ctx, 1, &self.t2)
+                + ::pilota::pb::encoding::int32::encoded_len(ctx, 2, &self.t3)
+                + ::pilota::pb::encoding::message::encoded_len(ctx, 4, &self.t4)
         }
 
         #[allow(unused_variables)]
@@ -31,6 +31,7 @@ pub mod nested_message {
             wire_type: ::pilota::pb::encoding::WireType,
             buf: &mut ::pilota::Bytes,
             ctx: &mut ::pilota::pb::encoding::DecodeContext,
+            is_root: bool,
         ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
             const STRUCT_NAME: &'static str = stringify!(Tt1);
 
@@ -116,8 +117,8 @@ pub mod nested_message {
         }
         impl ::pilota::pb::Message for T2 {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::message::encoded_len(1, &self.t3)
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::message::encoded_len(ctx, 1, &self.t3)
             }
 
             #[allow(unused_variables)]
@@ -132,6 +133,7 @@ pub mod nested_message {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(T2);
 
@@ -164,10 +166,11 @@ pub mod nested_message {
             }
             impl ::pilota::pb::Message for Tt3 {
                 #[inline]
-                fn encoded_len(&self) -> usize {
+                fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                     0 + self.a.as_ref().map_or(0, |value| {
-                        ::pilota::pb::encoding::int32::encoded_len(1, value)
+                        ::pilota::pb::encoding::int32::encoded_len(ctx, 1, value)
                     }) + ::pilota::pb::encoding::hash_map::encoded_len(
+                        ctx,
                         ::pilota::pb::encoding::int32::encoded_len,
                         ::pilota::pb::encoding::message::encoded_len,
                         2,
@@ -198,6 +201,7 @@ pub mod nested_message {
                     wire_type: ::pilota::pb::encoding::WireType,
                     buf: &mut ::pilota::Bytes,
                     ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                    is_root: bool,
                 ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                     const STRUCT_NAME: &'static str = stringify!(Tt3);
 

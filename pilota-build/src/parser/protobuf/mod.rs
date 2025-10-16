@@ -1127,8 +1127,9 @@ define_all_options_traits! {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use protobuf::descriptor::{MessageOptions, field_descriptor_proto};
+
+    use super::*;
 
     #[test]
     fn lower_message_converts_map_entry_to_ir_map() {
