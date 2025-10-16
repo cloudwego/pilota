@@ -406,6 +406,7 @@ where
 
     let limit = remaining - len as usize;
     while buf.remaining() > limit {
+        // align the buffer to the start of the next field
         ctx.align_with_buf(buf);
         merge(value, buf, ctx)?;
     }
@@ -924,7 +925,7 @@ macro_rules! length_delimited {
 
         #[inline]
         pub fn encoded_len(ctx: &mut EncodeLengthContext, tag: u32, value: &$ty) -> usize {
-            if value.zero_copy_len() > ZERO_COPY_THRESHOLD {
+            if value.zero_copy_len() >= ZERO_COPY_THRESHOLD {
                 ctx.zero_copy_len += value.zero_copy_len();
             }
             key_len(tag) + encoded_len_varint(value.len() as u64) + value.len()
@@ -940,7 +941,7 @@ macro_rules! length_delimited {
                 + values
                     .iter()
                     .map(|value| {
-                        if value.zero_copy_len() > ZERO_COPY_THRESHOLD {
+                        if value.zero_copy_len() >= ZERO_COPY_THRESHOLD {
                             ctx.zero_copy_len += value.zero_copy_len();
                         }
                         encoded_len_varint(value.len() as u64) + value.len()
@@ -1159,6 +1160,38 @@ pub mod faststr {
                 })
                 .sum::<usize>()
     }
+
+    #[cfg(test)]
+    mod test {
+        use super::*;
+
+        #[test]
+        fn test_encoded_len() {
+            let value = FastStr::from("hello");
+            let mut ctx = EncodeLengthContext::default();
+            let len = encoded_len(&mut ctx, 1, &value);
+            assert_eq!(len, 7);
+            assert_eq!(ctx.zero_copy_len, 0);
+        }
+
+        #[test]
+        fn test_encoded_len_repeated() {
+            let values = vec![FastStr::from("hello"), FastStr::from("world")];
+            let mut ctx = EncodeLengthContext::default();
+            let len = encoded_len_repeated(&mut ctx, 1, &values);
+            assert_eq!(len, 14);
+            assert_eq!(ctx.zero_copy_len, 0);
+        }
+
+        #[test]
+        fn test_encode_len_zero_copy() {
+            let value = FastStr::from("a".repeat(ZERO_COPY_THRESHOLD));
+            let mut ctx = EncodeLengthContext::default();
+            let len = encoded_len(&mut ctx, 1, &value);
+            assert_eq!(len, ZERO_COPY_THRESHOLD + 3);
+            assert_eq!(ctx.zero_copy_len, ZERO_COPY_THRESHOLD);
+        }
+    }
 }
 
 pub trait BytesAdapter: sealed::BytesAdapter {}
@@ -1325,6 +1358,30 @@ pub mod bytes {
                                                    encode_repeated, merge_repeated,
                                                    encoded_len_repeated)?;
             }
+        }
+
+        #[test]
+        fn test_encode_len() {
+            let value = Bytes::from("hello");
+            let mut ctx = EncodeLengthContext::default();
+            let len = encoded_len(&mut ctx, 1, &value);
+            assert_eq!(len, 7);
+            assert_eq!(ctx.zero_copy_len, 0);
+        }
+
+        #[test]
+        fn test_encode_len_zero_copy() {
+            let value = Bytes::from("a".repeat(ZERO_COPY_THRESHOLD));
+            let mut ctx = EncodeLengthContext::default();
+            let len = encoded_len(&mut ctx, 1, &value);
+            assert_eq!(len, ZERO_COPY_THRESHOLD + 3);
+            assert_eq!(ctx.zero_copy_len, ZERO_COPY_THRESHOLD);
+
+            let value = Vec::<u8>::from("a".repeat(ZERO_COPY_THRESHOLD));
+            let mut ctx = EncodeLengthContext::default();
+            let len = encoded_len(&mut ctx, 1, &value);
+            assert_eq!(len, ZERO_COPY_THRESHOLD + 3);
+            assert_eq!(ctx.zero_copy_len, 0);
         }
     }
 }
@@ -1691,6 +1748,9 @@ macro_rules! map {
                 let len = (if skip_key {
                     0
                 } else {
+                    //  EncodeLengthContext is used to count the zero copy length before encoding,
+                    // and during encoding, we only need the total length, so we pass an empty
+                    // context to the key_encoded_len function.
                     key_encoded_len(&mut EncodeLengthContext::default(), 1, key)
                 }) + (if skip_val {
                     0
