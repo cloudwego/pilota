@@ -115,6 +115,7 @@ pub trait Message: Debug + Send + Sync {
     {
         let mut ctx = DecodeContext::new(buf.clone());
         while buf.has_remaining() {
+            // align the buffer to the start of the next field
             ctx.align_with_buf(&buf);
             let (tag, wire_type) = decode_key(&mut buf)?;
             self.merge_field(tag, wire_type, &mut buf, &mut ctx, true)?;

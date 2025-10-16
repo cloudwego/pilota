@@ -4,8 +4,8 @@ pub struct EchoRequest {
 }
 impl ::pilota::pb::Message for EchoRequest {
     #[inline]
-    fn encoded_len(&self) -> usize {
-        0 + ::pilota::pb::encoding::faststr::encoded_len(1, &self.message)
+    fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+        0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.message)
     }
 
     #[allow(unused_variables)]
@@ -20,6 +20,7 @@ impl ::pilota::pb::Message for EchoRequest {
         wire_type: ::pilota::pb::encoding::WireType,
         buf: &mut ::pilota::Bytes,
         ctx: &mut ::pilota::pb::encoding::DecodeContext,
+        is_root: bool,
     ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
         const STRUCT_NAME: &'static str = stringify!(EchoRequest);
 

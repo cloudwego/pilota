@@ -158,9 +158,9 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for GetOldUserFormatResponse {
             #[inline]
-            fn encoded_len(&self) -> usize {
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 0 + self.user.as_ref().map_or(0, |msg| {
-                    ::pilota::pb::encoding::message::encoded_len(1, msg)
+                    ::pilota::pb::encoding::message::encoded_len(ctx, 1, msg)
                 })
             }
 
@@ -178,6 +178,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(GetOldUserFormatResponse);
 
@@ -210,10 +211,10 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for UserProfile {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(1, &self.full_name)
-                    + ::pilota::pb::encoding::faststr::encoded_len(2, &self.avatar_url)
-                    + ::pilota::pb::encoding::faststr::encoded_len(3, &self.bio)
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.full_name)
+                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.avatar_url)
+                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 3, &self.bio)
             }
 
             #[allow(unused_variables)]
@@ -230,6 +231,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(UserProfile);
 
@@ -285,11 +287,11 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for FileCustomOptions {
             #[inline]
-            fn encoded_len(&self) -> usize {
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 0 + self.key.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::faststr::encoded_len(50005, value)
+                    ::pilota::pb::encoding::faststr::encoded_len(ctx, 50005, value)
                 }) + self.value.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::faststr::encoded_len(50006, value)
+                    ::pilota::pb::encoding::faststr::encoded_len(ctx, 50006, value)
                 })
             }
 
@@ -310,6 +312,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(FileCustomOptions);
 
@@ -354,10 +357,10 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for UpdateUserResponse {
             #[inline]
-            fn encoded_len(&self) -> usize {
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 0 + self.user.as_ref().map_or(0, |msg| {
-                    ::pilota::pb::encoding::message::encoded_len(1, msg)
-                }) + ::pilota::pb::encoding::faststr::encoded_len(2, &self.message)
+                    ::pilota::pb::encoding::message::encoded_len(ctx, 1, msg)
+                }) + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.message)
             }
 
             #[allow(unused_variables)]
@@ -375,6 +378,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(UpdateUserResponse);
 
@@ -416,9 +420,9 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for CreateUserRequest {
             #[inline]
-            fn encoded_len(&self) -> usize {
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 0 + self.user.as_ref().map_or(0, |msg| {
-                    ::pilota::pb::encoding::message::encoded_len(1, msg)
+                    ::pilota::pb::encoding::message::encoded_len(ctx, 1, msg)
                 })
             }
 
@@ -436,6 +440,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(CreateUserRequest);
 
@@ -464,8 +469,8 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for GetOldUserFormatRequest {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(1, &self.id)
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.id)
             }
 
             #[allow(unused_variables)]
@@ -480,6 +485,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(GetOldUserFormatRequest);
 
@@ -522,17 +528,17 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for User {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::int32::encoded_len(1, &self.id)
-                    + ::pilota::pb::encoding::faststr::encoded_len(2, &self.username)
-                    + ::pilota::pb::encoding::faststr::encoded_len(3, &self.password)
-                    + ::pilota::pb::encoding::faststr::encoded_len(4, &self.email)
-                    + ::pilota::pb::encoding::int32::encoded_len_repeated(5, &self.role_ids)
-                    + ::pilota::pb::encoding::int64::encoded_len(6, &self.created_at)
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::int32::encoded_len(ctx, 1, &self.id)
+                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.username)
+                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 3, &self.password)
+                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 4, &self.email)
+                    + ::pilota::pb::encoding::int32::encoded_len_repeated(ctx, 5, &self.role_ids)
+                    + ::pilota::pb::encoding::int64::encoded_len(ctx, 6, &self.created_at)
                     + self.profile.as_ref().map_or(0, |msg| {
-                        ::pilota::pb::encoding::message::encoded_len(7, msg)
+                        ::pilota::pb::encoding::message::encoded_len(ctx, 7, msg)
                     })
-                    + ::pilota::pb::encoding::faststr::encoded_len(8, &self.old_field)
+                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 8, &self.old_field)
             }
 
             #[allow(unused_variables)]
@@ -556,6 +562,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(User);
 
@@ -677,9 +684,9 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for DeleteUserResponse {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::bool::encoded_len(1, &self.success)
-                    + ::pilota::pb::encoding::faststr::encoded_len(2, &self.message)
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::bool::encoded_len(ctx, 1, &self.success)
+                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.message)
             }
 
             #[allow(unused_variables)]
@@ -695,6 +702,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(DeleteUserResponse);
 
@@ -737,10 +745,10 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for UpdateUserRequest {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(1, &self.id)
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.id)
                     + self.user.as_ref().map_or(0, |msg| {
-                        ::pilota::pb::encoding::message::encoded_len(2, msg)
+                        ::pilota::pb::encoding::message::encoded_len(ctx, 2, msg)
                     })
             }
 
@@ -759,6 +767,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(UpdateUserRequest);
 
@@ -800,9 +809,9 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for GetUserResponse {
             #[inline]
-            fn encoded_len(&self) -> usize {
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 0 + self.user.as_ref().map_or(0, |msg| {
-                    ::pilota::pb::encoding::message::encoded_len(1, msg)
+                    ::pilota::pb::encoding::message::encoded_len(ctx, 1, msg)
                 })
             }
 
@@ -820,6 +829,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(GetUserResponse);
 
@@ -854,13 +864,13 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for MessageValidation {
             #[inline]
-            fn encoded_len(&self) -> usize {
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 0 + self.all_fields_required.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::bool::encoded_len(1, value)
+                    ::pilota::pb::encoding::bool::encoded_len(ctx, 1, value)
                 }) + self.max_nesting_depth.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::int32::encoded_len(2, value)
+                    ::pilota::pb::encoding::int32::encoded_len(ctx, 2, value)
                 }) + self.validation_message.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::faststr::encoded_len(3, value)
+                    ::pilota::pb::encoding::faststr::encoded_len(ctx, 3, value)
                 })
             }
 
@@ -884,6 +894,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(MessageValidation);
 
@@ -940,8 +951,8 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for DeleteUserRequest {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(1, &self.id)
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.id)
             }
 
             #[allow(unused_variables)]
@@ -956,6 +967,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(DeleteUserRequest);
 
@@ -985,10 +997,10 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for CreateUserResponse {
             #[inline]
-            fn encoded_len(&self) -> usize {
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 0 + self.user.as_ref().map_or(0, |msg| {
-                    ::pilota::pb::encoding::message::encoded_len(1, msg)
-                }) + ::pilota::pb::encoding::faststr::encoded_len(2, &self.message)
+                    ::pilota::pb::encoding::message::encoded_len(ctx, 1, msg)
+                }) + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.message)
             }
 
             #[allow(unused_variables)]
@@ -1006,6 +1018,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(CreateUserResponse);
 
@@ -1047,8 +1060,8 @@ pub mod custom_options {
         }
         impl ::pilota::pb::Message for GetUserRequest {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(1, &self.id)
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.id)
             }
 
             #[allow(unused_variables)]
@@ -1063,6 +1076,7 @@ pub mod custom_options {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(GetUserRequest);
 

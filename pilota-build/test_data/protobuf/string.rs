@@ -9,10 +9,10 @@ pub mod string {
     }
     impl ::pilota::pb::Message for A {
         #[inline]
-        fn encoded_len(&self) -> usize {
+        fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
             0 + self.a.as_ref().map_or(0, |value| {
-                ::pilota::pb::encoding::faststr::encoded_len(1, value)
-            }) + ::pilota::pb::encoding::faststr::encoded_len(2, &self.b)
+                ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, value)
+            }) + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.b)
         }
 
         #[allow(unused_variables)]
@@ -30,6 +30,7 @@ pub mod string {
             wire_type: ::pilota::pb::encoding::WireType,
             buf: &mut ::pilota::Bytes,
             ctx: &mut ::pilota::pb::encoding::DecodeContext,
+            is_root: bool,
         ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
             const STRUCT_NAME: &'static str = stringify!(A);
 

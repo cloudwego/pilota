@@ -458,13 +458,12 @@ impl Debug for RootDatabase {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     use std::sync::Arc;
 
     use pilota::Bytes;
     use rustc_hash::FxHashMap;
 
+    use super::*;
     use crate::{
         middle::{
             context::{CrateId, DefLocation},
