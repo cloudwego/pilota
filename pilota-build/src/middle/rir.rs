@@ -120,6 +120,7 @@ pub struct Enum {
     pub variants: Vec<Arc<EnumVariant>>,
     pub repr: Option<EnumRepr>,
     pub item_exts: ItemExts,
+    pub oneof_parent: Option<Ty>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

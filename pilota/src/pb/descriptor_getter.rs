@@ -40,10 +40,6 @@ impl ItemDescriptorGetter for descriptor::FileDescriptorProto {
     }
 }
 
-pub trait MessageDescriptorGetter {
-    fn get_descriptor_proto(&self) -> Option<&descriptor::DescriptorProto>;
-}
-
 pub trait FieldDescriptorGetter {
     fn get_field_descriptor_proto(&self, name: &str) -> Option<&descriptor::FieldDescriptorProto>;
     fn get_oneof_descriptor_proto(&self, name: &str) -> Option<&descriptor::OneofDescriptorProto>;
@@ -69,14 +65,6 @@ impl FieldDescriptorGetter for descriptor::DescriptorProto {
 
 pub trait OneofDescriptorGetter {
     fn get_descriptor_proto(&self) -> Option<&descriptor::OneofDescriptorProto>;
-}
-
-pub trait EnumDescriptorGetter {
-    fn get_descriptor_proto(&self) -> Option<&descriptor::EnumDescriptorProto>;
-}
-
-pub trait ServiceDescriptorGetter {
-    fn get_descriptor_proto(&self) -> Option<&descriptor::ServiceDescriptorProto>;
 }
 
 #[cfg(test)]

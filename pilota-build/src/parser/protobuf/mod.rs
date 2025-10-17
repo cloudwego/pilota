@@ -397,7 +397,12 @@ impl Lower {
             if let Some(fields) = oneof_fields.remove(&(idx as i32)) {
                 nested_items.push(Arc::new(ir::Item {
                     related_items: Default::default(),
-                    tags: Arc::new(crate::tags!(OneOf(FastStr::new(message.name()).into()))),
+                    tags: Arc::new(crate::tags!(OneOf(ir::Ty {
+                        kind: ir::TyKind::Path(Path {
+                            segments: Arc::from([FastStr::new(message.name()).into(),]),
+                        }),
+                        tags: Default::default(),
+                    }))),
                     kind: ir::ItemKind::Enum(ir::Enum {
                         name: FastStr::new(d.name()).into(),
                         repr: None,

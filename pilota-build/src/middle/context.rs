@@ -647,13 +647,6 @@ impl Context {
             .is_some()
     }
 
-    pub fn oneof_parent_of_field(&self, field_did: DefId) -> Option<FastStr> {
-        self.node_tags(field_did).and_then(|tags| {
-            tags.get::<crate::tags::protobuf::OneOf>()
-                .map(|t| t.0.clone())
-        })
-    }
-
     pub fn symbol_name(&self, def_id: DefId) -> Symbol {
         let item = self.item(def_id).unwrap();
         item.symbol_name()

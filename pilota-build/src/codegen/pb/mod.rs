@@ -516,8 +516,8 @@ impl CodegenBackend for ProtobufBackend {
 
                     stream.push_str(&format!(
                     r#"
-                    impl MessageDescriptorGetter for {name} {{
-                        fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::DescriptorProto> {{
+                    impl {name} {{
+                        fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {{
                             let file_descriptor = {super_mods}file_descriptor_proto_{filename_lower}();
                             file_descriptor.get_message_descriptor_proto("{idl_name}")
                         }}
@@ -632,34 +632,31 @@ impl CodegenBackend for ProtobufBackend {
         }).join("");
 
         let file_id = self.cx.node(def_id).unwrap().file_id;
-        let parent_name = self.cx.oneof_parent_of_field(def_id).unwrap_or_default();
-        let mut getter_impl = String::new();
-        if self.config.with_descriptor && !parent_name.is_empty() {
-            getter_impl = match self.cx.file_paths().get(&file_id) {
+        let mut getter_impl = match &e.oneof_parent {
+            Some(ty) => match &self.cx.file_paths().get(&file_id) {
                 Some(_) => {
+                    let path = self.codegen_item_ty(ty.kind.clone());
+                    let path = format!("{path}");
                     let name = self.cx.rust_name(def_id);
                     let idl_name = e.name.sym.0.clone();
-                    let filename = self.file_name(file_id).unwrap().replace(".", "_");
-                    let filename_lower = filename.to_lowercase();
-
-                    let file = &self.cx.files().get(&file_id).unwrap().package;
-                    let path = self.cx.item_path(def_id);
-                    let super_mods = "super::".repeat(path.len() - file.len() - 1);
-
                     format!(
                         r#"
-                    impl OneofDescriptorGetter for {name} {{
-                        fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::OneofDescriptorProto> {{
-                            let file_descriptor = {super_mods}file_descriptor_proto_{filename_lower}();
-                            let message_descriptor = file_descriptor.get_message_descriptor_proto("{parent_name}")?;
-                            message_descriptor.get_oneof_descriptor_proto("{idl_name}")
+                        impl {name} {{
+                            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::OneofDescriptorProto> {{
+                                let message_descriptor = {path}::get_descriptor_proto()?;
+                                message_descriptor.get_oneof_descriptor_proto("{idl_name}")
+                            }}
                         }}
-                    }}
                     "#
                     )
                 }
                 _ => "".to_string(),
-            };
+            },
+            _ => "".to_string(),
+        };
+
+        if !self.config.with_descriptor {
+            getter_impl.clear();
         }
 
         stream.push_str(&format! {
@@ -725,8 +722,8 @@ impl CodegenBackend for ProtobufBackend {
                 format!(
                     r#"
 
-                    impl EnumDescriptorGetter for {name} {{
-                        fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::EnumDescriptorProto> {{
+                    impl {name} {{
+                        fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::EnumDescriptorProto> {{
                             let file_descriptor = {super_mods}file_descriptor_proto_{filename_lower}();
                             file_descriptor.get_enum_descriptor_proto("{idl_name}")
                         }}

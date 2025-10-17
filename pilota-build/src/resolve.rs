@@ -1,4 +1,4 @@
-use std::{ptr::NonNull, sync::Arc};
+use std::{ops::DerefMut, ptr::NonNull, sync::Arc};
 
 use ahash::AHashMap;
 use itertools::Itertools;
@@ -22,7 +22,10 @@ use crate::{
     },
     rir::Mod,
     symbol::{DefId, EnumRepr, FileId, Ident, Symbol},
-    tags::{RustType, RustWrapperArc, TagId, Tags, protobuf::OptionalRepeated},
+    tags::{
+        RustType, RustWrapperArc, TagId, Tags,
+        protobuf::{OneOf, OptionalRepeated},
+    },
     ty::{Folder, TyKind},
 };
 
@@ -665,10 +668,11 @@ impl Resolver {
         }
     }
 
-    fn lower_enum(&mut self, e: &ir::Enum) -> Enum {
+    fn lower_enum(&mut self, e: &ir::Enum, tags: &Tags) -> Enum {
         let mut next_discr = 0;
         Enum {
             name: e.name.clone(),
+            oneof_parent: tags.get::<OneOf>().map(|ty| self.lower_type(ty, false)),
             variants: e
                 .variants
                 .iter()
@@ -854,7 +858,7 @@ impl Resolver {
 
         let item = Arc::new(match &item.kind {
             ir::ItemKind::Message(s) => Item::Message(self.lower_message(s)),
-            ir::ItemKind::Enum(e) => Item::Enum(self.lower_enum(e)),
+            ir::ItemKind::Enum(e) => Item::Enum(self.lower_enum(e, tags)),
             ir::ItemKind::Service(s) => Item::Service(self.lower_service(s)),
             ir::ItemKind::NewType(t) => Item::NewType(self.lower_type_alias(t, tags)),
             ir::ItemKind::Const(c) => Item::Const(self.lower_const(c, tags)),

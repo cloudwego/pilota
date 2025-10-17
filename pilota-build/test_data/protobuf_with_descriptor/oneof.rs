@@ -37,8 +37,9 @@ pub mod oneof {
 
             pub contact: ::std::option::Option<user_contact::Contact>,
         }
-        impl MessageDescriptorGetter for UserContact {
-            fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::DescriptorProto> {
+        impl UserContact {
+            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_oneof();
                 file_descriptor.get_message_descriptor_proto("UserContact")
             }
@@ -117,13 +118,10 @@ pub mod oneof {
                 Phone(::pilota::FastStr),
             }
 
-            impl OneofDescriptorGetter for Contact {
-                fn get_descriptor_proto(
-                    &self,
-                ) -> Option<&::pilota::pb::descriptor::OneofDescriptorProto> {
-                    let file_descriptor = super::file_descriptor_proto_oneof();
-                    let message_descriptor =
-                        file_descriptor.get_message_descriptor_proto("UserContact")?;
+            impl Contact {
+                fn get_descriptor_proto()
+                -> Option<&'static ::pilota::pb::descriptor::OneofDescriptorProto> {
+                    let message_descriptor = super::UserContact::get_descriptor_proto()?;
                     message_descriptor.get_oneof_descriptor_proto("contact")
                 }
             }

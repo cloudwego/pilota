@@ -38,8 +38,9 @@ pub mod message {
 
             pub age: i32,
         }
-        impl MessageDescriptorGetter for Person {
-            fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::DescriptorProto> {
+        impl Person {
+            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_message();
                 file_descriptor.get_message_descriptor_proto("Person")
             }
@@ -105,8 +106,9 @@ pub mod message {
 
             pub employees: ::std::vec::Vec<Person>,
         }
-        impl MessageDescriptorGetter for Company {
-            fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::DescriptorProto> {
+        impl Company {
+            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_message();
                 file_descriptor.get_message_descriptor_proto("Company")
             }
@@ -170,8 +172,9 @@ pub mod message {
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Self_ {}
-        impl MessageDescriptorGetter for Self_ {
-            fn get_descriptor_proto(&self) -> Option<&::pilota::pb::descriptor::DescriptorProto> {
+        impl Self_ {
+            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_message();
                 file_descriptor.get_message_descriptor_proto("Self")
             }
@@ -257,10 +260,9 @@ pub mod message {
             }
         }
 
-        impl EnumDescriptorGetter for Status {
-            fn get_descriptor_proto(
-                &self,
-            ) -> Option<&::pilota::pb::descriptor::EnumDescriptorProto> {
+        impl Status {
+            fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::EnumDescriptorProto> {
                 let file_descriptor = file_descriptor_proto_message();
                 file_descriptor.get_enum_descriptor_proto("Status")
             }
