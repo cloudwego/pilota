@@ -1,8 +1,12 @@
 #![cfg(test)]
 
-use std::{fs, fs::File, path::Path, process::Command};
+use std::{
+    fs::{self, File},
+    path::{Path, PathBuf},
+    process::Command,
+};
 
-use tempfile::tempdir;
+use tempfile::{Builder, tempdir};
 
 use crate::{IdlService, plugin::SerdePlugin};
 
@@ -12,7 +16,6 @@ fn diff_file(old: impl AsRef<Path>, new: impl AsRef<Path>) {
 
     let new_content =
         unsafe { String::from_utf8_unchecked(std::fs::read(new).unwrap()) }.replace("\r", "");
-
     let patch = diffy::create_patch(&old_content, &new_content);
     if !patch.hunks().is_empty() {
         panic!("\n{}\n", patch)
