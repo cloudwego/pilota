@@ -13,6 +13,8 @@ pub fn fmt_file<P: AsRef<Path>>(file: P) {
     };
 
     let result = Command::new(std::env::var("RUSTFMT").unwrap_or_else(|_| "rustfmt".to_owned()))
+        .arg("--config")
+        .arg("wrap_comments=true")
         .arg("--emit")
         .arg("files")
         .arg("--edition")
