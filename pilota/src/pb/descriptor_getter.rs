@@ -43,6 +43,8 @@ impl ItemDescriptorGetter for descriptor::FileDescriptorProto {
 pub trait FieldDescriptorGetter {
     fn get_field_descriptor_proto(&self, name: &str) -> Option<&descriptor::FieldDescriptorProto>;
     fn get_oneof_descriptor_proto(&self, name: &str) -> Option<&descriptor::OneofDescriptorProto>;
+    fn get_enum_descriptor_proto(&self, name: &str) -> Option<&descriptor::EnumDescriptorProto>;
+    fn get_message_descriptor_proto(&self, name: &str) -> Option<&descriptor::DescriptorProto>;
 }
 
 impl FieldDescriptorGetter for descriptor::DescriptorProto {
@@ -61,15 +63,26 @@ impl FieldDescriptorGetter for descriptor::DescriptorProto {
 
         self.oneof_decl.iter().find(|s| s.name() == name)
     }
-}
 
-pub trait OneofDescriptorGetter {
-    fn get_descriptor_proto(&self) -> Option<&descriptor::OneofDescriptorProto>;
+    fn get_enum_descriptor_proto(&self, name: &str) -> Option<&descriptor::EnumDescriptorProto> {
+        if name.is_empty() {
+            return None;
+        }
+
+        self.enum_type.iter().find(|s| s.name() == name)
+    }
+
+    fn get_message_descriptor_proto(&self, name: &str) -> Option<&descriptor::DescriptorProto> {
+        if name.is_empty() {
+            return None;
+        }
+
+        self.nested_type.iter().find(|s| s.name() == name)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use bytes::Bytes;
     use protobuf::descriptor;
 
     use super::*;
@@ -165,18 +178,74 @@ mod tests {
     }
 
     #[test]
-    fn test() {
-        static FILE_DESCRIPTOR_BYTES_ONEOF: Bytes = Bytes::from_static(b"\n\x0boneof.proto\x12\x07example\"\\\n\x0bUserContact\x12\x12\n\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n\x05email\x18\x02 \x01(\tH\0R\x05email\x12\x16\n\x05phone\x18\x03 \x01(\tH\0R\x05phoneB\t\n\x07contact\"v\n\x05Value\x12\x1d\n\ti32_value\x18\x01 \x01(\x05H\0R\x08i32Value\x12#\n\x0cstring_value\x18\x02 \x01(\tH\0R\x0bstringValue\x12!\n\x0bbytes_value\x18\x03 \x01(\x0cH\0R\nbytesValueB\x06\n\x04kindb\x06proto3");
-        static FILE_DESCRIPTOR_PROTO_ONEOF: ::std::sync::LazyLock<
-            protobuf::descriptor::FileDescriptorProto,
-        > = ::std::sync::LazyLock::new(|| {
-            let data: &[u8] = FILE_DESCRIPTOR_BYTES_ONEOF.as_ref();
-            protobuf::Message::parse_from_bytes(data).expect("Failed to decode file descriptor")
-        });
-        for msg in &*FILE_DESCRIPTOR_PROTO_ONEOF.message_type {
-            for oneof in &msg.oneof_decl {
-                println!("message: {}, oneof: {}", msg.name(), oneof.name());
-            }
-        }
+    fn test_get_field_descriptor_proto_found_and_missing() {
+        let mut msg = descriptor::DescriptorProto::new();
+        msg.name = Some("Container".to_string());
+
+        // field id
+        let mut f1 = descriptor::FieldDescriptorProto::new();
+        f1.name = Some("id".to_string());
+        msg.field.push(f1);
+        // field name
+        let mut f2 = descriptor::FieldDescriptorProto::new();
+        f2.name = Some("name".to_string());
+        msg.field.push(f2);
+
+        // found
+        let got = msg.get_field_descriptor_proto("id");
+        assert!(got.is_some());
+        assert_eq!(got.unwrap().name.as_deref(), Some("id"));
+
+        // other found
+        let got = msg.get_field_descriptor_proto("name");
+        assert!(got.is_some());
+        assert_eq!(got.unwrap().name.as_deref(), Some("name"));
+
+        // missing
+        assert!(msg.get_field_descriptor_proto("age").is_none());
+        // empty name -> None
+        assert!(msg.get_field_descriptor_proto("").is_none());
+    }
+
+    #[test]
+    fn test_get_enum_descriptor_proto_in_descriptor_proto_found_and_missing() {
+        let mut msg = descriptor::DescriptorProto::new();
+        msg.name = Some("Container".to_string());
+
+        // enum Color
+        let mut e = descriptor::EnumDescriptorProto::new();
+        e.name = Some("Color".to_string());
+        msg.enum_type.push(e);
+
+        // found
+        let got = msg.get_enum_descriptor_proto("Color");
+        assert!(got.is_some());
+        assert_eq!(got.unwrap().name.as_deref(), Some("Color"));
+
+        // missing
+        assert!(msg.get_enum_descriptor_proto("Size").is_none());
+        // empty name -> None
+        assert!(msg.get_enum_descriptor_proto("").is_none());
+    }
+
+    #[test]
+    fn test_get_message_descriptor_proto_in_descriptor_proto_found_and_missing() {
+        let mut msg = descriptor::DescriptorProto::new();
+        msg.name = Some("Container".to_string());
+
+        // nested message Item
+        let mut m = descriptor::DescriptorProto::new();
+        m.name = Some("Item".to_string());
+        msg.nested_type.push(m);
+
+        // found
+        let got = msg.get_message_descriptor_proto("Item");
+        assert!(got.is_some());
+        assert_eq!(got.unwrap().name.as_deref(), Some("Item"));
+
+        // missing
+        assert!(msg.get_message_descriptor_proto("Detail").is_none());
+        // empty name -> None
+        assert!(msg.get_message_descriptor_proto("").is_none());
     }
 }

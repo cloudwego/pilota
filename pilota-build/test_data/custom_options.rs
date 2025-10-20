@@ -157,8 +157,8 @@ pub mod custom_options {
             pub user: ::std::option::Option<User>,
         }
         impl GetOldUserFormatResponse {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("GetOldUserFormatResponse")
             }
@@ -218,8 +218,8 @@ pub mod custom_options {
             pub bio: ::pilota::FastStr,
         }
         impl UserProfile {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("UserProfile")
             }
@@ -302,8 +302,8 @@ pub mod custom_options {
             pub value: ::std::option::Option<::pilota::FastStr>,
         }
         impl FileCustomOptions {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("FileCustomOptions")
             }
@@ -380,8 +380,8 @@ pub mod custom_options {
             pub message: ::pilota::FastStr,
         }
         impl UpdateUserResponse {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("UpdateUserResponse")
             }
@@ -451,8 +451,8 @@ pub mod custom_options {
             pub user: ::std::option::Option<User>,
         }
         impl CreateUserRequest {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("CreateUserRequest")
             }
@@ -508,8 +508,8 @@ pub mod custom_options {
             pub id: ::pilota::FastStr,
         }
         impl GetOldUserFormatRequest {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("GetOldUserFormatRequest")
             }
@@ -575,8 +575,8 @@ pub mod custom_options {
             pub old_field: ::pilota::FastStr,
         }
         impl User {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("User")
             }
@@ -739,8 +739,8 @@ pub mod custom_options {
             pub message: ::pilota::FastStr,
         }
         impl DeleteUserResponse {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("DeleteUserResponse")
             }
@@ -808,8 +808,8 @@ pub mod custom_options {
             pub user: ::std::option::Option<User>,
         }
         impl UpdateUserRequest {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("UpdateUserRequest")
             }
@@ -880,8 +880,8 @@ pub mod custom_options {
             pub user: ::std::option::Option<User>,
         }
         impl GetUserResponse {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("GetUserResponse")
             }
@@ -943,8 +943,8 @@ pub mod custom_options {
             pub validation_message: ::std::option::Option<::pilota::FastStr>,
         }
         impl MessageValidation {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("MessageValidation")
             }
@@ -1038,8 +1038,8 @@ pub mod custom_options {
             pub id: ::pilota::FastStr,
         }
         impl DeleteUserRequest {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("DeleteUserRequest")
             }
@@ -1092,8 +1092,8 @@ pub mod custom_options {
             pub message: ::pilota::FastStr,
         }
         impl CreateUserResponse {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("CreateUserResponse")
             }
@@ -1163,8 +1163,8 @@ pub mod custom_options {
             pub id: ::pilota::FastStr,
         }
         impl GetUserRequest {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("GetUserRequest")
             }

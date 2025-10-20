@@ -1,6 +1,10 @@
 use std::sync::Arc;
 
-use crate::{ir::Ty, parser::protobuf::WellKnownFileName, symbol::Ident};
+use crate::{
+    ir::{Path, Ty},
+    parser::protobuf::WellKnownFileName,
+    symbol::Ident,
+};
 
 /// Extension for protobuf custom options
 /// As defined in [google/protobuf/descriptor.proto](https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/descriptor.proto#L124), the extendee is following the syntax of [FieldDescriptorProto](https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/descriptor.proto#L243)
@@ -139,9 +143,11 @@ impl ModExts {
 
 /// The extension for item
 /// - used_options, the used options
+/// - parent, the parent path of nested message, enum and oneof
 #[derive(Clone, Debug)]
 pub struct ItemExts {
     pub used_options: UsedOptions,
+    pub parent: Option<Path>,
 }
 
 impl ItemExts {

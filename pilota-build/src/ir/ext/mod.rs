@@ -52,7 +52,7 @@ pub enum ItemExts {
 impl ItemExts {
     pub fn has_used_options(&self) -> bool {
         match self {
-            ItemExts::Pb(pb::ItemExts { used_options }) => !used_options.is_empty(),
+            ItemExts::Pb(pb::ItemExts { used_options, .. }) => !used_options.is_empty(),
             ItemExts::Thrift => false,
         }
     }
