@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{ir, parser::protobuf::WellKnownFileName, symbol::Ident, ty::Ty};
+use crate::{ir, parser::protobuf::WellKnownFileName, rir::Path, symbol::Ident, ty::Ty};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ExtendeeIndex {
@@ -123,4 +123,5 @@ pub struct ModExts {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ItemExts {
     pub used_options: UsedOptions,
+    pub parent: Option<Path>,
 }

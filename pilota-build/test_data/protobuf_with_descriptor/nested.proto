@@ -2,9 +2,13 @@ syntax = "proto3";
 
 package example;
 
-// Demonstrates oneof usage: only one of email or phone is set.
 message UserContact {
 	string name = 1;
+
+	enum ContactType {
+		EMAIL = 0;
+		PHONE = 1;
+	}
 
 	message Contact{
 		oneof contact_info {

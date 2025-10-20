@@ -135,7 +135,6 @@ pub struct Enum {
     pub leading_comments: FastStr,
     pub trailing_comments: FastStr,
     pub item_exts: ItemExts,
-    pub oneof_parent: Option<Ty>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

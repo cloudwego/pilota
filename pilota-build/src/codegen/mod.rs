@@ -372,11 +372,6 @@ where
             "#
         });
 
-        if self.config.with_descriptor {
-            self.backend
-                .codegen_enum_descrptor_getter_impl(def_id, stream, e);
-        }
-
         self.backend.codegen_enum_impl(def_id, stream, e);
     }
 

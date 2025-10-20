@@ -313,7 +313,7 @@ impl Lower {
         }
     }
 
-    fn lower_enum(&self, e: &EnumDescriptorProto) -> ir::Item {
+    fn lower_enum(&self, e: &EnumDescriptorProto, parent: Option<&str>) -> ir::Item {
         ir::Item {
             related_items: Default::default(),
             tags: Arc::new(self.extract_enum_tags(e)),
@@ -337,6 +337,7 @@ impl Lower {
                                 ExtendeeKind::EnumValue,
                                 v.options.special_fields.unknown_fields(),
                             ),
+                            parent: None,
                         }),
                     })
                     .collect_vec(),
@@ -346,6 +347,9 @@ impl Lower {
                         ExtendeeKind::Enum,
                         e.options.special_fields.unknown_fields(),
                     ),
+                    parent: parent.map(|p| Path {
+                        segments: Arc::from([FastStr::new(p).into()]),
+                    }),
                 }),
             }),
         }
@@ -355,6 +359,7 @@ impl Lower {
         &mut self,
         message: &DescriptorProto,
         parent_messages: &mut Vec<String>,
+        parent: Option<&str>,
     ) -> Vec<ir::Item> {
         let fq_message_name = format!(
             "{}{}.{}{}",
@@ -401,12 +406,7 @@ impl Lower {
             if let Some(fields) = oneof_fields.remove(&(idx as i32)) {
                 nested_items.push(Arc::new(ir::Item {
                     related_items: Default::default(),
-                    tags: Arc::new(crate::tags!(OneOf(ir::Ty {
-                        kind: ir::TyKind::Path(Path {
-                            segments: Arc::from([FastStr::new(message.name()).into(),]),
-                        }),
-                        tags: Default::default(),
-                    }))),
+                    tags: Arc::new(crate::tags!(OneOf)),
                     kind: ir::ItemKind::Enum(ir::Enum {
                         leading_comments: "".into(),
                         trailing_comments: "".into(),
@@ -432,6 +432,7 @@ impl Lower {
                                         ExtendeeKind::Field,
                                         f.options.special_fields.unknown_fields(),
                                     ),
+                                    parent: None,
                                 }),
                             })
                             .collect_vec(),
@@ -440,6 +441,9 @@ impl Lower {
                                 ExtendeeKind::Oneof,
                                 d.options.special_fields.unknown_fields(),
                             ),
+                            parent: Some(Path {
+                                segments: Arc::from([FastStr::new(message.name()).into()]),
+                            }),
                         }),
                     }),
                 }));
@@ -468,6 +472,7 @@ impl Lower {
                                 ExtendeeKind::Field,
                                 d.options.special_fields.unknown_fields(),
                             ),
+                            parent: None,
                         }),
                     },
                 ));
@@ -480,17 +485,17 @@ impl Lower {
             .iter()
             .filter(|(_, m)| !m.options.has_map_entry())
             .for_each(|(_, m)| {
-                self.lower_message(m, parent_messages)
+                self.lower_message(m, parent_messages, Some(message.name()))
                     .into_iter()
                     .for_each(|item| nested_items.push(Arc::new(item)))
             });
 
         parent_messages.pop();
 
-        message
-            .enum_type
-            .iter()
-            .for_each(|e| nested_items.push(Arc::new(self.lower_enum(e))));
+        message.enum_type.iter().for_each(|e| {
+            let item = self.lower_enum(e, Some(message.name()));
+            nested_items.push(Arc::new(item));
+        });
 
         let item = ir::Item {
             related_items: Default::default(),
@@ -553,6 +558,7 @@ impl Lower {
                                         ExtendeeKind::Field,
                                         f.options.special_fields.unknown_fields(),
                                     ),
+                                    parent: None,
                                 }),
                             },
                         )
@@ -568,6 +574,9 @@ impl Lower {
                         ExtendeeKind::Message,
                         message.options.special_fields.unknown_fields(),
                     ),
+                    parent: parent.map(|p| Path {
+                        segments: Arc::from([FastStr::new(p).into()]),
+                    }),
                 }),
             }),
         };
@@ -676,6 +685,7 @@ impl Lower {
                                     ExtendeeKind::Method,
                                     m.options.special_fields.unknown_fields(),
                                 ),
+                                parent: None,
                             }),
                         }
                     })
@@ -686,6 +696,7 @@ impl Lower {
                         ExtendeeKind::Service,
                         service.options.special_fields.unknown_fields(),
                     ),
+                    parent: None,
                 }),
             }),
         }
@@ -718,13 +729,13 @@ impl Lower {
                 let messages = f
                     .message_type
                     .iter()
-                    .flat_map(|m| self.lower_message(m, &mut Vec::new()))
+                    .flat_map(|m| self.lower_message(m, &mut Vec::new(), None))
                     .collect_vec()
                     .into_iter();
                 let enums = f
                     .enum_type
                     .iter()
-                    .map(|e| self.lower_enum(e))
+                    .map(|e| self.lower_enum(e, None))
                     .collect_vec()
                     .into_iter();
                 let services = f
@@ -1198,7 +1209,7 @@ mod tests {
         field.set_type_name(".pkg.Outer.EntriesEntry".into());
         message.field.push(field);
 
-        let items = lower.lower_message(&message, &mut Vec::new());
+        let items = lower.lower_message(&message, &mut Vec::new(), None);
 
         assert_eq!(items.len(), 1);
 
@@ -1237,7 +1248,7 @@ mod tests {
         field.set_proto3_optional(true);
         message.field.push(field);
 
-        let items = lower.lower_message(&message, &mut Vec::new());
+        let items = lower.lower_message(&message, &mut Vec::new(), None);
 
         assert_eq!(items.len(), 1);
 
