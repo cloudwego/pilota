@@ -201,6 +201,7 @@ impl DecodeContext {
     pub fn new(raw_bytes: Bytes) -> DecodeContext {
         let raw_bytes_cursor = raw_bytes.chunk().as_ptr() as usize;
         DecodeContext {
+            #[cfg(not(feature = "no-recursion-limit"))]
             recurse_count: super::RECURSION_LIMIT,
             raw_bytes,
             raw_bytes_cursor,

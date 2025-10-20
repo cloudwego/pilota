@@ -546,16 +546,15 @@ impl CodegenBackend for ProtobufBackend {
 
         if self.cx.config.with_descriptor {
             let file_id = self.cx.node(def_id).unwrap().file_id;
-            match &self.cx.file_paths().get(&file_id) {
-                Some(_) => {
-                    let filename = self.file_name(file_id).unwrap().replace(".", "_");
-                    let filename_lower = filename.to_lowercase();
+            if self.cx.file_paths().get(&file_id).is_some() {
+                let filename = self.file_name(file_id).unwrap().replace(".", "_");
+                let filename_lower = filename.to_lowercase();
 
-                    let file = &self.cx.files().get(&file_id).unwrap().package;
-                    let path = self.cx.item_path(def_id);
-                    let super_mods = "super::".repeat(path.len() - file.len() - 1);
+                let file = &self.cx.files().get(&file_id).unwrap().package;
+                let path = self.cx.item_path(def_id);
+                let super_mods = "super::".repeat(path.len() - file.len() - 1);
 
-                    stream.push_str(&format!(
+                stream.push_str(&format!(
                     r#"
                     impl {name} {{
                         fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {{
@@ -565,8 +564,6 @@ impl CodegenBackend for ProtobufBackend {
                     }}
                     "#
                     ));
-                }
-                _ => {}
             }
         }
 

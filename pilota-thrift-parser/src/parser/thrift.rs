@@ -199,24 +199,24 @@ impl File {
                 for item in &items {
                     match item {
                         Item::Include(i) => {
-                            comments.push_str("\n");
+                            comments.push('\n');
                             comments.push_str(&i.leading_comments);
-                            comments.push_str("\n");
+                            comments.push('\n');
                             comments.push_str(&i.trailing_comments);
                         }
                         Item::Namespace(n) => {
-                            comments.push_str("\n");
+                            comments.push('\n');
                             comments.push_str(&n.leading_comments);
-                            comments.push_str("\n");
+                            comments.push('\n');
                             comments.push_str(&n.trailing_comments);
                         }
                         _ => {}
                     }
                 }
                 for comment in c {
-                    comments.push_str("\n");
+                    comments.push('\n');
                     comments.push_str(&comment);
-                    comments.push_str("\n");
+                    comments.push('\n');
                 }
 
                 let mut file = File {
