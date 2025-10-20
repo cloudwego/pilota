@@ -256,11 +256,10 @@ where
 
 #[cfg(test)]
 mod tests {
-    use linkedbytes::LinkedBytes;
     use protobuf::Message as PbMessage;
 
     use super::*;
-    use crate::pb::{Message, encoding::DecodeContext};
+    use crate::pb::Message;
 
     #[test]
     fn test_custom_ext_bool_field() {

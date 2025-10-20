@@ -1508,8 +1508,6 @@ impl FieldMask {
 mod tests {
     use std::{path::PathBuf, sync::Arc};
 
-    use chumsky::prelude::*;
-
     use super::*;
 
     #[test]

@@ -2,11 +2,11 @@
 
 use std::{
     fs::{self, File},
-    path::{Path, PathBuf},
+    path::Path,
     process::Command,
 };
 
-use tempfile::{Builder, tempdir};
+use tempfile::tempdir;
 
 use crate::{IdlService, plugin::SerdePlugin};
 

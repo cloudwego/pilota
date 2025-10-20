@@ -32,7 +32,7 @@ impl EnumValue {
                     name: Ident(name.into()),
                     value,
                     annotations: annotations.unwrap_or_default(),
-                    trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                    trailing_comments: trailing_comments.unwrap_or_default(),
                 },
             )
     }
@@ -61,7 +61,7 @@ impl Enum {
                     name: Ident(name.into()),
                     values,
                     annotations: annotations.unwrap_or_default(),
-                    trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                    trailing_comments: trailing_comments.unwrap_or_default(),
                 },
             )
     }

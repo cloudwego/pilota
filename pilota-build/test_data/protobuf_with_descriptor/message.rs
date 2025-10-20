@@ -48,9 +48,9 @@ pub mod message {
 
         impl ::pilota::pb::Message for Person {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(1, &self.name)
-                    + ::pilota::pb::encoding::int32::encoded_len(2, &self.age)
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.name)
+                    + ::pilota::pb::encoding::int32::encoded_len(ctx, 2, &self.age)
             }
 
             #[allow(unused_variables)]
@@ -66,6 +66,7 @@ pub mod message {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(Person);
 
@@ -116,9 +117,9 @@ pub mod message {
 
         impl ::pilota::pb::Message for Company {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(1, &self.name)
-                    + ::pilota::pb::encoding::message::encoded_len_repeated(2, &self.employees)
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.name)
+                    + ::pilota::pb::encoding::message::encoded_len_repeated(ctx, 2, &self.employees)
             }
 
             #[allow(unused_variables)]
@@ -136,6 +137,7 @@ pub mod message {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(Company);
 
@@ -182,7 +184,7 @@ pub mod message {
 
         impl ::pilota::pb::Message for Self_ {
             #[inline]
-            fn encoded_len(&self) -> usize {
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 0
             }
 
@@ -196,6 +198,7 @@ pub mod message {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 match tag {
                     _ => ::pilota::pb::encoding::skip_field(wire_type, tag, buf, ctx),

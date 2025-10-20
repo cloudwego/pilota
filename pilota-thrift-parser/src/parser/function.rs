@@ -62,7 +62,7 @@ impl Function {
                         arguments: args,
                         throws: throws.unwrap_or_default(),
                         annotations: annotations.unwrap_or_default(),
-                        trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                        trailing_comments: trailing_comments.unwrap_or_default(),
                     }
                 },
             )

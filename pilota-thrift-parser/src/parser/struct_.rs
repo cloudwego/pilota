@@ -27,7 +27,7 @@ impl Struct {
                 Struct {
                     leading_comments,
                     struct_like,
-                    trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                    trailing_comments: trailing_comments.unwrap_or_default(),
                 }
             })
     }
@@ -47,7 +47,7 @@ impl Union {
             .map(|((comments, struct_like), trailing_comments)| Union {
                 leading_comments: FastStr::from(comments.join("\n\n")),
                 struct_like,
-                trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                trailing_comments: trailing_comments.unwrap_or_default(),
             })
     }
 }
@@ -66,7 +66,7 @@ impl Exception {
             .map(|((comments, struct_like), trailing_comments)| Exception {
                 leading_comments: FastStr::from(comments.join("\n\n")),
                 struct_like,
-                trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                trailing_comments: trailing_comments.unwrap_or_default(),
             })
     }
 }

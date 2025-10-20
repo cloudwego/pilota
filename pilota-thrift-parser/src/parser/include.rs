@@ -22,7 +22,7 @@ impl Include {
             .map(|((comments, path), trailing_comments)| Include {
                 leading_comments: FastStr::from(comments.join("\n\n")),
                 path,
-                trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                trailing_comments: trailing_comments.unwrap_or_default(),
             })
     }
 }
@@ -42,7 +42,7 @@ impl CppInclude {
             .map(|((comments, path), trailing_comments)| CppInclude {
                 leading_comments: FastStr::from(comments.join("\n\n")),
                 path,
-                trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                trailing_comments: trailing_comments.unwrap_or_default(),
             })
     }
 }
