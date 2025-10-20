@@ -622,7 +622,7 @@ impl CodegenBackend for ThriftBackend {
             ));
 
             if !s.is_wrapper && self.config.with_descriptor {
-                let idl_name = s.name.sym.0.clone();
+                let idl_name = s.name.raw_str();
                 stream.push_str(&format! {
                     r#"impl {name} {{
                         pub fn get_descriptor() -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
@@ -720,7 +720,7 @@ impl CodegenBackend for ThriftBackend {
             })
             .join("");
 
-        let idl_name = s.name.sym.0.clone();
+        let idl_name = s.name.raw_str();
         stream.push_str(&format! {
             r#"impl {name} {{
                 pub fn get_descriptor() -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{

@@ -248,7 +248,7 @@ impl ThriftLower {
             related_items.push(name.clone());
             let mut tags = Tags::default();
             tags.insert(crate::tags::KeepUnknownFields(false));
-            tags.insert(crate::tags::PilotaName(name.sym.0));
+            tags.insert(crate::tags::PilotaName(name.raw_str()));
             result.push(self.mk_item(kind, tags.into()));
 
             let name: Ident = format!("{service_name}{method_name}ResultSend").into();
@@ -274,7 +274,7 @@ impl ThriftLower {
             related_items.push(name.clone());
             let mut tags = Tags::default();
             tags.insert(crate::tags::KeepUnknownFields(false));
-            tags.insert(crate::tags::PilotaName(name.sym.0));
+            tags.insert(crate::tags::PilotaName(name.raw_str()));
             result.push(self.mk_item(kind, tags.into()));
 
             if !exception.is_empty() {
@@ -290,7 +290,7 @@ impl ThriftLower {
                 related_items.push(name.clone());
                 let mut tags = Tags::default();
                 tags.insert(crate::tags::KeepUnknownFields(false));
-                tags.insert(crate::tags::PilotaName(name.sym.0));
+                tags.insert(crate::tags::PilotaName(name.raw_str()));
                 result.push(self.mk_item(kind, tags.into()));
             }
 
@@ -310,7 +310,7 @@ impl ThriftLower {
             related_items.push(name.clone());
             let mut tags = Tags::default();
             tags.insert(crate::tags::KeepUnknownFields(false));
-            tags.insert(crate::tags::PilotaName(name.sym.0));
+            tags.insert(crate::tags::PilotaName(name.raw_str()));
             result.push(self.mk_item(kind, tags.into()));
 
             let name: Ident = format!("{service_name}{method_name}ArgsRecv").into();
@@ -329,7 +329,7 @@ impl ThriftLower {
             related_items.push(name.clone());
             let mut tags: Tags = Tags::default();
             tags.insert(crate::tags::KeepUnknownFields(false));
-            tags.insert(crate::tags::PilotaName(name.sym.0));
+            tags.insert(crate::tags::PilotaName(name.raw_str()));
             result.push(self.mk_item(kind, tags.into()));
         });
 

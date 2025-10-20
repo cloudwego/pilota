@@ -87,6 +87,10 @@ impl Ident {
     pub fn new(sym: Symbol) -> Self {
         Ident { sym }
     }
+
+    pub fn raw_str(&self) -> FastStr {
+        self.sym.0.clone()
+    }
 }
 
 impl Deref for Ident {

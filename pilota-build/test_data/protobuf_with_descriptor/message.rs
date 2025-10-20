@@ -39,8 +39,8 @@ pub mod message {
             pub age: i32,
         }
         impl Person {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_message();
                 file_descriptor.get_message_descriptor_proto("Person")
             }
@@ -108,8 +108,8 @@ pub mod message {
             pub employees: ::std::vec::Vec<Person>,
         }
         impl Company {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_message();
                 file_descriptor.get_message_descriptor_proto("Company")
             }
@@ -175,8 +175,8 @@ pub mod message {
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct Self_ {}
         impl Self_ {
-            fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto>
-            {
+            pub fn get_descriptor_proto()
+            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
                 let file_descriptor = file_descriptor_proto_message();
                 file_descriptor.get_message_descriptor_proto("Self")
             }
@@ -264,7 +264,7 @@ pub mod message {
         }
 
         impl Status {
-            fn get_descriptor_proto()
+            pub fn get_descriptor_proto()
             -> Option<&'static ::pilota::pb::descriptor::EnumDescriptorProto> {
                 let file_descriptor = file_descriptor_proto_message();
                 file_descriptor.get_enum_descriptor_proto("Status")

@@ -1,35 +1,36 @@
-pub mod oneof {
+pub mod nested {
     #![allow(warnings, clippy::all)]
     use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};
     pub mod example {
         use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};
 
-        static FILE_DESCRIPTOR_BYTES_ONEOF: ::pilota::Bytes = ::pilota::Bytes::from_static(b"\n\x0boneof.proto\x12\x07example\"l\n\x0bUserContact\x12\x12\n\x04name\x18\x01 \x01(\tR\x04name\x1aI\n\x07Contact\x12\x16\n\x05email\x18\x02 \x01(\tH\0R\x05email\x12\x16\n\x05phone\x18\x03 \x01(\tH\0R\x05phoneB\x0e\n\x0ccontact_infob\x06proto3");
-        static FILE_DESCRIPTOR_PROTO_ONEOF: ::std::sync::LazyLock<
+        static FILE_DESCRIPTOR_BYTES_NESTED: ::pilota::Bytes = ::pilota::Bytes::from_static(b"\n\x0cnested.proto\x12\x07example\"\x91\x01\n\x0bUserContact\x12\x12\n\x04name\x18\x01 \x01(\tR\x04name\x1aI\n\x07Contact\x12\x16\n\x05email\x18\x02 \x01(\tH\0R\x05email\x12\x16\n\x05phone\x18\x03 \x01(\tH\0R\x05phoneB\x0e\n\x0ccontact_info\"#\n\x0bContactType\x12\t\n\x05EMAIL\x10\0\x12\t\n\x05PHONE\x10\x01b\x06proto3");
+        static FILE_DESCRIPTOR_PROTO_NESTED: ::std::sync::LazyLock<
             ::pilota::pb::descriptor::FileDescriptorProto,
         > = ::std::sync::LazyLock::new(|| {
-            let data: &[u8] = FILE_DESCRIPTOR_BYTES_ONEOF.as_ref();
+            let data: &[u8] = FILE_DESCRIPTOR_BYTES_NESTED.as_ref();
             ::pilota::pb::PbMessage::parse_from_bytes(data)
                 .expect("Failed to decode file descriptor")
         });
-        pub fn file_descriptor_proto_oneof()
+        pub fn file_descriptor_proto_nested()
         -> &'static ::pilota::pb::descriptor::FileDescriptorProto {
-            &*FILE_DESCRIPTOR_PROTO_ONEOF
+            &*FILE_DESCRIPTOR_PROTO_NESTED
         }
 
-        static FILE_DESCRIPTOR_ONEOF: ::std::sync::LazyLock<::pilota::pb::reflect::FileDescriptor> =
-            ::std::sync::LazyLock::new(|| {
-                let mut deps = ::std::vec::Vec::new();
+        static FILE_DESCRIPTOR_NESTED: ::std::sync::LazyLock<
+            ::pilota::pb::reflect::FileDescriptor,
+        > = ::std::sync::LazyLock::new(|| {
+            let mut deps = ::std::vec::Vec::new();
 
-                ::pilota::pb::reflect::FileDescriptor::new_dynamic(
-                    file_descriptor_proto_oneof().clone(),
-                    &deps,
-                )
-                .expect("Failed to build dynamic FileDescriptor")
-            });
+            ::pilota::pb::reflect::FileDescriptor::new_dynamic(
+                file_descriptor_proto_nested().clone(),
+                &deps,
+            )
+            .expect("Failed to build dynamic FileDescriptor")
+        });
 
-        pub fn file_descriptor_oneof() -> &'static ::pilota::pb::reflect::FileDescriptor {
-            &*FILE_DESCRIPTOR_ONEOF
+        pub fn file_descriptor_nested() -> &'static ::pilota::pb::reflect::FileDescriptor {
+            &*FILE_DESCRIPTOR_NESTED
         }
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct UserContact {
@@ -38,7 +39,7 @@ pub mod oneof {
         impl UserContact {
             pub fn get_descriptor_proto()
             -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
-                let file_descriptor = file_descriptor_proto_oneof();
+                let file_descriptor = file_descriptor_proto_nested();
                 file_descriptor.get_message_descriptor_proto("UserContact")
             }
         }
@@ -86,6 +87,68 @@ pub mod oneof {
 
         pub mod user_contact {
             use ::pilota::{Buf as _, BufMut as _, pb::descriptor_getter::*};
+            #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
+            #[repr(transparent)]
+            pub struct ContactType(i32);
+
+            impl ContactType {
+                pub const EMAIL: Self = Self(0);
+                pub const PHONE: Self = Self(1);
+
+                pub fn inner(&self) -> i32 {
+                    self.0
+                }
+
+                pub fn to_string(&self) -> ::std::string::String {
+                    match self {
+                        Self(0) => ::std::string::String::from("EMAIL"),
+                        Self(1) => ::std::string::String::from("PHONE"),
+                        Self(val) => val.to_string(),
+                    }
+                }
+
+                pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
+                    match value {
+                        0 => Some(Self::EMAIL),
+                        1 => Some(Self::PHONE),
+                        _ => None,
+                    }
+                }
+            }
+
+            impl ::pilota::pb::EnumMessage for ContactType {
+                fn inner(&self) -> i32 {
+                    self.inner()
+                }
+
+                fn to_string(&self) -> ::std::string::String {
+                    self.to_string()
+                }
+
+                fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
+                    ContactType::try_from_i32(value)
+                }
+            }
+
+            impl ::std::convert::From<i32> for ContactType {
+                fn from(value: i32) -> Self {
+                    Self(value)
+                }
+            }
+
+            impl ::std::convert::From<ContactType> for i32 {
+                fn from(value: ContactType) -> i32 {
+                    value.0
+                }
+            }
+
+            impl ContactType {
+                pub fn get_descriptor_proto()
+                -> Option<&'static ::pilota::pb::descriptor::EnumDescriptorProto> {
+                    let message_descriptor = super::UserContact::get_descriptor_proto()?;
+                    message_descriptor.get_enum_descriptor_proto("ContactType")
+                }
+            }
             #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
             pub struct Contact {
                 pub contact_info: ::std::option::Option<contact::ContactInfo>,
