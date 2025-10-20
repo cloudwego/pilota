@@ -24,7 +24,7 @@ impl Typedef {
                     r#type,
                     alias: Ident(alias.into()),
                     annotations: annotations.unwrap_or_default(),
-                    trailing_comments: FastStr::from(trailing_comments.unwrap_or_default()),
+                    trailing_comments: trailing_comments.unwrap_or_default(),
                 },
             )
     }

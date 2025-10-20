@@ -13,7 +13,7 @@ pub trait ItemDescriptorGetter {
 
 impl ItemDescriptorGetter for descriptor::FileDescriptorProto {
     fn get_message_descriptor_proto(&self, name: &str) -> Option<&descriptor::DescriptorProto> {
-        if name == "" {
+        if name.is_empty() {
             return None;
         }
 
@@ -21,7 +21,7 @@ impl ItemDescriptorGetter for descriptor::FileDescriptorProto {
     }
 
     fn get_enum_descriptor_proto(&self, name: &str) -> Option<&descriptor::EnumDescriptorProto> {
-        if name == "" {
+        if name.is_empty() {
             return None;
         }
 
@@ -32,7 +32,7 @@ impl ItemDescriptorGetter for descriptor::FileDescriptorProto {
         &self,
         name: &str,
     ) -> Option<&descriptor::ServiceDescriptorProto> {
-        if name == "" {
+        if name.is_empty() {
             return None;
         }
 
@@ -47,7 +47,7 @@ pub trait FieldDescriptorGetter {
 
 impl FieldDescriptorGetter for descriptor::DescriptorProto {
     fn get_field_descriptor_proto(&self, name: &str) -> Option<&descriptor::FieldDescriptorProto> {
-        if name == "" {
+        if name.is_empty() {
             return None;
         }
 
@@ -55,7 +55,7 @@ impl FieldDescriptorGetter for descriptor::DescriptorProto {
     }
 
     fn get_oneof_descriptor_proto(&self, name: &str) -> Option<&descriptor::OneofDescriptorProto> {
-        if name == "" {
+        if name.is_empty() {
             return None;
         }
 

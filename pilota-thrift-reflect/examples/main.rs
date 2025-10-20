@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
 use bytes::BytesMut;
-use chumsky::prelude::*;
 use pilota::thrift::Message as _;
 
 fn main() {

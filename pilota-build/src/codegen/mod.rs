@@ -442,10 +442,7 @@ where
 
         let methods = methods
             .iter()
-            .map(|m| {
-                let method = self.backend.codegen_service_method(def_id, m);
-                format!("{method}")
-            })
+            .map(|m| self.backend.codegen_service_method(def_id, m))
             .join("\n");
 
         let deprecated_attr = if self.is_deprecated(def_id) {

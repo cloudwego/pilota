@@ -1,4 +1,4 @@
-use std::{ops::DerefMut, ptr::NonNull, sync::Arc};
+use std::{ptr::NonNull, sync::Arc};
 
 use ahash::AHashMap;
 use itertools::Itertools;

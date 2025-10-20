@@ -47,9 +47,9 @@ pub mod oneof {
 
         impl ::pilota::pb::Message for UserContact {
             #[inline]
-            fn encoded_len(&self) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(1, &self.name)
-                    + self.contact.as_ref().map_or(0, |msg| msg.encoded_len())
+            fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.name)
+                    + self.contact.as_ref().map_or(0, |msg| msg.encoded_len(ctx))
             }
 
             #[allow(unused_variables)]
@@ -67,6 +67,7 @@ pub mod oneof {
                 wire_type: ::pilota::pb::encoding::WireType,
                 buf: &mut ::pilota::Bytes,
                 ctx: &mut ::pilota::pb::encoding::DecodeContext,
+                is_root: bool,
             ) -> ::core::result::Result<(), ::pilota::pb::DecodeError> {
                 const STRUCT_NAME: &'static str = stringify!(UserContact);
 
@@ -139,13 +140,13 @@ pub mod oneof {
                 }
 
                 #[inline]
-                pub fn encoded_len(&self) -> usize {
+                pub fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                     match self {
                         Contact::Email(value) => {
-                            ::pilota::pb::encoding::faststr::encoded_len(2, &*value)
+                            ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &*value)
                         }
                         Contact::Phone(value) => {
-                            ::pilota::pb::encoding::faststr::encoded_len(3, &*value)
+                            ::pilota::pb::encoding::faststr::encoded_len(ctx, 3, &*value)
                         }
                     }
                 }
