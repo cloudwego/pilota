@@ -1,7 +1,9 @@
 #![allow(clippy::redundant_clone)]
 
+use std::{hint::black_box, ptr};
+
 use bytes::{Bytes, BytesMut};
-use criterion::{black_box, criterion_group, criterion_main};
+use criterion::{criterion_group, criterion_main};
 use pilota::thrift::{TInputProtocol, TOutputProtocol};
 use rand::{self, Rng};
 
@@ -13,7 +15,7 @@ fn binary_bench(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("Bench Thrift Binary");
     let mut v: Vec<i64> = Vec::with_capacity(size);
     for _ in 0..size {
-        v.push(rand::thread_rng().r#gen());
+        v.push(rand::rng().random());
     }
     let mut buf = BytesMut::new();
 
@@ -158,8 +160,9 @@ fn read_be_unsafe_vec(mut b: Bytes, size: usize) -> Vec<i64> {
     unsafe {
         let mut p = pilota::thrift::binary_unsafe::TBinaryUnsafeInputProtocol::new(&mut b);
         let mut v = Vec::with_capacity(size);
+        let ptr: *mut i64 = v.as_mut_ptr();
         for i in 0..size {
-            *v.get_unchecked_mut(i) = p.read_i64().unwrap();
+            ptr.add(i).write(p.read_i64().unwrap());
         }
         v.set_len(size);
         v
@@ -174,12 +177,13 @@ fn read_be_unsafe_optimized(b: Bytes, size: usize) -> Vec<i64> {
         let mut index = 0;
 
         let mut v = Vec::with_capacity(size);
+        let ptr: *mut i64 = v.as_mut_ptr();
         for i in 0..size {
-            *v.get_unchecked_mut(i) = i64::from_be_bytes(
+            ptr.add(i).write(i64::from_be_bytes(
                 buf.get_unchecked(index..index + 8)
                     .try_into()
                     .unwrap_unchecked(),
-            );
+            ));
             index += 8;
         }
         v.set_len(size);
@@ -196,8 +200,9 @@ fn write_be(b: &mut BytesMut, v: &Vec<i64>, _size: usize) {
 }
 
 #[inline(never)]
-fn write_be_unsafe(b: &mut BytesMut, v: &Vec<i64>, _size: usize) {
+fn write_be_unsafe(b: &mut BytesMut, v: &Vec<i64>, size: usize) {
     unsafe {
+        b.resize(8 * size, 0);
         let s = std::slice::from_raw_parts_mut(b.as_mut_ptr(), b.len());
         let mut p = pilota::thrift::binary_unsafe::TBinaryUnsafeOutputProtocol::new(b, s, true);
         for el in v {
@@ -227,12 +232,13 @@ fn read_le_unsafe_optimized(b: Bytes, size: usize) -> Vec<i64> {
         let mut index = 0;
 
         let mut v = Vec::with_capacity(size);
+        let ptr: *mut i64 = v.as_mut_ptr();
         for i in 0..size {
-            *v.get_unchecked_mut(i) = i64::from_le_bytes(
+            ptr.add(i).write(i64::from_le_bytes(
                 buf.get_unchecked(index..index + 8)
                     .try_into()
                     .unwrap_unchecked(),
-            );
+            ));
             index += 8;
         }
         v.set_len(size);

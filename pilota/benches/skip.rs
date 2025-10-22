@@ -1,6 +1,8 @@
+use std::hint::black_box;
+
 use ahash::{AHashMap, AHashSet};
 use bytes::{Bytes, BytesMut};
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+use criterion::{Criterion, criterion_group, criterion_main};
 use faststr::FastStr;
 use pilota::thrift::{
     TInputProtocol, TOutputProtocol, TOutputProtocolExt, TStructIdentifier, TType, ThriftException,
@@ -45,9 +47,9 @@ fn skip_bench(c: &mut Criterion) {
 }
 
 fn generate_list_i32() -> Bytes {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     let vec_size: usize = 100;
-    let v: Vec<i32> = (0..vec_size).map(|_| rng.r#gen()).collect();
+    let v: Vec<i32> = (0..vec_size).map(|_| rng.random()).collect();
 
     let mut buf = BytesMut::new();
 

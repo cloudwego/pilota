@@ -1,6 +1,8 @@
 #![allow(clippy::redundant_clone)]
 
-use criterion::{black_box, criterion_group, criterion_main};
+use std::hint::black_box;
+
+use criterion::{criterion_group, criterion_main};
 use pilota::thrift::{ProtocolExceptionKind, TType, ThriftException, new_protocol_exception};
 
 fn ttype_bench(c: &mut criterion::Criterion) {
