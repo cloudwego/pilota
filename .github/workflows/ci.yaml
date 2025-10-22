@@ -32,24 +32,32 @@ jobs:
         with:
           components: rustfmt, clippy
       # - uses: Swatinem/rust-cache@v1
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest
       - name: Run tests
         run: |
           cargo check
-          cargo test
+          cargo nextest run --workspace --all-targets
+          cargo test --doc --workspace
 
   test-linux-aarch64:
     runs-on: [self-hosted, Linux, aarch64]
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: dtolnay/rust-toolchain@stable
-      with:
-        components: rustfmt, clippy
-    # - uses: Swatinem/rust-cache@v1
-    - name: Run tests
-      run: |
-        cargo check
-        cargo test
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      # - uses: Swatinem/rust-cache@v1
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest
+      - name: Run tests
+        run: |
+          cargo check
+          cargo nextest run --workspace --all-targets
+          cargo test --doc --workspace
 
   test-macos:
     runs-on: [self-hosted, macOS]
@@ -60,10 +68,14 @@ jobs:
         with:
           components: rustfmt, clippy
       # - uses: Swatinem/rust-cache@v1
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest
       - name: Run tests
         run: |
           cargo check
-          cargo test
+          cargo nextest run --workspace --all-targets
+          cargo test --doc --workspace
 
   test-windows:
     runs-on: [self-hosted, Windows]
@@ -74,10 +86,14 @@ jobs:
         with:
           components: rustfmt, clippy
       # - uses: Swatinem/rust-cache@v1
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest
       - name: Run tests
         run: |
           cargo check
-          cargo test
+          cargo nextest run --workspace --all-targets
+          cargo test --doc --workspace
 
   lint:
     runs-on: [self-hosted, Linux, amd64]
@@ -114,12 +130,20 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-llvm-cov
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest
 
       - name: Generate coverage (LCOV + HTML)
         run: |
-          cargo llvm-cov --workspace --doctests \
-            --lcov --output-path lcov.info
-          cargo llvm-cov --workspace --doctests --html
+          cargo llvm-cov nextest --workspace --all-targets \
+            --lcov --output-path lcov.info \
+            --ignore-filename-regex '(^|[\\/])(benches|tests?|examples|target|gen|test_data)([\\/])|(^|[\\/])build\\.rs$|(^|[\\/])\\.cargo[\\/]registry'
+          cargo llvm-cov nextest --workspace --all-targets \
+            --html \
+            --ignore-filename-regex '(^|[\\/])(benches|tests?|examples|target|gen|test_data)([\\/])|(^|[\\/])build\\.rs$|(^|[\\/])\\.cargo[\\/]registry'
+          cargo llvm-cov test --workspace --doc --no-report \
+            --ignore-filename-regex '(^|[\\/])(benches|tests?|examples|target|gen|test_data)([\\/])|(^|[\\/])build\\.rs$|(^|[\\/])\\.cargo[\\/]registry'
 
       - uses: actions/upload-artifact@v4
         with:

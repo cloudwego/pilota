@@ -120,8 +120,7 @@ fn codegen(c: &mut Criterion) {
         );
         group.bench_function(
             format!(
-                "TBinaryUnsafeProtocol all_fields
-  decode_encode {} bytes",
+                "TBinaryUnsafeProtocol all_fields decode_encode {} bytes",
                 len * 8
             ),
             |b| b.iter_with_setup(|| buf.clone(), decode_encode_all_fields_unsafe),
@@ -135,9 +134,7 @@ fn codegen(c: &mut Criterion) {
         );
         group.bench_function(
             format!(
-                "TBinaryUnsafeProtocol unknown_fields
-          decode_encode {}
-        bytes",
+                "TBinaryUnsafeProtocol unknown_fields decode_encode {} bytes",
                 len * 8
             ),
             |b| b.iter_with_setup(|| buf.clone(), decode_encode_unknown_fields_unsafe),

@@ -1,9 +1,9 @@
 #![allow(clippy::redundant_clone)]
 #![allow(deprecated)]
-use std::{iter::repeat_with, sync::Arc};
+use std::{hint::black_box, iter::repeat_with, sync::Arc};
 
 use bytes::{Bytes, BytesMut};
-use criterion::{black_box, criterion_group, criterion_main};
+use criterion::{criterion_group, criterion_main};
 use faststr::FastStr;
 use rand::Rng;
 
@@ -170,9 +170,9 @@ fn gen_string(size: usize) -> String {
     const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                             abcdefghijklmnopqrstuvwxyz\
                             0123456789";
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     let b: Vec<u8> = repeat_with(|| {
-        let i = rng.gen_range(0..CHARSET.len());
+        let i = rng.random_range(0..CHARSET.len());
         CHARSET[i]
     })
     .take(size)
