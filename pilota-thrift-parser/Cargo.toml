@@ -23,5 +23,4 @@ ariadne.workspace = true
 bytes.workspace = true
 chumsky.workspace = true
 faststr.workspace = true
-nom.workspace = true
 thiserror.workspace = true

@@ -34,7 +34,6 @@ integer-encoding = { version = "4", features = ["tokio", "tokio_async"] }
 itertools = "0.14"
 lazy_static = "1"
 linkedbytes = "0.1"
-nom = "7"
 normpath = "1"
 ordered-float = { version = "5", features = ["serde"] }
 paste = "1"

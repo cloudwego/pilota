@@ -23,8 +23,8 @@ pilota = { path = "../pilota", version = "0.12" }
 pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.12" }
 pilota-thrift-reflect = { path = "../pilota-thrift-reflect", version = "0.1" }
 
-nom.workspace = true
 ahash.workspace = true
+ariadne.workspace = true
 faststr.workspace = true
 thiserror.workspace = true
 serde.workspace = true

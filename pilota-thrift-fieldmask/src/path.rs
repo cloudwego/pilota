@@ -1,34 +1,30 @@
 use std::{fmt, str};
 
-use nom::{
-    IResult,
-    branch::alt,
-    bytes::complete::{escaped, tag, take_while1},
-    character::complete::{char, digit1, multispace0, one_of},
-    combinator::{map, map_res},
-    sequence::{delimited, preceded, terminated},
-};
+use ariadne::{Color, Label, Report, ReportKind, Source};
+use chumsky::prelude::*;
 use pilota::FastStr;
 use thiserror::Error;
 
-#[derive(Debug, Clone, Error)]
+#[derive(Clone, Error)]
 pub enum PathError {
-    #[error("syntax error at position {position}")]
-    SyntaxError { position: usize },
-    #[error("invalid character '{character}' at position {position}")]
-    InvalidCharacter { position: usize, character: char },
-    #[error("unterminated string at position {start_position}")]
-    UnterminatedString { start_position: usize },
-    #[error("invalid escape sequence '{sequence}' at position {position}")]
-    InvalidEscape { position: usize, sequence: FastStr },
-    #[error("invalid number '{value}' at position {position}")]
-    InvalidNumber { position: usize, value: FastStr },
+    #[error("syntax error: {message}")]
+    SyntaxError { summary: FastStr, message: FastStr },
     #[error("unexpected EOF")]
     UnexpectedEof,
     #[error("path cannot be empty")]
     EmptyPath,
-    #[error("parse error at position {position}: {message}")]
-    ParseError { position: usize, message: FastStr },
+}
+
+impl std::fmt::Debug for PathError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            PathError::SyntaxError { summary, .. } => {
+                write!(f, "{}", summary)
+            }
+            PathError::UnexpectedEof => write!(f, "unexpected EOF"),
+            PathError::EmptyPath => write!(f, "path cannot be empty"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -107,88 +103,111 @@ impl fmt::Display for PathToken {
 pub struct PathParser;
 
 impl PathParser {
-    fn parse_root(input: &str) -> IResult<&str, TokenData> {
-        map(tag("$"), |_| TokenData::Root)(input)
+    fn blank<'a>() -> impl Parser<'a, &'a str, (), extra::Err<Rich<'a, char>>> {
+        one_of(" \t\r\n").repeated().ignored()
     }
 
-    fn parse_field(input: &str) -> IResult<&str, TokenData> {
-        map(tag("."), |_| TokenData::Field)(input)
+    fn parse_root<'a>() -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>> {
+        just("$").map(|_| TokenData::Root)
     }
 
-    fn parse_index_left(input: &str) -> IResult<&str, TokenData> {
-        map(terminated(tag("["), multispace0), |_| TokenData::IndexL)(input)
+    fn parse_field<'a>() -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>> {
+        just(".").map(|_| TokenData::Field)
     }
 
-    fn parse_index_right(input: &str) -> IResult<&str, TokenData> {
-        map(preceded(multispace0, tag("]")), |_| TokenData::IndexR)(input)
+    fn parse_index_left<'a>() -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>> {
+        just("[")
+            .then_ignore(Self::blank())
+            .map(|_| TokenData::IndexL)
     }
 
-    fn parse_map_left(input: &str) -> IResult<&str, TokenData> {
-        map(terminated(tag("{"), multispace0), |_| TokenData::MapL)(input)
+    fn parse_index_right<'a>() -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>> {
+        Self::blank()
+            .ignore_then(just("]"))
+            .map(|_| TokenData::IndexR)
+    }
+    fn parse_map_left<'a>() -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>> {
+        just("{")
+            .then_ignore(Self::blank())
+            .map(|_| TokenData::MapL)
     }
 
-    fn parse_map_right(input: &str) -> IResult<&str, TokenData> {
-        map(preceded(multispace0, tag("}")), |_| TokenData::MapR)(input)
+    fn parse_map_right<'a>() -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>> {
+        Self::blank()
+            .ignore_then(just("}"))
+            .map(|_| TokenData::MapR)
     }
 
-    fn parse_elem(input: &str) -> IResult<&str, TokenData> {
-        map(delimited(multispace0, tag(","), multispace0), |_| {
-            TokenData::Elem
-        })(input)
+    fn parse_elem<'a>() -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>> {
+        Self::blank()
+            .ignore_then(just(","))
+            .then_ignore(Self::blank())
+            .map(|_| TokenData::Elem)
     }
 
-    fn parse_any(input: &str) -> IResult<&str, TokenData> {
-        map(tag("*"), |_| TokenData::Any)(input)
+    fn parse_any<'a>() -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>> {
+        just("*").map(|_| TokenData::Any)
     }
 
-    fn parse_quoted_string(input: &str) -> IResult<&str, TokenData> {
-        let (input, content) = delimited(
-            char('"'),
-            escaped(
-                take_while1(|c: char| c != '"' && c != '\\'),
-                '\\',
-                one_of("\"ntr\\"),
-            ),
-            char('"'),
-        )(input)?;
+    fn parse_quoted_string<'a>() -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>>
+    {
+        let normal_char = none_of("\"\\").map(|c: char| c.to_string());
 
-        let unescaped = content
-            .replace(r#"\""#, "\"")
-            .replace(r"\n", "\n")
-            .replace(r"\t", "\t")
-            .replace(r"\r", "\r")
-            .replace(r"\\", "\\");
+        let escape_seq = just('\\')
+            .then(one_of("\"ntr\\"))
+            .map(|(_, esc)| match esc {
+                '"' => "\"".to_string(),
+                'n' => "\n".to_string(),
+                't' => "\t".to_string(),
+                'r' => "\r".to_string(),
+                '\\' => "\\".to_string(),
+                _ => esc.to_string(),
+            });
 
-        Ok((input, TokenData::Str(unescaped.into())))
+        let content = normal_char
+            .or(escape_seq)
+            .repeated()
+            .collect::<Vec<String>>()
+            .map(|frags: Vec<String>| frags.concat());
+
+        content
+            .delimited_by(just('"'), just('"'))
+            .map(|s: String| TokenData::Str(FastStr::new(s)))
     }
 
-    fn parse_integer(input: &str) -> IResult<&str, TokenData> {
-        map_res(digit1, |s: &str| s.parse::<i32>().map(TokenData::LitInt))(input)
+    fn parse_integer<'a>() -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>> {
+        text::digits(10)
+            .collect::<String>()
+            .map(|s| TokenData::LitInt(s.parse::<i32>().unwrap()))
     }
 
-    fn parse_identifier(input: &str) -> IResult<&str, TokenData> {
-        let (input, ident) =
-            take_while1(|c: char| c.is_alphanumeric() || c == '_' || c == '-')(input)?;
-        Ok((input, TokenData::LitStr(FastStr::new(ident))))
+    fn parse_identifier<'a>() -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>> {
+        any()
+            .filter(|c: &char| c.is_alphanumeric() || *c == '_' || *c == '-')
+            .repeated()
+            .at_least(1)
+            .collect::<String>()
+            .map(|s: String| TokenData::LitStr(FastStr::new(s)))
     }
 
-    fn parse_literal(input: &str) -> IResult<&str, TokenData> {
-        alt((Self::parse_integer, Self::parse_identifier))(input)
+    fn parse_literal<'a>() -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>> {
+        choice((Self::parse_integer(), Self::parse_identifier()))
     }
 
-    pub fn parse_single_token(input: &str) -> IResult<&str, TokenData> {
-        alt((
-            Self::parse_root,
-            Self::parse_field,
-            Self::parse_index_left,
-            Self::parse_index_right,
-            Self::parse_map_left,
-            Self::parse_map_right,
-            Self::parse_elem,
-            Self::parse_any,
-            Self::parse_quoted_string,
-            Self::parse_literal,
-        ))(input)
+    pub fn parse_single_token<'a>()
+    -> impl Parser<'a, &'a str, TokenData, extra::Err<Rich<'a, char>>> {
+        choice((
+            Self::parse_root(),
+            Self::parse_field(),
+            Self::parse_index_left(),
+            Self::parse_index_right(),
+            Self::parse_map_left(),
+            Self::parse_map_right(),
+            Self::parse_elem(),
+            Self::parse_any(),
+            Self::parse_quoted_string(),
+            Self::parse_literal(),
+        ))
     }
 }
 
@@ -204,32 +223,58 @@ impl PathIterator {
             return Err(PathError::EmptyPath);
         }
 
-        let mut tokens = Vec::new();
-        let mut remaining = src.as_ref();
-        let mut position = 0;
+        let (tokens, errs) = PathParser::parse_single_token()
+            .map_with(|token, e| {
+                let span = e.span();
+                PathToken::new(token, span.start, span.end)
+            })
+            .repeated()
+            .collect::<Vec<PathToken>>()
+            .parse(src.as_ref())
+            .into_output_errors();
+        if !errs.is_empty() {
+            let mut report_strings = Vec::with_capacity(errs.len() + 1);
 
-        while !remaining.is_empty() {
-            let start_pos = position;
+            let title = format!("{} errors found: ", errs.len());
+            report_strings.push(title);
+            report_strings.push(String::new());
 
-            match PathParser::parse_single_token(remaining) {
-                Ok((rest, token)) => {
-                    let consumed = remaining.len() - rest.len();
-                    position += consumed;
-                    remaining = rest;
-
-                    tokens.push(PathToken::new(token, start_pos, position));
+            for (i, e) in errs.iter().enumerate() {
+                if errs.len() > 1 {
+                    let error_header = format!("Error {}:", i + 1);
+                    report_strings.push(error_header.clone());
                 }
-                Err(nom::Err::Error(e)) | Err(nom::Err::Failure(e)) => {
-                    return Err(Self::create_parse_error(&e, src.as_ref(), start_pos));
-                }
-                Err(nom::Err::Incomplete(_)) => {
-                    return Err(PathError::UnexpectedEof);
+
+                let mut buffer = Vec::new();
+                Report::build(ReportKind::Error, e.span().into_range())
+                    .with_config(ariadne::Config::new().with_index_type(ariadne::IndexType::Byte))
+                    .with_message(e.to_string())
+                    .with_label(
+                        Label::new(e.span().into_range())
+                            .with_message(e.reason().to_string())
+                            .with_color(Color::Red),
+                    )
+                    .finish()
+                    .write(Source::from(src.as_ref()), &mut buffer)
+                    .unwrap();
+                report_strings.push(String::from_utf8_lossy(&buffer).to_string());
+
+                if i < errs.len() - 1 {
+                    report_strings.push(String::new());
                 }
             }
+
+            let report = report_strings.join("\n");
+            let summary = create_error_summary(&errs);
+
+            return Err(PathError::SyntaxError {
+                summary: summary.into(),
+                message: report.into(),
+            });
         }
 
         Ok(Self {
-            tokens,
+            tokens: tokens.unwrap(),
             position: 0,
         })
     }
@@ -248,40 +293,33 @@ impl PathIterator {
         self.position += 1;
         token
     }
+}
 
-    fn create_parse_error(
-        nom_error: &nom::error::Error<&str>,
-        original: &str,
-        position: usize,
-    ) -> PathError {
-        let remaining = &original[position..];
-        let remaining_chars: Vec<char> = remaining.chars().take(3).collect();
+fn create_error_summary(errs: &[chumsky::error::Rich<char>]) -> String {
+    if errs.is_empty() {
+        return String::new();
+    }
 
-        if remaining.starts_with('"') && !remaining[1..].contains('"') {
-            PathError::UnterminatedString {
-                start_position: position,
-            }
-        } else if let Some(first_char) = remaining_chars.first() {
-            if !first_char.is_ascii_alphanumeric()
-                && !matches!(
-                    *first_char,
-                    '$' | '.' | '[' | ']' | '{' | '}' | ',' | '*' | '"'
-                )
-            {
-                PathError::InvalidCharacter {
-                    position,
-                    character: *first_char,
-                }
-            } else {
-                PathError::SyntaxError { position }
-            }
-        } else {
-            PathError::ParseError {
-                position,
-                message: nom_error.to_string().into(),
-            }
+    let mut summary = String::new();
+
+    if errs.len() == 1 {
+        let err = &errs[0];
+        let col = err.span().start;
+        summary.push_str(&format!(" at position {} - {}", col, err.reason()));
+    } else {
+        summary.push_str(&format!(" ({} errors found):", errs.len()));
+        for (i, err) in errs.iter().enumerate() {
+            let col = err.span().start;
+            summary.push_str(&format!(
+                "\n  {}. Position {} - {}",
+                i + 1,
+                col,
+                err.reason()
+            ));
         }
     }
+
+    summary
 }
 
 #[cfg(test)]
@@ -345,17 +383,11 @@ mod tests {
     fn test_error_handling() {
         let result = PathIterator::new("$@invalid");
         assert!(result.is_err());
-        assert!(matches!(
-            result.unwrap_err(),
-            PathError::InvalidCharacter { character: '@', .. }
-        ));
+        assert!(matches!(result.unwrap_err(), PathError::SyntaxError { .. }));
 
         let result = PathIterator::new("\"unclosed");
         assert!(result.is_err());
-        assert!(matches!(
-            result.unwrap_err(),
-            PathError::UnterminatedString { .. }
-        ));
+        assert!(matches!(result.unwrap_err(), PathError::SyntaxError { .. }));
     }
 
     #[test]
@@ -444,15 +476,11 @@ mod tests {
 
     #[test]
     fn test_path_error_display() {
-        let error = PathError::SyntaxError { position: 5 };
+        let error = PathError::SyntaxError {
+            summary: "syntax error".into(),
+            message: "at position 5".into(),
+        };
         assert!(error.to_string().contains("syntax error"));
         assert!(error.to_string().contains("at position 5"));
-
-        let error = PathError::InvalidCharacter {
-            position: 3,
-            character: '@',
-        };
-        assert!(error.to_string().contains("invalid character"));
-        assert!(error.to_string().contains("'@'"));
     }
 }

@@ -1,5 +1,5 @@
 //! rust language descriptor and parser for thrift
-//! powered by nom
+//! powered by chumsky
 //! idl descriptor: https://thrift.apache.org/docs/idl
 
 mod annotation;
