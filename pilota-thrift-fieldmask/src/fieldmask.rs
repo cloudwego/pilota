@@ -1582,7 +1582,10 @@ mod tests {
     fn test_field_mask_error_display() {
         let err = FieldMaskError::PathError {
             path: FastStr::new("$.invalid"),
-            source: Box::new(PathError::SyntaxError { position: 5 }),
+            source: Box::new(PathError::SyntaxError {
+                summary: "syntax error".into(),
+                message: "at position 5".into(),
+            }),
         };
         assert!(err.to_string().contains("path '$.invalid', parse error"));
 
@@ -1616,9 +1619,9 @@ mod tests {
 
     #[test]
     fn test_thiserror_integration() {
-        let path_error = PathError::InvalidCharacter {
-            position: 5,
-            character: '@',
+        let path_error = PathError::SyntaxError {
+            summary: "".into(),
+            message: "invalid character".into(),
         };
         assert!(path_error.to_string().contains("invalid character"));
 
