@@ -28,7 +28,10 @@ const RECURSION_LIMIT: u32 = 100;
 ///
 /// An error will be returned if the buffer does not have sufficient capacity to
 /// encode the delimiter.
-pub fn encode_length_delimiter(length: usize, buf: &mut LinkedBytes) -> Result<(), EncodeError> {
+pub fn encode_length_delimiter<B>(length: usize, buf: &mut B) -> Result<(), EncodeError>
+where
+    B: BufMut,
+{
     let length = length as u64;
     let required = encoded_len_varint(length);
     let remaining = buf.remaining_mut();

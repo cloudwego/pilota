@@ -506,7 +506,7 @@ impl CodegenBackend for ProtobufBackend {
                 }}
 
                 #[allow(unused_variables)]
-                fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {{
+                fn encode_raw<B>(&self, buf: &mut B) where B: ::pilota::prost::bytes::BufMut {{
                     {encode}
                 }}
 
@@ -601,7 +601,7 @@ impl CodegenBackend for ProtobufBackend {
 
         stream.push_str(&format! {
             r#"impl {name} {{
-                pub fn encode(&self, buf: &mut ::pilota::LinkedBytes) {{
+                pub fn encode<B>(&self, buf: &mut B) where B: ::pilota::prost::bytes::BufMut {{
                     match self {{
                         {encode}
                     }}

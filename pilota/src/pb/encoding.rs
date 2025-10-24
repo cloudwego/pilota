@@ -9,7 +9,6 @@ use alloc::{collections::BTreeMap, format, string::String, vec::Vec};
 use core::{cmp::min, convert::TryFrom, mem, str};
 
 use ::bytes::{Buf, BufMut, Bytes};
-use linkedbytes::LinkedBytes;
 
 use super::{DecodeError, Message};
 
@@ -17,7 +16,10 @@ use super::{DecodeError, Message};
 /// to the buffer. The buffer must have enough remaining space (maximum 10
 /// bytes).
 #[inline]
-pub fn encode_varint(mut value: u64, buf: &mut LinkedBytes) {
+pub fn encode_varint<B>(mut value: u64, buf: &mut B)
+where
+    B: crate::BufMut,
+{
     loop {
         if value < 0x80 {
             buf.put_u8(value as u8);
@@ -316,7 +318,10 @@ impl TryFrom<u64> for WireType {
 /// Encodes a Protobuf field key, which consists of a wire type designator and
 /// the field tag.
 #[inline]
-pub fn encode_key(tag: u32, wire_type: WireType, buf: &mut LinkedBytes) {
+pub fn encode_key<B>(tag: u32, wire_type: WireType, buf: &mut B)
+where
+    B: BufMut,
+{
     debug_assert!((MIN_TAG..=MAX_TAG).contains(&tag));
     let key = (tag << 3) | wire_type as u32;
     encode_varint(u64::from(key), buf);
@@ -433,7 +438,10 @@ pub fn skip_field(
 /// Helper macro which emits an `encode_repeated` function for the type.
 macro_rules! encode_repeated {
     ($ty:ty) => {
-        pub fn encode_repeated(tag: u32, values: &[$ty], buf: &mut LinkedBytes) {
+        pub fn encode_repeated<B>(tag: u32, values: &[$ty], buf: &mut B)
+        where
+            B: BufMut,
+        {
             for value in values {
                 encode(tag, value, buf);
             }
@@ -492,7 +500,10 @@ macro_rules! varint {
          pub mod $proto_ty {
             use crate::pb::encoding::*;
 
-            pub fn encode(tag: u32, $to_uint64_value: &$ty, buf: &mut LinkedBytes) {
+            pub fn encode<B>(tag: u32, $to_uint64_value: &$ty, buf: &mut B)
+            where
+                B: BufMut,
+            {
                 encode_key(tag, WireType::Varint, buf);
                 encode_varint($to_uint64, buf);
             }
@@ -506,7 +517,10 @@ macro_rules! varint {
 
             encode_repeated!($ty);
 
-            pub fn encode_packed(tag: u32, values: &[$ty], buf: &mut LinkedBytes) {
+            pub fn encode_packed<B>(tag: u32, values: &[$ty], buf: &mut B)
+            where
+                B: BufMut,
+            {
                 if values.is_empty() { return; }
 
                 encode_key(tag, WireType::LengthDelimited, buf);
@@ -589,7 +603,10 @@ pub mod int32 {
 
     use crate::pb::encoding::*;
 
-    pub fn encode<T: Into<i32> + Copy>(tag: u32, value: &T, buf: &mut LinkedBytes) {
+    pub fn encode<B, T: Into<i32> + Copy>(tag: u32, value: &T, buf: &mut B)
+    where
+        B: BufMut,
+    {
         let value: i32 = (*value).into();
         encode_key(tag, WireType::Varint, buf);
         encode_varint(value as u64, buf);
@@ -621,13 +638,19 @@ pub mod int32 {
         T::try_from(from_value as i32).map_err(|err| err.into())
     }
 
-    pub fn encode_repeated<T: Into<i32> + Copy>(tag: u32, values: &[T], buf: &mut LinkedBytes) {
+    pub fn encode_repeated<B, T: Into<i32> + Copy>(tag: u32, values: &[T], buf: &mut B)
+    where
+        B: BufMut,
+    {
         for value in values {
             encode(tag, value, buf);
         }
     }
 
-    pub fn encode_packed(tag: u32, values: &[i32], buf: &mut LinkedBytes) {
+    pub fn encode_packed<B>(tag: u32, values: &[i32], buf: &mut B)
+    where
+        B: BufMut,
+    {
         if values.is_empty() {
             return;
         }
@@ -725,7 +748,10 @@ macro_rules! fixed_width {
         pub mod $proto_ty {
             use crate::pb::encoding::*;
 
-            pub fn encode(tag: u32, value: &$ty, buf: &mut LinkedBytes) {
+            pub fn encode<B>(tag: u32, value: &$ty, buf: &mut B)
+            where
+                B: BufMut,
+            {
                 encode_key(tag, $wire_type, buf);
                 buf.$put(*value);
             }
@@ -746,7 +772,10 @@ macro_rules! fixed_width {
 
             encode_repeated!($ty);
 
-            pub fn encode_packed(tag: u32, values: &[$ty], buf: &mut LinkedBytes) {
+            pub fn encode_packed<B>(tag: u32, values: &[$ty], buf: &mut B)
+            where
+                B: BufMut,
+            {
                 if values.is_empty() {
                     return;
                 }
@@ -902,7 +931,10 @@ pub mod string {
 
     use super::*;
 
-    pub fn encode<T: Borrow<str>>(tag: u32, value: &T, buf: &mut LinkedBytes) {
+    pub fn encode<B, T: Borrow<str>>(tag: u32, value: &T, buf: &mut B)
+    where
+        B: BufMut,
+    {
         let value = value.borrow();
         encode_key(tag, WireType::LengthDelimited, buf);
         encode_varint(value.len() as u64, buf);
@@ -957,7 +989,10 @@ pub mod string {
         }
     }
 
-    pub fn encode_repeated<T: Borrow<str>>(tag: u32, values: &[T], buf: &mut LinkedBytes) {
+    pub fn encode_repeated<B, T: Borrow<str>>(tag: u32, values: &[T], buf: &mut B)
+    where
+        B: BufMut,
+    {
         for value in values {
             encode(tag, value, buf);
         }
@@ -1026,7 +1061,10 @@ pub mod faststr {
 
     use super::*;
 
-    pub fn encode<T: Borrow<str>>(tag: u32, value: &T, buf: &mut LinkedBytes) {
+    pub fn encode<B, T: Borrow<str>>(tag: u32, value: &T, buf: &mut B)
+    where
+        B: BufMut,
+    {
         let value = value.borrow();
         encode_key(tag, WireType::LengthDelimited, buf);
         encode_varint(value.len() as u64, buf);
@@ -1045,7 +1083,10 @@ pub mod faststr {
         Ok(())
     }
 
-    pub fn encode_repeated<T: Borrow<str>>(tag: u32, values: &[T], buf: &mut LinkedBytes) {
+    pub fn encode_repeated<B, T: Borrow<str>>(tag: u32, values: &[T], buf: &mut B)
+    where
+        B: BufMut,
+    {
         for value in values {
             encode(tag, value, buf);
         }
@@ -1087,7 +1128,6 @@ pub trait BytesAdapter: sealed::BytesAdapter {}
 
 mod sealed {
     use bytes::Bytes;
-    use linkedbytes::LinkedBytes;
 
     pub trait BytesAdapter: Default + Sized + 'static {
         fn len(&self) -> usize;
@@ -1096,7 +1136,9 @@ mod sealed {
         fn replace_with(&mut self, buf: Bytes);
 
         /// Appends this buffer to the (contents of) other buffer.
-        fn append_to(&self, buf: &mut LinkedBytes);
+        fn append_to<B>(&self, buf: &mut B)
+        where
+            B: crate::BufMut;
 
         fn is_empty(&self) -> bool {
             self.len() == 0
@@ -1118,7 +1160,10 @@ impl sealed::BytesAdapter for Bytes {
     }
 
     #[inline]
-    fn append_to(&self, buf: &mut LinkedBytes) {
+    fn append_to<B>(&self, buf: &mut B)
+    where
+        B: BufMut,
+    {
         buf.put(self.clone())
     }
 }
@@ -1139,7 +1184,10 @@ impl sealed::BytesAdapter for Vec<u8> {
     }
 
     #[inline]
-    fn append_to(&self, buf: &mut LinkedBytes) {
+    fn append_to<B>(&self, buf: &mut B)
+    where
+        B: BufMut,
+    {
         buf.put(self.as_slice())
     }
 }
@@ -1147,9 +1195,10 @@ impl sealed::BytesAdapter for Vec<u8> {
 pub mod bytes {
     use super::*;
 
-    pub fn encode<A>(tag: u32, value: &A, buf: &mut LinkedBytes)
+    pub fn encode<B, A>(tag: u32, value: &A, buf: &mut B)
     where
         A: BytesAdapter,
+        B: BufMut,
     {
         encode_key(tag, WireType::LengthDelimited, buf);
         encode_varint(value.len() as u64, buf);
@@ -1237,9 +1286,10 @@ pub mod bytes {
 pub mod message {
     use super::*;
 
-    pub fn encode<M>(tag: u32, msg: &M, buf: &mut LinkedBytes)
+    pub fn encode<B, M>(tag: u32, msg: &M, buf: &mut B)
     where
         M: Message,
+        B: BufMut,
     {
         encode_key(tag, WireType::LengthDelimited, buf);
         encode_varint(msg.encoded_len() as u64, buf);
@@ -1271,9 +1321,10 @@ pub mod message {
         Ok(())
     }
 
-    pub fn encode_repeated<M>(tag: u32, messages: &[M], buf: &mut LinkedBytes)
+    pub fn encode_repeated<B, M>(tag: u32, messages: &[M], buf: &mut B)
     where
         M: Message,
+        B: BufMut,
     {
         for msg in messages {
             encode(tag, msg, buf);
@@ -1324,9 +1375,10 @@ pub mod arc_message {
 
     use super::*;
 
-    pub fn encode<M>(tag: u32, msg: &Arc<M>, buf: &mut LinkedBytes)
+    pub fn encode<B, M>(tag: u32, msg: &Arc<M>, buf: &mut B)
     where
         M: Message,
+        B: BufMut,
     {
         message::encode(tag, msg.as_ref(), buf)
     }
@@ -1346,9 +1398,10 @@ pub mod arc_message {
         Ok(())
     }
 
-    pub fn encode_repeated<M>(tag: u32, messages: &[Arc<M>], buf: &mut LinkedBytes)
+    pub fn encode_repeated<B, M>(tag: u32, messages: &[Arc<M>], buf: &mut B)
     where
         M: Message,
+        B: BufMut,
     {
         for msg in messages {
             encode(tag, msg, buf);
@@ -1398,9 +1451,10 @@ pub mod arc_message {
 pub mod group {
     use super::*;
 
-    pub fn encode<M>(tag: u32, msg: &M, buf: &mut LinkedBytes)
+    pub fn encode<B, M>(tag: u32, msg: &M, buf: &mut B)
     where
         M: Message,
+        B: BufMut,
     {
         encode_key(tag, WireType::StartGroup, buf);
         msg.encode_raw(buf);
@@ -1435,9 +1489,10 @@ pub mod group {
         }
     }
 
-    pub fn encode_repeated<M>(tag: u32, messages: &[M], buf: &mut LinkedBytes)
+    pub fn encode_repeated<B, M>(tag: u32, messages: &[M], buf: &mut B)
     where
         M: Message,
+        B: BufMut,
     {
         for msg in messages {
             encode(tag, msg, buf);
@@ -1487,20 +1542,21 @@ macro_rules! map {
         use crate::pb::encoding::*;
 
         /// Generic protobuf map encode function.
-        pub fn encode<K, V, KE, KL, VE, VL>(
+        pub fn encode<B, K, V, KE, KL, VE, VL>(
             key_encode: KE,
             key_encoded_len: KL,
             val_encode: VE,
             val_encoded_len: VL,
             tag: u32,
             values: &$map_ty<K, V>,
-            buf: &mut LinkedBytes,
+            buf: &mut B,
         ) where
+            B: BufMut,
             K: Default + Eq + Hash + Ord,
             V: Default + PartialEq,
-            KE: Fn(u32, &K, &mut LinkedBytes),
+            KE: Fn(u32, &K, &mut B),
             KL: Fn(u32, &K) -> usize,
-            VE: Fn(u32, &V, &mut LinkedBytes),
+            VE: Fn(u32, &V, &mut B),
             VL: Fn(u32, &V) -> usize,
         {
             encode_with_default(
@@ -1553,7 +1609,7 @@ macro_rules! map {
         /// This is necessary because enumeration values can have a default value other
         /// than 0 in proto2.
         #[allow(clippy::too_many_arguments)]
-        pub fn encode_with_default<K, V, KE, KL, VE, VL>(
+        pub fn encode_with_default<B, K, V, KE, KL, VE, VL>(
             key_encode: KE,
             key_encoded_len: KL,
             val_encode: VE,
@@ -1561,13 +1617,14 @@ macro_rules! map {
             val_default: &V,
             tag: u32,
             values: &$map_ty<K, V>,
-            buf: &mut LinkedBytes,
+            buf: &mut B,
         ) where
+            B: BufMut,
             K: Default + Eq + Hash + Ord,
             V: PartialEq,
-            KE: Fn(u32, &K, &mut LinkedBytes),
+            KE: Fn(u32, &K, &mut B),
             KL: Fn(u32, &K) -> usize,
-            VE: Fn(u32, &V, &mut LinkedBytes),
+            VE: Fn(u32, &V, &mut B),
             VL: Fn(u32, &V) -> usize,
         {
             for (key, val) in values.iter() {
@@ -1767,7 +1824,7 @@ mod test {
         Ok(())
     }
 
-    pub fn check_collection_type<T, Item, E, M, L>(
+    pub fn check_collection_type<T, Item, B, E, M, L>(
         value: T,
         tag: u32,
         wire_type: WireType,
@@ -1777,9 +1834,10 @@ mod test {
     ) -> TestCaseResult
     where
         T: Debug + Default + PartialEq + AsRef<[Item]>,
-        E: FnOnce(u32, &[Item], &mut LinkedBytes),
+        E: FnOnce(u32, &[Item], &mut B),
         M: FnMut(WireType, &mut T, &mut Bytes, &mut DecodeContext) -> Result<(), DecodeError>,
         L: FnOnce(u32, &[Item]) -> usize,
+        B: BufMut,
     {
         prop_assume!((MIN_TAG..=MAX_TAG).contains(&tag));
 

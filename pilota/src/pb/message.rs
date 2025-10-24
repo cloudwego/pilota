@@ -1,11 +1,11 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
+use alloc::vec::Vec;
 use core::fmt::Debug;
 use std::sync::Arc;
 
 use bytes::{Buf, BufMut, Bytes};
-use linkedbytes::LinkedBytes;
 
 use super::{
     DecodeError, EncodeError,
@@ -20,8 +20,9 @@ pub trait Message: Debug + Send + Sync {
     ///
     /// Meant to be used only by `Message` implementations.
     #[doc(hidden)]
-    fn encode_raw(&self, buf: &mut LinkedBytes)
+    fn encode_raw<B>(&self, buf: &mut B)
     where
+        B: BufMut,
         Self: Sized;
 
     /// Decodes a field from a buffer, and merges it into `self`.
@@ -45,8 +46,9 @@ pub trait Message: Debug + Send + Sync {
     ///
     /// An error will be returned if the buffer does not have sufficient
     /// capacity.
-    fn encode(&self, buf: &mut LinkedBytes) -> Result<(), EncodeError>
+    fn encode<B>(&self, buf: &mut B) -> Result<(), EncodeError>
     where
+        B: BufMut,
         Self: Sized,
     {
         let required = self.encoded_len();
@@ -59,12 +61,24 @@ pub trait Message: Debug + Send + Sync {
         Ok(())
     }
 
+    /// Encodes the message to a newly allocated buffer.
+    fn encode_to_vec(&self) -> Vec<u8>
+    where
+        Self: Sized,
+    {
+        let mut buf = Vec::with_capacity(self.encoded_len());
+
+        self.encode_raw(&mut buf);
+        buf
+    }
+
     /// Encodes the message with a length-delimiter to a buffer.
     ///
     /// An error will be returned if the buffer does not have sufficient
     /// capacity.
-    fn encode_length_delimited(&self, buf: &mut LinkedBytes) -> Result<(), EncodeError>
+    fn encode_length_delimited<B>(&self, buf: &mut B) -> Result<(), EncodeError>
     where
+        B: BufMut,
         Self: Sized,
     {
         let len = self.encoded_len();
@@ -76,6 +90,19 @@ pub trait Message: Debug + Send + Sync {
         encode_varint(len as u64, buf);
         self.encode_raw(buf);
         Ok(())
+    }
+
+    /// Encodes the message with a length-delimiter to a newly allocated buffer.
+    fn encode_length_delimited_to_vec(&self) -> Vec<u8>
+    where
+        Self: Sized,
+    {
+        let len = self.encoded_len();
+        let mut buf = Vec::with_capacity(len + encoded_len_varint(len as u64));
+
+        encode_varint(len as u64, &mut buf);
+        self.encode_raw(&mut buf);
+        buf
     }
 
     /// Decodes an instance of the message from a buffer.
@@ -133,7 +160,10 @@ impl<M> Message for Box<M>
 where
     M: Message,
 {
-    fn encode_raw(&self, buf: &mut LinkedBytes) {
+    fn encode_raw<B>(&self, buf: &mut B)
+    where
+        B: BufMut,
+    {
         (**self).encode_raw(buf)
     }
     fn merge_field(
@@ -154,19 +184,29 @@ trait ArcMessage<M>
 where
     M: Message + Default + Clone,
 {
-    fn encode(msg: &Arc<M>, buf: &mut LinkedBytes) -> Result<(), EncodeError>;
-    fn encode_length_delimited(msg: &Arc<M>, buf: &mut LinkedBytes) -> Result<(), EncodeError>;
+    fn encode<B>(msg: &Arc<M>, buf: &mut B) -> Result<(), EncodeError>
+    where
+        B: BufMut;
+    fn encode_length_delimited<B>(msg: &Arc<M>, buf: &mut B) -> Result<(), EncodeError>
+    where
+        B: BufMut;
     fn encoded_len(msg: &Arc<M>) -> usize;
     fn decode(buf: Bytes) -> Result<Arc<M>, DecodeError>;
     fn decode_length_delimited(buf: Bytes) -> Result<Arc<M>, DecodeError>;
 }
 
 impl<M: Message + Default + Clone> ArcMessage<M> for std::sync::Arc<M> {
-    fn encode(msg: &Arc<M>, buf: &mut LinkedBytes) -> Result<(), EncodeError> {
+    fn encode<B>(msg: &Arc<M>, buf: &mut B) -> Result<(), EncodeError>
+    where
+        B: BufMut,
+    {
         msg.encode(buf)
     }
 
-    fn encode_length_delimited(msg: &Arc<M>, buf: &mut LinkedBytes) -> Result<(), EncodeError> {
+    fn encode_length_delimited<B>(msg: &Arc<M>, buf: &mut B) -> Result<(), EncodeError>
+    where
+        B: BufMut,
+    {
         msg.encode_length_delimited(buf)
     }
 
@@ -189,15 +229,24 @@ impl<M> Message for Arc<M>
 where
     M: Message + Default + Clone,
 {
-    fn encode(&self, buf: &mut LinkedBytes) -> Result<(), EncodeError> {
+    fn encode<B>(&self, buf: &mut B) -> Result<(), EncodeError>
+    where
+        B: BufMut,
+    {
         <Arc<M> as ArcMessage<M>>::encode(self, buf)
     }
 
-    fn encode_length_delimited(&self, buf: &mut LinkedBytes) -> Result<(), EncodeError> {
+    fn encode_length_delimited<B>(&self, buf: &mut B) -> Result<(), EncodeError>
+    where
+        B: BufMut,
+    {
         <Arc<M> as ArcMessage<M>>::encode_length_delimited(self, buf)
     }
 
-    fn encode_raw(&self, _buf: &mut LinkedBytes) {
+    fn encode_raw<B>(&self, _buf: &mut B)
+    where
+        B: BufMut,
+    {
         unreachable!("Arc<M> does not implement encode_raw")
     }
 
