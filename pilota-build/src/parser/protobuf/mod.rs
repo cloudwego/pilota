@@ -355,6 +355,38 @@ impl Lower {
         }
     }
 
+    fn lower_default_value(&self, default_value: &str) -> Option<ir::Literal> {
+        if self.cur_syntax == Syntax::Proto3 {
+            if !default_value.is_empty() {
+                println!(
+                    "cargo:warning=proto3 doesn't support default value, so we ignore it: {}",
+                    default_value
+                );
+            }
+            return None;
+        }
+        let default_value = default_value.trim();
+        if default_value.is_empty() {
+            return None;
+        }
+        match default_value {
+            "true" => Some(ir::Literal::Bool(true)),
+            "false" => Some(ir::Literal::Bool(false)),
+            _ => {
+                if let Ok(i) = default_value.parse::<i64>() {
+                    // int literal
+                    Some(ir::Literal::Int(i))
+                } else if default_value.parse::<f64>().is_ok() {
+                    // float literal: keep original text for later exact rendering
+                    Some(ir::Literal::Float(Arc::from(default_value)))
+                } else {
+                    // string literal
+                    Some(ir::Literal::String(Arc::from(default_value)))
+                }
+            }
+        }
+    }
+
     fn lower_message(
         &mut self,
         message: &DescriptorProto,
@@ -543,7 +575,34 @@ impl Lower {
                             ir::Field {
                                 leading_comments: "".into(),
                                 trailing_comments: "".into(),
-                                default: None,
+                                default: {
+                                    let default = f.default_value();
+                                    if !default.is_empty() {
+                                        // enum default value
+                                        if matches!(f.type_(), Type::TYPE_ENUM) {
+                                            if let Some(type_name) = f.type_name.as_deref() {
+                                                // type_name like ".pkg.Message.Enum"
+                                                let enum_path = self.str2path(&type_name[1..]);
+                                                let mut segs = enum_path
+                                                    .segments
+                                                    .iter()
+                                                    .cloned()
+                                                    .collect::<Vec<_>>();
+                                                segs.push(Ident::from(FastStr::new(default)));
+                                                Some(ir::Literal::Path(ir::Path {
+                                                    segments: Arc::from(segs),
+                                                }))
+                                            } else {
+                                                println!("cargo:warning=default value is not an enum member: {}", default);
+                                                None
+                                            }
+                                        } else {
+                                            self.lower_default_value(default)
+                                        }
+                                    } else {
+                                        None
+                                    }
+                                },
                                 id: f.number(),
                                 name: FastStr::new(f.name()).into(),
                                 ty,

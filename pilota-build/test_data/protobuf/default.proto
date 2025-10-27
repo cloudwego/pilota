@@ -1,0 +1,33 @@
+syntax = "proto2";
+
+enum Color {
+  RED = 0;
+  GREEN = 1;
+  BLUE = 2;
+}
+
+message Outer {
+  enum Status {
+    UNKNOWN = 0;
+    OK = 1;
+  }
+
+  message Inner {
+    optional Status st = 1 [default = OK];
+  }
+}
+
+message Defaults {
+  optional int32 a = 1 [default = 42];
+  optional int64 a64 = 2 [default = -9007199254740991];
+  optional float b = 3 [default = 3.5];
+  optional double c = 4 [default = -1.25];
+  optional bool d = 5 [default = true];
+  optional string e = 6 [default = "hi"];
+  optional Color color = 7 [default = GREEN];
+  required Outer.Inner inner = 8;
+  optional int32 zero = 9 [default = 0];
+  optional double dzero = 10 [default = 0];
+}
+
+

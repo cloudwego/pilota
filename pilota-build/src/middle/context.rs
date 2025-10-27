@@ -880,6 +880,10 @@ impl Context {
                     true,
                 )
             }
+            (Literal::Float(f), CodegenTy::F32) => {
+                let f = f.parse::<f32>().unwrap();
+                (format! { "{f}f32" }.into(), true)
+            }
             (Literal::Float(f), CodegenTy::F64) => {
                 let f = f.parse::<f64>().unwrap();
                 (format! { "{f}f64" }.into(), true)
