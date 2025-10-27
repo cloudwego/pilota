@@ -60,3 +60,7 @@ harness = false
 [[bench]]
 name = "ttype"
 harness = false
+
+[[bench]]
+name = "pb"
+harness = false
