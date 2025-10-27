@@ -51,14 +51,28 @@ pub trait Message: Debug + Send + Sync {
     where
         Self: Sized,
     {
-        let required = self.encoded_len(&mut EncodeLengthContext::default());
+        let mut ctx = EncodeLengthContext::default();
+        let len = self.encoded_len(&mut ctx);
+        let required = len - ctx.zero_copy_len;
+
         let remaining = buf.remaining_mut();
-        if required > buf.remaining_mut() {
+        if required > remaining {
             return Err(EncodeError::new(required, remaining));
         }
 
         self.encode_raw(buf);
         Ok(())
+    }
+
+    /// Returns the encoded length of the message with a length delimiter.
+    ///
+    /// (length, total)
+    /// - length: The encoded length of the message itself
+    /// - total: The encoded length of the message with the length delimiter
+    fn encoded_len_length_delimited(&self, ctx: &mut EncodeLengthContext) -> (usize, usize) {
+        let len = self.encoded_len(ctx);
+        let total = len + encoded_len_varint(len as u64);
+        (len, total)
     }
 
     /// Encodes the message with a length-delimiter to a buffer.
@@ -73,15 +87,50 @@ pub trait Message: Debug + Send + Sync {
     where
         Self: Sized,
     {
-        let len = self.encoded_len(ctx);
-        let required = len + encoded_len_varint(len as u64);
+        let (len, total) = self.encoded_len_length_delimited(ctx);
+        let required = total - ctx.zero_copy_len;
+
         let remaining = buf.remaining_mut();
         if required > remaining {
             return Err(EncodeError::new(required, remaining));
         }
+
         encode_varint(len as u64, buf);
+
         self.encode_raw(buf);
         Ok(())
+    }
+
+    /// Encodes the message to a newly allocated buffer.
+    fn encode_to_vec(&self, ctx: &mut EncodeLengthContext) -> Vec<u8>
+    where
+        Self: Sized,
+    {
+        let len = self.encoded_len(ctx);
+        let required = len - ctx.zero_copy_len;
+
+        let mut buf = LinkedBytes::with_capacity(required);
+
+        self.encode_raw(&mut buf);
+
+        buf.concat().to_vec()
+    }
+
+    /// Encodes the message with a length-delimiter to a newly allocated buffer.
+    fn encode_length_delimited_to_vec(&self, ctx: &mut EncodeLengthContext) -> Vec<u8>
+    where
+        Self: Sized,
+    {
+        let (len, total) = self.encoded_len_length_delimited(ctx);
+        let required = total - ctx.zero_copy_len;
+
+        let mut buf = LinkedBytes::with_capacity(required);
+
+        encode_varint(len as u64, &mut buf);
+
+        self.encode_raw(&mut buf);
+
+        buf.concat().to_vec()
     }
 
     /// Decodes an instance of the message from a buffer.
@@ -352,6 +401,23 @@ mod tests {
         msg.encode_raw(&mut buf);
 
         assert_eq!(buf.len(), 2);
+    }
+
+    #[test]
+    fn test_encode_to_vec_and_zero_copy_len() {
+        let msg = TestMessage::new(42);
+        let mut ctx = EncodeLengthContext::default();
+        let vec = msg.encode_to_vec(&mut ctx);
+        assert_eq!(vec, vec![0x08, 0x2A]);
+    }
+
+    #[test]
+    fn test_encode_length_delimited_to_vec() {
+        let msg = TestMessage::new(300);
+        let mut ctx = EncodeLengthContext::default();
+        // payload = [0x08, 0xAC, 0x02]; length varint for 3 is [0x03]
+        let vec = msg.encode_length_delimited_to_vec(&mut ctx);
+        assert_eq!(vec, vec![0x03, 0x08, 0xAC, 0x02]);
     }
 
     #[test]
