@@ -435,6 +435,12 @@ service UserService {
     option deprecated = true;
     option (endpoint) = "/api/v1/users/old/{id}";
   }
+
+  // payment
+  rpc GetPaymentInfo(GetUserRequest) returns (PaymentInfo) {}
+
+  // ApiMetadata
+  rpc GetApiMetaData(GetUserRequest) returns (ApiMetadata) {}
 }
 
 // Request/response messages for service methods
