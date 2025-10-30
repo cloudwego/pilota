@@ -272,7 +272,10 @@ impl ContextBuilder {
                                 .0
                                 .iter()
                                 .for_each(|index| {
-                                    let extendee = cx.db.pb_ext(index).unwrap();
+                                    let extendee = cx
+                                        .db
+                                        .pb_ext(index)
+                                        .expect(&format!("extension:{:?} not found", index));
                                     PathCollector { cx, set, file_ids }
                                         .visit(&extendee.extendee_ty.item_ty);
                                 });
