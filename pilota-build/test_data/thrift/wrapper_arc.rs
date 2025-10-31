@@ -122,6 +122,7 @@ pub mod wrapper_arc {
                     + __protocol.struct_end_len()
             }
         }
+
         pub trait TestService {}
 
         impl ::std::default::Default for TestServiceTest2ResultRecv {

@@ -11,7 +11,7 @@ impl Namespace {
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
             .then_ignore(just("namespace"))
-            .then_ignore(Components::blank())
+            .then_ignore(Components::blank_with_comments())
             .then(Scope::parse().padded_by(Components::blank()))
             .then(Path::parse())
             .then(Annotation::get_parser().or_not())

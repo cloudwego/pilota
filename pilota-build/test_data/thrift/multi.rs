@@ -179,6 +179,7 @@ pub mod multi {
             }
         }
         pub const A_S: &'static str = "string";
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct B(i32);

@@ -182,7 +182,9 @@ mod tests {
     #[test]
     fn test_comment() {
         let _ = Components::comment().parse("// foo").unwrap();
-        let _ = Components::comment().parse("# foo").unwrap();
+        let _ = Components::comment()
+            .parse("# From 133120 ~ 134143\n")
+            .unwrap();
         let _ = Components::comment().parse("/* foo */").unwrap();
     }
 

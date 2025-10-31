@@ -41,6 +41,7 @@ pub mod apache {
                 /**
                  * Docstring!
                  */
+
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
                 #[repr(transparent)]
                 pub struct Numberz(i32);
@@ -6378,6 +6379,7 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+
                 pub trait ThriftTest {}
 
                 /**
@@ -6937,6 +6939,7 @@ pub mod apache {
                             + __protocol.struct_end_len()
                     }
                 }
+
                 pub trait SecondService {}
 
                 /**

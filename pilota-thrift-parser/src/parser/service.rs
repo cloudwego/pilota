@@ -23,9 +23,11 @@ impl Service {
             .then_ignore(Components::blank())
             .then(Ident::get_parser())
             .then(extends.or_not())
+            .then(Components::comment().repeated().collect::<Vec<_>>())
             .then_ignore(Components::blank().or_not())
             .then_ignore(just("{"))
             .then(functions)
+            .then(Components::comment().repeated().collect::<Vec<_>>())
             .then_ignore(Components::blank().or_not())
             .then_ignore(just("}"))
             .then(Annotation::get_parser().or_not())
@@ -33,14 +35,25 @@ impl Service {
             .then(Components::trailing_comment().or_not())
             .then_ignore(Components::blank().or_not())
             .map(
-                |(((((comments, name), extends), functions), annotations), trailing_comments)| {
+                |(
+                    (
+                        (((((leading, name), extends), name_comments), functions), comments),
+                        annotations,
+                    ),
+                    trailing,
+                )| {
                     Service {
-                        leading_comments: FastStr::from(comments.join("\n\n")),
+                        leading_comments: FastStr::from(format!(
+                            "{}\n\n{}\n\n{}",
+                            leading.join("\n\n"),
+                            name_comments.join("\n\n"),
+                            comments.join("\n\n")
+                        )),
                         name: Ident(name.into()),
                         extends,
                         functions,
                         annotations: annotations.unwrap_or_default(),
-                        trailing_comments: trailing_comments.unwrap_or_default(),
+                        trailing_comments: trailing.unwrap_or_default(),
                     }
                 },
             )
@@ -88,8 +101,7 @@ mod tests {
         let _ = Service::get_parser()
             .parse(
                 r#"service Test {
-                            Err test_enum(1: Ok req);
-                            Err test_enum_var_type_name_conflict (1: Request req);
+                            # Test service
                         }"#,
             )
             .unwrap();

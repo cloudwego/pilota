@@ -864,6 +864,7 @@ pub mod r#gen {
                     + __protocol.struct_end_len()
             }
         }
+
         pub trait ArticleService {}
 
         impl ::std::default::Default for ArticleServiceGetArticleResultRecv {

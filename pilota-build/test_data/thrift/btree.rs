@@ -874,6 +874,7 @@ pub mod btree {
             map.insert(Index::B, "world");
             map
         });
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Index(i32);

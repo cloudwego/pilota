@@ -142,6 +142,7 @@ pub mod normal {
                     + __protocol.struct_end_len()
             }
         }
+
         pub trait Test {}
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct TestTest123ArgsSend {}

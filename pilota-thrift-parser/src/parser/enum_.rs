@@ -45,23 +45,33 @@ impl Enum {
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
             .then_ignore(just("enum"))
-            .then_ignore(Components::blank())
+            .then_ignore(Components::blank_with_comments())
             .then(Ident::get_parser())
+            .then(Components::comment().repeated().collect::<Vec<_>>())
             .then_ignore(Components::blank().or_not())
             .then_ignore(just("{"))
             .then(EnumValue::get_parser().repeated().collect())
+            .then(Components::comment().repeated().collect::<Vec<_>>())
             .then_ignore(Components::blank().or_not())
             .then_ignore(just("}"))
             .then(Annotation::get_parser().or_not())
             .then(Components::trailing_comment().or_not())
             .then_ignore(Components::blank().or_not())
             .map(
-                |((((comments, name), values), annotations), trailing_comments)| Enum {
-                    leading_comments: FastStr::from(comments.join("\n\n")),
+                |(
+                    (((((leading, name), name_comments), values), comments), annotations),
+                    trailing,
+                )| Enum {
+                    leading_comments: FastStr::from(format!(
+                        "{}\n\n{}\n\n{}",
+                        leading.join("\n\n"),
+                        comments.join("\n\n"),
+                        name_comments.join("\n\n"),
+                    )),
                     name: Ident(name.into()),
                     values,
                     annotations: annotations.unwrap_or_default(),
-                    trailing_comments: trailing_comments.unwrap_or_default(),
+                    trailing_comments: trailing.unwrap_or_default(),
                 },
             )
     }
@@ -99,9 +109,9 @@ mod tests {
     fn test_enum3() {
         let _ = Enum::get_parser()
             .parse(
-                r#"enum Index {
-
-                        }"#,
+                r#"enum ERR {
+    # From 133120 ~ 134143
+}"#,
             )
             .unwrap();
     }
