@@ -280,19 +280,18 @@ where
         }
 
         let mut gen_rs_stream = String::default();
-        let mut file_has_direct = AHashMap::default();
+        let mut file_has_direct = self
+            .cg
+            .cache
+            .mod_files
+            .values()
+            .flat_map(|file_ids| file_ids.iter().map(|file_id| (*file_id, false)))
+            .collect::<AHashMap<_, _>>();
 
         let mod_items = info
             .mod_items
             .iter()
             .map(|(mod_path, def_ids)| {
-                file_has_direct.extend(
-                    self.cg
-                        .cache
-                        .mod_files
-                        .values()
-                        .flat_map(|file_ids| file_ids.iter().map(|file_id| (*file_id, false))),
-                );
                 (
                     mod_path.clone(),
                     def_ids
@@ -303,7 +302,6 @@ where
                             if matches!(item.kind, CodegenKind::Direct) {
                                 *file_has_direct.get_mut(&file_id).unwrap() = true;
                             }
-
                             item
                         })
                         .collect_vec(),
