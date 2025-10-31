@@ -88,8 +88,9 @@ pub enum FieldMaskError {
     GenericError { message: String },
 }
 
-#[derive(Debug, Clone, Eq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Eq, serde::Serialize, serde::Deserialize, Default)]
 pub enum FieldMaskData {
+    #[default]
     Invalid,
     Scalar,
     Struct {
@@ -417,12 +418,6 @@ impl std::hash::Hash for FieldMaskData {
                 is_all.hash(state);
             }
         }
-    }
-}
-
-impl Default for FieldMaskData {
-    fn default() -> Self {
-        Self::Invalid
     }
 }
 
