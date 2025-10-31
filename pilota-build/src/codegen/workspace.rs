@@ -1,4 +1,4 @@
-use std::{borrow::Cow, collections::HashMap, path::PathBuf, process::Command, sync::Arc};
+use std::{borrow::Cow, path::PathBuf, process::Command, sync::Arc};
 
 use ahash::AHashMap;
 use anyhow::bail;
@@ -9,8 +9,8 @@ use rustc_hash::FxHashMap;
 
 use super::CodegenItem;
 use crate::{
-    Codegen, CodegenBackend, Context, DefId, codegen::CodegenKind, db::RirDatabase as _,
-    fmt::fmt_file, middle::context::DefLocation, rir::ItemPath, symbol::ModPath,
+    Codegen, CodegenBackend, Context, DefId, fmt::fmt_file, middle::context::DefLocation,
+    rir::ItemPath, symbol::ModPath,
 };
 
 #[derive(Clone)]
@@ -54,12 +54,8 @@ where
         }
     }
 
-    pub fn group_defs(
-        &self,
-        entry_def_ids: &HashMap<ModPath, Vec<DefId>>,
-    ) -> Result<(), anyhow::Error> {
-        let def_ids = entry_def_ids.values().flatten().copied().collect_vec();
-        let location_map = self.collect_def_ids(&def_ids, None);
+    pub fn group_defs(&self, entry_def_ids: &[DefId]) -> Result<(), anyhow::Error> {
+        let location_map = self.collect_def_ids(entry_def_ids, None);
         let entry_map = location_map.iter().into_group_map_by(|item| item.1);
 
         let entry_deps = entry_map
@@ -158,7 +154,7 @@ where
                     DefLocation::Fixed(_, path) => (
                         Some(path.clone()),
                         deps.iter()
-                            .map(|v| (this.cg.cache.def_mod.get(&v.0).unwrap().clone(), v.0))
+                            .map(|v| (this.cg.mod_index(v.0), v.0))
                             .into_group_map_by(|(mod_path, _)| mod_path.clone())
                             .into_iter()
                             .map(|(mod_path, items)| {
@@ -179,8 +175,8 @@ where
 
                 let mod_items = entry_map[*k]
                     .iter()
-                    .map(|(k, _)| (this.cg.cache.def_mod.get(k).unwrap().clone(), **k))
-                    .into_group_map_by(|item| item.0.clone())
+                    .map(|(k, _)| (this.cg.mod_index(**k), **k))
+                    .into_group_map_by(|(mod_path, _)| mod_path.clone())
                     .into_iter()
                     .map(|(mod_path, items)| {
                         (
@@ -280,33 +276,11 @@ where
         }
 
         let mut gen_rs_stream = String::default();
-        let mut file_has_direct = self
-            .cg
-            .cache
-            .mod_files
-            .values()
-            .flat_map(|file_ids| file_ids.iter().map(|file_id| (*file_id, false)))
-            .collect::<AHashMap<_, _>>();
 
-        let mod_items = info
-            .mod_items
-            .iter()
-            .map(|(mod_path, def_ids)| {
-                (
-                    mod_path.clone(),
-                    def_ids
-                        .iter()
-                        .map(|def_id| {
-                            let item = CodegenItem::from(*def_id);
-                            let file_id = self.cg.node(*def_id).unwrap().file_id;
-                            if matches!(item.kind, CodegenKind::Direct) {
-                                *file_has_direct.get_mut(&file_id).unwrap() = true;
-                            }
-                            item
-                        })
-                        .collect_vec(),
-                )
-            })
+        let mod_items = self
+            .cg
+            .collect_direct_codegen_items(&info.mod_items)
+            .into_iter()
             .chain(info.re_pubs.into_iter().map(|(mod_path, def_ids)| {
                 (
                     mod_path,
@@ -324,7 +298,6 @@ where
         self.cg.write_items(
             &mut gen_rs_stream,
             mod_items,
-            file_has_direct,
             base_dir.as_ref().join(&*info.name).join("src").as_path(),
         );
         if let Some(main_mod_path) = info.main_mod_path {
@@ -354,6 +327,6 @@ where
     }
 
     pub(crate) fn write_crates(self) -> anyhow::Result<()> {
-        self.group_defs(&self.cx().cache.mod_items)
+        self.group_defs(&self.cx().cache.codegen_items)
     }
 }

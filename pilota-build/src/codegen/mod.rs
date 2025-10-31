@@ -566,17 +566,33 @@ where
         &self,
         stream: &mut String,
         mod_items: AHashMap<ModPath, Vec<CodegenItem>>,
-        file_has_direct: AHashMap<FileId, bool>,
         base_dir: &Path,
     ) {
+        // collect mod files and file has direct
+        let mut mod_files = AHashMap::<ModPath, AHashSet<FileId>>::default();
+        let mut file_has_direct = AHashMap::default();
+
+        for (mod_path, items) in mod_items.iter() {
+            for item in items.iter() {
+                let file_id = self.node(item.def_id).unwrap().file_id;
+                let set = mod_files.entry(mod_path.clone()).or_default();
+                if !set.contains(&file_id) {
+                    set.insert(file_id);
+                    file_has_direct.insert(file_id, false);
+                }
+                if matches!(item.kind, CodegenKind::Direct) {
+                    *file_has_direct.get_mut(&file_id).unwrap() = true;
+                }
+            }
+        }
+
         // 1. global level
         // 1.1 register mod file descriptor
         if self.config.with_descriptor {
             let mods_files_with_direct_items = mod_items
                 .keys()
                 .flat_map(|mod_path| {
-                    self.cache
-                        .mod_files
+                    mod_files
                         .get(mod_path)
                         .unwrap()
                         .iter()
@@ -606,7 +622,7 @@ where
             .for_each_with(this, |this, (mod_path, items)| {
                 let mut stream = pkgs.entry(mod_path.clone()).or_default();
                 // 2.1 file
-                for file_id in this.cache.mod_files.get(mod_path).unwrap().iter() {
+                for file_id in mod_files.get(mod_path).unwrap().iter() {
                     let file = this.file(*file_id).unwrap();
                     // 2.1.1 comments
                     if !file.comments.is_empty() {
@@ -802,32 +818,19 @@ where
         name
     }
 
-    fn collect_codegen_items(
+    fn collect_direct_codegen_items(
         &self,
-    ) -> (AHashMap<ModPath, Vec<CodegenItem>>, AHashMap<FileId, bool>) {
-        let mut file_has_direct = AHashMap::default();
-
-        let mod_items = self
-            .cache
-            .mod_items
+        mod_items: &AHashMap<ModPath, Vec<DefId>>,
+    ) -> AHashMap<ModPath, Vec<CodegenItem>> {
+        mod_items
             .iter()
             .map(|(mod_path, items)| {
-                file_has_direct.extend(
-                    self.cache
-                        .mod_files
-                        .values()
-                        .flat_map(|file_ids| file_ids.iter().map(|file_id| (*file_id, true))),
-                );
                 (
                     mod_path.clone(),
-                    items
-                        .iter()
-                        .map(|def_id| (*def_id).into())
-                        .collect::<Vec<_>>(),
+                    items.iter().map(|def_id| (*def_id).into()).collect_vec(),
                 )
             })
-            .collect::<AHashMap<_, _>>();
-        (mod_items, file_has_direct)
+            .collect::<AHashMap<_, _>>()
     }
 
     pub fn write_file(self, ns_name: Symbol, file_name: impl AsRef<Path>) {
@@ -835,9 +838,9 @@ where
         let mut stream = String::default();
         self.backend.codegen_pilota_trait(&mut stream);
 
-        let (mod_items, file_has_direct) = self.collect_codegen_items();
+        let mod_items = self.collect_direct_codegen_items(&self.cache.mod_items);
 
-        self.write_items(&mut stream, mod_items, file_has_direct, base_dir);
+        self.write_items(&mut stream, mod_items, base_dir);
 
         stream = format! {r#"pub mod {ns_name} {{
                 #![allow(warnings, clippy::all)]

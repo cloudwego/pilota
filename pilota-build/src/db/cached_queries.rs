@@ -42,21 +42,18 @@ impl DatabaseStorage for RootDatabase {
 impl CachedQueries for RootDatabase {}
 
 /// Get a node by DefId - cached version
-#[salsa::tracked]
 pub fn get_node<'db>(db: &'db dyn CachedQueries, def_id: SalsaDefId<'db>) -> Option<Node> {
     let real_id = def_id.id(db);
     DatabaseStorage::nodes(db).get(&real_id).cloned()
 }
 
 /// Get a file by FileId - cached version
-#[salsa::tracked]
 pub fn get_file<'db>(db: &'db dyn CachedQueries, file_id: SalsaFileId<'db>) -> Option<Arc<File>> {
     let real_id = file_id.id(db);
     DatabaseStorage::files(db).get(&real_id).cloned()
 }
 
 /// Get an item by DefId - cached version
-#[salsa::tracked]
 pub fn get_item<'db>(db: &'db dyn CachedQueries, def_id: SalsaDefId<'db>) -> Option<Arc<Item>> {
     let node = get_node(db, def_id)?;
     match node.kind {
@@ -67,7 +64,6 @@ pub fn get_item<'db>(db: &'db dyn CachedQueries, def_id: SalsaDefId<'db>) -> Opt
 
 /// Get service methods - cached version
 /// This is especially beneficial as it involves recursive computation
-#[salsa::tracked]
 pub fn get_service_methods<'db>(
     db: &'db dyn CachedQueries,
     def_id: SalsaDefId<'db>,
@@ -105,14 +101,12 @@ pub fn get_service_methods<'db>(
 }
 
 /// Check if a DefId is an argument - cached version
-#[salsa::tracked]
 pub fn is_arg_cached<'db>(db: &'db dyn CachedQueries, def_id: SalsaDefId<'db>) -> bool {
     let real_id = def_id.id(db);
     DatabaseStorage::args(db).contains(&real_id)
 }
 
 /// Get codegen type for item - cached version
-#[salsa::tracked]
 pub fn codegen_item_ty_cached<'db>(
     db: &'db dyn CachedQueries,
     ty_kind: SalsaTyKind<'db>,
@@ -122,7 +116,6 @@ pub fn codegen_item_ty_cached<'db>(
 }
 
 /// Get codegen type for const - cached version
-#[salsa::tracked]
 pub fn codegen_const_ty_cached<'db>(
     db: &'db dyn CachedQueries,
     ty_kind: SalsaTyKind<'db>,
@@ -132,7 +125,6 @@ pub fn codegen_const_ty_cached<'db>(
 }
 
 /// Get codegen type for DefId - cached version
-#[salsa::tracked]
 pub fn codegen_ty_cached<'db>(db: &'db dyn CachedQueries, def_id: SalsaDefId<'db>) -> CodegenTy {
     use crate::db::IntoSalsa;
 

@@ -83,7 +83,7 @@ pub struct Cache {
     pub adjusts: Arc<DashMap<DefId, Adjust>>,
     pub mod_idxes: AHashMap<ModPath, DefId>, // mod kind index
     pub codegen_items: Vec<DefId>,
-    pub mod_items: HashMap<ModPath, Vec<DefId>>,
+    pub mod_items: AHashMap<ModPath, Vec<DefId>>,
     pub def_mod: HashMap<DefId, ModPath>,
     pub mod_files: HashMap<ModPath, Vec<FileId>>,
     pub keep_unknown_fields: Arc<FxHashSet<DefId>>,
@@ -272,10 +272,9 @@ impl ContextBuilder {
                                 .0
                                 .iter()
                                 .for_each(|index| {
-                                    let extendee = cx
-                                        .db
-                                        .pb_ext(index)
-                                        .expect(&format!("extension:{:?} not found", index));
+                                    let extendee = cx.db.pb_ext(index).unwrap_or_else(|| {
+                                        panic!("extension:{:?} not found", index)
+                                    });
                                     PathCollector { cx, set, file_ids }
                                         .visit(&extendee.extendee_ty.item_ty);
                                 });
@@ -552,34 +551,31 @@ impl ContextBuilder {
         );
         cx.cache.mod_idxes.extend(mod_idxes);
 
-        let mut mod_files = HashMap::<ModPath, HashSet<FileId>>::default();
-        let mod_items = cx
-            .cache
-            .codegen_items
-            .clone()
-            .into_iter()
-            .into_group_map_by(|def_id| {
-                let file_id = cx.node(*def_id).unwrap().file_id;
-
-                let path = Arc::from_iter(cx.mod_path(*def_id).iter().map(|s| s.0.clone()));
-                let mod_path = match &*cx.source.mode {
-                    Mode::SingleFile { .. } => path,
-                    Mode::Workspace(_) => Arc::from(&path[1..]),
-                };
-                let mod_path = ModPath::from(mod_path);
-                let set = mod_files.entry(mod_path.clone()).or_default();
-                if !set.contains(&file_id) {
-                    set.insert(file_id);
-                }
-                cx.cache.def_mod.insert(*def_id, mod_path.clone());
-                mod_path
-            });
-        cx.cache.mod_items.extend(mod_items);
-        cx.cache.mod_files.extend(
-            mod_files
+        if matches!(&*cx.source.mode, Mode::SingleFile { .. }) {
+            let mut mod_files = HashMap::<ModPath, HashSet<FileId>>::default();
+            let mod_items = cx
+                .cache
+                .codegen_items
+                .clone()
                 .into_iter()
-                .map(|(k, v)| (k, v.into_iter().collect())),
-        );
+                .into_group_map_by(|def_id| {
+                    let file_id = cx.node(*def_id).unwrap().file_id;
+
+                    let mod_path = cx.mod_index(*def_id);
+                    let set = mod_files.entry(mod_path.clone()).or_default();
+                    if !set.contains(&file_id) {
+                        set.insert(file_id);
+                    }
+                    cx.cache.def_mod.insert(*def_id, mod_path.clone());
+                    mod_path
+                });
+            cx.cache.mod_items.extend(AHashMap::from_iter(mod_items));
+            cx.cache.mod_files.extend(
+                mod_files
+                    .into_iter()
+                    .map(|(k, v)| (k, v.into_iter().collect())),
+            );
+        }
         cx
     }
 }
@@ -1112,6 +1108,19 @@ impl Context {
         self.source.path_resolver.mod_prefix(self, def_id)
     }
 
+    pub fn mod_index(&self, def_id: DefId) -> ModPath {
+        let mod_path = self
+            .mod_path(def_id)
+            .iter()
+            .map(|s| s.0.clone())
+            .collect_vec();
+
+        match &*self.source.mode {
+            Mode::Workspace(_) => ModPath::from(&mod_path[1..]),
+            Mode::SingleFile { .. } => ModPath::from(mod_path),
+        }
+    }
+
     pub fn item_path(&self, def_id: DefId) -> Arc<[Symbol]> {
         self.source.path_resolver.path_for_def_id(self, def_id)
     }
@@ -1290,7 +1299,7 @@ mod tests {
                 adjusts: Arc::new(DashMap::default()),
                 mod_idxes: AHashMap::new(),
                 codegen_items: Vec::new(),
-                mod_items: HashMap::new(),
+                mod_items: AHashMap::new(),
                 def_mod: HashMap::new(),
                 mod_files: HashMap::new(),
                 keep_unknown_fields: Arc::new(FxHashSet::default()),
