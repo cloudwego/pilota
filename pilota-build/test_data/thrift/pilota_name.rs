@@ -804,6 +804,7 @@ pub mod pilota_name {
             }
         }
         pub const LANG_ID: &'static str = "id";
+
         pub trait TestService {}
 
         impl ::std::default::Default for TestServiceTestResultRecv {
@@ -952,6 +953,7 @@ pub mod pilota_name {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Index(i32);

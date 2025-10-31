@@ -74,6 +74,7 @@ impl Exception {
 impl StructLike {
     pub fn parse<'a>() -> impl Parser<'a, &'a str, StructLike, extra::Err<Rich<'a, char>>> {
         Ident::get_parser()
+            .then(Components::comment().repeated().collect::<Vec<_>>())
             .then_ignore(Components::blank().or_not())
             .then_ignore(just("{"))
             .then(
@@ -87,12 +88,18 @@ impl StructLike {
             .then_ignore(just("}"))
             .then(Annotation::get_parser().or_not())
             .then_ignore(Components::list_separator().or_not())
-            .map(|(((name, fields), comments), annotations)| StructLike {
-                name: Ident(name.into()),
-                fields,
-                annotations: annotations.unwrap_or_default(),
-                comments: FastStr::from(comments.join("\n\n")),
-            })
+            .map(
+                |((((name, name_comments), fields), comments), annotations)| StructLike {
+                    name: Ident(name.into()),
+                    fields,
+                    annotations: annotations.unwrap_or_default(),
+                    comments: FastStr::from(format!(
+                        "{}\n\n{}",
+                        name_comments.join("\n\n"),
+                        comments.join("\n\n")
+                    )),
+                },
+            )
     }
 }
 

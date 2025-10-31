@@ -156,6 +156,7 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
+
         pub trait service {}
 
         impl ::std::default::Default for serviceTest2ResultRecv {
@@ -2744,6 +2745,7 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
+
         pub trait Service {}
 
         impl ::std::default::Default for ServiceTest2ResultRecv {
@@ -3099,6 +3101,7 @@ pub mod auto_name {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Index(i32);

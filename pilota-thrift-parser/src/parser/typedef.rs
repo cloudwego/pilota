@@ -11,7 +11,7 @@ impl Typedef {
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
             .then_ignore(just("typedef"))
-            .then_ignore(Components::blank())
+            .then_ignore(Components::blank_with_comments())
             .then(Type::get_parser().padded_by(Components::blank()))
             .then(Ident::get_parser())
             .then(Annotation::get_parser().or_not())

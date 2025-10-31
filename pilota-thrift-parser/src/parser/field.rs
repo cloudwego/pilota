@@ -23,13 +23,13 @@ impl Field {
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
             .then(text::int(10))
-            .then_ignore(just(":").padded_by(Components::blank().or_not()))
+            .then_ignore(just(":").padded_by(Components::blank_with_comments().or_not()))
             .then(Attribute::get_parser().or_not())
-            .then(Type::get_parser().padded_by(Components::blank().or_not()))
+            .then(Type::get_parser().padded_by(Components::blank_with_comments().or_not()))
             .then(Ident::get_parser())
             .then(
                 just("=")
-                    .padded_by(Components::blank().or_not())
+                    .padded_by(Components::blank_with_comments().or_not())
                     .ignore_then(ConstValue::get_parser())
                     .or_not(),
             )

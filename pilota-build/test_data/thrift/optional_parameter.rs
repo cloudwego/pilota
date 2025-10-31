@@ -717,6 +717,7 @@ pub mod optional_parameter {
                     + __protocol.struct_end_len()
             }
         }
+
         pub trait Test {}
     }
 }

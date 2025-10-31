@@ -752,6 +752,7 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
+
         pub trait Test {}
         #[derive(
             PartialOrd,
@@ -2675,6 +2676,7 @@ pub mod unknown_fields {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(
             PartialOrd,
             Hash,

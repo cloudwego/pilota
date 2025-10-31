@@ -14,12 +14,12 @@ impl ConstValue {
                 .ignore_then(
                     const_value
                         .clone()
-                        .padded_by(Components::blank().or_not())
+                        .padded_by(Components::blank_with_comments().or_not())
                         .then_ignore(Components::list_separator().or_not())
                         .repeated()
                         .collect(),
                 )
-                .then_ignore(Components::blank().or_not())
+                .then_ignore(Components::blank_with_comments().or_not())
                 .then_ignore(just("]"))
                 .map(ConstValue::List);
 
@@ -27,14 +27,18 @@ impl ConstValue {
                 .ignore_then(
                     const_value
                         .clone()
-                        .padded_by(Components::blank().or_not())
+                        .padded_by(Components::blank_with_comments().or_not())
                         .then_ignore(just(":"))
-                        .then(const_value.clone().padded_by(Components::blank().or_not()))
+                        .then(
+                            const_value
+                                .clone()
+                                .padded_by(Components::blank_with_comments().or_not()),
+                        )
                         .then_ignore(Components::list_separator().or_not())
                         .repeated()
                         .collect(),
                 )
-                .then_ignore(Components::blank().or_not())
+                .then_ignore(Components::blank_with_comments().or_not())
                 .then_ignore(just("}"))
                 .map(ConstValue::Map);
 
@@ -60,9 +64,9 @@ impl Constant {
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
             .then_ignore(just("const"))
-            .then(Type::get_parser().padded_by(Components::blank()))
+            .then(Type::get_parser().padded_by(Components::blank_with_comments()))
             .then(Ident::get_parser())
-            .then_ignore(just("=").padded_by(Components::blank().or_not()))
+            .then_ignore(just("=").padded_by(Components::blank_with_comments().or_not()))
             .then(ConstValue::get_parser())
             .then(Annotation::get_parser().or_not())
             .then_ignore(Components::list_separator().or_not())

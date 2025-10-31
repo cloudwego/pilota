@@ -587,6 +587,7 @@ pub mod underscore {
                     + __protocol.struct_end_len()
             }
         }
+
         pub trait Test {}
     }
 }

@@ -14,7 +14,7 @@ impl Include {
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
             .then_ignore(just("include"))
-            .then_ignore(Components::blank())
+            .then_ignore(Components::blank_with_comments())
             .then(Literal::parse())
             .then_ignore(Components::list_separator().or_not())
             .then(Components::trailing_comment().or_not())

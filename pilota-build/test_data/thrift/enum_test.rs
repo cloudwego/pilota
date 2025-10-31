@@ -408,6 +408,7 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Ok(i32);
@@ -1313,6 +1314,7 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct _Enum(i32);
@@ -1410,6 +1412,7 @@ pub mod enum_test {
                 __protocol.i32_len(self.inner())
             }
         }
+
         pub trait Test {}
 
         impl ::std::default::Default for TestTestEnumVarTypeNameConflictResultRecv {
@@ -1708,6 +1711,7 @@ pub mod enum_test {
                     + __protocol.struct_end_len()
             }
         }
+
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct Err(i32);
