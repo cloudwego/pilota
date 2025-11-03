@@ -240,6 +240,15 @@ impl File {
                         }
                     })
                     .or_else(|| {
+                        namespaces.clone().find_map(|n| {
+                            if n.scope.0 == "go" {
+                                Some(n.name.clone())
+                            } else {
+                                None
+                            }
+                        })
+                    })
+                    .or_else(|| {
                         namespaces.find_map(|n| {
                             if n.scope.0 == "*" {
                                 Some(n.name.clone())
