@@ -738,7 +738,9 @@ impl CodegenBackend for ProtobufBackend {
 
         let file_id = self.cx.node(def_id).unwrap().file_id;
         let mut getter_impl = String::new();
-        if let ItemExts::Pb(pb) = &e.item_exts {
+        if self.cx.config.with_descriptor
+            && let ItemExts::Pb(pb) = &e.item_exts
+        {
             if let Some(p) = &pb.parent {
                 if self.cx.file_paths().get(&file_id).is_some() {
                     let path = self.cx.related_item_path(def_id, p.did);
