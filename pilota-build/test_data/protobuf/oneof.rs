@@ -160,14 +160,6 @@ pub mod oneof {
         }
 
         impl Test {
-            pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::OneofDescriptorProto> {
-                let message_descriptor = super::Test::get_descriptor_proto()?;
-                message_descriptor.get_oneof_descriptor_proto("test")
-            }
-        }
-
-        impl Test {
             pub fn encode(&self, buf: &mut ::pilota::LinkedBytes) {
                 match self {
                     Test::A(value) => {
@@ -233,14 +225,6 @@ pub mod oneof {
             S(::pilota::FastStr),
 
             I(i32),
-        }
-
-        impl Type {
-            pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::OneofDescriptorProto> {
-                let message_descriptor = super::Test::get_descriptor_proto()?;
-                message_descriptor.get_oneof_descriptor_proto("type")
-            }
         }
 
         impl Type {
