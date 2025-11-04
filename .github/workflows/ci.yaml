@@ -116,7 +116,7 @@ jobs:
         run: |
           cargo fmt -- --check
   coverage:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, amd64]
     timeout-minutes: 40
     permissions:
       contents: read

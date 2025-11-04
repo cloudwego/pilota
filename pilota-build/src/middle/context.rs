@@ -655,7 +655,14 @@ impl Context {
         let node = self.node(def_id).unwrap();
         match &node.kind {
             NodeKind::Item(item) => match &**item {
-                Item::Const(c) => self.codegen_const_ty(c.ty.kind.clone()),
+                Item::Const(c) => {
+                    let ty = self.codegen_const_ty(c.ty.kind.clone());
+                    if ty.should_lazy_static() {
+                        CodegenTy::LazyStaticRef(Arc::new(ty))
+                    } else {
+                        ty
+                    }
+                }
                 Item::Enum(_) => CodegenTy::Adt(AdtDef {
                     did: def_id,
                     kind: AdtKind::Enum,
@@ -684,6 +691,73 @@ impl Context {
         }
     }
 
+    fn convert_element_expr(&self, expr: &str, from: &CodegenTy, to: &CodegenTy) -> String {
+        if from == to {
+            if self.is_copy_ty(from) {
+                expr.to_string()
+            } else {
+                format!("({expr}).clone()", expr = expr)
+            }
+        } else if let Some((converted, _)) =
+            self.convert_codegen_ty_expr(expr.to_string().into(), from, to, false)
+        {
+            converted.to_string()
+        } else {
+            expr.to_string()
+        }
+    }
+
+    fn convert_owned_element_expr(&self, expr: &str, from: &CodegenTy, to: &CodegenTy) -> String {
+        if from == to {
+            return expr.to_string();
+        }
+
+        match (from, to) {
+            (
+                CodegenTy::Adt(AdtDef {
+                    kind: AdtKind::NewType(inner),
+                    ..
+                }),
+                _,
+            ) => {
+                let inner_expr = format!("({expr}).0", expr = expr);
+                self.convert_owned_element_expr(&inner_expr, inner, to)
+            }
+            (
+                _,
+                CodegenTy::Adt(AdtDef {
+                    kind: AdtKind::NewType(inner),
+                    did,
+                }),
+            ) => {
+                let inner_expr = self.convert_owned_element_expr(expr, from, inner);
+                let ctor = self.cur_related_item_path(*did);
+                format!("{ctor}({inner_expr})")
+            }
+            _ => self
+                .convert_codegen_ty_expr(expr.to_string().into(), from, to, true)
+                .map(|(converted, _)| converted.to_string())
+                .unwrap_or_else(|| expr.to_string()),
+        }
+    }
+
+    fn is_copy_ty(&self, ty: &CodegenTy) -> bool {
+        matches!(
+            ty,
+            CodegenTy::Bool
+                | CodegenTy::I8
+                | CodegenTy::I16
+                | CodegenTy::I32
+                | CodegenTy::I64
+                | CodegenTy::UInt32
+                | CodegenTy::UInt64
+                | CodegenTy::U8
+                | CodegenTy::F32
+                | CodegenTy::F64
+                | CodegenTy::OrderedF64
+        )
+    }
+
     pub fn default_val(&self, f: &Field) -> Option<(FastStr, bool /* const? */)> {
         f.default.as_ref().map(|d| {
             let ty = self.codegen_item_ty(f.ty.kind.clone());
@@ -699,62 +773,90 @@ impl Context {
         })
     }
 
+    fn map_literal_expr(
+        &self,
+        entries: &[(Literal, Literal)],
+        key_ty: &Arc<CodegenTy>,
+        value_ty: &Arc<CodegenTy>,
+        btree: bool,
+    ) -> anyhow::Result<FastStr> {
+        let key_ty = &**key_ty;
+        let value_ty = &**value_ty;
+        let len = entries.len();
+        let kvs = entries
+            .iter()
+            .map(|(k, v)| {
+                let (k_expr, _) = self.lit_into_ty(k, key_ty)?;
+                let (v_expr, _) = self.lit_into_ty(v, value_ty)?;
+                anyhow::Ok(format!("map.insert({k_expr}, {v_expr});"))
+            })
+            .try_collect::<_, Vec<_>, _>()?
+            .join("");
+        let new = if btree {
+            "::std::collections::BTreeMap::new()".to_string()
+        } else {
+            format!("::pilota::AHashMap::with_capacity({len})")
+        };
+        Ok(format! {r#"{{
+                let mut map = {new};
+                {kvs}
+                map
+            }}"#}
+        .into())
+    }
+
     fn lit_as_rvalue(
         &self,
         lit: &Literal,
         ty: &CodegenTy,
     ) -> anyhow::Result<(FastStr, bool /* const? */)> {
-        let mk_map = |m: &Vec<(Literal, Literal)>,
-                      k_ty: &Arc<CodegenTy>,
-                      v_ty: &Arc<CodegenTy>,
-                      btree: bool| {
-            let k_ty = &**k_ty;
-            let v_ty = &**v_ty;
-            let len = m.len();
-            let kvs = m
-                .iter()
-                .map(|(k, v)| {
-                    let k = self.lit_into_ty(k, k_ty)?.0;
-                    let v = self.lit_into_ty(v, v_ty)?.0;
-                    anyhow::Ok(format!("map.insert({k}, {v});"))
-                })
-                .try_collect::<_, Vec<_>, _>()?
-                .join("");
-            let new = if btree {
-                "::std::collections::BTreeMap::new()".to_string()
-            } else {
-                format!("::pilota::AHashMap::with_capacity({len})")
-            };
-            anyhow::Ok(
-                format! {r#"{{
-                    let mut map = {new};
-                    {kvs}
-                    map
-                }}"#}
-                .into(),
-            )
-        };
-
         anyhow::Ok(match (lit, ty) {
             (Literal::Map(m), CodegenTy::LazyStaticRef(map)) => match &**map {
-                CodegenTy::Map(k_ty, v_ty) => (mk_map(m, k_ty, v_ty, false)?, false),
-                CodegenTy::BTreeMap(k_ty, v_ty) => (mk_map(m, k_ty, v_ty, true)?, false),
+                CodegenTy::Map(k_ty, v_ty) => (self.map_literal_expr(m, k_ty, v_ty, false)?, false),
+                CodegenTy::BTreeMap(k_ty, v_ty) => {
+                    (self.map_literal_expr(m, k_ty, v_ty, true)?, false)
+                }
                 _ => panic!("invalid map type {map:?}"),
             },
-            (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => (mk_map(m, k_ty, v_ty, false)?, false),
+            (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => {
+                (self.map_literal_expr(m, k_ty, v_ty, false)?, false)
+            }
             (Literal::Map(m), CodegenTy::BTreeMap(k_ty, v_ty)) => {
-                (mk_map(m, k_ty, v_ty, true)?, false)
+                (self.map_literal_expr(m, k_ty, v_ty, true)?, false)
             }
-            (Literal::List(l), CodegenTy::LazyStaticRef(map)) => {
-                assert!(l.is_empty());
-                match &**map {
-                    CodegenTy::Map(_, _) => ("::pilota::AHashMap::new()".into(), false),
-                    CodegenTy::BTreeMap(_, _) => {
-                        ("::std::collections::BTreeMap::new()".into(), false)
-                    }
-                    _ => panic!("invalid map type {map:?}"),
+            (Literal::List(l), CodegenTy::LazyStaticRef(map)) => match &**map {
+                CodegenTy::Map(_, _) => {
+                    assert!(l.is_empty());
+                    ("::pilota::AHashMap::new()".into(), false)
                 }
-            }
+                CodegenTy::BTreeMap(_, _) => {
+                    assert!(l.is_empty());
+                    ("::std::collections::BTreeMap::new()".into(), false)
+                }
+                CodegenTy::Set(inner) => {
+                    if l.is_empty() {
+                        ("::pilota::AHashSet::new()".into(), false)
+                    } else {
+                        let stream = self.list_stream(l, inner)?;
+                        (
+                            format!("::pilota::AHashSet::from([{stream}])").into(),
+                            false,
+                        )
+                    }
+                }
+                CodegenTy::BTreeSet(inner) => {
+                    if l.is_empty() {
+                        ("::std::collections::BTreeSet::new()".into(), false)
+                    } else {
+                        let stream = self.list_stream(l, inner)?;
+                        (
+                            format!("::std::collections::BTreeSet::from([{stream}])").into(),
+                            false,
+                        )
+                    }
+                }
+                _ => panic!("invalid map type {map:?}"),
+            },
             (Literal::List(l), CodegenTy::Map(_, _)) => {
                 assert!(l.is_empty());
                 ("::pilota::AHashMap::new()".into(), false)
@@ -773,18 +875,27 @@ impl Context {
         ident_ty: &CodegenTy,
         target: &CodegenTy,
     ) -> (FastStr, bool /* const? */) {
+        let stream = self.cur_related_item_path(did);
         if ident_ty == target {
-            let stream = self.cur_related_item_path(did);
-            return (stream, true);
+            return (stream.clone(), true);
         }
-        match (ident_ty, target) {
-            (CodegenTy::Str, CodegenTy::FastStr) => {
-                let stream = self.cur_related_item_path(did);
-                (
-                    format!("::pilota::FastStr::from_static_str({stream})").into(),
-                    true,
-                )
+
+        let ident_norm = self.normalize_codegen_ty(ident_ty);
+        let target_norm = self.normalize_codegen_ty(target);
+
+        if ident_norm == target_norm {
+            if let Some((converted, is_const)) =
+                self.convert_codegen_ty_expr(stream.clone(), ident_ty, target, true)
+            {
+                return (converted, is_const);
             }
+        }
+
+        match (ident_ty, target) {
+            (CodegenTy::Str, CodegenTy::FastStr) => (
+                format!("::pilota::FastStr::from_static_str({stream})").into(),
+                true,
+            ),
             (
                 CodegenTy::Adt(AdtDef {
                     did: _,
@@ -827,6 +938,276 @@ impl Context {
         }
     }
 
+    // normalize the codegen ty to the raw type
+    fn normalize_codegen_ty(&self, ty: &CodegenTy) -> CodegenTy {
+        match ty {
+            CodegenTy::Adt(AdtDef {
+                kind: AdtKind::NewType(inner),
+                ..
+            }) => self.normalize_codegen_ty(inner),
+            CodegenTy::LazyStaticRef(inner) | CodegenTy::StaticRef(inner) => {
+                self.normalize_codegen_ty(inner)
+            }
+            CodegenTy::Str => CodegenTy::FastStr,
+            CodegenTy::FastStr => CodegenTy::FastStr,
+            CodegenTy::Vec(inner) => CodegenTy::Vec(Arc::new(self.normalize_codegen_ty(inner))),
+            CodegenTy::Array(inner, size) => {
+                CodegenTy::Array(Arc::new(self.normalize_codegen_ty(inner)), *size)
+            }
+            CodegenTy::Set(inner) => CodegenTy::Set(Arc::new(self.normalize_codegen_ty(inner))),
+            CodegenTy::BTreeSet(inner) => {
+                CodegenTy::BTreeSet(Arc::new(self.normalize_codegen_ty(inner)))
+            }
+            CodegenTy::Map(k, v) => CodegenTy::Map(
+                Arc::new(self.normalize_codegen_ty(k)),
+                Arc::new(self.normalize_codegen_ty(v)),
+            ),
+            CodegenTy::BTreeMap(k, v) => CodegenTy::BTreeMap(
+                Arc::new(self.normalize_codegen_ty(k)),
+                Arc::new(self.normalize_codegen_ty(v)),
+            ),
+            CodegenTy::Arc(inner) => CodegenTy::Arc(Arc::new(self.normalize_codegen_ty(inner))),
+            _ => ty.clone(),
+        }
+    }
+
+    fn convert_codegen_ty_expr(
+        &self,
+        expr: FastStr,
+        from: &CodegenTy,
+        to: &CodegenTy,
+        owned: bool,
+    ) -> Option<(FastStr, bool)> {
+        if from == to {
+            if owned || self.is_copy_ty(from) {
+                return Some((expr, true));
+            }
+            let expr_str = expr.to_string();
+            return Some((format!("({expr_str}).clone()").into(), false));
+        }
+
+        match (from, to) {
+            (
+                CodegenTy::Adt(AdtDef {
+                    kind: AdtKind::NewType(inner),
+                    ..
+                }),
+                _,
+            ) => {
+                if owned {
+                    let expr_str = expr.to_string();
+                    let inner_expr: FastStr = format!("({expr_str}).0").into();
+                    let (converted, is_const) =
+                        self.convert_codegen_ty_expr(inner_expr, inner, to, true)?;
+                    Some((converted, is_const))
+                } else {
+                    let expr_str = expr.to_string();
+                    let cloned: FastStr = format!("{expr_str}.clone()").into();
+                    let (converted, _) = self.convert_codegen_ty_expr(cloned, inner, to, true)?;
+                    Some((converted, false))
+                }
+            }
+            (
+                _,
+                CodegenTy::Adt(AdtDef {
+                    kind: AdtKind::NewType(inner),
+                    did,
+                }),
+            ) => {
+                let (inner_expr, _) = self.convert_codegen_ty_expr(expr, from, inner, owned)?;
+                let ident = self.cur_related_item_path(*did);
+                Some((format!("{ident}({inner_expr})").into(), false))
+            }
+            (CodegenTy::Str, CodegenTy::FastStr) => {
+                let expr_str = expr.to_string();
+                Some((
+                    format!("::pilota::FastStr::from_static_str({expr_str})").into(),
+                    true,
+                ))
+            }
+            (CodegenTy::LazyStaticRef(inner), _) => {
+                let expr_str = expr.to_string();
+                let needs_clone = !expr_str.trim_end().ends_with(".clone()");
+                let owned_expr: FastStr = if needs_clone {
+                    format!("{expr_str}.clone()").into()
+                } else {
+                    expr_str.into()
+                };
+                let (converted, _) = self.convert_codegen_ty_expr(owned_expr, inner, to, true)?;
+                Some((converted, false))
+            }
+            (CodegenTy::StaticRef(inner), _) => {
+                let expr_str = expr.to_string();
+                let needs_clone = !expr_str.trim_end().ends_with(".clone()");
+                let owned_expr: FastStr = if needs_clone {
+                    format!("{expr_str}.clone()").into()
+                } else {
+                    expr_str.into()
+                };
+                let (converted, _) = self.convert_codegen_ty_expr(owned_expr, inner, to, true)?;
+                Some((converted, false))
+            }
+            (CodegenTy::Vec(from_inner), CodegenTy::Vec(to_inner)) => {
+                if from_inner == to_inner {
+                    return Some((expr, owned));
+                }
+                let expr_str = expr.to_string();
+                if owned {
+                    let body = self.convert_owned_element_expr("el.clone()", from_inner, to_inner);
+                    let converted = format!(
+                        r#"{{
+                        {expr_str}
+                            .iter()
+                            .map(|el| {body})
+                            .collect::<::std::vec::Vec<_>>()
+                    }}"#
+                    )
+                    .into();
+                    Some((converted, false))
+                } else {
+                    let body = self.convert_element_expr("el", from_inner, to_inner);
+                    let converted = format!(
+                        r#"{{
+                        {expr_str}
+                            .iter()
+                            .map(|el| {body})
+                            .collect::<::std::vec::Vec<_>>()
+                    }}"#
+                    )
+                    .into();
+                    Some((converted, false))
+                }
+            }
+            (CodegenTy::Set(from_inner), CodegenTy::Set(to_inner)) => {
+                if from_inner == to_inner {
+                    return Some((expr, owned));
+                }
+                let expr_str = expr.to_string();
+                if owned {
+                    let body = self.convert_owned_element_expr("el.clone()", from_inner, to_inner);
+                    let converted = format!(
+                        r#"{{
+                        {expr_str}
+                            .iter()
+                            .map(|el| {body})
+                            .collect::<::pilota::AHashSet<_>>()
+                    }}"#
+                    )
+                    .into();
+                    Some((converted, false))
+                } else {
+                    let body = self.convert_element_expr("el", from_inner, to_inner);
+                    let converted = format!(
+                        r#"{{
+                        {expr_str}
+                            .iter()
+                            .map(|el| {body})
+                            .collect::<::pilota::AHashSet<_>>()
+                    }}"#
+                    )
+                    .into();
+                    Some((converted, false))
+                }
+            }
+            (CodegenTy::BTreeSet(from_inner), CodegenTy::BTreeSet(to_inner)) => {
+                if from_inner == to_inner {
+                    return Some((expr, owned));
+                }
+                let expr_str = expr.to_string();
+                if owned {
+                    let body = self.convert_owned_element_expr("el.clone()", from_inner, to_inner);
+                    let converted = format!(
+                        r#"{{
+                        {expr_str}.iter()
+                            .map(|el| {body})
+                            .collect::<::std::collections::BTreeSet<_>>()
+                    }}"#
+                    )
+                    .into();
+                    Some((converted, false))
+                } else {
+                    let body = self.convert_element_expr("el", from_inner, to_inner);
+                    let converted = format!(
+                        r#"{{
+                        {expr_str}.iter()
+                            .map(|el| {body})
+                            .collect::<::std::collections::BTreeSet<_>>()
+                    }}"#
+                    )
+                    .into();
+                    Some((converted, false))
+                }
+            }
+            (CodegenTy::Map(from_k, from_v), CodegenTy::Map(to_k, to_v)) => {
+                if from_k == to_k && from_v == to_v {
+                    return Some((expr, owned));
+                }
+                let expr_str = expr.to_string();
+                if owned {
+                    let k_body = self.convert_owned_element_expr("k.clone()", from_k, to_k);
+                    let v_body = self.convert_owned_element_expr("v.clone()", from_v, to_v);
+                    let converted = format!(
+                        r#"{{
+                        {expr_str}
+                            .iter()
+                            .map(|(k, v)| ({k_body}, {v_body}))
+                            .collect::<::pilota::AHashMap<_, _>>()
+                    }}"#
+                    )
+                    .into();
+                    Some((converted, false))
+                } else {
+                    let k_body = self.convert_element_expr("k", from_k, to_k);
+                    let v_body = self.convert_element_expr("v", from_v, to_v);
+                    let converted = format!(
+                        r#"{{
+                        {expr_str}
+                            .iter()
+                            .map(|(k, v)| ({k_body}, {v_body}))
+                            .collect::<::pilota::AHashMap<_, _>>()
+                    }}"#
+                    )
+                    .into();
+                    Some((converted, false))
+                }
+            }
+            (CodegenTy::BTreeMap(from_k, from_v), CodegenTy::BTreeMap(to_k, to_v)) => {
+                if from_k == to_k && from_v == to_v {
+                    return Some((expr, owned));
+                }
+                let expr_str = expr.to_string();
+                if owned {
+                    let k_body = self.convert_owned_element_expr("k.clone()", from_k, to_k);
+                    let v_body = self.convert_owned_element_expr("v.clone()", from_v, to_v);
+                    let converted = format!(
+                        r#"{{
+                        {expr_str}
+                            .iter()
+                            .map(|(k, v)| ({k_body}, {v_body}))
+                            .collect::<::std::collections::BTreeMap<_, _>>()
+                    }}"#
+                    )
+                    .into();
+                    Some((converted, false))
+                } else {
+                    let k_body = self.convert_element_expr("k", from_k, to_k);
+                    let v_body = self.convert_element_expr("v", from_v, to_v);
+                    let converted = format!(
+                        r#"{{
+                        {expr_str}
+                            .iter()
+                            .map(|(k, v)| ({k_body}, {v_body}))
+                            .collect::<::std::collections::BTreeMap<_, _>>()
+                    }}"#
+                    )
+                    .into();
+                    Some((converted, false))
+                }
+            }
+            _ => None,
+        }
+    }
+
     fn lit_into_ty(
         &self,
         lit: &Literal,
@@ -835,6 +1216,30 @@ impl Context {
         Ok(match (lit, ty) {
             (Literal::Path(p), ty) => {
                 let ident_ty = self.get_codegen_ty_for_path(p.did);
+
+                if matches!(
+                    ty,
+                    CodegenTy::Map(_, _)
+                        | CodegenTy::BTreeMap(_, _)
+                        | CodegenTy::Set(_)
+                        | CodegenTy::BTreeSet(_)
+                ) {
+                    let normalized_ident_ty = self.normalize_codegen_ty(&ident_ty);
+                    if matches!(
+                        normalized_ident_ty,
+                        CodegenTy::Map(_, _)
+                            | CodegenTy::BTreeMap(_, _)
+                            | CodegenTy::Set(_)
+                            | CodegenTy::BTreeSet(_)
+                    ) {
+                        let stream = self.cur_related_item_path(p.did);
+                        if let Some((converted, _)) =
+                            self.convert_codegen_ty_expr(stream.clone(), &ident_ty, ty, false)
+                        {
+                            return Ok((converted, false));
+                        }
+                    }
+                }
 
                 self.ident_into_ty(p.did, &ident_ty, ty)
             }
@@ -1013,6 +1418,20 @@ impl Context {
                     .into(),
                     is_const,
                 )
+            }
+            (Literal::Map(m), CodegenTy::Map(k_ty, v_ty)) => {
+                (self.map_literal_expr(m, k_ty, v_ty, false)?, false)
+            }
+            (Literal::Map(m), CodegenTy::BTreeMap(k_ty, v_ty)) => {
+                (self.map_literal_expr(m, k_ty, v_ty, true)?, false)
+            }
+            (Literal::List(l), CodegenTy::Map(_, _)) => {
+                assert!(l.is_empty());
+                ("::pilota::AHashMap::new()".into(), false)
+            }
+            (Literal::List(l), CodegenTy::BTreeMap(_, _)) => {
+                assert!(l.is_empty());
+                ("::std::collections::BTreeMap::new()".into(), false)
             }
             _ => panic!("unexpected literal {lit:?} with ty {ty:?}"),
         })
@@ -1443,5 +1862,58 @@ mod tests {
         assert!(!is_const);
 
         Ok(())
+    }
+
+    #[test]
+    fn convert_codegen_vec_owned_iter_clone() {
+        let cx = make_test_context();
+        let from_ty = CodegenTy::Vec(Arc::new(CodegenTy::Str));
+        let to_ty = CodegenTy::Vec(Arc::new(CodegenTy::FastStr));
+        let (expr, _) = cx
+            .convert_codegen_ty_expr(FastStr::from_static_str("items"), &from_ty, &to_ty, true)
+            .expect("vec conversion should succeed");
+        let rendered = expr.to_string();
+        assert!(rendered.contains(".iter()"));
+        assert!(!rendered.contains("into_iter"));
+        assert!(rendered.contains("::pilota::FastStr::from_static_str"));
+    }
+
+    #[test]
+    fn convert_codegen_set_owned_iter_clone() {
+        let cx = make_test_context();
+        let from_ty = CodegenTy::Set(Arc::new(CodegenTy::Str));
+        let to_ty = CodegenTy::Set(Arc::new(CodegenTy::FastStr));
+        let (expr, _) = cx
+            .convert_codegen_ty_expr(
+                FastStr::from_static_str("set_items"),
+                &from_ty,
+                &to_ty,
+                true,
+            )
+            .expect("set conversion should succeed");
+        let rendered = expr.to_string();
+        assert!(rendered.contains(".iter()"));
+        assert!(!rendered.contains("into_iter"));
+        assert!(rendered.contains("::pilota::FastStr::from_static_str"));
+    }
+
+    #[test]
+    fn convert_codegen_map_owned_iter_clone() {
+        let cx = make_test_context();
+        let from_ty = CodegenTy::Map(Arc::new(CodegenTy::Str), Arc::new(CodegenTy::Str));
+        let to_ty = CodegenTy::Map(Arc::new(CodegenTy::FastStr), Arc::new(CodegenTy::FastStr));
+        let (expr, _) = cx
+            .convert_codegen_ty_expr(
+                FastStr::from_static_str("map_items"),
+                &from_ty,
+                &to_ty,
+                true,
+            )
+            .expect("map conversion should succeed");
+        let rendered = expr.to_string();
+        assert!(rendered.contains(".iter()"));
+        assert!(!rendered.contains("into_iter"));
+        assert!(rendered.contains("::pilota::FastStr::from_static_str(k.clone())"));
+        assert!(rendered.contains("::pilota::FastStr::from_static_str(v.clone())"));
     }
 }
