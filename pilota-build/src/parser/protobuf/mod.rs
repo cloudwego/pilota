@@ -192,9 +192,6 @@ impl Lower {
         f: &protobuf::descriptor::FieldDescriptorProto,
         nested_messages: &AHashMap<FastStr, &DescriptorProto>,
     ) -> Option<Arc<ext::pb::Extendee>> {
-        if f.number() == 50701 {
-            println!("cargo:warning=lower_extension: {:?}", f);
-        }
         let extendee_str = f.extendee();
         if extendee_str.is_empty() {
             return None;
