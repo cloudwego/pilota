@@ -1,6 +1,6 @@
 [package]
 name = "pilota-thrift-reflect"
-version = "0.1.0"
+version = "0.2.0"
 edition.workspace = true
 homepage.workspace = true
 repository.workspace = true
@@ -19,8 +19,8 @@ keywords = ["reflect", "pilota"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-pilota = { path = "../pilota", version = "0.12" }
-pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.12" }
+pilota = { path = "../pilota", version = "0.13" }
+pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.13" }
 
 ahash.workspace = true
 bytes.workspace = true
