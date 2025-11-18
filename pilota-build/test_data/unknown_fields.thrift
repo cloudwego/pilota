@@ -54,7 +54,7 @@ union TestUnion {
 typedef list<list<string>> Td
 
 struct D {
-    1: required Td td,
+    1: required Td td, // test trailing comments
 }
 
 struct SubMessage {

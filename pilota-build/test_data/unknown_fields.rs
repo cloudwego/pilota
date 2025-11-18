@@ -582,7 +582,7 @@ pub mod unknown_fields {
             PartialEq,
         )]
         pub struct D {
-            pub td: Td,
+            pub td: Td, // test trailing comments
             pub _unknown_fields: ::pilota::BytesVec,
         }
         impl ::pilota::thrift::Message for D {

@@ -136,12 +136,12 @@ where
             .join("\n");
 
         if self.cache.keep_unknown_fields.contains(&def_id) {
-            fields.push_str("pub _unknown_fields: ::pilota::BytesVec,");
+            fields.push_str("\npub _unknown_fields: ::pilota::BytesVec,\n");
         }
 
         if !s.is_wrapper && self.config.with_field_mask {
             fields.push_str(
-                "pub _field_mask: ::std::option::Option<::pilota_thrift_fieldmask::FieldMask>,",
+                "\npub _field_mask: ::std::option::Option<::pilota_thrift_fieldmask::FieldMask>,\n",
             );
         }
 
