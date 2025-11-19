@@ -277,23 +277,17 @@ where
 
         let mut gen_rs_stream = String::default();
 
-        let mod_items = self
-            .cg
-            .collect_direct_codegen_items(&info.mod_items)
-            .into_iter()
-            .chain(info.re_pubs.into_iter().map(|(mod_path, def_ids)| {
-                (
-                    mod_path,
-                    def_ids
-                        .iter()
-                        .map(|&def_id| CodegenItem {
-                            def_id,
-                            kind: super::CodegenKind::RePub,
-                        })
-                        .collect_vec(),
-                )
-            }))
-            .collect::<AHashMap<_, _>>();
+        let mut mod_items = self.cg.collect_direct_codegen_items(&info.mod_items);
+
+        for (mod_path, def_ids) in info.re_pubs.iter() {
+            mod_items
+                .entry(mod_path.clone())
+                .or_default()
+                .extend(def_ids.iter().map(|&def_id| CodegenItem {
+                    def_id,
+                    kind: super::CodegenKind::RePub,
+                }));
+        }
 
         self.cg.write_items(
             &mut gen_rs_stream,
