@@ -4,6 +4,7 @@ pub mod binary_unsafe;
 pub mod compact;
 pub mod error;
 pub mod rw_ext;
+pub mod shmipc;
 pub mod unknown;
 pub mod varint_ext;
 
