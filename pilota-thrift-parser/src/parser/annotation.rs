@@ -23,8 +23,8 @@ impl Annotation {
             Components::list_separator().padded_by(Components::blank_with_comments().or_not());
 
         let annotation_list = annotation
-            .separated_by(separator)
-            .allow_trailing()
+            .then_ignore(separator.or_not())
+            .repeated()
             .collect::<Vec<Annotation>>()
             .padded_by(Components::blank_with_comments().or_not());
 
@@ -65,7 +65,7 @@ mod tests {
         );
 
         let input = r#"(
-            cpp.type = "DenseFoo",
+            cpp.type = "DenseFoo"
             python.type ="DenseFoo", 
             go.type ="DenseFoo";
             java.final=""
@@ -84,7 +84,7 @@ mod tests {
         let input = r#"(
             // comment before first annotation
             cpp.type = "DenseFoo"; // cpp.type
-            python.type ="DenseFoo", go.type ="DenseFoo";
+            python.type ="DenseFoo" go.type ="DenseFoo";
             java.final="")"#;
         let res = Annotation::get_parser().parse(input).unwrap();
         assert_eq!(res.len(), 4);
@@ -105,6 +105,19 @@ mod tests {
         assert_eq!(res.len(), 1);
         assert_eq!(res[0].key, "cpp.type");
         assert_eq!(res[0].value.to_string(), "DenseFoo");
+
+        let input = r#"(
+            cpp.type = "DenseFoo" go.type ="DenseFoo"
+            python.type = "DenseFoo"
+        )"#;
+        let res = Annotation::get_parser().parse(input).unwrap();
+        assert_eq!(res.len(), 3);
+        assert_eq!(res[0].key, "cpp.type");
+        assert_eq!(res[0].value.to_string(), "DenseFoo");
+        assert_eq!(res[1].key, "go.type");
+        assert_eq!(res[1].value.to_string(), "DenseFoo");
+        assert_eq!(res[2].key, "python.type");
+        assert_eq!(res[1].value.to_string(), "DenseFoo");
 
         let input = r#"(
             cpp.type = "DenseFoo";
