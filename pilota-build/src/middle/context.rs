@@ -1433,7 +1433,26 @@ impl Context {
                 assert!(l.is_empty());
                 ("::std::collections::BTreeMap::new()".into(), false)
             }
-            _ => panic!("unexpected literal {lit:?} with ty {ty:?}"),
+            _ => {
+                let (def_path, idl_file) = with_cur_item(|def_id| {
+                    let def_path = self.item_path(def_id).iter().join("::");
+                    let file_path = self
+                        .db
+                        .node(def_id)
+                        .and_then(|node| {
+                            self.db
+                                .file_paths()
+                                .get(&node.file_id)
+                                .map(|path| path.display().to_string())
+                        })
+                        .unwrap_or_else(|| "<unknown>".to_string());
+                    (def_path, file_path)
+                });
+
+                panic!(
+                    "unexpected literal {lit:?} with ty {ty}, position: (def_path: {def_path} in idl_file: {idl_file})"
+                );
+            }
         })
     }
 
