@@ -26,7 +26,7 @@ impl Field {
             .then_ignore(just(":").padded_by(Components::blank_with_comments().or_not()))
             .then(Attribute::get_parser().or_not())
             .then(Type::get_parser().padded_by(Components::blank_with_comments().or_not()))
-            .then(Ident::get_parser())
+            .then(Ident::get_parser().padded_by(Components::blank_with_comments().or_not()))
             .then(
                 just("=")
                     .padded_by(Components::blank_with_comments().or_not())

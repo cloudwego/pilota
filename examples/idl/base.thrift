@@ -1,7 +1,7 @@
 namespace rs base.loop
 
 struct TrafficEnv {
-	0: string Name = "",
+	0: string Name = ""
 	1: bool Open = false,
 	2: string Env = "",
 	256: required i64 Code,
@@ -44,7 +44,7 @@ struct MetaInfo {
 typedef Val Key 
 
 struct Val {
-	1: string id
+	1: string id  /** abc */ (go.tag="")
 	2: string name
 }
 

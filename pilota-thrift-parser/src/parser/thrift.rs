@@ -452,12 +452,12 @@ enum Status {
 // This is a comment for the Item struct
 struct Item {
     // id of the item
-    1: required i64 id,                     // id of the item
+    1: required i64 id /* abc */ (go.tag="json:\"id\"")                   // id of the item
 
     /*
      * title of the item
      */
-    2: required string title,               // trailing comment test
+    2: required string title /*ddd*/ ,           // trailing comment test
     // content of the item
     3: required string content,             # trailing comment
     // extra metadata of the item
