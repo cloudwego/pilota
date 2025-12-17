@@ -464,7 +464,9 @@ where
             },
         ));
 
-        self.plugins.into_iter().for_each(|p| cx.exec_plugin(p));
+        CONTEXT.set(&cx, || {
+            self.plugins.into_iter().for_each(|p| cx.exec_plugin(p));
+        });
 
         std::thread::scope(|scope| {
             let pool = rayon::ThreadPoolBuilder::new();

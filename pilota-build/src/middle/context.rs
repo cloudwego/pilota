@@ -1449,9 +1449,11 @@ impl Context {
                     (def_path, file_path)
                 });
 
-                panic!(
-                    "unexpected literal {lit:?} with ty {ty}, position: (def_path: {def_path} in idl_file: {idl_file})"
+                let error_message = format!(
+                    "unexpected literal {lit:?} with ty {ty}, def_path: {def_path}, idl_file: {idl_file}"
                 );
+
+                panic!("{error_message}");
             }
         })
     }
