@@ -196,7 +196,6 @@ pub mod serde {
                     + __protocol.struct_end_len()
             }
         }
-
         #[derive(
             PartialOrd,
             Hash,

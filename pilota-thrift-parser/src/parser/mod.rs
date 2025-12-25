@@ -28,7 +28,7 @@ impl Path {
     pub fn parse<'a>() -> impl Parser<'a, &'a str, Path, extra::Err<Rich<'a, char>>> {
         Components::blank()
             .ignore_then(Ident::get_parser())
-            .separated_by(just('.').padded_by(Components::blank()))
+            .separated_by(just('.'))
             .at_least(1)
             .collect()
             .then_ignore(Components::blank_without_newline())

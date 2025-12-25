@@ -11,8 +11,9 @@ impl Typedef {
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
             .then_ignore(just("typedef"))
-            .then_ignore(Components::blank_with_comments())
-            .then(Type::get_parser().padded_by(Components::blank()))
+            .then_ignore(Components::blank())
+            .then(Type::get_parser())
+            .then_ignore(Components::blank())
             .then(Ident::get_parser())
             .then(Annotation::get_parser().or_not())
             .then_ignore(Components::list_separator().or_not())
@@ -37,5 +38,12 @@ mod tests {
     #[test]
     fn test_type_def() {
         let _td = Typedef::get_parser().parse("typedef i32 Int32,").unwrap();
+    }
+
+    #[test]
+    fn test_type_def_comment() {
+        let _td = Typedef::get_parser()
+            .parse("typedef i32 Int32 /* comment */")
+            .unwrap();
     }
 }

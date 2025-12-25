@@ -110,6 +110,8 @@ where
     members = [
     {members}
     ]
+    edition = "2024"
+    resolver = "3"
 
     [workspace.dependencies]
     pilota = "*"

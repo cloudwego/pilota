@@ -80,4 +80,12 @@ mod tests {
             .parse(r#"2: required bytet_i.Injection Injection,"#)
             .unwrap();
     }
+
+    #[test]
+    fn test_field_comment() {
+        let input = r#"
+        /* comment */ 1: /* comment */ required /* comment */ string /* comment */ LogID = /* comment */ "xxx" // comment
+        "#;
+        let _f = Field::get_parser().parse(input).unwrap();
+    }
 }

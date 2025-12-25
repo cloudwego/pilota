@@ -246,6 +246,7 @@ fn test_with_split_builder<F: FnOnce(&Path, &Path)>(
 fn test_thrift(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     test_with_builder(source, target, |source, target| {
         crate::Builder::thrift()
+            .with_comments(true)
             .ignore_unused(false)
             .compile_with_config(
                 vec![IdlService::from_path(source.to_owned())],
@@ -265,6 +266,7 @@ fn test_thrift_workspace(
         .collect();
     test_with_builder_workspace(input_dir, output_dir, |_, target| {
         crate::Builder::thrift()
+            .with_comments(true)
             .ignore_unused(false)
             .compile_with_config(services, crate::Output::Workspace(target.into()));
     });
@@ -281,6 +283,7 @@ fn test_thrift_workspace_with_split(
         .collect();
     test_with_builder_workspace(input_dir, output_dir, |_, target| {
         crate::Builder::thrift()
+            .with_comments(true)
             .ignore_unused(false)
             .split_generated_files(true)
             .compile_with_config(services, crate::Output::Workspace(target.into()))
@@ -294,6 +297,7 @@ fn test_thrift_with_split(
 ) {
     test_with_split_builder(source, target, gen_dir, |source, target| {
         crate::Builder::thrift()
+            .with_comments(true)
             .ignore_unused(false)
             .split_generated_files(true)
             .compile_with_config(

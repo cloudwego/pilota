@@ -150,4 +150,13 @@ mod tests {
         }"#;
         Struct::get_parser().parse(str).unwrap();
     }
+
+    #[test]
+    fn test_struct_comment() {
+        let input = r#"
+        /* comment */ struct Test {
+            /* comment */ 1: /* comment */ required /* comment */ string /* comment */ Service, // comment
+        }"#;
+        let _ = Struct::get_parser().parse(input).unwrap();
+    }
 }

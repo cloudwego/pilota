@@ -192,7 +192,7 @@ impl File {
             .repeated()
             .collect()
             .then(Components::comment().repeated().collect::<Vec<_>>())
-            .then_ignore(Components::blank())
+            .then_ignore(Components::blank().or_not())
             .then_ignore(end())
             .map(|(items, c): (Vec<Item>, Vec<FastStr>)| {
                 let mut comments = String::default();

@@ -36,11 +36,15 @@ impl Type {
             .then_ignore(Components::not_alphanumeric_or_underscore());
 
             let list = just("list")
-                .ignore_then(just("<").padded_by(Components::blank().or_not()))
+                .ignore_then(just("<").padded_by(Components::blank_with_comments().or_not()))
                 .ignore_then(self_parser.clone())
-                .then_ignore(Components::blank().or_not())
+                .then_ignore(Components::blank_with_comments().or_not())
                 .then_ignore(just(">"))
-                .then(Components::blank().ignore_then(CppType::parse()).or_not())
+                .then(
+                    Components::blank_with_comments()
+                        .ignore_then(CppType::parse())
+                        .or_not(),
+                )
                 .map(|(inner_type, cpp_type)| Ty::List {
                     value: Arc::new(inner_type),
                     cpp_type,
@@ -48,11 +52,15 @@ impl Type {
                 .boxed();
 
             let set = just("set")
-                .ignore_then(Components::blank().ignore_then(CppType::parse()).or_not())
+                .ignore_then(
+                    Components::blank_with_comments()
+                        .ignore_then(CppType::parse())
+                        .or_not(),
+                )
                 .then_ignore(just("<"))
-                .padded_by(Components::blank().or_not())
+                .padded_by(Components::blank_with_comments().or_not())
                 .then(self_parser.clone())
-                .then_ignore(Components::blank().or_not())
+                .then_ignore(Components::blank_with_comments().or_not())
                 .then_ignore(just(">"))
                 .map(|(cpp_type, inner_type)| Ty::Set {
                     value: Arc::new(inner_type),
@@ -61,12 +69,20 @@ impl Type {
                 .boxed();
 
             let map_parser = just("map")
-                .ignore_then(Components::blank().ignore_then(CppType::parse()).or_not())
-                .then_ignore(just("<").padded_by(Components::blank().or_not()))
+                .ignore_then(
+                    Components::blank_with_comments()
+                        .ignore_then(CppType::parse())
+                        .or_not(),
+                )
+                .then_ignore(just("<").padded_by(Components::blank_with_comments().or_not()))
                 .then(self_parser.clone())
-                .then_ignore(Components::list_separator().padded_by(Components::blank().or_not()))
+                .then_ignore(Components::blank_with_comments().or_not())
+                .then_ignore(
+                    Components::list_separator()
+                        .padded_by(Components::blank_with_comments().or_not()),
+                )
                 .then(self_parser.clone())
-                .then_ignore(Components::blank().or_not())
+                .then_ignore(Components::blank_with_comments().or_not())
                 .then_ignore(just(">"))
                 .map(|((cpp_type, key_type), value_type)| Ty::Map {
                     key: Arc::new(key_type),
@@ -78,11 +94,7 @@ impl Type {
             let ty_parser = choice((base_ty, list, set, map_parser, Path::parse().map(Ty::Path)));
 
             ty_parser
-                .then(
-                    Annotation::get_parser()
-                        .or_not()
-                        .padded_by(Components::blank().or_not()),
-                )
+                .then(Annotation::get_parser().or_not())
                 .map(|(ty, an)| Type(ty, an.unwrap_or_default()))
                 .boxed()
         })
@@ -99,7 +111,36 @@ mod tests {
     #[test]
     fn test_type() {
         let parser = Type::get_parser();
+
+        let input = "i32";
+        let _res = parser.parse(input).unwrap();
+
         let input = "map<i32, string>";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "list<i32>";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "set<i32>";
+        let _res = parser.parse(input).unwrap();
+    }
+
+    #[test]
+    fn test_type_comment() {
+        let parser = Type::get_parser();
+        let input = "map</* comment */ i32 /* comment */ , string /* comment */ > /* comment */ (go.tag = '1')";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "list</* comment */ i32 /* comment */ > /* comment */ (go.tag = '1')";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "set</* comment */ i32 /* comment */ > /* comment */ (go.tag = '1')";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "i32 /* comment */ (go.tag = '1')";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "string /* comment */ (go.tag = '1')";
         let _res = parser.parse(input).unwrap();
     }
 
