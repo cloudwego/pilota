@@ -8,13 +8,13 @@ use crate::{
 
 impl Annotation {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Annotations, extra::Err<Rich<'a, char>>> {
-        let leading_blank = Components::blank().or_not();
+        let leading_blank = Components::blank_with_comments().or_not();
 
         let key = Ident::ident_with_dot();
         let value = Literal::parse();
 
         let annotation = key
-            .then_ignore(just("=").padded_by(Components::blank().or_not()))
+            .then_ignore(just("=").padded_by(Components::blank_with_comments().or_not()))
             .then(value)
             .map(|(key, value)| Annotation { key, value })
             .then_ignore(Components::blank_with_comments().or_not());
@@ -133,5 +133,19 @@ mod tests {
         assert_eq!(res[2].value.to_string(), "DenseFoo");
         assert_eq!(res[3].key, "java.final");
         assert_eq!(res[3].value.to_string(), "");
+    }
+
+    #[test]
+    fn test_annotation_comment() {
+        let input = r#" // comment
+        ( /* comment */
+            cpp.type /* comment */ = /* comment */ "DenseFoo", // comment
+            python.type = "DenseFoo", // comment
+        // comment
+        )"#;
+        let res = Annotation::get_parser().parse(input).unwrap();
+        assert_eq!(res.len(), 2);
+        assert_eq!(res[0].key, "cpp.type");
+        assert_eq!(res[0].value.to_string(), "DenseFoo");
     }
 }

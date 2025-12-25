@@ -88,6 +88,7 @@ pub struct Builder<MkB, P> {
     with_descriptor: bool,
     with_field_mask: bool,
     temp_dir: Option<tempfile::TempDir>,
+    with_comments: bool,
 }
 
 impl Builder<MkThriftBackend, ThriftParser> {
@@ -111,6 +112,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             with_descriptor: false,
             with_field_mask: false,
             temp_dir: None,
+            with_comments: false,
         }
     }
 }
@@ -155,6 +157,7 @@ impl Builder<MkPbBackend, ProtobufParser> {
             with_descriptor: false,
             with_field_mask: false,
             temp_dir,
+            with_comments: false,
         }
     }
 }
@@ -187,6 +190,7 @@ impl<MkB, P> Builder<MkB, P> {
             with_descriptor: self.with_descriptor,
             with_field_mask: self.with_field_mask,
             temp_dir: self.temp_dir,
+            with_comments: self.with_comments,
         }
     }
 
@@ -259,6 +263,14 @@ impl<MkB, P> Builder<MkB, P> {
         self.with_field_mask = on;
         self
     }
+
+    /**
+     * Generate comments for the generated code
+     */
+    pub fn with_comments(mut self, on: bool) -> Self {
+        self.with_comments = on;
+        self
+    }
 }
 
 pub enum Output {
@@ -319,6 +331,7 @@ where
         split: bool,
         with_descriptor: bool,
         with_field_mask: bool,
+        with_comments: bool,
     ) -> Context {
         parser.inputs(services.iter().map(|s| &s.path));
         let ParseResult {
@@ -409,6 +422,7 @@ where
             with_descriptor,
             with_field_mask,
             !ignore_unused,
+            with_comments,
         )
     }
 
@@ -430,6 +444,7 @@ where
             self.split,
             self.with_descriptor,
             self.with_field_mask,
+            self.with_comments,
         );
 
         cx.exec_plugin(BoxedPlugin);
@@ -517,6 +532,7 @@ where
             self.split,
             self.with_descriptor,
             self.with_field_mask,
+            self.with_comments,
         );
 
         std::thread::scope(|_scope| {

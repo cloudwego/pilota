@@ -93,7 +93,7 @@ mod tests {
                         ) (api.version = "2.5", deprecated = "false")
 
                         }"#,
-        );
+                    ).unwrap();
     }
 
     #[test]

@@ -122,14 +122,22 @@ where
                         ""
                     };
 
-                    let leading_comment = f.leading_comments.to_string();
-                    let trailing_comment = f.trailing_comments.to_string();
+                    if self.config.with_comments {
+                        let leading_comment = f.leading_comments.to_string();
+                        let trailing_comment = f.trailing_comments.to_string();
 
-                    format! {
-                        r#"
+                        format! {
+                            r#"
                         {leading_comment}
                         {attrs}
                         {deprecated_attr}pub {name}: {ty},{trailing_comment}"#
+                        }
+                    } else {
+                        format! {
+                            r#"
+                        {attrs}
+                        {deprecated_attr}pub {name}: {ty},"#
+                        }
                     }
                 })
             })
@@ -151,7 +159,11 @@ where
             ""
         };
 
-        let trailing_comment = s.trailing_comments.to_string();
+        let trailing_comment = if self.config.with_comments {
+            s.trailing_comments.as_str()
+        } else {
+            ""
+        };
 
         stream.push_str(&format! {
             r#"#[derive(Clone, PartialEq)]
@@ -177,14 +189,19 @@ where
                     tracing::trace!("write item {}", item.symbol_name());
 
                     // write leading comments
-                    let comments = match &*item {
-                        middle::rir::Item::Message(s) => s.leading_comments.to_string(),
-                        middle::rir::Item::Enum(e) => e.leading_comments.to_string(),
-                        middle::rir::Item::Service(s) => s.leading_comments.to_string(),
-                        middle::rir::Item::NewType(t) => t.leading_comments.to_string(),
-                        middle::rir::Item::Const(c) => c.leading_comments.to_string(),
-                        _ => String::new(),
+                    let comments = if self.config.with_comments {
+                        match &*item {
+                            middle::rir::Item::Message(s) => s.leading_comments.as_str(),
+                            middle::rir::Item::Enum(e) => e.leading_comments.as_str(),
+                            middle::rir::Item::Service(s) => s.leading_comments.as_str(),
+                            middle::rir::Item::NewType(t) => t.leading_comments.as_str(),
+                            middle::rir::Item::Const(c) => c.leading_comments.as_str(),
+                            _ => "",
+                        }
+                    } else {
+                        ""
                     };
+
                     if !comments.is_empty() {
                         stream.push_str(&format!("\n{comments}\n"));
                     }
@@ -404,7 +421,11 @@ where
                         format!("({fields})")
                     };
 
-                    let leading_comment = v.leading_comments.to_string();
+                    let leading_comment = if self.config.with_comments {
+                        v.leading_comments.as_str()
+                    } else {
+                        ""
+                    };
 
                     format!(
                         r#"{leading_comment}
@@ -418,7 +439,11 @@ where
         if self.cache.keep_unknown_fields.contains(&def_id) && keep {
             variants.push_str("_UnknownFields(::pilota::BytesVec),");
         }
-        let trailing_comment = e.trailing_comments.to_string();
+        let trailing_comment = if self.config.with_comments {
+            e.trailing_comments.as_str()
+        } else {
+            ""
+        };
         stream.push_str(&format! {
             r#"
             #[derive(Clone, PartialEq)]
@@ -625,7 +650,7 @@ where
                 for file_id in mod_files.get(mod_path).unwrap().iter() {
                     let file = this.file(*file_id).unwrap();
                     // 2.1.1 comments
-                    if !file.comments.is_empty() {
+                    if !file.comments.is_empty() && this.config.with_comments {
                         stream.push_str(&format!("\n{}\n", file.comments));
                     }
 

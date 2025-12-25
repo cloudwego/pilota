@@ -29,13 +29,9 @@ impl Function {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then(
-                just("oneway")
-                    .then_ignore(Components::blank_with_comments())
-                    .or_not(),
-            )
+            .then(just("oneway").then_ignore(Components::blank()).or_not())
             .then(Type::get_parser())
-            .then_ignore(Components::blank_with_comments())
+            .then_ignore(Components::blank())
             .then(Ident::get_parser())
             .then_ignore(just("(").padded_by(Components::blank().or_not()))
             .then(fields.clone().or_not())
@@ -97,8 +93,8 @@ mod tests {
             .parse(
                 r#"oneway void pingServer(
                             1: required string(go.tag = 'json:"source_service"') source,
-                            2: optional list<map<i64, set<double>>> nestedDataPoints
-                        ) (api.version = "2.5", deprecated = "false")"#,
+                            2: optional list<map<i64 /* comment */ , set<double>>> nestedDataPoints /* comment */
+                        ) throws (1: ServiceException ex /* comment */) (api.version = "2.5", deprecated = "false")"#,
             )
             .unwrap();
     }
@@ -107,6 +103,17 @@ mod tests {
     fn test_func3() {
         let _f = Function::get_parser()
             .parse(r#"Err test_enum_var_type_name_conflict (1: Request req);"#)
+            .unwrap();
+    }
+
+    #[test]
+    fn test_func_comment() {
+        let _f = Function::get_parser()
+            .parse(r#"// comment
+                        void pingServer( /* comment */
+                            1: required /* comment */ string /* comment */ (go.tag = 'json:"source_service"') source /* comment */,
+                            2: optional list<map<i64 /* comment */ , set<double>>> nestedDataPoints /* comment */
+                        ) /* comment */ (api.version = "2.5", deprecated = "false")"#)
             .unwrap();
     }
 }

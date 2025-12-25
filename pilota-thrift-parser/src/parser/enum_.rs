@@ -15,10 +15,10 @@ impl EnumValue {
             .then_ignore(Components::blank().or_not())
             .then(Ident::get_parser())
             .then(
-                Components::blank()
+                Components::blank_with_comments()
                     .or_not()
                     .ignore_then(just("="))
-                    .ignore_then(Components::blank().or_not())
+                    .ignore_then(Components::blank_with_comments().or_not())
                     .ignore_then(IntConstant::parse())
                     .or_not(),
             )
@@ -114,5 +114,16 @@ mod tests {
 }"#,
             )
             .unwrap();
+    }
+
+    #[test]
+    fn test_enum_comment() {
+        let input = r#"
+        /* comment */ enum /* comment */ Sex /* comment */ {
+            /* comment */ UNKNOWN = 0, // comment
+            /* comment */ MALE = 1, // comment
+            /* comment */ FEMALE = 2, // comment
+        }"#;
+        let _ = Enum::get_parser().parse(input).unwrap();
     }
 }

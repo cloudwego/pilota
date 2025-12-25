@@ -76,6 +76,7 @@ pub struct Config {
     pub with_field_mask: bool,
     pub touch_all: bool,
     pub common_crate_name: FastStr,
+    pub with_comments: bool,
 }
 
 #[derive(Clone)]
@@ -469,6 +470,7 @@ impl ContextBuilder {
         with_descriptor: bool,
         with_field_mask: bool,
         touch_all: bool,
+        with_comments: bool,
     ) -> Context {
         let mode = Arc::new(self.mode);
         SPECIAL_NAMINGS.get_or_init(|| special_namings);
@@ -490,6 +492,7 @@ impl ContextBuilder {
                 with_field_mask,
                 touch_all,
                 common_crate_name,
+                with_comments,
             },
             cache: Cache {
                 adjusts: Default::default(),
@@ -1734,6 +1737,7 @@ mod tests {
                 with_field_mask: false,
                 touch_all: false,
                 common_crate_name: "common".into(),
+                with_comments: false,
             },
             cache: Cache {
                 adjusts: Arc::new(DashMap::default()),

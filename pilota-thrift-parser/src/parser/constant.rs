@@ -197,4 +197,12 @@ mod tests {
         let input = r#"const string aXa1 = "hello""#;
         let _c = Constant::get_parser().parse(input).unwrap();
     }
+
+    #[test]
+    fn test_constant_comment() {
+        let input = r#"
+        /* comment */ const /* comment */ string /* comment */ aXa1 = /* comment */ "hello" // comment
+        "#;
+        let _c = Constant::get_parser().parse(input).unwrap();
+    }
 }

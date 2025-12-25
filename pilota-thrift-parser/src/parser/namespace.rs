@@ -11,8 +11,9 @@ impl Namespace {
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
             .then_ignore(just("namespace"))
-            .then_ignore(Components::blank_with_comments())
-            .then(Scope::parse().padded_by(Components::blank()))
+            .then_ignore(Components::blank())
+            .then(Scope::parse())
+            .then_ignore(Components::blank())
             .then(Path::parse())
             .then(Annotation::get_parser().or_not())
             .then_ignore(Components::list_separator().or_not())
@@ -57,5 +58,13 @@ mod tests {
         let _ = Namespace::get_parser()
             .parse("namespace py.twisted ThriftTest")
             .unwrap();
+    }
+
+    #[test]
+    fn test_namespace_comment() {
+        let input = r#"
+        /* comment */ namespace * foo.bar // comment
+        "#;
+        let _ = Namespace::get_parser().parse(input).unwrap();
     }
 }

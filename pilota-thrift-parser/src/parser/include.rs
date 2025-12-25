@@ -13,8 +13,7 @@ impl Include {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then_ignore(just("include"))
-            .then_ignore(Components::blank_with_comments())
+            .then_ignore(just("include").padded_by(Components::blank().or_not()))
             .then(Literal::parse())
             .then_ignore(Components::list_separator().or_not())
             .then(Components::trailing_comment().or_not())
@@ -33,8 +32,7 @@ impl CppInclude {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then_ignore(just("cpp_include"))
-            .then_ignore(Components::blank())
+            .then_ignore(just("cpp_include").padded_by(Components::blank().or_not()))
             .then(Literal::parse())
             .then_ignore(Components::list_separator().or_not())
             .then(Components::trailing_comment().or_not())
@@ -63,6 +61,26 @@ mod tests {
     fn test_cpp_include() {
         let _f = CppInclude::parse()
             .parse(r#"cpp_include "shared.thrift""#)
+            .unwrap();
+    }
+
+    #[test]
+    fn test_include_comment() {
+        let _f = Include::get_parser()
+            .parse(
+                r#"// comment
+                        include "shared.thrift" // comment"#,
+            )
+            .unwrap();
+    }
+
+    #[test]
+    fn test_cpp_include_comment() {
+        let _f = CppInclude::parse()
+            .parse(
+                r#"// comment
+                        cpp_include "shared.thrift" // comment"#,
+            )
             .unwrap();
     }
 }
