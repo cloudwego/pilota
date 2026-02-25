@@ -24,7 +24,7 @@ jobs:
       - run: exit 0
 
   test-linux:
-    runs-on: [self-hosted, Linux, amd64]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4

@@ -1,8 +1,25 @@
 use std::collections::BTreeMap;
+use std::path::{Component, PathBuf};
 
 use ahash::AHashMap;
 use descriptor::thrift_reflection::ConstValueType;
 use pilota::{FastStr, OrderedFloat};
+
+fn normalize_path(path: &std::path::Path) -> PathBuf {
+    let mut normalized = PathBuf::new();
+    for component in path.components() {
+        match component {
+            Component::CurDir => {}
+            Component::ParentDir => {
+                normalized.pop();
+            }
+            _ => {
+                normalized.push(component);
+            }
+        }
+    }
+    normalized
+}
 
 include!("descriptor.rs");
 pub use descriptor::*;
@@ -88,11 +105,13 @@ impl From<&pilota_thrift_parser::File> for thrift_reflection::FileDescriptor {
         for item in file.items.iter() {
             match item {
                 pilota_thrift_parser::Item::Include(include) => {
-                    let include_path = file
-                        .path
-                        .parent()
-                        .unwrap_or_else(|| std::path::Path::new(""))
-                        .join(include.path.0.as_str()); // relative path -> absolute path
+                    let include_path = normalize_path(
+                        &file
+                            .path
+                            .parent()
+                            .unwrap_or_else(|| std::path::Path::new(""))
+                            .join(include.path.0.as_str()),
+                    );
 
                     includes.insert(
                         FastStr::new(
@@ -538,5 +557,106 @@ impl From<(FastStr, &pilota_thrift_parser::Exception)> for thrift_reflection::St
             annotations: Annotations::from(&exception.annotations).0,
             ..Default::default()
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_normalize_path_basic() {
+        assert_eq!(
+            normalize_path(std::path::Path::new("/a/b/c.thrift")),
+            std::path::PathBuf::from("/a/b/c.thrift")
+        );
+    }
+
+    #[test]
+    fn test_normalize_path_with_dot() {
+        assert_eq!(
+            normalize_path(std::path::Path::new("/a/./b/c.thrift")),
+            std::path::PathBuf::from("/a/b/c.thrift")
+        );
+    }
+
+    #[test]
+    fn test_normalize_path_with_double_dot() {
+        assert_eq!(
+            normalize_path(std::path::Path::new("/a/b/../c.thrift")),
+            std::path::PathBuf::from("/a/c.thrift")
+        );
+    }
+
+    #[test]
+    fn test_normalize_path_with_multiple_double_dots() {
+        assert_eq!(
+            normalize_path(std::path::Path::new("/a/b/c/../../d.thrift")),
+            std::path::PathBuf::from("/a/d.thrift")
+        );
+    }
+
+    #[test]
+    fn test_normalize_path_with_mixed_dots() {
+        assert_eq!(
+            normalize_path(std::path::Path::new("/a/./b/../c/./d.thrift")),
+            std::path::PathBuf::from("/a/c/d.thrift")
+        );
+    }
+
+    #[test]
+    fn test_normalize_path_empty_path() {
+        assert_eq!(
+            normalize_path(std::path::Path::new("")),
+            std::path::PathBuf::from("")
+        );
+    }
+
+    #[test]
+    fn test_normalize_path_only_dot() {
+        assert_eq!(
+            normalize_path(std::path::Path::new(".")),
+            std::path::PathBuf::from("")
+        );
+    }
+
+    #[test]
+    fn test_normalize_path_only_double_dot() {
+        assert_eq!(
+            normalize_path(std::path::Path::new("..")),
+            std::path::PathBuf::from("")
+        );
+    }
+
+    #[test]
+    fn test_normalize_path_double_dot_at_root() {
+        assert_eq!(
+            normalize_path(std::path::Path::new("/../a.thrift")),
+            std::path::PathBuf::from("/a.thrift")
+        );
+    }
+
+    #[test]
+    fn test_normalize_path_relative_path() {
+        assert_eq!(
+            normalize_path(std::path::Path::new("a/b/../c.thrift")),
+            std::path::PathBuf::from("a/c.thrift")
+        );
+    }
+
+    #[test]
+    fn test_normalize_path_consecutive_double_dots() {
+        assert_eq!(
+            normalize_path(std::path::Path::new("/a/b/c/../../../d.thrift")),
+            std::path::PathBuf::from("/d.thrift")
+        );
+    }
+
+    #[test]
+    fn test_normalize_path_multiple_dots_in_sequence() {
+        assert_eq!(
+            normalize_path(std::path::Path::new("/a/././b/./c.thrift")),
+            std::path::PathBuf::from("/a/b/c.thrift")
+        );
     }
 }

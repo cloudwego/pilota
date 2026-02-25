@@ -227,7 +227,7 @@ impl ThriftBackend {
                 __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
                     key_type: {key_ttype},
                     value_type: {val_ttype},
-                    size: {ident}.keys().filter(|key| map_fm.str(key).1).count(),
+                    size: ({ident}).keys().filter(|key| map_fm.str(key).1).count(),
                 }})?;
                 for (key, val) in {ident} {{
                     let (item_fm, exist) = map_fm.str(key.as_str());
@@ -515,7 +515,7 @@ impl ThriftBackend {
                 __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
                     key_type: {key_ttype},
                     value_type: {val_ttype},
-                    size: {ident}.keys().filter(|key| map_fm.str(key).1).count(),
+                    size: ({ident}).keys().filter(|key| map_fm.str(key).1).count(),
                 }})?;
                 for (key, val) in {ident} {{
                     let (item_fm, is_exist) = map_fm.str(key);
@@ -559,7 +559,7 @@ impl ThriftBackend {
                 __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
                     key_type: {key_ttype},
                     value_type: {val_ttype},
-                    size: {ident}.keys().filter(|key| map_fm.int(**key as i32).1).count(),
+                    size: ({ident}).keys().filter(|key| map_fm.int(**key as i32).1).count(),
                 }})?;
                 for (key, val) in {ident} {{
                     let (item_fm, is_exist) = map_fm.int(*key as i32);
