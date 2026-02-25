@@ -1408,7 +1408,11 @@ impl Context {
                     })
                     .try_collect()?;
                 let is_const = fields.iter().all(|(_, is_const)| *is_const);
-                let fields = fields.into_iter().map(|f| f.0).join(",");
+                let mut fields = fields.into_iter().map(|f| f.0).collect::<Vec<_>>();
+                if !def.is_wrapper && self.config.with_field_mask {
+                    fields.push("_field_mask: ::std::option::Option::None".to_string());
+                }
+                let fields = fields.join(",");
 
                 let name = self.cur_related_item_path(*did);
 

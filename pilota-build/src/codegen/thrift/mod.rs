@@ -1092,8 +1092,10 @@ static FILE_DESCRIPTOR_{filename_upper}: ::std::sync::LazyLock<::pilota_thrift_r
         if ::pilota_thrift_reflect::service::Register::contains(path) {{
             continue;
         }}
-        let include_file_descriptor =
-            {super_mod}find_mod_file_descriptor(path).expect("include file descriptor must exist");
+        let include_file_descriptor = match {super_mod}find_mod_file_descriptor(path) {{
+            Some(fd) => fd,
+            None => panic!("include file descriptor must exist, path: {{}}", path),
+        }};
         ::pilota_thrift_reflect::service::Register::register(
             include_file_descriptor.filepath.clone(),
             include_file_descriptor.clone(),
