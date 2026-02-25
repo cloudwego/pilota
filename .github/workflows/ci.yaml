@@ -42,7 +42,7 @@ jobs:
           cargo test --doc --workspace
 
   test-linux-aarch64:
-    runs-on: [self-hosted, Linux, aarch64]
+    runs-on: ubuntu-24.04-arm
 
     steps:
       - uses: actions/checkout@v4
@@ -60,7 +60,7 @@ jobs:
           cargo test --doc --workspace
 
   test-macos:
-    runs-on: [self-hosted, macOS]
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -78,7 +78,7 @@ jobs:
           cargo test --doc --workspace
 
   test-windows:
-    runs-on: [self-hosted, Windows]
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -96,7 +96,7 @@ jobs:
           cargo test --doc --workspace
 
   lint:
-    runs-on: [self-hosted, Linux, amd64]
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -116,7 +116,7 @@ jobs:
         run: |
           cargo fmt -- --check
   coverage:
-    runs-on: [self-hosted, Linux, amd64]
+    runs-on: ubuntu-latest
     timeout-minutes: 40
     permissions:
       contents: read
