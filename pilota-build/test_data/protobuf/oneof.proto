@@ -19,3 +19,62 @@ message Test {
     }
     optional Enum e = 10;
 }
+
+message A {
+  oneof b {
+    NoneValue none_value = 1;
+    double float64_value = 11;
+    sint64 int64_value = 12;
+    string string_value = 13;
+    bool bool_value = 14;
+    C c = 33;
+    D d = 34;
+    E e = 35;
+    ListValue list_value = 51;
+    TupleValue tuple_value = 52;
+    DictValue dict_value = 53;
+    NamedTupleValue named_tuple_value = 54;
+  }
+}
+
+message NoneValue {}
+
+message ListValue {
+  repeated A values = 1;
+}
+
+message TupleValue {
+  repeated A values = 1;
+}
+
+message DictValue {
+  map<string, A> fields = 1;
+}
+
+message PairValue {
+  string key = 1;
+  A value = 2;
+}
+
+message NamedTupleValue {
+  string name = 1;
+  repeated PairValue values = 2;
+}
+
+message C {
+  string name = 1;
+}
+
+message E {
+  string name = 1;
+}
+
+message D {
+  enum F {
+    UNKNOWN = 0;
+  }
+  F type_spec_class = 1;
+  A a = 2;
+  string name = 3;
+  int32 num = 4;
+}

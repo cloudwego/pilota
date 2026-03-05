@@ -192,7 +192,7 @@ pub mod nested {
                         2 | 3 => {
                             let mut _inner_pilota_value = &mut self.contact_info;
                             contact::ContactInfo::merge(
-                                &mut _inner_pilota_value,
+                                _inner_pilota_value,
                                 tag,
                                 wire_type,
                                 buf,
