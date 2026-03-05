@@ -385,7 +385,7 @@ impl ProtobufBackend {
                     };
 
                     let path = self.cx.cur_related_item_path(did);
-                    format!("{path}::merge(&mut {ident}, tag, wire_type, buf, ctx)").into()
+                    format!("{path}::merge({ident}, tag, wire_type, buf, ctx)").into()
                 } else {
                     let module = self.ty_module(ty);
                     let merge_fn = format!("::pilota::pb::encoding::{module}::{merge_fn}");
@@ -680,6 +680,7 @@ impl CodegenBackend for ProtobufBackend {
             return;
         }
         let name = self.cx.rust_name(def_id);
+        let is_cycled = self.cx.db.type_graph().is_cycled(def_id);
 
         let encoded_len = e
             .variants
@@ -711,16 +712,47 @@ impl CodegenBackend for ProtobufBackend {
             })
             .join(",");
 
-        let merge = e.variants.iter().map(|variant| {
-            let tag = variant.id.unwrap() as u32;
-            let variant_name = self.cx.rust_name(variant.did);
-            let merge = self.codegen_merge_field(
-                "value".into(),
-                variant.fields.first().unwrap(),
-                FieldKind::Required,
-            );
-            format! {
-                r#"{tag} => {{
+        let merge = e
+            .variants
+            .iter()
+            .map(|variant| {
+                let tag = variant.id.unwrap() as u32;
+                let variant_name = self.cx.rust_name(variant.did);
+                let merge = self.codegen_merge_field(
+                    "value".into(),
+                    variant.fields.first().unwrap(),
+                    FieldKind::Required,
+                );
+
+                if is_cycled {
+                    format! {
+                        r#"{tag} => {{
+                    match field.as_mut() {{
+                        ::core::option::Option::Some(boxed) => {{
+                            match &mut **boxed {{
+                                {name}::{variant_name}(value) => {{
+                                    {merge}?;
+                                }},
+                                _ => {{
+                                    let mut owned_value = ::core::default::Default::default();
+                                    let value = &mut owned_value;
+                                    {merge}?;
+                                    **boxed = {name}::{variant_name}(owned_value);
+                                }},
+                            }}
+                        }},
+                        ::core::option::Option::None => {{
+                            let mut owned_value = ::core::default::Default::default();
+                            let value = &mut owned_value;
+                            {merge}?;
+                            *field = ::core::option::Option::Some(::std::boxed::Box::new({name}::{variant_name}(owned_value)));
+                        }},
+                    }}
+                }},"#
+                    }
+                } else {
+                    format! {
+                        r#"{tag} => {{
                     match field {{
                         ::core::option::Option::Some({name}::{variant_name}(value)) => {{
                             {merge}?;
@@ -733,8 +765,10 @@ impl CodegenBackend for ProtobufBackend {
                         }},
                     }}
                 }},"#
-            }
-        }).join("");
+                    }
+                }
+            })
+            .join("");
 
         let file_id = self.cx.node(def_id).unwrap().file_id;
         let mut getter_impl = String::new();
@@ -760,6 +794,12 @@ impl CodegenBackend for ProtobufBackend {
             }
         }
 
+        let merge_param_type = if is_cycled {
+            "::core::option::Option<::std::boxed::Box<Self>>"
+        } else {
+            "::core::option::Option<Self>"
+        };
+
         stream.push_str(&format! {
             r#"
 
@@ -781,7 +821,7 @@ impl CodegenBackend for ProtobufBackend {
 
                 #[inline]
                 pub fn merge(
-                    field: &mut ::core::option::Option<Self>,
+                    field: &mut {merge_param_type},
                     tag: u32,
                     wire_type: ::pilota::pb::encoding::WireType,
                     buf: &mut ::pilota::Bytes,
