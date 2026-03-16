@@ -152,9 +152,9 @@ impl TypeDescriptor {
         let ty = self.name.as_str().into();
         match ty {
             ThriftType::Path(path) => {
-                println!("path: {}", path);
-                println!("self.filepath: {}", self.filepath);
-                println!("Register: {:?}", GLOBAL_DESCRIPTOR);
+                tracing::trace!("path: {}", path);
+                tracing::trace!("self.filepath: {}", self.filepath);
+                tracing::trace!("Register: {:?}", GLOBAL_DESCRIPTOR);
                 let cur_file_desc = Register::get(self.filepath.as_str()).unwrap();
                 let include_path = IncludePath::try_from(path.as_str()).unwrap();
 
