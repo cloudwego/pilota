@@ -57,7 +57,29 @@ impl ProtobufBackend {
         matches!(ty_ref.kind, ty::TyKind::Arc(_))
     }
 
-    fn codegen_encoded_len(&self, ident: FastStr, ty: &Ty, id: u32, kind: FieldKind) -> FastStr {
+    #[inline]
+    fn is_proto3(&self, file_id: crate::symbol::FileId) -> bool {
+        if let Some(f) = self.cx.files().get(&file_id) {
+            // The descriptor bytes are produced by `protobuf` crate's `write_to_bytes`.
+            // Parse them back to check syntax.
+            if let Ok(fd) = <::protobuf::descriptor::FileDescriptorProto as ::protobuf::Message>::parse_from_bytes(
+                f.descriptor.as_ref(),
+            ) {
+                return fd.syntax() == "proto3";
+            }
+        }
+        // Default to proto3 if unknown to prefer smaller encoding behavior.
+        true
+    }
+
+    fn codegen_encoded_len(
+        &self,
+        ident: FastStr,
+        ty: &Ty,
+        id: u32,
+        kind: FieldKind,
+        is_proto3: bool,
+    ) -> FastStr {
         let category = self.ty_category(ty);
 
         let tag = id;
@@ -65,8 +87,45 @@ impl ProtobufBackend {
         match category {
             Category::Scalar => {
                 let encoded_len_fn = match ty.kind {
-                    ty::TyKind::Vec(_) => quote!(encoded_len_repeated),
-                    _ => quote!(encoded_len),
+                    ty::TyKind::Vec(_) => {
+                        // Choose packed for numeric/bool/enum types in proto3
+                        let module_ident = self.ty_module(ty);
+                        let module_str = module_ident.to_string();
+                        let packable = matches!(
+                            module_str.as_str(),
+                            "bool"
+                                | "int32"
+                                | "int64"
+                                | "uint32"
+                                | "uint64"
+                                | "sint32"
+                                | "sint64"
+                                | "fixed32"
+                                | "fixed64"
+                                | "sfixed32"
+                                | "sfixed64"
+                                | "float"
+                                | "double"
+                        );
+                        if packable && is_proto3 {
+                            // Special case for int32: we may need a generic convert variant to support enums.
+                            if module_str == "int32" {
+                                quote!(encoded_len_packed_convert)
+                            } else {
+                                quote!(encoded_len_packed)
+                            }
+                        } else {
+                            quote!(encoded_len_repeated)
+                        }
+                    }
+                    _ => {
+                        // For singular scalars in proto3, skip default values.
+                        if is_proto3 {
+                            quote!(encoded_len_if_not_default)
+                        } else {
+                            quote!(encoded_len)
+                        }
+                    }
                 };
 
                 let module = self.ty_module(ty);
@@ -247,7 +306,14 @@ impl ProtobufBackend {
         )
     }
 
-    fn codegen_encode(&self, ident: FastStr, ty: &Ty, id: u32, kind: FieldKind) -> FastStr {
+    fn codegen_encode(
+        &self,
+        ident: FastStr,
+        ty: &Ty,
+        id: u32,
+        kind: FieldKind,
+        is_proto3: bool,
+    ) -> FastStr {
         let category = self.ty_category(ty);
 
         let tag = id;
@@ -255,8 +321,42 @@ impl ProtobufBackend {
         match category {
             Category::Scalar => {
                 let encode_fn = match ty.kind {
-                    ty::TyKind::Vec(_) => quote!(encode_repeated),
-                    _ => quote!(encode),
+                    ty::TyKind::Vec(_) => {
+                        let module_ident = self.ty_module(ty);
+                        let module_str = module_ident.to_string();
+                        let packable = matches!(
+                            module_str.as_str(),
+                            "bool"
+                                | "int32"
+                                | "int64"
+                                | "uint32"
+                                | "uint64"
+                                | "sint32"
+                                | "sint64"
+                                | "fixed32"
+                                | "fixed64"
+                                | "sfixed32"
+                                | "sfixed64"
+                                | "float"
+                                | "double"
+                        );
+                        if packable && is_proto3 {
+                            if module_str == "int32" {
+                                quote!(encode_packed_convert)
+                            } else {
+                                quote!(encode_packed)
+                            }
+                        } else {
+                            quote!(encode_repeated)
+                        }
+                    }
+                    _ => {
+                        if is_proto3 {
+                            quote!(encode_if_not_default)
+                        } else {
+                            quote!(encode)
+                        }
+                    }
                 };
 
                 let module = self.ty_module(ty);
@@ -434,6 +534,10 @@ impl CodegenBackend for ProtobufBackend {
                     &field.ty,
                     field.id as u32,
                     field.kind,
+                    {
+                        let file_id = self.cx.node(def_id).unwrap().file_id;
+                        self.is_proto3(file_id)
+                    },
                 );
                 FastStr::from(format!("+ {len}"))
             })
@@ -454,6 +558,10 @@ impl CodegenBackend for ProtobufBackend {
                     &field.ty,
                     field.id as u32,
                     field.kind,
+                    {
+                        let file_id = self.cx.node(def_id).unwrap().file_id;
+                        self.is_proto3(file_id)
+                    },
                 )
             })
             .join("");
@@ -691,6 +799,10 @@ impl CodegenBackend for ProtobufBackend {
                     variant.fields.first().unwrap(),
                     variant.id.unwrap() as u32,
                     FieldKind::Required,
+                    {
+                        let file_id = self.cx.node(def_id).unwrap().file_id;
+                        self.is_proto3(file_id)
+                    },
                 );
                 let variant_name = self.cx.rust_name(variant.did);
                 format!("{name}::{variant_name}(value) => {encoded_len}")
@@ -706,6 +818,10 @@ impl CodegenBackend for ProtobufBackend {
                     variant.fields.first().unwrap(),
                     variant.id.unwrap() as u32,
                     FieldKind::Required,
+                    {
+                        let file_id = self.cx.node(def_id).unwrap().file_id;
+                        self.is_proto3(file_id)
+                    },
                 );
                 let variant_name = self.cx.rust_name(variant.did);
                 format!("{name}::{variant_name}(value) => {{ {encode} }}")
