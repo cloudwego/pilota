@@ -2405,78 +2405,152 @@ mod test {
         (Vec<u8>, bytes)
     ]);
 
-    #[cfg(not(feature = "pb-encode-default-value"))]
     #[test]
     fn skip_default_scalar_int32() {
         let mut ctx = EncodeLengthContext::default();
-        assert_eq!(int32::encoded_len_if_not_default(&mut ctx, 1, &0i32), 0);
-        assert_ne!(int32::encoded_len_if_not_default(&mut ctx, 1, &1i32), 0);
+        let l0 = int32::encoded_len_if_not_default(&mut ctx, 1, &0i32);
+        let l1 = int32::encoded_len_if_not_default(&mut ctx, 1, &1i32);
+        if cfg!(feature = "pb-encode-default-value") {
+            assert_ne!(l0, 0);
+        } else {
+            assert_eq!(l0, 0);
+        }
+        assert_ne!(l1, 0);
     }
 
-    #[cfg(not(feature = "pb-encode-default-value"))]
     #[test]
     fn skip_default_string() {
         let mut ctx = EncodeLengthContext::default();
         let s = String::new();
-        assert_eq!(string::encoded_len_if_not_default(&mut ctx, 1, &s), 0);
+        let l0 = string::encoded_len_if_not_default(&mut ctx, 1, &s);
         let s2 = "x".to_string();
-        assert_ne!(string::encoded_len_if_not_default(&mut ctx, 1, &s2), 0);
+        let l1 = string::encoded_len_if_not_default(&mut ctx, 1, &s2);
+        if cfg!(feature = "pb-encode-default-value") {
+            assert_ne!(l0, 0);
+        } else {
+            assert_eq!(l0, 0);
+        }
+        assert_ne!(l1, 0);
     }
 
-    #[cfg(not(feature = "pb-encode-default-value"))]
     #[test]
     fn faststr_if_not_default_len() {
         let mut ctx = EncodeLengthContext::default();
-        let e = ::faststr::FastStr::new();
-        assert_eq!(faststr::encoded_len_if_not_default(&mut ctx, 1, &e), 0);
+        let e = ::faststr::FastStr::from("");
+        let l0 = faststr::encoded_len_if_not_default(&mut ctx, 1, &e);
         let n = ::faststr::FastStr::from("x");
-        assert_ne!(faststr::encoded_len_if_not_default(&mut ctx, 1, &n), 0);
+        let l1 = faststr::encoded_len_if_not_default(&mut ctx, 1, &n);
+        if cfg!(feature = "pb-encode-default-value") {
+            assert_ne!(l0, 0);
+        } else {
+            assert_eq!(l0, 0);
+        }
+        assert_ne!(l1, 0);
     }
 
-    #[cfg(not(feature = "pb-encode-default-value"))]
     #[test]
     fn faststr_if_not_default_encode() {
         let mut buf = LinkedBytes::new();
-        let e = ::faststr::FastStr::new();
+        let e = ::faststr::FastStr::from("");
         faststr::encode_if_not_default(1, &e, &mut buf);
-        assert_eq!(buf.len(), 0);
+        if cfg!(feature = "pb-encode-default-value") {
+            assert!(buf.len() > 0);
+        } else {
+            assert_eq!(buf.len(), 0);
+        }
         let mut buf2 = LinkedBytes::new();
         let n = ::faststr::FastStr::from("x");
         faststr::encode_if_not_default(1, &n, &mut buf2);
         assert!(buf2.len() > 0);
     }
 
-    #[cfg(not(feature = "pb-encode-default-value"))]
     #[test]
     fn bytes_if_not_default_len() {
         let mut ctx = EncodeLengthContext::default();
         let e = Bytes::new();
-        assert_eq!(bytes::encoded_len_if_not_default(&mut ctx, 1, &e), 0);
+        let l0 = bytes::encoded_len_if_not_default(&mut ctx, 1, &e);
         let n = Bytes::from_static(b"x");
-        assert_ne!(bytes::encoded_len_if_not_default(&mut ctx, 1, &n), 0);
+        let l1 = bytes::encoded_len_if_not_default(&mut ctx, 1, &n);
+        if cfg!(feature = "pb-encode-default-value") {
+            assert_ne!(l0, 0);
+        } else {
+            assert_eq!(l0, 0);
+        }
+        assert_ne!(l1, 0);
     }
 
-    #[cfg(not(feature = "pb-encode-default-value"))]
     #[test]
     fn bytes_if_not_default_encode() {
         let mut buf = LinkedBytes::new();
         let e = Bytes::new();
         bytes::encode_if_not_default(1, &e, &mut buf);
-        assert_eq!(buf.len(), 0);
+        if cfg!(feature = "pb-encode-default-value") {
+            assert!(buf.len() > 0);
+        } else {
+            assert_eq!(buf.len(), 0);
+        }
         let mut buf2 = LinkedBytes::new();
         let n = Bytes::from_static(b"x");
         bytes::encode_if_not_default(1, &n, &mut buf2);
         assert!(buf2.len() > 0);
     }
 
-    #[cfg(not(feature = "pb-encode-default-value"))]
     #[test]
     fn skip_default_scalar_int32_encode() {
         let mut buf = LinkedBytes::new();
         int32::encode_if_not_default(1, &0i32, &mut buf);
-        assert_eq!(buf.len(), 0);
+        if cfg!(feature = "pb-encode-default-value") {
+            assert!(buf.len() > 0);
+        } else {
+            assert_eq!(buf.len(), 0);
+        }
         let mut buf2 = LinkedBytes::new();
         int32::encode_if_not_default(1, &1i32, &mut buf2);
         assert!(buf2.len() > 0);
     }
+
+    macro_rules! gen_skip_default_numeric_tests {
+        ($mod:ident, $ty:ty, $zero:expr, $nonzero:expr, $tmod:ident) => {
+            mod $tmod {
+                use super::*;
+                #[test]
+                fn len() {
+                    let mut ctx = EncodeLengthContext::default();
+                    let l0 = super::super::$mod::encoded_len_if_not_default(&mut ctx, 1, &$zero);
+                    let l1 = super::super::$mod::encoded_len_if_not_default(&mut ctx, 1, &$nonzero);
+                    if cfg!(feature = "pb-encode-default-value") {
+                        assert_ne!(l0, 0);
+                    } else {
+                        assert_eq!(l0, 0);
+                    }
+                    assert_ne!(l1, 0);
+                }
+                #[test]
+                fn encode() {
+                    let mut buf = LinkedBytes::new();
+                    super::super::$mod::encode_if_not_default(1, &$zero, &mut buf);
+                    if cfg!(feature = "pb-encode-default-value") {
+                        assert!(buf.len() > 0);
+                    } else {
+                        assert_eq!(buf.len(), 0);
+                    }
+                    let mut buf2 = LinkedBytes::new();
+                    super::super::$mod::encode_if_not_default(1, &$nonzero, &mut buf2);
+                    assert!(buf2.len() > 0);
+                }
+            }
+        };
+    }
+
+    gen_skip_default_numeric_tests!(int64, i64, 0i64, 1i64, int64_tests);
+    gen_skip_default_numeric_tests!(uint32, u32, 0u32, 1u32, uint32_tests);
+    gen_skip_default_numeric_tests!(uint64, u64, 0u64, 1u64, uint64_tests);
+    gen_skip_default_numeric_tests!(sint32, i32, 0i32, 1i32, sint32_tests);
+    gen_skip_default_numeric_tests!(sint64, i64, 0i64, 1i64, sint64_tests);
+    gen_skip_default_numeric_tests!(fixed32, u32, 0u32, 1u32, fixed32_tests);
+    gen_skip_default_numeric_tests!(fixed64, u64, 0u64, 1u64, fixed64_tests);
+    gen_skip_default_numeric_tests!(sfixed32, i32, 0i32, 1i32, sfixed32_tests);
+    gen_skip_default_numeric_tests!(sfixed64, i64, 0i64, 1i64, sfixed64_tests);
+    gen_skip_default_numeric_tests!(float, f32, 0f32, 1f32, float_tests);
+    gen_skip_default_numeric_tests!(double, f64, 0f64, 1f64, double_tests);
 }
