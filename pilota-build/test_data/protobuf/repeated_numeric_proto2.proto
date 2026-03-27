@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+package cov2;
+
+message RepeatedNumeric2 {
+  repeated int32 v_int32 = 1;
+  repeated float v_float = 2;
+}
+
