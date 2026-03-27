@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package covnp;
+
+message RepeatedNonPackable {
+  repeated string v_str = 1;
+  repeated bytes v_bytes = 2;
+}
+

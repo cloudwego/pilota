@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package cov;
+
+enum E {
+  E0 = 0;
+  E1 = 1;
+}
+
+message RepeatedNumeric {
+  repeated int32 v_int32 = 1;
+  repeated float v_float = 2;
+  repeated uint64 v_u64 = 3;
+  repeated E v_enum = 4;
+}
+
