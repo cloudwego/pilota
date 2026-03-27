@@ -2422,4 +2422,61 @@ mod test {
         let s2 = "x".to_string();
         assert_ne!(string::encoded_len_if_not_default(&mut ctx, 1, &s2), 0);
     }
+
+    #[cfg(not(feature = "pb-encode-default-value"))]
+    #[test]
+    fn faststr_if_not_default_len() {
+        let mut ctx = EncodeLengthContext::default();
+        let e = ::faststr::FastStr::new();
+        assert_eq!(faststr::encoded_len_if_not_default(&mut ctx, 1, &e), 0);
+        let n = ::faststr::FastStr::from("x");
+        assert_ne!(faststr::encoded_len_if_not_default(&mut ctx, 1, &n), 0);
+    }
+
+    #[cfg(not(feature = "pb-encode-default-value"))]
+    #[test]
+    fn faststr_if_not_default_encode() {
+        let mut buf = LinkedBytes::new();
+        let e = ::faststr::FastStr::new();
+        faststr::encode_if_not_default(1, &e, &mut buf);
+        assert_eq!(buf.len(), 0);
+        let mut buf2 = LinkedBytes::new();
+        let n = ::faststr::FastStr::from("x");
+        faststr::encode_if_not_default(1, &n, &mut buf2);
+        assert!(buf2.len() > 0);
+    }
+
+    #[cfg(not(feature = "pb-encode-default-value"))]
+    #[test]
+    fn bytes_if_not_default_len() {
+        let mut ctx = EncodeLengthContext::default();
+        let e = Bytes::new();
+        assert_eq!(bytes::encoded_len_if_not_default(&mut ctx, 1, &e), 0);
+        let n = Bytes::from_static(b"x");
+        assert_ne!(bytes::encoded_len_if_not_default(&mut ctx, 1, &n), 0);
+    }
+
+    #[cfg(not(feature = "pb-encode-default-value"))]
+    #[test]
+    fn bytes_if_not_default_encode() {
+        let mut buf = LinkedBytes::new();
+        let e = Bytes::new();
+        bytes::encode_if_not_default(1, &e, &mut buf);
+        assert_eq!(buf.len(), 0);
+        let mut buf2 = LinkedBytes::new();
+        let n = Bytes::from_static(b"x");
+        bytes::encode_if_not_default(1, &n, &mut buf2);
+        assert!(buf2.len() > 0);
+    }
+
+    #[cfg(not(feature = "pb-encode-default-value"))]
+    #[test]
+    fn skip_default_scalar_int32_encode() {
+        let mut buf = LinkedBytes::new();
+        int32::encode_if_not_default(1, &0i32, &mut buf);
+        assert_eq!(buf.len(), 0);
+        let mut buf2 = LinkedBytes::new();
+        int32::encode_if_not_default(1, &1i32, &mut buf2);
+        assert!(buf2.len() > 0);
+    }
 }
