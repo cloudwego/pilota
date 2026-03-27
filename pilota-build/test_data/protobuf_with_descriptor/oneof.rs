@@ -46,12 +46,12 @@ pub mod oneof {
         impl ::pilota::pb::Message for UserContact {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.name)
+                0 + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 1, &self.name)
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                ::pilota::pb::encoding::faststr::encode(1, &self.name, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(1, &self.name, buf);
             }
 
             #[allow(unused_variables)]
@@ -173,10 +173,14 @@ pub mod oneof {
                     pub fn encode(&self, buf: &mut ::pilota::LinkedBytes) {
                         match self {
                             ContactInfo::Email(value) => {
-                                ::pilota::pb::encoding::faststr::encode(2, &*value, buf);
+                                ::pilota::pb::encoding::faststr::encode_if_not_default(
+                                    2, &*value, buf,
+                                );
                             }
                             ContactInfo::Phone(value) => {
-                                ::pilota::pb::encoding::faststr::encode(3, &*value, buf);
+                                ::pilota::pb::encoding::faststr::encode_if_not_default(
+                                    3, &*value, buf,
+                                );
                             }
                         }
                     }
@@ -188,10 +192,14 @@ pub mod oneof {
                     ) -> usize {
                         match self {
                             ContactInfo::Email(value) => {
-                                ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &*value)
+                                ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
+                                    ctx, 2, &*value,
+                                )
                             }
                             ContactInfo::Phone(value) => {
-                                ::pilota::pb::encoding::faststr::encoded_len(ctx, 3, &*value)
+                                ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
+                                    ctx, 3, &*value,
+                                )
                             }
                         }
                     }

@@ -8,12 +8,12 @@ pub mod normal {
     impl ::pilota::pb::Message for A {
         #[inline]
         fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-            0 + ::pilota::pb::encoding::int32::encoded_len(ctx, 1, &self.a)
+            0 + ::pilota::pb::encoding::int32::encoded_len_if_not_default(ctx, 1, &self.a)
         }
 
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-            ::pilota::pb::encoding::int32::encode(1, &self.a, buf);
+            ::pilota::pb::encoding::int32::encode_if_not_default(1, &self.a, buf);
         }
 
         #[allow(unused_variables)]
@@ -48,14 +48,14 @@ pub mod normal {
         #[inline]
         fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
             0 + self.value.as_ref().map_or(0, |value| {
-                ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, value)
+                ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 2, value)
             })
         }
 
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
             if let Some(_pilota_inner_value) = self.value.as_ref() {
-                ::pilota::pb::encoding::faststr::encode(2, _pilota_inner_value, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(2, _pilota_inner_value, buf);
             };
         }
 
@@ -112,9 +112,13 @@ pub mod normal {
             }) + ::pilota::pb::encoding::message::encoded_len_repeated(ctx, 2, &self.msg_map)
                 + ::pilota::pb::encoding::message::encoded_len_repeated(ctx, 3, &self.sub_msgs)
                 + ::pilota::pb::encoding::message::encoded_len_repeated(ctx, 4, &self.msg_set)
-                + ::pilota::pb::encoding::faststr::encoded_len(ctx, 5, &self.flag_msg)
+                + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
+                    ctx,
+                    5,
+                    &self.flag_msg,
+                )
                 + self.mock_cost.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::faststr::encoded_len(ctx, 6, value)
+                    ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 6, value)
                 })
         }
 
@@ -132,9 +136,9 @@ pub mod normal {
             for msg in &self.msg_set {
                 ::pilota::pb::encoding::message::encode(4, msg, buf);
             }
-            ::pilota::pb::encoding::faststr::encode(5, &self.flag_msg, buf);
+            ::pilota::pb::encoding::faststr::encode_if_not_default(5, &self.flag_msg, buf);
             if let Some(_pilota_inner_value) = self.mock_cost.as_ref() {
-                ::pilota::pb::encoding::faststr::encode(6, _pilota_inner_value, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(6, _pilota_inner_value, buf);
             };
         }
 
@@ -286,18 +290,18 @@ pub mod normal {
     impl ::pilota::pb::Message for Message {
         #[inline]
         fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-            0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.uid)
+            0 + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 1, &self.uid)
                 + self.value.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, value)
+                    ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 2, value)
                 })
                 + ::pilota::pb::encoding::message::encoded_len_repeated(ctx, 3, &self.sub_messages)
         }
 
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-            ::pilota::pb::encoding::faststr::encode(1, &self.uid, buf);
+            ::pilota::pb::encoding::faststr::encode_if_not_default(1, &self.uid, buf);
             if let Some(_pilota_inner_value) = self.value.as_ref() {
-                ::pilota::pb::encoding::faststr::encode(2, _pilota_inner_value, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(2, _pilota_inner_value, buf);
             };
             for msg in &self.sub_messages {
                 ::pilota::pb::encoding::message::encode(3, msg, buf);
