@@ -10,6 +10,74 @@ pub mod custom_options {
     include!(concat!(env!("OUT_DIR"), "/custom_options.rs"));
 }
 
+#[cfg(not(feature = "pb-encode-default-value"))]
+#[test]
+fn test_pb_size_diff_codegen() {
+    use pilota::{
+        pb::{encoding, Message as _},
+        LinkedBytes,
+    };
+
+    let mut b = zero_value::zero_value::B::default();
+    b.s3 = "".into();
+    b.int_vec = Some((1..=1000).collect());
+
+    let mut before = LinkedBytes::new();
+    encoding::string::encode(1, &b.s3, &mut before);
+    if let Some(v) = b.int_vec.as_ref() {
+        encoding::int32::encode_repeated(2, v, &mut before);
+    }
+    let before = before.concat();
+    let before_len = before.len();
+
+    let mut after = LinkedBytes::new();
+    b.encode(&mut after).unwrap();
+    let after = after.concat();
+    let after_len = after.len();
+
+    println!(
+        "codegen before_len = {}, after_len = {}",
+        before_len, after_len
+    );
+    assert!(after_len < before_len);
+}
+
+#[test]
+fn test_pb_size_diff_manual() {
+    // use pilota::pb::EncodeLengthContext;
+    use pilota::{pb::encoding, LinkedBytes};
+
+    // Simulate a typical request: contains default scalar values and a large
+    // repeated numeric field
+    let id: i32 = 0; // proto3 scalar default value
+    let name: &str = ""; // proto3 scalar default value
+    let tensor: Vec<i32> = (1..=1000).collect(); // large repeated numeric field
+
+    // Before the change (old behavior): encode default values + repeated field not
+    // packed
+    let mut before = LinkedBytes::new();
+    encoding::int32::encode(1, &id, &mut before); // should not be encoded in proto3
+    encoding::string::encode(2, &name, &mut before); // should not be encoded in proto3
+    encoding::int32::encode_repeated(3, &tensor, &mut before); // non-packed encoding
+    let before = before.concat();
+    let before_len = before.len();
+
+    // After the change (new behavior): omit default values + packed repeated
+    // encoding
+    let mut after = LinkedBytes::new();
+    encoding::int32::encode_if_not_default(1, &id, &mut after); // omitted
+    encoding::string::encode_if_not_default(2, &name, &mut after); // omitted
+    encoding::int32::encode_packed_convert(3, &tensor, &mut after); // packed encoding
+    let after = after.concat();
+    let after_len = after.len();
+
+    println!("before_len = {}, after_len = {}", before_len, after_len);
+    assert!(
+        after_len < before_len,
+        "after should be smaller than before"
+    );
+}
+
 #[test]
 fn test_pb_encode_zero_value() {
     use std::sync::Arc;

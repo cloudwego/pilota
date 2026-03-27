@@ -21,3 +21,7 @@ linkedbytes.workspace = true
 
 [build-dependencies]
 pilota-build = { path = "../pilota-build" }
+
+[features]
+default = []
+pb-encode-default-value = []
