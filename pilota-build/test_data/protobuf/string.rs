@@ -11,16 +11,16 @@ pub mod string {
         #[inline]
         fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
             0 + self.a.as_ref().map_or(0, |value| {
-                ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, value)
-            }) + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.b)
+                ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 1, value)
+            }) + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 2, &self.b)
         }
 
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
             if let Some(_pilota_inner_value) = self.a.as_ref() {
-                ::pilota::pb::encoding::faststr::encode(1, _pilota_inner_value, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(1, _pilota_inner_value, buf);
             };
-            ::pilota::pb::encoding::faststr::encode(2, &self.b, buf);
+            ::pilota::pb::encoding::faststr::encode_if_not_default(2, &self.b, buf);
         }
 
         #[allow(unused_variables)]

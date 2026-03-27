@@ -207,7 +207,7 @@ criterion_main!(benches);
 fn bench_repeated_int32(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("pb_if_not_default::repeated_int32");
     // Test slices of different lengths (arrays/vectors can be passed as slices).
-    let sizes = [0usize, 1, 16, 64, 256, 1024, 8192];
+    let sizes = [0usize, 1, 4, 8, 16, 64, 256, 1024, 8192];
     for &n in &sizes {
         // Construct the data: half of it is 0, and the other half is random non-zero
         // (breaking the data distribution).

@@ -228,16 +228,22 @@ pub mod custom_options {
         impl ::pilota::pb::Message for UserProfile {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.full_name)
-                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.avatar_url)
-                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 3, &self.bio)
+                0 + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
+                    ctx,
+                    1,
+                    &self.full_name,
+                ) + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
+                    ctx,
+                    2,
+                    &self.avatar_url,
+                ) + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 3, &self.bio)
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                ::pilota::pb::encoding::faststr::encode(1, &self.full_name, buf);
-                ::pilota::pb::encoding::faststr::encode(2, &self.avatar_url, buf);
-                ::pilota::pb::encoding::faststr::encode(3, &self.bio, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(1, &self.full_name, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(2, &self.avatar_url, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(3, &self.bio, buf);
             }
 
             #[allow(unused_variables)]
@@ -313,19 +319,27 @@ pub mod custom_options {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 0 + self.key.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::faststr::encoded_len(ctx, 50005, value)
+                    ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 50005, value)
                 }) + self.value.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::faststr::encoded_len(ctx, 50006, value)
+                    ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 50006, value)
                 })
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
                 if let Some(_pilota_inner_value) = self.key.as_ref() {
-                    ::pilota::pb::encoding::faststr::encode(50005, _pilota_inner_value, buf);
+                    ::pilota::pb::encoding::faststr::encode_if_not_default(
+                        50005,
+                        _pilota_inner_value,
+                        buf,
+                    );
                 };
                 if let Some(_pilota_inner_value) = self.value.as_ref() {
-                    ::pilota::pb::encoding::faststr::encode(50006, _pilota_inner_value, buf);
+                    ::pilota::pb::encoding::faststr::encode_if_not_default(
+                        50006,
+                        _pilota_inner_value,
+                        buf,
+                    );
                 };
             }
 
@@ -392,7 +406,11 @@ pub mod custom_options {
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 0 + self.user.as_ref().map_or(0, |msg| {
                     ::pilota::pb::encoding::message::encoded_len(ctx, 1, msg)
-                }) + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.message)
+                }) + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
+                    ctx,
+                    2,
+                    &self.message,
+                )
             }
 
             #[allow(unused_variables)]
@@ -400,7 +418,7 @@ pub mod custom_options {
                 if let Some(_pilota_inner_value) = self.user.as_ref() {
                     ::pilota::pb::encoding::message::encode(1, _pilota_inner_value, buf);
                 }
-                ::pilota::pb::encoding::faststr::encode(2, &self.message, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(2, &self.message, buf);
             }
 
             #[allow(unused_variables)]
@@ -518,12 +536,12 @@ pub mod custom_options {
         impl ::pilota::pb::Message for GetOldUserFormatRequest {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.id)
+                0 + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 1, &self.id)
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                ::pilota::pb::encoding::faststr::encode(1, &self.id, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(1, &self.id, buf);
             }
 
             #[allow(unused_variables)]
@@ -585,30 +603,54 @@ pub mod custom_options {
         impl ::pilota::pb::Message for User {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-                0 + ::pilota::pb::encoding::int32::encoded_len(ctx, 1, &self.id)
-                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.username)
-                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 3, &self.password)
-                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 4, &self.email)
-                    + ::pilota::pb::encoding::int32::encoded_len_repeated(ctx, 5, &self.role_ids)
-                    + ::pilota::pb::encoding::int64::encoded_len(ctx, 6, &self.created_at)
+                0 + ::pilota::pb::encoding::int32::encoded_len_if_not_default(ctx, 1, &self.id)
+                    + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
+                        ctx,
+                        2,
+                        &self.username,
+                    )
+                    + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
+                        ctx,
+                        3,
+                        &self.password,
+                    )
+                    + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
+                        ctx,
+                        4,
+                        &self.email,
+                    )
+                    + ::pilota::pb::encoding::int32::encoded_len_packed_convert(
+                        ctx,
+                        5,
+                        &self.role_ids,
+                    )
+                    + ::pilota::pb::encoding::int64::encoded_len_if_not_default(
+                        ctx,
+                        6,
+                        &self.created_at,
+                    )
                     + self.profile.as_ref().map_or(0, |msg| {
                         ::pilota::pb::encoding::message::encoded_len(ctx, 7, msg)
                     })
-                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 8, &self.old_field)
+                    + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
+                        ctx,
+                        8,
+                        &self.old_field,
+                    )
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                ::pilota::pb::encoding::int32::encode(1, &self.id, buf);
-                ::pilota::pb::encoding::faststr::encode(2, &self.username, buf);
-                ::pilota::pb::encoding::faststr::encode(3, &self.password, buf);
-                ::pilota::pb::encoding::faststr::encode(4, &self.email, buf);
-                ::pilota::pb::encoding::int32::encode_repeated(5, &self.role_ids, buf);
-                ::pilota::pb::encoding::int64::encode(6, &self.created_at, buf);
+                ::pilota::pb::encoding::int32::encode_if_not_default(1, &self.id, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(2, &self.username, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(3, &self.password, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(4, &self.email, buf);
+                ::pilota::pb::encoding::int32::encode_packed_convert(5, &self.role_ids, buf);
+                ::pilota::pb::encoding::int64::encode_if_not_default(6, &self.created_at, buf);
                 if let Some(_pilota_inner_value) = self.profile.as_ref() {
                     ::pilota::pb::encoding::message::encode(7, _pilota_inner_value, buf);
                 }
-                ::pilota::pb::encoding::faststr::encode(8, &self.old_field, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(8, &self.old_field, buf);
             }
 
             #[allow(unused_variables)]
@@ -749,14 +791,18 @@ pub mod custom_options {
         impl ::pilota::pb::Message for DeleteUserResponse {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-                0 + ::pilota::pb::encoding::bool::encoded_len(ctx, 1, &self.success)
-                    + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.message)
+                0 + ::pilota::pb::encoding::bool::encoded_len_if_not_default(ctx, 1, &self.success)
+                    + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
+                        ctx,
+                        2,
+                        &self.message,
+                    )
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                ::pilota::pb::encoding::bool::encode(1, &self.success, buf);
-                ::pilota::pb::encoding::faststr::encode(2, &self.message, buf);
+                ::pilota::pb::encoding::bool::encode_if_not_default(1, &self.success, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(2, &self.message, buf);
             }
 
             #[allow(unused_variables)]
@@ -818,7 +864,7 @@ pub mod custom_options {
         impl ::pilota::pb::Message for UpdateUserRequest {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.id)
+                0 + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 1, &self.id)
                     + self.user.as_ref().map_or(0, |msg| {
                         ::pilota::pb::encoding::message::encoded_len(ctx, 2, msg)
                     })
@@ -826,7 +872,7 @@ pub mod custom_options {
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                ::pilota::pb::encoding::faststr::encode(1, &self.id, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(1, &self.id, buf);
                 if let Some(_pilota_inner_value) = self.user.as_ref() {
                     ::pilota::pb::encoding::message::encode(2, _pilota_inner_value, buf);
                 }
@@ -954,24 +1000,36 @@ pub mod custom_options {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 0 + self.all_fields_required.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::bool::encoded_len(ctx, 1, value)
+                    ::pilota::pb::encoding::bool::encoded_len_if_not_default(ctx, 1, value)
                 }) + self.max_nesting_depth.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::int32::encoded_len(ctx, 2, value)
+                    ::pilota::pb::encoding::int32::encoded_len_if_not_default(ctx, 2, value)
                 }) + self.validation_message.as_ref().map_or(0, |value| {
-                    ::pilota::pb::encoding::faststr::encoded_len(ctx, 3, value)
+                    ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 3, value)
                 })
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
                 if let Some(_pilota_inner_value) = self.all_fields_required.as_ref() {
-                    ::pilota::pb::encoding::bool::encode(1, _pilota_inner_value, buf);
+                    ::pilota::pb::encoding::bool::encode_if_not_default(
+                        1,
+                        _pilota_inner_value,
+                        buf,
+                    );
                 };
                 if let Some(_pilota_inner_value) = self.max_nesting_depth.as_ref() {
-                    ::pilota::pb::encoding::int32::encode(2, _pilota_inner_value, buf);
+                    ::pilota::pb::encoding::int32::encode_if_not_default(
+                        2,
+                        _pilota_inner_value,
+                        buf,
+                    );
                 };
                 if let Some(_pilota_inner_value) = self.validation_message.as_ref() {
-                    ::pilota::pb::encoding::faststr::encode(3, _pilota_inner_value, buf);
+                    ::pilota::pb::encoding::faststr::encode_if_not_default(
+                        3,
+                        _pilota_inner_value,
+                        buf,
+                    );
                 };
             }
 
@@ -1048,12 +1106,12 @@ pub mod custom_options {
         impl ::pilota::pb::Message for DeleteUserRequest {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.id)
+                0 + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 1, &self.id)
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                ::pilota::pb::encoding::faststr::encode(1, &self.id, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(1, &self.id, buf);
             }
 
             #[allow(unused_variables)]
@@ -1104,7 +1162,11 @@ pub mod custom_options {
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
                 0 + self.user.as_ref().map_or(0, |msg| {
                     ::pilota::pb::encoding::message::encoded_len(ctx, 1, msg)
-                }) + ::pilota::pb::encoding::faststr::encoded_len(ctx, 2, &self.message)
+                }) + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
+                    ctx,
+                    2,
+                    &self.message,
+                )
             }
 
             #[allow(unused_variables)]
@@ -1112,7 +1174,7 @@ pub mod custom_options {
                 if let Some(_pilota_inner_value) = self.user.as_ref() {
                     ::pilota::pb::encoding::message::encode(1, _pilota_inner_value, buf);
                 }
-                ::pilota::pb::encoding::faststr::encode(2, &self.message, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(2, &self.message, buf);
             }
 
             #[allow(unused_variables)]
@@ -1173,12 +1235,12 @@ pub mod custom_options {
         impl ::pilota::pb::Message for GetUserRequest {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.id)
+                0 + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 1, &self.id)
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                ::pilota::pb::encoding::faststr::encode(1, &self.id, buf);
+                ::pilota::pb::encoding::faststr::encode_if_not_default(1, &self.id, buf);
             }
 
             #[allow(unused_variables)]

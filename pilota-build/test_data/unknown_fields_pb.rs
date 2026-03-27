@@ -20,13 +20,13 @@ pub mod unknown_fields_pb {
     impl ::pilota::pb::Message for A {
         #[inline]
         fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-            0 + ::pilota::pb::encoding::int32::encoded_len_repeated(ctx, 1, &self.a)
+            0 + ::pilota::pb::encoding::int32::encoded_len_packed_convert(ctx, 1, &self.a)
                 + self._unknown_fields.size()
         }
 
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-            ::pilota::pb::encoding::int32::encode_repeated(1, &self.a, buf);
+            ::pilota::pb::encoding::int32::encode_packed_convert(1, &self.a, buf);
             for bytes in self._unknown_fields.list.iter() {
                 buf.insert(bytes.clone());
             }

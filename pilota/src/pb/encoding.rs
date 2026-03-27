@@ -2405,6 +2405,7 @@ mod test {
         (Vec<u8>, bytes)
     ]);
 
+    #[cfg(not(feature = "pb-encode-default-value"))]
     #[test]
     fn skip_default_scalar_int32() {
         let mut ctx = EncodeLengthContext::default();
@@ -2412,6 +2413,7 @@ mod test {
         assert_ne!(int32::encoded_len_if_not_default(&mut ctx, 1, &1i32), 0);
     }
 
+    #[cfg(not(feature = "pb-encode-default-value"))]
     #[test]
     fn skip_default_string() {
         let mut ctx = EncodeLengthContext::default();
