@@ -119,12 +119,7 @@ impl ProtobufBackend {
                         }
                     }
                     _ => {
-                        // For singular scalars in proto3, skip default values.
-                        if is_proto3 {
-                            quote!(encoded_len_if_not_default)
-                        } else {
-                            quote!(encoded_len)
-                        }
+                        quote!(encoded_len)
                     }
                 };
 
@@ -351,11 +346,7 @@ impl ProtobufBackend {
                         }
                     }
                     _ => {
-                        if is_proto3 {
-                            quote!(encode_if_not_default)
-                        } else {
-                            quote!(encode)
-                        }
+                        quote!(encode)
                     }
                 };
 

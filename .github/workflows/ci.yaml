@@ -39,6 +39,7 @@ jobs:
         run: |
           cargo check
           cargo nextest run --workspace --all-targets
+          cargo nextest run --workspace --all-targets --features pb-encode-default-value
           cargo test --doc --workspace
 
   test-linux-aarch64:
@@ -57,6 +58,7 @@ jobs:
         run: |
           cargo check
           cargo nextest run --workspace --all-targets
+          cargo nextest run --workspace --all-targets --features pb-encode-default-value
           cargo test --doc --workspace
 
   test-macos:
@@ -75,6 +77,7 @@ jobs:
         run: |
           cargo check
           cargo nextest run --workspace --all-targets
+          cargo nextest run --workspace --all-targets --features pb-encode-default-value
           cargo test --doc --workspace
 
   test-windows:
@@ -93,6 +96,7 @@ jobs:
         run: |
           cargo check
           cargo nextest run --workspace --all-targets
+          cargo nextest run --workspace --all-targets --features pb-encode-default-value
           cargo test --doc --workspace
 
   lint:

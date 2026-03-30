@@ -49,14 +49,14 @@ pub mod message {
         impl ::pilota::pb::Message for Person {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 1, &self.name)
-                    + ::pilota::pb::encoding::int32::encoded_len_if_not_default(ctx, 2, &self.age)
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.name)
+                    + ::pilota::pb::encoding::int32::encoded_len(ctx, 2, &self.age)
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                ::pilota::pb::encoding::faststr::encode_if_not_default(1, &self.name, buf);
-                ::pilota::pb::encoding::int32::encode_if_not_default(2, &self.age, buf);
+                ::pilota::pb::encoding::faststr::encode(1, &self.name, buf);
+                ::pilota::pb::encoding::int32::encode(2, &self.age, buf);
             }
 
             #[allow(unused_variables)]
@@ -118,13 +118,13 @@ pub mod message {
         impl ::pilota::pb::Message for Company {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(ctx, 1, &self.name)
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.name)
                     + ::pilota::pb::encoding::message::encoded_len_repeated(ctx, 2, &self.employees)
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                ::pilota::pb::encoding::faststr::encode_if_not_default(1, &self.name, buf);
+                ::pilota::pb::encoding::faststr::encode(1, &self.name, buf);
                 for msg in &self.employees {
                     ::pilota::pb::encoding::message::encode(2, msg, buf);
                 }

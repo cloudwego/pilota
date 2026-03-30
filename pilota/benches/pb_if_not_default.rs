@@ -19,14 +19,14 @@ fn bench_int32(c: &mut criterion::Criterion) {
     group.bench_function(BenchmarkId::new("nonzero/if_not_default", 1), |b| {
         b.iter(|| {
             let mut buf = LinkedBytes::with_capacity(need);
-            encoding::int32::encode_if_not_default(1, &v_nonzero, &mut buf);
+            encoding::int32::encode(1, &v_nonzero, &mut buf);
             black_box(buf);
         })
     });
     group.bench_function(BenchmarkId::new("nonzero/encode", 1), |b| {
         b.iter(|| {
             let mut buf = LinkedBytes::with_capacity(need);
-            encoding::int32::encode(1, &v_nonzero, &mut buf);
+            encoding::int32::encode_raw(1, &v_nonzero, &mut buf);
             black_box(buf);
         })
     });
@@ -40,14 +40,14 @@ fn bench_int32(c: &mut criterion::Criterion) {
     group.bench_function(BenchmarkId::new("zero/if_not_default(skip)", 1), |b| {
         b.iter(|| {
             let mut buf = LinkedBytes::with_capacity(need0);
-            encoding::int32::encode_if_not_default(1, &v_zero, &mut buf);
+            encoding::int32::encode(1, &v_zero, &mut buf);
             black_box(buf);
         })
     });
     group.bench_function(BenchmarkId::new("zero/encode(write 0)", 1), |b| {
         b.iter(|| {
             let mut buf = LinkedBytes::with_capacity(need0);
-            encoding::int32::encode(1, &v_zero, &mut buf);
+            encoding::int32::encode_raw(1, &v_zero, &mut buf);
             black_box(buf);
         })
     });
@@ -67,14 +67,14 @@ fn bench_string(c: &mut criterion::Criterion) {
     group.bench_function(BenchmarkId::new("nonempty/if_not_default", s.len()), |b| {
         b.iter(|| {
             let mut buf = LinkedBytes::with_capacity(need);
-            encoding::string::encode_if_not_default(1, &s, &mut buf);
+            encoding::string::encode(1, &s, &mut buf);
             black_box(buf);
         })
     });
     group.bench_function(BenchmarkId::new("nonempty/encode", s.len()), |b| {
         b.iter(|| {
             let mut buf = LinkedBytes::with_capacity(need);
-            encoding::string::encode(1, &s, &mut buf);
+            encoding::string::encode_raw(1, &s, &mut buf);
             black_box(buf);
         })
     });
@@ -87,14 +87,14 @@ fn bench_string(c: &mut criterion::Criterion) {
     group.bench_function(BenchmarkId::new("empty/if_not_default(skip)", 0), |b| {
         b.iter(|| {
             let mut buf = LinkedBytes::with_capacity(need0);
-            encoding::string::encode_if_not_default(1, &s_empty, &mut buf);
+            encoding::string::encode(1, &s_empty, &mut buf);
             black_box(buf);
         })
     });
     group.bench_function(BenchmarkId::new("empty/encode(write \"\")", 0), |b| {
         b.iter(|| {
             let mut buf = LinkedBytes::with_capacity(need0);
-            encoding::string::encode(1, &s_empty, &mut buf);
+            encoding::string::encode_raw(1, &s_empty, &mut buf);
             black_box(buf);
         })
     });
@@ -127,7 +127,7 @@ fn bench_int32_random(c: &mut criterion::Criterion) {
             let v = vals[idx & (n - 1)];
             idx = idx.wrapping_add(1);
             let mut buf = LinkedBytes::with_capacity(16);
-            encoding::int32::encode_if_not_default(1, &v, &mut buf);
+            encoding::int32::encode(1, &v, &mut buf);
             black_box(buf);
         })
     });
@@ -138,7 +138,7 @@ fn bench_int32_random(c: &mut criterion::Criterion) {
             let v = vals[idx2 & (n - 1)];
             idx2 = idx2.wrapping_add(1);
             let mut buf = LinkedBytes::with_capacity(16);
-            encoding::int32::encode(1, &v, &mut buf);
+            encoding::int32::encode_raw(1, &v, &mut buf);
             black_box(buf);
         })
     });
@@ -175,7 +175,7 @@ fn bench_string_random(c: &mut criterion::Criterion) {
             let v = &vals[idx & (n - 1)];
             idx = idx.wrapping_add(1);
             let mut buf = LinkedBytes::with_capacity(64);
-            encoding::string::encode_if_not_default(1, v, &mut buf);
+            encoding::string::encode(1, v, &mut buf);
             black_box(buf);
         })
     });

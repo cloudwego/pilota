@@ -10,16 +10,12 @@ pub mod service {
         impl ::pilota::pb::Message for EchoRequest {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
-                    ctx,
-                    1,
-                    &self.message,
-                )
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.message)
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                ::pilota::pb::encoding::faststr::encode_if_not_default(1, &self.message, buf);
+                ::pilota::pb::encoding::faststr::encode(1, &self.message, buf);
             }
 
             #[allow(unused_variables)]
@@ -60,16 +56,12 @@ pub mod service {
         impl ::pilota::pb::Message for EchoResponse {
             #[inline]
             fn encoded_len(&self, ctx: &mut ::pilota::pb::EncodeLengthContext) -> usize {
-                0 + ::pilota::pb::encoding::faststr::encoded_len_if_not_default(
-                    ctx,
-                    1,
-                    &self.message,
-                )
+                0 + ::pilota::pb::encoding::faststr::encoded_len(ctx, 1, &self.message)
             }
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                ::pilota::pb::encoding::faststr::encode_if_not_default(1, &self.message, buf);
+                ::pilota::pb::encoding::faststr::encode(1, &self.message, buf);
             }
 
             #[allow(unused_variables)]
