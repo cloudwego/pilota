@@ -638,7 +638,8 @@ impl FieldMask {
                     || (self.is_black && !self.all() && !field_fm.is_some_and(|f| f.all()));
                 (field_fm, is_exist)
             }
-            _ => (None, self.is_black), // not match, return true if black mode
+            FieldMaskData::Scalar => (None, !self.is_black), // Scalar means all fields
+            _ => (None, self.is_black),                      // not match, return true if black mode
         }
     }
 
@@ -1755,5 +1756,97 @@ mod tests {
             .unwrap();
         assert!(exist);
         assert!(sub_fm.unwrap().all());
+    }
+
+    #[test]
+    fn test_struct_field_with_scalar_mask() {
+        let content = std::fs::read_to_string("../examples/idl/fieldmask.thrift").unwrap();
+        let mut ast = pilota_thrift_parser::FileParser::new(
+            pilota_thrift_parser::FileSource::new_with_path(
+                PathBuf::from("../examples/idl/fieldmask.thrift"),
+                &content,
+            )
+            .unwrap(),
+        )
+        .parse()
+        .unwrap();
+        ast.path = Arc::from(
+            PathBuf::from("../examples/idl/fieldmask.thrift")
+                .canonicalize()
+                .unwrap(),
+        );
+        let desc: pilota_thrift_reflect::thrift_reflection::FileDescriptor = (&ast).into();
+        let key = FastStr::new(ast.path.to_string_lossy());
+        pilota_thrift_reflect::service::Register::register(key, desc.clone());
+
+        let req_desc = desc.find_struct_by_name("Request").unwrap();
+
+        let paths = &["$.f15{\"key1\"}"];
+        let fm = FieldMaskBuilder::new(&req_desc.type_descriptor(), paths)
+            .build()
+            .unwrap();
+
+        let (sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.f15{\"key1\"}.a")
+            .unwrap();
+        assert!(exist);
+        assert!(sub_fm.unwrap().all());
+
+        let (sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.f15{\"key1\"}.b")
+            .unwrap();
+        assert!(exist);
+        assert!(sub_fm.unwrap().all());
+
+        let (sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.f15{\"key2\"}.a")
+            .unwrap();
+        assert!(!exist);
+        assert!(sub_fm.is_none());
+    }
+
+    #[test]
+    fn test_struct_field_with_scalar_mask_black_list_mode() {
+        let content = std::fs::read_to_string("../examples/idl/fieldmask.thrift").unwrap();
+        let mut ast = pilota_thrift_parser::FileParser::new(
+            pilota_thrift_parser::FileSource::new_with_path(
+                PathBuf::from("../examples/idl/fieldmask.thrift"),
+                &content,
+            )
+            .unwrap(),
+        )
+        .parse()
+        .unwrap();
+        ast.path = Arc::from(
+            PathBuf::from("../examples/idl/fieldmask.thrift")
+                .canonicalize()
+                .unwrap(),
+        );
+        let desc: pilota_thrift_reflect::thrift_reflection::FileDescriptor = (&ast).into();
+        let key = FastStr::new(ast.path.to_string_lossy());
+        pilota_thrift_reflect::service::Register::register(key, desc.clone());
+
+        let req_desc = desc.find_struct_by_name("Request").unwrap();
+
+        let paths = &["$.f15{\"key1\"}"];
+        let fm = FieldMaskBuilder::new(&req_desc.type_descriptor(), paths)
+            .with_options(Options::new().with_black_list_mode(true))
+            .build()
+            .unwrap();
+
+        let (_sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.f15{\"key1\"}.a")
+            .unwrap();
+        assert!(!exist);
+
+        let (_sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.f15{\"key1\"}.b")
+            .unwrap();
+        assert!(!exist);
+
+        let (_sub_fm, exist) = fm
+            .get_path(&req_desc.type_descriptor(), "$.f15{\"key2\"}.a")
+            .unwrap();
+        assert!(exist);
     }
 }
