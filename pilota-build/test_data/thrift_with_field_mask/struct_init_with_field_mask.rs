@@ -23,14 +23,10 @@ pub mod struct_init_with_field_mask {
                     } else {
                         let struct_ident = ::pilota::thrift::TStructIdentifier { name: "Item" };
                         __protocol.write_struct_begin(&struct_ident)?;
-                        let (field_fm, exist) = struct_fm.field(1);
-                        if exist {
-                            __protocol.write_i64_field(1, *&self.id)?;
-                        }
-                        let (field_fm, exist) = struct_fm.field(2);
-                        if exist {
-                            __protocol.write_faststr_field(2, (&self.title).clone())?;
-                        }
+                        let (field_fm, _) = struct_fm.field(1);
+                        __protocol.write_i64_field(1, *&self.id)?;
+                        let (field_fm, _) = struct_fm.field(2);
+                        __protocol.write_faststr_field(2, (&self.title).clone())?;
                         __protocol.write_field_stop()?;
                         __protocol.write_struct_end()?;
                         ::std::result::Result::Ok(())
@@ -316,10 +312,8 @@ pub mod struct_init_with_field_mask {
                             name: "GetItemRequest",
                         };
                         __protocol.write_struct_begin(&struct_ident)?;
-                        let (field_fm, exist) = struct_fm.field(1);
-                        if exist {
-                            __protocol.write_i64_field(1, *&self.id)?;
-                        }
+                        let (field_fm, _) = struct_fm.field(1);
+                        __protocol.write_i64_field(1, *&self.id)?;
                         if let Some(value) = self.item_opt.as_ref() {
                             let (field_fm, exist) = struct_fm.field(2);
                             if exist {
@@ -340,81 +334,77 @@ pub mod struct_init_with_field_mask {
                                 )?;
                             }
                         }
-                        let (field_fm, exist) = struct_fm.field(4);
-                        if exist {
-                            if let Some(map_fm) = field_fm {
-                                __protocol.write_field_begin(::pilota::thrift::TType::Map, 4)?;
-                                __protocol.write_map_begin(::pilota::thrift::TMapIdentifier {
-                                    key_type: ::pilota::thrift::TType::Binary,
-                                    value_type: ::pilota::thrift::TType::Binary,
-                                    size: (&self.test_map)
-                                        .keys()
-                                        .filter(|key| map_fm.str(key).1)
-                                        .count(),
-                                })?;
-                                for (key, val) in &self.test_map {
-                                    let (item_fm, is_exist) = map_fm.str(key);
-                                    if is_exist {
-                                        __protocol.write_faststr((key).clone())?;
-                                        __protocol.write_faststr((val).clone())?;
-                                    }
+                        let (field_fm, _) = struct_fm.field(4);
+                        if let Some(map_fm) = field_fm {
+                            __protocol.write_field_begin(::pilota::thrift::TType::Map, 4)?;
+                            __protocol.write_map_begin(::pilota::thrift::TMapIdentifier {
+                                key_type: ::pilota::thrift::TType::Binary,
+                                value_type: ::pilota::thrift::TType::Binary,
+                                size: (&self.test_map)
+                                    .keys()
+                                    .filter(|key| map_fm.str(key).1)
+                                    .count(),
+                            })?;
+                            for (key, val) in &self.test_map {
+                                let (item_fm, is_exist) = map_fm.str(key);
+                                if is_exist {
+                                    __protocol.write_faststr((key).clone())?;
+                                    __protocol.write_faststr((val).clone())?;
                                 }
-                                __protocol.write_map_end()?;
-                                __protocol.write_field_end()?;
-                            } else {
-                                __protocol.write_map_field(
-                                    4,
-                                    ::pilota::thrift::TType::Binary,
-                                    ::pilota::thrift::TType::Binary,
-                                    &&self.test_map,
-                                    |__protocol, key| {
-                                        __protocol.write_faststr((key).clone())?;
-                                        ::std::result::Result::Ok(())
-                                    },
-                                    |__protocol, val| {
-                                        __protocol.write_faststr((val).clone())?;
-                                        ::std::result::Result::Ok(())
-                                    },
-                                )?;
                             }
+                            __protocol.write_map_end()?;
+                            __protocol.write_field_end()?;
+                        } else {
+                            __protocol.write_map_field(
+                                4,
+                                ::pilota::thrift::TType::Binary,
+                                ::pilota::thrift::TType::Binary,
+                                &&self.test_map,
+                                |__protocol, key| {
+                                    __protocol.write_faststr((key).clone())?;
+                                    ::std::result::Result::Ok(())
+                                },
+                                |__protocol, val| {
+                                    __protocol.write_faststr((val).clone())?;
+                                    ::std::result::Result::Ok(())
+                                },
+                            )?;
                         }
-                        let (field_fm, exist) = struct_fm.field(5);
-                        if exist {
-                            if let Some(map_fm) = field_fm {
-                                __protocol.write_field_begin(::pilota::thrift::TType::Map, 5)?;
-                                __protocol.write_map_begin(::pilota::thrift::TMapIdentifier {
-                                    key_type: ::pilota::thrift::TType::I64,
-                                    value_type: ::pilota::thrift::TType::Binary,
-                                    size: (&self.test_map2)
-                                        .keys()
-                                        .filter(|key| map_fm.int(**key as i32).1)
-                                        .count(),
-                                })?;
-                                for (key, val) in &self.test_map2 {
-                                    let (item_fm, is_exist) = map_fm.int(*key as i32);
-                                    if is_exist {
-                                        __protocol.write_i64(*key)?;
-                                        __protocol.write_faststr((val).clone())?;
-                                    }
+                        let (field_fm, _) = struct_fm.field(5);
+                        if let Some(map_fm) = field_fm {
+                            __protocol.write_field_begin(::pilota::thrift::TType::Map, 5)?;
+                            __protocol.write_map_begin(::pilota::thrift::TMapIdentifier {
+                                key_type: ::pilota::thrift::TType::I64,
+                                value_type: ::pilota::thrift::TType::Binary,
+                                size: (&self.test_map2)
+                                    .keys()
+                                    .filter(|key| map_fm.int(**key as i32).1)
+                                    .count(),
+                            })?;
+                            for (key, val) in &self.test_map2 {
+                                let (item_fm, is_exist) = map_fm.int(*key as i32);
+                                if is_exist {
+                                    __protocol.write_i64(*key)?;
+                                    __protocol.write_faststr((val).clone())?;
                                 }
-                                __protocol.write_map_end()?;
-                                __protocol.write_field_end()?;
-                            } else {
-                                __protocol.write_map_field(
-                                    5,
-                                    ::pilota::thrift::TType::I64,
-                                    ::pilota::thrift::TType::Binary,
-                                    &&self.test_map2,
-                                    |__protocol, key| {
-                                        __protocol.write_i64(*key)?;
-                                        ::std::result::Result::Ok(())
-                                    },
-                                    |__protocol, val| {
-                                        __protocol.write_faststr((val).clone())?;
-                                        ::std::result::Result::Ok(())
-                                    },
-                                )?;
                             }
+                            __protocol.write_map_end()?;
+                            __protocol.write_field_end()?;
+                        } else {
+                            __protocol.write_map_field(
+                                5,
+                                ::pilota::thrift::TType::I64,
+                                ::pilota::thrift::TType::Binary,
+                                &&self.test_map2,
+                                |__protocol, key| {
+                                    __protocol.write_i64(*key)?;
+                                    ::std::result::Result::Ok(())
+                                },
+                                |__protocol, val| {
+                                    __protocol.write_faststr((val).clone())?;
+                                    ::std::result::Result::Ok(())
+                                },
+                            )?;
                         }
                         __protocol.write_field_stop()?;
                         __protocol.write_struct_end()?;
