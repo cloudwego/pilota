@@ -65,8 +65,8 @@ fn test_pb_size_diff_manual() {
     // After the change (new behavior): omit default values + packed repeated
     // encoding
     let mut after = LinkedBytes::new();
-    encoding::int32::encode_if_not_default(1, &id, &mut after); // omitted
-    encoding::string::encode_if_not_default(2, &name, &mut after); // omitted
+    encoding::int32::encode(1, &id, &mut after); // omitted
+    encoding::string::encode(2, &name, &mut after); // omitted
     encoding::int32::encode_packed_convert(3, &tensor, &mut after); // packed encoding
     let after = after.concat();
     let after_len = after.len();

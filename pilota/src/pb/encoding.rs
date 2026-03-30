@@ -462,7 +462,7 @@ macro_rules! encode_repeated {
     ($ty:ty) => {
         pub fn encode_repeated(tag: u32, values: &[$ty], buf: &mut LinkedBytes) {
             for value in values {
-                encode(tag, value, buf);
+                encode_raw(tag, value, buf);
             }
         }
     };
@@ -520,17 +520,18 @@ macro_rules! varint {
             use crate::pb::encoding::*;
 
             #[inline]
-            pub fn encode(tag: u32, $to_uint64_value: &$ty, buf: &mut LinkedBytes) {
+            pub fn encode_raw(tag: u32, $to_uint64_value: &$ty, buf: &mut LinkedBytes) {
                 encode_key(tag, WireType::Varint, buf);
                 encode_varint($to_uint64, buf);
             }
 
-             #[inline]
-             pub fn encode_if_not_default(tag: u32, $to_uint64_value: &$ty, buf: &mut LinkedBytes) {
-                 if cfg!(feature = "pb-encode-default-value") || $to_uint64 != 0 {
-                     encode(tag, $to_uint64_value, buf);
-                 }
-             }
+            #[inline]
+            pub fn encode(tag: u32, $to_uint64_value: &$ty, buf: &mut LinkedBytes) {
+                if !cfg!(feature = "pb-encode-default-value") && $to_uint64 == 0 {
+                    return;
+                }
+                encode_raw(tag, $to_uint64_value, buf);
+            }
 
             pub fn merge(wire_type: WireType, value: &mut $ty, buf: &mut Bytes, _ctx: &mut DecodeContext) -> Result<(), DecodeError> {
                 check_wire_type(WireType::Varint, wire_type)?;
@@ -559,17 +560,12 @@ macro_rules! varint {
 
             #[inline]
             pub fn encoded_len(_ctx: &mut EncodeLengthContext, tag: u32, $to_uint64_value: &$ty) -> usize {
-                key_len(tag) + encoded_len_varint($to_uint64)
+                if !cfg!(feature = "pb-encode-default-value") && $to_uint64 == 0 {
+                    0
+                } else {
+                    key_len(tag) + encoded_len_varint($to_uint64)
+                }
             }
-
-             #[inline]
-             pub fn encoded_len_if_not_default(_ctx: &mut EncodeLengthContext, tag: u32, $to_uint64_value: &$ty) -> usize {
-                 if cfg!(feature = "pb-encode-default-value") || $to_uint64 != 0 {
-                     encoded_len(_ctx, tag, $to_uint64_value)
-                 } else {
-                     0
-                 }
-             }
 
             #[inline]
             pub fn encoded_len_repeated(_ctx: &mut EncodeLengthContext, tag: u32, values: &[$ty]) -> usize {
@@ -634,18 +630,19 @@ pub mod int32 {
     use crate::pb::encoding::*;
 
     #[inline]
-    pub fn encode<T: Into<i32> + Copy>(tag: u32, value: &T, buf: &mut LinkedBytes) {
+    pub fn encode_raw<T: Into<i32> + Copy>(tag: u32, value: &T, buf: &mut LinkedBytes) {
         let value: i32 = (*value).into();
         encode_key(tag, WireType::Varint, buf);
         encode_varint(value as u64, buf);
     }
 
     #[inline]
-    pub fn encode_if_not_default<T: Into<i32> + Copy>(tag: u32, value: &T, buf: &mut LinkedBytes) {
+    pub fn encode<T: Into<i32> + Copy>(tag: u32, value: &T, buf: &mut LinkedBytes) {
         let v: i32 = (*value).into();
-        if cfg!(feature = "pb-encode-default-value") || v != 0 {
-            encode(tag, &v, buf);
+        if !cfg!(feature = "pb-encode-default-value") && v == 0 {
+            return;
         }
+        encode_raw(tag, &v, buf);
     }
 
     pub fn merge<T: TryFrom<i32>>(
@@ -676,7 +673,7 @@ pub mod int32 {
 
     pub fn encode_repeated<T: Into<i32> + Copy>(tag: u32, values: &[T], buf: &mut LinkedBytes) {
         for value in values {
-            encode(tag, value, buf);
+            encode_raw(tag, value, buf);
         }
     }
 
@@ -748,20 +745,11 @@ pub mod int32 {
         tag: u32,
         value: &T,
     ) -> usize {
-        key_len(tag) + encoded_len_varint((*value).into() as u64)
-    }
-
-    #[inline]
-    pub fn encoded_len_if_not_default<T: Into<i32> + Copy>(
-        _ctx: &mut EncodeLengthContext,
-        tag: u32,
-        value: &T,
-    ) -> usize {
         let v: i32 = (*value).into();
-        if cfg!(feature = "pb-encode-default-value") || v != 0 {
-            encoded_len(_ctx, tag, value)
-        } else {
+        if !cfg!(feature = "pb-encode-default-value") && v == 0 {
             0
+        } else {
+            key_len(tag) + encoded_len_varint(v as u64)
         }
     }
 
@@ -840,16 +828,17 @@ macro_rules! fixed_width {
             use crate::pb::encoding::*;
 
             #[inline]
-            pub fn encode(tag: u32, value: &$ty, buf: &mut LinkedBytes) {
+            pub fn encode_raw(tag: u32, value: &$ty, buf: &mut LinkedBytes) {
                 encode_key(tag, $wire_type, buf);
                 buf.$put(*value);
             }
 
             #[inline]
-            pub fn encode_if_not_default(tag: u32, value: &$ty, buf: &mut LinkedBytes) {
-                if cfg!(feature = "pb-encode-default-value") || *value != 0 as $ty {
-                    encode(tag, value, buf);
+            pub fn encode(tag: u32, value: &$ty, buf: &mut LinkedBytes) {
+                if !cfg!(feature = "pb-encode-default-value") && *value == 0 as $ty {
+                    return;
                 }
+                encode_raw(tag, value, buf);
             }
 
             pub fn merge(
@@ -885,20 +874,11 @@ macro_rules! fixed_width {
             merge_repeated_numeric!($ty, $wire_type, merge, merge_repeated);
 
             #[inline]
-            pub fn encoded_len(_ctx: &mut EncodeLengthContext, tag: u32, _: &$ty) -> usize {
-                key_len(tag) + $width
-            }
-
-            #[inline]
-            pub fn encoded_len_if_not_default(
-                _ctx: &mut EncodeLengthContext,
-                tag: u32,
-                value: &$ty,
-            ) -> usize {
-                if cfg!(feature = "pb-encode-default-value") || *value != 0 as $ty {
-                    encoded_len(_ctx, tag, value)
-                } else {
+            pub fn encoded_len(_ctx: &mut EncodeLengthContext, tag: u32, value: &$ty) -> usize {
+                if !cfg!(feature = "pb-encode-default-value") && *value == 0 as $ty {
                     0
+                } else {
+                    key_len(tag) + $width
                 }
             }
 
@@ -1026,6 +1006,9 @@ macro_rules! length_delimited {
 
         #[inline]
         pub fn encoded_len(ctx: &mut EncodeLengthContext, tag: u32, value: &$ty) -> usize {
+            if !cfg!(feature = "pb-encode-default-value") && value.len() == 0 {
+                return 0;
+            }
             if value.zero_copy_len() >= ZERO_COPY_THRESHOLD {
                 ctx.zero_copy_len += value.zero_copy_len();
             }
@@ -1058,18 +1041,19 @@ pub mod string {
     use super::*;
 
     #[inline]
-    pub fn encode<T: Borrow<str>>(tag: u32, value: &T, buf: &mut LinkedBytes) {
+    pub fn encode_raw<T: Borrow<str>>(tag: u32, value: &T, buf: &mut LinkedBytes) {
         let value = value.borrow();
         encode_key(tag, WireType::LengthDelimited, buf);
         encode_varint(value.len() as u64, buf);
         buf.put_slice(value.as_bytes());
     }
     #[inline]
-    pub fn encode_if_not_default<T: Borrow<str>>(tag: u32, value: &T, buf: &mut LinkedBytes) {
+    pub fn encode<T: Borrow<str>>(tag: u32, value: &T, buf: &mut LinkedBytes) {
         let v = value.borrow();
-        if cfg!(feature = "pb-encode-default-value") || !v.is_empty() {
-            encode(tag, &v, buf);
+        if !cfg!(feature = "pb-encode-default-value") && v.is_empty() {
+            return;
         }
+        encode_raw(tag, &v, buf);
     }
     pub fn merge<S: From<String>>(
         wire_type: WireType,
@@ -1122,7 +1106,7 @@ pub mod string {
 
     pub fn encode_repeated<T: Borrow<str>>(tag: u32, values: &[T], buf: &mut LinkedBytes) {
         for value in values {
-            encode(tag, value, buf);
+            encode_raw(tag, value, buf);
         }
     }
 
@@ -1145,20 +1129,11 @@ pub mod string {
         tag: u32,
         value: &T,
     ) -> usize {
-        let value = value.borrow();
-        key_len(tag) + encoded_len_varint(value.len() as u64) + value.len()
-    }
-    #[inline]
-    pub fn encoded_len_if_not_default<T: Borrow<str>>(
-        ctx: &mut EncodeLengthContext,
-        tag: u32,
-        value: &T,
-    ) -> usize {
         let v = value.borrow();
-        if cfg!(feature = "pb-encode-default-value") || !v.is_empty() {
-            encoded_len(ctx, tag, &v)
-        } else {
+        if !cfg!(feature = "pb-encode-default-value") && v.is_empty() {
             0
+        } else {
+            key_len(tag) + encoded_len_varint(v.len() as u64) + v.len()
         }
     }
 
@@ -1211,7 +1186,7 @@ pub mod faststr {
     use super::*;
 
     #[inline]
-    pub fn encode(tag: u32, value: &FastStr, buf: &mut LinkedBytes) {
+    pub fn encode_raw(tag: u32, value: &FastStr, buf: &mut LinkedBytes) {
         encode_key(tag, WireType::LengthDelimited, buf);
         encode_varint(value.len() as u64, buf);
         if value.len() >= ZERO_COPY_THRESHOLD {
@@ -1221,10 +1196,11 @@ pub mod faststr {
         }
     }
     #[inline]
-    pub fn encode_if_not_default(tag: u32, value: &FastStr, buf: &mut LinkedBytes) {
-        if cfg!(feature = "pb-encode-default-value") || !value.is_empty() {
-            encode(tag, value, buf);
+    pub fn encode(tag: u32, value: &FastStr, buf: &mut LinkedBytes) {
+        if !cfg!(feature = "pb-encode-default-value") && value.is_empty() {
+            return;
         }
+        encode_raw(tag, value, buf);
     }
     pub fn merge(
         wire_type: WireType,
@@ -1241,7 +1217,7 @@ pub mod faststr {
 
     pub fn encode_repeated(tag: u32, values: &[FastStr], buf: &mut LinkedBytes) {
         for value in values {
-            encode(tag, value, buf);
+            encode_raw(tag, value, buf);
         }
     }
 
@@ -1265,22 +1241,13 @@ pub mod faststr {
         value: &T,
     ) -> usize {
         let value = value.borrow();
-        if value.len() >= ZERO_COPY_THRESHOLD {
-            ctx.zero_copy_len += value.len();
-        }
-        key_len(tag) + encoded_len_varint(value.len() as u64) + value.len()
-    }
-    #[inline]
-    pub fn encoded_len_if_not_default<T: Borrow<str>>(
-        ctx: &mut EncodeLengthContext,
-        tag: u32,
-        value: &T,
-    ) -> usize {
-        let v = value.borrow();
-        if cfg!(feature = "pb-encode-default-value") || !v.is_empty() {
-            encoded_len(ctx, tag, &v)
-        } else {
+        if !cfg!(feature = "pb-encode-default-value") && value.is_empty() {
             0
+        } else {
+            if value.len() >= ZERO_COPY_THRESHOLD {
+                ctx.zero_copy_len += value.len();
+            }
+            key_len(tag) + encoded_len_varint(value.len() as u64) + value.len()
         }
     }
 
@@ -1418,7 +1385,7 @@ pub mod bytes {
     use super::*;
 
     #[inline]
-    pub fn encode<A>(tag: u32, value: &A, buf: &mut LinkedBytes)
+    fn encode_raw<A>(tag: u32, value: &A, buf: &mut LinkedBytes)
     where
         A: BytesAdapter,
     {
@@ -1428,13 +1395,14 @@ pub mod bytes {
     }
 
     #[inline]
-    pub fn encode_if_not_default<A>(tag: u32, value: &A, buf: &mut LinkedBytes)
+    pub fn encode<A>(tag: u32, value: &A, buf: &mut LinkedBytes)
     where
         A: BytesAdapter,
     {
-        if cfg!(feature = "pb-encode-default-value") || value.len() != 0 {
-            encode(tag, value, buf);
+        if !cfg!(feature = "pb-encode-default-value") && value.len() == 0 {
+            return;
         }
+        encode_raw(tag, value, buf);
     }
 
     pub fn merge<A>(
@@ -1473,22 +1441,6 @@ pub mod bytes {
     }
 
     length_delimited!(impl BytesAdapter);
-
-    #[inline]
-    pub fn encoded_len_if_not_default<A>(
-        ctx: &mut EncodeLengthContext,
-        tag: u32,
-        value: &A,
-    ) -> usize
-    where
-        A: BytesAdapter,
-    {
-        if cfg!(feature = "pb-encode-default-value") || value.len() != 0 {
-            encoded_len(ctx, tag, value)
-        } else {
-            0
-        }
-    }
 
     #[cfg(test)]
     mod test {
@@ -2408,8 +2360,8 @@ mod test {
     #[test]
     fn skip_default_scalar_int32() {
         let mut ctx = EncodeLengthContext::default();
-        let l0 = int32::encoded_len_if_not_default(&mut ctx, 1, &0i32);
-        let l1 = int32::encoded_len_if_not_default(&mut ctx, 1, &1i32);
+        let l0 = int32::encoded_len(&mut ctx, 1, &0i32);
+        let l1 = int32::encoded_len(&mut ctx, 1, &1i32);
         if cfg!(feature = "pb-encode-default-value") {
             assert_ne!(l0, 0);
         } else {
@@ -2422,9 +2374,9 @@ mod test {
     fn skip_default_string() {
         let mut ctx = EncodeLengthContext::default();
         let s = String::new();
-        let l0 = string::encoded_len_if_not_default(&mut ctx, 1, &s);
+        let l0 = string::encoded_len(&mut ctx, 1, &s);
         let s2 = "x".to_string();
-        let l1 = string::encoded_len_if_not_default(&mut ctx, 1, &s2);
+        let l1 = string::encoded_len(&mut ctx, 1, &s2);
         if cfg!(feature = "pb-encode-default-value") {
             assert_ne!(l0, 0);
         } else {
@@ -2437,9 +2389,9 @@ mod test {
     fn faststr_if_not_default_len() {
         let mut ctx = EncodeLengthContext::default();
         let e = ::faststr::FastStr::from("");
-        let l0 = faststr::encoded_len_if_not_default(&mut ctx, 1, &e);
+        let l0 = faststr::encoded_len(&mut ctx, 1, &e);
         let n = ::faststr::FastStr::from("x");
-        let l1 = faststr::encoded_len_if_not_default(&mut ctx, 1, &n);
+        let l1 = faststr::encoded_len(&mut ctx, 1, &n);
         if cfg!(feature = "pb-encode-default-value") {
             assert_ne!(l0, 0);
         } else {
@@ -2452,7 +2404,7 @@ mod test {
     fn faststr_if_not_default_encode() {
         let mut buf = LinkedBytes::new();
         let e = ::faststr::FastStr::from("");
-        faststr::encode_if_not_default(1, &e, &mut buf);
+        faststr::encode(1, &e, &mut buf);
         if cfg!(feature = "pb-encode-default-value") {
             assert!(buf.len() > 0);
         } else {
@@ -2460,7 +2412,7 @@ mod test {
         }
         let mut buf2 = LinkedBytes::new();
         let n = ::faststr::FastStr::from("x");
-        faststr::encode_if_not_default(1, &n, &mut buf2);
+        faststr::encode(1, &n, &mut buf2);
         assert!(buf2.len() > 0);
     }
 
@@ -2468,9 +2420,9 @@ mod test {
     fn bytes_if_not_default_len() {
         let mut ctx = EncodeLengthContext::default();
         let e = Bytes::new();
-        let l0 = bytes::encoded_len_if_not_default(&mut ctx, 1, &e);
+        let l0 = bytes::encoded_len(&mut ctx, 1, &e);
         let n = Bytes::from_static(b"x");
-        let l1 = bytes::encoded_len_if_not_default(&mut ctx, 1, &n);
+        let l1 = bytes::encoded_len(&mut ctx, 1, &n);
         if cfg!(feature = "pb-encode-default-value") {
             assert_ne!(l0, 0);
         } else {
@@ -2483,7 +2435,7 @@ mod test {
     fn bytes_if_not_default_encode() {
         let mut buf = LinkedBytes::new();
         let e = Bytes::new();
-        bytes::encode_if_not_default(1, &e, &mut buf);
+        bytes::encode(1, &e, &mut buf);
         if cfg!(feature = "pb-encode-default-value") {
             assert!(buf.len() > 0);
         } else {
@@ -2491,21 +2443,21 @@ mod test {
         }
         let mut buf2 = LinkedBytes::new();
         let n = Bytes::from_static(b"x");
-        bytes::encode_if_not_default(1, &n, &mut buf2);
+        bytes::encode(1, &n, &mut buf2);
         assert!(buf2.len() > 0);
     }
 
     #[test]
     fn skip_default_scalar_int32_encode() {
         let mut buf = LinkedBytes::new();
-        int32::encode_if_not_default(1, &0i32, &mut buf);
+        int32::encode(1, &0i32, &mut buf);
         if cfg!(feature = "pb-encode-default-value") {
             assert!(buf.len() > 0);
         } else {
             assert_eq!(buf.len(), 0);
         }
         let mut buf2 = LinkedBytes::new();
-        int32::encode_if_not_default(1, &1i32, &mut buf2);
+        int32::encode(1, &1i32, &mut buf2);
         assert!(buf2.len() > 0);
     }
 
@@ -2516,8 +2468,8 @@ mod test {
                 #[test]
                 fn len() {
                     let mut ctx = EncodeLengthContext::default();
-                    let l0 = super::super::$mod::encoded_len_if_not_default(&mut ctx, 1, &$zero);
-                    let l1 = super::super::$mod::encoded_len_if_not_default(&mut ctx, 1, &$nonzero);
+                    let l0 = super::super::$mod::encoded_len(&mut ctx, 1, &$zero);
+                    let l1 = super::super::$mod::encoded_len(&mut ctx, 1, &$nonzero);
                     if cfg!(feature = "pb-encode-default-value") {
                         assert_ne!(l0, 0);
                     } else {
@@ -2528,14 +2480,14 @@ mod test {
                 #[test]
                 fn encode() {
                     let mut buf = LinkedBytes::new();
-                    super::super::$mod::encode_if_not_default(1, &$zero, &mut buf);
+                    super::super::$mod::encode(1, &$zero, &mut buf);
                     if cfg!(feature = "pb-encode-default-value") {
                         assert!(buf.len() > 0);
                     } else {
                         assert_eq!(buf.len(), 0);
                     }
                     let mut buf2 = LinkedBytes::new();
-                    super::super::$mod::encode_if_not_default(1, &$nonzero, &mut buf2);
+                    super::super::$mod::encode(1, &$nonzero, &mut buf2);
                     assert!(buf2.len() > 0);
                 }
             }

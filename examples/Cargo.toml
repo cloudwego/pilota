@@ -14,7 +14,7 @@ publish = false
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-pilota = { path = "../pilota", features = ["pb-encode-default-value"] }
+pilota = { path = "../pilota" }
 pilota-thrift-fieldmask = { path = "../pilota-thrift-fieldmask" }
 pilota-thrift-reflect = { path = "../pilota-thrift-reflect" }
 linkedbytes.workspace = true
