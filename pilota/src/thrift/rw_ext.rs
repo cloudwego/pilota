@@ -1,6 +1,6 @@
 use std::mem;
 
-use bytes::{Buf as _, BufMut, BytesMut};
+use bytes::{Buf as _, BufMut};
 
 use super::{ThriftException, new_protocol_exception};
 
@@ -128,7 +128,10 @@ pub trait WriteExt {
     fn write_f64_le(&mut self, n: f64);
 }
 
-impl WriteExt for BytesMut {
+impl<B> WriteExt for B
+where
+    B: BufMut,
+{
     #[inline]
     fn write_slice(&mut self, src: &[u8]) {
         self.put_slice(src);
