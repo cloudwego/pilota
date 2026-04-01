@@ -108,7 +108,8 @@ impl ProtobufBackend {
                                 | "double"
                         );
                         if packable && is_proto3 {
-                            // Special case for int32: we may need a generic convert variant to support enums.
+                            // Special case for int32: we may need a generic convert variant to
+                            // support enums.
                             if module_str == "int32" {
                                 quote!(encoded_len_packed_convert)
                             } else {
