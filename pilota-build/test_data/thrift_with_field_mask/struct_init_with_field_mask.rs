@@ -238,13 +238,6 @@ pub mod struct_init_with_field_mask {
             }
         }
         impl Item {
-            pub fn get_descriptor()
-            -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor>
-            {
-                let file_descriptor = get_file_descriptor_struct_init_with_field_mask();
-                file_descriptor.find_struct_by_name("Item")
-            }
-
             pub fn set_field_mask(&mut self, field_mask: ::pilota_thrift_fieldmask::FieldMask) {
                 self._field_mask = Some(field_mask.clone());
             }
@@ -869,13 +862,6 @@ pub mod struct_init_with_field_mask {
             }
         }
         impl GetItemRequest {
-            pub fn get_descriptor()
-            -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor>
-            {
-                let file_descriptor = get_file_descriptor_struct_init_with_field_mask();
-                file_descriptor.find_struct_by_name("GetItemRequest")
-            }
-
             pub fn set_field_mask(&mut self, field_mask: ::pilota_thrift_fieldmask::FieldMask) {
                 self._field_mask = Some(field_mask.clone());
                 if let Some(value) = &mut self.item_opt {

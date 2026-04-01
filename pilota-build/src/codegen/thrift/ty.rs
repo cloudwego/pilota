@@ -153,6 +153,17 @@ impl ThriftBackend {
             ) => {
                 self.encode_map_with_int_field_mask(k, v, ident, "map")
             }
+            ty::Map(k, v) if matches!(k.kind, ty::Path(..)) => {
+                if let ty::Path(p) = &k.kind {
+                    if self.is_enum(p.did) {
+                        self.encode_map_with_enum_field_mask(k, v, ident, "map")
+                    } else {
+                        self.encode_map(k, v, ident, "map")
+                    }
+                } else {
+                    self.encode_map(k, v, ident, "map")
+                }
+            }
             ty::Map(k, v) => {
                 self.encode_map(k, v, ident, "map")
             }
@@ -167,6 +178,17 @@ impl ThriftBackend {
                 ty::I8 | ty::I16 | ty::I32 | ty::I64 |ty::U8
             ) => {
                 self.encode_map_with_int_field_mask(k, v, ident, "btree_map")
+            }
+            ty::BTreeMap(k, v) if matches!(k.kind, ty::Path(..)) => {
+                if let ty::Path(p) = &k.kind {
+                    if self.is_enum(p.did) {
+                        self.encode_map_with_enum_field_mask(k, v, ident, "btree_map")
+                    } else {
+                        self.encode_map(k, v, ident, "btree_map")
+                    }
+                } else {
+                    self.encode_map(k, v, ident, "btree_map")
+                }
             }
             ty::BTreeMap(k, v) => {
                 self.encode_map(k, v, ident, "btree_map")
@@ -272,6 +294,47 @@ impl ThriftBackend {
                 }})?;
                 for (key, val) in {ident} {{
                     let (item_fm, exist) = map_fm.int(*key as i32);
+                    if exist {{
+                        {write_key}
+                        {write_val_with_field_mask}
+                    }}
+                }}
+                __protocol.write_{name}_end()?;
+            }} else {{
+                __protocol.write_{name}({key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
+                    {write_key}
+                    ::std::result::Result::Ok(())
+                }}, |__protocol, val| {{
+                    {write_val}
+                    ::std::result::Result::Ok(())
+                }})?;
+            }}"#
+        }
+        .into()
+    }
+
+    fn encode_map_with_enum_field_mask(
+        &self,
+        k: &Ty,
+        v: &Ty,
+        ident: FastStr,
+        name: &str,
+    ) -> FastStr {
+        let key_ttype = self.ttype(k);
+        let val_ttype = self.ttype(v);
+        let write_key = self.codegen_encode_ty(k, "key".into());
+        let write_val = self.codegen_encode_ty(v, "val".into());
+        let write_val_with_field_mask = self.codegen_encode_ty_with_field_mask(v, "val".into());
+
+        format! {
+            r#"if let Some(map_fm) = item_fm {{
+                __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
+                    key_type: {key_ttype},
+                    value_type: {val_ttype},
+                    size: ({ident}).keys().filter(|key| map_fm.int(key.inner() as i32).1).count(),
+                }})?;
+                for (key, val) in {ident} {{
+                    let (item_fm, exist) = map_fm.int(key.inner() as i32);
                     if exist {{
                         {write_key}
                         {write_val_with_field_mask}
@@ -436,11 +499,33 @@ impl ThriftBackend {
             ty::Map(k, v) if matches!(k.kind, ty::I8 | ty::I16 | ty::I32 | ty::I64 | ty::U8) => {
                 self.encode_map_field_with_int_field_mask(k, v, id, ident, "map")
             }
+            ty::Map(k, v) if matches!(k.kind, ty::Path(..)) => {
+                if let ty::Path(p) = &k.kind {
+                    if self.is_enum(p.did) {
+                        self.encode_map_field_with_enum_field_mask(k, v, id, ident, "map")
+                    } else {
+                        self.encode_map_field(k, v, id, ident, "map")
+                    }
+                } else {
+                    self.encode_map_field(k, v, id, ident, "map")
+                }
+            }
             ty::BTreeMap(k, v) if matches!(k.kind, ty::String | ty::FastStr) => {
                 self.encode_map_field_with_str_field_mask(k, v, id, ident, "btree_map")
             }
             ty::BTreeMap(k, v) if matches!(k.kind, ty::I8 | ty::I16 | ty::I32 | ty::I64 | ty::U8) => {
                 self.encode_map_field_with_int_field_mask(k, v, id, ident, "btree_map")
+            }
+            ty::BTreeMap(k, v) if matches!(k.kind, ty::Path(..)) => {
+                if let ty::Path(p) = &k.kind {
+                    if self.is_enum(p.did) {
+                        self.encode_map_field_with_enum_field_mask(k, v, id, ident, "btree_map")
+                    } else {
+                        self.encode_map_field(k, v, id, ident, "btree_map")
+                    }
+                } else {
+                    self.encode_map_field(k, v, id, ident, "btree_map")
+                }
             }
             ty::Map(k, v) => {
                 self.encode_map_field(k, v, id, ident, "map")
@@ -583,6 +668,50 @@ impl ThriftBackend {
             .into()
     }
 
+    fn encode_map_field_with_enum_field_mask(
+        &self,
+        k: &Ty,
+        v: &Ty,
+        id: i16,
+        ident: FastStr,
+        name: &str,
+    ) -> FastStr {
+        let key_ttype = self.ttype(k);
+        let val_ttype = self.ttype(v);
+        let write_key = self.codegen_encode_ty(k, "key".into());
+        let write_val = self.codegen_encode_ty(v, "val".into());
+        let write_val_with_field_mask = self.codegen_encode_ty_with_field_mask(v, "val".into());
+
+        format! {
+            r#"if let Some(map_fm) = field_fm {{
+                __protocol.write_field_begin(::pilota::thrift::TType::Map, {id})?;
+                __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
+                    key_type: {key_ttype},
+                    value_type: {val_ttype},
+                    size: ({ident}).keys().filter(|key| map_fm.int(key.inner() as i32).1).count(),
+                }})?;
+                for (key, val) in {ident} {{
+                    let (item_fm, is_exist) = map_fm.int(key.inner() as i32);
+                    if is_exist {{
+                        {write_key}
+                        {write_val_with_field_mask}
+                    }}
+                }}
+                __protocol.write_{name}_end()?;
+                __protocol.write_field_end()?;
+            }} else {{
+                __protocol.write_{name}_field({id}, {key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
+                        {write_key}
+                        ::std::result::Result::Ok(())
+                    }}, |__protocol, val| {{
+                        {write_val}
+                        ::std::result::Result::Ok(())
+                    }})?;
+        }}"#
+        }
+        .into()
+    }
+
     pub(crate) fn codegen_ty_size(&self, ty: &Ty, ident: FastStr) -> FastStr {
         match &ty.kind {
             ty::String => format!("__protocol.string_len({ident})").into(),
@@ -668,6 +797,17 @@ impl ThriftBackend {
             ty::Map(k, v) if matches!(k.kind, ty::I8 | ty::I16 | ty::I32 | ty::I64 | ty::U8) => {
                 self.map_size_with_int_field_mask(k, v, ident, "map")
             }
+            ty::Map(k, v) if matches!(k.kind, ty::Path(..)) => {
+                if let ty::Path(p) = &k.kind {
+                    if self.is_enum(p.did) {
+                        self.map_size_with_enum_field_mask(k, v, ident, "map")
+                    } else {
+                        self.map_size(k, v, ident, "map")
+                    }
+                } else {
+                    self.map_size(k, v, ident, "map")
+                }
+            }
             ty::Map(k, v) => self.map_size(k, v, ident, "map"),
             ty::BTreeMap(k, v) if matches!(k.kind, ty::String | ty::FastStr) => {
                 self.map_size_with_str_field_mask(k, v, ident, "btree_map")
@@ -676,6 +816,17 @@ impl ThriftBackend {
                 if matches!(k.kind, ty::I8 | ty::I16 | ty::I32 | ty::I64 | ty::U8) =>
             {
                 self.map_size_with_int_field_mask(k, v, ident, "btree_map")
+            }
+            ty::BTreeMap(k, v) if matches!(k.kind, ty::Path(..)) => {
+                if let ty::Path(p) = &k.kind {
+                    if self.is_enum(p.did) {
+                        self.map_size_with_enum_field_mask(k, v, ident, "btree_map")
+                    } else {
+                        self.map_size(k, v, ident, "btree_map")
+                    }
+                } else {
+                    self.map_size(k, v, ident, "btree_map")
+                }
             }
             ty::BTreeMap(k, v) => self.map_size(k, v, ident, "btree_map"),
             ty::Path(_) => format!(r#"__protocol.struct_len({ident})"#).into(),
@@ -764,6 +915,40 @@ impl ThriftBackend {
                 
                 for (key, val) in {ident} {{
                     let (item_fm, exist) = map_fm.int(*key as i32);
+                    if exist {{
+                        size += {add_key};
+                        size += {add_val_with_field_mask};
+                    }}
+                }}
+                size
+            }} else {{
+                __protocol.{name}_len({k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{
+                    {add_key}
+                }}, |__protocol, val| {{
+                    {add_val}
+                }})
+            }}"#
+        }
+        .into()
+    }
+
+    fn map_size_with_enum_field_mask(&self, k: &Ty, v: &Ty, ident: FastStr, name: &str) -> FastStr {
+        let add_key = self.codegen_ty_size(k, "key".into());
+        let add_val = self.codegen_ty_size(v, "val".into());
+        let add_val_with_field_mask = self.codegen_ty_size_with_field_mask(v, "val".into());
+        let k_ttype = self.ttype(k);
+        let v_ttype = self.ttype(v);
+
+        format! {
+            r#"if let Some(map_fm) = item_fm {{
+                let mut size = __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
+                    key_type: {k_ttype},
+                    value_type: {v_ttype},
+                    size: 0,
+                }}) + __protocol.map_end_len();
+
+                for (key, val) in {ident} {{
+                    let (item_fm, exist) = map_fm.int(key.inner() as i32);
                     if exist {{
                         size += {add_key};
                         size += {add_val_with_field_mask};
@@ -882,6 +1067,17 @@ impl ThriftBackend {
             ty::Map(k, v) if matches!(k.kind, ty::I8 | ty::I16 | ty::I32 | ty::I64 | ty::U8) => {
                 self.map_field_size_with_int_field_mask(k, v, id, ident, "map")
             }
+            ty::Map(k, v) if matches!(k.kind, ty::Path(..)) => {
+                if let ty::Path(p) = &k.kind {
+                    if self.is_enum(p.did) {
+                        self.map_field_size_with_enum_field_mask(k, v, id, ident, "map")
+                    } else {
+                        self.map_field_size(k, v, id, ident, "map")
+                    }
+                } else {
+                    self.map_field_size(k, v, id, ident, "map")
+                }
+            }
             ty::Map(k, v) => self.map_field_size(k, v, id, ident, "map"),
             ty::BTreeMap(k, v) if matches!(k.kind, ty::String | ty::FastStr) => {
                 self.map_field_size_with_str_field_mask(k, v, id, ident, "btree_map")
@@ -890,6 +1086,17 @@ impl ThriftBackend {
                 if matches!(k.kind, ty::I8 | ty::I16 | ty::I32 | ty::I64 | ty::U8) =>
             {
                 self.map_field_size_with_int_field_mask(k, v, id, ident, "btree_map")
+            }
+            ty::BTreeMap(k, v) if matches!(k.kind, ty::Path(..)) => {
+                if let ty::Path(p) = &k.kind {
+                    if self.is_enum(p.did) {
+                        self.map_field_size_with_enum_field_mask(k, v, id, ident, "btree_map")
+                    } else {
+                        self.map_field_size(k, v, id, ident, "btree_map")
+                    }
+                } else {
+                    self.map_field_size(k, v, id, ident, "btree_map")
+                }
             }
             ty::BTreeMap(k, v) => self.map_field_size(k, v, id, ident, "btree_map"),
             ty::Path(p) if self.is_i32_enum(p.did) => {
@@ -994,6 +1201,46 @@ impl ThriftBackend {
                 }}) + __protocol.map_end_len();
                 for (key, val) in {ident} {{
                     let (item_fm, is_exist) = map_fm.int(*key as i32);
+                    if is_exist {{
+                        size += {add_key};
+                        size += {add_val_with_field_mask};
+                    }}
+                }}
+                size
+            }} else {{
+                __protocol.{name}_field_len(Some({id}), {k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{
+                    {add_key}
+                }}, |__protocol, val| {{
+                    {add_val}
+                }})
+            }}"#
+        }
+        .into()
+    }
+
+    fn map_field_size_with_enum_field_mask(
+        &self,
+        k: &Ty,
+        v: &Ty,
+        id: i16,
+        ident: FastStr,
+        name: &str,
+    ) -> FastStr {
+        let add_key = self.codegen_ty_size(k, "key".into());
+        let add_val = self.codegen_ty_size(v, "val".into());
+        let add_val_with_field_mask = self.codegen_ty_size_with_field_mask(v, "val".into());
+        let k_ttype = self.ttype(k);
+        let v_ttype = self.ttype(v);
+
+        format! {
+            r#"if let Some(map_fm) = field_fm {{
+                let mut size = __protocol.field_begin_len(::pilota::thrift::TType::Map, None) + __protocol.field_end_len() + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
+                    key_type: {k_ttype},
+                    value_type: {v_ttype},
+                    size: 0,
+                }}) + __protocol.map_end_len();
+                for (key, val) in {ident} {{
+                    let (item_fm, is_exist) = map_fm.int(key.inner() as i32);
                     if is_exist {{
                         size += {add_key};
                         size += {add_val_with_field_mask};
@@ -1150,6 +1397,17 @@ impl ThriftBackend {
             {
                 self.need_field_mask(v)
             }
+            ty::Map(k, v) if matches!(k.kind, ty::Path(..)) => {
+                if let ty::Path(p) = &k.kind {
+                    if self.is_enum(p.did) {
+                        self.need_field_mask(v)
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
+            }
             ty::BTreeMap(k, v)
                 if matches!(
                     k.kind,
@@ -1157,6 +1415,17 @@ impl ThriftBackend {
                 ) =>
             {
                 self.need_field_mask(v)
+            }
+            ty::BTreeMap(k, v) if matches!(k.kind, ty::Path(..)) => {
+                if let ty::Path(p) = &k.kind {
+                    if self.is_enum(p.did) {
+                        self.need_field_mask(v)
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
             }
             ty::Path(p) if !self.is_i32_enum(p.did) => true,
             _ => false,
@@ -1212,6 +1481,16 @@ impl ThriftBackend {
                             r#"if !{field_mask}.all() {{
                             for (key, item) in {ident}.iter_mut() {{
                                 if let Some(item_fm) = {field_mask}.str(key).0 {{
+                                    {val_field_mask}
+                                }}
+                            }}
+                        }}"#
+                        )
+                        .into(),
+                        ty::Path(..) => format!(
+                            r#"if !{field_mask}.all() {{
+                            for (key, item) in {ident}.iter_mut() {{
+                                if let Some(item_fm) = {field_mask}.int(key.inner() as i32).0 {{
                                     {val_field_mask}
                                 }}
                             }}
@@ -1312,6 +1591,34 @@ impl ThriftBackend {
                     }}"#
                     )
                     .into()
+                } else {
+                    "".into()
+                }
+            }
+            ty::Map(key, val) | ty::BTreeMap(key, val) if matches!(key.kind, ty::Path(..)) => {
+                if let ty::Path(p) = &key.kind {
+                    if self.is_enum(p.did) {
+                        let item_field_mask =
+                            self.codegen_iter_item_field_mask(val, "item".into(), "item_fm".into());
+                        if !item_field_mask.is_empty() {
+                            format!(
+                                r#"if let Some(map_mask) = {field_mask}.field({id}).0 {{
+                              if !map_mask.all() {{
+                                for (key, item) in {ident}.iter_mut() {{
+                                    if let Some(item_fm) = map_mask.int(key.inner() as i32).0 {{
+                                        {item_field_mask}
+                                        }}
+                                    }}
+                                }}
+                          }}"#
+                            )
+                            .into()
+                        } else {
+                            "".into()
+                        }
+                    } else {
+                        "".into()
+                    }
                 } else {
                     "".into()
                 }
