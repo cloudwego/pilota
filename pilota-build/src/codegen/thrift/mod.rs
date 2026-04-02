@@ -165,10 +165,8 @@ impl ThriftBackend {
                     format!("&self.{field_name}").into(),
                 );
                 format! {
-                r#"let (field_fm, exist) = struct_fm.field({field_id});
-                if exist {{
-                    {write_field_with_field_mask}
-                }}"#
+                r#"let (field_fm, _) = struct_fm.field({field_id});
+                {write_field_with_field_mask}"#
                 }
                 .into()
             };
@@ -721,13 +719,19 @@ impl CodegenBackend for ThriftBackend {
             .join("");
 
         let idl_name = s.name.raw_str();
+        if self.config.with_descriptor {
+            stream.push_str(&format! {
+                r#"impl {name} {{
+                    pub fn get_descriptor() -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
+                        let file_descriptor = get_file_descriptor_{filename_lower}();
+                        file_descriptor.find_struct_by_name("{idl_name}")
+                    }}
+                }}"#
+            });
+        }
+
         stream.push_str(&format! {
             r#"impl {name} {{
-                pub fn get_descriptor() -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
-                    let file_descriptor = get_file_descriptor_{filename_lower}();
-                    file_descriptor.find_struct_by_name("{idl_name}")
-                }}
-
                 pub fn set_field_mask(&mut self, field_mask: ::pilota_thrift_fieldmask::FieldMask) {{
                     self._field_mask = Some(field_mask.clone());
                     {set_inner_field_mask}

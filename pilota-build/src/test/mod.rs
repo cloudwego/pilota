@@ -659,3 +659,5 @@ fn test_pb_options() {
             );
     });
 }
+
+mod enum_key_map_tests;
