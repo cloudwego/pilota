@@ -880,7 +880,7 @@ dependencies = [
 
 [[package]]
 name = "pilota-build"
-version = "0.13.6"
+version = "0.13.7"
 dependencies = [
  "ahash",
  "anyhow",
@@ -923,7 +923,7 @@ dependencies = [
 
 [[package]]
 name = "pilota-thrift-fieldmask"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "ahash",
  "ariadne",
