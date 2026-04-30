@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+message Person {
+    string name = 1;
+    int32 age = 2;
+    Contact contact = 3;
+
+    message Contact {
+        string email = 1;
+        Label label = 2;
+    }
+
+    enum Label {
+        LABEL_UNKNOWN = 0;
+        LABEL_HOME = 1;
+        LABEL_WORK = 2;
+    }
+}
+
+message Address {
+    string street = 1;
+    string city = 2;
+}
