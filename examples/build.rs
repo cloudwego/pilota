@@ -56,4 +56,15 @@ fn main() {
             )],
             pilota_build::Output::File(out_dir.join("custom_options.rs")),
         );
+
+    // For no_service
+    let noservice_idl = idl_dir.join("no_service.thrift");
+    pilota_build::Builder::thrift()
+        .include_dirs(vec![noservice_idl.parent().unwrap().to_path_buf()])
+        .with_descriptor(true)
+        .with_field_mask(true)
+        .compile_with_config(
+            vec![pilota_build::IdlService::from_path(noservice_idl)],
+            pilota_build::Output::File(out_dir.join("no_service.rs")),
+        );
 }

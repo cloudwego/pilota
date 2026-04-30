@@ -388,6 +388,21 @@ where
             });
         }
 
+        if ignore_unused && input.is_empty() && touches.is_empty() {
+            for file_id in &input_files {
+                let file = db.file(*file_id).unwrap();
+                file.items.iter().for_each(|def_id| {
+                    if let Some(node) = db.node(*def_id) {
+                        if let NodeKind::Item(item) = &node.kind {
+                            if !matches!(&**item, rir::Item::Mod(_)) {
+                                input.push(*def_id);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
         let mut cx = ContextBuilder::new(
             db,
             match out {
