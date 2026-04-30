@@ -1,5 +1,6 @@
-use std::ops::Deref;
+use std::{ops::Deref, sync::Arc};
 
+use dashmap::DashMap;
 use faststr::FastStr;
 use itertools::Itertools;
 use proc_macro2::{Ident, Span};
@@ -25,11 +26,15 @@ use crate::{
 #[derive(Clone)]
 pub struct ProtobufBackend {
     cx: Context,
+    proto3_cache: Arc<DashMap<crate::symbol::FileId, bool>>,
 }
 
 impl ProtobufBackend {
     pub fn new(cx: Context) -> Self {
-        ProtobufBackend { cx }
+        ProtobufBackend {
+            cx,
+            proto3_cache: Arc::new(DashMap::default()),
+        }
     }
 }
 
@@ -59,17 +64,28 @@ impl ProtobufBackend {
 
     #[inline]
     fn is_proto3(&self, file_id: crate::symbol::FileId) -> bool {
-        if let Some(f) = self.cx.files().get(&file_id) {
-            // The descriptor bytes are produced by `protobuf` crate's `write_to_bytes`.
-            // Parse them back to check syntax.
-            if let Ok(fd) = <::protobuf::descriptor::FileDescriptorProto as ::protobuf::Message>::parse_from_bytes(
-                f.descriptor.as_ref(),
-            ) {
-                return fd.syntax() == "proto3";
-            }
+        if let Some(value) = self.proto3_cache.get(&file_id) {
+            return *value;
         }
-        // Default to proto3 if unknown to prefer smaller encoding behavior.
-        true
+
+        let is_proto3 = self
+            .cx
+            .files()
+            .get(&file_id)
+            .and_then(|f| {
+                // The descriptor bytes are produced by `protobuf` crate's `write_to_bytes`.
+                // Parse them back once and cache the syntax decision per file.
+                <::protobuf::descriptor::FileDescriptorProto as ::protobuf::Message>::parse_from_bytes(
+                    f.descriptor.as_ref(),
+                )
+                .ok()
+            })
+            .map(|fd| fd.syntax() == "proto3")
+            // Default to proto3 if unknown to prefer smaller encoding behavior.
+            .unwrap_or(true);
+
+        self.proto3_cache.insert(file_id, is_proto3);
+        is_proto3
     }
 
     fn codegen_encoded_len(

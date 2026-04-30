@@ -6,3 +6,5 @@ pub mod rir;
 pub mod ty;
 pub mod type_graph;
 pub mod workspace_graph;
+
+pub(crate) mod root_selector;

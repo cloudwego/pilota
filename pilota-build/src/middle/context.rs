@@ -13,6 +13,7 @@ use super::{
     adjust::Adjust,
     resolver::{DefaultPathResolver, PathResolver, WorkspacePathResolver},
     rir::NodeKind,
+    root_selector::{RootSelection, SelectionKind},
 };
 use crate::{
     Plugin,
@@ -34,6 +35,12 @@ pub enum DefLocation {
     Dynamic,
 }
 
+#[deprecated(
+    since = "0.13.8",
+    note = "`CollectMode` has been superseded by `crate::middle::root_selector::RootSelection`. \
+            This alias is kept temporarily for backward compatibility and will be removed in a \
+            future release."
+)]
 pub enum CollectMode {
     All,
     OnlyUsed {
@@ -66,6 +73,7 @@ pub struct Source {
     pub services: Arc<[crate::IdlService]>,
     pub mode: Arc<Mode>,
     pub path_resolver: Arc<dyn PathResolver>,
+    pub selection_kind: SelectionKind,
 }
 
 #[derive(Clone)]
@@ -128,9 +136,9 @@ impl ContextBuilder {
             entry_map: Default::default(),
         }
     }
-    pub(crate) fn collect(&mut self, mode: CollectMode) {
-        match mode {
-            CollectMode::All => {
+    pub(crate) fn collect(&mut self, root_selection: RootSelection) {
+        match root_selection {
+            RootSelection::All => {
                 let nodes = self.db.nodes();
                 self.codegen_items
                     .extend(nodes.iter().filter_map(|(k, v)| match &v.kind {
@@ -144,40 +152,8 @@ impl ContextBuilder {
                         _ => None,
                     }));
             }
-            CollectMode::OnlyUsed { touches } => {
-                let extra_def_ids = touches
-                    .into_iter()
-                    .flat_map(|s| {
-                        let path = s.0.normalize().unwrap().into_path_buf();
-                        let file_id = *self.db.file_ids_map().get(&path).unwrap();
-                        s.1.into_iter()
-                            .filter_map(|item_name| {
-                                let def_id = self
-                                    .db
-                                    .files()
-                                    .get(&file_id)
-                                    .unwrap()
-                                    .items
-                                    .iter()
-                                    .find(|def_id| {
-                                        *self.db.item(**def_id).unwrap().symbol_name() == item_name
-                                    })
-                                    .cloned();
-                                if let Some(def_id) = def_id {
-                                    Some(def_id)
-                                } else {
-                                    println!(
-                                        "cargo:warning=item `{item_name}` of `{}` not exists",
-                                        path.display(),
-                                    );
-                                    None
-                                }
-                            })
-                            .collect::<Vec<_>>()
-                    })
-                    .collect::<Vec<_>>();
-
-                self.input_items.extend(extra_def_ids);
+            RootSelection::Service(root_defs) | RootSelection::Explicit(root_defs) => {
+                self.input_items.extend(root_defs);
 
                 let def_ids = self.collect_items(&self.input_items);
                 self.codegen_items.extend(def_ids.iter());
@@ -462,6 +438,7 @@ impl ContextBuilder {
         self,
         services: Arc<[crate::IdlService]>,
         source_type: SourceType,
+        selection_kind: SelectionKind,
         change_case: bool,
         dedups: Vec<FastStr>,
         special_namings: Vec<FastStr>,
@@ -484,6 +461,7 @@ impl ContextBuilder {
                     Mode::Workspace(_) => Arc::new(WorkspacePathResolver),
                     Mode::SingleFile { .. } => Arc::new(DefaultPathResolver),
                 },
+                selection_kind,
             },
             config: Config {
                 change_case,
@@ -1457,7 +1435,8 @@ impl Context {
                 });
 
                 let error_message = format!(
-                    "unexpected literal {lit:?} with ty {ty}, def_path: {def_path}, idl_file: {idl_file}"
+                    "unexpected literal {lit:?} with ty {ty}, def_path: {def_path}, idl_file: \
+                     {idl_file}"
                 );
 
                 panic!("{error_message}");
@@ -1733,6 +1712,7 @@ mod tests {
                 services,
                 mode: mode.clone(),
                 path_resolver: Arc::new(DefaultPathResolver),
+                selection_kind: SelectionKind::Service,
             },
             config: Config {
                 change_case: false,
