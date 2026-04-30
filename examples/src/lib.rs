@@ -10,6 +10,10 @@ pub mod custom_options {
     include!(concat!(env!("OUT_DIR"), "/custom_options.rs"));
 }
 
+pub mod no_service {
+    include!(concat!(env!("OUT_DIR"), "/no_service.rs"));
+}
+
 #[cfg(not(feature = "pb-encode-default-value"))]
 #[test]
 fn test_pb_size_diff_codegen() {

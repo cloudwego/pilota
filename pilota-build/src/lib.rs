@@ -27,16 +27,16 @@ mod dedup;
 pub mod plugin;
 
 pub use codegen::{Codegen, thrift::ThriftBackend, traits::CodegenBackend};
-use db::{RirDatabase, RootDatabase};
-use middle::{
-    context::{CollectMode, ContextBuilder, Mode, WorkspaceInfo, tls::CONTEXT},
-    rir::NodeKind,
-    type_graph::TypeGraph,
-    workspace_graph::WorkspaceGraph,
-};
+use db::RootDatabase;
 pub use middle::{
     context::{Context, SourceType},
     rir, ty,
+};
+use middle::{
+    context::{ContextBuilder, Mode, WorkspaceInfo, tls::CONTEXT},
+    rir::NodeKind,
+    type_graph::TypeGraph,
+    workspace_graph::WorkspaceGraph,
 };
 use parser::{ParseResult, Parser, protobuf::ProtobufParser, thrift::ThriftParser};
 use plugin::{AutoDerivePlugin, BoxedPlugin, ImplDefaultPlugin, PredicateResult, WithAttrsPlugin};
@@ -45,7 +45,7 @@ use resolve::{ResolveResult, Resolver};
 pub use symbol::{DefId, IdentName};
 pub use tags::TagId;
 
-use crate::codegen::pb::ProtobufBackend;
+use crate::{codegen::pb::ProtobufBackend, middle::root_selector::SelectionKind};
 
 pub trait MakeBackend: Sized {
     type Target: CodegenBackend;
@@ -81,6 +81,7 @@ pub struct Builder<MkB, P> {
     split: bool,
     touches: Vec<(std::path::PathBuf, Vec<String>)>,
     change_case: bool,
+    touch_files: Vec<std::path::PathBuf>,
     keep_unknown_fields: Vec<std::path::PathBuf>,
     dedups: Vec<FastStr>,
     special_namings: Vec<FastStr>,
@@ -104,6 +105,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             touches: Vec::default(),
             ignore_unused: true,
             change_case: true,
+            touch_files: Vec::default(),
             keep_unknown_fields: Vec::default(),
             dedups: Vec::default(),
             special_namings: Vec::default(),
@@ -149,6 +151,7 @@ impl Builder<MkPbBackend, ProtobufParser> {
             touches: Vec::default(),
             ignore_unused: true,
             change_case: true,
+            touch_files: Vec::default(),
             keep_unknown_fields: Vec::default(),
             dedups: Vec::default(),
             special_namings: Vec::default(),
@@ -182,6 +185,7 @@ impl<MkB, P> Builder<MkB, P> {
             ignore_unused: self.ignore_unused,
             touches: self.touches,
             change_case: self.change_case,
+            touch_files: self.touch_files,
             keep_unknown_fields: self.keep_unknown_fields,
             dedups: self.dedups,
             special_namings: self.special_namings,
@@ -210,27 +214,41 @@ impl<MkB, P> Builder<MkB, P> {
         self
     }
 
-    /**
-     * Don't generate items which are unused by the main service
-     */
+    /// Don't generate items which are unused by the main service
     pub fn ignore_unused(mut self, flag: bool) -> Self {
         self.ignore_unused = flag;
         self
     }
 
-    /**
-     * Generate items even them are not used.
-     *
-     * This is ignored if `ignore_unused` is false
-     */
+    /// Generate items even them are not used.
+    ///
+    /// This is ignored if `ignore_unused` is false.
+    ///
+    /// Entries whose `items` list is empty are silently ignored, because an
+    /// empty `touch` would otherwise defeat the fallback logic that relies on
+    /// `touches.is_empty()` and never produce any effect on its own.
     pub fn touch(
         mut self,
         item: impl IntoIterator<Item = (PathBuf, Vec<impl Into<String>>)>,
     ) -> Self {
-        self.touches.extend(
-            item.into_iter()
-                .map(|s| (s.0, s.1.into_iter().map(|s| s.into()).collect())),
-        );
+        self.touches.extend(item.into_iter().filter_map(|s| {
+            let items = s.1.into_iter().map(|s| s.into()).collect::<Vec<_>>();
+            if items.is_empty() {
+                None
+            } else {
+                Some((s.0, items))
+            }
+        }));
+        self
+    }
+
+    /// Generate all non-`mod` top-level items from the specified input files.
+    ///
+    /// This is mainly intended for IDLs without any `service` definitions.
+    /// When `ignore_unused(false)` is set, the selection is still promoted to
+    /// `RootSelection::All`, so `touch_files` has no effect.
+    pub fn touch_files(mut self, item: impl IntoIterator<Item = PathBuf>) -> Self {
+        self.touch_files.extend(item);
         self
     }
 
@@ -264,9 +282,7 @@ impl<MkB, P> Builder<MkB, P> {
         self
     }
 
-    /**
-     * Generate comments for the generated code
-     */
+    /// Generate comments for the generated code
     pub fn with_comments(mut self, on: bool) -> Self {
         self.with_comments = on;
         self
@@ -316,7 +332,51 @@ where
     }
 
     #[allow(clippy::too_many_arguments)]
+    #[deprecated(
+        since = "0.13.8",
+        note = "`build_cx` does not forward the `touch_files` configuration and is kept only \
+                for backward compatibility. Use `Builder::compile_with_config` or \
+                `Builder::init_service` instead, which honour every builder option."
+    )]
     pub fn build_cx(
+        services: Vec<IdlService>,
+        out: Option<Output>,
+        parser: P,
+        touches: Vec<(PathBuf, Vec<String>)>,
+        ignore_unused: bool,
+        source_type: SourceType,
+        change_case: bool,
+        keep_unknown_fields: Vec<PathBuf>,
+        dedups: Vec<FastStr>,
+        special_namings: Vec<FastStr>,
+        common_crate_name: FastStr,
+        split: bool,
+        with_descriptor: bool,
+        with_field_mask: bool,
+        with_comments: bool,
+    ) -> Context {
+        Self::build_cx_impl(
+            services,
+            out,
+            parser,
+            touches,
+            ignore_unused,
+            source_type,
+            change_case,
+            vec![],
+            keep_unknown_fields,
+            dedups,
+            special_namings,
+            common_crate_name,
+            split,
+            with_descriptor,
+            with_field_mask,
+            with_comments,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn build_cx_impl(
         services: Vec<IdlService>,
         out: Option<Output>,
         mut parser: P,
@@ -324,6 +384,7 @@ where
         ignore_unused: bool,
         source_type: SourceType,
         change_case: bool,
+        touch_files: Vec<PathBuf>,
         keep_unknown_fields: Vec<PathBuf>,
         dedups: Vec<FastStr>,
         special_namings: Vec<FastStr>,
@@ -373,20 +434,14 @@ where
             .with_pb_ext_indexes(pb_ext_indexes)
             .with_pb_exts_used(pb_ext_indexes_used);
 
-        let mut input = Vec::with_capacity(input_files.len());
-        for file_id in &input_files {
-            let file = db.file(*file_id).unwrap();
-            file.items.iter().for_each(|def_id| {
-                // Check if the node is an Item before calling item()
-                if let Some(node) = db.node(*def_id) {
-                    if let NodeKind::Item(item) = &node.kind {
-                        if matches!(&**item, rir::Item::Service(_)) {
-                            input.push(*def_id)
-                        }
-                    }
-                }
-            });
-        }
+        let root_selection = middle::root_selector::RootSelector::new(
+            &db,
+            touches,
+            touch_files,
+            input_files,
+            ignore_unused,
+        )
+        .select();
 
         let mut cx = ContextBuilder::new(
             db,
@@ -400,20 +455,19 @@ where
                     file_path: Default::default(),
                 },
             },
-            input,
+            vec![],
         );
 
-        cx.collect(if ignore_unused {
-            CollectMode::OnlyUsed { touches }
-        } else {
-            CollectMode::All
-        });
+        let selection_kind = root_selection.kind();
+
+        cx.collect(root_selection);
 
         cx.keep(keep_unknown_fields);
 
         cx.build(
             Arc::from(services),
             source_type,
+            selection_kind,
             change_case,
             dedups,
             special_namings,
@@ -429,7 +483,7 @@ where
     pub fn compile_with_config(self, services: Vec<IdlService>, out: Output) {
         let _ = tracing_subscriber::fmt::try_init();
 
-        let cx = Self::build_cx(
+        let cx = Self::build_cx_impl(
             services,
             Some(out),
             self.parser,
@@ -437,6 +491,7 @@ where
             self.ignore_unused,
             self.source_type,
             self.change_case,
+            self.touch_files,
             self.keep_unknown_fields,
             self.dedups,
             self.special_namings,
@@ -517,7 +572,7 @@ where
     pub fn init_service(self, service: IdlService) -> anyhow::Result<(String, String)> {
         let _ = tracing_subscriber::fmt::try_init();
         let path = service.path.clone();
-        let cx = Self::build_cx(
+        let cx = Self::build_cx_impl(
             vec![service],
             None,
             self.parser,
@@ -525,6 +580,7 @@ where
             self.ignore_unused,
             self.source_type,
             self.change_case,
+            self.touch_files,
             self.keep_unknown_fields,
             self.dedups,
             self.special_namings,
@@ -535,12 +591,54 @@ where
             self.with_comments,
         );
 
-        std::thread::scope(|_scope| {
-            CONTEXT.set(&cx.clone(), move || {
-                Codegen::new(self.mk_backend.make_backend(cx)).pick_init_service(path)
+        if matches!(cx.source.selection_kind, SelectionKind::Explicit) {
+            Ok(Default::default())
+        } else {
+            std::thread::scope(|_scope| {
+                CONTEXT.set(&cx.clone(), move || {
+                    Codegen::new(self.mk_backend.make_backend(cx)).pick_init_service(path)
+                })
             })
-        })
+        }
     }
 }
 
 mod test;
+
+#[cfg(test)]
+mod touch_semantics_tests {
+    use std::path::PathBuf;
+
+    #[test]
+    fn touch_with_empty_items_is_ignored() {
+        let builder =
+            crate::Builder::thrift().touch([(PathBuf::from("a.thrift"), Vec::<String>::new())]);
+        assert!(builder.touches.is_empty());
+    }
+
+    #[test]
+    fn touch_with_non_empty_items_is_kept() {
+        let builder =
+            crate::Builder::thrift().touch([(PathBuf::from("a.thrift"), vec!["Foo".to_string()])]);
+        assert_eq!(builder.touches.len(), 1);
+        let (path, items) = &builder.touches[0];
+        assert_eq!(path, &PathBuf::from("a.thrift"));
+        assert_eq!(items, &vec!["Foo".to_string()]);
+    }
+
+    #[test]
+    fn touch_mixed_filters_empty_entries() {
+        let builder = crate::Builder::thrift().touch([
+            (PathBuf::from("a.thrift"), Vec::<String>::new()),
+            (PathBuf::from("b.thrift"), vec!["Bar".to_string()]),
+        ]);
+        assert_eq!(builder.touches.len(), 1);
+        assert_eq!(builder.touches[0].0, PathBuf::from("b.thrift"));
+    }
+
+    #[test]
+    fn touch_files_alias_populates_touch_files() {
+        let builder = crate::Builder::thrift().touch_files([PathBuf::from("a.thrift")]);
+        assert_eq!(builder.touch_files, vec![PathBuf::from("a.thrift")]);
+    }
+}
