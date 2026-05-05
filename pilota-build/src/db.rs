@@ -301,6 +301,12 @@ pub trait RirDatabase: salsa::Database {
     fn nodes(&self) -> &Arc<FxHashMap<DefId, rir::Node>>;
     fn files(&self) -> &Arc<FxHashMap<FileId, Arc<rir::File>>>;
     fn file_ids_map(&self) -> &Arc<FxHashMap<Arc<PathBuf>, FileId>>;
+    /// Returns the mapping from `FileId` to its on-disk path.
+    ///
+    /// All values in this map are expected to be normalized absolute paths.
+    /// Parsers (thrift / protobuf) are responsible for normalizing paths via
+    /// `normpath::PathExt::normalize()` before inserting them, and downstream
+    /// consumers (e.g. `touch_all` matching) rely on this invariant.
     fn file_paths(&self) -> &Arc<FxHashMap<FileId, Arc<PathBuf>>>;
     fn type_graph(&self) -> &Arc<TypeGraph>;
     fn tags_map(&self) -> &Arc<FxHashMap<TagId, Arc<Tags>>>;

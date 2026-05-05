@@ -660,4 +660,46 @@ fn test_pb_options() {
     });
 }
 
+#[test]
+fn test_pb_no_service() {
+    let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("protobuf")
+        .join("no_service.proto");
+
+    let mut out_path = file_path.clone();
+    out_path.set_extension("rs");
+
+    test_with_builder(file_path, out_path, |source, target| {
+        crate::Builder::pb()
+            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
+            .touch_all(vec![source.to_path_buf()])
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            );
+    });
+}
+
+#[test]
+fn test_thrift_no_service() {
+    let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("thrift")
+        .join("no_service.thrift");
+
+    let mut out_path = file_path.clone();
+    out_path.set_extension("rs");
+
+    test_with_builder(file_path, out_path, |source, target| {
+        crate::Builder::thrift()
+            .with_comments(true)
+            .touch_all(vec![source.to_path_buf()])
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            );
+    });
+}
+
 mod enum_key_map_tests;

@@ -18,6 +18,8 @@ mod resolve;
 mod symbol;
 
 use faststr::FastStr;
+use normpath::PathExt;
+use rustc_hash::FxHashSet;
 pub use symbol::{ModPath, Symbol};
 use tempfile::tempdir;
 pub mod tags;
@@ -81,6 +83,7 @@ pub struct Builder<MkB, P> {
     split: bool,
     touches: Vec<(std::path::PathBuf, Vec<String>)>,
     change_case: bool,
+    touch_all_paths: Vec<std::path::PathBuf>,
     keep_unknown_fields: Vec<std::path::PathBuf>,
     dedups: Vec<FastStr>,
     special_namings: Vec<FastStr>,
@@ -104,6 +107,7 @@ impl Builder<MkThriftBackend, ThriftParser> {
             touches: Vec::default(),
             ignore_unused: true,
             change_case: true,
+            touch_all_paths: Vec::default(),
             keep_unknown_fields: Vec::default(),
             dedups: Vec::default(),
             special_namings: Vec::default(),
@@ -149,6 +153,7 @@ impl Builder<MkPbBackend, ProtobufParser> {
             touches: Vec::default(),
             ignore_unused: true,
             change_case: true,
+            touch_all_paths: Vec::default(),
             keep_unknown_fields: Vec::default(),
             dedups: Vec::default(),
             special_namings: Vec::default(),
@@ -182,6 +187,7 @@ impl<MkB, P> Builder<MkB, P> {
             ignore_unused: self.ignore_unused,
             touches: self.touches,
             change_case: self.change_case,
+            touch_all_paths: self.touch_all_paths,
             keep_unknown_fields: self.keep_unknown_fields,
             dedups: self.dedups,
             special_namings: self.special_namings,
@@ -210,27 +216,36 @@ impl<MkB, P> Builder<MkB, P> {
         self
     }
 
-    /**
-     * Don't generate items which are unused by the main service
-     */
+    /// Don't generate items which are unused by the main service
     pub fn ignore_unused(mut self, flag: bool) -> Self {
         self.ignore_unused = flag;
         self
     }
 
-    /**
-     * Generate items even them are not used.
-     *
-     * This is ignored if `ignore_unused` is false
-     */
+    /// Generate items even them are not used.
+    ///
+    /// This is ignored if `ignore_unused` is false.
+    ///
+    /// Entries whose `items` list is empty are silently ignored, because an
+    /// empty `touch` would otherwise defeat the fallback logic that relies on
+    /// `touches.is_empty()` and never produce any effect on its own.
     pub fn touch(
         mut self,
         item: impl IntoIterator<Item = (PathBuf, Vec<impl Into<String>>)>,
     ) -> Self {
-        self.touches.extend(
-            item.into_iter()
-                .map(|s| (s.0, s.1.into_iter().map(|s| s.into()).collect())),
-        );
+        self.touches.extend(item.into_iter().filter_map(|s| {
+            let items = s.1.into_iter().map(|s| s.into()).collect::<Vec<_>>();
+            if items.is_empty() {
+                None
+            } else {
+                Some((s.0, items))
+            }
+        }));
+        self
+    }
+
+    pub fn touch_all(mut self, item: impl IntoIterator<Item = PathBuf>) -> Self {
+        self.touch_all_paths.extend(item);
         self
     }
 
@@ -264,9 +279,7 @@ impl<MkB, P> Builder<MkB, P> {
         self
     }
 
-    /**
-     * Generate comments for the generated code
-     */
+    /// Generate comments for the generated code
     pub fn with_comments(mut self, on: bool) -> Self {
         self.with_comments = on;
         self
@@ -324,6 +337,7 @@ where
         ignore_unused: bool,
         source_type: SourceType,
         change_case: bool,
+        touch_all_paths: Vec<PathBuf>,
         keep_unknown_fields: Vec<PathBuf>,
         dedups: Vec<FastStr>,
         special_namings: Vec<FastStr>,
@@ -388,6 +402,52 @@ where
             });
         }
 
+        if ignore_unused && input.is_empty() && touches.is_empty() {
+            let normalized_touch_all_paths = touch_all_paths
+                .into_iter()
+                .map(|path| {
+                    path.normalize()
+                        .unwrap_or_else(|_| panic!("normalize path failed: {}", path.display()))
+                        .into_path_buf()
+                })
+                .collect::<FxHashSet<_>>();
+
+            if !normalized_touch_all_paths.is_empty() {
+                // `db.file_paths()` is expected to already contain normalized
+                // absolute paths (see thrift/protobuf parsers which normalize
+                // the input before inserting). We therefore match directly
+                // without re-normalizing here.
+                let mut matched_touch_all_paths: FxHashSet<PathBuf> = FxHashSet::default();
+                for file_id in &input_files {
+                    let Some(file_path) = db.file_paths().get(file_id) else {
+                        continue;
+                    };
+                    if !normalized_touch_all_paths.contains(file_path.as_path()) {
+                        continue;
+                    }
+                    matched_touch_all_paths.insert(file_path.as_path().to_path_buf());
+
+                    let file = db.file(*file_id).unwrap();
+                    file.items.iter().for_each(|def_id| {
+                        if let Some(node) = db.node(*def_id) {
+                            if let NodeKind::Item(item) = &node.kind {
+                                if !matches!(&**item, rir::Item::Mod(_)) {
+                                    input.push(*def_id);
+                                }
+                            }
+                        }
+                    });
+                }
+
+                for path in normalized_touch_all_paths.difference(&matched_touch_all_paths) {
+                    println!(
+                        "cargo:warning=touch_all path `{}` does not match any input file",
+                        path.display()
+                    );
+                }
+            }
+        }
+
         let mut cx = ContextBuilder::new(
             db,
             match out {
@@ -437,6 +497,7 @@ where
             self.ignore_unused,
             self.source_type,
             self.change_case,
+            self.touch_all_paths,
             self.keep_unknown_fields,
             self.dedups,
             self.special_namings,
@@ -525,6 +586,7 @@ where
             self.ignore_unused,
             self.source_type,
             self.change_case,
+            self.touch_all_paths,
             self.keep_unknown_fields,
             self.dedups,
             self.special_namings,
@@ -544,3 +606,42 @@ where
 }
 
 mod test;
+
+#[cfg(test)]
+mod touch_semantics_tests {
+    //! Unit tests for `Builder::touch`'s empty-entry filtering.
+    //!
+    //! NOTE: `pilota-build` is a vendored crate and is not a workspace
+    //! member, so `cargo test -p pilota-build` cannot run directly. These
+    //! tests serve as compile-checked assertions that the semantics are
+    //! preserved; the end-to-end behaviour is additionally covered by the
+    //! `volo-gen` regression (service-level `touch_all`) in the workspace.
+    use std::path::PathBuf;
+
+    #[test]
+    fn touch_with_empty_items_is_ignored() {
+        let builder =
+            crate::Builder::thrift().touch([(PathBuf::from("a.thrift"), Vec::<String>::new())]);
+        assert!(builder.touches.is_empty());
+    }
+
+    #[test]
+    fn touch_with_non_empty_items_is_kept() {
+        let builder =
+            crate::Builder::thrift().touch([(PathBuf::from("a.thrift"), vec!["Foo".to_string()])]);
+        assert_eq!(builder.touches.len(), 1);
+        let (path, items) = &builder.touches[0];
+        assert_eq!(path, &PathBuf::from("a.thrift"));
+        assert_eq!(items, &vec!["Foo".to_string()]);
+    }
+
+    #[test]
+    fn touch_mixed_filters_empty_entries() {
+        let builder = crate::Builder::thrift().touch([
+            (PathBuf::from("a.thrift"), Vec::<String>::new()),
+            (PathBuf::from("b.thrift"), vec!["Bar".to_string()]),
+        ]);
+        assert_eq!(builder.touches.len(), 1);
+        assert_eq!(builder.touches[0].0, PathBuf::from("b.thrift"));
+    }
+}
