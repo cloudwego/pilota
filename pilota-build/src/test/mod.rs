@@ -673,6 +673,7 @@ fn test_pb_no_service() {
     test_with_builder(file_path, out_path, |source, target| {
         crate::Builder::pb()
             .include_dirs(vec![source.parent().unwrap().to_path_buf()])
+            .touch_all(vec![source.to_path_buf()])
             .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
                 crate::Output::File(target.into()),
@@ -693,6 +694,7 @@ fn test_thrift_no_service() {
     test_with_builder(file_path, out_path, |source, target| {
         crate::Builder::thrift()
             .with_comments(true)
+            .touch_all(vec![source.to_path_buf()])
             .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
                 crate::Output::File(target.into()),
