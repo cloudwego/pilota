@@ -928,6 +928,7 @@ dependencies = [
  "ahash",
  "ariadne",
  "chumsky",
+ "criterion",
  "faststr",
  "pilota",
  "pilota-thrift-parser",

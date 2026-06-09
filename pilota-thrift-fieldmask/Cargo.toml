@@ -29,3 +29,10 @@ faststr.workspace = true
 thiserror.workspace = true
 serde.workspace = true
 chumsky.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+
+[[bench]]
+name = "get_path"
+harness = false
