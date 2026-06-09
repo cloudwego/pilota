@@ -427,7 +427,7 @@ impl FieldMaskData {
         let type_name = desc.name.as_str().into();
         match type_name {
             ThriftType::Path(_) => {
-                if desc.get_struct_desc().is_some() {
+                if desc.with_struct_desc(|_| ()).is_some() {
                     FieldMaskData::Struct {
                         children: AHashMap::new(),
                         is_all: false,
@@ -607,6 +607,52 @@ impl FieldMaskBuilder {
     }
 }
 
+// Cursor over the current descriptor during `get_path` traversal. It is either
+// borrowed from the input `desc` (and from registry-owned descriptors reached
+// through borrowed value types) or an owned descriptor produced while
+// descending (e.g. a cloned struct field type). This lets the common cases
+// avoid cloning the whole `TypeDescriptor`.
+enum DescCursor<'a> {
+    Borrowed(&'a TypeDescriptor),
+    Owned(TypeDescriptor),
+}
+
+impl<'a> DescCursor<'a> {
+    fn as_ref(&self) -> &TypeDescriptor {
+        match self {
+            DescCursor::Borrowed(desc) => desc,
+            DescCursor::Owned(desc) => desc,
+        }
+    }
+
+    // Move into the collection value type, borrowing when possible and only
+    // moving the owned `Box` when the cursor already owns the descriptor.
+    fn into_value_type(self) -> Option<DescCursor<'a>> {
+        match self {
+            DescCursor::Borrowed(desc) => desc.value_type.as_deref().map(DescCursor::Borrowed),
+            DescCursor::Owned(mut desc) => desc
+                .value_type
+                .take()
+                .map(|value| DescCursor::Owned(*value)),
+        }
+    }
+}
+
+// Result of resolving one struct field inside the `with_struct_desc` callback.
+// The callback must not return anything borrowed from the `StructDescriptor`,
+// so the descriptor to descend into is returned as an owned clone.
+enum StructStep<'a> {
+    // FieldMask says the field is not selected: `(None, false)`.
+    NotExist,
+    // The current FieldMask is the answer (all-mode, leaf, or struct `*`).
+    StopCurrent,
+    // Continue traversal into `next_desc` with `next_fm`.
+    Descend {
+        next_desc: TypeDescriptor,
+        next_fm: &'a FieldMask,
+    },
+}
+
 impl FieldMask {
     pub fn reset(&mut self) {
         self.data = FieldMaskData::Invalid;
@@ -758,7 +804,7 @@ impl FieldMask {
         })?;
 
         let mut cur_fm = self;
-        let mut cur_desc = desc.clone();
+        let mut cur_desc = DescCursor::Borrowed(desc);
 
         while it.has_next() {
             let token = it.next();
@@ -768,85 +814,113 @@ impl FieldMask {
                     continue;
                 }
                 TokenData::Field => {
-                    let s =
-                        cur_desc
-                            .get_struct_desc()
-                            .ok_or_else(|| FieldMaskError::TypeMismatch {
-                                detail: Box::new(TypeMismatchDetail {
-                                    expected: "Struct".into(),
-                                    actual: cur_desc.name.clone(),
-                                    context: "descriptor type check for field".into(),
-                                }),
-                                path: Box::new(PathDetail {
-                                    path: FastStr::new(path),
-                                    position: token.get_begin_pos(),
-                                }),
+                    let current = cur_desc.as_ref();
+                    let field_token = it.next();
+
+                    // Resolve the field inside a single registry guard. A missing
+                    // struct descriptor maps to `None` (handled by `ok_or_else`
+                    // below), so descriptor type errors keep precedence over the
+                    // FieldMask / token checks done inside the closure. The closure
+                    // only returns owned/borrowed-from-`self` data (see `StructStep`).
+                    let step = current
+                        .with_struct_desc(|s| {
+                            if !matches!(cur_fm.data, FieldMaskData::Struct { .. }) && !cur_fm.all()
+                            {
+                                return Err(FieldMaskError::TypeMismatch {
+                                    detail: Box::new(TypeMismatchDetail {
+                                        expected: "Struct".into(),
+                                        actual: FastStr::new(cur_fm.typ()),
+                                        context: "FieldMask type check for field".into(),
+                                    }),
+                                    path: Box::new(PathDetail {
+                                        path: FastStr::new(path),
+                                        position: token.get_begin_pos(),
+                                    }),
+                                });
+                            }
+
+                            // `*` selects all fields.
+                            if matches!(field_token.data, TokenData::Any) {
+                                return Ok(StructStep::StopCurrent);
+                            }
+                            if !matches!(
+                                field_token.data,
+                                TokenData::LitInt(_) | TokenData::LitStr(_)
+                            ) {
+                                return Err(FieldMaskError::InvalidToken {
+                                    token_type: FastStr::new(format!("{:?}", field_token.data)),
+                                    expected: "field name, field id or '*'".into(),
+                                    path: Box::new(PathDetail {
+                                        path: FastStr::new(path),
+                                        position: field_token.get_begin_pos(),
+                                    }),
+                                });
+                            }
+
+                            let field = match &field_token.data {
+                                TokenData::LitInt(id) => s.find_field_by_id(*id),
+                                TokenData::LitStr(name) => s.find_field_by_name(name),
+                                _ => unreachable!("field_token kind checked above"),
+                            }
+                            .ok_or_else(|| {
+                                FieldMaskError::FieldNotFound {
+                                    field_identifier: format!("{:?}", field_token.data).into(),
+                                    parent_type: current.name.clone(),
+                                    path: Box::new(PathDetail {
+                                        path: FastStr::new(path),
+                                        position: field_token.get_begin_pos(),
+                                    }),
+                                }
                             })?;
 
-                    if !matches!(cur_fm.data, FieldMaskData::Struct { .. }) && !cur_fm.all() {
-                        return Err(FieldMaskError::TypeMismatch {
+                            let (next_fm, exist) = cur_fm.field(field.id);
+                            if !exist {
+                                return Ok(StructStep::NotExist);
+                            }
+                            match next_fm {
+                                None => Ok(StructStep::StopCurrent),
+                                Some(next_fm) => Ok(StructStep::Descend {
+                                    next_desc: field.r#type.clone(),
+                                    next_fm,
+                                }),
+                            }
+                        })
+                        .ok_or_else(|| FieldMaskError::TypeMismatch {
                             detail: Box::new(TypeMismatchDetail {
                                 expected: "Struct".into(),
-                                actual: FastStr::new(cur_fm.typ()),
-                                context: "FieldMask type check for field".into(),
+                                actual: current.name.clone(),
+                                context: "descriptor type check for field".into(),
                             }),
+                            path: Box::new(PathDetail {
+                                path: FastStr::new(path),
+                                position: token.get_begin_pos(),
+                            }),
+                        })??;
+
+                    match step {
+                        StructStep::NotExist => return Ok((None, false)),
+                        StructStep::StopCurrent => {
+                            return Ok((Some(Cow::Borrowed(cur_fm)), true));
+                        }
+                        StructStep::Descend { next_desc, next_fm } => {
+                            cur_desc = DescCursor::Owned(next_desc);
+                            cur_fm = next_fm;
+                        }
+                    }
+                }
+                TokenData::IndexL => {
+                    // Preserve original error precedence: the missing value
+                    // type is reported before any FieldMask / index checks.
+                    if cur_desc.as_ref().value_type.is_none() {
+                        return Err(FieldMaskError::DescriptorError {
+                            type_name: cur_desc.as_ref().name.clone(),
+                            message: "collection has no value type".into(),
                             path: Box::new(PathDetail {
                                 path: FastStr::new(path),
                                 position: token.get_begin_pos(),
                             }),
                         });
                     }
-
-                    let field_token = it.next();
-
-                    let field = match &field_token.data {
-                        TokenData::LitInt(id) => s.find_field_by_id(*id).cloned(),
-                        TokenData::LitStr(name) => s.find_field_by_name(name).cloned(),
-                        TokenData::Any => {
-                            // for struct, `*` means all fields
-                            return Ok((Some(Cow::Borrowed(cur_fm)), true));
-                        }
-                        _ => {
-                            return Err(FieldMaskError::InvalidToken {
-                                token_type: FastStr::new(format!("{:?}", field_token.data)),
-                                expected: "field name, field id or '*'".into(),
-                                path: Box::new(PathDetail {
-                                    path: FastStr::new(path),
-                                    position: field_token.get_begin_pos(),
-                                }),
-                            });
-                        }
-                    }
-                    .ok_or_else(|| FieldMaskError::FieldNotFound {
-                        field_identifier: format!("{:?}", field_token.data).into(),
-                        parent_type: cur_desc.name.clone(),
-                        path: Box::new(PathDetail {
-                            path: FastStr::new(path),
-                            position: field_token.get_begin_pos(),
-                        }),
-                    })?;
-
-                    let (next_fm, exist) = cur_fm.field(field.id);
-                    if !exist {
-                        return Ok((None, false));
-                    }
-                    if next_fm.is_none() {
-                        return Ok((Some(Cow::Borrowed(cur_fm)), true));
-                    }
-                    cur_desc = field.r#type;
-                    cur_fm = next_fm.unwrap();
-                }
-                TokenData::IndexL => {
-                    let element_desc = cur_desc.value_type.as_deref().ok_or_else(|| {
-                        FieldMaskError::DescriptorError {
-                            type_name: cur_desc.name.clone(),
-                            message: "collection has no value type".into(),
-                            path: Box::new(PathDetail {
-                                path: FastStr::new(path),
-                                position: token.get_begin_pos(),
-                            }),
-                        }
-                    })?;
 
                     if !matches!(cur_fm.data, FieldMaskData::List { .. }) && !cur_fm.all() {
                         return Err(FieldMaskError::TypeMismatch {
@@ -919,7 +993,9 @@ impl FieldMask {
                         }
                     }
 
-                    cur_desc = element_desc.clone();
+                    cur_desc = cur_desc
+                        .into_value_type()
+                        .expect("value_type checked at index branch entry");
                     if let Some(next) = next_fm_for_loop {
                         cur_fm = next;
                     } else {
@@ -927,16 +1003,18 @@ impl FieldMask {
                     }
                 }
                 TokenData::MapL => {
-                    let element_desc = cur_desc.value_type.as_deref().ok_or_else(|| {
-                        FieldMaskError::DescriptorError {
-                            type_name: cur_desc.name.clone(),
+                    // Preserve original error precedence: the missing value
+                    // type is reported before any FieldMask / key checks.
+                    if cur_desc.as_ref().value_type.is_none() {
+                        return Err(FieldMaskError::DescriptorError {
+                            type_name: cur_desc.as_ref().name.clone(),
                             message: "map has no value type".into(),
                             path: Box::new(PathDetail {
                                 path: FastStr::new(path),
                                 position: token.get_begin_pos(),
                             }),
-                        }
-                    })?;
+                        });
+                    }
 
                     if !matches!(
                         cur_fm.data,
@@ -1027,7 +1105,9 @@ impl FieldMask {
                         }
                     }
 
-                    cur_desc = element_desc.clone();
+                    cur_desc = cur_desc
+                        .into_value_type()
+                        .expect("value_type checked at map branch entry");
                     if let Some(next) = next_fm_for_loop {
                         cur_fm = next;
                     } else {
@@ -2032,5 +2112,57 @@ mod tests {
             .get_path(&req_desc.type_descriptor(), "$.f15{\"key2\"}.a")
             .unwrap();
         assert!(!exist);
+    }
+
+    // A collection descriptor whose `value_type` is `None` is malformed. The
+    // missing value type must be reported as `DescriptorError` before any
+    // FieldMask type check, all-mode short-circuit or index/key parsing. These
+    // tests guard the error precedence so later refactors can't silently move
+    // the `value_type` check past the FieldMask logic.
+    #[test]
+    fn test_list_missing_value_type_reports_descriptor_error() {
+        // all-mode list mask: the normal path would short-circuit and return the
+        // current mask, so reaching `DescriptorError` proves the descriptor check
+        // wins.
+        let fm = FieldMask {
+            is_black: false,
+            data: FieldMaskData::List {
+                children: AHashMap::new(),
+                wildcard: None,
+                is_all: true,
+            },
+        };
+        let desc = TypeDescriptor {
+            name: "fake_list".into(),
+            ..Default::default()
+        };
+
+        let err = fm.get_path(&desc, "$[1]").unwrap_err();
+        assert!(
+            matches!(err, FieldMaskError::DescriptorError { .. }),
+            "expected DescriptorError, got {err:?}"
+        );
+    }
+
+    #[test]
+    fn test_map_missing_value_type_reports_descriptor_error() {
+        let fm = FieldMask {
+            is_black: false,
+            data: FieldMaskData::StrMap {
+                children: AHashMap::new(),
+                wildcard: None,
+                is_all: true,
+            },
+        };
+        let desc = TypeDescriptor {
+            name: "fake_map".into(),
+            ..Default::default()
+        };
+
+        let err = fm.get_path(&desc, "${\"key1\"}").unwrap_err();
+        assert!(
+            matches!(err, FieldMaskError::DescriptorError { .. }),
+            "expected DescriptorError, got {err:?}"
+        );
     }
 }

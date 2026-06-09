@@ -148,7 +148,19 @@ impl TypeDescriptor {
         }
     }
 
-    pub fn get_struct_desc(&self) -> Option<StructDescriptor> {
+    /// Look up the `StructDescriptor` for this type from the global registry
+    /// and run `f` with a borrowed reference, avoiding the deep clone
+    /// performed by [`get_struct_desc`](Self::get_struct_desc).
+    ///
+    /// The reference passed to `f` is only valid for the duration of the call:
+    /// it borrows from the registry's `DashMap` read guard, which is dropped
+    /// once this method returns. Therefore `f`'s return value `R` must not
+    /// borrow from the `StructDescriptor` (return owned data instead).
+    ///
+    /// `f` must not re-enter the registry (e.g. call `Register::register`,
+    /// `with_struct_desc`, or `get_struct_desc`) while it runs, since the read
+    /// guard(s) are still held and re-entrancy may deadlock.
+    pub fn with_struct_desc<R>(&self, f: impl FnOnce(&StructDescriptor) -> R) -> Option<R> {
         let ty = self.name.as_str().into();
         match ty {
             ThriftType::Path(path) => {
@@ -159,25 +171,36 @@ impl TypeDescriptor {
                 let include_path = IncludePath::try_from(path.as_str()).unwrap();
 
                 if !include_path.prefix.is_empty() {
+                    // Clone the include file path and drop the current file's
+                    // registry guard before acquiring the included file's guard.
+                    // Holding two `DashMap` read guards at once risks a deadlock
+                    // if both files hash to the same shard, and it widens the
+                    // window during which `f` runs while a lock is held.
                     let include_file_path = cur_file_desc
                         .includes
                         .get(include_path.prefix.as_str())
                         .unwrap_or_else(|| {
                             panic!("include path not found: {}", include_path.prefix)
-                        });
+                        })
+                        .clone();
+                    drop(cur_file_desc);
                     let included_file_descriptor =
                         Register::get(include_file_path.as_str()).unwrap();
                     included_file_descriptor
                         .find_struct_by_name(include_path.name.as_str())
-                        .cloned()
+                        .map(f)
                 } else {
                     cur_file_desc
                         .find_struct_by_name(include_path.name.as_str())
-                        .cloned()
+                        .map(f)
                 }
             }
             _ => None,
         }
+    }
+
+    pub fn get_struct_desc(&self) -> Option<StructDescriptor> {
+        self.with_struct_desc(Clone::clone)
     }
 }
 
