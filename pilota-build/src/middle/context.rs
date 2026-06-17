@@ -1224,14 +1224,21 @@ impl Context {
 
                 self.ident_into_ty(p.did, &ident_ty, ty)
             }
-            (Literal::String(s), CodegenTy::Str) => (format!("\"{s}\"").into(), true),
-            (Literal::String(s), CodegenTy::String) => {
-                (format! {"\"{s}\".to_string()"}.into(), false)
+            (Literal::String(s), CodegenTy::Str) => {
+                let escaped = s.escape_debug().to_string();
+                (format!("\"{escaped}\"").into(), true)
             }
-            (Literal::String(s), CodegenTy::FastStr) => (
-                format! { "::pilota::FastStr::from_static_str(\"{s}\")" }.into(),
-                true,
-            ),
+            (Literal::String(s), CodegenTy::String) => {
+                let escaped = s.escape_debug().to_string();
+                (format!("\"{escaped}\".to_string()").into(), false)
+            }
+            (Literal::String(s), CodegenTy::FastStr) => {
+                let escaped = s.escape_debug().to_string();
+                (
+                    format!("::pilota::FastStr::from_static_str(\"{escaped}\")").into(),
+                    true,
+                )
+            }
             (Literal::Int(i), CodegenTy::I8) => (format! { "{i}i8" }.into(), true),
             (Literal::Int(i), CodegenTy::I16) => (format! { "{i}i16" }.into(), true),
             (Literal::Int(i), CodegenTy::I32) => (format! { "{i}i32" }.into(), true),
@@ -1337,9 +1344,9 @@ impl Context {
                 (format! { "{b}" }.into(), true)
             }
             (Literal::String(s), CodegenTy::Bytes) => {
-                let s = &**s;
+                let escaped = s.escape_debug().to_string();
                 (
-                    format! { "::pilota::Bytes::from_static(\"{s}\".as_bytes())" }.into(),
+                    format!("::pilota::Bytes::from_static(\"{escaped}\".as_bytes())").into(),
                     true,
                 )
             }

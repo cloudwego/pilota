@@ -5,11 +5,20 @@ use super::super::descriptor::Literal;
 fn quoted_string<'a>(quote: char) -> impl Parser<'a, &'a str, String, extra::Err<Rich<'a, char>>> {
     let normal_char = none_of([quote, '\\']);
 
-    let escape_char = just('\\').ignore_then(one_of(['\'', '"', 'n', '\\']));
+    let escape_char = just('\\').ignore_then(one_of([
+        '\'', '"', '\\', 'n', 't', 'r', '0', 'a', 'b', 'f', 'v',
+    ]));
 
     let content_char = escape_char
         .map(|c| match c {
             'n' => '\n',
+            't' => '\t',
+            'r' => '\r',
+            '0' => '\0',
+            'a' => '\x07',
+            'b' => '\x08',
+            'f' => '\x0C',
+            'v' => '\x0B',
             other => other,
         })
         .or(normal_char);
@@ -45,5 +54,12 @@ mod tests {
         let _ = Literal::parse().parse(r#"'hello\nworld'"#).unwrap();
         let _ = Literal::parse().parse(r#"'hello\\world'"#).unwrap();
         let _ = Literal::parse().parse(r#"'hello\"world'"#).unwrap();
+        let _ = Literal::parse().parse(r#"'hello\tworld'"#).unwrap();
+        let _ = Literal::parse().parse(r#"'hello\rworld'"#).unwrap();
+        let _ = Literal::parse().parse(r#"'hello\0world'"#).unwrap();
+        let _ = Literal::parse().parse(r#"'hello\aworld'"#).unwrap();
+        let _ = Literal::parse().parse(r#"'hello\bworld'"#).unwrap();
+        let _ = Literal::parse().parse(r#"'hello\fworld'"#).unwrap();
+        let _ = Literal::parse().parse(r#"'hello\vworld'"#).unwrap();
     }
 }
