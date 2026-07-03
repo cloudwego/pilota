@@ -94,12 +94,8 @@ impl ThriftBackend {
                 );
                 format! {
                     r#"{{
-                        let (field_fm, exist) = struct_fm.field({field_id});
-                        if exist {{
-                            {write_field_size_with_field_mask}
-                        }} else {{
-                            0
-                        }}
+                        let (field_fm, _) = struct_fm.field({field_id});
+                        {write_field_size_with_field_mask}
                     }}"#
                 }
                 .into()
