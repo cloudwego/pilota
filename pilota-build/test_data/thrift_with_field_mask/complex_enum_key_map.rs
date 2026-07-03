@@ -303,12 +303,8 @@ pub mod complex_enum_key_map {
                         __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                             name: "NestedItem",
                         }) + {
-                            let (field_fm, exist) = struct_fm.field(1);
-                            if exist {
-                                __protocol.i32_field_len(Some(1), *&self.value)
-                            } else {
-                                0
-                            }
+                            let (field_fm, _) = struct_fm.field(1);
+                            __protocol.i32_field_len(Some(1), *&self.value)
                         } + self.label.as_ref().map_or(0, |value| {
                             let (field_fm, exist) = struct_fm.field(2);
                             if exist {
@@ -1007,132 +1003,98 @@ pub mod complex_enum_key_map {
                         __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                             name: "ComplexEnumKeyMapTest",
                         }) + {
-                            let (field_fm, exist) = struct_fm.field(1);
-                            if exist {
-                                if let Some(map_fm) = field_fm {
-                                    let mut size = __protocol
-                                        .field_begin_len(::pilota::thrift::TType::Map, None)
-                                        + __protocol.field_end_len()
-                                        + __protocol.map_begin_len(
-                                            ::pilota::thrift::TMapIdentifier {
-                                                key_type: ::pilota::thrift::TType::I32,
-                                                value_type: ::pilota::thrift::TType::I32,
-                                                size: 0,
-                                            },
-                                        )
-                                        + __protocol.map_end_len();
-                                    for (key, val) in &self.priority_counts {
-                                        let (item_fm, is_exist) = map_fm.int(key.inner() as i32);
-                                        if is_exist {
-                                            size += __protocol.struct_len(key);
-                                            size += __protocol.i32_len(*val);
-                                        }
+                            let (field_fm, _) = struct_fm.field(1);
+                            if let Some(map_fm) = field_fm {
+                                let mut size = __protocol
+                                    .field_begin_len(::pilota::thrift::TType::Map, None)
+                                    + __protocol.field_end_len()
+                                    + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {
+                                        key_type: ::pilota::thrift::TType::I32,
+                                        value_type: ::pilota::thrift::TType::I32,
+                                        size: 0,
+                                    })
+                                    + __protocol.map_end_len();
+                                for (key, val) in &self.priority_counts {
+                                    let (item_fm, is_exist) = map_fm.int(key.inner() as i32);
+                                    if is_exist {
+                                        size += __protocol.struct_len(key);
+                                        size += __protocol.i32_len(*val);
                                     }
-                                    size
-                                } else {
-                                    __protocol.map_field_len(
-                                        Some(1),
-                                        ::pilota::thrift::TType::I32,
-                                        ::pilota::thrift::TType::I32,
-                                        &self.priority_counts,
-                                        |__protocol, key| __protocol.struct_len(key),
-                                        |__protocol, val| __protocol.i32_len(*val),
-                                    )
                                 }
+                                size
                             } else {
-                                0
+                                __protocol.map_field_len(
+                                    Some(1),
+                                    ::pilota::thrift::TType::I32,
+                                    ::pilota::thrift::TType::I32,
+                                    &self.priority_counts,
+                                    |__protocol, key| __protocol.struct_len(key),
+                                    |__protocol, val| __protocol.i32_len(*val),
+                                )
                             }
                         } + {
-                            let (field_fm, exist) = struct_fm.field(2);
-                            if exist {
-                                if let Some(map_fm) = field_fm {
-                                    let mut size = __protocol
-                                        .field_begin_len(::pilota::thrift::TType::Map, None)
-                                        + __protocol.field_end_len()
-                                        + __protocol.map_begin_len(
-                                            ::pilota::thrift::TMapIdentifier {
-                                                key_type: ::pilota::thrift::TType::I32,
-                                                value_type: ::pilota::thrift::TType::Struct,
-                                                size: 0,
-                                            },
-                                        )
-                                        + __protocol.map_end_len();
-                                    for (key, val) in &self.priority_items {
-                                        let (item_fm, is_exist) = map_fm.int(key.inner() as i32);
-                                        if is_exist {
-                                            size += __protocol.struct_len(key);
-                                            size += __protocol.struct_len(val);
-                                        }
+                            let (field_fm, _) = struct_fm.field(2);
+                            if let Some(map_fm) = field_fm {
+                                let mut size = __protocol
+                                    .field_begin_len(::pilota::thrift::TType::Map, None)
+                                    + __protocol.field_end_len()
+                                    + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {
+                                        key_type: ::pilota::thrift::TType::I32,
+                                        value_type: ::pilota::thrift::TType::Struct,
+                                        size: 0,
+                                    })
+                                    + __protocol.map_end_len();
+                                for (key, val) in &self.priority_items {
+                                    let (item_fm, is_exist) = map_fm.int(key.inner() as i32);
+                                    if is_exist {
+                                        size += __protocol.struct_len(key);
+                                        size += __protocol.struct_len(val);
                                     }
-                                    size
-                                } else {
-                                    __protocol.map_field_len(
-                                        Some(2),
-                                        ::pilota::thrift::TType::I32,
-                                        ::pilota::thrift::TType::Struct,
-                                        &self.priority_items,
-                                        |__protocol, key| __protocol.struct_len(key),
-                                        |__protocol, val| __protocol.struct_len(val),
-                                    )
                                 }
+                                size
                             } else {
-                                0
+                                __protocol.map_field_len(
+                                    Some(2),
+                                    ::pilota::thrift::TType::I32,
+                                    ::pilota::thrift::TType::Struct,
+                                    &self.priority_items,
+                                    |__protocol, key| __protocol.struct_len(key),
+                                    |__protocol, val| __protocol.struct_len(val),
+                                )
                             }
                         } + {
-                            let (field_fm, exist) = struct_fm.field(3);
-                            if exist {
-                                if let Some(map_fm) = field_fm {
-                                    let mut size = __protocol
-                                        .field_begin_len(::pilota::thrift::TType::Map, None)
-                                        + __protocol.field_end_len()
-                                        + __protocol.map_begin_len(
-                                            ::pilota::thrift::TMapIdentifier {
-                                                key_type: ::pilota::thrift::TType::I32,
-                                                value_type: ::pilota::thrift::TType::Map,
-                                                size: 0,
-                                            },
-                                        )
-                                        + __protocol.map_end_len();
-                                    for (key, val) in &self.nested_maps {
-                                        let (item_fm, is_exist) = map_fm.int(key.inner() as i32);
-                                        if is_exist {
-                                            size += __protocol.struct_len(key);
-                                            size += if let Some(map_fm) = item_fm {
-                                                let mut size = __protocol.map_begin_len(
-                                                    ::pilota::thrift::TMapIdentifier {
-                                                        key_type: ::pilota::thrift::TType::Binary,
-                                                        value_type: ::pilota::thrift::TType::I32,
-                                                        size: 0,
-                                                    },
-                                                ) + __protocol.map_end_len();
-                                                for (key, val) in val {
-                                                    let (item_fm, exist) = map_fm.str(key);
-                                                    if exist {
-                                                        size += __protocol.faststr_len(key);
-                                                        size += __protocol.i32_len(*val);
-                                                    }
+                            let (field_fm, _) = struct_fm.field(3);
+                            if let Some(map_fm) = field_fm {
+                                let mut size = __protocol
+                                    .field_begin_len(::pilota::thrift::TType::Map, None)
+                                    + __protocol.field_end_len()
+                                    + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {
+                                        key_type: ::pilota::thrift::TType::I32,
+                                        value_type: ::pilota::thrift::TType::Map,
+                                        size: 0,
+                                    })
+                                    + __protocol.map_end_len();
+                                for (key, val) in &self.nested_maps {
+                                    let (item_fm, is_exist) = map_fm.int(key.inner() as i32);
+                                    if is_exist {
+                                        size += __protocol.struct_len(key);
+                                        size += if let Some(map_fm) = item_fm {
+                                            let mut size = __protocol.map_begin_len(
+                                                ::pilota::thrift::TMapIdentifier {
+                                                    key_type: ::pilota::thrift::TType::Binary,
+                                                    value_type: ::pilota::thrift::TType::I32,
+                                                    size: 0,
+                                                },
+                                            ) + __protocol.map_end_len();
+                                            for (key, val) in val {
+                                                let (item_fm, exist) = map_fm.str(key);
+                                                if exist {
+                                                    size += __protocol.faststr_len(key);
+                                                    size += __protocol.i32_len(*val);
                                                 }
-                                                size
-                                            } else {
-                                                __protocol.map_len(
-                                                    ::pilota::thrift::TType::Binary,
-                                                    ::pilota::thrift::TType::I32,
-                                                    val,
-                                                    |__protocol, key| __protocol.faststr_len(key),
-                                                    |__protocol, val| __protocol.i32_len(*val),
-                                                )
-                                            };
-                                        }
-                                    }
-                                    size
-                                } else {
-                                    __protocol.map_field_len(
-                                        Some(3),
-                                        ::pilota::thrift::TType::I32,
-                                        ::pilota::thrift::TType::Map,
-                                        &self.nested_maps,
-                                        |__protocol, key| __protocol.struct_len(key),
-                                        |__protocol, val| {
+                                            }
+                                            size
+                                        } else {
                                             __protocol.map_len(
                                                 ::pilota::thrift::TType::Binary,
                                                 ::pilota::thrift::TType::I32,
@@ -1140,11 +1102,27 @@ pub mod complex_enum_key_map {
                                                 |__protocol, key| __protocol.faststr_len(key),
                                                 |__protocol, val| __protocol.i32_len(*val),
                                             )
-                                        },
-                                    )
+                                        };
+                                    }
                                 }
+                                size
                             } else {
-                                0
+                                __protocol.map_field_len(
+                                    Some(3),
+                                    ::pilota::thrift::TType::I32,
+                                    ::pilota::thrift::TType::Map,
+                                    &self.nested_maps,
+                                    |__protocol, key| __protocol.struct_len(key),
+                                    |__protocol, val| {
+                                        __protocol.map_len(
+                                            ::pilota::thrift::TType::Binary,
+                                            ::pilota::thrift::TType::I32,
+                                            val,
+                                            |__protocol, key| __protocol.faststr_len(key),
+                                            |__protocol, val| __protocol.i32_len(*val),
+                                        )
+                                    },
+                                )
                             }
                         } + self.priority_item_lists.as_ref().map_or(0, |value| {
                             let (field_fm, exist) = struct_fm.field(4);

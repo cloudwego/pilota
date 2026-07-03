@@ -345,6 +345,36 @@ fn test_thrift_fieldmask() {
     let mut protocol = pilota::thrift::binary::TBinaryProtocol::new(&mut encoded_buf, true);
     let parsed_request = fieldmask::fieldmask::fieldmask::Request::decode(&mut protocol).unwrap();
     println!("{:?}", parsed_request);
+
+    // 白名单模式，且 mask 不包含 required 字段 f9：f9 的 field mask `exist` 为
+    // false。 required 字段不应被 field mask 门控，因此 f9
+    // 必须照常编码。这里断言 size() 与 encode() 写出的字节数一致，从而回归验证
+    // size 生成器与 encode 生成器对 required 字段的处理保持一致（否则 framed
+    // 传输的长度前缀会与实际载荷不符）。
+    let mut request_required = request_clone.clone();
+    let required_mask = pilota_thrift_fieldmask::FieldMaskBuilder::new(&desc, &["$.f1"])
+        .build()
+        .unwrap();
+    request_required.set_field_mask(required_mask);
+
+    let required_size =
+        request_required.size(&mut pilota::thrift::binary::TBinaryProtocol::new((), false));
+    let mut required_buf = pilota::BytesMut::new();
+    request_required
+        .encode(&mut pilota::thrift::binary::TBinaryProtocol::new(
+            &mut required_buf,
+            false,
+        ))
+        .unwrap();
+    assert_eq!(required_size, required_buf.len());
+
+    let mut required_encoded = required_buf.freeze();
+    let mut required_protocol =
+        pilota::thrift::binary::TBinaryProtocol::new(&mut required_encoded, false);
+    let required_parsed =
+        fieldmask::fieldmask::fieldmask::Request::decode(&mut required_protocol).unwrap();
+    // required 字段即使不在白名单中也必须被序列化并可解码回来。
+    assert_eq!(required_parsed.f9, request_clone.f9);
 }
 
 #[test]
