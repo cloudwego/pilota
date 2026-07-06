@@ -57,8 +57,7 @@ impl Type {
                         .ignore_then(CppType::parse())
                         .or_not(),
                 )
-                .then_ignore(just("<"))
-                .padded_by(Components::blank_with_comments().or_not())
+                .then_ignore(just("<").padded_by(Components::blank_with_comments().or_not()))
                 .then(self_parser.clone())
                 .then_ignore(Components::blank_with_comments().or_not())
                 .then_ignore(just(">"))
@@ -122,6 +121,41 @@ mod tests {
         let _res = parser.parse(input).unwrap();
 
         let input = "set<i32>";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "set <i32>";
+        let _res = parser.parse(input).unwrap();
+    }
+
+    #[test]
+    fn test_container_type_spacing_and_cpp_type() {
+        let parser = Type::get_parser();
+
+        let input = "list <i32>";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "set <i32>";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "map <i32, string>";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "list /* comment */ <i32>";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "set /* comment */ <i32>";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "map /* comment */ <i32, string>";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "list<i32> cpp_type \"Vec\"";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "set cpp_type \"HashSet\" <i32>";
+        let _res = parser.parse(input).unwrap();
+
+        let input = "map cpp_type \"HashMap\" <i32, string>";
         let _res = parser.parse(input).unwrap();
     }
 
