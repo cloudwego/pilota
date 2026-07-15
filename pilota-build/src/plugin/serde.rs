@@ -126,3 +126,34 @@ impl crate::Plugin for SerdePlugin {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::is_serde_rename;
+
+    #[test]
+    fn detects_rename() {
+        assert!(is_serde_rename(r#"#[serde(rename = "AA")]"#));
+        assert!(is_serde_rename(
+            r#"#[serde(rename(serialize = "a", deserialize = "b"))]"#
+        ));
+        assert!(is_serde_rename(r#"#[serde(default, rename = "AA")]"#));
+    }
+
+    #[test]
+    fn ignores_attrs_that_merely_embed_the_word() {
+        assert!(!is_serde_rename(r#"#[serde(alias = "renamed_value")]"#));
+        assert!(!is_serde_rename(r#"#[serde(rename_all = "camelCase")]"#));
+        assert!(!is_serde_rename(r#"#[serde(untagged)]"#));
+        assert!(!is_serde_rename(
+            r#"#[serde(skip_serializing_if = "rename")]"#
+        ));
+    }
+
+    #[test]
+    fn ignores_non_serde_and_unparsable_attrs() {
+        assert!(!is_serde_rename(r#"#[other(rename = "AA")]"#));
+        assert!(!is_serde_rename("not an attribute"));
+        assert!(!is_serde_rename(""));
+    }
+}
