@@ -8,7 +8,10 @@ use std::{
 
 use tempfile::tempdir;
 
-use crate::{IdlService, plugin::SerdePlugin};
+use crate::{
+    IdlService,
+    plugin::{SerdePlugin, SerdePreserveIdlNamesPlugin},
+};
 
 fn diff_file(old: impl AsRef<Path>, new: impl AsRef<Path>) {
     let old_content =
@@ -332,6 +335,19 @@ fn test_plugin_thrift(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     });
 }
 
+fn test_plugin_preserve_idl_names_thrift(source: impl AsRef<Path>, target: impl AsRef<Path>) {
+    test_with_builder(source, target, |source, target| {
+        crate::Builder::thrift()
+            .ignore_unused(false)
+            .plugin(SerdePlugin)
+            .plugin(SerdePreserveIdlNamesPlugin)
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            )
+    });
+}
+
 fn test_plugin_pb(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     test_with_builder(source, target, |source, target| {
         crate::Builder::pb()
@@ -534,6 +550,19 @@ fn test_plugin_gen() {
             }
         }
     });
+}
+
+#[test]
+fn test_serde_preserve_idl_names_gen() {
+    let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("plugin_preserve_idl_names")
+        .join("serde_preserve_idl_names.thrift");
+
+    let mut out_path = file_path.clone();
+    out_path.set_extension("rs");
+
+    test_plugin_preserve_idl_names_thrift(file_path, out_path);
 }
 
 #[test]
