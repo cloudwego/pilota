@@ -3,6 +3,42 @@ use crate::tags::SerdeAttribute;
 #[derive(Clone, Copy)]
 pub struct SerdePlugin;
 
+/// Emits `#[serde(rename = "..")]` on every field, so serialized output keeps
+/// the field names as spelled in the IDL rather than the snake_case idents
+/// generated for Rust.
+///
+/// Only meaningful next to [`SerdePlugin`], which emits the derives these
+/// attributes attach to; this plugin does not imply it.
+#[derive(Clone, Copy)]
+pub struct SerdeRenamePlugin;
+
+impl crate::Plugin for SerdeRenamePlugin {
+    fn on_field(
+        &mut self,
+        cx: &crate::Context,
+        def_id: crate::DefId,
+        f: std::sync::Arc<crate::rir::Field>,
+    ) {
+        // Avoid duplicating `#[serde(rename = "...")]` if the user has already specified one
+        if has_explicit_rename(cx, &f) {
+            return;
+        }
+
+        let original = f.name.to_string();
+        cx.with_adjust_mut(def_id, |adj| {
+            adj.add_attrs(&[format!("#[serde(rename = {original:?})]").into()]);
+        });
+    }
+}
+
+/// Returns true if the field has an explicit `#[serde(rename = "...")]`.
+fn has_explicit_rename(cx: &crate::Context, f: &crate::rir::Field) -> bool {
+    cx.tags(f.tags_id).is_some_and(|tags| {
+        tags.get::<SerdeAttribute>()
+            .is_some_and(|attr| attr.0.contains("rename"))
+    })
+}
+
 impl crate::Plugin for SerdePlugin {
     fn on_item(
         &mut self,
