@@ -390,6 +390,39 @@ service Service {
     }
 
     #[test]
+    fn test_service_method_string_annotation() {
+        let body = r#"
+namespace rust test
+
+struct DemoRequest {
+    1: string value
+}
+
+struct DemoResponse {
+    1: string value
+}
+
+service DemoService {
+    DemoResponse DemoMethod(1: DemoRequest req) (api.post = "/test/path")
+}
+        "#;
+
+        let file = FileParser::new(FileSource::new(body)).parse().unwrap();
+        let service = file.items.iter().find_map(|item| {
+            if let Item::Service(s) = item {
+                (s.name.as_str() == "DemoService").then_some(s)
+            } else {
+                None
+            }
+        });
+        let service = service.expect("DemoService service should parse");
+        let method = &service.functions[0];
+        assert_eq!(method.name.as_str(), "DemoMethod");
+        assert_eq!(method.annotations[0].key, "api.post");
+        assert_eq!(method.annotations[0].value.to_string(), "/test/path");
+    }
+
+    #[test]
     fn test_only_comment() {
         let body = r#"
         /*** comment test ***/

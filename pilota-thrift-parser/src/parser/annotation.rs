@@ -11,10 +11,13 @@ impl Annotation {
         let leading_blank = Components::blank_with_comments().or_not();
 
         let key = Ident::ident_with_dot();
-        let value = Literal::parse();
+        let value = just("=")
+            .padded_by(Components::blank_with_comments().or_not())
+            .ignore_then(Literal::parse())
+            .or_not()
+            .map(|value| value.unwrap_or_else(|| Literal("1".to_string())));
 
         let annotation = key
-            .then_ignore(just("=").padded_by(Components::blank_with_comments().or_not()))
             .then(value)
             .map(|(key, value)| Annotation { key, value })
             .then_ignore(Components::blank_with_comments().or_not());
@@ -44,6 +47,12 @@ mod tests {
         let input = r#"  ()"#;
         let res = Annotation::get_parser().parse(input).unwrap();
         assert_eq!(res.len(), 0);
+
+        let input = r#" (deprecated)"#;
+        let res = Annotation::get_parser().parse(input).unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].key, "deprecated");
+        assert_eq!(res[0].value.to_string(), "1");
 
         let input = r#" (go.tag = "json:\"Ids\" split:\"type=tenant\"")"#;
         let res = Annotation::get_parser().parse(input).unwrap();
