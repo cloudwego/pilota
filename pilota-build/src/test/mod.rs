@@ -8,10 +8,7 @@ use std::{
 
 use tempfile::tempdir;
 
-use crate::{
-    IdlService,
-    plugin::{SerdePlugin, SerdePreserveIdlNamesPlugin},
-};
+use crate::{IdlService, plugin::SerdePlugin};
 
 fn diff_file(old: impl AsRef<Path>, new: impl AsRef<Path>) {
     let old_content =
@@ -339,8 +336,7 @@ fn test_plugin_preserve_idl_names_thrift(source: impl AsRef<Path>, target: impl 
     test_with_builder(source, target, |source, target| {
         crate::Builder::thrift()
             .ignore_unused(false)
-            .plugin(SerdePlugin)
-            .plugin(SerdePreserveIdlNamesPlugin)
+            .plugin(SerdePlugin.preserve_idl_field_names(true))
             .compile_with_config(
                 vec![IdlService::from_path(source.to_path_buf())],
                 crate::Output::File(target.into()),

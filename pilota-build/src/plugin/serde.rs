@@ -2,44 +2,33 @@ use syn::{Meta, Token, parse::Parser, punctuated::Punctuated};
 
 use crate::tags::SerdeAttribute;
 
-#[derive(Clone, Copy)]
-pub struct SerdePlugin;
-
-/// Emits `#[serde(rename = "..")]` on every field, so serialized output keeps
-/// the field names as spelled in the IDL rather than the snake_case idents
-/// generated for Rust.
-///
-/// Only meaningful next to [`SerdePlugin`], which emits the derives these
-/// attributes attach to; this plugin does not imply it.
-#[derive(Clone, Copy)]
-pub struct SerdePreserveIdlNamesPlugin;
-
-impl crate::Plugin for SerdePreserveIdlNamesPlugin {
-    fn on_field(
-        &mut self,
-        cx: &crate::Context,
-        def_id: crate::DefId,
-        f: std::sync::Arc<crate::rir::Field>,
-    ) {
-        // Avoid duplicating `#[serde(rename = "...")]` if the user has already
-        // specified one
-        if has_explicit_rename(cx, &f) {
-            return;
-        }
-
-        let original = f.name.raw_str();
-        cx.with_adjust_mut(def_id, |adj| {
-            adj.add_attrs(&[format!("#[serde(rename = {:?})]", &*original).into()]);
-        });
-    }
+#[derive(Clone, Copy, Default)]
+pub struct SerdePlugin {
+    preserve_idl_field_names: bool,
 }
 
-/// Returns true if the field has an explicit `#[serde(rename = ..)]`.
-fn has_explicit_rename(cx: &crate::Context, f: &crate::rir::Field) -> bool {
-    cx.tags(f.tags_id).is_some_and(|tags| {
-        tags.get::<SerdeAttribute>()
-            .is_some_and(|attr| is_serde_rename(&attr.0.replace('\\', "")))
-    })
+/// Lets `SerdePlugin` keep being used as a value, the way it could when it was
+/// a unit struct.
+#[allow(non_upper_case_globals)]
+pub const SerdePlugin: SerdePlugin = SerdePlugin::new();
+
+impl SerdePlugin {
+    pub const fn new() -> Self {
+        SerdePlugin {
+            preserve_idl_field_names: false,
+        }
+    }
+
+    /// Preserve the original IDL field names in the generated serde
+    /// attributes instead of pilota's Rust-cased identifiers.
+    ///
+    /// When enabled, the emitted `#[serde(rename = "...")]` attributes use
+    /// each field's name exactly as written in the IDL rather than the
+    /// snake_case Rust names. Disabled by default.
+    pub fn preserve_idl_field_names(mut self, enable: bool) -> Self {
+        self.preserve_idl_field_names = enable;
+        self
+    }
 }
 
 /// Returns true if `s` holds an attribute of the form `#[serde(.., rename =
@@ -102,12 +91,22 @@ impl crate::Plugin for SerdePlugin {
         def_id: crate::DefId,
         f: std::sync::Arc<crate::rir::Field>,
     ) {
-        if let Some(attribute) = cx
+        let idl_attr = cx
             .tags(f.tags_id)
             .and_then(|tags| tags.get::<SerdeAttribute>().cloned())
-        {
-            let attr = attribute.0.replace('\\', "");
+            .map(|attribute| attribute.0.replace('\\', ""));
+
+        if let Some(attr) = idl_attr.clone() {
             cx.with_adjust_mut(def_id, |adj| adj.add_attrs(&[attr.into()]))
+        }
+
+        // A `rename` from the IDL is the more specific one, so it wins over the
+        // one this option would derive from the field name.
+        if self.preserve_idl_field_names && !idl_attr.as_deref().is_some_and(is_serde_rename) {
+            let original = f.name.raw_str();
+            cx.with_adjust_mut(def_id, |adj| {
+                adj.add_attrs(&[format!("#[serde(rename = {:?})]", &*original).into()]);
+            });
         }
     }
 

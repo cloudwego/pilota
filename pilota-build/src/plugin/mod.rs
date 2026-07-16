@@ -16,7 +16,7 @@ use crate::{
 mod serde;
 mod workspace;
 
-pub use self::serde::{SerdePlugin, SerdePreserveIdlNamesPlugin};
+pub use self::serde::SerdePlugin;
 
 pub trait Plugin: Sync + Send {
     fn on_codegen_uint(&mut self, cx: &Context, items: &[DefId]) {
