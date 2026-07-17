@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+message A { 
+    string SomeField = 1;
+    string type = 2;
+
+    oneof TestOneof {
+        string StringValue = 3;
+        string pub = 4;
+        int32 int_value = 5;
+    }
+}
