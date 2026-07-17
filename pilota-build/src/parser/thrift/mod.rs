@@ -505,7 +505,7 @@ impl ThriftLower {
                     name: self.lower_ident(&f.name),
                     discr: None,
                     fields: vec![self.lower_ty(&f.ty)],
-                    tags: Default::default(),
+                    tags: Arc::new(self.extract_tags(&f.annotations)),
                     item_exts: ext::ItemExts::Thrift,
                 })
                 .collect(),

@@ -458,7 +458,7 @@ impl Lower {
                                     &nested_messages,
                                     false,
                                 )],
-                                tags: Default::default(),
+                                tags: Arc::new(self.extract_field_tags(f)),
                                 item_exts: ext::ItemExts::Pb(ext::pb::ItemExts {
                                     used_options: ext::pb::UsedOptions::from_pb_unknown_fields(
                                         ExtendeeKind::Field,

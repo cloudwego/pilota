@@ -17,12 +17,11 @@ struct A {
 }
 
 union TestUnion {
-    // Already PascalCase: should stay StringValue
-    1: string StringValue,
-
-    // Rust keyword: should become Pub, but serialized name must stay "pub"
-    2: i32 pub,
-
-    // Rewritten to IntValue but renamed to int_value
-    3: string int_value,
+    1: string type,
+    2: string some_field,
+    3: string c(pilota.serde_attribute = "#[serde(rename = \"CC\")]"),
+    4: string d(pilota.serde_attribute = "#[serde(alias = \"renamed_value\")]"),
+    5: string ser_only(pilota.serde_attribute = "#[serde(rename(serialize = \"EE\"))]"),
+    6: string de_only(pilota.serde_attribute = "#[serde(rename(deserialize = \"FF\"))]"),
+    7: string both_dirs(pilota.serde_attribute = "#[serde(rename(serialize = \"GS\", deserialize = \"GD\"))]"),
 }
