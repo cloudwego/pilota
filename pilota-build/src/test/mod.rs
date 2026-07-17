@@ -347,7 +347,12 @@ fn test_plugin_preserve_idl_names_thrift(source: impl AsRef<Path>, target: impl 
 fn test_plugin_preserve_idl_names_pb(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     test_with_builder(source, target, |source, target| {
         crate::Builder::pb()
-            .ignore_unused(false)
+            // The IDL imports `pilota.proto` for the option extensions, which
+            // transitively pulls in `descriptor.proto`. Keeping unused items
+            // would generate all of it, burying the cases under test, so touch
+            // `A` instead: it is the only root here, as there is no service.
+            .ignore_unused(true)
+            .touch([(source.to_path_buf(), vec!["A"])])
             .plugin(SerdePlugin.preserve_idl_field_names(true))
             .include_dirs(vec![source.parent().unwrap().to_path_buf()])
             .compile_with_config(

@@ -1,12 +1,30 @@
 syntax = "proto3";
 
-message A { 
-    string SomeField = 1;
-    string type = 2;
+import "pilota.proto";
+
+message A {
+    // Rust keyword: should become r#type, but renamed to "type"
+    string type = 1;
+    // A name that is rewritten to a snake_case ident: `some_field`.
+    string SomeField = 2;
+    // An explicit rename wins over the generated one.
+    string c = 3 [(pilota.serde_attribute_field) = "#[serde(rename = \"CC\")]"];
+    // An attribute that merely embeds the word "rename" does not count as one.
+    string d = 4 [(pilota.serde_attribute_field) = "#[serde(alias = \"renamed_value\")]"];
+    // Rename covering only serialization.
+    string SerOnly = 5 [(pilota.serde_attribute_field) = "#[serde(rename(serialize = \"EE\"))]"];
+    // Rename covering only deserialization.
+    string DeOnly = 6 [(pilota.serde_attribute_field) = "#[serde(rename(deserialize = \"FF\"))]"];
+    // Both directions renamed explicitly.
+    string BothDirs = 7 [(pilota.serde_attribute_field) = "#[serde(rename(serialize = \"GS\", deserialize = \"GD\"))]"];
 
     oneof TestOneof {
-        string StringValue = 3;
-        string pub = 4;
-        int32 int_value = 5;
+        string pub = 8;
+        string some_field = 9;
+        string e = 10 [(pilota.serde_attribute_field) = "#[serde(rename = \"CC\")]"];
+        string f = 11 [(pilota.serde_attribute_field) = "#[serde(alias = \"renamed_value\")]"];
+        string ser_only = 12 [(pilota.serde_attribute_field) = "#[serde(rename(serialize = \"EE\"))]"];
+        string de_only = 13 [(pilota.serde_attribute_field) = "#[serde(rename(deserialize = \"FF\"))]"];
+        string both_dirs = 14 [(pilota.serde_attribute_field) = "#[serde(rename(serialize = \"GS\", deserialize = \"GD\"))]"];
     }
 }

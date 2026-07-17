@@ -381,7 +381,7 @@ pub mod serde_preserve_idl_names {
         }
         impl ::std::default::Default for TestUnion {
             fn default() -> Self {
-                TestUnion::StringValue(::std::default::Default::default())
+                TestUnion::Type(::std::default::Default::default())
             }
         }
         #[derive(
@@ -396,14 +396,29 @@ pub mod serde_preserve_idl_names {
             PartialEq,
         )]
         pub enum TestUnion {
-            #[serde(rename = "StringValue")]
-            StringValue(::pilota::FastStr),
+            #[serde(rename = "type")]
+            Type(::pilota::FastStr),
 
-            #[serde(rename = "pub")]
-            Pub(i32),
+            #[serde(rename = "some_field")]
+            SomeField(::pilota::FastStr),
 
-            #[serde(rename = "int_value")]
-            IntValue(::pilota::FastStr),
+            #[serde(rename = "CC")]
+            C(::pilota::FastStr),
+
+            #[serde(alias = "renamed_value")]
+            #[serde(rename = "d")]
+            D(::pilota::FastStr),
+
+            #[serde(rename(serialize = "EE"))]
+            #[serde(rename(deserialize = "ser_only"))]
+            SerOnly(::pilota::FastStr),
+
+            #[serde(rename(deserialize = "FF"))]
+            #[serde(rename(serialize = "de_only"))]
+            DeOnly(::pilota::FastStr),
+
+            #[serde(rename(serialize = "GS", deserialize = "GD"))]
+            BothDirs(::pilota::FastStr),
         }
 
         impl ::pilota::thrift::Message for TestUnion {
@@ -417,14 +432,26 @@ pub mod serde_preserve_idl_names {
                     name: "TestUnion",
                 })?;
                 match self {
-                    TestUnion::StringValue(value) => {
+                    TestUnion::Type(value) => {
                         __protocol.write_faststr_field(1, (value).clone())?;
                     }
-                    TestUnion::Pub(value) => {
-                        __protocol.write_i32_field(2, *value)?;
+                    TestUnion::SomeField(value) => {
+                        __protocol.write_faststr_field(2, (value).clone())?;
                     }
-                    TestUnion::IntValue(value) => {
+                    TestUnion::C(value) => {
                         __protocol.write_faststr_field(3, (value).clone())?;
+                    }
+                    TestUnion::D(value) => {
+                        __protocol.write_faststr_field(4, (value).clone())?;
+                    }
+                    TestUnion::SerOnly(value) => {
+                        __protocol.write_faststr_field(5, (value).clone())?;
+                    }
+                    TestUnion::DeOnly(value) => {
+                        __protocol.write_faststr_field(6, (value).clone())?;
+                    }
+                    TestUnion::BothDirs(value) => {
+                        __protocol.write_faststr_field(7, (value).clone())?;
                     }
                 }
                 __protocol.write_field_stop()?;
@@ -452,7 +479,7 @@ pub mod serde_preserve_idl_names {
                             if ret.is_none() {
                                 let field_ident = __protocol.read_faststr()?;
                                 __protocol.faststr_len(&field_ident);
-                                ret = Some(TestUnion::StringValue(field_ident));
+                                ret = Some(TestUnion::Type(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -464,9 +491,9 @@ pub mod serde_preserve_idl_names {
                         }
                         Some(2) => {
                             if ret.is_none() {
-                                let field_ident = __protocol.read_i32()?;
-                                __protocol.i32_len(*&field_ident);
-                                ret = Some(TestUnion::Pub(field_ident));
+                                let field_ident = __protocol.read_faststr()?;
+                                __protocol.faststr_len(&field_ident);
+                                ret = Some(TestUnion::SomeField(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -480,7 +507,63 @@ pub mod serde_preserve_idl_names {
                             if ret.is_none() {
                                 let field_ident = __protocol.read_faststr()?;
                                 __protocol.faststr_len(&field_ident);
-                                ret = Some(TestUnion::IntValue(field_ident));
+                                ret = Some(TestUnion::C(field_ident));
+                            } else {
+                                return ::std::result::Result::Err(
+                                    ::pilota::thrift::new_protocol_exception(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                        "received multiple fields for union from remote Message",
+                                    ),
+                                );
+                            }
+                        }
+                        Some(4) => {
+                            if ret.is_none() {
+                                let field_ident = __protocol.read_faststr()?;
+                                __protocol.faststr_len(&field_ident);
+                                ret = Some(TestUnion::D(field_ident));
+                            } else {
+                                return ::std::result::Result::Err(
+                                    ::pilota::thrift::new_protocol_exception(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                        "received multiple fields for union from remote Message",
+                                    ),
+                                );
+                            }
+                        }
+                        Some(5) => {
+                            if ret.is_none() {
+                                let field_ident = __protocol.read_faststr()?;
+                                __protocol.faststr_len(&field_ident);
+                                ret = Some(TestUnion::SerOnly(field_ident));
+                            } else {
+                                return ::std::result::Result::Err(
+                                    ::pilota::thrift::new_protocol_exception(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                        "received multiple fields for union from remote Message",
+                                    ),
+                                );
+                            }
+                        }
+                        Some(6) => {
+                            if ret.is_none() {
+                                let field_ident = __protocol.read_faststr()?;
+                                __protocol.faststr_len(&field_ident);
+                                ret = Some(TestUnion::DeOnly(field_ident));
+                            } else {
+                                return ::std::result::Result::Err(
+                                    ::pilota::thrift::new_protocol_exception(
+                                        ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                        "received multiple fields for union from remote Message",
+                                    ),
+                                );
+                            }
+                        }
+                        Some(7) => {
+                            if ret.is_none() {
+                                let field_ident = __protocol.read_faststr()?;
+                                __protocol.faststr_len(&field_ident);
+                                ret = Some(TestUnion::BothDirs(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -531,7 +614,7 @@ pub mod serde_preserve_idl_names {
                                 if ret.is_none() {
                                     let field_ident = __protocol.read_faststr().await?;
 
-                                    ret = Some(TestUnion::StringValue(field_ident));
+                                    ret = Some(TestUnion::Type(field_ident));
                                 } else {
                                     return ::std::result::Result::Err(
                                         ::pilota::thrift::new_protocol_exception(
@@ -543,9 +626,9 @@ pub mod serde_preserve_idl_names {
                             }
                             Some(2) => {
                                 if ret.is_none() {
-                                    let field_ident = __protocol.read_i32().await?;
+                                    let field_ident = __protocol.read_faststr().await?;
 
-                                    ret = Some(TestUnion::Pub(field_ident));
+                                    ret = Some(TestUnion::SomeField(field_ident));
                                 } else {
                                     return ::std::result::Result::Err(
                                         ::pilota::thrift::new_protocol_exception(
@@ -559,7 +642,63 @@ pub mod serde_preserve_idl_names {
                                 if ret.is_none() {
                                     let field_ident = __protocol.read_faststr().await?;
 
-                                    ret = Some(TestUnion::IntValue(field_ident));
+                                    ret = Some(TestUnion::C(field_ident));
+                                } else {
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
+                                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
+                                }
+                            }
+                            Some(4) => {
+                                if ret.is_none() {
+                                    let field_ident = __protocol.read_faststr().await?;
+
+                                    ret = Some(TestUnion::D(field_ident));
+                                } else {
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
+                                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
+                                }
+                            }
+                            Some(5) => {
+                                if ret.is_none() {
+                                    let field_ident = __protocol.read_faststr().await?;
+
+                                    ret = Some(TestUnion::SerOnly(field_ident));
+                                } else {
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
+                                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
+                                }
+                            }
+                            Some(6) => {
+                                if ret.is_none() {
+                                    let field_ident = __protocol.read_faststr().await?;
+
+                                    ret = Some(TestUnion::DeOnly(field_ident));
+                                } else {
+                                    return ::std::result::Result::Err(
+                                        ::pilota::thrift::new_protocol_exception(
+                                            ::pilota::thrift::ProtocolExceptionKind::InvalidData,
+                                            "received multiple fields for union from remote Message",
+                                        ),
+                                    );
+                                }
+                            }
+                            Some(7) => {
+                                if ret.is_none() {
+                                    let field_ident = __protocol.read_faststr().await?;
+
+                                    ret = Some(TestUnion::BothDirs(field_ident));
                                 } else {
                                     return ::std::result::Result::Err(
                                         ::pilota::thrift::new_protocol_exception(
@@ -593,11 +732,13 @@ pub mod serde_preserve_idl_names {
                 __protocol
                     .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "TestUnion" })
                     + match self {
-                        TestUnion::StringValue(value) => {
-                            __protocol.faststr_field_len(Some(1), value)
-                        }
-                        TestUnion::Pub(value) => __protocol.i32_field_len(Some(2), *value),
-                        TestUnion::IntValue(value) => __protocol.faststr_field_len(Some(3), value),
+                        TestUnion::Type(value) => __protocol.faststr_field_len(Some(1), value),
+                        TestUnion::SomeField(value) => __protocol.faststr_field_len(Some(2), value),
+                        TestUnion::C(value) => __protocol.faststr_field_len(Some(3), value),
+                        TestUnion::D(value) => __protocol.faststr_field_len(Some(4), value),
+                        TestUnion::SerOnly(value) => __protocol.faststr_field_len(Some(5), value),
+                        TestUnion::DeOnly(value) => __protocol.faststr_field_len(Some(6), value),
+                        TestUnion::BothDirs(value) => __protocol.faststr_field_len(Some(7), value),
                     }
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
