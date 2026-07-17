@@ -344,6 +344,19 @@ fn test_plugin_preserve_idl_names_thrift(source: impl AsRef<Path>, target: impl 
     });
 }
 
+fn test_plugin_preserve_idl_names_pb(source: impl AsRef<Path>, target: impl AsRef<Path>) {
+    test_with_builder(source, target, |source, target| {
+        crate::Builder::pb()
+            .ignore_unused(false)
+            .plugin(SerdePlugin.preserve_idl_field_names(true))
+            .include_dirs(vec![source.parent().unwrap().to_path_buf()])
+            .compile_with_config(
+                vec![IdlService::from_path(source.to_path_buf())],
+                crate::Output::File(target.into()),
+            )
+    });
+}
+
 fn test_plugin_pb(source: impl AsRef<Path>, target: impl AsRef<Path>) {
     test_with_builder(source, target, |source, target| {
         crate::Builder::pb()
@@ -559,6 +572,19 @@ fn test_serde_preserve_idl_names_gen() {
     out_path.set_extension("rs");
 
     test_plugin_preserve_idl_names_thrift(file_path, out_path);
+}
+
+#[test]
+fn test_serde_preserve_idl_names_pb_gen() {
+    let file_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("test_data")
+        .join("plugin_preserve_idl_names")
+        .join("serde_preserve_idl_names_pb.proto");
+
+    let mut out_path = file_path.clone();
+    out_path.set_extension("rs");
+
+    test_plugin_preserve_idl_names_pb(file_path, out_path);
 }
 
 #[test]
