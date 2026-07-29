@@ -6,7 +6,7 @@ use crate::{Annotation, Function, Ident};
 
 impl Service {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Service, extra::Err<Rich<'a, char>>> {
-        let extends = just("extends")
+        let extends = Components::keyword("extends")
             .padded_by(Components::blank())
             .ignore_then(Path::parse());
         let functions = Components::blank()
@@ -19,7 +19,7 @@ impl Service {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then_ignore(just("service"))
+            .then_ignore(Components::keyword("service"))
             .then_ignore(Components::blank())
             .then(Ident::get_parser())
             .then(extends.or_not())
@@ -105,5 +105,22 @@ mod tests {
                         }"#,
             )
             .unwrap();
+    }
+
+    /// `service`/`extends` glued to an identifier are not those keywords.
+    #[test]
+    fn test_keyword_boundary() {
+        assert!(Service::get_parser().parse("serviceFoo { }").has_errors());
+        assert!(
+            Service::get_parser()
+                .parse("service Foo extendsBar { }")
+                .has_errors()
+        );
+
+        let s = Service::get_parser()
+            .parse("service Foo extends Bar { }")
+            .unwrap();
+        assert_eq!(&*s.name.0, "Foo");
+        assert!(s.extends.is_some());
     }
 }

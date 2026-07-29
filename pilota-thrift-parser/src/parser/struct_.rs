@@ -13,7 +13,7 @@ impl Struct {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then_ignore(just("struct"))
+            .then_ignore(Components::keyword("struct"))
             .then_ignore(Components::blank())
             .then(StructLike::parse())
             .then(Components::trailing_comment().or_not())
@@ -39,7 +39,7 @@ impl Union {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then_ignore(just("union"))
+            .then_ignore(Components::keyword("union"))
             .then_ignore(Components::blank())
             .then(StructLike::parse())
             .then(Components::trailing_comment().or_not())
@@ -58,7 +58,7 @@ impl Exception {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then_ignore(just("exception"))
+            .then_ignore(Components::keyword("exception"))
             .then_ignore(Components::blank())
             .then(StructLike::parse())
             .then(Components::trailing_comment().or_not())
@@ -158,5 +158,22 @@ mod tests {
             /* comment */ 1: /* comment */ required /* comment */ string /* comment */ Service, // comment
         }"#;
         let _ = Struct::get_parser().parse(input).unwrap();
+    }
+
+    /// The `struct`/`union`/`exception` keywords must end at an identifier
+    /// boundary, so `structFoo { ... }` is not `struct Foo { ... }`.
+    #[test]
+    fn test_keyword_boundary() {
+        assert!(
+            Struct::get_parser()
+                .parse("structFoo { 1: i32 a }")
+                .has_errors()
+        );
+        assert!(Union::parse().parse("unionFoo { 1: i32 a }").has_errors());
+        assert!(
+            Exception::parse()
+                .parse("exceptionFoo { 1: i32 a }")
+                .has_errors()
+        );
     }
 }

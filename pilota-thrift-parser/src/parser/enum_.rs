@@ -44,7 +44,7 @@ impl Enum {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then_ignore(just("enum"))
+            .then_ignore(Components::keyword("enum"))
             .then_ignore(Components::blank_with_comments())
             .then(Ident::get_parser())
             .then(Components::comment().repeated().collect::<Vec<_>>())
@@ -125,5 +125,11 @@ mod tests {
             /* comment */ FEMALE = 2, // comment
         }"#;
         let _ = Enum::get_parser().parse(input).unwrap();
+    }
+
+    /// `enum` glued to an identifier is not the `enum` keyword.
+    #[test]
+    fn test_keyword_boundary() {
+        assert!(Enum::get_parser().parse("enumFoo { A = 1 }").has_errors());
     }
 }

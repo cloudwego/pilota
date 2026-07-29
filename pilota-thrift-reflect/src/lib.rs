@@ -1,5 +1,7 @@
-use std::collections::BTreeMap;
-use std::path::{Component, PathBuf};
+use std::{
+    collections::BTreeMap,
+    path::{Component, PathBuf},
+};
 
 use ahash::AHashMap;
 use descriptor::thrift_reflection::ConstValueType;

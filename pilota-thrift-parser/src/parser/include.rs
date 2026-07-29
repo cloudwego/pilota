@@ -13,7 +13,7 @@ impl Include {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then_ignore(just("include").padded_by(Components::blank().or_not()))
+            .then_ignore(Components::keyword("include").padded_by(Components::blank().or_not()))
             .then(Literal::parse())
             .then_ignore(Components::list_separator().or_not())
             .then(Components::trailing_comment().or_not())
@@ -32,7 +32,7 @@ impl CppInclude {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then_ignore(just("cpp_include").padded_by(Components::blank().or_not()))
+            .then_ignore(Components::keyword("cpp_include").padded_by(Components::blank().or_not()))
             .then(Literal::parse())
             .then_ignore(Components::list_separator().or_not())
             .then(Components::trailing_comment().or_not())
@@ -82,5 +82,31 @@ mod tests {
                         cpp_include "shared.thrift" // comment"#,
             )
             .unwrap();
+    }
+
+    /// `include`/`cpp_include` must end at an identifier boundary, so
+    /// `includes` is not read as `include` followed by `s`. A quote is a
+    /// boundary, so the separating blank stays optional.
+    #[test]
+    fn test_include_keyword_boundary() {
+        assert!(
+            Include::get_parser()
+                .parse(r#"includes "shared.thrift""#)
+                .has_errors()
+        );
+        assert!(
+            CppInclude::parse()
+                .parse(r#"cpp_includes "shared.thrift""#)
+                .has_errors()
+        );
+
+        let f = Include::get_parser()
+            .parse(r#"include"shared.thrift""#)
+            .unwrap();
+        assert_eq!(f.path.0.as_str(), "shared.thrift");
+        let f = CppInclude::parse()
+            .parse(r#"cpp_include"shared.thrift""#)
+            .unwrap();
+        assert_eq!(f.path.0.as_str(), "shared.thrift");
     }
 }

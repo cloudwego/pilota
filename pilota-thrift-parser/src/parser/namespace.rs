@@ -10,7 +10,7 @@ impl Namespace {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then_ignore(just("namespace"))
+            .then_ignore(Components::keyword("namespace"))
             .then_ignore(Components::blank())
             .then(Scope::parse())
             .then_ignore(Components::blank())
@@ -31,18 +31,15 @@ impl Namespace {
     }
 }
 
-fn is_white_space(c: &char) -> bool {
-    *c == ' ' || *c == '\t' || *c == '\n' || *c == '\r'
-}
-
 impl Scope {
+    /// `NamespaceScope ::= '*' | Identifier` — dotted scopes such as
+    /// `py.twisted` are also in use, so the identifier form allows dots.
     fn parse<'a>() -> impl Parser<'a, &'a str, Scope, extra::Err<Rich<'a, char>>> {
-        any()
-            .filter(|c: &char| !is_white_space(c))
-            .repeated()
-            .at_least(1)
-            .collect::<String>()
-            .map(|s: String| Scope(s))
+        just("*")
+            .to_slice()
+            .map(str::to_string)
+            .or(Ident::ident_with_dot())
+            .map(Scope)
     }
 }
 
@@ -66,5 +63,40 @@ mod tests {
         /* comment */ namespace * foo.bar // comment
         "#;
         let _ = Namespace::get_parser().parse(input).unwrap();
+    }
+
+    /// `NamespaceScope ::= '*' | Identifier` — a wildcard or a (dotted)
+    /// identifier, not an arbitrary run of non-whitespace.
+    #[test]
+    fn test_namespace_scope() {
+        assert!(
+            Namespace::get_parser()
+                .parse("namespace * foo.bar")
+                .into_result()
+                .is_ok()
+        );
+        assert!(
+            Namespace::get_parser()
+                .parse("namespace py.twisted ThriftTest")
+                .into_result()
+                .is_ok()
+        );
+        assert!(
+            Namespace::get_parser()
+                .parse("namespace @@!! foo.bar")
+                .has_errors()
+        );
+        // A scope is mandatory.
+        assert!(
+            Namespace::get_parser()
+                .parse("namespace foo.bar")
+                .has_errors()
+        );
+        // `namespace` glued to the scope is not the keyword.
+        assert!(
+            Namespace::get_parser()
+                .parse("namespacego foo")
+                .has_errors()
+        );
     }
 }

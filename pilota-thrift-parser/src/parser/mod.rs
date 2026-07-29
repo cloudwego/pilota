@@ -155,6 +155,20 @@ impl Components {
             .rewind()
             .filter(|c: &char| !c.is_alphanumeric() && *c != '_')
     }
+
+    /// Succeeds without consuming input when the next character cannot continue
+    /// an identifier, i.e. at an identifier boundary or at the end of input.
+    pub fn word_boundary<'a>() -> impl Parser<'a, &'a str, (), extra::Err<Rich<'a, char>>> {
+        Components::not_alphanumeric_or_underscore()
+            .ignored()
+            .or(end())
+    }
+
+    /// A reserved word that must not be immediately followed by more identifier
+    /// characters, so that `structFoo` is not read as `struct Foo`.
+    pub fn keyword<'a>(kw: &'a str) -> impl Parser<'a, &'a str, (), extra::Err<Rich<'a, char>>> {
+        just(kw).ignore_then(Components::word_boundary())
+    }
 }
 
 #[cfg(test)]
@@ -207,5 +221,30 @@ mod tests {
     #[test]
     fn test_blank_without_newline() {
         let _ = Components::blank_without_newline().parse(" \t\r").unwrap();
+    }
+
+    #[test]
+    fn test_keyword() {
+        // A keyword matches at an identifier boundary, including end of input,
+        // but not when more identifier characters follow (`structFoo`).
+        assert!(
+            Components::keyword("struct")
+                .parse("struct")
+                .into_result()
+                .is_ok()
+        );
+        assert!(
+            Components::keyword("struct")
+                .then_ignore(just("{"))
+                .parse("struct{")
+                .into_result()
+                .is_ok()
+        );
+        assert!(
+            Components::keyword("struct")
+                .parse("structFoo")
+                .has_errors()
+        );
+        assert!(Components::keyword("enum").parse("enumValue").has_errors());
     }
 }

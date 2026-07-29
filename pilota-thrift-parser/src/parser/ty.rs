@@ -10,7 +10,7 @@ use crate::{Annotation, Literal};
 
 impl CppType {
     pub fn parse<'a>() -> impl Parser<'a, &'a str, CppType, extra::Err<Rich<'a, char>>> {
-        just("cpp_type")
+        Components::keyword("cpp_type")
             .ignore_then(Components::blank())
             .ignore_then(Literal::parse())
             .map(CppType)
@@ -33,7 +33,7 @@ impl Type {
                 just("double").to(Ty::Double),
                 just("uuid").to(Ty::Uuid),
             ))
-            .then_ignore(Components::not_alphanumeric_or_underscore());
+            .then_ignore(Components::word_boundary());
 
             let list = just("list")
                 .ignore_then(just("<").padded_by(Components::blank_with_comments().or_not()))
@@ -76,10 +76,7 @@ impl Type {
                 .then_ignore(just("<").padded_by(Components::blank_with_comments().or_not()))
                 .then(self_parser.clone())
                 .then_ignore(Components::blank_with_comments().or_not())
-                .then_ignore(
-                    Components::list_separator()
-                        .padded_by(Components::blank_with_comments().or_not()),
-                )
+                .then_ignore(just(",").padded_by(Components::blank_with_comments().or_not()))
                 .then(self_parser.clone())
                 .then_ignore(Components::blank_with_comments().or_not())
                 .then_ignore(just(">"))
@@ -183,5 +180,31 @@ mod tests {
         let parser = Type::get_parser();
         let input = "bytet_i.Injection";
         let _res = parser.parse(input).unwrap();
+    }
+
+    /// A base type keyword must end at an identifier boundary — even at end of
+    /// input — so `i32foo` is a path, not `i32` followed by junk.
+    #[test]
+    fn test_base_type_boundary() {
+        assert!(matches!(
+            Type::get_parser().parse("i32").unwrap().0,
+            Ty::I32
+        ));
+        assert!(
+            matches!(Type::get_parser().parse("i32foo").unwrap().0, Ty::Path(p) if p.segments[0].as_str() == "i32foo")
+        );
+    }
+
+    /// `MapType ::= 'map' CppType? '<' FieldType ',' FieldType '>'` — the key
+    /// and value are separated by a comma only, never a `;`.
+    #[test]
+    fn test_map_separator() {
+        assert!(
+            Type::get_parser()
+                .parse("map<i32, string>")
+                .into_result()
+                .is_ok()
+        );
+        assert!(Type::get_parser().parse("map<i32; string>").has_errors());
     }
 }
