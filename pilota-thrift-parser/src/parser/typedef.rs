@@ -10,7 +10,7 @@ impl Typedef {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then_ignore(just("typedef"))
+            .then_ignore(Components::keyword("typedef"))
             .then_ignore(Components::blank())
             .then(Type::get_parser())
             .then_ignore(Components::blank())
@@ -45,5 +45,11 @@ mod tests {
         let _td = Typedef::get_parser()
             .parse("typedef i32 Int32 /* comment */")
             .unwrap();
+    }
+
+    /// `typedef` glued to a type is not the `typedef` keyword.
+    #[test]
+    fn test_keyword_boundary() {
+        assert!(Typedef::get_parser().parse("typedefi32 Foo").has_errors());
     }
 }

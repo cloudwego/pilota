@@ -18,7 +18,7 @@ impl Function {
 
         let throws = Components::blank()
             .or_not()
-            .ignore_then(just("throws"))
+            .ignore_then(Components::keyword("throws"))
             .ignore_then(Components::blank().or_not())
             .ignore_then(just("("))
             .ignore_then(fields.clone())
@@ -29,7 +29,11 @@ impl Function {
             .repeated()
             .collect::<Vec<_>>()
             .then_ignore(Components::blank().or_not())
-            .then(just("oneway").then_ignore(Components::blank()).or_not())
+            .then(
+                Components::keyword("oneway")
+                    .then_ignore(Components::blank())
+                    .or_not(),
+            )
             .then(Type::get_parser())
             .then_ignore(Components::blank())
             .then(Ident::get_parser())
@@ -115,5 +119,16 @@ mod tests {
                             2: optional list<map<i64 /* comment */ , set<double>>> nestedDataPoints /* comment */
                         ) /* comment */ (api.version = "2.5", deprecated = "false")"#)
             .unwrap();
+    }
+
+    /// `onewayvoid` is a return type named `onewayvoid`, not `oneway void`, so
+    /// the `oneway` keyword must end at an identifier boundary.
+    #[test]
+    fn test_oneway_keyword_boundary() {
+        let f = Function::get_parser().parse("onewayvoid f()").unwrap();
+        assert!(!f.oneway);
+        assert!(
+            matches!(&f.result_type.0, crate::Ty::Path(p) if p.segments[0].as_str() == "onewayvoid")
+        );
     }
 }
