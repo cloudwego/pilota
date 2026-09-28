@@ -915,6 +915,10 @@ impl Context {
                 };
                 (format!("({stream}.inner() as {target})").into(), true)
             }
+            (_, CodegenTy::Arc(inner)) => {
+                let (stream, _) = self.ident_into_ty(did, ident_ty, inner);
+                (format!("::std::sync::Arc::new({stream})").into(), false)
+            }
             _ => panic!("invalid convert {ident_ty:?} to {target:?}"),
         }
     }
@@ -1424,6 +1428,10 @@ impl Context {
             (Literal::List(l), CodegenTy::BTreeMap(_, _)) => {
                 assert!(l.is_empty());
                 ("::std::collections::BTreeMap::new()".into(), false)
+            }
+            (l, CodegenTy::Arc(inner)) => {
+                let (stream, _) = self.lit_into_ty(l, inner)?;
+                (format!("::std::sync::Arc::new({stream})").into(), false)
             }
             _ => {
                 let (def_path, idl_file) = with_cur_item(|def_id| {
