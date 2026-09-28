@@ -777,10 +777,9 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testSet("{%s}")' where thing has been formatted
-                 * into a string of values  separated by
-                 * commas and new lines @param set<i32>
-                 * thing - the set<i32> to print
+                 * Prints 'testSet("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param set<i32> thing - the set<i32> to print
                  * @return set<i32> - returns the set<i32> 'thing'
                  */
                 #[derive(Debug, Default, Clone, PartialEq)]
@@ -976,14 +975,11 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and
-                 * arg1 as '%s' @param string arg - a string
-                 * indicating what type of exception to throw
-                 * if arg0 == "Xception" throw Xception with errorCode =
-                 * 1001 and message = "This is an Xception"
-                 * else if arg0 == "Xception2" throw Xception2 with
-                 * errorCode = 2002 and struct_thing.string_thing = "This is
-                 * an Xception2" else do not throw anything
+                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                 * @param string arg - a string indicating what type of exception to throw
+                 * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                 * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
+                 * else do not throw anything
                  * @return Xtruct - an Xtruct with string_thing = arg1
                  */
 
@@ -1324,8 +1320,7 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testStruct("{%s}")' where thing has been
-                 * formatted into a string of comma separated values
+                 * Prints 'testStruct("{%s}")' where thing has been formatted into a string of comma separated values
                  * @param Xtruct thing - the Xtruct to print
                  * @return Xtruct - returns the Xtruct 'thing'
                  */
@@ -1507,8 +1502,7 @@ pub mod apache {
                  * @param map<i16, string> arg3 -
                  * @param Numberz arg4 -
                  * @param UserId arg5 -
-                 * @return Xtruct - returns an Xtruct with string_thing =
-                 * "Hello2, byte_thing = arg0, i32_thing = arg1
+                 * @return Xtruct - returns an Xtruct with string_thing = "Hello2, byte_thing = arg0, i32_thing = arg1
                  *    and i64_thing = arg2
                  */
 
@@ -1527,8 +1521,7 @@ pub mod apache {
                      * @param map<i16, string> arg3 -
                      * @param Numberz arg4 -
                      * @param UserId arg5 -
-                     * @return Xtruct - returns an Xtruct with string_thing
-                     * = "Hello2, byte_thing = arg0, i32_thing = arg1
+                     * @return Xtruct - returns an Xtruct with string_thing = "Hello2, byte_thing = arg0, i32_thing = arg1
                      *    and i64_thing = arg2
                      */
                     Ok(Xtruct),
@@ -2033,9 +2026,8 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testEnum("%d")' where thing has been formatted
-                 * into its numeric value @param Numberz
-                 * thing - the Numberz to print
+                 * Prints 'testEnum("%d")' where thing has been formatted into its numeric value
+                 * @param Numberz thing - the Numberz to print
                  * @return Numberz - returns the Numberz 'thing'
                  */
 
@@ -2047,8 +2039,7 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestEnumResultRecv {
                     /**
-                     * Prints 'testEnum("%d")' where thing has been
-                     * formatted into its numeric value
+                     * Prints 'testEnum("%d")' where thing has been formatted into its numeric value
                      * @param Numberz thing - the Numberz to print
                      * @return Numberz - returns the Numberz 'thing'
                      */
@@ -2196,11 +2187,10 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Print 'testOneway(%d): Sleeping...' with secondsToSleep
-                 * as '%d' sleep 'secondsToSleep'
-                 * Print 'testOneway(%d): done sleeping!' with
-                 * secondsToSleep as '%d' @param i32
-                 * secondsToSleep - the number of seconds to sleep
+                 * Print 'testOneway(%d): Sleeping...' with secondsToSleep as '%d'
+                 * sleep 'secondsToSleep'
+                 * Print 'testOneway(%d): done sleeping!' with secondsToSleep as '%d'
+                 * @param i32 secondsToSleep - the number of seconds to sleep
                  */
 
                 impl ::std::default::Default for ThriftTestTestOnewayResultSend {
@@ -2211,12 +2201,10 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestOnewayResultSend {
                     /**
-                     * Print 'testOneway(%d): Sleeping...' with
-                     * secondsToSleep as '%d'
+                     * Print 'testOneway(%d): Sleeping...' with secondsToSleep as '%d'
                      * sleep 'secondsToSleep'
-                     * Print 'testOneway(%d): done sleeping!' with
-                     * secondsToSleep as '%d' @param i32
-                     * secondsToSleep - the number of seconds to sleep
+                     * Print 'testOneway(%d): done sleeping!' with secondsToSleep as '%d'
+                     * @param i32 secondsToSleep - the number of seconds to sleep
                      */
                     Ok(()),
                 }
@@ -2494,8 +2482,7 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testMap("{%s")' where thing has been formatted
-                 * into a string of 'key => value' pairs
+                 * Prints 'testMap("{%s")' where thing has been formatted into a string of 'key => value' pairs
                  *  separated by commas and new lines
                  * @param map<i32,i32> thing - the map<i32,i32> to print
                  * @return map<i32,i32> - returns the map<i32,i32> 'thing'
@@ -2509,12 +2496,10 @@ pub mod apache {
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestMapResultRecv {
                     /**
-                     * Prints 'testMap("{%s")' where thing has been
-                     * formatted into a string of 'key => value' pairs
+                     * Prints 'testMap("{%s")' where thing has been formatted into a string of 'key => value' pairs
                      *  separated by commas and new lines
                      * @param map<i32,i32> thing - the map<i32,i32> to print
-                     * @return map<i32,i32> - returns the map<i32,i32>
-                     * 'thing'
+                     * @return map<i32,i32> - returns the map<i32,i32> 'thing'
                      */
                     Ok(::pilota::AHashMap<i32, i32>),
                 }
@@ -2932,9 +2917,8 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testBinary("%s")' where '%s' is a hex-formatted
-                 * string of thing's data @param binary
-                 * thing - the binary data to print
+                 * Prints 'testBinary("%s")' where '%s' is a hex-formatted string of thing's data
+                 * @param binary  thing - the binary data to print
                  * @return binary  - returns the binary 'thing'
                  */
 
@@ -2946,8 +2930,7 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestBinaryResultRecv {
                     /**
-                     * Prints 'testBinary("%s")' where '%s' is a
-                     * hex-formatted string of thing's data
+                     * Prints 'testBinary("%s")' where '%s' is a hex-formatted string of thing's data
                      * @param binary  thing - the binary data to print
                      * @return binary  - returns the binary 'thing'
                      */
@@ -3262,11 +3245,9 @@ pub mod apache {
                 }
                 /**
                  * Prints 'testByte("%d")' with thing as '%d'
-                 * The types i8 and byte are synonyms, use of i8 is
-                 * encouraged, byte still exists for the sake of
-                 * compatibility. @param byte thing - the
-                 * i8/byte to print @return i8 - returns the
-                 * i8/byte 'thing'
+                 * The types i8 and byte are synonyms, use of i8 is encouraged, byte still exists for the sake of compatibility.
+                 * @param byte thing - the i8/byte to print
+                 * @return i8 - returns the i8/byte 'thing'
                  */
 
                 impl ::std::default::Default for ThriftTestTestByteResultRecv {
@@ -3278,11 +3259,9 @@ pub mod apache {
                 pub enum ThriftTestTestByteResultRecv {
                     /**
                      * Prints 'testByte("%d")' with thing as '%d'
-                     * The types i8 and byte are synonyms, use of i8 is
-                     * encouraged, byte still exists for the sake of
-                     * compatibility. @param byte thing
-                     * - the i8/byte to print @return i8
-                     * - returns the i8/byte 'thing'
+                     * The types i8 and byte are synonyms, use of i8 is encouraged, byte still exists for the sake of compatibility.
+                     * @param byte thing - the i8/byte to print
+                     * @return i8 - returns the i8/byte 'thing'
                      */
                     Ok(i8),
                 }
@@ -3428,9 +3407,8 @@ pub mod apache {
                 }
                 /**
                  * Print 'testException(%s)' with arg as '%s'
-                 * @param string arg - a string indication what type of
-                 * exception to throw if arg == "Xception"
-                 * throw Xception with errorCode = 1001 and message = arg
+                 * @param string arg - a string indication what type of exception to throw
+                 * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
                  * else if arg == "TException" throw TException
                  * else do not throw anything
                  */
@@ -3602,10 +3580,8 @@ pub mod apache {
                 /**
                  * Prints 'testMapMap("%d")' with hello as '%d'
                  * @param i32 hello - the i32 to print
-                 * @return map<i32,map<i32,i32>> - returns a dictionary with
-                 * these values:   {-4 => {-4 => -4, -3 =>
-                 * -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3,
-                 * 4 => 4, }, }
+                 * @return map<i32,map<i32,i32>> - returns a dictionary with these values:
+                 *   {-4 => {-4 => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3, 4 => 4, }, }
                  */
 
                 impl ::std::default::Default for ThriftTestTestMapMapResultSend {
@@ -3618,10 +3594,8 @@ pub mod apache {
                     /**
                      * Prints 'testMapMap("%d")' with hello as '%d'
                      * @param i32 hello - the i32 to print
-                     * @return map<i32,map<i32,i32>> - returns a dictionary
-                     * with these values:   {-4 => {-4
-                     * => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1,
-                     * 2 => 2, 3 => 3, 4 => 4, }, }
+                     * @return map<i32,map<i32,i32>> - returns a dictionary with these values:
+                     *   {-4 => {-4 => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3, 4 => 4, }, }
                      */
                     Ok(::pilota::AHashMap<i32, ::pilota::AHashMap<i32, i32>>),
                 }
@@ -4076,10 +4050,9 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testSet("{%s}")' where thing has been formatted
-                 * into a string of values  separated by
-                 * commas and new lines @param set<i32>
-                 * thing - the set<i32> to print
+                 * Prints 'testSet("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param set<i32> thing - the set<i32> to print
                  * @return set<i32> - returns the set<i32> 'thing'
                  */
 
@@ -4091,8 +4064,7 @@ pub mod apache {
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestSetResultSend {
                     /**
-                     * Prints 'testSet("{%s}")' where thing has been
-                     * formatted into a string of values
+                     * Prints 'testSet("{%s}")' where thing has been formatted into a string of values
                      *  separated by commas and new lines
                      * @param set<i32> thing - the set<i32> to print
                      * @return set<i32> - returns the set<i32> 'thing'
@@ -4275,8 +4247,7 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testStruct("{%s}")' where thing has been
-                 * formatted into a string of comma separated values
+                 * Prints 'testStruct("{%s}")' where thing has been formatted into a string of comma separated values
                  * @param Xtruct thing - the Xtruct to print
                  * @return Xtruct - returns the Xtruct 'thing'
                  */
@@ -4289,8 +4260,7 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestStructResultSend {
                     /**
-                     * Prints 'testStruct("{%s}")' where thing has been
-                     * formatted into a string of comma separated values
+                     * Prints 'testStruct("{%s}")' where thing has been formatted into a string of comma separated values
                      * @param Xtruct thing - the Xtruct to print
                      * @return Xtruct - returns the Xtruct 'thing'
                      */
@@ -5040,14 +5010,11 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and
-                 * arg1 as '%s' @param string arg - a string
-                 * indicating what type of exception to throw
-                 * if arg0 == "Xception" throw Xception with errorCode =
-                 * 1001 and message = "This is an Xception"
-                 * else if arg0 == "Xception2" throw Xception2 with
-                 * errorCode = 2002 and struct_thing.string_thing = "This is
-                 * an Xception2" else do not throw anything
+                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                 * @param string arg - a string indicating what type of exception to throw
+                 * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                 * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
+                 * else do not throw anything
                  * @return Xtruct - an Xtruct with string_thing = arg1
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -5421,8 +5388,7 @@ pub mod apache {
                  * @param map<i16, string> arg3 -
                  * @param Numberz arg4 -
                  * @param UserId arg5 -
-                 * @return Xtruct - returns an Xtruct with string_thing =
-                 * "Hello2, byte_thing = arg0, i32_thing = arg1
+                 * @return Xtruct - returns an Xtruct with string_thing = "Hello2, byte_thing = arg0, i32_thing = arg1
                  *    and i64_thing = arg2
                  */
                 #[derive(Debug, Default, Clone, PartialEq)]
@@ -6208,9 +6174,8 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testEnum("%d")' where thing has been formatted
-                 * into its numeric value @param Numberz
-                 * thing - the Numberz to print
+                 * Prints 'testEnum("%d")' where thing has been formatted into its numeric value
+                 * @param Numberz thing - the Numberz to print
                  * @return Numberz - returns the Numberz 'thing'
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -6383,8 +6348,7 @@ pub mod apache {
                 pub trait ThriftTest {}
 
                 /**
-                 * Prints 'testMap("{%s")' where thing has been formatted
-                 * into a string of 'key => value' pairs
+                 * Prints 'testMap("{%s")' where thing has been formatted into a string of 'key => value' pairs
                  *  separated by commas and new lines
                  * @param map<i32,i32> thing - the map<i32,i32> to print
                  * @return map<i32,i32> - returns the map<i32,i32> 'thing'
@@ -6594,9 +6558,8 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testBinary("%s")' where '%s' is a hex-formatted
-                 * string of thing's data @param binary
-                 * thing - the binary data to print
+                 * Prints 'testBinary("%s")' where '%s' is a hex-formatted string of thing's data
+                 * @param binary  thing - the binary data to print
                  * @return binary  - returns the binary 'thing'
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -6944,11 +6907,9 @@ pub mod apache {
 
                 /**
                  * Prints 'testByte("%d")' with thing as '%d'
-                 * The types i8 and byte are synonyms, use of i8 is
-                 * encouraged, byte still exists for the sake of
-                 * compatibility. @param byte thing - the
-                 * i8/byte to print @return i8 - returns the
-                 * i8/byte 'thing'
+                 * The types i8 and byte are synonyms, use of i8 is encouraged, byte still exists for the sake of compatibility.
+                 * @param byte thing - the i8/byte to print
+                 * @return i8 - returns the i8/byte 'thing'
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestByteArgsSend {
@@ -7116,12 +7077,10 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testStringMap("{%s}")' where thing has been
-                 * formatted into a string of 'key => value' pairs
+                 * Prints 'testStringMap("{%s}")' where thing has been formatted into a string of 'key => value' pairs
                  *  separated by commas and new lines
-                 * @param map<string,string> thing - the map<string,string>
-                 * to print @return map<string,string> -
-                 * returns the map<string,string> 'thing'
+                 * @param map<string,string> thing - the map<string,string> to print
+                 * @return map<string,string> - returns the map<string,string> 'thing'
                  */
                 #[derive(Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestStringMapArgsRecv {
@@ -7463,8 +7422,7 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testUuid("%s")' where '%s' is the uuid given.
-                 * Note that the uuid byte order should be correct.
+                 * Prints 'testUuid("%s")' where '%s' is the uuid given. Note that the uuid byte order should be correct.
                  * @param uuid  thing - the uuid to print
                  * @return uuid  - returns the uuid 'thing'
                  */
@@ -7642,8 +7600,7 @@ pub mod apache {
                  *          },
                  *     2 => { 6 => <empty Insanity struct>, },
                  *   }
-                 * @return map<UserId, map<Numberz,Insanity>> - a map with
-                 * the above values
+                 * @return map<UserId, map<Numberz,Insanity>> - a map with the above values
                  */
 
                 impl ::std::default::Default for ThriftTestTestInsanityResultRecv {
@@ -7662,8 +7619,7 @@ pub mod apache {
                      *          },
                      *     2 => { 6 => <empty Insanity struct>, },
                      *   }
-                     * @return map<UserId, map<Numberz,Insanity>> - a map
-                     * with the above values
+                     * @return map<UserId, map<Numberz,Insanity>> - a map with the above values
                      */
                     Ok(::pilota::AHashMap<UserId, ::pilota::AHashMap<Numberz, Insanity>>),
                 }
@@ -8300,10 +8256,9 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testList("{%s}")' where thing has been formatted
-                 * into a string of values  separated by
-                 * commas and new lines @param list<i32>
-                 * thing - the list<i32> to print
+                 * Prints 'testList("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param list<i32> thing - the list<i32> to print
                  * @return list<i32> - returns the list<i32> 'thing'
                  */
 
@@ -8315,8 +8270,7 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestListResultRecv {
                     /**
-                     * Prints 'testList("{%s}")' where thing has been
-                     * formatted into a string of values
+                     * Prints 'testList("{%s}")' where thing has been formatted into a string of values
                      *  separated by commas and new lines
                      * @param list<i32> thing - the list<i32> to print
                      * @return list<i32> - returns the list<i32> 'thing'
@@ -8635,9 +8589,8 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testNest("{%s}")' where thing has been formatted
-                 * into a string of the nested struct @param
-                 * Xtruct2 thing - the Xtruct2 to print
+                 * Prints 'testNest("{%s}")' where thing has been formatted into a string of the nested struct
+                 * @param Xtruct2 thing - the Xtruct2 to print
                  * @return Xtruct2 - returns the Xtruct2 'thing'
                  */
 
@@ -8649,8 +8602,7 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestNestResultRecv {
                     /**
-                     * Prints 'testNest("{%s}")' where thing has been
-                     * formatted into a string of the nested struct
+                     * Prints 'testNest("{%s}")' where thing has been formatted into a string of the nested struct
                      * @param Xtruct2 thing - the Xtruct2 to print
                      * @return Xtruct2 - returns the Xtruct2 'thing'
                      */
@@ -9198,10 +9150,9 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testBool("%s")' where '%s' with thing as 'true'
-                 * or 'false' @param bool  thing - the bool
-                 * data to print @return bool  - returns the
-                 * bool 'thing'
+                 * Prints 'testBool("%s")' where '%s' with thing as 'true' or 'false'
+                 * @param bool  thing - the bool data to print
+                 * @return bool  - returns the bool 'thing'
                  */
 
                 impl ::std::default::Default for ThriftTestTestBoolResultRecv {
@@ -9212,9 +9163,8 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestBoolResultRecv {
                     /**
-                     * Prints 'testBool("%s")' where '%s' with thing as
-                     * 'true' or 'false' @param bool
-                     * thing - the bool data to print
+                     * Prints 'testBool("%s")' where '%s' with thing as 'true' or 'false'
+                     * @param bool  thing - the bool data to print
                      * @return bool  - returns the bool 'thing'
                      */
                     Ok(bool),
@@ -9776,12 +9726,10 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testStringMap("{%s}")' where thing has been
-                 * formatted into a string of 'key => value' pairs
+                 * Prints 'testStringMap("{%s}")' where thing has been formatted into a string of 'key => value' pairs
                  *  separated by commas and new lines
-                 * @param map<string,string> thing - the map<string,string>
-                 * to print @return map<string,string> -
-                 * returns the map<string,string> 'thing'
+                 * @param map<string,string> thing - the map<string,string> to print
+                 * @return map<string,string> - returns the map<string,string> 'thing'
                  */
 
                 impl ::std::default::Default for ThriftTestTestStringMapResultSend {
@@ -9792,13 +9740,10 @@ pub mod apache {
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestStringMapResultSend {
                     /**
-                     * Prints 'testStringMap("{%s}")' where thing has been
-                     * formatted into a string of 'key => value' pairs
+                     * Prints 'testStringMap("{%s}")' where thing has been formatted into a string of 'key => value' pairs
                      *  separated by commas and new lines
-                     * @param map<string,string> thing - the
-                     * map<string,string> to print
-                     * @return map<string,string> - returns the
-                     * map<string,string> 'thing'
+                     * @param map<string,string> thing - the map<string,string> to print
+                     * @return map<string,string> - returns the map<string,string> 'thing'
                      */
                     Ok(::pilota::AHashMap<::pilota::FastStr, ::pilota::FastStr>),
                 }
@@ -9997,9 +9942,8 @@ pub mod apache {
                 }
                 /**
                  * Print 'testException(%s)' with arg as '%s'
-                 * @param string arg - a string indication what type of
-                 * exception to throw if arg == "Xception"
-                 * throw Xception with errorCode = 1001 and message = arg
+                 * @param string arg - a string indication what type of exception to throw
+                 * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
                  * else if arg == "TException" throw TException
                  * else do not throw anything
                  */
@@ -10169,8 +10113,7 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testUuid("%s")' where '%s' is the uuid given.
-                 * Note that the uuid byte order should be correct.
+                 * Prints 'testUuid("%s")' where '%s' is the uuid given. Note that the uuid byte order should be correct.
                  * @param uuid  thing - the uuid to print
                  * @return uuid  - returns the uuid 'thing'
                  */
@@ -10183,8 +10126,7 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestUuidResultSend {
                     /**
-                     * Prints 'testUuid("%s")' where '%s' is the uuid given.
-                     * Note that the uuid byte order should be correct.
+                     * Prints 'testUuid("%s")' where '%s' is the uuid given. Note that the uuid byte order should be correct.
                      * @param uuid  thing - the uuid to print
                      * @return uuid  - returns the uuid 'thing'
                      */
@@ -10828,8 +10770,7 @@ pub mod apache {
                  *          },
                  *     2 => { 6 => <empty Insanity struct>, },
                  *   }
-                 * @return map<UserId, map<Numberz,Insanity>> - a map with
-                 * the above values
+                 * @return map<UserId, map<Numberz,Insanity>> - a map with the above values
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestInsanityArgsSend {
@@ -11188,10 +11129,9 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testList("{%s}")' where thing has been formatted
-                 * into a string of values  separated by
-                 * commas and new lines @param list<i32>
-                 * thing - the list<i32> to print
+                 * Prints 'testList("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param list<i32> thing - the list<i32> to print
                  * @return list<i32> - returns the list<i32> 'thing'
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -11392,11 +11332,10 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Print 'testOneway(%d): Sleeping...' with secondsToSleep
-                 * as '%d' sleep 'secondsToSleep'
-                 * Print 'testOneway(%d): done sleeping!' with
-                 * secondsToSleep as '%d' @param i32
-                 * secondsToSleep - the number of seconds to sleep
+                 * Print 'testOneway(%d): Sleeping...' with secondsToSleep as '%d'
+                 * sleep 'secondsToSleep'
+                 * Print 'testOneway(%d): done sleeping!' with secondsToSleep as '%d'
+                 * @param i32 secondsToSleep - the number of seconds to sleep
                  */
 
                 impl ::std::default::Default for ThriftTestTestOnewayResultRecv {
@@ -11407,12 +11346,10 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestOnewayResultRecv {
                     /**
-                     * Print 'testOneway(%d): Sleeping...' with
-                     * secondsToSleep as '%d'
+                     * Print 'testOneway(%d): Sleeping...' with secondsToSleep as '%d'
                      * sleep 'secondsToSleep'
-                     * Print 'testOneway(%d): done sleeping!' with
-                     * secondsToSleep as '%d' @param i32
-                     * secondsToSleep - the number of seconds to sleep
+                     * Print 'testOneway(%d): done sleeping!' with secondsToSleep as '%d'
+                     * @param i32 secondsToSleep - the number of seconds to sleep
                      */
                     Ok(()),
                 }
@@ -11520,9 +11457,8 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testNest("{%s}")' where thing has been formatted
-                 * into a string of the nested struct @param
-                 * Xtruct2 thing - the Xtruct2 to print
+                 * Prints 'testNest("{%s}")' where thing has been formatted into a string of the nested struct
+                 * @param Xtruct2 thing - the Xtruct2 to print
                  * @return Xtruct2 - returns the Xtruct2 'thing'
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -11703,8 +11639,7 @@ pub mod apache {
                  * @param map<i16, string> arg3 -
                  * @param Numberz arg4 -
                  * @param UserId arg5 -
-                 * @return Xtruct - returns an Xtruct with string_thing =
-                 * "Hello2, byte_thing = arg0, i32_thing = arg1
+                 * @return Xtruct - returns an Xtruct with string_thing = "Hello2, byte_thing = arg0, i32_thing = arg1
                  *    and i64_thing = arg2
                  */
                 #[derive(Debug, Default, Clone, PartialEq)]
@@ -12482,9 +12417,8 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testEnum("%d")' where thing has been formatted
-                 * into its numeric value @param Numberz
-                 * thing - the Numberz to print
+                 * Prints 'testEnum("%d")' where thing has been formatted into its numeric value
+                 * @param Numberz thing - the Numberz to print
                  * @return Numberz - returns the Numberz 'thing'
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -12820,10 +12754,9 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testBool("%s")' where '%s' with thing as 'true'
-                 * or 'false' @param bool  thing - the bool
-                 * data to print @return bool  - returns the
-                 * bool 'thing'
+                 * Prints 'testBool("%s")' where '%s' with thing as 'true' or 'false'
+                 * @param bool  thing - the bool data to print
+                 * @return bool  - returns the bool 'thing'
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestBoolArgsSend {
@@ -12991,8 +12924,7 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testMap("{%s")' where thing has been formatted
-                 * into a string of 'key => value' pairs
+                 * Prints 'testMap("{%s")' where thing has been formatted into a string of 'key => value' pairs
                  *  separated by commas and new lines
                  * @param map<i32,i32> thing - the map<i32,i32> to print
                  * @return map<i32,i32> - returns the map<i32,i32> 'thing'
@@ -13203,9 +13135,8 @@ pub mod apache {
                 }
                 /**
                  * Print 'testException(%s)' with arg as '%s'
-                 * @param string arg - a string indication what type of
-                 * exception to throw if arg == "Xception"
-                 * throw Xception with errorCode = 1001 and message = arg
+                 * @param string arg - a string indication what type of exception to throw
+                 * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
                  * else if arg == "TException" throw TException
                  * else do not throw anything
                  */
@@ -13368,9 +13299,8 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testBinary("%s")' where '%s' is a hex-formatted
-                 * string of thing's data @param binary
-                 * thing - the binary data to print
+                 * Prints 'testBinary("%s")' where '%s' is a hex-formatted string of thing's data
+                 * @param binary  thing - the binary data to print
                  * @return binary  - returns the binary 'thing'
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -13541,10 +13471,8 @@ pub mod apache {
                 /**
                  * Prints 'testMapMap("%d")' with hello as '%d'
                  * @param i32 hello - the i32 to print
-                 * @return map<i32,map<i32,i32>> - returns a dictionary with
-                 * these values:   {-4 => {-4 => -4, -3 =>
-                 * -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3,
-                 * 4 => 4, }, }
+                 * @return map<i32,map<i32,i32>> - returns a dictionary with these values:
+                 *   {-4 => {-4 => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3, 4 => 4, }, }
                  */
 
                 impl ::std::default::Default for ThriftTestTestMapMapResultRecv {
@@ -13557,10 +13485,8 @@ pub mod apache {
                     /**
                      * Prints 'testMapMap("%d")' with hello as '%d'
                      * @param i32 hello - the i32 to print
-                     * @return map<i32,map<i32,i32>> - returns a dictionary
-                     * with these values:   {-4 => {-4
-                     * => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1,
-                     * 2 => 2, 3 => 3, 4 => 4, }, }
+                     * @return map<i32,map<i32,i32>> - returns a dictionary with these values:
+                     *   {-4 => {-4 => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3, 4 => 4, }, }
                      */
                     Ok(::pilota::AHashMap<i32, ::pilota::AHashMap<i32, i32>>),
                 }
@@ -14007,11 +13933,9 @@ pub mod apache {
                 }
                 /**
                  * Prints 'testByte("%d")' with thing as '%d'
-                 * The types i8 and byte are synonyms, use of i8 is
-                 * encouraged, byte still exists for the sake of
-                 * compatibility. @param byte thing - the
-                 * i8/byte to print @return i8 - returns the
-                 * i8/byte 'thing'
+                 * The types i8 and byte are synonyms, use of i8 is encouraged, byte still exists for the sake of compatibility.
+                 * @param byte thing - the i8/byte to print
+                 * @return i8 - returns the i8/byte 'thing'
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestByteArgsRecv {
@@ -14179,10 +14103,9 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testSet("{%s}")' where thing has been formatted
-                 * into a string of values  separated by
-                 * commas and new lines @param set<i32>
-                 * thing - the set<i32> to print
+                 * Prints 'testSet("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param set<i32> thing - the set<i32> to print
                  * @return set<i32> - returns the set<i32> 'thing'
                  */
 
@@ -14194,8 +14117,7 @@ pub mod apache {
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestSetResultRecv {
                     /**
-                     * Prints 'testSet("{%s}")' where thing has been
-                     * formatted into a string of values
+                     * Prints 'testSet("{%s}")' where thing has been formatted into a string of values
                      *  separated by commas and new lines
                      * @param set<i32> thing - the set<i32> to print
                      * @return set<i32> - returns the set<i32> 'thing'
@@ -14537,8 +14459,7 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testStruct("{%s}")' where thing has been
-                 * formatted into a string of comma separated values
+                 * Prints 'testStruct("{%s}")' where thing has been formatted into a string of comma separated values
                  * @param Xtruct thing - the Xtruct to print
                  * @return Xtruct - returns the Xtruct 'thing'
                  */
@@ -14551,8 +14472,7 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestStructResultRecv {
                     /**
-                     * Prints 'testStruct("{%s}")' where thing has been
-                     * formatted into a string of comma separated values
+                     * Prints 'testStruct("{%s}")' where thing has been formatted into a string of comma separated values
                      * @param Xtruct thing - the Xtruct to print
                      * @return Xtruct - returns the Xtruct 'thing'
                      */
@@ -15294,8 +15214,7 @@ pub mod apache {
                  * @param map<i16, string> arg3 -
                  * @param Numberz arg4 -
                  * @param UserId arg5 -
-                 * @return Xtruct - returns an Xtruct with string_thing =
-                 * "Hello2, byte_thing = arg0, i32_thing = arg1
+                 * @return Xtruct - returns an Xtruct with string_thing = "Hello2, byte_thing = arg0, i32_thing = arg1
                  *    and i64_thing = arg2
                  */
 
@@ -15314,8 +15233,7 @@ pub mod apache {
                      * @param map<i16, string> arg3 -
                      * @param Numberz arg4 -
                      * @param UserId arg5 -
-                     * @return Xtruct - returns an Xtruct with string_thing
-                     * = "Hello2, byte_thing = arg0, i32_thing = arg1
+                     * @return Xtruct - returns an Xtruct with string_thing = "Hello2, byte_thing = arg0, i32_thing = arg1
                      *    and i64_thing = arg2
                      */
                     Ok(Xtruct),
@@ -15850,9 +15768,8 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testEnum("%d")' where thing has been formatted
-                 * into its numeric value @param Numberz
-                 * thing - the Numberz to print
+                 * Prints 'testEnum("%d")' where thing has been formatted into its numeric value
+                 * @param Numberz thing - the Numberz to print
                  * @return Numberz - returns the Numberz 'thing'
                  */
 
@@ -15864,8 +15781,7 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestEnumResultSend {
                     /**
-                     * Prints 'testEnum("%d")' where thing has been
-                     * formatted into its numeric value
+                     * Prints 'testEnum("%d")' where thing has been formatted into its numeric value
                      * @param Numberz thing - the Numberz to print
                      * @return Numberz - returns the Numberz 'thing'
                      */
@@ -16013,11 +15929,10 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Print 'testOneway(%d): Sleeping...' with secondsToSleep
-                 * as '%d' sleep 'secondsToSleep'
-                 * Print 'testOneway(%d): done sleeping!' with
-                 * secondsToSleep as '%d' @param i32
-                 * secondsToSleep - the number of seconds to sleep
+                 * Print 'testOneway(%d): Sleeping...' with secondsToSleep as '%d'
+                 * sleep 'secondsToSleep'
+                 * Print 'testOneway(%d): done sleeping!' with secondsToSleep as '%d'
+                 * @param i32 secondsToSleep - the number of seconds to sleep
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestOnewayArgsSend {
@@ -16189,8 +16104,7 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testMap("{%s")' where thing has been formatted
-                 * into a string of 'key => value' pairs
+                 * Prints 'testMap("{%s")' where thing has been formatted into a string of 'key => value' pairs
                  *  separated by commas and new lines
                  * @param map<i32,i32> thing - the map<i32,i32> to print
                  * @return map<i32,i32> - returns the map<i32,i32> 'thing'
@@ -16204,12 +16118,10 @@ pub mod apache {
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestMapResultSend {
                     /**
-                     * Prints 'testMap("{%s")' where thing has been
-                     * formatted into a string of 'key => value' pairs
+                     * Prints 'testMap("{%s")' where thing has been formatted into a string of 'key => value' pairs
                      *  separated by commas and new lines
                      * @param map<i32,i32> thing - the map<i32,i32> to print
-                     * @return map<i32,i32> - returns the map<i32,i32>
-                     * 'thing'
+                     * @return map<i32,i32> - returns the map<i32,i32> 'thing'
                      */
                     Ok(::pilota::AHashMap<i32, i32>),
                 }
@@ -16404,9 +16316,8 @@ pub mod apache {
                 }
                 /**
                  * Print 'testException(%s)' with arg as '%s'
-                 * @param string arg - a string indication what type of
-                 * exception to throw if arg == "Xception"
-                 * throw Xception with errorCode = 1001 and message = arg
+                 * @param string arg - a string indication what type of exception to throw
+                 * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
                  * else if arg == "TException" throw TException
                  * else do not throw anything
                  */
@@ -16420,11 +16331,9 @@ pub mod apache {
                 pub enum ThriftTestTestExceptionResultSend {
                     /**
                      * Print 'testException(%s)' with arg as '%s'
-                     * @param string arg - a string indication what type of
-                     * exception to throw if arg == "
-                     * Xception" throw Xception with errorCode = 1001 and
-                     * message = arg else if arg ==
-                     * "TException" throw TException
+                     * @param string arg - a string indication what type of exception to throw
+                     * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
+                     * else if arg == "TException" throw TException
                      * else do not throw anything
                      */
                     Ok(()),
@@ -16580,8 +16489,7 @@ pub mod apache {
 
                     pub set_field: ::std::option::Option<::pilota::AHashSet<Insanity>>,
 
-                    // Do not insert line break as test/go/Makefile.am is removing this line with
-                    // pattern match
+                    // Do not insert line break as test/go/Makefile.am is removing this line with pattern match
                     pub list_field: ::std::vec::Vec<
                         ::std::collections::BTreeMap<
                             ::std::collections::BTreeSet<i32>,
@@ -17029,9 +16937,8 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testBinary("%s")' where '%s' is a hex-formatted
-                 * string of thing's data @param binary
-                 * thing - the binary data to print
+                 * Prints 'testBinary("%s")' where '%s' is a hex-formatted string of thing's data
+                 * @param binary  thing - the binary data to print
                  * @return binary  - returns the binary 'thing'
                  */
 
@@ -17043,8 +16950,7 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestBinaryResultSend {
                     /**
-                     * Prints 'testBinary("%s")' where '%s' is a
-                     * hex-formatted string of thing's data
+                     * Prints 'testBinary("%s")' where '%s' is a hex-formatted string of thing's data
                      * @param binary  thing - the binary data to print
                      * @return binary  - returns the binary 'thing'
                      */
@@ -17363,11 +17269,9 @@ pub mod apache {
                 }
                 /**
                  * Prints 'testByte("%d")' with thing as '%d'
-                 * The types i8 and byte are synonyms, use of i8 is
-                 * encouraged, byte still exists for the sake of
-                 * compatibility. @param byte thing - the
-                 * i8/byte to print @return i8 - returns the
-                 * i8/byte 'thing'
+                 * The types i8 and byte are synonyms, use of i8 is encouraged, byte still exists for the sake of compatibility.
+                 * @param byte thing - the i8/byte to print
+                 * @return i8 - returns the i8/byte 'thing'
                  */
 
                 impl ::std::default::Default for ThriftTestTestByteResultSend {
@@ -17379,11 +17283,9 @@ pub mod apache {
                 pub enum ThriftTestTestByteResultSend {
                     /**
                      * Prints 'testByte("%d")' with thing as '%d'
-                     * The types i8 and byte are synonyms, use of i8 is
-                     * encouraged, byte still exists for the sake of
-                     * compatibility. @param byte thing
-                     * - the i8/byte to print @return i8
-                     * - returns the i8/byte 'thing'
+                     * The types i8 and byte are synonyms, use of i8 is encouraged, byte still exists for the sake of compatibility.
+                     * @param byte thing - the i8/byte to print
+                     * @return i8 - returns the i8/byte 'thing'
                      */
                     Ok(i8),
                 }
@@ -17528,14 +17430,11 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and
-                 * arg1 as '%s' @param string arg - a string
-                 * indicating what type of exception to throw
-                 * if arg0 == "Xception" throw Xception with errorCode =
-                 * 1001 and message = "This is an Xception"
-                 * else if arg0 == "Xception2" throw Xception2 with
-                 * errorCode = 2002 and struct_thing.string_thing = "This is
-                 * an Xception2" else do not throw anything
+                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                 * @param string arg - a string indicating what type of exception to throw
+                 * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                 * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
+                 * else do not throw anything
                  * @return Xtruct - an Xtruct with string_thing = arg1
                  */
 
@@ -17549,14 +17448,10 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestMultiExceptionResultRecv {
                     /**
-                     * Print 'testMultiException(%s, %s)' with arg0 as '%s'
-                     * and arg1 as '%s' @param string
-                     * arg - a string indicating what type of exception to
-                     * throw if arg0 == "Xception" throw
-                     * Xception with errorCode = 1001 and message = "This is
-                     * an Xception" else if arg0 ==
-                     * "Xception2" throw Xception2 with errorCode = 2002 and
-                     * struct_thing.string_thing = "This is an Xception2"
+                     * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                     * @param string arg - a string indicating what type of exception to throw
+                     * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                     * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
                      * else do not throw anything
                      * @return Xtruct - an Xtruct with string_thing = arg1
                      */
@@ -17976,10 +17871,8 @@ pub mod apache {
                 /**
                  * Prints 'testMapMap("%d")' with hello as '%d'
                  * @param i32 hello - the i32 to print
-                 * @return map<i32,map<i32,i32>> - returns a dictionary with
-                 * these values:   {-4 => {-4 => -4, -3 =>
-                 * -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3,
-                 * 4 => 4, }, }
+                 * @return map<i32,map<i32,i32>> - returns a dictionary with these values:
+                 *   {-4 => {-4 => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3, 4 => 4, }, }
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestMapMapArgsSend {
@@ -18340,10 +18233,9 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testSet("{%s}")' where thing has been formatted
-                 * into a string of values  separated by
-                 * commas and new lines @param set<i32>
-                 * thing - the set<i32> to print
+                 * Prints 'testSet("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param set<i32> thing - the set<i32> to print
                  * @return set<i32> - returns the set<i32> 'thing'
                  */
                 #[derive(Debug, Default, Clone, PartialEq)]
@@ -18539,8 +18431,7 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testStruct("{%s}")' where thing has been
-                 * formatted into a string of comma separated values
+                 * Prints 'testStruct("{%s}")' where thing has been formatted into a string of comma separated values
                  * @param Xtruct thing - the Xtruct to print
                  * @return Xtruct - returns the Xtruct 'thing'
                  */
@@ -18723,8 +18614,7 @@ pub mod apache {
                  *          },
                  *     2 => { 6 => <empty Insanity struct>, },
                  *   }
-                 * @return map<UserId, map<Numberz,Insanity>> - a map with
-                 * the above values
+                 * @return map<UserId, map<Numberz,Insanity>> - a map with the above values
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestInsanityArgsRecv {
@@ -19312,10 +19202,9 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testList("{%s}")' where thing has been formatted
-                 * into a string of values  separated by
-                 * commas and new lines @param list<i32>
-                 * thing - the list<i32> to print
+                 * Prints 'testList("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param list<i32> thing - the list<i32> to print
                  * @return list<i32> - returns the list<i32> 'thing'
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -19686,9 +19575,8 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testNest("{%s}")' where thing has been formatted
-                 * into a string of the nested struct @param
-                 * Xtruct2 thing - the Xtruct2 to print
+                 * Prints 'testNest("{%s}")' where thing has been formatted into a string of the nested struct
+                 * @param Xtruct2 thing - the Xtruct2 to print
                  * @return Xtruct2 - returns the Xtruct2 'thing'
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -19863,9 +19751,8 @@ pub mod apache {
                 }
                 /**
                  * Print 'testException(%s)' with arg as '%s'
-                 * @param string arg - a string indication what type of
-                 * exception to throw if arg == "Xception"
-                 * throw Xception with errorCode = 1001 and message = arg
+                 * @param string arg - a string indication what type of exception to throw
+                 * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
                  * else if arg == "TException" throw TException
                  * else do not throw anything
                  */
@@ -19879,11 +19766,9 @@ pub mod apache {
                 pub enum ThriftTestTestExceptionResultRecv {
                     /**
                      * Print 'testException(%s)' with arg as '%s'
-                     * @param string arg - a string indication what type of
-                     * exception to throw if arg == "
-                     * Xception" throw Xception with errorCode = 1001 and
-                     * message = arg else if arg ==
-                     * "TException" throw TException
+                     * @param string arg - a string indication what type of exception to throw
+                     * if arg == "Xception" throw Xception with errorCode = 1001 and message = arg
+                     * else if arg == "TException" throw TException
                      * else do not throw anything
                      */
                     Ok(()),
@@ -20577,10 +20462,9 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testBool("%s")' where '%s' with thing as 'true'
-                 * or 'false' @param bool  thing - the bool
-                 * data to print @return bool  - returns the
-                 * bool 'thing'
+                 * Prints 'testBool("%s")' where '%s' with thing as 'true' or 'false'
+                 * @param bool  thing - the bool data to print
+                 * @return bool  - returns the bool 'thing'
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestBoolArgsRecv {
@@ -20748,12 +20632,10 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testStringMap("{%s}")' where thing has been
-                 * formatted into a string of 'key => value' pairs
+                 * Prints 'testStringMap("{%s}")' where thing has been formatted into a string of 'key => value' pairs
                  *  separated by commas and new lines
-                 * @param map<string,string> thing - the map<string,string>
-                 * to print @return map<string,string> -
-                 * returns the map<string,string> 'thing'
+                 * @param map<string,string> thing - the map<string,string> to print
+                 * @return map<string,string> - returns the map<string,string> 'thing'
                  */
 
                 impl ::std::default::Default for ThriftTestTestStringMapResultRecv {
@@ -20764,13 +20646,10 @@ pub mod apache {
                 #[derive(Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestStringMapResultRecv {
                     /**
-                     * Prints 'testStringMap("{%s}")' where thing has been
-                     * formatted into a string of 'key => value' pairs
+                     * Prints 'testStringMap("{%s}")' where thing has been formatted into a string of 'key => value' pairs
                      *  separated by commas and new lines
-                     * @param map<string,string> thing - the
-                     * map<string,string> to print
-                     * @return map<string,string> - returns the
-                     * map<string,string> 'thing'
+                     * @param map<string,string> thing - the map<string,string> to print
+                     * @return map<string,string> - returns the map<string,string> 'thing'
                      */
                     Ok(::pilota::AHashMap<::pilota::FastStr, ::pilota::FastStr>),
                 }
@@ -20968,8 +20847,7 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testUuid("%s")' where '%s' is the uuid given.
-                 * Note that the uuid byte order should be correct.
+                 * Prints 'testUuid("%s")' where '%s' is the uuid given. Note that the uuid byte order should be correct.
                  * @param uuid  thing - the uuid to print
                  * @return uuid  - returns the uuid 'thing'
                  */
@@ -20982,8 +20860,7 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestUuidResultRecv {
                     /**
-                     * Prints 'testUuid("%s")' where '%s' is the uuid given.
-                     * Note that the uuid byte order should be correct.
+                     * Prints 'testUuid("%s")' where '%s' is the uuid given. Note that the uuid byte order should be correct.
                      * @param uuid  thing - the uuid to print
                      * @return uuid  - returns the uuid 'thing'
                      */
@@ -21792,14 +21669,11 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and
-                 * arg1 as '%s' @param string arg - a string
-                 * indicating what type of exception to throw
-                 * if arg0 == "Xception" throw Xception with errorCode =
-                 * 1001 and message = "This is an Xception"
-                 * else if arg0 == "Xception2" throw Xception2 with
-                 * errorCode = 2002 and struct_thing.string_thing = "This is
-                 * an Xception2" else do not throw anything
+                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                 * @param string arg - a string indicating what type of exception to throw
+                 * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                 * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
+                 * else do not throw anything
                  * @return Xtruct - an Xtruct with string_thing = arg1
                  */
 
@@ -21813,14 +21687,10 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestMultiExceptionResultSend {
                     /**
-                     * Print 'testMultiException(%s, %s)' with arg0 as '%s'
-                     * and arg1 as '%s' @param string
-                     * arg - a string indicating what type of exception to
-                     * throw if arg0 == "Xception" throw
-                     * Xception with errorCode = 1001 and message = "This is
-                     * an Xception" else if arg0 ==
-                     * "Xception2" throw Xception2 with errorCode = 2002 and
-                     * struct_thing.string_thing = "This is an Xception2"
+                     * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                     * @param string arg - a string indicating what type of exception to throw
+                     * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                     * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
                      * else do not throw anything
                      * @return Xtruct - an Xtruct with string_thing = arg1
                      */
@@ -22186,8 +22056,7 @@ pub mod apache {
                  *          },
                  *     2 => { 6 => <empty Insanity struct>, },
                  *   }
-                 * @return map<UserId, map<Numberz,Insanity>> - a map with
-                 * the above values
+                 * @return map<UserId, map<Numberz,Insanity>> - a map with the above values
                  */
 
                 impl ::std::default::Default for ThriftTestTestInsanityResultSend {
@@ -22206,8 +22075,7 @@ pub mod apache {
                      *          },
                      *     2 => { 6 => <empty Insanity struct>, },
                      *   }
-                     * @return map<UserId, map<Numberz,Insanity>> - a map
-                     * with the above values
+                     * @return map<UserId, map<Numberz,Insanity>> - a map with the above values
                      */
                     Ok(::pilota::AHashMap<UserId, ::pilota::AHashMap<Numberz, Insanity>>),
                 }
@@ -22674,10 +22542,9 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testList("{%s}")' where thing has been formatted
-                 * into a string of values  separated by
-                 * commas and new lines @param list<i32>
-                 * thing - the list<i32> to print
+                 * Prints 'testList("{%s}")' where thing has been formatted into a string of values
+                 *  separated by commas and new lines
+                 * @param list<i32> thing - the list<i32> to print
                  * @return list<i32> - returns the list<i32> 'thing'
                  */
 
@@ -22689,8 +22556,7 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestListResultSend {
                     /**
-                     * Prints 'testList("{%s}")' where thing has been
-                     * formatted into a string of values
+                     * Prints 'testList("{%s}")' where thing has been formatted into a string of values
                      *  separated by commas and new lines
                      * @param list<i32> thing - the list<i32> to print
                      * @return list<i32> - returns the list<i32> 'thing'
@@ -22875,14 +22741,11 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and
-                 * arg1 as '%s' @param string arg - a string
-                 * indicating what type of exception to throw
-                 * if arg0 == "Xception" throw Xception with errorCode =
-                 * 1001 and message = "This is an Xception"
-                 * else if arg0 == "Xception2" throw Xception2 with
-                 * errorCode = 2002 and struct_thing.string_thing = "This is
-                 * an Xception2" else do not throw anything
+                 * Print 'testMultiException(%s, %s)' with arg0 as '%s' and arg1 as '%s'
+                 * @param string arg - a string indicating what type of exception to throw
+                 * if arg0 == "Xception" throw Xception with errorCode = 1001 and message = "This is an Xception"
+                 * else if arg0 == "Xception2" throw Xception2 with errorCode = 2002 and struct_thing.string_thing = "This is an Xception2"
+                 * else do not throw anything
                  * @return Xtruct - an Xtruct with string_thing = arg1
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
@@ -23088,9 +22951,8 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testNest("{%s}")' where thing has been formatted
-                 * into a string of the nested struct @param
-                 * Xtruct2 thing - the Xtruct2 to print
+                 * Prints 'testNest("{%s}")' where thing has been formatted into a string of the nested struct
+                 * @param Xtruct2 thing - the Xtruct2 to print
                  * @return Xtruct2 - returns the Xtruct2 'thing'
                  */
 
@@ -23102,8 +22964,7 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestNestResultSend {
                     /**
-                     * Prints 'testNest("{%s}")' where thing has been
-                     * formatted into a string of the nested struct
+                     * Prints 'testNest("{%s}")' where thing has been formatted into a string of the nested struct
                      * @param Xtruct2 thing - the Xtruct2 to print
                      * @return Xtruct2 - returns the Xtruct2 'thing'
                      */
@@ -23728,11 +23589,10 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Print 'testOneway(%d): Sleeping...' with secondsToSleep
-                 * as '%d' sleep 'secondsToSleep'
-                 * Print 'testOneway(%d): done sleeping!' with
-                 * secondsToSleep as '%d' @param i32
-                 * secondsToSleep - the number of seconds to sleep
+                 * Print 'testOneway(%d): Sleeping...' with secondsToSleep as '%d'
+                 * sleep 'secondsToSleep'
+                 * Print 'testOneway(%d): done sleeping!' with secondsToSleep as '%d'
+                 * @param i32 secondsToSleep - the number of seconds to sleep
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestOnewayArgsRecv {
@@ -23904,10 +23764,9 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testBool("%s")' where '%s' with thing as 'true'
-                 * or 'false' @param bool  thing - the bool
-                 * data to print @return bool  - returns the
-                 * bool 'thing'
+                 * Prints 'testBool("%s")' where '%s' with thing as 'true' or 'false'
+                 * @param bool  thing - the bool data to print
+                 * @return bool  - returns the bool 'thing'
                  */
 
                 impl ::std::default::Default for ThriftTestTestBoolResultSend {
@@ -23918,9 +23777,8 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Clone, PartialEq)]
                 pub enum ThriftTestTestBoolResultSend {
                     /**
-                     * Prints 'testBool("%s")' where '%s' with thing as
-                     * 'true' or 'false' @param bool
-                     * thing - the bool data to print
+                     * Prints 'testBool("%s")' where '%s' with thing as 'true' or 'false'
+                     * @param bool  thing - the bool data to print
                      * @return bool  - returns the bool 'thing'
                      */
                     Ok(bool),
@@ -24741,12 +24599,10 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testStringMap("{%s}")' where thing has been
-                 * formatted into a string of 'key => value' pairs
+                 * Prints 'testStringMap("{%s}")' where thing has been formatted into a string of 'key => value' pairs
                  *  separated by commas and new lines
-                 * @param map<string,string> thing - the map<string,string>
-                 * to print @return map<string,string> -
-                 * returns the map<string,string> 'thing'
+                 * @param map<string,string> thing - the map<string,string> to print
+                 * @return map<string,string> - returns the map<string,string> 'thing'
                  */
                 #[derive(Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestStringMapArgsSend {
@@ -25138,8 +24994,7 @@ pub mod apache {
                     }
                 }
                 /**
-                 * Prints 'testUuid("%s")' where '%s' is the uuid given.
-                 * Note that the uuid byte order should be correct.
+                 * Prints 'testUuid("%s")' where '%s' is the uuid given. Note that the uuid byte order should be correct.
                  * @param uuid  thing - the uuid to print
                  * @return uuid  - returns the uuid 'thing'
                  */
@@ -25311,10 +25166,8 @@ pub mod apache {
                 /**
                  * Prints 'testMapMap("%d")' with hello as '%d'
                  * @param i32 hello - the i32 to print
-                 * @return map<i32,map<i32,i32>> - returns a dictionary with
-                 * these values:   {-4 => {-4 => -4, -3 =>
-                 * -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3,
-                 * 4 => 4, }, }
+                 * @return map<i32,map<i32,i32>> - returns a dictionary with these values:
+                 *   {-4 => {-4 => -4, -3 => -3, -2 => -2, -1 => -1, }, 4 => {1 => 1, 2 => 2, 3 => 3, 4 => 4, }, }
                  */
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestMapMapArgsRecv {

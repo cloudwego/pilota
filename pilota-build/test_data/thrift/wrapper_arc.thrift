@@ -2,10 +2,18 @@ struct A {
 
 }
 
+struct B {
+    1: optional i32 Id,
+}
+
+const B DEFAULT_B = {"Id": 1}
+
 struct TEST {
     1: required string ID,
     2: required list<list<A>> Name2(pilota.rust_wrapper_arc="true"),
     3: required map<i32, list<A>> Name3(pilota.rust_wrapper_arc="true"),
+    4: optional A Name4 = {} (pilota.rust_wrapper_arc="true"),
+    5: optional B Name5 = DEFAULT_B (pilota.rust_wrapper_arc="true"),
 }
 
 service TestService {
