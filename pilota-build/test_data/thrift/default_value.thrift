@@ -38,6 +38,12 @@ struct C {
 
 const C DEFAULT_C = {"off": "const", "test_byte": 9};
 
+struct D {
+    1: optional list<i32> values,
+}
+
+const D DEFAULT_D = {"values": [1, 2]};
+
 struct A {
     1: required string faststr = "hello world",
     2: required string string = "test"(pilota.rust_type = "string"),
@@ -77,4 +83,5 @@ struct A {
     36: optional NameScoreMap newtype_map_from_const = NAME_SCORE_LITERAL,
     37: optional NameScoreMap newtype_map_empty = [],
     38: optional NameScoreMap newtype_map_from_empty_const = NAME_SCORE_EMPTY,
+    39: optional D lazy_struct_from_const = DEFAULT_D,
 }

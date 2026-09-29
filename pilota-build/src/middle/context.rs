@@ -638,7 +638,7 @@ impl Context {
             NodeKind::Item(item) => match &**item {
                 Item::Const(c) => {
                     let ty = self.codegen_const_ty(c.ty.kind.clone());
-                    if ty.should_lazy_static() {
+                    if self.is_lazy_const(&c.lit, &ty) {
                         CodegenTy::LazyStaticRef(Arc::new(ty))
                     } else {
                         ty
@@ -670,6 +670,16 @@ impl Context {
                 panic!("Unexpected node kind for path: {:?}", node.kind)
             }
         }
+    }
+
+    /// Whether a const item is emitted as a `LazyLock` static rather than a
+    /// `const`.
+    fn is_lazy_const(&self, lit: &Literal, ty: &CodegenTy) -> bool {
+        ty.should_lazy_static()
+            || self
+                .lit_into_ty(lit, ty)
+                .map(|(_, is_const)| !is_const)
+                .unwrap_or(false)
     }
 
     fn convert_element_expr(&self, expr: &str, from: &CodegenTy, to: &CodegenTy) -> String {
@@ -1886,6 +1896,23 @@ mod tests {
         assert!(!is_const);
 
         Ok(())
+    }
+
+    #[test]
+    fn is_lazy_const_detects_non_const_literals() {
+        let cx = make_test_context();
+
+        // const-constructible literal with a const-able type: emitted as `const`
+        assert!(!cx.is_lazy_const(&Literal::Int(1), &CodegenTy::I32));
+
+        // the type itself requires lazy initialization
+        let vec_ty = CodegenTy::Vec(Arc::new(CodegenTy::I32));
+        assert!(cx.is_lazy_const(&Literal::List(vec![Literal::Int(1)]), &vec_ty));
+
+        // the type is const-able, but the literal is not const-constructible
+        let arr_ty = CodegenTy::Array(Arc::new(CodegenTy::String), 0);
+        let arr_lit = Literal::List(vec![Literal::String(Arc::from("a"))]);
+        assert!(cx.is_lazy_const(&arr_lit, &arr_ty));
     }
 
     #[test]

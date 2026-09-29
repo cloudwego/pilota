@@ -101,6 +101,288 @@ pub mod default_value {
             }
         }
 
+        #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
+        pub struct D {
+            pub values: ::std::option::Option<::std::vec::Vec<i32>>,
+        }
+        impl ::pilota::thrift::Message for D {
+            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                &self,
+                __protocol: &mut T,
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TOutputProtocolExt;
+                let struct_ident = ::pilota::thrift::TStructIdentifier { name: "D" };
+
+                __protocol.write_struct_begin(&struct_ident)?;
+                if let Some(value) = self.values.as_ref() {
+                    __protocol.write_list_field(
+                        1,
+                        ::pilota::thrift::TType::I32,
+                        &value,
+                        |__protocol, val| {
+                            __protocol.write_i32(*val)?;
+                            ::std::result::Result::Ok(())
+                        },
+                    )?;
+                }
+                __protocol.write_field_stop()?;
+                __protocol.write_struct_end()?;
+                ::std::result::Result::Ok(())
+            }
+
+            fn decode<T: ::pilota::thrift::TInputProtocol>(
+                __protocol: &mut T,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
+                #[allow(unused_imports)]
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
+
+                let mut var_1 = None;
+
+                let mut __pilota_decoding_field_id = None;
+
+                __protocol.read_struct_begin()?;
+                if let ::std::result::Result::Err(mut err) = (|| {
+                    loop {
+                        let field_ident = __protocol.read_field_begin()?;
+                        if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                            __protocol.field_stop_len();
+                            break;
+                        } else {
+                            __protocol.field_begin_len(field_ident.field_type, field_ident.id);
+                        }
+                        __pilota_decoding_field_id = field_ident.id;
+                        match field_ident.id {
+                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
+                                var_1 = Some(unsafe {
+                                    let list_ident = __protocol.read_list_begin()?;
+                                    let mut val: ::std::vec::Vec<i32> =
+                                        ::std::vec::Vec::with_capacity(list_ident.size);
+                                    for i in 0..list_ident.size {
+                                        val.as_mut_ptr()
+                                            .offset(i as isize)
+                                            .write(__protocol.read_i32()?);
+                                    }
+                                    val.set_len(list_ident.size);
+                                    __protocol.read_list_end()?;
+                                    val
+                                });
+                            }
+                            _ => {
+                                __protocol.skip(field_ident.field_type)?;
+                            }
+                        }
+
+                        __protocol.read_field_end()?;
+                        __protocol.field_end_len();
+                    }
+                    ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
+                })() {
+                    if let Some(field_id) = __pilota_decoding_field_id {
+                        err.prepend_msg(&format!(
+                            "decode struct `D` field(#{}) failed, caused by: ",
+                            field_id
+                        ));
+                    }
+                    return ::std::result::Result::Err(err);
+                };
+                __protocol.read_struct_end()?;
+
+                let data = Self { values: var_1 };
+                ::std::result::Result::Ok(data)
+            }
+
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                __protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
+                ::std::boxed::Box::pin(async move {
+                    let mut var_1 = None;
+
+                    let mut __pilota_decoding_field_id = None;
+
+                    __protocol.read_struct_begin().await?;
+                    if let ::std::result::Result::Err(mut err) = async {
+                        loop {
+                            let field_ident = __protocol.read_field_begin().await?;
+                            if field_ident.field_type == ::pilota::thrift::TType::Stop {
+                                break;
+                            } else {
+                            }
+                            __pilota_decoding_field_id = field_ident.id;
+                            match field_ident.id {
+                                Some(1)
+                                    if field_ident.field_type == ::pilota::thrift::TType::List =>
+                                {
+                                    var_1 = Some({
+                                        let list_ident = __protocol.read_list_begin().await?;
+                                        let mut val =
+                                            ::std::vec::Vec::with_capacity(list_ident.size);
+                                        for _ in 0..list_ident.size {
+                                            val.push(__protocol.read_i32().await?);
+                                        }
+                                        __protocol.read_list_end().await?;
+                                        val
+                                    });
+                                }
+                                _ => {
+                                    __protocol.skip(field_ident.field_type).await?;
+                                }
+                            }
+
+                            __protocol.read_field_end().await?;
+                        }
+                        ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
+                    }
+                    .await
+                    {
+                        if let Some(field_id) = __pilota_decoding_field_id {
+                            err.prepend_msg(&format!(
+                                "decode struct `D` field(#{}) failed, caused by: ",
+                                field_id
+                            ));
+                        }
+                        return ::std::result::Result::Err(err);
+                    };
+                    __protocol.read_struct_end().await?;
+
+                    let data = Self { values: var_1 };
+                    ::std::result::Result::Ok(data)
+                })
+            }
+
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TLengthProtocolExt;
+                __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "D" })
+                    + self.values.as_ref().map_or(0, |value| {
+                        __protocol.list_field_len(
+                            Some(1),
+                            ::pilota::thrift::TType::I32,
+                            value,
+                            |__protocol, el| __protocol.i32_len(*el),
+                        )
+                    })
+                    + __protocol.field_stop_len()
+                    + __protocol.struct_end_len()
+            }
+        }
+        pub const DEFAULT_BINARY: ::pilota::Bytes = ::pilota::Bytes::from_static("bin".as_bytes());
+        #[derive(Debug, Default, Clone, PartialEq)]
+        pub struct NameScoreMap(pub ::pilota::AHashMap<NameId, Score>);
+
+        impl ::std::ops::Deref for NameScoreMap {
+            type Target = ::pilota::AHashMap<NameId, Score>;
+
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+
+        impl From<::pilota::AHashMap<NameId, Score>> for NameScoreMap {
+            fn from(v: ::pilota::AHashMap<NameId, Score>) -> Self {
+                Self(v)
+            }
+        }
+
+        impl ::pilota::thrift::Message for NameScoreMap {
+            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                &self,
+                __protocol: &mut T,
+            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TOutputProtocolExt;
+                __protocol.write_map(
+                    ::pilota::thrift::TType::Binary,
+                    ::pilota::thrift::TType::I64,
+                    &(&**self),
+                    |__protocol, key| {
+                        __protocol.write_struct(key)?;
+                        ::std::result::Result::Ok(())
+                    },
+                    |__protocol, val| {
+                        __protocol.write_struct(val)?;
+                        ::std::result::Result::Ok(())
+                    },
+                )?;
+                ::std::result::Result::Ok(())
+            }
+
+            fn decode<T: ::pilota::thrift::TInputProtocol>(
+                __protocol: &mut T,
+            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
+                #[allow(unused_imports)]
+                use ::pilota::{Buf, thrift::TLengthProtocolExt};
+                ::std::result::Result::Ok(NameScoreMap({
+                    let map_ident = __protocol.read_map_begin()?;
+                    let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                    for _ in 0..map_ident.size {
+                        val.insert(
+                            ::pilota::thrift::Message::decode(__protocol)?,
+                            ::pilota::thrift::Message::decode(__protocol)?,
+                        );
+                    }
+                    __protocol.read_map_end()?;
+                    val
+                }))
+            }
+
+            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
+                __protocol: &'a mut T,
+            ) -> ::std::pin::Pin<
+                ::std::boxed::Box<
+                    dyn ::std::future::Future<
+                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
+                        > + Send
+                        + 'a,
+                >,
+            > {
+                ::std::boxed::Box::pin(async move {
+                    ::std::result::Result::Ok(NameScoreMap({
+                        let map_ident = __protocol.read_map_begin().await?;
+                        let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
+                        for _ in 0..map_ident.size {
+                            val.insert(
+                                <NameId as ::pilota::thrift::Message>::decode_async(__protocol)
+                                    .await?,
+                                <Score as ::pilota::thrift::Message>::decode_async(__protocol)
+                                    .await?,
+                            );
+                        }
+                        __protocol.read_map_end().await?;
+                        val
+                    }))
+                })
+            }
+
+            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
+                #[allow(unused_imports)]
+                use ::pilota::thrift::TLengthProtocolExt;
+                __protocol.map_len(
+                    ::pilota::thrift::TType::Binary,
+                    ::pilota::thrift::TType::I64,
+                    &**self,
+                    |__protocol, key| __protocol.struct_len(key),
+                    |__protocol, val| __protocol.struct_len(val),
+                )
+            }
+        }
+        pub static DEFAULT_D: ::std::sync::LazyLock<D> = ::std::sync::LazyLock::new(|| D {
+            values: Some(::std::vec![1i32, 2i32]),
+        });
+
+        pub static DEFAULT_COMMIT_IDS: ::std::sync::LazyLock<CommitIdList> =
+            ::std::sync::LazyLock::new(|| {
+                CommitIdList(::std::vec![CommitId(1i32), CommitId(2i32)])
+            });
+        pub const A_S: &'static str = "string";
+
         impl ::std::default::Default for A {
             fn default() -> Self {
                 A {
@@ -197,6 +479,7 @@ pub mod default_value {
                     newtype_map_from_const: Some(NameScoreMap((NAME_SCORE_LITERAL.clone()).0)),
                     newtype_map_empty: Some(NameScoreMap(::pilota::AHashMap::new())),
                     newtype_map_from_empty_const: Some(NameScoreMap((NAME_SCORE_EMPTY.clone()).0)),
+                    lazy_struct_from_const: Some(DEFAULT_D.clone()),
                 }
             }
         }
@@ -282,6 +565,8 @@ pub mod default_value {
             pub newtype_map_empty: ::std::option::Option<NameScoreMap>,
 
             pub newtype_map_from_empty_const: ::std::option::Option<NameScoreMap>,
+
+            pub lazy_struct_from_const: ::std::option::Option<D>,
         }
         impl ::pilota::thrift::Message for A {
             fn encode<T: ::pilota::thrift::TOutputProtocol>(
@@ -565,6 +850,9 @@ pub mod default_value {
                 if let Some(value) = self.newtype_map_from_empty_const.as_ref() {
                     __protocol.write_struct_field(38, value, ::pilota::thrift::TType::Map)?;
                 }
+                if let Some(value) = self.lazy_struct_from_const.as_ref() {
+                    __protocol.write_struct_field(39, value, ::pilota::thrift::TType::Struct)?;
+                }
                 __protocol.write_field_stop()?;
                 __protocol.write_struct_end()?;
                 ::std::result::Result::Ok(())
@@ -620,6 +908,7 @@ pub mod default_value {
                 let mut var_36 = None;
                 let mut var_37 = None;
                 let mut var_38 = None;
+                let mut var_39 = None;
 
                 let mut __pilota_decoding_field_id = None;
 
@@ -934,6 +1223,11 @@ pub mod default_value {
                             Some(38) if field_ident.field_type == ::pilota::thrift::TType::Map => {
                                 var_38 = Some(::pilota::thrift::Message::decode(__protocol)?);
                             }
+                            Some(39)
+                                if field_ident.field_type == ::pilota::thrift::TType::Struct =>
+                            {
+                                var_39 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                            }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
                             }
@@ -1064,6 +1358,9 @@ pub mod default_value {
                 if var_38.is_none() {
                     var_38 = Some(NameScoreMap((NAME_SCORE_EMPTY.clone()).0));
                 }
+                if var_39.is_none() {
+                    var_39 = Some(DEFAULT_D.clone());
+                }
 
                 let data = Self {
                     faststr: var_1,
@@ -1104,6 +1401,7 @@ pub mod default_value {
                     newtype_map_from_const: var_36,
                     newtype_map_empty: var_37,
                     newtype_map_from_empty_const: var_38,
+                    lazy_struct_from_const: var_39,
                 };
                 ::std::result::Result::Ok(data)
             }
@@ -1163,6 +1461,7 @@ pub mod default_value {
                     let mut var_36 = None;
                     let mut var_37 = None;
                     let mut var_38 = None;
+                    let mut var_39 = None;
 
                     let mut __pilota_decoding_field_id = None;
 
@@ -1582,6 +1881,15 @@ pub mod default_value {
                                         .await?,
                                     );
                                 }
+                                Some(39)
+                                    if field_ident.field_type
+                                        == ::pilota::thrift::TType::Struct =>
+                                {
+                                    var_39 = Some(
+                                        <D as ::pilota::thrift::Message>::decode_async(__protocol)
+                                            .await?,
+                                    );
+                                }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
                                 }
@@ -1714,6 +2022,9 @@ pub mod default_value {
                     if var_38.is_none() {
                         var_38 = Some(NameScoreMap((NAME_SCORE_EMPTY.clone()).0));
                     }
+                    if var_39.is_none() {
+                        var_39 = Some(DEFAULT_D.clone());
+                    }
 
                     let data = Self {
                         faststr: var_1,
@@ -1754,6 +2065,7 @@ pub mod default_value {
                         newtype_map_from_const: var_36,
                         newtype_map_empty: var_37,
                         newtype_map_from_empty_const: var_38,
+                        lazy_struct_from_const: var_39,
                     };
                     ::std::result::Result::Ok(data)
                 })
@@ -1980,115 +2292,14 @@ pub mod default_value {
                         .newtype_map_from_empty_const
                         .as_ref()
                         .map_or(0, |value| __protocol.struct_field_len(Some(38), value))
+                    + self
+                        .lazy_struct_from_const
+                        .as_ref()
+                        .map_or(0, |value| __protocol.struct_field_len(Some(39), value))
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
         }
-        pub const DEFAULT_BINARY: ::pilota::Bytes = ::pilota::Bytes::from_static("bin".as_bytes());
-        #[derive(Debug, Default, Clone, PartialEq)]
-        pub struct NameScoreMap(pub ::pilota::AHashMap<NameId, Score>);
-
-        impl ::std::ops::Deref for NameScoreMap {
-            type Target = ::pilota::AHashMap<NameId, Score>;
-
-            fn deref(&self) -> &Self::Target {
-                &self.0
-            }
-        }
-
-        impl From<::pilota::AHashMap<NameId, Score>> for NameScoreMap {
-            fn from(v: ::pilota::AHashMap<NameId, Score>) -> Self {
-                Self(v)
-            }
-        }
-
-        impl ::pilota::thrift::Message for NameScoreMap {
-            fn encode<T: ::pilota::thrift::TOutputProtocol>(
-                &self,
-                __protocol: &mut T,
-            ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
-                #[allow(unused_imports)]
-                use ::pilota::thrift::TOutputProtocolExt;
-                __protocol.write_map(
-                    ::pilota::thrift::TType::Binary,
-                    ::pilota::thrift::TType::I64,
-                    &(&**self),
-                    |__protocol, key| {
-                        __protocol.write_struct(key)?;
-                        ::std::result::Result::Ok(())
-                    },
-                    |__protocol, val| {
-                        __protocol.write_struct(val)?;
-                        ::std::result::Result::Ok(())
-                    },
-                )?;
-                ::std::result::Result::Ok(())
-            }
-
-            fn decode<T: ::pilota::thrift::TInputProtocol>(
-                __protocol: &mut T,
-            ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
-                #[allow(unused_imports)]
-                use ::pilota::{Buf, thrift::TLengthProtocolExt};
-                ::std::result::Result::Ok(NameScoreMap({
-                    let map_ident = __protocol.read_map_begin()?;
-                    let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
-                    for _ in 0..map_ident.size {
-                        val.insert(
-                            ::pilota::thrift::Message::decode(__protocol)?,
-                            ::pilota::thrift::Message::decode(__protocol)?,
-                        );
-                    }
-                    __protocol.read_map_end()?;
-                    val
-                }))
-            }
-
-            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                __protocol: &'a mut T,
-            ) -> ::std::pin::Pin<
-                ::std::boxed::Box<
-                    dyn ::std::future::Future<
-                            Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
-                        > + Send
-                        + 'a,
-                >,
-            > {
-                ::std::boxed::Box::pin(async move {
-                    ::std::result::Result::Ok(NameScoreMap({
-                        let map_ident = __protocol.read_map_begin().await?;
-                        let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
-                        for _ in 0..map_ident.size {
-                            val.insert(
-                                <NameId as ::pilota::thrift::Message>::decode_async(__protocol)
-                                    .await?,
-                                <Score as ::pilota::thrift::Message>::decode_async(__protocol)
-                                    .await?,
-                            );
-                        }
-                        __protocol.read_map_end().await?;
-                        val
-                    }))
-                })
-            }
-
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
-                #[allow(unused_imports)]
-                use ::pilota::thrift::TLengthProtocolExt;
-                __protocol.map_len(
-                    ::pilota::thrift::TType::Binary,
-                    ::pilota::thrift::TType::I64,
-                    &**self,
-                    |__protocol, key| __protocol.struct_len(key),
-                    |__protocol, val| __protocol.struct_len(val),
-                )
-            }
-        }
-        pub static DEFAULT_COMMIT_IDS: ::std::sync::LazyLock<CommitIdList> =
-            ::std::sync::LazyLock::new(|| {
-                CommitIdList(::std::vec![CommitId(1i32), CommitId(2i32)])
-            });
-        pub const A_S: &'static str = "string";
         pub static NAME_SCORE_LITERAL: ::std::sync::LazyLock<NameScoreMap> =
             ::std::sync::LazyLock::new(|| {
                 NameScoreMap({
