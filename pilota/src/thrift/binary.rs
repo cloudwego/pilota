@@ -1,6 +1,6 @@
 use std::{convert::TryInto, str};
 
-use bytes::{Bytes, BytesMut};
+use bytes::{Buf, Bytes, BytesMut};
 use faststr::FastStr;
 use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -47,6 +47,33 @@ fn field_type_from_u8(ttype: u8) -> Result<TType, ProtocolException> {
     })?;
 
     Ok(ttype)
+}
+
+/// Validates a wire-provided `i32` length prefix before it is cast to `usize`
+/// and used to split / allocate from the input buffer.
+///
+/// A negative length is invalid protocol data (the Thrift binary protocol
+/// encodes string/binary length as a non-negative `i32`). On targets where
+/// `usize` is wider than `i32`, `len as usize` turns `-1` into
+/// `usize::MAX`, which otherwise makes `Buf::split_to` panic (and `vec![0;
+/// len]` allocate up to the address space). An oversize length must also be
+/// rejected instead of panicking inside `split_to`.
+#[inline]
+fn check_bounds(len: i32, remaining: usize) -> Result<(), ThriftException> {
+    if len < 0 {
+        return Err(new_protocol_exception(
+            ProtocolExceptionKind::InvalidData,
+            format!("negative length {len}"),
+        ));
+    }
+    let len = len as usize;
+    if len > remaining {
+        return Err(new_protocol_exception(
+            ProtocolExceptionKind::InvalidData,
+            format!("length {len} greater than remaining {remaining}"),
+        ));
+    }
+    Ok(())
 }
 
 impl<T> TLengthProtocol for TBinaryProtocol<T> {
@@ -648,6 +675,7 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
     #[inline]
     fn read_bytes(&mut self) -> Result<Bytes, ThriftException> {
         let len = self.trans.read_i32()?;
+        check_bounds(len, self.trans.remaining())?;
         // split and freeze it
         Ok(self.trans.split_to(len as usize))
     }
@@ -703,8 +731,9 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
 
     #[inline]
     fn read_faststr(&mut self) -> Result<FastStr, ThriftException> {
-        let len = self.trans.read_i32()? as usize;
-        let bytes = self.trans.split_to(len);
+        let len = self.trans.read_i32()?;
+        check_bounds(len, self.trans.remaining())?;
+        let bytes = self.trans.split_to(len as usize);
         unsafe { Ok(FastStr::from_bytes_unchecked(bytes)) }
     }
 
@@ -752,8 +781,9 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
 
     #[inline]
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, ThriftException> {
-        let len = self.trans.read_i32()? as usize;
-        Ok(self.trans.split_to(len).into())
+        let len = self.trans.read_i32()?;
+        check_bounds(len, self.trans.remaining())?;
+        Ok(self.trans.split_to(len as usize).into())
     }
 
     #[inline]
@@ -866,9 +896,15 @@ where
 
     #[inline]
     async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, ThriftException> {
-        let len = self.reader.read_i32().await? as usize;
+        let len = self.reader.read_i32().await?;
+        if len < 0 {
+            return Err(new_protocol_exception(
+                ProtocolExceptionKind::InvalidData,
+                format!("negative length {len}"),
+            ));
+        }
         // FIXME: use maybe_uninit?
-        let mut v = vec![0; len];
+        let mut v = vec![0; len as usize];
         self.reader.read_exact(&mut v).await?;
         Ok(v)
     }
@@ -882,9 +918,15 @@ where
 
     #[inline]
     async fn read_string(&mut self) -> Result<String, ThriftException> {
-        let len = self.reader.read_i32().await? as usize;
+        let len = self.reader.read_i32().await?;
+        if len < 0 {
+            return Err(new_protocol_exception(
+                ProtocolExceptionKind::InvalidData,
+                format!("negative length {len}"),
+            ));
+        }
         // FIXME: use maybe_uninit?
-        let mut v = vec![0; len];
+        let mut v = vec![0; len as usize];
         self.reader.read_exact(&mut v).await?;
         Ok(unsafe { String::from_utf8_unchecked(v) })
     }
@@ -971,5 +1013,76 @@ where
     #[inline]
     async fn read_map_end(&mut self) -> Result<(), ThriftException> {
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use bytes::{Buf, Bytes};
+
+    use super::TBinaryProtocol;
+    use crate::thrift::TInputProtocol;
+
+    fn input_prot(trans: &mut Bytes) -> TBinaryProtocol<&mut Bytes> {
+        TBinaryProtocol::new(trans, false)
+    }
+
+    // A 4-byte big-endian `i32` length prefix with no body following.
+    // `len=-1` must be rejected as invalid data rather than panicking in
+    // `Buf::split_to` (it becomes `usize::MAX` on 64-bit targets).
+    #[test]
+    fn reject_negative_length_prefix() {
+        let wire: [u8; 4] = 0xffffffffu32.to_be_bytes();
+
+        let mut b = Bytes::copy_from_slice(&wire);
+        assert!(input_prot(&mut b).read_bytes().is_err());
+
+        let mut b = Bytes::copy_from_slice(&wire);
+        assert!(input_prot(&mut b).read_faststr().is_err());
+
+        let mut b = Bytes::copy_from_slice(&wire);
+        assert!(input_prot(&mut b).read_bytes_vec().is_err());
+
+        let mut b = Bytes::copy_from_slice(&wire);
+        assert!(input_prot(&mut b).read_string().is_err());
+    }
+
+    // A positive length larger than the remaining buffer must also be rejected
+    // gracefully instead of panicking inside `split_to`.
+    #[test]
+    fn reject_oversize_length_prefix() {
+        // i32 length = 100_000, but the buffer ends immediately after it.
+        let wire: [u8; 4] = 100_000i32.to_be_bytes();
+
+        let mut b = Bytes::copy_from_slice(&wire);
+        assert!(input_prot(&mut b).read_bytes().is_err());
+
+        let mut b = Bytes::copy_from_slice(&wire);
+        assert!(input_prot(&mut b).read_faststr().is_err());
+
+        let mut b = Bytes::copy_from_slice(&wire);
+        assert!(input_prot(&mut b).read_bytes_vec().is_err());
+
+        let mut b = Bytes::copy_from_slice(&wire);
+        assert!(input_prot(&mut b).read_string().is_err());
+    }
+
+    // The happy path must keep working: a valid length prefix followed by
+    // exactly that many bytes decodes to the expected content.
+    #[test]
+    fn accept_valid_length_prefix() {
+        let body = b"hello thrift";
+        let mut wire = Vec::new();
+        wire.extend_from_slice(&(body.len() as i32).to_be_bytes());
+        wire.extend_from_slice(body);
+
+        let mut b = Bytes::copy_from_slice(&wire);
+        let bytes = input_prot(&mut b).read_bytes().unwrap();
+        assert_eq!(&bytes[..], &body[..]);
+        assert_eq!(b.remaining(), 0);
+
+        let mut b = Bytes::copy_from_slice(&wire);
+        let s = input_prot(&mut b).read_string().unwrap();
+        assert_eq!(s, "hello thrift");
     }
 }
