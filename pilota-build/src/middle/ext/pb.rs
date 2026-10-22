@@ -91,11 +91,56 @@ impl From<ir::ext::pb::FieldType> for FieldType {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct UsedOptions(pub Vec<ExtendeeIndex>);
+pub enum UsedOptionValue {
+    Fixed32(u32),
+    Fixed64(u64),
+    Varint(u64),
+    LengthDelimited(Vec<u8>),
+}
+
+impl From<ir::ext::pb::UsedOptionValue> for UsedOptionValue {
+    fn from(value: ir::ext::pb::UsedOptionValue) -> Self {
+        match value {
+            ir::ext::pb::UsedOptionValue::Fixed32(value) => Self::Fixed32(value),
+            ir::ext::pb::UsedOptionValue::Fixed64(value) => Self::Fixed64(value),
+            ir::ext::pb::UsedOptionValue::Varint(value) => Self::Varint(value),
+            ir::ext::pb::UsedOptionValue::LengthDelimited(value) => Self::LengthDelimited(value),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct UsedOption {
+    pub index: ExtendeeIndex,
+    pub value: UsedOptionValue,
+}
+
+impl From<&ir::ext::pb::UsedOption> for UsedOption {
+    fn from(option: &ir::ext::pb::UsedOption) -> Self {
+        Self {
+            index: option.index.into(),
+            value: option.value.clone().into(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct UsedOptions(pub Vec<UsedOption>);
 
 impl UsedOptions {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
+    }
+
+    pub fn indices(&self) -> impl Iterator<Item = &ExtendeeIndex> {
+        self.0.iter().map(|option| &option.index)
+    }
+
+    /// Returns every value associated with this extension index.
+    pub fn values_for(&self, index: &ExtendeeIndex) -> impl Iterator<Item = &UsedOptionValue> {
+        self.0
+            .iter()
+            .filter_map(move |option| (option.index == *index).then_some(&option.value))
     }
 }
 
