@@ -1017,6 +1017,12 @@ where
 
     #[inline]
     async fn read_struct_end(&mut self) -> Result<(), ThriftException> {
+        self.last_read_field_id = self.read_field_id_stack.pop().ok_or_else(|| {
+            new_protocol_exception(
+                ProtocolExceptionKind::InvalidData,
+                "ReadStructEnd called without matching ReadStructBegin",
+            )
+        })?;
         Ok(())
     }
 
@@ -1322,23 +1328,13 @@ impl<T> TLengthProtocol for TCompactInputProtocol<T> {
 
     #[inline]
     fn struct_begin_len(&mut self, _ident: &TStructIdentifier) -> usize {
-        self.read_field_id_stack.push(self.last_read_field_id);
-        self.last_read_field_id = 0;
+        // The read methods manage the compact field-id stack; structs have no
+        // bytes of their own to add to the skipped length.
         0
     }
     #[inline]
     fn struct_end_len(&mut self) -> usize {
         self.assert_no_pending_bool_read();
-        self.last_read_field_id = self
-            .read_field_id_stack
-            .pop()
-            .ok_or_else(|| {
-                new_protocol_exception(
-                    super::ProtocolExceptionKind::InvalidData,
-                    "StructEndLen called without matching StructBeginLen",
-                )
-            })
-            .unwrap();
         0
     }
 
@@ -1563,6 +1559,13 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
 
     #[inline]
     fn read_struct_end(&mut self) -> Result<(), ThriftException> {
+        self.assert_no_pending_bool_read();
+        self.last_read_field_id = self.read_field_id_stack.pop().ok_or_else(|| {
+            new_protocol_exception(
+                ProtocolExceptionKind::InvalidData,
+                "ReadStructEnd called without matching ReadStructBegin",
+            )
+        })?;
         Ok(())
     }
 
@@ -1761,11 +1764,11 @@ mod tests {
 
     use bytes::{Buf, BufMut, Bytes, BytesMut};
 
-    use super::{TCompactInputProtocol, TCompactOutputProtocol};
+    use super::{TAsyncCompactProtocol, TCompactInputProtocol, TCompactOutputProtocol};
     use crate::thrift::{
-        TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier, TMapIdentifier,
-        TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier, TStructIdentifier,
-        TType, ThriftException,
+        TAsyncInputProtocol, TFieldIdentifier, TInputProtocol, TLengthProtocol, TListIdentifier,
+        TMapIdentifier, TMessageIdentifier, TMessageType, TOutputProtocol, TSetIdentifier,
+        TStructIdentifier, TType, ThriftException,
     };
 
     #[cfg(test)]
@@ -1788,6 +1791,147 @@ mod tests {
     }
     fn test_output_prot_bytesmut(trans: &mut BytesMut) -> TCompactOutputProtocol<&mut BytesMut> {
         TCompactOutputProtocol::new(trans, false)
+    }
+
+    fn nested_struct_after_field_bytes() -> Bytes {
+        let mut trans = BytesMut::new();
+        let mut output = test_output_prot_bytesmut(&mut trans);
+
+        assert_success!(output.write_struct_begin(&TStructIdentifier::new("Outer")));
+        assert_success!(output.write_field_begin(TType::List, 5));
+        assert_success!(output.write_list_begin(TListIdentifier {
+            element_type: TType::Struct,
+            size: 1,
+        }));
+        assert_success!(output.write_struct_begin(&TStructIdentifier::new("Inner")));
+        assert_success!(output.write_field_begin(TType::I32, 1));
+        assert_success!(output.write_i32(11));
+        assert_success!(output.write_field_end());
+        assert_success!(output.write_field_begin(TType::I32, 2));
+        assert_success!(output.write_i32(22));
+        assert_success!(output.write_field_end());
+        assert_success!(output.write_field_stop());
+        assert_success!(output.write_struct_end());
+        assert_success!(output.write_list_end());
+        assert_success!(output.write_field_end());
+        assert_success!(output.write_field_begin(TType::Binary, 6));
+        assert_success!(output.write_string("after"));
+        assert_success!(output.write_field_end());
+        assert_success!(output.write_field_stop());
+        assert_success!(output.write_struct_end());
+
+        trans.freeze()
+    }
+
+    fn empty_nested_struct_after_field_bytes() -> Bytes {
+        let mut trans = BytesMut::new();
+        let mut output = test_output_prot_bytesmut(&mut trans);
+
+        assert_success!(output.write_struct_begin(&TStructIdentifier::new("Outer")));
+        assert_success!(output.write_field_begin(TType::Struct, 5));
+        assert_success!(output.write_struct_begin(&TStructIdentifier::new("Inner")));
+        assert_success!(output.write_field_stop());
+        assert_success!(output.write_struct_end());
+        assert_success!(output.write_field_end());
+        assert_success!(output.write_field_begin(TType::Binary, 6));
+        assert_success!(output.write_string("after"));
+        assert_success!(output.write_field_end());
+        assert_success!(output.write_field_stop());
+        assert_success!(output.write_struct_end());
+
+        trans.freeze()
+    }
+
+    fn block_on_ready<F: std::future::Future>(future: F) -> F::Output {
+        use std::{
+            sync::Arc,
+            task::{Context, Poll, Wake, Waker},
+        };
+
+        struct NoopWake;
+        impl Wake for NoopWake {
+            fn wake(self: Arc<Self>) {}
+        }
+
+        let waker = Waker::from(Arc::new(NoopWake));
+        let mut context = Context::from_waker(&waker);
+        let mut future = std::pin::pin!(future);
+        match future.as_mut().poll(&mut context) {
+            Poll::Ready(output) => output,
+            Poll::Pending => panic!("in-memory async protocol read unexpectedly pended"),
+        }
+    }
+
+    #[test]
+    fn read_struct_end_restores_outer_field_id_after_nested_struct() {
+        let mut trans = nested_struct_after_field_bytes();
+        let mut input = test_input_prot_bytes(&mut trans);
+
+        assert_success!(input.read_struct_begin());
+        assert_eq!(assert_success!(input.read_field_begin()).id, Some(5));
+        assert_eq!(assert_success!(input.read_list_begin()).size, 1);
+        assert_success!(input.read_struct_begin());
+        assert_eq!(assert_success!(input.read_field_begin()).id, Some(1));
+        assert_eq!(assert_success!(input.read_i32()), 11);
+        assert_success!(input.read_field_end());
+        assert_eq!(assert_success!(input.read_field_begin()).id, Some(2));
+        assert_eq!(assert_success!(input.read_i32()), 22);
+        assert_success!(input.read_field_end());
+        assert_eq!(
+            assert_success!(input.read_field_begin()).field_type,
+            TType::Stop
+        );
+        assert_success!(input.read_struct_end());
+        assert_success!(input.read_list_end());
+        assert_success!(input.read_field_end());
+
+        assert_eq!(assert_success!(input.read_field_begin()).id, Some(6));
+        assert_eq!(assert_success!(input.read_string()).as_str(), "after");
+        assert_success!(input.read_field_end());
+    }
+
+    #[test]
+    fn skip_nested_struct_restores_outer_field_id() {
+        let mut trans = empty_nested_struct_after_field_bytes();
+        let mut input = test_input_prot_bytes(&mut trans);
+
+        assert_success!(input.read_struct_begin());
+        assert_eq!(assert_success!(input.read_field_begin()).id, Some(5));
+        let skipped = input.skip(TType::Struct);
+        assert!(skipped.is_ok(), "{skipped:?}");
+        assert_eq!(assert_success!(input.read_field_begin()).id, Some(6));
+        assert_eq!(assert_success!(input.read_string()).as_str(), "after");
+        assert_success!(input.read_field_end());
+    }
+
+    #[test]
+    fn async_read_struct_end_restores_outer_field_id_after_nested_struct() {
+        let trans = nested_struct_after_field_bytes();
+        let mut input = TAsyncCompactProtocol::new(std::io::Cursor::new(trans));
+
+        block_on_ready(async {
+            assert_success!(input.read_struct_begin().await);
+            assert_eq!(assert_success!(input.read_field_begin().await).id, Some(5));
+            assert_eq!(assert_success!(input.read_list_begin().await).size, 1);
+            assert_success!(input.read_struct_begin().await);
+            assert_eq!(assert_success!(input.read_field_begin().await).id, Some(1));
+            assert_eq!(assert_success!(input.read_i32().await), 11);
+            assert_success!(input.read_field_end().await);
+            assert_eq!(assert_success!(input.read_field_begin().await).id, Some(2));
+            assert_eq!(assert_success!(input.read_i32().await), 22);
+            assert_success!(input.read_field_end().await);
+            assert_eq!(
+                assert_success!(input.read_field_begin().await).field_type,
+                TType::Stop
+            );
+            assert_success!(input.read_struct_end().await);
+            assert_success!(input.read_list_end().await);
+            assert_success!(input.read_field_end().await);
+
+            assert_eq!(assert_success!(input.read_field_begin().await).id, Some(6));
+            assert_eq!(assert_success!(input.read_string().await).as_str(), "after");
+            assert_success!(input.read_field_end().await);
+        });
     }
 
     #[test]
