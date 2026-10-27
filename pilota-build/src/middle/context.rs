@@ -205,8 +205,7 @@ impl ContextBuilder {
                     file.extensions
                         .unwrap_as_pb()
                         .used_options
-                        .0
-                        .iter()
+                        .indices()
                         .for_each(|option| {
                             let extendee = cx.db.pb_ext(option).unwrap();
                             PathCollector { cx, set, file_ids }
@@ -246,8 +245,7 @@ impl ContextBuilder {
                             f.item_exts
                                 .unwrap_as_pb()
                                 .used_options
-                                .0
-                                .iter()
+                                .indices()
                                 .for_each(|index| {
                                     let extendee = cx.db.pb_ext(index).unwrap_or_else(|| {
                                         panic!("extension:{:?} not found", index)
@@ -262,8 +260,7 @@ impl ContextBuilder {
                         m.item_exts
                             .unwrap_as_pb()
                             .used_options
-                            .0
-                            .iter()
+                            .indices()
                             .for_each(|index| {
                                 let extendee = cx.db.pb_ext(index).unwrap();
                                 PathCollector { cx, set, file_ids }
@@ -280,8 +277,7 @@ impl ContextBuilder {
                             v.item_exts
                                 .unwrap_as_pb()
                                 .used_options
-                                .0
-                                .iter()
+                                .indices()
                                 .for_each(|index| {
                                     let extendee = cx.db.pb_ext(index).unwrap();
                                     PathCollector { cx, set, file_ids }
@@ -293,8 +289,7 @@ impl ContextBuilder {
                         e.item_exts
                             .unwrap_as_pb()
                             .used_options
-                            .0
-                            .iter()
+                            .indices()
                             .for_each(|index| {
                                 let extendee = cx.db.pb_ext(index).unwrap();
                                 PathCollector { cx, set, file_ids }
@@ -322,8 +317,7 @@ impl ContextBuilder {
                             m.item_exts
                                 .unwrap_as_pb()
                                 .used_options
-                                .0
-                                .iter()
+                                .indices()
                                 .for_each(|index| {
                                     let extendee = cx.db.pb_ext(index).unwrap();
                                     PathCollector { cx, set, file_ids }
@@ -337,8 +331,7 @@ impl ContextBuilder {
                         s.item_exts
                             .unwrap_as_pb()
                             .used_options
-                            .0
-                            .iter()
+                            .indices()
                             .for_each(|index| {
                                 let extendee = cx.db.pb_ext(index).unwrap();
                                 PathCollector { cx, set, file_ids }

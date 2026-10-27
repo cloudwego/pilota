@@ -12,7 +12,7 @@ use crate::{
         self,
         ext::{
             FileExts, ItemExts, ModExts,
-            pb::{self, Extendee, ExtendeeIndex, ExtendeeType, Extendees, UsedOptions},
+            pb::{self, Extendee, ExtendeeIndex, ExtendeeType, Extendees, UsedOption, UsedOptions},
         },
         rir::{
             Arg, Const, DefKind, Enum, EnumVariant, Field, FieldKind, File, Item, ItemPath,
@@ -418,10 +418,10 @@ impl Resolver {
         UsedOptions(
             exts.0
                 .iter()
-                .map(|index| {
-                    let idx = (*index).into();
-                    self.pb_ext_indexes_used.insert(idx);
-                    idx
+                .map(|option| {
+                    let used_option = UsedOption::from(option);
+                    self.pb_ext_indexes_used.insert(used_option.index);
+                    used_option
                 })
                 .collect(),
         )
@@ -1078,5 +1078,39 @@ mod tests {
             },
             other => panic!("expected Vec, got {:?}", other),
         }
+    }
+
+    #[test]
+    fn lowers_used_option_values_for_codegen() {
+        let ir_index = ir::ext::pb::ExtendeeIndex {
+            extendee_kind: ir::ext::pb::ExtendeeKind::Service,
+            tag_id: 10_001,
+        };
+        let options = ir::ext::pb::UsedOptions(vec![
+            ir::ext::pb::UsedOption {
+                index: ir_index,
+                value: ir::ext::pb::UsedOptionValue::Varint(0x10016f),
+            },
+            ir::ext::pb::UsedOption {
+                index: ir_index,
+                value: ir::ext::pb::UsedOptionValue::LengthDelimited(vec![0x61, 0x62]),
+            },
+        ]);
+        let mut resolver = Resolver::default();
+
+        let options = resolver.lower_used_options(&options);
+        let index = ExtendeeIndex {
+            extendee_kind: pb::ExtendeeKind::Service,
+            tag_id: 10_001,
+        };
+        let mut values = options.values_for(&index);
+
+        assert_eq!(values.next(), Some(&pb::UsedOptionValue::Varint(0x10016f)));
+        assert_eq!(
+            values.next(),
+            Some(&pb::UsedOptionValue::LengthDelimited(vec![0x61, 0x62]))
+        );
+        assert_eq!(values.next(), None);
+        assert!(resolver.pb_ext_indexes_used.contains(&index));
     }
 }
