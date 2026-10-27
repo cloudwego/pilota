@@ -354,7 +354,7 @@ impl Plugin for ImplDefaultPlugin {
                                 Some(default) => {
                                     let mut val = default;
                                     if f.is_optional() {
-                                        val = format!("Some({val})").into()
+                                        val = format!("::std::option::Option::Some({val})").into()
                                     }
                                     format!("{name}: {val}")
                                 }

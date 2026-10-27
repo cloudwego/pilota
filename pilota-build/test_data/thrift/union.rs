@@ -42,7 +42,7 @@ pub mod union {
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
-                let mut ret = None;
+                let mut ret = ::std::option::Option::None;
                 __protocol.read_struct_begin()?;
                 loop {
                     let field_ident = __protocol.read_field_begin()?;
@@ -53,11 +53,11 @@ pub mod union {
                         __protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
-                        Some(1) => {
+                        ::std::option::Option::Some(1) => {
                             if ret.is_none() {
                                 let field_ident = __protocol.read_faststr()?;
                                 __protocol.faststr_len(&field_ident);
-                                ret = Some(Union::A(field_ident));
+                                ret = ::std::option::Option::Some(Union::A(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -67,11 +67,11 @@ pub mod union {
                                 );
                             }
                         }
-                        Some(2) => {
+                        ::std::option::Option::Some(2) => {
                             if ret.is_none() {
                                 let field_ident = __protocol.read_bytes()?;
                                 __protocol.bytes_len(&field_ident);
-                                ret = Some(Union::B(field_ident));
+                                ret = ::std::option::Option::Some(Union::B(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -88,7 +88,7 @@ pub mod union {
                 }
                 __protocol.read_field_end()?;
                 __protocol.read_struct_end()?;
-                if let Some(ret) = ret {
+                if let ::std::option::Option::Some(ret) = ret {
                     ::std::result::Result::Ok(ret)
                 } else {
                     ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
@@ -109,7 +109,7 @@ pub mod union {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut ret = None;
+                    let mut ret = ::std::option::Option::None;
                     __protocol.read_struct_begin().await?;
                     loop {
                         let field_ident = __protocol.read_field_begin().await?;
@@ -118,11 +118,11 @@ pub mod union {
                         } else {
                         }
                         match field_ident.id {
-                            Some(1) => {
+                            ::std::option::Option::Some(1) => {
                                 if ret.is_none() {
                                     let field_ident = __protocol.read_faststr().await?;
 
-                                    ret = Some(Union::A(field_ident));
+                                    ret = ::std::option::Option::Some(Union::A(field_ident));
                                 } else {
                                     return ::std::result::Result::Err(
                                         ::pilota::thrift::new_protocol_exception(
@@ -132,11 +132,11 @@ pub mod union {
                                     );
                                 }
                             }
-                            Some(2) => {
+                            ::std::option::Option::Some(2) => {
                                 if ret.is_none() {
                                     let field_ident = __protocol.read_bytes().await?;
 
-                                    ret = Some(Union::B(field_ident));
+                                    ret = ::std::option::Option::Some(Union::B(field_ident));
                                 } else {
                                     return ::std::result::Result::Err(
                                         ::pilota::thrift::new_protocol_exception(
@@ -153,7 +153,7 @@ pub mod union {
                     }
                     __protocol.read_field_end().await?;
                     __protocol.read_struct_end().await?;
-                    if let Some(ret) = ret {
+                    if let ::std::option::Option::Some(ret) = ret {
                         ::std::result::Result::Ok(ret)
                     } else {
                         ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
@@ -169,8 +169,12 @@ pub mod union {
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Union" })
                     + match self {
-                        Union::A(value) => __protocol.faststr_field_len(Some(1), value),
-                        Union::B(value) => __protocol.bytes_field_len(Some(2), value),
+                        Union::A(value) => {
+                            __protocol.faststr_field_len(::std::option::Option::Some(1), value)
+                        }
+                        Union::B(value) => {
+                            __protocol.bytes_field_len(::std::option::Option::Some(2), value)
+                        }
                     }
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
@@ -201,7 +205,7 @@ pub mod union {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -225,7 +229,7 @@ pub mod union {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `Default` field(#{}) failed, caused by: ",
                             field_id
@@ -250,7 +254,7 @@ pub mod union {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -273,7 +277,7 @@ pub mod union {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `Default` field(#{}) failed, caused by: ",
                                 field_id
@@ -322,7 +326,7 @@ pub mod union {
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
-                let mut ret = None;
+                let mut ret = ::std::option::Option::None;
                 __protocol.read_struct_begin()?;
                 loop {
                     let field_ident = __protocol.read_field_begin()?;
@@ -340,7 +344,7 @@ pub mod union {
                 }
                 __protocol.read_field_end()?;
                 __protocol.read_struct_end()?;
-                if let Some(ret) = ret {
+                if let ::std::option::Option::Some(ret) = ret {
                     ::std::result::Result::Ok(ret)
                 } else {
                     ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
@@ -361,7 +365,7 @@ pub mod union {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut ret = None;
+                    let mut ret = ::std::option::Option::None;
                     __protocol.read_struct_begin().await?;
                     loop {
                         let field_ident = __protocol.read_field_begin().await?;
@@ -377,7 +381,7 @@ pub mod union {
                     }
                     __protocol.read_field_end().await?;
                     __protocol.read_struct_end().await?;
-                    if let Some(ret) = ret {
+                    if let ::std::option::Option::Some(ret) = ret {
                         ::std::result::Result::Ok(ret)
                     } else {
                         ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
@@ -414,7 +418,7 @@ pub mod union {
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.u.as_ref() {
+                if let ::std::option::Option::Some(value) = self.u.as_ref() {
                     __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                 }
                 __protocol.write_field_stop()?;
@@ -428,9 +432,9 @@ pub mod union {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut var_1 = None;
+                let mut var_1 = ::std::option::Option::None;
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -444,10 +448,12 @@ pub mod union {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1)
+                            ::std::option::Option::Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_1 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_1 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -459,7 +465,7 @@ pub mod union {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `A` field(#{}) failed, caused by: ",
                             field_id
@@ -484,9 +490,9 @@ pub mod union {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
+                    let mut var_1 = ::std::option::Option::None;
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -498,11 +504,11 @@ pub mod union {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(1)
+                                ::std::option::Option::Some(1)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_1 = Some(
+                                    var_1 = ::std::option::Option::Some(
                                         <Union as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
@@ -520,7 +526,7 @@ pub mod union {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `A` field(#{}) failed, caused by: ",
                                 field_id
@@ -539,10 +545,9 @@ pub mod union {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + self
-                        .u
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(1), value))
+                    + self.u.as_ref().map_or(0, |value| {
+                        __protocol.struct_field_len(::std::option::Option::Some(1), value)
+                    })
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }

@@ -34,7 +34,7 @@ impl ::pilota::thrift::Message for ImageServiceGetImageResultSend {
     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
         #[allow(unused_imports)]
         use ::pilota::{Buf, thrift::TLengthProtocolExt};
-        let mut ret = None;
+        let mut ret = ::std::option::Option::None;
         __protocol.read_struct_begin()?;
         loop {
             let field_ident = __protocol.read_field_begin()?;
@@ -45,11 +45,13 @@ impl ::pilota::thrift::Message for ImageServiceGetImageResultSend {
                 __protocol.field_begin_len(field_ident.field_type, field_ident.id);
             }
             match field_ident.id {
-                Some(0) => {
+                ::std::option::Option::Some(0) => {
                     if ret.is_none() {
                         let field_ident = ::pilota::thrift::Message::decode(__protocol)?;
                         __protocol.struct_len(&field_ident);
-                        ret = Some(ImageServiceGetImageResultSend::Ok(field_ident));
+                        ret = ::std::option::Option::Some(ImageServiceGetImageResultSend::Ok(
+                            field_ident,
+                        ));
                     } else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
@@ -66,7 +68,7 @@ impl ::pilota::thrift::Message for ImageServiceGetImageResultSend {
         }
         __protocol.read_field_end()?;
         __protocol.read_struct_end()?;
-        if let Some(ret) = ret {
+        if let ::std::option::Option::Some(ret) = ret {
             ::std::result::Result::Ok(ret)
         } else {
             ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
@@ -87,7 +89,7 @@ impl ::pilota::thrift::Message for ImageServiceGetImageResultSend {
         >,
     > {
         ::std::boxed::Box::pin(async move {
-            let mut ret = None;
+            let mut ret = ::std::option::Option::None;
             __protocol.read_struct_begin().await?;
             loop {
                 let field_ident = __protocol.read_field_begin().await?;
@@ -96,7 +98,7 @@ impl ::pilota::thrift::Message for ImageServiceGetImageResultSend {
                 } else {
                 }
                 match field_ident.id {
-                    Some(0) => {
+                    ::std::option::Option::Some(0) => {
                         if ret.is_none() {
                             let field_ident =
                                 <GetImageResponse as ::pilota::thrift::Message>::decode_async(
@@ -104,7 +106,9 @@ impl ::pilota::thrift::Message for ImageServiceGetImageResultSend {
                                 )
                                 .await?;
 
-                            ret = Some(ImageServiceGetImageResultSend::Ok(field_ident));
+                            ret = ::std::option::Option::Some(ImageServiceGetImageResultSend::Ok(
+                                field_ident,
+                            ));
                         } else {
                             return ::std::result::Result::Err(
                                 ::pilota::thrift::new_protocol_exception(
@@ -121,7 +125,7 @@ impl ::pilota::thrift::Message for ImageServiceGetImageResultSend {
             }
             __protocol.read_field_end().await?;
             __protocol.read_struct_end().await?;
-            if let Some(ret) = ret {
+            if let ::std::option::Option::Some(ret) = ret {
                 ::std::result::Result::Ok(ret)
             } else {
                 ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
@@ -139,7 +143,7 @@ impl ::pilota::thrift::Message for ImageServiceGetImageResultSend {
             name: "ImageServiceGetImageResultSend",
         }) + match self {
             ImageServiceGetImageResultSend::Ok(value) => {
-                __protocol.struct_field_len(Some(0), value)
+                __protocol.struct_field_len(::std::option::Option::Some(0), value)
             }
         } + __protocol.field_stop_len()
             + __protocol.struct_end_len()

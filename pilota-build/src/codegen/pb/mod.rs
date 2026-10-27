@@ -374,7 +374,7 @@ impl ProtobufBackend {
                 match kind {
                     FieldKind::Required => format!("{encode_fn}({tag}, &{ident}, buf);").into(),
                     FieldKind::Optional => format! {
-                        r#"if let Some(_pilota_inner_value) = {ident}.as_ref() {{
+                        r#"if let ::std::option::Option::Some(_pilota_inner_value) = {ident}.as_ref() {{
                                 {encode_fn}({tag}, _pilota_inner_value, buf);
                             }};"#
                     }
@@ -400,7 +400,7 @@ impl ProtobufBackend {
                         )
                         .into(),
                         FieldKind::Optional => format!(
-                            r#"if let Some(_pilota_inner_value) = {ident}.as_ref() {{
+                            r#"if let ::std::option::Option::Some(_pilota_inner_value) = {ident}.as_ref() {{
                                 for msg in _pilota_inner_value {{
                                     {encode_item_fn}
                                 }}
@@ -430,7 +430,7 @@ impl ProtobufBackend {
                     match kind {
                         FieldKind::Required => encode,
                         FieldKind::Optional => format!(
-                            r#"if let Some(_pilota_inner_value) = {ident}.as_ref() {{ {encode} }}"#
+                            r#"if let ::std::option::Option::Some(_pilota_inner_value) = {ident}.as_ref() {{ {encode} }}"#
                         )
                         .into(),
                     }
@@ -672,7 +672,7 @@ impl CodegenBackend for ProtobufBackend {
                         getter_impl = format!(
                             r#"
                                 impl {name} {{
-                                    pub fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {{
+                                    pub fn get_descriptor_proto() -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto> {{
                                         let message_descriptor = {path}::get_descriptor_proto()?;
                                         message_descriptor.get_message_descriptor_proto("{idl_name}")
                                     }}
@@ -691,7 +691,7 @@ impl CodegenBackend for ProtobufBackend {
                     getter_impl = format!(
                         r#"
                             impl {name} {{
-                                pub fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {{
+                                pub fn get_descriptor_proto() -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto> {{
                                     let file_descriptor = {super_mods}file_descriptor_proto_{filename_lower}();
                                     file_descriptor.get_message_descriptor_proto("{idl_name}")
                                 }}
@@ -761,7 +761,7 @@ impl CodegenBackend for ProtobufBackend {
                             getter_impl = format!(
                                 r#"
                                 impl {name} {{
-                                    pub fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::EnumDescriptorProto> {{
+                                    pub fn get_descriptor_proto() -> ::std::option::Option<&'static ::pilota::pb::descriptor::EnumDescriptorProto> {{
                                         let message_descriptor = {path}::get_descriptor_proto()?;
                                         message_descriptor.get_enum_descriptor_proto("{idl_name}")
                                     }}
@@ -782,7 +782,7 @@ impl CodegenBackend for ProtobufBackend {
                         getter_impl = format!(
                             r#"
                                 impl {name} {{
-                                    pub fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::EnumDescriptorProto> {{
+                                    pub fn get_descriptor_proto() -> ::std::option::Option<&'static ::pilota::pb::descriptor::EnumDescriptorProto> {{
                                         let file_descriptor = {super_mods}file_descriptor_proto_{filename_lower}();
                                         file_descriptor.get_enum_descriptor_proto("{idl_name}")
                                     }}
@@ -907,7 +907,7 @@ impl CodegenBackend for ProtobufBackend {
                     getter_impl = format!(
                         r#"
                         impl {name} {{
-                            pub fn get_descriptor_proto() -> Option<&'static ::pilota::pb::descriptor::OneofDescriptorProto> {{
+                            pub fn get_descriptor_proto() -> ::std::option::Option<&'static ::pilota::pb::descriptor::OneofDescriptorProto> {{
                                 let message_descriptor = {path}::get_descriptor_proto()?;
                                 message_descriptor.get_oneof_descriptor_proto("{idl_name}")
                             }}

@@ -25,9 +25,9 @@ pub mod default_value {
 
             pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
-                    1 => Some(Self::READ),
-                    2 => Some(Self::WRITE),
-                    _ => None,
+                    1 => ::std::option::Option::Some(Self::READ),
+                    2 => ::std::option::Option::Some(Self::WRITE),
+                    _ => ::std::option::Option::None,
                 }
             }
         }
@@ -115,7 +115,7 @@ pub mod default_value {
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "D" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.values.as_ref() {
+                if let ::std::option::Option::Some(value) = self.values.as_ref() {
                     __protocol.write_list_field(
                         1,
                         ::pilota::thrift::TType::I32,
@@ -137,9 +137,9 @@ pub mod default_value {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut var_1 = None;
+                let mut var_1 = ::std::option::Option::None;
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -153,8 +153,10 @@ pub mod default_value {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                var_1 = Some(unsafe {
+                            ::std::option::Option::Some(1)
+                                if field_ident.field_type == ::pilota::thrift::TType::List =>
+                            {
+                                var_1 = ::std::option::Option::Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: ::std::vec::Vec<i32> =
                                         ::std::vec::Vec::with_capacity(list_ident.size);
@@ -178,7 +180,7 @@ pub mod default_value {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `D` field(#{}) failed, caused by: ",
                             field_id
@@ -203,9 +205,9 @@ pub mod default_value {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
+                    let mut var_1 = ::std::option::Option::None;
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -217,10 +219,10 @@ pub mod default_value {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(1)
+                                ::std::option::Option::Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    var_1 = Some({
+                                    var_1 = ::std::option::Option::Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val =
                                             ::std::vec::Vec::with_capacity(list_ident.size);
@@ -242,7 +244,7 @@ pub mod default_value {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `D` field(#{}) failed, caused by: ",
                                 field_id
@@ -263,7 +265,7 @@ pub mod default_value {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "D" })
                     + self.values.as_ref().map_or(0, |value| {
                         __protocol.list_field_len(
-                            Some(1),
+                            ::std::option::Option::Some(1),
                             ::pilota::thrift::TType::I32,
                             value,
                             |__protocol, el| __protocol.i32_len(*el),
@@ -374,7 +376,7 @@ pub mod default_value {
             }
         }
         pub static DEFAULT_D: ::std::sync::LazyLock<D> = ::std::sync::LazyLock::new(|| D {
-            values: Some(::std::vec![1i32, 2i32]),
+            values: ::std::option::Option::Some(::std::vec![1i32, 2i32]),
         });
 
         pub static DEFAULT_COMMIT_IDS: ::std::sync::LazyLock<CommitIdList> =
@@ -388,11 +390,11 @@ pub mod default_value {
                 A {
                     faststr: ::pilota::FastStr::from_static_str("hello world"),
                     string: "test".to_string(),
-                    a: Some(false),
-                    test_b: Some(B::READ),
-                    test_b2: Some(B::WRITE),
-                    test_b3: Some((B::READ.inner() as i8)),
-                    map: Some({
+                    a: ::std::option::Option::Some(false),
+                    test_b: ::std::option::Option::Some(B::READ),
+                    test_b2: ::std::option::Option::Some(B::WRITE),
+                    test_b3: ::std::option::Option::Some((B::READ.inner() as i8)),
+                    map: ::std::option::Option::Some({
                         let mut map = ::pilota::AHashMap::with_capacity(1);
                         map.insert(
                             ::pilota::FastStr::from_static_str("hello"),
@@ -400,9 +402,9 @@ pub mod default_value {
                         );
                         map
                     }),
-                    test_double: Some(1f64),
-                    test_double2: Some(1.2f64),
-                    alias_str: Some(::pilota::FastStr::from_static_str(A_S)),
+                    test_double: ::std::option::Option::Some(1f64),
+                    test_double2: ::std::option::Option::Some(1.2f64),
+                    alias_str: ::std::option::Option::Some(::pilota::FastStr::from_static_str(A_S)),
                     empty: ::pilota::Bytes::from_static("".as_bytes()),
                     test_map: {
                         let mut map = ::pilota::AHashMap::with_capacity(1);
@@ -410,31 +412,38 @@ pub mod default_value {
                         map
                     },
                     test_set: ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)]),
-                    a2: Some(true),
-                    map2: Some(::pilota::AHashMap::new()),
-                    commit_ids_raw: Some({
+                    a2: ::std::option::Option::Some(true),
+                    map2: ::std::option::Option::Some(::pilota::AHashMap::new()),
+                    commit_ids_raw: ::std::option::Option::Some({
                         (DEFAULT_COMMIT_IDS.clone())
                             .0
                             .iter()
                             .map(|el| (el.clone()).0)
                             .collect::<::std::vec::Vec<_>>()
                     }),
-                    commit_ids: Some(CommitIdList(::std::vec![CommitId(3i32), CommitId(4i32)])),
-                    default_i16: Some(16i16),
-                    default_i64: Some(64i64),
-                    list_literal: Some(::std::vec![5i32, 6i32, 7i32]),
-                    set_empty: Some(::pilota::AHashSet::from([])),
-                    set_from_const: Some(INT_SET_CONST.clone()),
-                    btree_set_literal: Some(::std::collections::BTreeSet::from([4i32, 5i32])),
-                    btree_set_empty: Some(::std::collections::BTreeSet::from([])),
-                    btree_set_from_const: Some(INT_BTREE_SET_CONST.clone()),
-                    map_literal_i32: Some({
+                    commit_ids: ::std::option::Option::Some(CommitIdList(::std::vec![
+                        CommitId(3i32),
+                        CommitId(4i32)
+                    ])),
+                    default_i16: ::std::option::Option::Some(16i16),
+                    default_i64: ::std::option::Option::Some(64i64),
+                    list_literal: ::std::option::Option::Some(::std::vec![5i32, 6i32, 7i32]),
+                    set_empty: ::std::option::Option::Some(::pilota::AHashSet::from([])),
+                    set_from_const: ::std::option::Option::Some(INT_SET_CONST.clone()),
+                    btree_set_literal: ::std::option::Option::Some(
+                        ::std::collections::BTreeSet::from([4i32, 5i32]),
+                    ),
+                    btree_set_empty: ::std::option::Option::Some(
+                        ::std::collections::BTreeSet::from([]),
+                    ),
+                    btree_set_from_const: ::std::option::Option::Some(INT_BTREE_SET_CONST.clone()),
+                    map_literal_i32: ::std::option::Option::Some({
                         let mut map = ::pilota::AHashMap::with_capacity(2);
                         map.insert(::pilota::FastStr::from_static_str("one"), 1i32);
                         map.insert(::pilota::FastStr::from_static_str("two"), 2i32);
                         map
                     }),
-                    map_from_const: Some({
+                    map_from_const: ::std::option::Option::Some({
                         STR_I32_MAP
                             .clone()
                             .iter()
@@ -443,13 +452,15 @@ pub mod default_value {
                             })
                             .collect::<::pilota::AHashMap<_, _>>()
                     }),
-                    btree_map_literal: Some({
+                    btree_map_literal: ::std::option::Option::Some({
                         let mut map = ::std::collections::BTreeMap::new();
                         map.insert(::pilota::FastStr::from_static_str("three"), 3i32);
                         map
                     }),
-                    btree_map_empty: Some(::std::collections::BTreeMap::new()),
-                    btree_map_from_const: Some({
+                    btree_map_empty: ::std::option::Option::Some(
+                        ::std::collections::BTreeMap::new(),
+                    ),
+                    btree_map_from_const: ::std::option::Option::Some({
                         STR_I32_BTREE_MAP
                             .clone()
                             .iter()
@@ -458,17 +469,21 @@ pub mod default_value {
                             })
                             .collect::<::std::collections::BTreeMap<_, _>>()
                     }),
-                    struct_literal: Some(C {
-                        off: Some(::pilota::FastStr::from_static_str("nested")),
-                        test_byte: Some(7i8),
+                    struct_literal: ::std::option::Option::Some(C {
+                        off: ::std::option::Option::Some(::pilota::FastStr::from_static_str(
+                            "nested",
+                        )),
+                        test_byte: ::std::option::Option::Some(7i8),
                     }),
-                    struct_partial: Some(C {
-                        off: Some(::pilota::FastStr::from_static_str("partial")),
-                        test_byte: None,
+                    struct_partial: ::std::option::Option::Some(C {
+                        off: ::std::option::Option::Some(::pilota::FastStr::from_static_str(
+                            "partial",
+                        )),
+                        test_byte: ::std::option::Option::None,
                     }),
-                    struct_from_const: Some(DEFAULT_C),
-                    binary_from_const: Some(DEFAULT_BINARY),
-                    newtype_map_literal: Some(NameScoreMap({
+                    struct_from_const: ::std::option::Option::Some(DEFAULT_C),
+                    binary_from_const: ::std::option::Option::Some(DEFAULT_BINARY),
+                    newtype_map_literal: ::std::option::Option::Some(NameScoreMap({
                         let mut map = ::pilota::AHashMap::with_capacity(1);
                         map.insert(
                             NameId(::pilota::FastStr::from_static_str("carol")),
@@ -476,10 +491,16 @@ pub mod default_value {
                         );
                         map
                     })),
-                    newtype_map_from_const: Some(NameScoreMap((NAME_SCORE_LITERAL.clone()).0)),
-                    newtype_map_empty: Some(NameScoreMap(::pilota::AHashMap::new())),
-                    newtype_map_from_empty_const: Some(NameScoreMap((NAME_SCORE_EMPTY.clone()).0)),
-                    lazy_struct_from_const: Some(DEFAULT_D.clone()),
+                    newtype_map_from_const: ::std::option::Option::Some(NameScoreMap(
+                        (NAME_SCORE_LITERAL.clone()).0,
+                    )),
+                    newtype_map_empty: ::std::option::Option::Some(NameScoreMap(
+                        ::pilota::AHashMap::new(),
+                    )),
+                    newtype_map_from_empty_const: ::std::option::Option::Some(NameScoreMap(
+                        (NAME_SCORE_EMPTY.clone()).0,
+                    )),
+                    lazy_struct_from_const: ::std::option::Option::Some(DEFAULT_D.clone()),
                 }
             }
         }
@@ -580,19 +601,19 @@ pub mod default_value {
                 __protocol.write_struct_begin(&struct_ident)?;
                 __protocol.write_faststr_field(1, (&self.faststr).clone())?;
                 __protocol.write_string_field(2, &self.string)?;
-                if let Some(value) = self.a.as_ref() {
+                if let ::std::option::Option::Some(value) = self.a.as_ref() {
                     __protocol.write_bool_field(3, *value)?;
                 }
-                if let Some(value) = self.test_b.as_ref() {
+                if let ::std::option::Option::Some(value) = self.test_b.as_ref() {
                     __protocol.write_i32_field(4, (value).inner())?;
                 }
-                if let Some(value) = self.test_b2.as_ref() {
+                if let ::std::option::Option::Some(value) = self.test_b2.as_ref() {
                     __protocol.write_i32_field(5, (value).inner())?;
                 }
-                if let Some(value) = self.test_b3.as_ref() {
+                if let ::std::option::Option::Some(value) = self.test_b3.as_ref() {
                     __protocol.write_i8_field(6, *value)?;
                 }
-                if let Some(value) = self.map.as_ref() {
+                if let ::std::option::Option::Some(value) = self.map.as_ref() {
                     __protocol.write_map_field(
                         7,
                         ::pilota::thrift::TType::Binary,
@@ -608,13 +629,13 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.test_double.as_ref() {
+                if let ::std::option::Option::Some(value) = self.test_double.as_ref() {
                     __protocol.write_double_field(8, *value)?;
                 }
-                if let Some(value) = self.test_double2.as_ref() {
+                if let ::std::option::Option::Some(value) = self.test_double2.as_ref() {
                     __protocol.write_double_field(9, *value)?;
                 }
-                if let Some(value) = self.alias_str.as_ref() {
+                if let ::std::option::Option::Some(value) = self.alias_str.as_ref() {
                     __protocol.write_faststr_field(10, (value).clone())?;
                 }
                 __protocol.write_bytes_field(11, (&self.empty).clone())?;
@@ -641,10 +662,10 @@ pub mod default_value {
                         ::std::result::Result::Ok(())
                     },
                 )?;
-                if let Some(value) = self.a2.as_ref() {
+                if let ::std::option::Option::Some(value) = self.a2.as_ref() {
                     __protocol.write_bool_field(14, *value)?;
                 }
-                if let Some(value) = self.map2.as_ref() {
+                if let ::std::option::Option::Some(value) = self.map2.as_ref() {
                     __protocol.write_map_field(
                         15,
                         ::pilota::thrift::TType::Binary,
@@ -660,7 +681,7 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.commit_ids_raw.as_ref() {
+                if let ::std::option::Option::Some(value) = self.commit_ids_raw.as_ref() {
                     __protocol.write_list_field(
                         16,
                         ::pilota::thrift::TType::I32,
@@ -671,16 +692,16 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.commit_ids.as_ref() {
+                if let ::std::option::Option::Some(value) = self.commit_ids.as_ref() {
                     __protocol.write_struct_field(17, value, ::pilota::thrift::TType::List)?;
                 }
-                if let Some(value) = self.default_i16.as_ref() {
+                if let ::std::option::Option::Some(value) = self.default_i16.as_ref() {
                     __protocol.write_i16_field(18, *value)?;
                 }
-                if let Some(value) = self.default_i64.as_ref() {
+                if let ::std::option::Option::Some(value) = self.default_i64.as_ref() {
                     __protocol.write_i64_field(19, *value)?;
                 }
-                if let Some(value) = self.list_literal.as_ref() {
+                if let ::std::option::Option::Some(value) = self.list_literal.as_ref() {
                     __protocol.write_list_field(
                         20,
                         ::pilota::thrift::TType::I32,
@@ -691,7 +712,7 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.set_empty.as_ref() {
+                if let ::std::option::Option::Some(value) = self.set_empty.as_ref() {
                     __protocol.write_set_field(
                         21,
                         ::pilota::thrift::TType::I32,
@@ -702,7 +723,7 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.set_from_const.as_ref() {
+                if let ::std::option::Option::Some(value) = self.set_from_const.as_ref() {
                     __protocol.write_set_field(
                         22,
                         ::pilota::thrift::TType::I32,
@@ -713,7 +734,7 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.btree_set_literal.as_ref() {
+                if let ::std::option::Option::Some(value) = self.btree_set_literal.as_ref() {
                     __protocol.write_btree_set_field(
                         23,
                         ::pilota::thrift::TType::I32,
@@ -724,7 +745,7 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.btree_set_empty.as_ref() {
+                if let ::std::option::Option::Some(value) = self.btree_set_empty.as_ref() {
                     __protocol.write_btree_set_field(
                         24,
                         ::pilota::thrift::TType::I32,
@@ -735,7 +756,7 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.btree_set_from_const.as_ref() {
+                if let ::std::option::Option::Some(value) = self.btree_set_from_const.as_ref() {
                     __protocol.write_btree_set_field(
                         25,
                         ::pilota::thrift::TType::I32,
@@ -746,7 +767,7 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.map_literal_i32.as_ref() {
+                if let ::std::option::Option::Some(value) = self.map_literal_i32.as_ref() {
                     __protocol.write_map_field(
                         26,
                         ::pilota::thrift::TType::Binary,
@@ -762,7 +783,7 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.map_from_const.as_ref() {
+                if let ::std::option::Option::Some(value) = self.map_from_const.as_ref() {
                     __protocol.write_map_field(
                         27,
                         ::pilota::thrift::TType::Binary,
@@ -778,7 +799,7 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.btree_map_literal.as_ref() {
+                if let ::std::option::Option::Some(value) = self.btree_map_literal.as_ref() {
                     __protocol.write_btree_map_field(
                         28,
                         ::pilota::thrift::TType::Binary,
@@ -794,7 +815,7 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.btree_map_empty.as_ref() {
+                if let ::std::option::Option::Some(value) = self.btree_map_empty.as_ref() {
                     __protocol.write_btree_map_field(
                         29,
                         ::pilota::thrift::TType::Binary,
@@ -810,7 +831,7 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.btree_map_from_const.as_ref() {
+                if let ::std::option::Option::Some(value) = self.btree_map_from_const.as_ref() {
                     __protocol.write_btree_map_field(
                         30,
                         ::pilota::thrift::TType::Binary,
@@ -826,31 +847,33 @@ pub mod default_value {
                         },
                     )?;
                 }
-                if let Some(value) = self.struct_literal.as_ref() {
+                if let ::std::option::Option::Some(value) = self.struct_literal.as_ref() {
                     __protocol.write_struct_field(31, value, ::pilota::thrift::TType::Struct)?;
                 }
-                if let Some(value) = self.struct_partial.as_ref() {
+                if let ::std::option::Option::Some(value) = self.struct_partial.as_ref() {
                     __protocol.write_struct_field(32, value, ::pilota::thrift::TType::Struct)?;
                 }
-                if let Some(value) = self.struct_from_const.as_ref() {
+                if let ::std::option::Option::Some(value) = self.struct_from_const.as_ref() {
                     __protocol.write_struct_field(33, value, ::pilota::thrift::TType::Struct)?;
                 }
-                if let Some(value) = self.binary_from_const.as_ref() {
+                if let ::std::option::Option::Some(value) = self.binary_from_const.as_ref() {
                     __protocol.write_bytes_field(34, (value).clone())?;
                 }
-                if let Some(value) = self.newtype_map_literal.as_ref() {
+                if let ::std::option::Option::Some(value) = self.newtype_map_literal.as_ref() {
                     __protocol.write_struct_field(35, value, ::pilota::thrift::TType::Map)?;
                 }
-                if let Some(value) = self.newtype_map_from_const.as_ref() {
+                if let ::std::option::Option::Some(value) = self.newtype_map_from_const.as_ref() {
                     __protocol.write_struct_field(36, value, ::pilota::thrift::TType::Map)?;
                 }
-                if let Some(value) = self.newtype_map_empty.as_ref() {
+                if let ::std::option::Option::Some(value) = self.newtype_map_empty.as_ref() {
                     __protocol.write_struct_field(37, value, ::pilota::thrift::TType::Map)?;
                 }
-                if let Some(value) = self.newtype_map_from_empty_const.as_ref() {
+                if let ::std::option::Option::Some(value) =
+                    self.newtype_map_from_empty_const.as_ref()
+                {
                     __protocol.write_struct_field(38, value, ::pilota::thrift::TType::Map)?;
                 }
-                if let Some(value) = self.lazy_struct_from_const.as_ref() {
+                if let ::std::option::Option::Some(value) = self.lazy_struct_from_const.as_ref() {
                     __protocol.write_struct_field(39, value, ::pilota::thrift::TType::Struct)?;
                 }
                 __protocol.write_field_stop()?;
@@ -865,52 +888,53 @@ pub mod default_value {
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
                 let mut var_1 = ::pilota::FastStr::from_static_str("hello world");
-                let mut var_2 = None;
-                let mut var_3 = Some(false);
-                let mut var_4 = Some(B::READ);
-                let mut var_5 = Some(B::WRITE);
-                let mut var_6 = Some((B::READ.inner() as i8));
-                let mut var_7 = None;
-                let mut var_8 = Some(1f64);
-                let mut var_9 = Some(1.2f64);
-                let mut var_10 = Some(::pilota::FastStr::from_static_str(A_S));
+                let mut var_2 = ::std::option::Option::None;
+                let mut var_3 = ::std::option::Option::Some(false);
+                let mut var_4 = ::std::option::Option::Some(B::READ);
+                let mut var_5 = ::std::option::Option::Some(B::WRITE);
+                let mut var_6 = ::std::option::Option::Some((B::READ.inner() as i8));
+                let mut var_7 = ::std::option::Option::None;
+                let mut var_8 = ::std::option::Option::Some(1f64);
+                let mut var_9 = ::std::option::Option::Some(1.2f64);
+                let mut var_10 =
+                    ::std::option::Option::Some(::pilota::FastStr::from_static_str(A_S));
                 let mut var_11 = ::pilota::Bytes::from_static("".as_bytes());
-                let mut var_12 = None;
-                let mut var_13 = None;
-                let mut var_14 = Some(true);
-                let mut var_15 = None;
-                let mut var_16 = None;
-                let mut var_17 = None;
-                let mut var_18 = Some(16i16);
-                let mut var_19 = Some(64i64);
-                let mut var_20 = None;
-                let mut var_21 = None;
-                let mut var_22 = None;
-                let mut var_23 = None;
-                let mut var_24 = None;
-                let mut var_25 = None;
-                let mut var_26 = None;
-                let mut var_27 = None;
-                let mut var_28 = None;
-                let mut var_29 = None;
-                let mut var_30 = None;
-                let mut var_31 = Some(C {
-                    off: Some(::pilota::FastStr::from_static_str("nested")),
-                    test_byte: Some(7i8),
+                let mut var_12 = ::std::option::Option::None;
+                let mut var_13 = ::std::option::Option::None;
+                let mut var_14 = ::std::option::Option::Some(true);
+                let mut var_15 = ::std::option::Option::None;
+                let mut var_16 = ::std::option::Option::None;
+                let mut var_17 = ::std::option::Option::None;
+                let mut var_18 = ::std::option::Option::Some(16i16);
+                let mut var_19 = ::std::option::Option::Some(64i64);
+                let mut var_20 = ::std::option::Option::None;
+                let mut var_21 = ::std::option::Option::None;
+                let mut var_22 = ::std::option::Option::None;
+                let mut var_23 = ::std::option::Option::None;
+                let mut var_24 = ::std::option::Option::None;
+                let mut var_25 = ::std::option::Option::None;
+                let mut var_26 = ::std::option::Option::None;
+                let mut var_27 = ::std::option::Option::None;
+                let mut var_28 = ::std::option::Option::None;
+                let mut var_29 = ::std::option::Option::None;
+                let mut var_30 = ::std::option::Option::None;
+                let mut var_31 = ::std::option::Option::Some(C {
+                    off: ::std::option::Option::Some(::pilota::FastStr::from_static_str("nested")),
+                    test_byte: ::std::option::Option::Some(7i8),
                 });
-                let mut var_32 = Some(C {
-                    off: Some(::pilota::FastStr::from_static_str("partial")),
-                    test_byte: None,
+                let mut var_32 = ::std::option::Option::Some(C {
+                    off: ::std::option::Option::Some(::pilota::FastStr::from_static_str("partial")),
+                    test_byte: ::std::option::Option::None,
                 });
-                let mut var_33 = Some(DEFAULT_C);
-                let mut var_34 = Some(DEFAULT_BINARY);
-                let mut var_35 = None;
-                let mut var_36 = None;
-                let mut var_37 = None;
-                let mut var_38 = None;
-                let mut var_39 = None;
+                let mut var_33 = ::std::option::Option::Some(DEFAULT_C);
+                let mut var_34 = ::std::option::Option::Some(DEFAULT_BINARY);
+                let mut var_35 = ::std::option::Option::None;
+                let mut var_36 = ::std::option::Option::None;
+                let mut var_37 = ::std::option::Option::None;
+                let mut var_38 = ::std::option::Option::None;
+                let mut var_39 = ::std::option::Option::None;
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -924,30 +948,44 @@ pub mod default_value {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1)
+                            ::std::option::Option::Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 var_1 = __protocol.read_faststr()?;
                             }
-                            Some(2)
+                            ::std::option::Option::Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_2 = Some(__protocol.read_string()?);
+                                var_2 = ::std::option::Option::Some(__protocol.read_string()?);
                             }
-                            Some(3) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
-                                var_3 = Some(__protocol.read_bool()?);
+                            ::std::option::Option::Some(3)
+                                if field_ident.field_type == ::pilota::thrift::TType::Bool =>
+                            {
+                                var_3 = ::std::option::Option::Some(__protocol.read_bool()?);
                             }
-                            Some(4) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                var_4 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                            ::std::option::Option::Some(4)
+                                if field_ident.field_type == ::pilota::thrift::TType::I32 =>
+                            {
+                                var_4 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
-                            Some(5) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                var_5 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                            ::std::option::Option::Some(5)
+                                if field_ident.field_type == ::pilota::thrift::TType::I32 =>
+                            {
+                                var_5 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
-                            Some(6) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
-                                var_6 = Some(__protocol.read_i8()?);
+                            ::std::option::Option::Some(6)
+                                if field_ident.field_type == ::pilota::thrift::TType::I8 =>
+                            {
+                                var_6 = ::std::option::Option::Some(__protocol.read_i8()?);
                             }
-                            Some(7) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_7 = Some({
+                            ::std::option::Option::Some(7)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_7 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -960,28 +998,30 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(8)
+                            ::std::option::Option::Some(8)
                                 if field_ident.field_type == ::pilota::thrift::TType::Double =>
                             {
-                                var_8 = Some(__protocol.read_double()?);
+                                var_8 = ::std::option::Option::Some(__protocol.read_double()?);
                             }
-                            Some(9)
+                            ::std::option::Option::Some(9)
                                 if field_ident.field_type == ::pilota::thrift::TType::Double =>
                             {
-                                var_9 = Some(__protocol.read_double()?);
+                                var_9 = ::std::option::Option::Some(__protocol.read_double()?);
                             }
-                            Some(10)
+                            ::std::option::Option::Some(10)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_10 = Some(__protocol.read_faststr()?);
+                                var_10 = ::std::option::Option::Some(__protocol.read_faststr()?);
                             }
-                            Some(11)
+                            ::std::option::Option::Some(11)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
                                 var_11 = __protocol.read_bytes()?;
                             }
-                            Some(12) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_12 = Some({
+                            ::std::option::Option::Some(12)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_12 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -994,8 +1034,10 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(13) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                var_13 = Some({
+                            ::std::option::Option::Some(13)
+                                if field_ident.field_type == ::pilota::thrift::TType::Set =>
+                            {
+                                var_13 = ::std::option::Option::Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val =
                                         ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -1008,11 +1050,15 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(14) if field_ident.field_type == ::pilota::thrift::TType::Bool => {
-                                var_14 = Some(__protocol.read_bool()?);
+                            ::std::option::Option::Some(14)
+                                if field_ident.field_type == ::pilota::thrift::TType::Bool =>
+                            {
+                                var_14 = ::std::option::Option::Some(__protocol.read_bool()?);
                             }
-                            Some(15) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_15 = Some({
+                            ::std::option::Option::Some(15)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_15 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -1025,8 +1071,10 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(16) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                var_16 = Some(unsafe {
+                            ::std::option::Option::Some(16)
+                                if field_ident.field_type == ::pilota::thrift::TType::List =>
+                            {
+                                var_16 = ::std::option::Option::Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: ::std::vec::Vec<i32> =
                                         ::std::vec::Vec::with_capacity(list_ident.size);
@@ -1040,17 +1088,27 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(17) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                var_17 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                            ::std::option::Option::Some(17)
+                                if field_ident.field_type == ::pilota::thrift::TType::List =>
+                            {
+                                var_17 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
-                            Some(18) if field_ident.field_type == ::pilota::thrift::TType::I16 => {
-                                var_18 = Some(__protocol.read_i16()?);
+                            ::std::option::Option::Some(18)
+                                if field_ident.field_type == ::pilota::thrift::TType::I16 =>
+                            {
+                                var_18 = ::std::option::Option::Some(__protocol.read_i16()?);
                             }
-                            Some(19) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                var_19 = Some(__protocol.read_i64()?);
+                            ::std::option::Option::Some(19)
+                                if field_ident.field_type == ::pilota::thrift::TType::I64 =>
+                            {
+                                var_19 = ::std::option::Option::Some(__protocol.read_i64()?);
                             }
-                            Some(20) if field_ident.field_type == ::pilota::thrift::TType::List => {
-                                var_20 = Some(unsafe {
+                            ::std::option::Option::Some(20)
+                                if field_ident.field_type == ::pilota::thrift::TType::List =>
+                            {
+                                var_20 = ::std::option::Option::Some(unsafe {
                                     let list_ident = __protocol.read_list_begin()?;
                                     let mut val: ::std::vec::Vec<i32> =
                                         ::std::vec::Vec::with_capacity(list_ident.size);
@@ -1064,8 +1122,10 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(21) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                var_21 = Some({
+                            ::std::option::Option::Some(21)
+                                if field_ident.field_type == ::pilota::thrift::TType::Set =>
+                            {
+                                var_21 = ::std::option::Option::Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val =
                                         ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -1076,8 +1136,10 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(22) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                var_22 = Some({
+                            ::std::option::Option::Some(22)
+                                if field_ident.field_type == ::pilota::thrift::TType::Set =>
+                            {
+                                var_22 = ::std::option::Option::Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val =
                                         ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -1088,8 +1150,10 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(23) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                var_23 = Some({
+                            ::std::option::Option::Some(23)
+                                if field_ident.field_type == ::pilota::thrift::TType::Set =>
+                            {
+                                var_23 = ::std::option::Option::Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val = ::std::collections::BTreeSet::new();
                                     for _ in 0..list_ident.size {
@@ -1099,8 +1163,10 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(24) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                var_24 = Some({
+                            ::std::option::Option::Some(24)
+                                if field_ident.field_type == ::pilota::thrift::TType::Set =>
+                            {
+                                var_24 = ::std::option::Option::Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val = ::std::collections::BTreeSet::new();
                                     for _ in 0..list_ident.size {
@@ -1110,8 +1176,10 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(25) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                var_25 = Some({
+                            ::std::option::Option::Some(25)
+                                if field_ident.field_type == ::pilota::thrift::TType::Set =>
+                            {
+                                var_25 = ::std::option::Option::Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val = ::std::collections::BTreeSet::new();
                                     for _ in 0..list_ident.size {
@@ -1121,8 +1189,10 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(26) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_26 = Some({
+                            ::std::option::Option::Some(26)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_26 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -1135,8 +1205,10 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(27) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_27 = Some({
+                            ::std::option::Option::Some(27)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_27 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -1149,8 +1221,10 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(28) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_28 = Some({
+                            ::std::option::Option::Some(28)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_28 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::std::collections::BTreeMap::new();
                                     for _ in 0..map_ident.size {
@@ -1163,8 +1237,10 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(29) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_29 = Some({
+                            ::std::option::Option::Some(29)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_29 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::std::collections::BTreeMap::new();
                                     for _ in 0..map_ident.size {
@@ -1177,8 +1253,10 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(30) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_30 = Some({
+                            ::std::option::Option::Some(30)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_30 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::std::collections::BTreeMap::new();
                                     for _ in 0..map_ident.size {
@@ -1191,42 +1269,66 @@ pub mod default_value {
                                     val
                                 });
                             }
-                            Some(31)
+                            ::std::option::Option::Some(31)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_31 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_31 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
-                            Some(32)
+                            ::std::option::Option::Some(32)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_32 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_32 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
-                            Some(33)
+                            ::std::option::Option::Some(33)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_33 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_33 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
-                            Some(34)
+                            ::std::option::Option::Some(34)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_34 = Some(__protocol.read_bytes()?);
+                                var_34 = ::std::option::Option::Some(__protocol.read_bytes()?);
                             }
-                            Some(35) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_35 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                            ::std::option::Option::Some(35)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_35 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
-                            Some(36) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_36 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                            ::std::option::Option::Some(36)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_36 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
-                            Some(37) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_37 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                            ::std::option::Option::Some(37)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_37 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
-                            Some(38) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_38 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                            ::std::option::Option::Some(38)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_38 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
-                            Some(39)
+                            ::std::option::Option::Some(39)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_39 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_39 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -1238,7 +1340,7 @@ pub mod default_value {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `A` field(#{}) failed, caused by: ",
                             field_id
@@ -1250,7 +1352,7 @@ pub mod default_value {
 
                 let var_2 = var_2.unwrap_or_else(|| "test".to_string());
                 if var_7.is_none() {
-                    var_7 = Some({
+                    var_7 = ::std::option::Option::Some({
                         let mut map = ::pilota::AHashMap::with_capacity(1);
                         map.insert(
                             ::pilota::FastStr::from_static_str("hello"),
@@ -1267,10 +1369,10 @@ pub mod default_value {
                 let var_13 = var_13
                     .unwrap_or_else(|| ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)]));
                 if var_15.is_none() {
-                    var_15 = Some(::pilota::AHashMap::new());
+                    var_15 = ::std::option::Option::Some(::pilota::AHashMap::new());
                 }
                 if var_16.is_none() {
-                    var_16 = Some({
+                    var_16 = ::std::option::Option::Some({
                         (DEFAULT_COMMIT_IDS.clone())
                             .0
                             .iter()
@@ -1279,28 +1381,33 @@ pub mod default_value {
                     });
                 }
                 if var_17.is_none() {
-                    var_17 = Some(CommitIdList(::std::vec![CommitId(3i32), CommitId(4i32)]));
+                    var_17 = ::std::option::Option::Some(CommitIdList(::std::vec![
+                        CommitId(3i32),
+                        CommitId(4i32)
+                    ]));
                 }
                 if var_20.is_none() {
-                    var_20 = Some(::std::vec![5i32, 6i32, 7i32]);
+                    var_20 = ::std::option::Option::Some(::std::vec![5i32, 6i32, 7i32]);
                 }
                 if var_21.is_none() {
-                    var_21 = Some(::pilota::AHashSet::from([]));
+                    var_21 = ::std::option::Option::Some(::pilota::AHashSet::from([]));
                 }
                 if var_22.is_none() {
-                    var_22 = Some(INT_SET_CONST.clone());
+                    var_22 = ::std::option::Option::Some(INT_SET_CONST.clone());
                 }
                 if var_23.is_none() {
-                    var_23 = Some(::std::collections::BTreeSet::from([4i32, 5i32]));
+                    var_23 = ::std::option::Option::Some(::std::collections::BTreeSet::from([
+                        4i32, 5i32,
+                    ]));
                 }
                 if var_24.is_none() {
-                    var_24 = Some(::std::collections::BTreeSet::from([]));
+                    var_24 = ::std::option::Option::Some(::std::collections::BTreeSet::from([]));
                 }
                 if var_25.is_none() {
-                    var_25 = Some(INT_BTREE_SET_CONST.clone());
+                    var_25 = ::std::option::Option::Some(INT_BTREE_SET_CONST.clone());
                 }
                 if var_26.is_none() {
-                    var_26 = Some({
+                    var_26 = ::std::option::Option::Some({
                         let mut map = ::pilota::AHashMap::with_capacity(2);
                         map.insert(::pilota::FastStr::from_static_str("one"), 1i32);
                         map.insert(::pilota::FastStr::from_static_str("two"), 2i32);
@@ -1308,7 +1415,7 @@ pub mod default_value {
                     });
                 }
                 if var_27.is_none() {
-                    var_27 = Some({
+                    var_27 = ::std::option::Option::Some({
                         STR_I32_MAP
                             .clone()
                             .iter()
@@ -1319,17 +1426,17 @@ pub mod default_value {
                     });
                 }
                 if var_28.is_none() {
-                    var_28 = Some({
+                    var_28 = ::std::option::Option::Some({
                         let mut map = ::std::collections::BTreeMap::new();
                         map.insert(::pilota::FastStr::from_static_str("three"), 3i32);
                         map
                     });
                 }
                 if var_29.is_none() {
-                    var_29 = Some(::std::collections::BTreeMap::new());
+                    var_29 = ::std::option::Option::Some(::std::collections::BTreeMap::new());
                 }
                 if var_30.is_none() {
-                    var_30 = Some({
+                    var_30 = ::std::option::Option::Some({
                         STR_I32_BTREE_MAP
                             .clone()
                             .iter()
@@ -1340,7 +1447,7 @@ pub mod default_value {
                     });
                 }
                 if var_35.is_none() {
-                    var_35 = Some(NameScoreMap({
+                    var_35 = ::std::option::Option::Some(NameScoreMap({
                         let mut map = ::pilota::AHashMap::with_capacity(1);
                         map.insert(
                             NameId(::pilota::FastStr::from_static_str("carol")),
@@ -1350,16 +1457,18 @@ pub mod default_value {
                     }));
                 }
                 if var_36.is_none() {
-                    var_36 = Some(NameScoreMap((NAME_SCORE_LITERAL.clone()).0));
+                    var_36 =
+                        ::std::option::Option::Some(NameScoreMap((NAME_SCORE_LITERAL.clone()).0));
                 }
                 if var_37.is_none() {
-                    var_37 = Some(NameScoreMap(::pilota::AHashMap::new()));
+                    var_37 = ::std::option::Option::Some(NameScoreMap(::pilota::AHashMap::new()));
                 }
                 if var_38.is_none() {
-                    var_38 = Some(NameScoreMap((NAME_SCORE_EMPTY.clone()).0));
+                    var_38 =
+                        ::std::option::Option::Some(NameScoreMap((NAME_SCORE_EMPTY.clone()).0));
                 }
                 if var_39.is_none() {
-                    var_39 = Some(DEFAULT_D.clone());
+                    var_39 = ::std::option::Option::Some(DEFAULT_D.clone());
                 }
 
                 let data = Self {
@@ -1418,52 +1527,57 @@ pub mod default_value {
             > {
                 ::std::boxed::Box::pin(async move {
                     let mut var_1 = ::pilota::FastStr::from_static_str("hello world");
-                    let mut var_2 = None;
-                    let mut var_3 = Some(false);
-                    let mut var_4 = Some(B::READ);
-                    let mut var_5 = Some(B::WRITE);
-                    let mut var_6 = Some((B::READ.inner() as i8));
-                    let mut var_7 = None;
-                    let mut var_8 = Some(1f64);
-                    let mut var_9 = Some(1.2f64);
-                    let mut var_10 = Some(::pilota::FastStr::from_static_str(A_S));
+                    let mut var_2 = ::std::option::Option::None;
+                    let mut var_3 = ::std::option::Option::Some(false);
+                    let mut var_4 = ::std::option::Option::Some(B::READ);
+                    let mut var_5 = ::std::option::Option::Some(B::WRITE);
+                    let mut var_6 = ::std::option::Option::Some((B::READ.inner() as i8));
+                    let mut var_7 = ::std::option::Option::None;
+                    let mut var_8 = ::std::option::Option::Some(1f64);
+                    let mut var_9 = ::std::option::Option::Some(1.2f64);
+                    let mut var_10 =
+                        ::std::option::Option::Some(::pilota::FastStr::from_static_str(A_S));
                     let mut var_11 = ::pilota::Bytes::from_static("".as_bytes());
-                    let mut var_12 = None;
-                    let mut var_13 = None;
-                    let mut var_14 = Some(true);
-                    let mut var_15 = None;
-                    let mut var_16 = None;
-                    let mut var_17 = None;
-                    let mut var_18 = Some(16i16);
-                    let mut var_19 = Some(64i64);
-                    let mut var_20 = None;
-                    let mut var_21 = None;
-                    let mut var_22 = None;
-                    let mut var_23 = None;
-                    let mut var_24 = None;
-                    let mut var_25 = None;
-                    let mut var_26 = None;
-                    let mut var_27 = None;
-                    let mut var_28 = None;
-                    let mut var_29 = None;
-                    let mut var_30 = None;
-                    let mut var_31 = Some(C {
-                        off: Some(::pilota::FastStr::from_static_str("nested")),
-                        test_byte: Some(7i8),
+                    let mut var_12 = ::std::option::Option::None;
+                    let mut var_13 = ::std::option::Option::None;
+                    let mut var_14 = ::std::option::Option::Some(true);
+                    let mut var_15 = ::std::option::Option::None;
+                    let mut var_16 = ::std::option::Option::None;
+                    let mut var_17 = ::std::option::Option::None;
+                    let mut var_18 = ::std::option::Option::Some(16i16);
+                    let mut var_19 = ::std::option::Option::Some(64i64);
+                    let mut var_20 = ::std::option::Option::None;
+                    let mut var_21 = ::std::option::Option::None;
+                    let mut var_22 = ::std::option::Option::None;
+                    let mut var_23 = ::std::option::Option::None;
+                    let mut var_24 = ::std::option::Option::None;
+                    let mut var_25 = ::std::option::Option::None;
+                    let mut var_26 = ::std::option::Option::None;
+                    let mut var_27 = ::std::option::Option::None;
+                    let mut var_28 = ::std::option::Option::None;
+                    let mut var_29 = ::std::option::Option::None;
+                    let mut var_30 = ::std::option::Option::None;
+                    let mut var_31 = ::std::option::Option::Some(C {
+                        off: ::std::option::Option::Some(::pilota::FastStr::from_static_str(
+                            "nested",
+                        )),
+                        test_byte: ::std::option::Option::Some(7i8),
                     });
-                    let mut var_32 = Some(C {
-                        off: Some(::pilota::FastStr::from_static_str("partial")),
-                        test_byte: None,
+                    let mut var_32 = ::std::option::Option::Some(C {
+                        off: ::std::option::Option::Some(::pilota::FastStr::from_static_str(
+                            "partial",
+                        )),
+                        test_byte: ::std::option::Option::None,
                     });
-                    let mut var_33 = Some(DEFAULT_C);
-                    let mut var_34 = Some(DEFAULT_BINARY);
-                    let mut var_35 = None;
-                    let mut var_36 = None;
-                    let mut var_37 = None;
-                    let mut var_38 = None;
-                    let mut var_39 = None;
+                    let mut var_33 = ::std::option::Option::Some(DEFAULT_C);
+                    let mut var_34 = ::std::option::Option::Some(DEFAULT_BINARY);
+                    let mut var_35 = ::std::option::Option::None;
+                    let mut var_36 = ::std::option::Option::None;
+                    let mut var_37 = ::std::option::Option::None;
+                    let mut var_38 = ::std::option::Option::None;
+                    let mut var_39 = ::std::option::Option::None;
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -1475,48 +1589,52 @@ pub mod default_value {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(1)
+                                ::std::option::Option::Some(1)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
                                     var_1 = __protocol.read_faststr().await?;
                                 }
-                                Some(2)
+                                ::std::option::Option::Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_2 = Some(__protocol.read_string().await?);
+                                    var_2 = ::std::option::Option::Some(
+                                        __protocol.read_string().await?,
+                                    );
                                 }
-                                Some(3)
+                                ::std::option::Option::Some(3)
                                     if field_ident.field_type == ::pilota::thrift::TType::Bool =>
                                 {
-                                    var_3 = Some(__protocol.read_bool().await?);
+                                    var_3 =
+                                        ::std::option::Option::Some(__protocol.read_bool().await?);
                                 }
-                                Some(4)
+                                ::std::option::Option::Some(4)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    var_4 = Some(
+                                    var_4 = ::std::option::Option::Some(
                                         <B as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     );
                                 }
-                                Some(5)
+                                ::std::option::Option::Some(5)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    var_5 = Some(
+                                    var_5 = ::std::option::Option::Some(
                                         <B as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     );
                                 }
-                                Some(6)
+                                ::std::option::Option::Some(6)
                                     if field_ident.field_type == ::pilota::thrift::TType::I8 =>
                                 {
-                                    var_6 = Some(__protocol.read_i8().await?);
+                                    var_6 =
+                                        ::std::option::Option::Some(__protocol.read_i8().await?);
                                 }
-                                Some(7)
+                                ::std::option::Option::Some(7)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_7 = Some({
+                                    var_7 = ::std::option::Option::Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -1530,34 +1648,40 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(8)
+                                ::std::option::Option::Some(8)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Double =>
                                 {
-                                    var_8 = Some(__protocol.read_double().await?);
+                                    var_8 = ::std::option::Option::Some(
+                                        __protocol.read_double().await?,
+                                    );
                                 }
-                                Some(9)
+                                ::std::option::Option::Some(9)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Double =>
                                 {
-                                    var_9 = Some(__protocol.read_double().await?);
+                                    var_9 = ::std::option::Option::Some(
+                                        __protocol.read_double().await?,
+                                    );
                                 }
-                                Some(10)
+                                ::std::option::Option::Some(10)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_10 = Some(__protocol.read_faststr().await?);
+                                    var_10 = ::std::option::Option::Some(
+                                        __protocol.read_faststr().await?,
+                                    );
                                 }
-                                Some(11)
+                                ::std::option::Option::Some(11)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
                                     var_11 = __protocol.read_bytes().await?;
                                 }
-                                Some(12)
+                                ::std::option::Option::Some(12)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_12 = Some({
+                                    var_12 = ::std::option::Option::Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -1573,10 +1697,10 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(13)
+                                ::std::option::Option::Some(13)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    var_13 = Some({
+                                    var_13 = ::std::option::Option::Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val =
                                             ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -1589,15 +1713,16 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(14)
+                                ::std::option::Option::Some(14)
                                     if field_ident.field_type == ::pilota::thrift::TType::Bool =>
                                 {
-                                    var_14 = Some(__protocol.read_bool().await?);
+                                    var_14 =
+                                        ::std::option::Option::Some(__protocol.read_bool().await?);
                                 }
-                                Some(15)
+                                ::std::option::Option::Some(15)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_15 = Some({
+                                    var_15 = ::std::option::Option::Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -1611,10 +1736,10 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(16)
+                                ::std::option::Option::Some(16)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    var_16 = Some({
+                                    var_16 = ::std::option::Option::Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val =
                                             ::std::vec::Vec::with_capacity(list_ident.size);
@@ -1625,30 +1750,32 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(17)
+                                ::std::option::Option::Some(17)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    var_17 = Some(
+                                    var_17 = ::std::option::Option::Some(
                                         <CommitIdList as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
                                     );
                                 }
-                                Some(18)
+                                ::std::option::Option::Some(18)
                                     if field_ident.field_type == ::pilota::thrift::TType::I16 =>
                                 {
-                                    var_18 = Some(__protocol.read_i16().await?);
+                                    var_18 =
+                                        ::std::option::Option::Some(__protocol.read_i16().await?);
                                 }
-                                Some(19)
+                                ::std::option::Option::Some(19)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    var_19 = Some(__protocol.read_i64().await?);
+                                    var_19 =
+                                        ::std::option::Option::Some(__protocol.read_i64().await?);
                                 }
-                                Some(20)
+                                ::std::option::Option::Some(20)
                                     if field_ident.field_type == ::pilota::thrift::TType::List =>
                                 {
-                                    var_20 = Some({
+                                    var_20 = ::std::option::Option::Some({
                                         let list_ident = __protocol.read_list_begin().await?;
                                         let mut val =
                                             ::std::vec::Vec::with_capacity(list_ident.size);
@@ -1659,10 +1786,10 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(21)
+                                ::std::option::Option::Some(21)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    var_21 = Some({
+                                    var_21 = ::std::option::Option::Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val =
                                             ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -1673,10 +1800,10 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(22)
+                                ::std::option::Option::Some(22)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    var_22 = Some({
+                                    var_22 = ::std::option::Option::Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val =
                                             ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -1687,10 +1814,10 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(23)
+                                ::std::option::Option::Some(23)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    var_23 = Some({
+                                    var_23 = ::std::option::Option::Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val = ::std::collections::BTreeSet::new();
                                         for _ in 0..list_ident.size {
@@ -1700,10 +1827,10 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(24)
+                                ::std::option::Option::Some(24)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    var_24 = Some({
+                                    var_24 = ::std::option::Option::Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val = ::std::collections::BTreeSet::new();
                                         for _ in 0..list_ident.size {
@@ -1713,10 +1840,10 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(25)
+                                ::std::option::Option::Some(25)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    var_25 = Some({
+                                    var_25 = ::std::option::Option::Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val = ::std::collections::BTreeSet::new();
                                         for _ in 0..list_ident.size {
@@ -1726,10 +1853,10 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(26)
+                                ::std::option::Option::Some(26)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_26 = Some({
+                                    var_26 = ::std::option::Option::Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -1743,10 +1870,10 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(27)
+                                ::std::option::Option::Some(27)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_27 = Some({
+                                    var_27 = ::std::option::Option::Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -1760,10 +1887,10 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(28)
+                                ::std::option::Option::Some(28)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_28 = Some({
+                                    var_28 = ::std::option::Option::Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val = ::std::collections::BTreeMap::new();
                                         for _ in 0..map_ident.size {
@@ -1776,10 +1903,10 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(29)
+                                ::std::option::Option::Some(29)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_29 = Some({
+                                    var_29 = ::std::option::Option::Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val = ::std::collections::BTreeMap::new();
                                         for _ in 0..map_ident.size {
@@ -1792,10 +1919,10 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(30)
+                                ::std::option::Option::Some(30)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_30 = Some({
+                                    var_30 = ::std::option::Option::Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val = ::std::collections::BTreeMap::new();
                                         for _ in 0..map_ident.size {
@@ -1808,84 +1935,85 @@ pub mod default_value {
                                         val
                                     });
                                 }
-                                Some(31)
+                                ::std::option::Option::Some(31)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_31 = Some(
+                                    var_31 = ::std::option::Option::Some(
                                         <C as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     );
                                 }
-                                Some(32)
+                                ::std::option::Option::Some(32)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_32 = Some(
+                                    var_32 = ::std::option::Option::Some(
                                         <C as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     );
                                 }
-                                Some(33)
+                                ::std::option::Option::Some(33)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_33 = Some(
+                                    var_33 = ::std::option::Option::Some(
                                         <C as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     );
                                 }
-                                Some(34)
+                                ::std::option::Option::Some(34)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_34 = Some(__protocol.read_bytes().await?);
+                                    var_34 =
+                                        ::std::option::Option::Some(__protocol.read_bytes().await?);
                                 }
-                                Some(35)
+                                ::std::option::Option::Some(35)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_35 = Some(
+                                    var_35 = ::std::option::Option::Some(
                                         <NameScoreMap as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
                                     );
                                 }
-                                Some(36)
+                                ::std::option::Option::Some(36)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_36 = Some(
+                                    var_36 = ::std::option::Option::Some(
                                         <NameScoreMap as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
                                     );
                                 }
-                                Some(37)
+                                ::std::option::Option::Some(37)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_37 = Some(
+                                    var_37 = ::std::option::Option::Some(
                                         <NameScoreMap as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
                                     );
                                 }
-                                Some(38)
+                                ::std::option::Option::Some(38)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_38 = Some(
+                                    var_38 = ::std::option::Option::Some(
                                         <NameScoreMap as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
                                     );
                                 }
-                                Some(39)
+                                ::std::option::Option::Some(39)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_39 = Some(
+                                    var_39 = ::std::option::Option::Some(
                                         <D as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     );
@@ -1901,7 +2029,7 @@ pub mod default_value {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `A` field(#{}) failed, caused by: ",
                                 field_id
@@ -1913,7 +2041,7 @@ pub mod default_value {
 
                     let var_2 = var_2.unwrap_or_else(|| "test".to_string());
                     if var_7.is_none() {
-                        var_7 = Some({
+                        var_7 = ::std::option::Option::Some({
                             let mut map = ::pilota::AHashMap::with_capacity(1);
                             map.insert(
                                 ::pilota::FastStr::from_static_str("hello"),
@@ -1931,10 +2059,10 @@ pub mod default_value {
                         ::pilota::AHashSet::from([::pilota::OrderedFloat(1f64)])
                     });
                     if var_15.is_none() {
-                        var_15 = Some(::pilota::AHashMap::new());
+                        var_15 = ::std::option::Option::Some(::pilota::AHashMap::new());
                     }
                     if var_16.is_none() {
-                        var_16 = Some({
+                        var_16 = ::std::option::Option::Some({
                             (DEFAULT_COMMIT_IDS.clone())
                                 .0
                                 .iter()
@@ -1943,28 +2071,34 @@ pub mod default_value {
                         });
                     }
                     if var_17.is_none() {
-                        var_17 = Some(CommitIdList(::std::vec![CommitId(3i32), CommitId(4i32)]));
+                        var_17 = ::std::option::Option::Some(CommitIdList(::std::vec![
+                            CommitId(3i32),
+                            CommitId(4i32)
+                        ]));
                     }
                     if var_20.is_none() {
-                        var_20 = Some(::std::vec![5i32, 6i32, 7i32]);
+                        var_20 = ::std::option::Option::Some(::std::vec![5i32, 6i32, 7i32]);
                     }
                     if var_21.is_none() {
-                        var_21 = Some(::pilota::AHashSet::from([]));
+                        var_21 = ::std::option::Option::Some(::pilota::AHashSet::from([]));
                     }
                     if var_22.is_none() {
-                        var_22 = Some(INT_SET_CONST.clone());
+                        var_22 = ::std::option::Option::Some(INT_SET_CONST.clone());
                     }
                     if var_23.is_none() {
-                        var_23 = Some(::std::collections::BTreeSet::from([4i32, 5i32]));
+                        var_23 = ::std::option::Option::Some(::std::collections::BTreeSet::from([
+                            4i32, 5i32,
+                        ]));
                     }
                     if var_24.is_none() {
-                        var_24 = Some(::std::collections::BTreeSet::from([]));
+                        var_24 =
+                            ::std::option::Option::Some(::std::collections::BTreeSet::from([]));
                     }
                     if var_25.is_none() {
-                        var_25 = Some(INT_BTREE_SET_CONST.clone());
+                        var_25 = ::std::option::Option::Some(INT_BTREE_SET_CONST.clone());
                     }
                     if var_26.is_none() {
-                        var_26 = Some({
+                        var_26 = ::std::option::Option::Some({
                             let mut map = ::pilota::AHashMap::with_capacity(2);
                             map.insert(::pilota::FastStr::from_static_str("one"), 1i32);
                             map.insert(::pilota::FastStr::from_static_str("two"), 2i32);
@@ -1972,7 +2106,7 @@ pub mod default_value {
                         });
                     }
                     if var_27.is_none() {
-                        var_27 = Some({
+                        var_27 = ::std::option::Option::Some({
                             STR_I32_MAP
                                 .clone()
                                 .iter()
@@ -1983,17 +2117,17 @@ pub mod default_value {
                         });
                     }
                     if var_28.is_none() {
-                        var_28 = Some({
+                        var_28 = ::std::option::Option::Some({
                             let mut map = ::std::collections::BTreeMap::new();
                             map.insert(::pilota::FastStr::from_static_str("three"), 3i32);
                             map
                         });
                     }
                     if var_29.is_none() {
-                        var_29 = Some(::std::collections::BTreeMap::new());
+                        var_29 = ::std::option::Option::Some(::std::collections::BTreeMap::new());
                     }
                     if var_30.is_none() {
-                        var_30 = Some({
+                        var_30 = ::std::option::Option::Some({
                             STR_I32_BTREE_MAP
                                 .clone()
                                 .iter()
@@ -2004,7 +2138,7 @@ pub mod default_value {
                         });
                     }
                     if var_35.is_none() {
-                        var_35 = Some(NameScoreMap({
+                        var_35 = ::std::option::Option::Some(NameScoreMap({
                             let mut map = ::pilota::AHashMap::with_capacity(1);
                             map.insert(
                                 NameId(::pilota::FastStr::from_static_str("carol")),
@@ -2014,16 +2148,20 @@ pub mod default_value {
                         }));
                     }
                     if var_36.is_none() {
-                        var_36 = Some(NameScoreMap((NAME_SCORE_LITERAL.clone()).0));
+                        var_36 = ::std::option::Option::Some(NameScoreMap(
+                            (NAME_SCORE_LITERAL.clone()).0,
+                        ));
                     }
                     if var_37.is_none() {
-                        var_37 = Some(NameScoreMap(::pilota::AHashMap::new()));
+                        var_37 =
+                            ::std::option::Option::Some(NameScoreMap(::pilota::AHashMap::new()));
                     }
                     if var_38.is_none() {
-                        var_38 = Some(NameScoreMap((NAME_SCORE_EMPTY.clone()).0));
+                        var_38 =
+                            ::std::option::Option::Some(NameScoreMap((NAME_SCORE_EMPTY.clone()).0));
                     }
                     if var_39.is_none() {
-                        var_39 = Some(DEFAULT_D.clone());
+                        var_39 = ::std::option::Option::Some(DEFAULT_D.clone());
                     }
 
                     let data = Self {
@@ -2075,25 +2213,23 @@ pub mod default_value {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + __protocol.faststr_field_len(Some(1), &self.faststr)
-                    + __protocol.string_field_len(Some(2), &&self.string)
-                    + self
-                        .a
-                        .as_ref()
-                        .map_or(0, |value| __protocol.bool_field_len(Some(3), *value))
+                    + __protocol.faststr_field_len(::std::option::Option::Some(1), &self.faststr)
+                    + __protocol.string_field_len(::std::option::Option::Some(2), &&self.string)
+                    + self.a.as_ref().map_or(0, |value| {
+                        __protocol.bool_field_len(::std::option::Option::Some(3), *value)
+                    })
                     + self.test_b.as_ref().map_or(0, |value| {
-                        __protocol.i32_field_len(Some(4), (value).inner())
+                        __protocol.i32_field_len(::std::option::Option::Some(4), (value).inner())
                     })
                     + self.test_b2.as_ref().map_or(0, |value| {
-                        __protocol.i32_field_len(Some(5), (value).inner())
+                        __protocol.i32_field_len(::std::option::Option::Some(5), (value).inner())
                     })
-                    + self
-                        .test_b3
-                        .as_ref()
-                        .map_or(0, |value| __protocol.i8_field_len(Some(6), *value))
+                    + self.test_b3.as_ref().map_or(0, |value| {
+                        __protocol.i8_field_len(::std::option::Option::Some(6), *value)
+                    })
                     + self.map.as_ref().map_or(0, |value| {
                         __protocol.map_field_len(
-                            Some(7),
+                            ::std::option::Option::Some(7),
                             ::pilota::thrift::TType::Binary,
                             ::pilota::thrift::TType::Binary,
                             value,
@@ -2101,21 +2237,18 @@ pub mod default_value {
                             |__protocol, val| __protocol.faststr_len(val),
                         )
                     })
-                    + self
-                        .test_double
-                        .as_ref()
-                        .map_or(0, |value| __protocol.double_field_len(Some(8), *value))
-                    + self
-                        .test_double2
-                        .as_ref()
-                        .map_or(0, |value| __protocol.double_field_len(Some(9), *value))
-                    + self
-                        .alias_str
-                        .as_ref()
-                        .map_or(0, |value| __protocol.faststr_field_len(Some(10), value))
-                    + __protocol.bytes_field_len(Some(11), &self.empty)
+                    + self.test_double.as_ref().map_or(0, |value| {
+                        __protocol.double_field_len(::std::option::Option::Some(8), *value)
+                    })
+                    + self.test_double2.as_ref().map_or(0, |value| {
+                        __protocol.double_field_len(::std::option::Option::Some(9), *value)
+                    })
+                    + self.alias_str.as_ref().map_or(0, |value| {
+                        __protocol.faststr_field_len(::std::option::Option::Some(10), value)
+                    })
+                    + __protocol.bytes_field_len(::std::option::Option::Some(11), &self.empty)
                     + __protocol.map_field_len(
-                        Some(12),
+                        ::std::option::Option::Some(12),
                         ::pilota::thrift::TType::Double,
                         ::pilota::thrift::TType::Double,
                         &self.test_map,
@@ -2123,18 +2256,17 @@ pub mod default_value {
                         |__protocol, val| __protocol.double_len(*val),
                     )
                     + __protocol.set_field_len(
-                        Some(13),
+                        ::std::option::Option::Some(13),
                         ::pilota::thrift::TType::Double,
                         &self.test_set,
                         |__protocol, el| __protocol.double_len(el.0),
                     )
-                    + self
-                        .a2
-                        .as_ref()
-                        .map_or(0, |value| __protocol.bool_field_len(Some(14), *value))
+                    + self.a2.as_ref().map_or(0, |value| {
+                        __protocol.bool_field_len(::std::option::Option::Some(14), *value)
+                    })
                     + self.map2.as_ref().map_or(0, |value| {
                         __protocol.map_field_len(
-                            Some(15),
+                            ::std::option::Option::Some(15),
                             ::pilota::thrift::TType::Binary,
                             ::pilota::thrift::TType::Binary,
                             value,
@@ -2144,27 +2276,24 @@ pub mod default_value {
                     })
                     + self.commit_ids_raw.as_ref().map_or(0, |value| {
                         __protocol.list_field_len(
-                            Some(16),
+                            ::std::option::Option::Some(16),
                             ::pilota::thrift::TType::I32,
                             value,
                             |__protocol, el| __protocol.i32_len(*el),
                         )
                     })
-                    + self
-                        .commit_ids
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(17), value))
-                    + self
-                        .default_i16
-                        .as_ref()
-                        .map_or(0, |value| __protocol.i16_field_len(Some(18), *value))
-                    + self
-                        .default_i64
-                        .as_ref()
-                        .map_or(0, |value| __protocol.i64_field_len(Some(19), *value))
+                    + self.commit_ids.as_ref().map_or(0, |value| {
+                        __protocol.struct_field_len(::std::option::Option::Some(17), value)
+                    })
+                    + self.default_i16.as_ref().map_or(0, |value| {
+                        __protocol.i16_field_len(::std::option::Option::Some(18), *value)
+                    })
+                    + self.default_i64.as_ref().map_or(0, |value| {
+                        __protocol.i64_field_len(::std::option::Option::Some(19), *value)
+                    })
                     + self.list_literal.as_ref().map_or(0, |value| {
                         __protocol.list_field_len(
-                            Some(20),
+                            ::std::option::Option::Some(20),
                             ::pilota::thrift::TType::I32,
                             value,
                             |__protocol, el| __protocol.i32_len(*el),
@@ -2172,7 +2301,7 @@ pub mod default_value {
                     })
                     + self.set_empty.as_ref().map_or(0, |value| {
                         __protocol.set_field_len(
-                            Some(21),
+                            ::std::option::Option::Some(21),
                             ::pilota::thrift::TType::I32,
                             value,
                             |__protocol, el| __protocol.i32_len(*el),
@@ -2180,7 +2309,7 @@ pub mod default_value {
                     })
                     + self.set_from_const.as_ref().map_or(0, |value| {
                         __protocol.set_field_len(
-                            Some(22),
+                            ::std::option::Option::Some(22),
                             ::pilota::thrift::TType::I32,
                             value,
                             |__protocol, el| __protocol.i32_len(*el),
@@ -2188,7 +2317,7 @@ pub mod default_value {
                     })
                     + self.btree_set_literal.as_ref().map_or(0, |value| {
                         __protocol.btree_set_field_len(
-                            Some(23),
+                            ::std::option::Option::Some(23),
                             ::pilota::thrift::TType::I32,
                             value,
                             |__protocol, el| __protocol.i32_len(*el),
@@ -2196,7 +2325,7 @@ pub mod default_value {
                     })
                     + self.btree_set_empty.as_ref().map_or(0, |value| {
                         __protocol.btree_set_field_len(
-                            Some(24),
+                            ::std::option::Option::Some(24),
                             ::pilota::thrift::TType::I32,
                             value,
                             |__protocol, el| __protocol.i32_len(*el),
@@ -2204,7 +2333,7 @@ pub mod default_value {
                     })
                     + self.btree_set_from_const.as_ref().map_or(0, |value| {
                         __protocol.btree_set_field_len(
-                            Some(25),
+                            ::std::option::Option::Some(25),
                             ::pilota::thrift::TType::I32,
                             value,
                             |__protocol, el| __protocol.i32_len(*el),
@@ -2212,7 +2341,7 @@ pub mod default_value {
                     })
                     + self.map_literal_i32.as_ref().map_or(0, |value| {
                         __protocol.map_field_len(
-                            Some(26),
+                            ::std::option::Option::Some(26),
                             ::pilota::thrift::TType::Binary,
                             ::pilota::thrift::TType::I32,
                             value,
@@ -2222,7 +2351,7 @@ pub mod default_value {
                     })
                     + self.map_from_const.as_ref().map_or(0, |value| {
                         __protocol.map_field_len(
-                            Some(27),
+                            ::std::option::Option::Some(27),
                             ::pilota::thrift::TType::Binary,
                             ::pilota::thrift::TType::I32,
                             value,
@@ -2232,7 +2361,7 @@ pub mod default_value {
                     })
                     + self.btree_map_literal.as_ref().map_or(0, |value| {
                         __protocol.btree_map_field_len(
-                            Some(28),
+                            ::std::option::Option::Some(28),
                             ::pilota::thrift::TType::Binary,
                             ::pilota::thrift::TType::I32,
                             value,
@@ -2242,7 +2371,7 @@ pub mod default_value {
                     })
                     + self.btree_map_empty.as_ref().map_or(0, |value| {
                         __protocol.btree_map_field_len(
-                            Some(29),
+                            ::std::option::Option::Some(29),
                             ::pilota::thrift::TType::Binary,
                             ::pilota::thrift::TType::I32,
                             value,
@@ -2252,7 +2381,7 @@ pub mod default_value {
                     })
                     + self.btree_map_from_const.as_ref().map_or(0, |value| {
                         __protocol.btree_map_field_len(
-                            Some(30),
+                            ::std::option::Option::Some(30),
                             ::pilota::thrift::TType::Binary,
                             ::pilota::thrift::TType::I32,
                             value,
@@ -2260,42 +2389,36 @@ pub mod default_value {
                             |__protocol, val| __protocol.i32_len(*val),
                         )
                     })
-                    + self
-                        .struct_literal
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(31), value))
-                    + self
-                        .struct_partial
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(32), value))
-                    + self
-                        .struct_from_const
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(33), value))
-                    + self
-                        .binary_from_const
-                        .as_ref()
-                        .map_or(0, |value| __protocol.bytes_field_len(Some(34), value))
-                    + self
-                        .newtype_map_literal
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(35), value))
-                    + self
-                        .newtype_map_from_const
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(36), value))
-                    + self
-                        .newtype_map_empty
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(37), value))
+                    + self.struct_literal.as_ref().map_or(0, |value| {
+                        __protocol.struct_field_len(::std::option::Option::Some(31), value)
+                    })
+                    + self.struct_partial.as_ref().map_or(0, |value| {
+                        __protocol.struct_field_len(::std::option::Option::Some(32), value)
+                    })
+                    + self.struct_from_const.as_ref().map_or(0, |value| {
+                        __protocol.struct_field_len(::std::option::Option::Some(33), value)
+                    })
+                    + self.binary_from_const.as_ref().map_or(0, |value| {
+                        __protocol.bytes_field_len(::std::option::Option::Some(34), value)
+                    })
+                    + self.newtype_map_literal.as_ref().map_or(0, |value| {
+                        __protocol.struct_field_len(::std::option::Option::Some(35), value)
+                    })
+                    + self.newtype_map_from_const.as_ref().map_or(0, |value| {
+                        __protocol.struct_field_len(::std::option::Option::Some(36), value)
+                    })
+                    + self.newtype_map_empty.as_ref().map_or(0, |value| {
+                        __protocol.struct_field_len(::std::option::Option::Some(37), value)
+                    })
                     + self
                         .newtype_map_from_empty_const
                         .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(38), value))
-                    + self
-                        .lazy_struct_from_const
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(39), value))
+                        .map_or(0, |value| {
+                            __protocol.struct_field_len(::std::option::Option::Some(38), value)
+                        })
+                    + self.lazy_struct_from_const.as_ref().map_or(0, |value| {
+                        __protocol.struct_field_len(::std::option::Option::Some(39), value)
+                    })
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -2484,8 +2607,8 @@ pub mod default_value {
         impl ::std::default::Default for C {
             fn default() -> Self {
                 C {
-                    off: Some(::pilota::FastStr::from_static_str("off")),
-                    test_byte: Some(0i8),
+                    off: ::std::option::Option::Some(::pilota::FastStr::from_static_str("off")),
+                    test_byte: ::std::option::Option::Some(0i8),
                 }
             }
         }
@@ -2505,10 +2628,10 @@ pub mod default_value {
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "C" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.off.as_ref() {
+                if let ::std::option::Option::Some(value) = self.off.as_ref() {
                     __protocol.write_faststr_field(1, (value).clone())?;
                 }
-                if let Some(value) = self.test_byte.as_ref() {
+                if let ::std::option::Option::Some(value) = self.test_byte.as_ref() {
                     __protocol.write_i8_field(2, *value)?;
                 }
                 __protocol.write_field_stop()?;
@@ -2522,10 +2645,11 @@ pub mod default_value {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut var_1 = Some(::pilota::FastStr::from_static_str("off"));
-                let mut var_2 = Some(0i8);
+                let mut var_1 =
+                    ::std::option::Option::Some(::pilota::FastStr::from_static_str("off"));
+                let mut var_2 = ::std::option::Option::Some(0i8);
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -2539,13 +2663,15 @@ pub mod default_value {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1)
+                            ::std::option::Option::Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_1 = Some(__protocol.read_faststr()?);
+                                var_1 = ::std::option::Option::Some(__protocol.read_faststr()?);
                             }
-                            Some(2) if field_ident.field_type == ::pilota::thrift::TType::I8 => {
-                                var_2 = Some(__protocol.read_i8()?);
+                            ::std::option::Option::Some(2)
+                                if field_ident.field_type == ::pilota::thrift::TType::I8 =>
+                            {
+                                var_2 = ::std::option::Option::Some(__protocol.read_i8()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -2557,7 +2683,7 @@ pub mod default_value {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `C` field(#{}) failed, caused by: ",
                             field_id
@@ -2585,10 +2711,11 @@ pub mod default_value {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = Some(::pilota::FastStr::from_static_str("off"));
-                    let mut var_2 = Some(0i8);
+                    let mut var_1 =
+                        ::std::option::Option::Some(::pilota::FastStr::from_static_str("off"));
+                    let mut var_2 = ::std::option::Option::Some(0i8);
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -2600,16 +2727,19 @@ pub mod default_value {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(1)
+                                ::std::option::Option::Some(1)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_1 = Some(__protocol.read_faststr().await?);
+                                    var_1 = ::std::option::Option::Some(
+                                        __protocol.read_faststr().await?,
+                                    );
                                 }
-                                Some(2)
+                                ::std::option::Option::Some(2)
                                     if field_ident.field_type == ::pilota::thrift::TType::I8 =>
                                 {
-                                    var_2 = Some(__protocol.read_i8().await?);
+                                    var_2 =
+                                        ::std::option::Option::Some(__protocol.read_i8().await?);
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -2622,7 +2752,7 @@ pub mod default_value {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `C` field(#{}) failed, caused by: ",
                                 field_id
@@ -2644,14 +2774,12 @@ pub mod default_value {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "C" })
-                    + self
-                        .off
-                        .as_ref()
-                        .map_or(0, |value| __protocol.faststr_field_len(Some(1), value))
-                    + self
-                        .test_byte
-                        .as_ref()
-                        .map_or(0, |value| __protocol.i8_field_len(Some(2), *value))
+                    + self.off.as_ref().map_or(0, |value| {
+                        __protocol.faststr_field_len(::std::option::Option::Some(1), value)
+                    })
+                    + self.test_byte.as_ref().map_or(0, |value| {
+                        __protocol.i8_field_len(::std::option::Option::Some(2), *value)
+                    })
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -2716,8 +2844,8 @@ pub mod default_value {
             }
         }
         pub const DEFAULT_C: C = C {
-            off: Some(::pilota::FastStr::from_static_str("const")),
-            test_byte: Some(9i8),
+            off: ::std::option::Option::Some(::pilota::FastStr::from_static_str("const")),
+            test_byte: ::std::option::Option::Some(9i8),
         };
         pub static INT_BTREE_SET_CONST: ::std::sync::LazyLock<::std::collections::BTreeSet<i32>> =
             ::std::sync::LazyLock::new(|| ::std::collections::BTreeSet::from([9i32, 10i32]));

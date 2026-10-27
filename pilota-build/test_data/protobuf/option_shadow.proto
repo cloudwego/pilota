@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+// Types whose Rust names shadow the prelude's `Some` and `None`.
+// The generated code must keep working with these in scope.
+
+package option_shadow;
+
+enum SOME {
+  SOME_UNSPECIFIED = 0;
+  SOME_ONE = 1;
+}
+
+enum NONE {
+  NONE_ZERO = 0;
+}
+
+message Inner {
+  int32 id = 1;
+}
+
+message Item {
+  optional string name = 1;
+  SOME some_code = 2;
+  NONE none_code = 3;
+  repeated int32 nums = 4;
+  map<string, string> tags = 5;
+  Inner inner = 6;
+  oneof choice {
+    string text = 7;
+    Inner other = 8;
+  }
+}
+
+service ItemService {
+  rpc Get(Item) returns (Item);
+}

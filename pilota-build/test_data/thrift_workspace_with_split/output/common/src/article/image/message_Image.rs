@@ -33,12 +33,12 @@ impl ::pilota::thrift::Message for Image {
         #[allow(unused_imports)]
         use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-        let mut var_1 = None;
-        let mut var_2 = None;
-        let mut var_3 = None;
-        let mut var_4 = None;
+        let mut var_1 = ::std::option::Option::None;
+        let mut var_2 = ::std::option::Option::None;
+        let mut var_3 = ::std::option::Option::None;
+        let mut var_4 = ::std::option::Option::None;
 
-        let mut __pilota_decoding_field_id = None;
+        let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
         __protocol.read_struct_begin()?;
         if let ::std::result::Result::Err(mut err) = (|| {
@@ -52,17 +52,29 @@ impl ::pilota::thrift::Message for Image {
                 }
                 __pilota_decoding_field_id = field_ident.id;
                 match field_ident.id {
-                    Some(1) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                        var_1 = Some(__protocol.read_i64()?);
+                    ::std::option::Option::Some(1)
+                        if field_ident.field_type == ::pilota::thrift::TType::I64 =>
+                    {
+                        var_1 = ::std::option::Option::Some(__protocol.read_i64()?);
                     }
-                    Some(2) if field_ident.field_type == ::pilota::thrift::TType::Binary => {
-                        var_2 = Some(__protocol.read_faststr()?);
+                    ::std::option::Option::Some(2)
+                        if field_ident.field_type == ::pilota::thrift::TType::Binary =>
+                    {
+                        var_2 = ::std::option::Option::Some(__protocol.read_faststr()?);
                     }
-                    Some(3) if field_ident.field_type == ::pilota::thrift::TType::Struct => {
-                        var_3 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                    ::std::option::Option::Some(3)
+                        if field_ident.field_type == ::pilota::thrift::TType::Struct =>
+                    {
+                        var_3 = ::std::option::Option::Some(::pilota::thrift::Message::decode(
+                            __protocol,
+                        )?);
                     }
-                    Some(4) if field_ident.field_type == ::pilota::thrift::TType::Struct => {
-                        var_4 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                    ::std::option::Option::Some(4)
+                        if field_ident.field_type == ::pilota::thrift::TType::Struct =>
+                    {
+                        var_4 = ::std::option::Option::Some(::pilota::thrift::Message::decode(
+                            __protocol,
+                        )?);
                     }
                     _ => {
                         __protocol.skip(field_ident.field_type)?;
@@ -74,7 +86,7 @@ impl ::pilota::thrift::Message for Image {
             }
             ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
         })() {
-            if let Some(field_id) = __pilota_decoding_field_id {
+            if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                 err.prepend_msg(&format!(
                     "decode struct `Image` field(#{}) failed, caused by: ",
                     field_id
@@ -84,25 +96,25 @@ impl ::pilota::thrift::Message for Image {
         };
         __protocol.read_struct_end()?;
 
-        let Some(var_1) = var_1 else {
+        let ::std::option::Option::Some(var_1) = var_1 else {
             return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                 "field id is required".to_string(),
             ));
         };
-        let Some(var_2) = var_2 else {
+        let ::std::option::Option::Some(var_2) = var_2 else {
             return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                 "field url is required".to_string(),
             ));
         };
-        let Some(var_3) = var_3 else {
+        let ::std::option::Option::Some(var_3) = var_3 else {
             return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                 "field cdn is required".to_string(),
             ));
         };
-        let Some(var_4) = var_4 else {
+        let ::std::option::Option::Some(var_4) = var_4 else {
             return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                 "field common_data is required".to_string(),
@@ -129,12 +141,12 @@ impl ::pilota::thrift::Message for Image {
         >,
     > {
         ::std::boxed::Box::pin(async move {
-            let mut var_1 = None;
-            let mut var_2 = None;
-            let mut var_3 = None;
-            let mut var_4 = None;
+            let mut var_1 = ::std::option::Option::None;
+            let mut var_2 = ::std::option::Option::None;
+            let mut var_3 = ::std::option::Option::None;
+            let mut var_4 = ::std::option::Option::None;
 
-            let mut __pilota_decoding_field_id = None;
+            let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
             __protocol.read_struct_begin().await?;
             if let ::std::result::Result::Err(mut err) = async {
@@ -150,17 +162,17 @@ impl ::pilota::thrift::Message for Image {
                 }
                 __pilota_decoding_field_id = field_ident.id;
                 match field_ident.id {
-                    Some(1) if field_ident.field_type == ::pilota::thrift::TType::I64  => {
-                    var_1 = Some(__protocol.read_i64().await?);
+                    ::std::option::Option::Some(1) if field_ident.field_type == ::pilota::thrift::TType::I64  => {
+                    var_1 = ::std::option::Option::Some(__protocol.read_i64().await?);
 
-                },Some(2) if field_ident.field_type == ::pilota::thrift::TType::Binary  => {
-                    var_2 = Some(__protocol.read_faststr().await?);
+                },::std::option::Option::Some(2) if field_ident.field_type == ::pilota::thrift::TType::Binary  => {
+                    var_2 = ::std::option::Option::Some(__protocol.read_faststr().await?);
 
-                },Some(3) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    var_3 = Some(<cdn::Cdn as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                },::std::option::Option::Some(3) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
+                    var_3 = ::std::option::Option::Some(<cdn::Cdn as ::pilota::thrift::Message>::decode_async(__protocol).await?);
 
-                },Some(4) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
-                    var_4 = Some(<super::super::common::CommonData as ::pilota::thrift::Message>::decode_async(__protocol).await?);
+                },::std::option::Option::Some(4) if field_ident.field_type == ::pilota::thrift::TType::Struct  => {
+                    var_4 = ::std::option::Option::Some(<super::super::common::CommonData as ::pilota::thrift::Message>::decode_async(__protocol).await?);
 
                 },
                     _ => {
@@ -175,32 +187,32 @@ impl ::pilota::thrift::Message for Image {
             };
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 }.await {
-                if let Some(field_id) = __pilota_decoding_field_id {
+                if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                     err.prepend_msg(&format!("decode struct `Image` field(#{}) failed, caused by: ", field_id));
                 }
                 return ::std::result::Result::Err(err);
             };
             __protocol.read_struct_end().await?;
 
-            let Some(var_1) = var_1 else {
+            let ::std::option::Option::Some(var_1) = var_1 else {
                 return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                     ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                     "field id is required".to_string(),
                 ));
             };
-            let Some(var_2) = var_2 else {
+            let ::std::option::Option::Some(var_2) = var_2 else {
                 return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                     ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                     "field url is required".to_string(),
                 ));
             };
-            let Some(var_3) = var_3 else {
+            let ::std::option::Option::Some(var_3) = var_3 else {
                 return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                     ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                     "field cdn is required".to_string(),
                 ));
             };
-            let Some(var_4) = var_4 else {
+            let ::std::option::Option::Some(var_4) = var_4 else {
                 return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                     ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                     "field common_data is required".to_string(),
@@ -221,10 +233,10 @@ impl ::pilota::thrift::Message for Image {
         #[allow(unused_imports)]
         use ::pilota::thrift::TLengthProtocolExt;
         __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Image" })
-            + __protocol.i64_field_len(Some(1), *&self.id)
-            + __protocol.faststr_field_len(Some(2), &self.url)
-            + __protocol.struct_field_len(Some(3), &self.cdn)
-            + __protocol.struct_field_len(Some(4), &self.common_data)
+            + __protocol.i64_field_len(::std::option::Option::Some(1), *&self.id)
+            + __protocol.faststr_field_len(::std::option::Option::Some(2), &self.url)
+            + __protocol.struct_field_len(::std::option::Option::Some(3), &self.cdn)
+            + __protocol.struct_field_len(::std::option::Option::Some(4), &self.common_data)
             + __protocol.field_stop_len()
             + __protocol.struct_end_len()
     }

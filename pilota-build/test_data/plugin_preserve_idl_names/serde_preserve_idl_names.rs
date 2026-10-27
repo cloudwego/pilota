@@ -68,15 +68,15 @@ pub mod serde_preserve_idl_names {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut var_1 = None;
-                let mut var_2 = None;
-                let mut var_3 = None;
-                let mut var_4 = None;
-                let mut var_5 = None;
-                let mut var_6 = None;
-                let mut var_7 = None;
+                let mut var_1 = ::std::option::Option::None;
+                let mut var_2 = ::std::option::Option::None;
+                let mut var_3 = ::std::option::Option::None;
+                let mut var_4 = ::std::option::Option::None;
+                let mut var_5 = ::std::option::Option::None;
+                let mut var_6 = ::std::option::Option::None;
+                let mut var_7 = ::std::option::Option::None;
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -90,40 +90,40 @@ pub mod serde_preserve_idl_names {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1)
+                            ::std::option::Option::Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_1 = Some(__protocol.read_faststr()?);
+                                var_1 = ::std::option::Option::Some(__protocol.read_faststr()?);
                             }
-                            Some(2)
+                            ::std::option::Option::Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_2 = Some(__protocol.read_faststr()?);
+                                var_2 = ::std::option::Option::Some(__protocol.read_faststr()?);
                             }
-                            Some(3)
+                            ::std::option::Option::Some(3)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_3 = Some(__protocol.read_faststr()?);
+                                var_3 = ::std::option::Option::Some(__protocol.read_faststr()?);
                             }
-                            Some(4)
+                            ::std::option::Option::Some(4)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_4 = Some(__protocol.read_faststr()?);
+                                var_4 = ::std::option::Option::Some(__protocol.read_faststr()?);
                             }
-                            Some(5)
+                            ::std::option::Option::Some(5)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_5 = Some(__protocol.read_faststr()?);
+                                var_5 = ::std::option::Option::Some(__protocol.read_faststr()?);
                             }
-                            Some(6)
+                            ::std::option::Option::Some(6)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_6 = Some(__protocol.read_faststr()?);
+                                var_6 = ::std::option::Option::Some(__protocol.read_faststr()?);
                             }
-                            Some(7)
+                            ::std::option::Option::Some(7)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_7 = Some(__protocol.read_faststr()?);
+                                var_7 = ::std::option::Option::Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -135,7 +135,7 @@ pub mod serde_preserve_idl_names {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `A` field(#{}) failed, caused by: ",
                             field_id
@@ -145,43 +145,43 @@ pub mod serde_preserve_idl_names {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(var_1) = var_1 else {
+                let ::std::option::Option::Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field r#type is required".to_string(),
                     ));
                 };
-                let Some(var_2) = var_2 else {
+                let ::std::option::Option::Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field some_field is required".to_string(),
                     ));
                 };
-                let Some(var_3) = var_3 else {
+                let ::std::option::Option::Some(var_3) = var_3 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field c is required".to_string(),
                     ));
                 };
-                let Some(var_4) = var_4 else {
+                let ::std::option::Option::Some(var_4) = var_4 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field d is required".to_string(),
                     ));
                 };
-                let Some(var_5) = var_5 else {
+                let ::std::option::Option::Some(var_5) = var_5 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field ser_only is required".to_string(),
                     ));
                 };
-                let Some(var_6) = var_6 else {
+                let ::std::option::Option::Some(var_6) = var_6 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field de_only is required".to_string(),
                     ));
                 };
-                let Some(var_7) = var_7 else {
+                let ::std::option::Option::Some(var_7) = var_7 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field both_dirs is required".to_string(),
@@ -211,15 +211,15 @@ pub mod serde_preserve_idl_names {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
-                    let mut var_2 = None;
-                    let mut var_3 = None;
-                    let mut var_4 = None;
-                    let mut var_5 = None;
-                    let mut var_6 = None;
-                    let mut var_7 = None;
+                    let mut var_1 = ::std::option::Option::None;
+                    let mut var_2 = ::std::option::Option::None;
+                    let mut var_3 = ::std::option::Option::None;
+                    let mut var_4 = ::std::option::Option::None;
+                    let mut var_5 = ::std::option::Option::None;
+                    let mut var_6 = ::std::option::Option::None;
+                    let mut var_7 = ::std::option::Option::None;
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -231,47 +231,61 @@ pub mod serde_preserve_idl_names {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(1)
+                                ::std::option::Option::Some(1)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_1 = Some(__protocol.read_faststr().await?);
+                                    var_1 = ::std::option::Option::Some(
+                                        __protocol.read_faststr().await?,
+                                    );
                                 }
-                                Some(2)
+                                ::std::option::Option::Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_2 = Some(__protocol.read_faststr().await?);
+                                    var_2 = ::std::option::Option::Some(
+                                        __protocol.read_faststr().await?,
+                                    );
                                 }
-                                Some(3)
+                                ::std::option::Option::Some(3)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_3 = Some(__protocol.read_faststr().await?);
+                                    var_3 = ::std::option::Option::Some(
+                                        __protocol.read_faststr().await?,
+                                    );
                                 }
-                                Some(4)
+                                ::std::option::Option::Some(4)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_4 = Some(__protocol.read_faststr().await?);
+                                    var_4 = ::std::option::Option::Some(
+                                        __protocol.read_faststr().await?,
+                                    );
                                 }
-                                Some(5)
+                                ::std::option::Option::Some(5)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_5 = Some(__protocol.read_faststr().await?);
+                                    var_5 = ::std::option::Option::Some(
+                                        __protocol.read_faststr().await?,
+                                    );
                                 }
-                                Some(6)
+                                ::std::option::Option::Some(6)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_6 = Some(__protocol.read_faststr().await?);
+                                    var_6 = ::std::option::Option::Some(
+                                        __protocol.read_faststr().await?,
+                                    );
                                 }
-                                Some(7)
+                                ::std::option::Option::Some(7)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_7 = Some(__protocol.read_faststr().await?);
+                                    var_7 = ::std::option::Option::Some(
+                                        __protocol.read_faststr().await?,
+                                    );
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -284,7 +298,7 @@ pub mod serde_preserve_idl_names {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `A` field(#{}) failed, caused by: ",
                                 field_id
@@ -294,7 +308,7 @@ pub mod serde_preserve_idl_names {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(var_1) = var_1 else {
+                    let ::std::option::Option::Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -302,7 +316,7 @@ pub mod serde_preserve_idl_names {
                             ),
                         );
                     };
-                    let Some(var_2) = var_2 else {
+                    let ::std::option::Option::Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -310,7 +324,7 @@ pub mod serde_preserve_idl_names {
                             ),
                         );
                     };
-                    let Some(var_3) = var_3 else {
+                    let ::std::option::Option::Some(var_3) = var_3 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -318,7 +332,7 @@ pub mod serde_preserve_idl_names {
                             ),
                         );
                     };
-                    let Some(var_4) = var_4 else {
+                    let ::std::option::Option::Some(var_4) = var_4 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -326,7 +340,7 @@ pub mod serde_preserve_idl_names {
                             ),
                         );
                     };
-                    let Some(var_5) = var_5 else {
+                    let ::std::option::Option::Some(var_5) = var_5 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -334,7 +348,7 @@ pub mod serde_preserve_idl_names {
                             ),
                         );
                     };
-                    let Some(var_6) = var_6 else {
+                    let ::std::option::Option::Some(var_6) = var_6 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -342,7 +356,7 @@ pub mod serde_preserve_idl_names {
                             ),
                         );
                     };
-                    let Some(var_7) = var_7 else {
+                    let ::std::option::Option::Some(var_7) = var_7 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -368,13 +382,13 @@ pub mod serde_preserve_idl_names {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + __protocol.faststr_field_len(Some(1), &self.r#type)
-                    + __protocol.faststr_field_len(Some(2), &self.some_field)
-                    + __protocol.faststr_field_len(Some(3), &self.c)
-                    + __protocol.faststr_field_len(Some(4), &self.d)
-                    + __protocol.faststr_field_len(Some(5), &self.ser_only)
-                    + __protocol.faststr_field_len(Some(6), &self.de_only)
-                    + __protocol.faststr_field_len(Some(7), &self.both_dirs)
+                    + __protocol.faststr_field_len(::std::option::Option::Some(1), &self.r#type)
+                    + __protocol.faststr_field_len(::std::option::Option::Some(2), &self.some_field)
+                    + __protocol.faststr_field_len(::std::option::Option::Some(3), &self.c)
+                    + __protocol.faststr_field_len(::std::option::Option::Some(4), &self.d)
+                    + __protocol.faststr_field_len(::std::option::Option::Some(5), &self.ser_only)
+                    + __protocol.faststr_field_len(::std::option::Option::Some(6), &self.de_only)
+                    + __protocol.faststr_field_len(::std::option::Option::Some(7), &self.both_dirs)
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -464,7 +478,7 @@ pub mod serde_preserve_idl_names {
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
-                let mut ret = None;
+                let mut ret = ::std::option::Option::None;
                 __protocol.read_struct_begin()?;
                 loop {
                     let field_ident = __protocol.read_field_begin()?;
@@ -475,11 +489,11 @@ pub mod serde_preserve_idl_names {
                         __protocol.field_begin_len(field_ident.field_type, field_ident.id);
                     }
                     match field_ident.id {
-                        Some(1) => {
+                        ::std::option::Option::Some(1) => {
                             if ret.is_none() {
                                 let field_ident = __protocol.read_faststr()?;
                                 __protocol.faststr_len(&field_ident);
-                                ret = Some(TestUnion::Type(field_ident));
+                                ret = ::std::option::Option::Some(TestUnion::Type(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -489,11 +503,12 @@ pub mod serde_preserve_idl_names {
                                 );
                             }
                         }
-                        Some(2) => {
+                        ::std::option::Option::Some(2) => {
                             if ret.is_none() {
                                 let field_ident = __protocol.read_faststr()?;
                                 __protocol.faststr_len(&field_ident);
-                                ret = Some(TestUnion::SomeField(field_ident));
+                                ret =
+                                    ::std::option::Option::Some(TestUnion::SomeField(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -503,11 +518,11 @@ pub mod serde_preserve_idl_names {
                                 );
                             }
                         }
-                        Some(3) => {
+                        ::std::option::Option::Some(3) => {
                             if ret.is_none() {
                                 let field_ident = __protocol.read_faststr()?;
                                 __protocol.faststr_len(&field_ident);
-                                ret = Some(TestUnion::C(field_ident));
+                                ret = ::std::option::Option::Some(TestUnion::C(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -517,11 +532,11 @@ pub mod serde_preserve_idl_names {
                                 );
                             }
                         }
-                        Some(4) => {
+                        ::std::option::Option::Some(4) => {
                             if ret.is_none() {
                                 let field_ident = __protocol.read_faststr()?;
                                 __protocol.faststr_len(&field_ident);
-                                ret = Some(TestUnion::D(field_ident));
+                                ret = ::std::option::Option::Some(TestUnion::D(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -531,11 +546,11 @@ pub mod serde_preserve_idl_names {
                                 );
                             }
                         }
-                        Some(5) => {
+                        ::std::option::Option::Some(5) => {
                             if ret.is_none() {
                                 let field_ident = __protocol.read_faststr()?;
                                 __protocol.faststr_len(&field_ident);
-                                ret = Some(TestUnion::SerOnly(field_ident));
+                                ret = ::std::option::Option::Some(TestUnion::SerOnly(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -545,11 +560,11 @@ pub mod serde_preserve_idl_names {
                                 );
                             }
                         }
-                        Some(6) => {
+                        ::std::option::Option::Some(6) => {
                             if ret.is_none() {
                                 let field_ident = __protocol.read_faststr()?;
                                 __protocol.faststr_len(&field_ident);
-                                ret = Some(TestUnion::DeOnly(field_ident));
+                                ret = ::std::option::Option::Some(TestUnion::DeOnly(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -559,11 +574,11 @@ pub mod serde_preserve_idl_names {
                                 );
                             }
                         }
-                        Some(7) => {
+                        ::std::option::Option::Some(7) => {
                             if ret.is_none() {
                                 let field_ident = __protocol.read_faststr()?;
                                 __protocol.faststr_len(&field_ident);
-                                ret = Some(TestUnion::BothDirs(field_ident));
+                                ret = ::std::option::Option::Some(TestUnion::BothDirs(field_ident));
                             } else {
                                 return ::std::result::Result::Err(
                                     ::pilota::thrift::new_protocol_exception(
@@ -580,7 +595,7 @@ pub mod serde_preserve_idl_names {
                 }
                 __protocol.read_field_end()?;
                 __protocol.read_struct_end()?;
-                if let Some(ret) = ret {
+                if let ::std::option::Option::Some(ret) = ret {
                     ::std::result::Result::Ok(ret)
                 } else {
                     ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
@@ -601,7 +616,7 @@ pub mod serde_preserve_idl_names {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut ret = None;
+                    let mut ret = ::std::option::Option::None;
                     __protocol.read_struct_begin().await?;
                     loop {
                         let field_ident = __protocol.read_field_begin().await?;
@@ -610,11 +625,11 @@ pub mod serde_preserve_idl_names {
                         } else {
                         }
                         match field_ident.id {
-                            Some(1) => {
+                            ::std::option::Option::Some(1) => {
                                 if ret.is_none() {
                                     let field_ident = __protocol.read_faststr().await?;
 
-                                    ret = Some(TestUnion::Type(field_ident));
+                                    ret = ::std::option::Option::Some(TestUnion::Type(field_ident));
                                 } else {
                                     return ::std::result::Result::Err(
                                         ::pilota::thrift::new_protocol_exception(
@@ -624,11 +639,13 @@ pub mod serde_preserve_idl_names {
                                     );
                                 }
                             }
-                            Some(2) => {
+                            ::std::option::Option::Some(2) => {
                                 if ret.is_none() {
                                     let field_ident = __protocol.read_faststr().await?;
 
-                                    ret = Some(TestUnion::SomeField(field_ident));
+                                    ret = ::std::option::Option::Some(TestUnion::SomeField(
+                                        field_ident,
+                                    ));
                                 } else {
                                     return ::std::result::Result::Err(
                                         ::pilota::thrift::new_protocol_exception(
@@ -638,11 +655,11 @@ pub mod serde_preserve_idl_names {
                                     );
                                 }
                             }
-                            Some(3) => {
+                            ::std::option::Option::Some(3) => {
                                 if ret.is_none() {
                                     let field_ident = __protocol.read_faststr().await?;
 
-                                    ret = Some(TestUnion::C(field_ident));
+                                    ret = ::std::option::Option::Some(TestUnion::C(field_ident));
                                 } else {
                                     return ::std::result::Result::Err(
                                         ::pilota::thrift::new_protocol_exception(
@@ -652,11 +669,11 @@ pub mod serde_preserve_idl_names {
                                     );
                                 }
                             }
-                            Some(4) => {
+                            ::std::option::Option::Some(4) => {
                                 if ret.is_none() {
                                     let field_ident = __protocol.read_faststr().await?;
 
-                                    ret = Some(TestUnion::D(field_ident));
+                                    ret = ::std::option::Option::Some(TestUnion::D(field_ident));
                                 } else {
                                     return ::std::result::Result::Err(
                                         ::pilota::thrift::new_protocol_exception(
@@ -666,11 +683,13 @@ pub mod serde_preserve_idl_names {
                                     );
                                 }
                             }
-                            Some(5) => {
+                            ::std::option::Option::Some(5) => {
                                 if ret.is_none() {
                                     let field_ident = __protocol.read_faststr().await?;
 
-                                    ret = Some(TestUnion::SerOnly(field_ident));
+                                    ret = ::std::option::Option::Some(TestUnion::SerOnly(
+                                        field_ident,
+                                    ));
                                 } else {
                                     return ::std::result::Result::Err(
                                         ::pilota::thrift::new_protocol_exception(
@@ -680,11 +699,12 @@ pub mod serde_preserve_idl_names {
                                     );
                                 }
                             }
-                            Some(6) => {
+                            ::std::option::Option::Some(6) => {
                                 if ret.is_none() {
                                     let field_ident = __protocol.read_faststr().await?;
 
-                                    ret = Some(TestUnion::DeOnly(field_ident));
+                                    ret =
+                                        ::std::option::Option::Some(TestUnion::DeOnly(field_ident));
                                 } else {
                                     return ::std::result::Result::Err(
                                         ::pilota::thrift::new_protocol_exception(
@@ -694,11 +714,13 @@ pub mod serde_preserve_idl_names {
                                     );
                                 }
                             }
-                            Some(7) => {
+                            ::std::option::Option::Some(7) => {
                                 if ret.is_none() {
                                     let field_ident = __protocol.read_faststr().await?;
 
-                                    ret = Some(TestUnion::BothDirs(field_ident));
+                                    ret = ::std::option::Option::Some(TestUnion::BothDirs(
+                                        field_ident,
+                                    ));
                                 } else {
                                     return ::std::result::Result::Err(
                                         ::pilota::thrift::new_protocol_exception(
@@ -715,7 +737,7 @@ pub mod serde_preserve_idl_names {
                     }
                     __protocol.read_field_end().await?;
                     __protocol.read_struct_end().await?;
-                    if let Some(ret) = ret {
+                    if let ::std::option::Option::Some(ret) = ret {
                         ::std::result::Result::Ok(ret)
                     } else {
                         ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
@@ -732,13 +754,27 @@ pub mod serde_preserve_idl_names {
                 __protocol
                     .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "TestUnion" })
                     + match self {
-                        TestUnion::Type(value) => __protocol.faststr_field_len(Some(1), value),
-                        TestUnion::SomeField(value) => __protocol.faststr_field_len(Some(2), value),
-                        TestUnion::C(value) => __protocol.faststr_field_len(Some(3), value),
-                        TestUnion::D(value) => __protocol.faststr_field_len(Some(4), value),
-                        TestUnion::SerOnly(value) => __protocol.faststr_field_len(Some(5), value),
-                        TestUnion::DeOnly(value) => __protocol.faststr_field_len(Some(6), value),
-                        TestUnion::BothDirs(value) => __protocol.faststr_field_len(Some(7), value),
+                        TestUnion::Type(value) => {
+                            __protocol.faststr_field_len(::std::option::Option::Some(1), value)
+                        }
+                        TestUnion::SomeField(value) => {
+                            __protocol.faststr_field_len(::std::option::Option::Some(2), value)
+                        }
+                        TestUnion::C(value) => {
+                            __protocol.faststr_field_len(::std::option::Option::Some(3), value)
+                        }
+                        TestUnion::D(value) => {
+                            __protocol.faststr_field_len(::std::option::Option::Some(4), value)
+                        }
+                        TestUnion::SerOnly(value) => {
+                            __protocol.faststr_field_len(::std::option::Option::Some(5), value)
+                        }
+                        TestUnion::DeOnly(value) => {
+                            __protocol.faststr_field_len(::std::option::Option::Some(6), value)
+                        }
+                        TestUnion::BothDirs(value) => {
+                            __protocol.faststr_field_len(::std::option::Option::Some(7), value)
+                        }
                     }
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()

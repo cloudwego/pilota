@@ -25,9 +25,9 @@ pub mod const_val {
 
             pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
-                    0 => Some(Self::A),
-                    1 => Some(Self::B),
-                    _ => None,
+                    0 => ::std::option::Option::Some(Self::A),
+                    1 => ::std::option::Option::Some(Self::B),
+                    _ => ::std::option::Option::None,
                 }
             }
         }
@@ -100,7 +100,9 @@ pub mod const_val {
                 __protocol.i32_len(self.inner())
             }
         }
-        pub const TEST_STRUCT: Test = Test { name: None };
+        pub const TEST_STRUCT: Test = Test {
+            name: ::std::option::Option::None,
+        };
         pub static TEST_MAP: ::std::sync::LazyLock<::pilota::AHashMap<Index, &'static str>> =
             ::std::sync::LazyLock::new(|| {
                 let mut map = ::pilota::AHashMap::with_capacity(2);
@@ -132,7 +134,7 @@ pub mod const_val {
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "Test" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.name.as_ref() {
+                if let ::std::option::Option::Some(value) = self.name.as_ref() {
                     __protocol.write_map_field(
                         1,
                         ::pilota::thrift::TType::Binary,
@@ -159,9 +161,9 @@ pub mod const_val {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut var_1 = None;
+                let mut var_1 = ::std::option::Option::None;
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -175,8 +177,10 @@ pub mod const_val {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_1 = Some({
+                            ::std::option::Option::Some(1)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_1 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -199,7 +203,7 @@ pub mod const_val {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `Test` field(#{}) failed, caused by: ",
                             field_id
@@ -224,9 +228,9 @@ pub mod const_val {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
+                    let mut var_1 = ::std::option::Option::None;
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -238,10 +242,10 @@ pub mod const_val {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(1)
+                                ::std::option::Option::Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_1 = Some({
+                                    var_1 = ::std::option::Option::Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -266,7 +270,7 @@ pub mod const_val {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `Test` field(#{}) failed, caused by: ",
                                 field_id
@@ -287,7 +291,7 @@ pub mod const_val {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Test" })
                     + self.name.as_ref().map_or(0, |value| {
                         __protocol.map_field_len(
-                            Some(1),
+                            ::std::option::Option::Some(1),
                             ::pilota::thrift::TType::Binary,
                             ::pilota::thrift::TType::Binary,
                             value,

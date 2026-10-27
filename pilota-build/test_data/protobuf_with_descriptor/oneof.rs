@@ -37,7 +37,8 @@ pub mod oneof {
         }
         impl UserContact {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_oneof();
                 file_descriptor.get_message_descriptor_proto("UserContact")
             }
@@ -92,7 +93,8 @@ pub mod oneof {
             }
             impl Contact {
                 pub fn get_descriptor_proto()
-                -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+                -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+                {
                     let message_descriptor = super::UserContact::get_descriptor_proto()?;
                     message_descriptor.get_message_descriptor_proto("Contact")
                 }
@@ -109,7 +111,9 @@ pub mod oneof {
 
                 #[allow(unused_variables)]
                 fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                    if let Some(_pilota_inner_value) = self.contact_info.as_ref() {
+                    if let ::std::option::Option::Some(_pilota_inner_value) =
+                        self.contact_info.as_ref()
+                    {
                         _pilota_inner_value.encode(buf);
                     }
                 }
@@ -161,9 +165,9 @@ pub mod oneof {
                 }
 
                 impl ContactInfo {
-                    pub fn get_descriptor_proto()
-                    -> Option<&'static ::pilota::pb::descriptor::OneofDescriptorProto>
-                    {
+                    pub fn get_descriptor_proto() -> ::std::option::Option<
+                        &'static ::pilota::pb::descriptor::OneofDescriptorProto,
+                    > {
                         let message_descriptor = super::Contact::get_descriptor_proto()?;
                         message_descriptor.get_oneof_descriptor_proto("contact_info")
                     }

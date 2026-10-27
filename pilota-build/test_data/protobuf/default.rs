@@ -50,10 +50,10 @@ pub mod default {
 
         pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
             match value {
-                0 => Some(Self::RED),
-                1 => Some(Self::GREEN),
-                2 => Some(Self::BLUE),
-                _ => None,
+                0 => ::std::option::Option::Some(Self::RED),
+                1 => ::std::option::Option::Some(Self::GREEN),
+                2 => ::std::option::Option::Some(Self::BLUE),
+                _ => ::std::option::Option::None,
             }
         }
     }
@@ -73,16 +73,16 @@ pub mod default {
     impl ::std::default::Default for Defaults {
         fn default() -> Self {
             Defaults {
-                a: Some(42i32),
-                a64: Some(-9007199254740991i64),
-                b: Some(3.5f32),
-                c: Some(-1.25f64),
-                d: Some(true),
-                e: Some(::pilota::FastStr::from_static_str("hi")),
-                color: Some(Color::GREEN),
+                a: ::std::option::Option::Some(42i32),
+                a64: ::std::option::Option::Some(-9007199254740991i64),
+                b: ::std::option::Option::Some(3.5f32),
+                c: ::std::option::Option::Some(-1.25f64),
+                d: ::std::option::Option::Some(true),
+                e: ::std::option::Option::Some(::pilota::FastStr::from_static_str("hi")),
+                color: ::std::option::Option::Some(Color::GREEN),
                 inner: ::std::default::Default::default(),
-                zero: Some(0i32),
-                dzero: Some(0f64),
+                zero: ::std::option::Option::Some(0i32),
+                dzero: ::std::option::Option::Some(0f64),
             }
         }
     }
@@ -136,32 +136,32 @@ pub mod default {
 
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-            if let Some(_pilota_inner_value) = self.a.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.a.as_ref() {
                 ::pilota::pb::encoding::int32::encode(1, _pilota_inner_value, buf);
             };
-            if let Some(_pilota_inner_value) = self.a64.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.a64.as_ref() {
                 ::pilota::pb::encoding::int64::encode(2, _pilota_inner_value, buf);
             };
-            if let Some(_pilota_inner_value) = self.b.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.b.as_ref() {
                 ::pilota::pb::encoding::float::encode(3, _pilota_inner_value, buf);
             };
-            if let Some(_pilota_inner_value) = self.c.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.c.as_ref() {
                 ::pilota::pb::encoding::double::encode(4, _pilota_inner_value, buf);
             };
-            if let Some(_pilota_inner_value) = self.d.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.d.as_ref() {
                 ::pilota::pb::encoding::bool::encode(5, _pilota_inner_value, buf);
             };
-            if let Some(_pilota_inner_value) = self.e.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.e.as_ref() {
                 ::pilota::pb::encoding::faststr::encode(6, _pilota_inner_value, buf);
             };
-            if let Some(_pilota_inner_value) = self.color.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.color.as_ref() {
                 ::pilota::pb::encoding::int32::encode(7, _pilota_inner_value, buf);
             };
             ::pilota::pb::encoding::message::encode(8, (&self.inner), buf);
-            if let Some(_pilota_inner_value) = self.zero.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.zero.as_ref() {
                 ::pilota::pb::encoding::int32::encode(9, _pilota_inner_value, buf);
             };
-            if let Some(_pilota_inner_value) = self.dzero.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.dzero.as_ref() {
                 ::pilota::pb::encoding::double::encode(10, _pilota_inner_value, buf);
             };
         }
@@ -314,7 +314,7 @@ pub mod default {
         impl ::std::default::Default for Inner {
             fn default() -> Self {
                 Inner {
-                    st: Some(Status::OK),
+                    st: ::std::option::Option::Some(Status::OK),
                 }
             }
         }
@@ -332,7 +332,7 @@ pub mod default {
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                if let Some(_pilota_inner_value) = self.st.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) = self.st.as_ref() {
                     ::pilota::pb::encoding::int32::encode(1, _pilota_inner_value, buf);
                 };
             }
@@ -389,9 +389,9 @@ pub mod default {
 
             pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
-                    0 => Some(Self::UNKNOWN),
-                    1 => Some(Self::OK),
-                    _ => None,
+                    0 => ::std::option::Option::Some(Self::UNKNOWN),
+                    1 => ::std::option::Option::Some(Self::OK),
+                    _ => ::std::option::Option::None,
                 }
             }
         }

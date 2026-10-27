@@ -19,10 +19,10 @@ pub mod recursive_type {
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "A" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.a.as_ref() {
+                if let ::std::option::Option::Some(value) = self.a.as_ref() {
                     __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                 }
-                if let Some(value) = self.a_b.as_ref() {
+                if let ::std::option::Option::Some(value) = self.a_b.as_ref() {
                     __protocol.write_struct_field(2, value, ::pilota::thrift::TType::Struct)?;
                 }
                 __protocol.write_field_stop()?;
@@ -36,10 +36,10 @@ pub mod recursive_type {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut var_1 = None;
-                let mut var_2 = None;
+                let mut var_1 = ::std::option::Option::None;
+                let mut var_2 = ::std::option::Option::None;
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -53,17 +53,17 @@ pub mod recursive_type {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1)
+                            ::std::option::Option::Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_1 = Some(::std::boxed::Box::new(
+                                var_1 = ::std::option::Option::Some(::std::boxed::Box::new(
                                     ::pilota::thrift::Message::decode(__protocol)?,
                                 ));
                             }
-                            Some(2)
+                            ::std::option::Option::Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_2 = Some(::std::boxed::Box::new(
+                                var_2 = ::std::option::Option::Some(::std::boxed::Box::new(
                                     ::pilota::thrift::Message::decode(__protocol)?,
                                 ));
                             }
@@ -77,7 +77,7 @@ pub mod recursive_type {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `A` field(#{}) failed, caused by: ",
                             field_id
@@ -105,10 +105,10 @@ pub mod recursive_type {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
-                    let mut var_2 = None;
+                    let mut var_1 = ::std::option::Option::None;
+                    let mut var_2 = ::std::option::Option::None;
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -120,20 +120,20 @@ pub mod recursive_type {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(1)
+                                ::std::option::Option::Some(1)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_1 = Some(::std::boxed::Box::new(
+                                    var_1 = ::std::option::Option::Some(::std::boxed::Box::new(
                                         <A as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     ));
                                 }
-                                Some(2)
+                                ::std::option::Option::Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_2 = Some(::std::boxed::Box::new(
+                                    var_2 = ::std::option::Option::Some(::std::boxed::Box::new(
                                         <B as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     ));
@@ -149,7 +149,7 @@ pub mod recursive_type {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `A` field(#{}) failed, caused by: ",
                                 field_id
@@ -171,14 +171,12 @@ pub mod recursive_type {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "A" })
-                    + self
-                        .a
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(1), value))
-                    + self
-                        .a_b
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(2), value))
+                    + self.a.as_ref().map_or(0, |value| {
+                        __protocol.struct_field_len(::std::option::Option::Some(1), value)
+                    })
+                    + self.a_b.as_ref().map_or(0, |value| {
+                        __protocol.struct_field_len(::std::option::Option::Some(2), value)
+                    })
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
@@ -198,7 +196,7 @@ pub mod recursive_type {
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "C" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.c.as_ref() {
+                if let ::std::option::Option::Some(value) = self.c.as_ref() {
                     __protocol.write_set_field(
                         1,
                         ::pilota::thrift::TType::Binary,
@@ -220,9 +218,9 @@ pub mod recursive_type {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut var_1 = None;
+                let mut var_1 = ::std::option::Option::None;
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -236,8 +234,10 @@ pub mod recursive_type {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::Set => {
-                                var_1 = Some({
+                            ::std::option::Option::Some(1)
+                                if field_ident.field_type == ::pilota::thrift::TType::Set =>
+                            {
+                                var_1 = ::std::option::Option::Some({
                                     let list_ident = __protocol.read_set_begin()?;
                                     let mut val =
                                         ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -258,7 +258,7 @@ pub mod recursive_type {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `C` field(#{}) failed, caused by: ",
                             field_id
@@ -283,9 +283,9 @@ pub mod recursive_type {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
+                    let mut var_1 = ::std::option::Option::None;
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -297,10 +297,10 @@ pub mod recursive_type {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(1)
+                                ::std::option::Option::Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::Set =>
                                 {
-                                    var_1 = Some({
+                                    var_1 = ::std::option::Option::Some({
                                         let list_ident = __protocol.read_set_begin().await?;
                                         let mut val =
                                             ::pilota::AHashSet::with_capacity(list_ident.size);
@@ -322,7 +322,7 @@ pub mod recursive_type {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `C` field(#{}) failed, caused by: ",
                                 field_id
@@ -343,7 +343,7 @@ pub mod recursive_type {
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "C" })
                     + self.c.as_ref().map_or(0, |value| {
                         __protocol.set_field_len(
-                            Some(1),
+                            ::std::option::Option::Some(1),
                             ::pilota::thrift::TType::Binary,
                             value,
                             |__protocol, el| __protocol.faststr_len(el),
@@ -368,7 +368,7 @@ pub mod recursive_type {
                 let struct_ident = ::pilota::thrift::TStructIdentifier { name: "B" };
 
                 __protocol.write_struct_begin(&struct_ident)?;
-                if let Some(value) = self.b_a.as_ref() {
+                if let ::std::option::Option::Some(value) = self.b_a.as_ref() {
                     __protocol.write_struct_field(1, value, ::pilota::thrift::TType::Struct)?;
                 }
                 __protocol.write_field_stop()?;
@@ -382,9 +382,9 @@ pub mod recursive_type {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut var_1 = None;
+                let mut var_1 = ::std::option::Option::None;
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -398,10 +398,10 @@ pub mod recursive_type {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1)
+                            ::std::option::Option::Some(1)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_1 = Some(::std::boxed::Box::new(
+                                var_1 = ::std::option::Option::Some(::std::boxed::Box::new(
                                     ::pilota::thrift::Message::decode(__protocol)?,
                                 ));
                             }
@@ -415,7 +415,7 @@ pub mod recursive_type {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `B` field(#{}) failed, caused by: ",
                             field_id
@@ -440,9 +440,9 @@ pub mod recursive_type {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
+                    let mut var_1 = ::std::option::Option::None;
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -454,11 +454,11 @@ pub mod recursive_type {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(1)
+                                ::std::option::Option::Some(1)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_1 = Some(::std::boxed::Box::new(
+                                    var_1 = ::std::option::Option::Some(::std::boxed::Box::new(
                                         <A as ::pilota::thrift::Message>::decode_async(__protocol)
                                             .await?,
                                     ));
@@ -474,7 +474,7 @@ pub mod recursive_type {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `B` field(#{}) failed, caused by: ",
                                 field_id
@@ -493,10 +493,9 @@ pub mod recursive_type {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "B" })
-                    + self
-                        .b_a
-                        .as_ref()
-                        .map_or(0, |value| __protocol.struct_field_len(Some(1), value))
+                    + self.b_a.as_ref().map_or(0, |value| {
+                        __protocol.struct_field_len(::std::option::Option::Some(1), value)
+                    })
                     + __protocol.field_stop_len()
                     + __protocol.struct_end_len()
             }
