@@ -20,9 +20,9 @@ impl Status {
 
     pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
         match value {
-            0 => Some(Self::NORMAL),
-            1 => Some(Self::DELETED),
-            _ => None,
+            0 => ::std::option::Option::Some(Self::NORMAL),
+            1 => ::std::option::Option::Some(Self::DELETED),
+            _ => ::std::option::Option::None,
         }
     }
 }

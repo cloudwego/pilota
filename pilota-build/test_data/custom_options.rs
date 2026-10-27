@@ -158,7 +158,8 @@ pub mod custom_options {
         }
         impl GetOldUserFormatResponse {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("GetOldUserFormatResponse")
             }
@@ -174,7 +175,7 @@ pub mod custom_options {
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                if let Some(_pilota_inner_value) = self.user.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) = self.user.as_ref() {
                     ::pilota::pb::encoding::message::encode(1, _pilota_inner_value, buf);
                 }
             }
@@ -219,7 +220,8 @@ pub mod custom_options {
         }
         impl UserProfile {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("UserProfile")
             }
@@ -303,7 +305,8 @@ pub mod custom_options {
         }
         impl FileCustomOptions {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("FileCustomOptions")
             }
@@ -321,10 +324,10 @@ pub mod custom_options {
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                if let Some(_pilota_inner_value) = self.key.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) = self.key.as_ref() {
                     ::pilota::pb::encoding::faststr::encode(50005, _pilota_inner_value, buf);
                 };
-                if let Some(_pilota_inner_value) = self.value.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) = self.value.as_ref() {
                     ::pilota::pb::encoding::faststr::encode(50006, _pilota_inner_value, buf);
                 };
             }
@@ -381,7 +384,8 @@ pub mod custom_options {
         }
         impl UpdateUserResponse {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("UpdateUserResponse")
             }
@@ -397,7 +401,7 @@ pub mod custom_options {
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                if let Some(_pilota_inner_value) = self.user.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) = self.user.as_ref() {
                     ::pilota::pb::encoding::message::encode(1, _pilota_inner_value, buf);
                 }
                 ::pilota::pb::encoding::faststr::encode(2, &self.message, buf);
@@ -452,7 +456,8 @@ pub mod custom_options {
         }
         impl CreateUserRequest {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("CreateUserRequest")
             }
@@ -468,7 +473,7 @@ pub mod custom_options {
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                if let Some(_pilota_inner_value) = self.user.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) = self.user.as_ref() {
                     ::pilota::pb::encoding::message::encode(1, _pilota_inner_value, buf);
                 }
             }
@@ -509,7 +514,8 @@ pub mod custom_options {
         }
         impl GetOldUserFormatRequest {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("GetOldUserFormatRequest")
             }
@@ -576,7 +582,8 @@ pub mod custom_options {
         }
         impl User {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("User")
             }
@@ -609,7 +616,7 @@ pub mod custom_options {
                 ::pilota::pb::encoding::faststr::encode(4, &self.email, buf);
                 ::pilota::pb::encoding::int32::encode_packed_convert(5, &self.role_ids, buf);
                 ::pilota::pb::encoding::int64::encode(6, &self.created_at, buf);
-                if let Some(_pilota_inner_value) = self.profile.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) = self.profile.as_ref() {
                     ::pilota::pb::encoding::message::encode(7, _pilota_inner_value, buf);
                 }
                 ::pilota::pb::encoding::faststr::encode(8, &self.old_field, buf);
@@ -744,7 +751,8 @@ pub mod custom_options {
         }
         impl DeleteUserResponse {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("DeleteUserResponse")
             }
@@ -813,7 +821,8 @@ pub mod custom_options {
         }
         impl UpdateUserRequest {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("UpdateUserRequest")
             }
@@ -831,7 +840,7 @@ pub mod custom_options {
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
                 ::pilota::pb::encoding::faststr::encode(1, &self.id, buf);
-                if let Some(_pilota_inner_value) = self.user.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) = self.user.as_ref() {
                     ::pilota::pb::encoding::message::encode(2, _pilota_inner_value, buf);
                 }
             }
@@ -885,7 +894,8 @@ pub mod custom_options {
         }
         impl GetUserResponse {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("GetUserResponse")
             }
@@ -901,7 +911,7 @@ pub mod custom_options {
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                if let Some(_pilota_inner_value) = self.user.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) = self.user.as_ref() {
                     ::pilota::pb::encoding::message::encode(1, _pilota_inner_value, buf);
                 }
             }
@@ -948,7 +958,8 @@ pub mod custom_options {
         }
         impl MessageValidation {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("MessageValidation")
             }
@@ -968,13 +979,19 @@ pub mod custom_options {
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                if let Some(_pilota_inner_value) = self.all_fields_required.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) =
+                    self.all_fields_required.as_ref()
+                {
                     ::pilota::pb::encoding::bool::encode(1, _pilota_inner_value, buf);
                 };
-                if let Some(_pilota_inner_value) = self.max_nesting_depth.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) =
+                    self.max_nesting_depth.as_ref()
+                {
                     ::pilota::pb::encoding::int32::encode(2, _pilota_inner_value, buf);
                 };
-                if let Some(_pilota_inner_value) = self.validation_message.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) =
+                    self.validation_message.as_ref()
+                {
                     ::pilota::pb::encoding::faststr::encode(3, _pilota_inner_value, buf);
                 };
             }
@@ -1043,7 +1060,8 @@ pub mod custom_options {
         }
         impl DeleteUserRequest {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("DeleteUserRequest")
             }
@@ -1097,7 +1115,8 @@ pub mod custom_options {
         }
         impl CreateUserResponse {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("CreateUserResponse")
             }
@@ -1113,7 +1132,7 @@ pub mod custom_options {
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                if let Some(_pilota_inner_value) = self.user.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) = self.user.as_ref() {
                     ::pilota::pb::encoding::message::encode(1, _pilota_inner_value, buf);
                 }
                 ::pilota::pb::encoding::faststr::encode(2, &self.message, buf);
@@ -1168,7 +1187,8 @@ pub mod custom_options {
         }
         impl GetUserRequest {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_custom_options();
                 file_descriptor.get_message_descriptor_proto("GetUserRequest")
             }

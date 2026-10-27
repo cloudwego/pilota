@@ -125,7 +125,7 @@ impl ThriftBackend {
 
             if is_optional {
                 format! {
-                    r#"if let Some(value) = self.{field_name}.as_ref() {{
+                    r#"if let ::std::option::Option::Some(value) = self.{field_name}.as_ref() {{
                         {write_field}
                     }}"#
                 }
@@ -169,7 +169,7 @@ impl ThriftBackend {
 
             if is_optional {
                 format! {
-                    r#"if let Some(value) = self.{field_name}.as_ref() {{
+                    r#"if let ::std::option::Option::Some(value) = self.{field_name}.as_ref() {{
                         {write_field}
                     }}"#
                 }
@@ -287,14 +287,14 @@ impl ThriftBackend {
             .iter()
             .map(|f| {
                 let field_name = f.local_var_name();
-                let mut v = "None".into();
+                let mut v = "::std::option::Option::None".into();
 
                 if let Some((default, is_const)) = self.cx.default_val(f) {
                     if is_const {
                         v = default;
 
                         if f.is_optional() {
-                            v = format!("Some({v})").into()
+                            v = format!("::std::option::Option::Some({v})").into()
                         }
                     }
                 };
@@ -321,7 +321,7 @@ impl ThriftBackend {
                         if f.is_optional() {
                             Some(format! {
                                 r#"if {field_name}.is_none() {{
-                                {field_name} = Some({default});
+                                {field_name} = ::std::option::Option::Some({default});
                             }}"#
                             })
                         } else {
@@ -353,7 +353,7 @@ impl ThriftBackend {
             .iter()
             .map(|(s, v)| {
                 format!(
-                    r#"let Some({v}) = {v} else {{
+                    r#"let ::std::option::Option::Some({v}) = {v} else {{
                 return ::std::result::Result::Err(
                     ::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -412,11 +412,11 @@ impl ThriftBackend {
             {def_fields_num}
             {def_fields}
 
-            let mut __pilota_decoding_field_id = None;
+            let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
             {read_struct_begin};
             if let ::std::result::Result::Err(mut err) = {read_fields} {{
-                if let Some(field_id) = __pilota_decoding_field_id {{
+                if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {{
                     err.prepend_msg(&format!("{format_msg}, caused by: ", field_id));
                 }}
                 return ::std::result::Result::Err(err);
@@ -479,7 +479,7 @@ impl ThriftBackend {
                         _ => true,
                     }
                 } {
-                    read_field = format!("Some({read_field})").into();
+                    read_field = format!("::std::option::Option::Some({read_field})").into();
                 }
 
                 let fields_num = if keep && !helper.is_async && is_arg {
@@ -489,7 +489,7 @@ impl ThriftBackend {
                 };
 
                 format!(
-                    r#"Some({field_id}) if field_ident.field_type == {ttype}  => {{
+                    r#"::std::option::Option::Some({field_id}) if field_ident.field_type == {ttype}  => {{
                     {field_ident} = {read_field};
                     {fields_num}
                 }},"#
@@ -502,7 +502,7 @@ impl ThriftBackend {
         }
 
         let write_unknown_field = if keep && !helper.is_async {
-            "_unknown_fields.push_back(__protocol.get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?);"
+            "_unknown_fields.push_back(__protocol.get_bytes(::std::option::Option::Some(__pilota_begin_ptr), __pilota_offset)?);"
         } else {
             ""
         };
@@ -514,7 +514,7 @@ impl ThriftBackend {
         let skip_all = if keep && !helper.is_async && is_arg {
             "if __pilota_fields_num == 0 {
                 let __pilota_remaining = __protocol.buf().remaining();
-                _unknown_fields.push_back(__protocol.get_bytes(None, __pilota_remaining - 2)?);
+                _unknown_fields.push_back(__protocol.get_bytes(::std::option::Option::None, __pilota_remaining - 2)?);
                 break;
             }"
         } else {
@@ -619,7 +619,7 @@ impl CodegenBackend for ThriftBackend {
                 let idl_name = s.name.raw_str();
                 stream.push_str(&format! {
                     r#"impl {name} {{
-                        pub fn get_descriptor() -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
+                        pub fn get_descriptor() -> ::std::option::Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
                             let file_descriptor = get_file_descriptor_{filename_lower}();
                             file_descriptor.find_struct_by_name("{idl_name}")
                         }}
@@ -634,7 +634,7 @@ impl CodegenBackend for ThriftBackend {
                 def_id,
                 name.clone(),
                 format! {
-                    r#"if let Some(struct_fm) = self._field_mask.as_ref() {{
+                    r#"if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {{
                         if !struct_fm.exist() {{
                             ::std::result::Result::Ok(())
                         }} else {{
@@ -660,7 +660,7 @@ impl CodegenBackend for ThriftBackend {
                     }}"#
                 },
                 format! {
-                    r#"if let Some(struct_fm) = self._field_mask.as_ref() {{
+                    r#"if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {{
                         if !struct_fm.exist() {{
                             0
                         }} else {{
@@ -704,7 +704,7 @@ impl CodegenBackend for ThriftBackend {
 
                 if is_optional {
                     format! {
-                        r#"if let Some(value) = &mut self.{field_name} {{
+                        r#"if let ::std::option::Option::Some(value) = &mut self.{field_name} {{
                         {field_mask}
                     }}"#
                     }
@@ -718,7 +718,7 @@ impl CodegenBackend for ThriftBackend {
         if self.config.with_descriptor {
             stream.push_str(&format! {
                 r#"impl {name} {{
-                    pub fn get_descriptor() -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
+                    pub fn get_descriptor() -> ::std::option::Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
                         let file_descriptor = get_file_descriptor_{filename_lower}();
                         file_descriptor.find_struct_by_name("{idl_name}")
                     }}
@@ -729,7 +729,7 @@ impl CodegenBackend for ThriftBackend {
         stream.push_str(&format! {
             r#"impl {name} {{
                 pub fn set_field_mask(&mut self, field_mask: ::pilota_thrift_fieldmask::FieldMask) {{
-                    self._field_mask = Some(field_mask.clone());
+                    self._field_mask = ::std::option::Option::Some(field_mask.clone());
                     {set_inner_field_mask}
                 }}
             }}"#
@@ -901,11 +901,11 @@ impl CodegenBackend for ThriftBackend {
                                         }
                                     };
                                     Some(format! {
-                                        r#"Some({variant_id}) => {{
+                                        r#"::std::option::Option::Some({variant_id}) => {{
                                     if ret.is_none() {{
                                         let field_ident = {decode};
                                         {decode_len}
-                                        ret = Some({name}::{variant_name}(field_ident));
+                                        ret = ::std::option::Option::Some({name}::{variant_name}(field_ident));
                                     }} else {{
                                         return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                                             ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -922,8 +922,8 @@ impl CodegenBackend for ThriftBackend {
                                 r#"if ret.is_none() {{
                                 unsafe {{
                                     let mut __pilota_linked_bytes = ::pilota::BytesVec::new();
-                                    __pilota_linked_bytes.push_back(__protocol.get_bytes(Some(__pilota_begin_ptr), __pilota_offset)?);
-                                    ret = Some({name}::_UnknownFields(__pilota_linked_bytes));
+                                    __pilota_linked_bytes.push_back(__protocol.get_bytes(::std::option::Option::Some(__pilota_begin_ptr), __pilota_offset)?);
+                                    ret = ::std::option::Option::Some({name}::_UnknownFields(__pilota_linked_bytes));
                                 }}
                             }} else {{
                                 return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
@@ -947,7 +947,7 @@ impl CodegenBackend for ThriftBackend {
                             };
 
                         format! {
-                            r#"let mut ret = None;
+                            r#"let mut ret = ::std::option::Option::None;
                             {read_struct_begin};
                             loop {{
                                 {record_ptr}
@@ -968,7 +968,7 @@ impl CodegenBackend for ThriftBackend {
                             }}
                             {read_field_end};
                             {read_struct_end};
-                            if let Some(ret) = ret {{
+                            if let ::std::option::Option::Some(ret) = ret {{
                                 ::std::result::Result::Ok(ret)
                             }} else {{
                                 {handle_none_ret}
@@ -1028,7 +1028,7 @@ impl CodegenBackend for ThriftBackend {
 
                 stream.push_str(&format!(
                         r#"impl {name} {{
-                            pub fn get_descriptor() -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
+                            pub fn get_descriptor() -> ::std::option::Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
                                 {inner_name}::get_descriptor()
                             }}
                             pub fn set_field_mask(&mut self, field_mask: ::pilota_thrift_fieldmask::FieldMask) {{
@@ -1093,8 +1093,8 @@ static FILE_DESCRIPTOR_{filename_upper}: ::std::sync::LazyLock<::pilota_thrift_r
             continue;
         }}
         let include_file_descriptor = match {super_mod}find_mod_file_descriptor(path) {{
-            Some(fd) => fd,
-            None => panic!("include file descriptor must exist, path: {{}}", path),
+            ::std::option::Option::Some(fd) => fd,
+            ::std::option::Option::None => panic!("include file descriptor must exist, path: {{}}", path),
         }};
         ::pilota_thrift_reflect::service::Register::register(
             include_file_descriptor.filepath.clone(),
@@ -1129,7 +1129,7 @@ pub fn get_file_descriptor_{filename_lower}() -> &'static ::pilota_thrift_reflec
         mods: &[(ModPath, Arc<PathBuf>)],
     ) {
         stream.push_str(r#"
-                pub fn find_mod_file_descriptor(path: &str) -> Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
+                pub fn find_mod_file_descriptor(path: &str) -> ::std::option::Option<&'static ::pilota_thrift_reflect::thrift_reflection::FileDescriptor> {
                     match path {
             "#);
 
@@ -1143,7 +1143,7 @@ pub fn get_file_descriptor_{filename_lower}() -> &'static ::pilota_thrift_reflec
             let path = path.display();
             stream.push_str(&format!(
                 r#"
-                r"{path}" => Some(
+                r"{path}" => ::std::option::Option::Some(
             "#
             ));
 
@@ -1156,7 +1156,7 @@ pub fn get_file_descriptor_{filename_lower}() -> &'static ::pilota_thrift_reflec
 
         stream.push_str(
             r#"
-                _ => None,
+                _ => ::std::option::Option::None,
             }
         }
         "#,

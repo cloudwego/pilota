@@ -17,7 +17,7 @@ pub mod struct_init_with_field_mask {
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                if let Some(struct_fm) = self._field_mask.as_ref() {
+                if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {
                     if !struct_fm.exist() {
                         ::std::result::Result::Ok(())
                     } else {
@@ -49,10 +49,10 @@ pub mod struct_init_with_field_mask {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut var_1 = None;
-                let mut var_2 = None;
+                let mut var_1 = ::std::option::Option::None;
+                let mut var_2 = ::std::option::Option::None;
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -66,13 +66,15 @@ pub mod struct_init_with_field_mask {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                var_1 = Some(__protocol.read_i64()?);
+                            ::std::option::Option::Some(1)
+                                if field_ident.field_type == ::pilota::thrift::TType::I64 =>
+                            {
+                                var_1 = ::std::option::Option::Some(__protocol.read_i64()?);
                             }
-                            Some(2)
+                            ::std::option::Option::Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_2 = Some(__protocol.read_faststr()?);
+                                var_2 = ::std::option::Option::Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -84,7 +86,7 @@ pub mod struct_init_with_field_mask {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `Item` field(#{}) failed, caused by: ",
                             field_id
@@ -94,13 +96,13 @@ pub mod struct_init_with_field_mask {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(var_1) = var_1 else {
+                let ::std::option::Option::Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field id is required".to_string(),
                     ));
                 };
-                let Some(var_2) = var_2 else {
+                let ::std::option::Option::Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field title is required".to_string(),
@@ -126,10 +128,10 @@ pub mod struct_init_with_field_mask {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
-                    let mut var_2 = None;
+                    let mut var_1 = ::std::option::Option::None;
+                    let mut var_2 = ::std::option::Option::None;
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -141,16 +143,19 @@ pub mod struct_init_with_field_mask {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(1)
+                                ::std::option::Option::Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    var_1 = Some(__protocol.read_i64().await?);
+                                    var_1 =
+                                        ::std::option::Option::Some(__protocol.read_i64().await?);
                                 }
-                                Some(2)
+                                ::std::option::Option::Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_2 = Some(__protocol.read_faststr().await?);
+                                    var_2 = ::std::option::Option::Some(
+                                        __protocol.read_faststr().await?,
+                                    );
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -163,7 +168,7 @@ pub mod struct_init_with_field_mask {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `Item` field(#{}) failed, caused by: ",
                                 field_id
@@ -173,7 +178,7 @@ pub mod struct_init_with_field_mask {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(var_1) = var_1 else {
+                    let ::std::option::Option::Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -181,7 +186,7 @@ pub mod struct_init_with_field_mask {
                             ),
                         );
                     };
-                    let Some(var_2) = var_2 else {
+                    let ::std::option::Option::Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -202,7 +207,7 @@ pub mod struct_init_with_field_mask {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                if let Some(struct_fm) = self._field_mask.as_ref() {
+                if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {
                     if !struct_fm.exist() {
                         0
                     } else {
@@ -210,11 +215,12 @@ pub mod struct_init_with_field_mask {
                             .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Item" })
                             + {
                                 let (field_fm, _) = struct_fm.field(1);
-                                __protocol.i64_field_len(Some(1), *&self.id)
+                                __protocol.i64_field_len(::std::option::Option::Some(1), *&self.id)
                             }
                             + {
                                 let (field_fm, _) = struct_fm.field(2);
-                                __protocol.faststr_field_len(Some(2), &self.title)
+                                __protocol
+                                    .faststr_field_len(::std::option::Option::Some(2), &self.title)
                             }
                             + __protocol.field_stop_len()
                             + __protocol.struct_end_len()
@@ -222,8 +228,8 @@ pub mod struct_init_with_field_mask {
                 } else {
                     __protocol
                         .struct_begin_len(&::pilota::thrift::TStructIdentifier { name: "Item" })
-                        + __protocol.i64_field_len(Some(1), *&self.id)
-                        + __protocol.faststr_field_len(Some(2), &self.title)
+                        + __protocol.i64_field_len(::std::option::Option::Some(1), *&self.id)
+                        + __protocol.faststr_field_len(::std::option::Option::Some(2), &self.title)
                         + __protocol.field_stop_len()
                         + __protocol.struct_end_len()
                 }
@@ -231,7 +237,7 @@ pub mod struct_init_with_field_mask {
         }
         impl Item {
             pub fn set_field_mask(&mut self, field_mask: ::pilota_thrift_fieldmask::FieldMask) {
-                self._field_mask = Some(field_mask.clone());
+                self._field_mask = ::std::option::Option::Some(field_mask.clone());
             }
         }
         pub const DEFAULT_ITEM: Item = Item {
@@ -257,8 +263,8 @@ pub mod struct_init_with_field_mask {
             fn default() -> Self {
                 GetItemRequest {
                     id: ::std::default::Default::default(),
-                    item_opt: Some(DEFAULT_ITEM),
-                    item_opt2: Some(Item {
+                    item_opt: ::std::option::Option::Some(DEFAULT_ITEM),
+                    item_opt2: ::std::option::Option::Some(Item {
                         id: 1i64,
                         title: ::pilota::FastStr::from_static_str("a"),
                         _field_mask: ::std::option::Option::None,
@@ -289,7 +295,7 @@ pub mod struct_init_with_field_mask {
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                if let Some(struct_fm) = self._field_mask.as_ref() {
+                if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {
                     if !struct_fm.exist() {
                         ::std::result::Result::Ok(())
                     } else {
@@ -299,7 +305,7 @@ pub mod struct_init_with_field_mask {
                         __protocol.write_struct_begin(&struct_ident)?;
                         let (field_fm, _) = struct_fm.field(1);
                         __protocol.write_i64_field(1, *&self.id)?;
-                        if let Some(value) = self.item_opt.as_ref() {
+                        if let ::std::option::Option::Some(value) = self.item_opt.as_ref() {
                             let (field_fm, exist) = struct_fm.field(2);
                             if exist {
                                 __protocol.write_struct_field(
@@ -309,7 +315,7 @@ pub mod struct_init_with_field_mask {
                                 )?;
                             }
                         }
-                        if let Some(value) = self.item_opt2.as_ref() {
+                        if let ::std::option::Option::Some(value) = self.item_opt2.as_ref() {
                             let (field_fm, exist) = struct_fm.field(3);
                             if exist {
                                 __protocol.write_struct_field(
@@ -320,7 +326,7 @@ pub mod struct_init_with_field_mask {
                             }
                         }
                         let (field_fm, _) = struct_fm.field(4);
-                        if let Some(map_fm) = field_fm {
+                        if let ::std::option::Option::Some(map_fm) = field_fm {
                             __protocol.write_field_begin(::pilota::thrift::TType::Map, 4)?;
                             __protocol.write_map_begin(::pilota::thrift::TMapIdentifier {
                                 key_type: ::pilota::thrift::TType::Binary,
@@ -356,7 +362,7 @@ pub mod struct_init_with_field_mask {
                             )?;
                         }
                         let (field_fm, _) = struct_fm.field(5);
-                        if let Some(map_fm) = field_fm {
+                        if let ::std::option::Option::Some(map_fm) = field_fm {
                             __protocol.write_field_begin(::pilota::thrift::TType::Map, 5)?;
                             __protocol.write_map_begin(::pilota::thrift::TMapIdentifier {
                                 key_type: ::pilota::thrift::TType::I64,
@@ -402,10 +408,10 @@ pub mod struct_init_with_field_mask {
 
                     __protocol.write_struct_begin(&struct_ident)?;
                     __protocol.write_i64_field(1, *&self.id)?;
-                    if let Some(value) = self.item_opt.as_ref() {
+                    if let ::std::option::Option::Some(value) = self.item_opt.as_ref() {
                         __protocol.write_struct_field(2, value, ::pilota::thrift::TType::Struct)?;
                     }
-                    if let Some(value) = self.item_opt2.as_ref() {
+                    if let ::std::option::Option::Some(value) = self.item_opt2.as_ref() {
                         __protocol.write_struct_field(3, value, ::pilota::thrift::TType::Struct)?;
                     }
                     __protocol.write_map_field(
@@ -448,17 +454,17 @@ pub mod struct_init_with_field_mask {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut var_1 = None;
-                let mut var_2 = Some(DEFAULT_ITEM);
-                let mut var_3 = Some(Item {
+                let mut var_1 = ::std::option::Option::None;
+                let mut var_2 = ::std::option::Option::Some(DEFAULT_ITEM);
+                let mut var_3 = ::std::option::Option::Some(Item {
                     id: 1i64,
                     title: ::pilota::FastStr::from_static_str("a"),
                     _field_mask: ::std::option::Option::None,
                 });
-                let mut var_4 = None;
-                let mut var_5 = None;
+                let mut var_4 = ::std::option::Option::None;
+                let mut var_5 = ::std::option::Option::None;
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -472,21 +478,29 @@ pub mod struct_init_with_field_mask {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::I64 => {
-                                var_1 = Some(__protocol.read_i64()?);
+                            ::std::option::Option::Some(1)
+                                if field_ident.field_type == ::pilota::thrift::TType::I64 =>
+                            {
+                                var_1 = ::std::option::Option::Some(__protocol.read_i64()?);
                             }
-                            Some(2)
+                            ::std::option::Option::Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_2 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_2 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
-                            Some(3)
+                            ::std::option::Option::Some(3)
                                 if field_ident.field_type == ::pilota::thrift::TType::Struct =>
                             {
-                                var_3 = Some(::pilota::thrift::Message::decode(__protocol)?);
+                                var_3 = ::std::option::Option::Some(
+                                    ::pilota::thrift::Message::decode(__protocol)?,
+                                );
                             }
-                            Some(4) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_4 = Some({
+                            ::std::option::Option::Some(4)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_4 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -499,8 +513,10 @@ pub mod struct_init_with_field_mask {
                                     val
                                 });
                             }
-                            Some(5) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_5 = Some({
+                            ::std::option::Option::Some(5)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_5 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -523,7 +539,7 @@ pub mod struct_init_with_field_mask {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `GetItemRequest` field(#{}) failed, caused by: ",
                             field_id
@@ -533,19 +549,19 @@ pub mod struct_init_with_field_mask {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(var_1) = var_1 else {
+                let ::std::option::Option::Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field id is required".to_string(),
                     ));
                 };
-                let Some(var_4) = var_4 else {
+                let ::std::option::Option::Some(var_4) = var_4 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field test_map is required".to_string(),
                     ));
                 };
-                let Some(var_5) = var_5 else {
+                let ::std::option::Option::Some(var_5) = var_5 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field test_map2 is required".to_string(),
@@ -574,17 +590,17 @@ pub mod struct_init_with_field_mask {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
-                    let mut var_2 = Some(DEFAULT_ITEM);
-                    let mut var_3 = Some(Item {
+                    let mut var_1 = ::std::option::Option::None;
+                    let mut var_2 = ::std::option::Option::Some(DEFAULT_ITEM);
+                    let mut var_3 = ::std::option::Option::Some(Item {
                         id: 1i64,
                         title: ::pilota::FastStr::from_static_str("a"),
                         _field_mask: ::std::option::Option::None,
                     });
-                    let mut var_4 = None;
-                    let mut var_5 = None;
+                    let mut var_4 = ::std::option::Option::None;
+                    let mut var_5 = ::std::option::Option::None;
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -596,37 +612,38 @@ pub mod struct_init_with_field_mask {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(1)
+                                ::std::option::Option::Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I64 =>
                                 {
-                                    var_1 = Some(__protocol.read_i64().await?);
+                                    var_1 =
+                                        ::std::option::Option::Some(__protocol.read_i64().await?);
                                 }
-                                Some(2)
+                                ::std::option::Option::Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_2 = Some(
+                                    var_2 = ::std::option::Option::Some(
                                         <Item as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
                                     );
                                 }
-                                Some(3)
+                                ::std::option::Option::Some(3)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Struct =>
                                 {
-                                    var_3 = Some(
+                                    var_3 = ::std::option::Option::Some(
                                         <Item as ::pilota::thrift::Message>::decode_async(
                                             __protocol,
                                         )
                                         .await?,
                                     );
                                 }
-                                Some(4)
+                                ::std::option::Option::Some(4)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_4 = Some({
+                                    var_4 = ::std::option::Option::Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -640,10 +657,10 @@ pub mod struct_init_with_field_mask {
                                         val
                                     });
                                 }
-                                Some(5)
+                                ::std::option::Option::Some(5)
                                     if field_ident.field_type == ::pilota::thrift::TType::Map =>
                                 {
-                                    var_5 = Some({
+                                    var_5 = ::std::option::Option::Some({
                                         let map_ident = __protocol.read_map_begin().await?;
                                         let mut val =
                                             ::pilota::AHashMap::with_capacity(map_ident.size);
@@ -668,7 +685,7 @@ pub mod struct_init_with_field_mask {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `GetItemRequest` field(#{}) failed, caused by: ",
                                 field_id
@@ -678,7 +695,7 @@ pub mod struct_init_with_field_mask {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(var_1) = var_1 else {
+                    let ::std::option::Option::Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -686,7 +703,7 @@ pub mod struct_init_with_field_mask {
                             ),
                         );
                     };
-                    let Some(var_4) = var_4 else {
+                    let ::std::option::Option::Some(var_4) = var_4 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -694,7 +711,7 @@ pub mod struct_init_with_field_mask {
                             ),
                         );
                     };
-                    let Some(var_5) = var_5 else {
+                    let ::std::option::Option::Some(var_5) = var_5 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -718,7 +735,7 @@ pub mod struct_init_with_field_mask {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                if let Some(struct_fm) = self._field_mask.as_ref() {
+                if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {
                     if !struct_fm.exist() {
                         0
                     } else {
@@ -726,27 +743,28 @@ pub mod struct_init_with_field_mask {
                             name: "GetItemRequest",
                         }) + {
                             let (field_fm, _) = struct_fm.field(1);
-                            __protocol.i64_field_len(Some(1), *&self.id)
+                            __protocol.i64_field_len(::std::option::Option::Some(1), *&self.id)
                         } + self.item_opt.as_ref().map_or(0, |value| {
                             let (field_fm, exist) = struct_fm.field(2);
                             if exist {
-                                __protocol.struct_field_len(Some(2), value)
+                                __protocol.struct_field_len(::std::option::Option::Some(2), value)
                             } else {
                                 0
                             }
                         }) + self.item_opt2.as_ref().map_or(0, |value| {
                             let (field_fm, exist) = struct_fm.field(3);
                             if exist {
-                                __protocol.struct_field_len(Some(3), value)
+                                __protocol.struct_field_len(::std::option::Option::Some(3), value)
                             } else {
                                 0
                             }
                         }) + {
                             let (field_fm, _) = struct_fm.field(4);
-                            if let Some(map_fm) = field_fm {
-                                let mut size = __protocol
-                                    .field_begin_len(::pilota::thrift::TType::Map, None)
-                                    + __protocol.field_end_len()
+                            if let ::std::option::Option::Some(map_fm) = field_fm {
+                                let mut size = __protocol.field_begin_len(
+                                    ::pilota::thrift::TType::Map,
+                                    ::std::option::Option::None,
+                                ) + __protocol.field_end_len()
                                     + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {
                                         key_type: ::pilota::thrift::TType::Binary,
                                         value_type: ::pilota::thrift::TType::Binary,
@@ -763,7 +781,7 @@ pub mod struct_init_with_field_mask {
                                 size
                             } else {
                                 __protocol.map_field_len(
-                                    Some(4),
+                                    ::std::option::Option::Some(4),
                                     ::pilota::thrift::TType::Binary,
                                     ::pilota::thrift::TType::Binary,
                                     &self.test_map,
@@ -773,10 +791,11 @@ pub mod struct_init_with_field_mask {
                             }
                         } + {
                             let (field_fm, _) = struct_fm.field(5);
-                            if let Some(map_fm) = field_fm {
-                                let mut size = __protocol
-                                    .field_begin_len(::pilota::thrift::TType::Map, None)
-                                    + __protocol.field_end_len()
+                            if let ::std::option::Option::Some(map_fm) = field_fm {
+                                let mut size = __protocol.field_begin_len(
+                                    ::pilota::thrift::TType::Map,
+                                    ::std::option::Option::None,
+                                ) + __protocol.field_end_len()
                                     + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {
                                         key_type: ::pilota::thrift::TType::I64,
                                         value_type: ::pilota::thrift::TType::Binary,
@@ -793,7 +812,7 @@ pub mod struct_init_with_field_mask {
                                 size
                             } else {
                                 __protocol.map_field_len(
-                                    Some(5),
+                                    ::std::option::Option::Some(5),
                                     ::pilota::thrift::TType::I64,
                                     ::pilota::thrift::TType::Binary,
                                     &self.test_map2,
@@ -807,17 +826,15 @@ pub mod struct_init_with_field_mask {
                 } else {
                     __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                         name: "GetItemRequest",
-                    }) + __protocol.i64_field_len(Some(1), *&self.id)
-                        + self
-                            .item_opt
-                            .as_ref()
-                            .map_or(0, |value| __protocol.struct_field_len(Some(2), value))
-                        + self
-                            .item_opt2
-                            .as_ref()
-                            .map_or(0, |value| __protocol.struct_field_len(Some(3), value))
+                    }) + __protocol.i64_field_len(::std::option::Option::Some(1), *&self.id)
+                        + self.item_opt.as_ref().map_or(0, |value| {
+                            __protocol.struct_field_len(::std::option::Option::Some(2), value)
+                        })
+                        + self.item_opt2.as_ref().map_or(0, |value| {
+                            __protocol.struct_field_len(::std::option::Option::Some(3), value)
+                        })
                         + __protocol.map_field_len(
-                            Some(4),
+                            ::std::option::Option::Some(4),
                             ::pilota::thrift::TType::Binary,
                             ::pilota::thrift::TType::Binary,
                             &self.test_map,
@@ -825,7 +842,7 @@ pub mod struct_init_with_field_mask {
                             |__protocol, val| __protocol.faststr_len(val),
                         )
                         + __protocol.map_field_len(
-                            Some(5),
+                            ::std::option::Option::Some(5),
                             ::pilota::thrift::TType::I64,
                             ::pilota::thrift::TType::Binary,
                             &self.test_map2,
@@ -839,14 +856,14 @@ pub mod struct_init_with_field_mask {
         }
         impl GetItemRequest {
             pub fn set_field_mask(&mut self, field_mask: ::pilota_thrift_fieldmask::FieldMask) {
-                self._field_mask = Some(field_mask.clone());
-                if let Some(value) = &mut self.item_opt {
-                    if let Some(fm) = field_mask.field(2).0 {
+                self._field_mask = ::std::option::Option::Some(field_mask.clone());
+                if let ::std::option::Option::Some(value) = &mut self.item_opt {
+                    if let ::std::option::Option::Some(fm) = field_mask.field(2).0 {
                         value.set_field_mask(fm.clone());
                     }
                 }
-                if let Some(value) = &mut self.item_opt2 {
-                    if let Some(fm) = field_mask.field(3).0 {
+                if let ::std::option::Option::Some(value) = &mut self.item_opt2 {
+                    if let ::std::option::Option::Some(fm) = field_mask.field(3).0 {
                         value.set_field_mask(fm.clone());
                     }
                 }

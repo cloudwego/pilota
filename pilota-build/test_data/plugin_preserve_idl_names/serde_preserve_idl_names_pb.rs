@@ -66,7 +66,7 @@ pub mod serde_preserve_idl_names_pb {
             ::pilota::pb::encoding::faststr::encode(5, &self.ser_only, buf);
             ::pilota::pb::encoding::faststr::encode(6, &self.de_only, buf);
             ::pilota::pb::encoding::faststr::encode(7, &self.both_dirs, buf);
-            if let Some(_pilota_inner_value) = self.test_oneof.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.test_oneof.as_ref() {
                 _pilota_inner_value.encode(buf);
             }
         }

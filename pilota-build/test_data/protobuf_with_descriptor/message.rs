@@ -40,7 +40,8 @@ pub mod message {
         }
         impl Person {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_message();
                 file_descriptor.get_message_descriptor_proto("Person")
             }
@@ -109,7 +110,8 @@ pub mod message {
         }
         impl Company {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_message();
                 file_descriptor.get_message_descriptor_proto("Company")
             }
@@ -176,7 +178,8 @@ pub mod message {
         pub struct Self_ {}
         impl Self_ {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::DescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::DescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_message();
                 file_descriptor.get_message_descriptor_proto("Self")
             }
@@ -229,10 +232,10 @@ pub mod message {
 
             pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
-                    0 => Some(Self::UNKNOWN),
-                    1 => Some(Self::ACTIVE),
-                    2 => Some(Self::INACTIVE),
-                    _ => None,
+                    0 => ::std::option::Option::Some(Self::UNKNOWN),
+                    1 => ::std::option::Option::Some(Self::ACTIVE),
+                    2 => ::std::option::Option::Some(Self::INACTIVE),
+                    _ => ::std::option::Option::None,
                 }
             }
         }
@@ -265,7 +268,8 @@ pub mod message {
 
         impl Status {
             pub fn get_descriptor_proto()
-            -> Option<&'static ::pilota::pb::descriptor::EnumDescriptorProto> {
+            -> ::std::option::Option<&'static ::pilota::pb::descriptor::EnumDescriptorProto>
+            {
                 let file_descriptor = file_descriptor_proto_message();
                 file_descriptor.get_enum_descriptor_proto("Status")
             }

@@ -23,7 +23,7 @@ pub mod no_service {
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
             ::pilota::pb::encoding::faststr::encode(1, &self.name, buf);
             ::pilota::pb::encoding::int32::encode(2, &self.age, buf);
-            if let Some(_pilota_inner_value) = self.contact.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.contact.as_ref() {
                 ::pilota::pb::encoding::message::encode(3, _pilota_inner_value, buf);
             }
         }
@@ -212,10 +212,10 @@ pub mod no_service {
 
             pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
-                    0 => Some(Self::LABEL_UNKNOWN),
-                    1 => Some(Self::LABEL_HOME),
-                    2 => Some(Self::LABEL_WORK),
-                    _ => None,
+                    0 => ::std::option::Option::Some(Self::LABEL_UNKNOWN),
+                    1 => ::std::option::Option::Some(Self::LABEL_HOME),
+                    2 => ::std::option::Option::Some(Self::LABEL_WORK),
+                    _ => ::std::option::Option::None,
                 }
             }
         }

@@ -91,10 +91,10 @@ pub mod nested_message {
 
             pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
-                    1 => Some(Self::LABEL_OPTIONAL),
-                    2 => Some(Self::LABEL_REQUIRED),
-                    3 => Some(Self::LABEL_REPEATED),
-                    _ => None,
+                    1 => ::std::option::Option::Some(Self::LABEL_OPTIONAL),
+                    2 => ::std::option::Option::Some(Self::LABEL_REQUIRED),
+                    3 => ::std::option::Option::Some(Self::LABEL_REPEATED),
+                    _ => ::std::option::Option::None,
                 }
             }
         }
@@ -180,7 +180,7 @@ pub mod nested_message {
 
                 #[allow(unused_variables)]
                 fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                    if let Some(_pilota_inner_value) = self.a.as_ref() {
+                    if let ::std::option::Option::Some(_pilota_inner_value) = self.a.as_ref() {
                         ::pilota::pb::encoding::int32::encode(1, _pilota_inner_value, buf);
                     };
                     ::pilota::pb::encoding::hash_map::encode(

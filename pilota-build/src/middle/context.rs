@@ -1396,13 +1396,16 @@ impl Context {
                                 self.lit_into_ty(v, &self.codegen_item_ty(f.ty.kind.clone()))?;
 
                             if f.is_optional() {
-                                v = format!("Some({v})").into()
+                                v = format!("::std::option::Option::Some({v})").into()
                             }
                             anyhow::Ok((format!("{name}: {v}"), is_const))
                         } else if f.is_optional() {
-                            anyhow::Ok((format!("{name}: None"), true))
+                            anyhow::Ok((format!("{name}: ::std::option::Option::None"), true))
                         } else {
-                            anyhow::Ok((format!("{name}: Default::default()"), false))
+                            anyhow::Ok((
+                                format!("{name}: ::std::default::Default::default()"),
+                                false,
+                            ))
                         }
                     })
                     .try_collect()?;

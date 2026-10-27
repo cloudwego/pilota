@@ -15,7 +15,7 @@ pub mod optional {
 
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-            if let Some(_pilota_inner_value) = self.page_number.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.page_number.as_ref() {
                 ::pilota::pb::encoding::int32::encode(2, _pilota_inner_value, buf);
             };
         }

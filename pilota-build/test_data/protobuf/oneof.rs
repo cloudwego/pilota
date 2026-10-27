@@ -28,14 +28,14 @@ pub mod oneof {
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
             ::pilota::pb::encoding::int32::encode(1, &self.c, buf);
-            if let Some(_pilota_inner_value) = self.r#type.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.r#type.as_ref() {
                 _pilota_inner_value.encode(buf);
             }
             ::pilota::pb::encoding::int64::encode(5, &self.j, buf);
-            if let Some(_pilota_inner_value) = self.test.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.test.as_ref() {
                 _pilota_inner_value.encode(buf);
             }
-            if let Some(_pilota_inner_value) = self.e.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.e.as_ref() {
                 ::pilota::pb::encoding::int32::encode(10, _pilota_inner_value, buf);
             };
         }
@@ -127,7 +127,7 @@ pub mod oneof {
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
             ::pilota::pb::encoding::int32::encode(1, &self.type_spec_class, buf);
-            if let Some(_pilota_inner_value) = self.a.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.a.as_ref() {
                 ::pilota::pb::encoding::message::encode(2, _pilota_inner_value, buf);
             }
             ::pilota::pb::encoding::faststr::encode(3, &self.name, buf);
@@ -304,7 +304,7 @@ pub mod oneof {
 
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-            if let Some(_pilota_inner_value) = self.b.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.b.as_ref() {
                 _pilota_inner_value.encode(buf);
             }
         }
@@ -352,7 +352,7 @@ pub mod oneof {
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
             ::pilota::pb::encoding::faststr::encode(1, &self.key, buf);
-            if let Some(_pilota_inner_value) = self.value.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.value.as_ref() {
                 ::pilota::pb::encoding::message::encode(2, _pilota_inner_value, buf);
             }
         }
@@ -474,9 +474,9 @@ pub mod oneof {
 
         pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
             match value {
-                0 => Some(Self::A),
-                1 => Some(Self::B),
-                _ => None,
+                0 => ::std::option::Option::Some(Self::A),
+                1 => ::std::option::Option::Some(Self::B),
+                _ => ::std::option::Option::None,
             }
         }
     }
@@ -1046,8 +1046,8 @@ pub mod oneof {
 
             pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
-                    0 => Some(Self::UNKNOWN),
-                    _ => None,
+                    0 => ::std::option::Option::Some(Self::UNKNOWN),
+                    _ => ::std::option::Option::None,
                 }
             }
         }

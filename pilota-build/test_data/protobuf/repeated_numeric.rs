@@ -124,9 +124,9 @@ pub mod repeated_numeric {
 
             pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
-                    0 => Some(Self::E0),
-                    1 => Some(Self::E1),
-                    _ => None,
+                    0 => ::std::option::Option::Some(Self::E0),
+                    1 => ::std::option::Option::Some(Self::E1),
+                    _ => ::std::option::Option::None,
                 }
             }
         }

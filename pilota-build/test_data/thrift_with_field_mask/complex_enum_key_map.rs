@@ -27,10 +27,10 @@ pub mod complex_enum_key_map {
 
             pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
                 match value {
-                    1 => Some(Self::LOW),
-                    2 => Some(Self::MEDIUM),
-                    3 => Some(Self::HIGH),
-                    _ => None,
+                    1 => ::std::option::Option::Some(Self::LOW),
+                    2 => ::std::option::Option::Some(Self::MEDIUM),
+                    3 => ::std::option::Option::Some(Self::HIGH),
+                    _ => ::std::option::Option::None,
                 }
             }
         }
@@ -118,7 +118,7 @@ pub mod complex_enum_key_map {
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                if let Some(struct_fm) = self._field_mask.as_ref() {
+                if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {
                     if !struct_fm.exist() {
                         ::std::result::Result::Ok(())
                     } else {
@@ -127,7 +127,7 @@ pub mod complex_enum_key_map {
                         __protocol.write_struct_begin(&struct_ident)?;
                         let (field_fm, _) = struct_fm.field(1);
                         __protocol.write_i32_field(1, *&self.value)?;
-                        if let Some(value) = self.label.as_ref() {
+                        if let ::std::option::Option::Some(value) = self.label.as_ref() {
                             let (field_fm, exist) = struct_fm.field(2);
                             if exist {
                                 __protocol.write_faststr_field(2, (value).clone())?;
@@ -142,7 +142,7 @@ pub mod complex_enum_key_map {
 
                     __protocol.write_struct_begin(&struct_ident)?;
                     __protocol.write_i32_field(1, *&self.value)?;
-                    if let Some(value) = self.label.as_ref() {
+                    if let ::std::option::Option::Some(value) = self.label.as_ref() {
                         __protocol.write_faststr_field(2, (value).clone())?;
                     }
                     __protocol.write_field_stop()?;
@@ -157,10 +157,10 @@ pub mod complex_enum_key_map {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut var_1 = None;
-                let mut var_2 = None;
+                let mut var_1 = ::std::option::Option::None;
+                let mut var_2 = ::std::option::Option::None;
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -174,13 +174,15 @@ pub mod complex_enum_key_map {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::I32 => {
-                                var_1 = Some(__protocol.read_i32()?);
+                            ::std::option::Option::Some(1)
+                                if field_ident.field_type == ::pilota::thrift::TType::I32 =>
+                            {
+                                var_1 = ::std::option::Option::Some(__protocol.read_i32()?);
                             }
-                            Some(2)
+                            ::std::option::Option::Some(2)
                                 if field_ident.field_type == ::pilota::thrift::TType::Binary =>
                             {
-                                var_2 = Some(__protocol.read_faststr()?);
+                                var_2 = ::std::option::Option::Some(__protocol.read_faststr()?);
                             }
                             _ => {
                                 __protocol.skip(field_ident.field_type)?;
@@ -192,7 +194,7 @@ pub mod complex_enum_key_map {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `NestedItem` field(#{}) failed, caused by: ",
                             field_id
@@ -202,7 +204,7 @@ pub mod complex_enum_key_map {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(var_1) = var_1 else {
+                let ::std::option::Option::Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field value is required".to_string(),
@@ -228,10 +230,10 @@ pub mod complex_enum_key_map {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
-                    let mut var_2 = None;
+                    let mut var_1 = ::std::option::Option::None;
+                    let mut var_2 = ::std::option::Option::None;
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -243,16 +245,19 @@ pub mod complex_enum_key_map {
                             }
                             __pilota_decoding_field_id = field_ident.id;
                             match field_ident.id {
-                                Some(1)
+                                ::std::option::Option::Some(1)
                                     if field_ident.field_type == ::pilota::thrift::TType::I32 =>
                                 {
-                                    var_1 = Some(__protocol.read_i32().await?);
+                                    var_1 =
+                                        ::std::option::Option::Some(__protocol.read_i32().await?);
                                 }
-                                Some(2)
+                                ::std::option::Option::Some(2)
                                     if field_ident.field_type
                                         == ::pilota::thrift::TType::Binary =>
                                 {
-                                    var_2 = Some(__protocol.read_faststr().await?);
+                                    var_2 = ::std::option::Option::Some(
+                                        __protocol.read_faststr().await?,
+                                    );
                                 }
                                 _ => {
                                     __protocol.skip(field_ident.field_type).await?;
@@ -265,7 +270,7 @@ pub mod complex_enum_key_map {
                     }
                     .await
                     {
-                        if let Some(field_id) = __pilota_decoding_field_id {
+                        if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                             err.prepend_msg(&format!(
                                 "decode struct `NestedItem` field(#{}) failed, caused by: ",
                                 field_id
@@ -275,7 +280,7 @@ pub mod complex_enum_key_map {
                     };
                     __protocol.read_struct_end().await?;
 
-                    let Some(var_1) = var_1 else {
+                    let ::std::option::Option::Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -296,7 +301,7 @@ pub mod complex_enum_key_map {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                if let Some(struct_fm) = self._field_mask.as_ref() {
+                if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {
                     if !struct_fm.exist() {
                         0
                     } else {
@@ -304,11 +309,11 @@ pub mod complex_enum_key_map {
                             name: "NestedItem",
                         }) + {
                             let (field_fm, _) = struct_fm.field(1);
-                            __protocol.i32_field_len(Some(1), *&self.value)
+                            __protocol.i32_field_len(::std::option::Option::Some(1), *&self.value)
                         } + self.label.as_ref().map_or(0, |value| {
                             let (field_fm, exist) = struct_fm.field(2);
                             if exist {
-                                __protocol.faststr_field_len(Some(2), value)
+                                __protocol.faststr_field_len(::std::option::Option::Some(2), value)
                             } else {
                                 0
                             }
@@ -318,11 +323,10 @@ pub mod complex_enum_key_map {
                 } else {
                     __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                         name: "NestedItem",
-                    }) + __protocol.i32_field_len(Some(1), *&self.value)
-                        + self
-                            .label
-                            .as_ref()
-                            .map_or(0, |value| __protocol.faststr_field_len(Some(2), value))
+                    }) + __protocol.i32_field_len(::std::option::Option::Some(1), *&self.value)
+                        + self.label.as_ref().map_or(0, |value| {
+                            __protocol.faststr_field_len(::std::option::Option::Some(2), value)
+                        })
                         + __protocol.field_stop_len()
                         + __protocol.struct_end_len()
                 }
@@ -330,7 +334,7 @@ pub mod complex_enum_key_map {
         }
         impl NestedItem {
             pub fn set_field_mask(&mut self, field_mask: ::pilota_thrift_fieldmask::FieldMask) {
-                self._field_mask = Some(field_mask.clone());
+                self._field_mask = ::std::option::Option::Some(field_mask.clone());
             }
         }
 
@@ -354,7 +358,7 @@ pub mod complex_enum_key_map {
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
-                if let Some(struct_fm) = self._field_mask.as_ref() {
+                if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {
                     if !struct_fm.exist() {
                         ::std::result::Result::Ok(())
                     } else {
@@ -363,7 +367,7 @@ pub mod complex_enum_key_map {
                         };
                         __protocol.write_struct_begin(&struct_ident)?;
                         let (field_fm, _) = struct_fm.field(1);
-                        if let Some(map_fm) = field_fm {
+                        if let ::std::option::Option::Some(map_fm) = field_fm {
                             __protocol.write_field_begin(::pilota::thrift::TType::Map, 1)?;
                             __protocol.write_map_begin(::pilota::thrift::TMapIdentifier {
                                 key_type: ::pilota::thrift::TType::I32,
@@ -399,7 +403,7 @@ pub mod complex_enum_key_map {
                             )?;
                         }
                         let (field_fm, _) = struct_fm.field(2);
-                        if let Some(map_fm) = field_fm {
+                        if let ::std::option::Option::Some(map_fm) = field_fm {
                             __protocol.write_field_begin(::pilota::thrift::TType::Map, 2)?;
                             __protocol.write_map_begin(::pilota::thrift::TMapIdentifier {
                                 key_type: ::pilota::thrift::TType::I32,
@@ -435,7 +439,7 @@ pub mod complex_enum_key_map {
                             )?;
                         }
                         let (field_fm, _) = struct_fm.field(3);
-                        if let Some(map_fm) = field_fm {
+                        if let ::std::option::Option::Some(map_fm) = field_fm {
                             __protocol.write_field_begin(::pilota::thrift::TType::Map, 3)?;
                             __protocol.write_map_begin(::pilota::thrift::TMapIdentifier {
                                 key_type: ::pilota::thrift::TType::I32,
@@ -449,7 +453,7 @@ pub mod complex_enum_key_map {
                                 let (item_fm, is_exist) = map_fm.int(key.inner() as i32);
                                 if is_exist {
                                     __protocol.write_struct(key)?;
-                                    if let Some(map_fm) = item_fm {
+                                    if let ::std::option::Option::Some(map_fm) = item_fm {
                                         __protocol.write_map_begin(
                                             ::pilota::thrift::TMapIdentifier {
                                                 key_type: ::pilota::thrift::TType::Binary,
@@ -515,10 +519,12 @@ pub mod complex_enum_key_map {
                                 },
                             )?;
                         }
-                        if let Some(value) = self.priority_item_lists.as_ref() {
+                        if let ::std::option::Option::Some(value) =
+                            self.priority_item_lists.as_ref()
+                        {
                             let (field_fm, exist) = struct_fm.field(4);
                             if exist {
-                                if let Some(map_fm) = field_fm {
+                                if let ::std::option::Option::Some(map_fm) = field_fm {
                                     __protocol
                                         .write_field_begin(::pilota::thrift::TType::Map, 4)?;
                                     __protocol.write_map_begin(
@@ -535,7 +541,7 @@ pub mod complex_enum_key_map {
                                         let (item_fm, is_exist) = map_fm.int(key.inner() as i32);
                                         if is_exist {
                                             __protocol.write_struct(key)?;
-                                            if let Some(list_fm) = item_fm {
+                                            if let ::std::option::Option::Some(list_fm) = item_fm {
                                                 __protocol.write_list_begin(
                                                     ::pilota::thrift::TListIdentifier {
                                                         element_type:
@@ -659,7 +665,7 @@ pub mod complex_enum_key_map {
                             ::std::result::Result::Ok(())
                         },
                     )?;
-                    if let Some(value) = self.priority_item_lists.as_ref() {
+                    if let ::std::option::Option::Some(value) = self.priority_item_lists.as_ref() {
                         __protocol.write_map_field(
                             4,
                             ::pilota::thrift::TType::I32,
@@ -694,12 +700,12 @@ pub mod complex_enum_key_map {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-                let mut var_1 = None;
-                let mut var_2 = None;
-                let mut var_3 = None;
-                let mut var_4 = None;
+                let mut var_1 = ::std::option::Option::None;
+                let mut var_2 = ::std::option::Option::None;
+                let mut var_3 = ::std::option::Option::None;
+                let mut var_4 = ::std::option::Option::None;
 
-                let mut __pilota_decoding_field_id = None;
+                let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                 __protocol.read_struct_begin()?;
                 if let ::std::result::Result::Err(mut err) = (|| {
@@ -713,8 +719,10 @@ pub mod complex_enum_key_map {
                         }
                         __pilota_decoding_field_id = field_ident.id;
                         match field_ident.id {
-                            Some(1) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_1 = Some({
+                            ::std::option::Option::Some(1)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_1 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -727,8 +735,10 @@ pub mod complex_enum_key_map {
                                     val
                                 });
                             }
-                            Some(2) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_2 = Some({
+                            ::std::option::Option::Some(2)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_2 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -741,8 +751,10 @@ pub mod complex_enum_key_map {
                                     val
                                 });
                             }
-                            Some(3) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_3 = Some({
+                            ::std::option::Option::Some(3)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_3 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -768,8 +780,10 @@ pub mod complex_enum_key_map {
                                     val
                                 });
                             }
-                            Some(4) if field_ident.field_type == ::pilota::thrift::TType::Map => {
-                                var_4 = Some({
+                            ::std::option::Option::Some(4)
+                                if field_ident.field_type == ::pilota::thrift::TType::Map =>
+                            {
+                                var_4 = ::std::option::Option::Some({
                                     let map_ident = __protocol.read_map_begin()?;
                                     let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                                     for _ in 0..map_ident.size {
@@ -806,7 +820,7 @@ pub mod complex_enum_key_map {
                     }
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 })() {
-                    if let Some(field_id) = __pilota_decoding_field_id {
+                    if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                         err.prepend_msg(&format!(
                             "decode struct `ComplexEnumKeyMapTest` field(#{}) failed, caused by: ",
                             field_id
@@ -816,19 +830,19 @@ pub mod complex_enum_key_map {
                 };
                 __protocol.read_struct_end()?;
 
-                let Some(var_1) = var_1 else {
+                let ::std::option::Option::Some(var_1) = var_1 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field priority_counts is required".to_string(),
                     ));
                 };
-                let Some(var_2) = var_2 else {
+                let ::std::option::Option::Some(var_2) = var_2 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field priority_items is required".to_string(),
                     ));
                 };
-                let Some(var_3) = var_3 else {
+                let ::std::option::Option::Some(var_3) = var_3 else {
                     return ::std::result::Result::Err(::pilota::thrift::new_protocol_exception(
                         ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                         "field nested_maps is required".to_string(),
@@ -856,12 +870,12 @@ pub mod complex_enum_key_map {
                 >,
             > {
                 ::std::boxed::Box::pin(async move {
-                    let mut var_1 = None;
-                    let mut var_2 = None;
-                    let mut var_3 = None;
-                    let mut var_4 = None;
+                    let mut var_1 = ::std::option::Option::None;
+                    let mut var_2 = ::std::option::Option::None;
+                    let mut var_3 = ::std::option::Option::None;
+                    let mut var_4 = ::std::option::Option::None;
 
-                    let mut __pilota_decoding_field_id = None;
+                    let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
                     __protocol.read_struct_begin().await?;
                     if let ::std::result::Result::Err(mut err) = async {
@@ -877,8 +891,8 @@ pub mod complex_enum_key_map {
                 }
                 __pilota_decoding_field_id = field_ident.id;
                 match field_ident.id {
-                    Some(1) if field_ident.field_type == ::pilota::thrift::TType::Map  => {
-                    var_1 = Some({
+                    ::std::option::Option::Some(1) if field_ident.field_type == ::pilota::thrift::TType::Map  => {
+                    var_1 = ::std::option::Option::Some({
                         let map_ident = __protocol.read_map_begin().await?;
                         let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                         for _ in 0..map_ident.size {
@@ -888,8 +902,8 @@ pub mod complex_enum_key_map {
                         val
                     });
 
-                },Some(2) if field_ident.field_type == ::pilota::thrift::TType::Map  => {
-                    var_2 = Some({
+                },::std::option::Option::Some(2) if field_ident.field_type == ::pilota::thrift::TType::Map  => {
+                    var_2 = ::std::option::Option::Some({
                         let map_ident = __protocol.read_map_begin().await?;
                         let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                         for _ in 0..map_ident.size {
@@ -899,8 +913,8 @@ pub mod complex_enum_key_map {
                         val
                     });
 
-                },Some(3) if field_ident.field_type == ::pilota::thrift::TType::Map  => {
-                    var_3 = Some({
+                },::std::option::Option::Some(3) if field_ident.field_type == ::pilota::thrift::TType::Map  => {
+                    var_3 = ::std::option::Option::Some({
                         let map_ident = __protocol.read_map_begin().await?;
                         let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                         for _ in 0..map_ident.size {
@@ -918,8 +932,8 @@ pub mod complex_enum_key_map {
                         val
                     });
 
-                },Some(4) if field_ident.field_type == ::pilota::thrift::TType::Map  => {
-                    var_4 = Some({
+                },::std::option::Option::Some(4) if field_ident.field_type == ::pilota::thrift::TType::Map  => {
+                    var_4 = ::std::option::Option::Some({
                         let map_ident = __protocol.read_map_begin().await?;
                         let mut val = ::pilota::AHashMap::with_capacity(map_ident.size);
                         for _ in 0..map_ident.size {
@@ -950,14 +964,14 @@ pub mod complex_enum_key_map {
             };
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 }.await {
-                if let Some(field_id) = __pilota_decoding_field_id {
+                if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                     err.prepend_msg(&format!("decode struct `ComplexEnumKeyMapTest` field(#{}) failed, caused by: ", field_id));
                 }
                 return ::std::result::Result::Err(err);
             };
                     __protocol.read_struct_end().await?;
 
-                    let Some(var_1) = var_1 else {
+                    let ::std::option::Option::Some(var_1) = var_1 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -965,7 +979,7 @@ pub mod complex_enum_key_map {
                             ),
                         );
                     };
-                    let Some(var_2) = var_2 else {
+                    let ::std::option::Option::Some(var_2) = var_2 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -973,7 +987,7 @@ pub mod complex_enum_key_map {
                             ),
                         );
                     };
-                    let Some(var_3) = var_3 else {
+                    let ::std::option::Option::Some(var_3) = var_3 else {
                         return ::std::result::Result::Err(
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
@@ -996,7 +1010,7 @@ pub mod complex_enum_key_map {
             fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
-                if let Some(struct_fm) = self._field_mask.as_ref() {
+                if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {
                     if !struct_fm.exist() {
                         0
                     } else {
@@ -1004,10 +1018,11 @@ pub mod complex_enum_key_map {
                             name: "ComplexEnumKeyMapTest",
                         }) + {
                             let (field_fm, _) = struct_fm.field(1);
-                            if let Some(map_fm) = field_fm {
-                                let mut size = __protocol
-                                    .field_begin_len(::pilota::thrift::TType::Map, None)
-                                    + __protocol.field_end_len()
+                            if let ::std::option::Option::Some(map_fm) = field_fm {
+                                let mut size = __protocol.field_begin_len(
+                                    ::pilota::thrift::TType::Map,
+                                    ::std::option::Option::None,
+                                ) + __protocol.field_end_len()
                                     + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {
                                         key_type: ::pilota::thrift::TType::I32,
                                         value_type: ::pilota::thrift::TType::I32,
@@ -1024,7 +1039,7 @@ pub mod complex_enum_key_map {
                                 size
                             } else {
                                 __protocol.map_field_len(
-                                    Some(1),
+                                    ::std::option::Option::Some(1),
                                     ::pilota::thrift::TType::I32,
                                     ::pilota::thrift::TType::I32,
                                     &self.priority_counts,
@@ -1034,10 +1049,11 @@ pub mod complex_enum_key_map {
                             }
                         } + {
                             let (field_fm, _) = struct_fm.field(2);
-                            if let Some(map_fm) = field_fm {
-                                let mut size = __protocol
-                                    .field_begin_len(::pilota::thrift::TType::Map, None)
-                                    + __protocol.field_end_len()
+                            if let ::std::option::Option::Some(map_fm) = field_fm {
+                                let mut size = __protocol.field_begin_len(
+                                    ::pilota::thrift::TType::Map,
+                                    ::std::option::Option::None,
+                                ) + __protocol.field_end_len()
                                     + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {
                                         key_type: ::pilota::thrift::TType::I32,
                                         value_type: ::pilota::thrift::TType::Struct,
@@ -1054,7 +1070,7 @@ pub mod complex_enum_key_map {
                                 size
                             } else {
                                 __protocol.map_field_len(
-                                    Some(2),
+                                    ::std::option::Option::Some(2),
                                     ::pilota::thrift::TType::I32,
                                     ::pilota::thrift::TType::Struct,
                                     &self.priority_items,
@@ -1064,10 +1080,11 @@ pub mod complex_enum_key_map {
                             }
                         } + {
                             let (field_fm, _) = struct_fm.field(3);
-                            if let Some(map_fm) = field_fm {
-                                let mut size = __protocol
-                                    .field_begin_len(::pilota::thrift::TType::Map, None)
-                                    + __protocol.field_end_len()
+                            if let ::std::option::Option::Some(map_fm) = field_fm {
+                                let mut size = __protocol.field_begin_len(
+                                    ::pilota::thrift::TType::Map,
+                                    ::std::option::Option::None,
+                                ) + __protocol.field_end_len()
                                     + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {
                                         key_type: ::pilota::thrift::TType::I32,
                                         value_type: ::pilota::thrift::TType::Map,
@@ -1078,7 +1095,8 @@ pub mod complex_enum_key_map {
                                     let (item_fm, is_exist) = map_fm.int(key.inner() as i32);
                                     if is_exist {
                                         size += __protocol.struct_len(key);
-                                        size += if let Some(map_fm) = item_fm {
+                                        size += if let ::std::option::Option::Some(map_fm) = item_fm
+                                        {
                                             let mut size = __protocol.map_begin_len(
                                                 ::pilota::thrift::TMapIdentifier {
                                                     key_type: ::pilota::thrift::TType::Binary,
@@ -1108,7 +1126,7 @@ pub mod complex_enum_key_map {
                                 size
                             } else {
                                 __protocol.map_field_len(
-                                    Some(3),
+                                    ::std::option::Option::Some(3),
                                     ::pilota::thrift::TType::I32,
                                     ::pilota::thrift::TType::Map,
                                     &self.nested_maps,
@@ -1127,10 +1145,11 @@ pub mod complex_enum_key_map {
                         } + self.priority_item_lists.as_ref().map_or(0, |value| {
                             let (field_fm, exist) = struct_fm.field(4);
                             if exist {
-                                if let Some(map_fm) = field_fm {
-                                    let mut size = __protocol
-                                        .field_begin_len(::pilota::thrift::TType::Map, None)
-                                        + __protocol.field_end_len()
+                                if let ::std::option::Option::Some(map_fm) = field_fm {
+                                    let mut size = __protocol.field_begin_len(
+                                        ::pilota::thrift::TType::Map,
+                                        ::std::option::Option::None,
+                                    ) + __protocol.field_end_len()
                                         + __protocol.map_begin_len(
                                             ::pilota::thrift::TMapIdentifier {
                                                 key_type: ::pilota::thrift::TType::I32,
@@ -1143,7 +1162,9 @@ pub mod complex_enum_key_map {
                                         let (item_fm, is_exist) = map_fm.int(key.inner() as i32);
                                         if is_exist {
                                             size += __protocol.struct_len(key);
-                                            size += if let Some(list_fm) = item_fm {
+                                            size += if let ::std::option::Option::Some(list_fm) =
+                                                item_fm
+                                            {
                                                 let mut idx = 0;
                                                 let mut size = __protocol.list_begin_len(
                                                     ::pilota::thrift::TListIdentifier {
@@ -1170,7 +1191,7 @@ pub mod complex_enum_key_map {
                                     size
                                 } else {
                                     __protocol.map_field_len(
-                                        Some(4),
+                                        ::std::option::Option::Some(4),
                                         ::pilota::thrift::TType::I32,
                                         ::pilota::thrift::TType::List,
                                         value,
@@ -1194,21 +1215,21 @@ pub mod complex_enum_key_map {
                     __protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {
                         name: "ComplexEnumKeyMapTest",
                     }) + __protocol.map_field_len(
-                        Some(1),
+                        ::std::option::Option::Some(1),
                         ::pilota::thrift::TType::I32,
                         ::pilota::thrift::TType::I32,
                         &self.priority_counts,
                         |__protocol, key| __protocol.struct_len(key),
                         |__protocol, val| __protocol.i32_len(*val),
                     ) + __protocol.map_field_len(
-                        Some(2),
+                        ::std::option::Option::Some(2),
                         ::pilota::thrift::TType::I32,
                         ::pilota::thrift::TType::Struct,
                         &self.priority_items,
                         |__protocol, key| __protocol.struct_len(key),
                         |__protocol, val| __protocol.struct_len(val),
                     ) + __protocol.map_field_len(
-                        Some(3),
+                        ::std::option::Option::Some(3),
                         ::pilota::thrift::TType::I32,
                         ::pilota::thrift::TType::Map,
                         &self.nested_maps,
@@ -1224,7 +1245,7 @@ pub mod complex_enum_key_map {
                         },
                     ) + self.priority_item_lists.as_ref().map_or(0, |value| {
                         __protocol.map_field_len(
-                            Some(4),
+                            ::std::option::Option::Some(4),
                             ::pilota::thrift::TType::I32,
                             ::pilota::thrift::TType::List,
                             value,
@@ -1244,24 +1265,30 @@ pub mod complex_enum_key_map {
         }
         impl ComplexEnumKeyMapTest {
             pub fn set_field_mask(&mut self, field_mask: ::pilota_thrift_fieldmask::FieldMask) {
-                self._field_mask = Some(field_mask.clone());
-                if let Some(map_mask) = field_mask.field(2).0 {
+                self._field_mask = ::std::option::Option::Some(field_mask.clone());
+                if let ::std::option::Option::Some(map_mask) = field_mask.field(2).0 {
                     if !map_mask.all() {
                         for (key, item) in self.priority_items.iter_mut() {
-                            if let Some(item_fm) = map_mask.int(key.inner() as i32).0 {
+                            if let ::std::option::Option::Some(item_fm) =
+                                map_mask.int(key.inner() as i32).0
+                            {
                                 item.set_field_mask(item_fm.clone());
                             }
                         }
                     }
                 }
-                if let Some(value) = &mut self.priority_item_lists {
-                    if let Some(map_mask) = field_mask.field(4).0 {
+                if let ::std::option::Option::Some(value) = &mut self.priority_item_lists {
+                    if let ::std::option::Option::Some(map_mask) = field_mask.field(4).0 {
                         if !map_mask.all() {
                             for (key, item) in value.iter_mut() {
-                                if let Some(item_fm) = map_mask.int(key.inner() as i32).0 {
+                                if let ::std::option::Option::Some(item_fm) =
+                                    map_mask.int(key.inner() as i32).0
+                                {
                                     if !item_fm.all() {
                                         for (idx, item) in item.iter_mut().enumerate() {
-                                            if let Some(item_fm) = item_fm.int(idx as i32).0 {
+                                            if let ::std::option::Option::Some(item_fm) =
+                                                item_fm.int(idx as i32).0
+                                            {
                                                 item.set_field_mask(item_fm.clone());
                                             }
                                         }

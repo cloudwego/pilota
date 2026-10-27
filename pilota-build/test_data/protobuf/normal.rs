@@ -54,7 +54,7 @@ pub mod normal {
 
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-            if let Some(_pilota_inner_value) = self.value.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.value.as_ref() {
                 ::pilota::pb::encoding::faststr::encode(2, _pilota_inner_value, buf);
             };
         }
@@ -120,7 +120,7 @@ pub mod normal {
 
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-            if let Some(_pilota_inner_value) = self.msg.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.msg.as_ref() {
                 ::pilota::pb::encoding::message::encode(1, _pilota_inner_value, buf);
             }
             for msg in &self.msg_map {
@@ -133,7 +133,7 @@ pub mod normal {
                 ::pilota::pb::encoding::message::encode(4, msg, buf);
             }
             ::pilota::pb::encoding::faststr::encode(5, &self.flag_msg, buf);
-            if let Some(_pilota_inner_value) = self.mock_cost.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.mock_cost.as_ref() {
                 ::pilota::pb::encoding::faststr::encode(6, _pilota_inner_value, buf);
             };
         }
@@ -241,7 +241,7 @@ pub mod normal {
 
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-            if let Some(_pilota_inner_value) = self.a.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.a.as_ref() {
                 ::pilota::pb::encoding::message::encode(2, _pilota_inner_value, buf);
             }
         }
@@ -296,7 +296,7 @@ pub mod normal {
         #[allow(unused_variables)]
         fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
             ::pilota::pb::encoding::faststr::encode(1, &self.uid, buf);
-            if let Some(_pilota_inner_value) = self.value.as_ref() {
+            if let ::std::option::Option::Some(_pilota_inner_value) = self.value.as_ref() {
                 ::pilota::pb::encoding::faststr::encode(2, _pilota_inner_value, buf);
             };
             for msg in &self.sub_messages {
@@ -375,10 +375,10 @@ pub mod normal {
 
             #[allow(unused_variables)]
             fn encode_raw(&self, buf: &mut ::pilota::LinkedBytes) {
-                if let Some(_pilota_inner_value) = self.key.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) = self.key.as_ref() {
                     ::pilota::pb::encoding::message::encode(1, _pilota_inner_value, buf);
                 }
-                if let Some(_pilota_inner_value) = self.value.as_ref() {
+                if let ::std::option::Option::Some(_pilota_inner_value) = self.value.as_ref() {
                     ::pilota::pb::encoding::message::encode(2, _pilota_inner_value, buf);
                 }
             }

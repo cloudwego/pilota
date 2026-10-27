@@ -329,7 +329,7 @@ where
                     Some(EnumRepr::I32) => discr as i32,
                     None => panic!(),
                 };
-                format!("{discr} => Some(Self::{name}),")
+                format!("{discr} => ::std::option::Option::Some(Self::{name}),")
             })
             .join("\n");
 
@@ -367,7 +367,7 @@ where
                 pub fn try_from_{repr}(value: {repr}) -> ::std::option::Option<Self> {{
                     match value {{
                         {try_from_arms}
-                        _ => None,
+                        _ => ::std::option::Option::None,
                     }}
                 }}
             }}

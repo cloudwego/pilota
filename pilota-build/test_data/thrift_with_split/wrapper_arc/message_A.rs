@@ -22,7 +22,7 @@ impl ::pilota::thrift::Message for A {
         #[allow(unused_imports)]
         use ::pilota::{Buf, thrift::TLengthProtocolExt};
 
-        let mut __pilota_decoding_field_id = None;
+        let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
         __protocol.read_struct_begin()?;
         if let ::std::result::Result::Err(mut err) = (|| {
@@ -46,7 +46,7 @@ impl ::pilota::thrift::Message for A {
             }
             ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
         })() {
-            if let Some(field_id) = __pilota_decoding_field_id {
+            if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                 err.prepend_msg(&format!(
                     "decode struct `A` field(#{}) failed, caused by: ",
                     field_id
@@ -71,7 +71,7 @@ impl ::pilota::thrift::Message for A {
         >,
     > {
         ::std::boxed::Box::pin(async move {
-            let mut __pilota_decoding_field_id = None;
+            let mut __pilota_decoding_field_id = ::std::option::Option::None;
 
             __protocol.read_struct_begin().await?;
             if let ::std::result::Result::Err(mut err) = async {
@@ -94,7 +94,7 @@ impl ::pilota::thrift::Message for A {
             }
             .await
             {
-                if let Some(field_id) = __pilota_decoding_field_id {
+                if let ::std::option::Option::Some(field_id) = __pilota_decoding_field_id {
                     err.prepend_msg(&format!(
                         "decode struct `A` field(#{}) failed, caused by: ",
                         field_id
