@@ -357,7 +357,11 @@ impl Resolver {
                         TyKind::Path(_) | TyKind::String | TyKind::BytesVec => {
                             TyKind::Arc(Arc::new(ty.clone()))
                         }
-                        _ => panic!("ty: {ty:?} is unnecessary to be wrapped by Arc"),
+                        // Service-level Arc policy also reaches void, scalars,
+                        // and containers of scalars. These remain inline; the
+                        // policy only wraps payloads that benefit from sharing.
+                        // Existing reference-counted types need no extra Arc.
+                        _ => ty.kind.clone(),
                     };
                     Ty {
                         kind,

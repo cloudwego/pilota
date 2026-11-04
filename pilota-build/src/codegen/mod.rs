@@ -186,6 +186,9 @@ where
                 if !self.duplicate(dup, item.def_id) {
                     let def_id = item.def_id;
                     let item = self.item(def_id).unwrap();
+                    if self.backend.codegen_item_override(def_id, stream, &item) {
+                        return;
+                    }
                     tracing::trace!("write item {}", item.symbol_name());
 
                     // write leading comments

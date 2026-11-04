@@ -211,9 +211,9 @@ impl ThriftBackend {
         //     )
         // };
         let decode_async_fn = format!(
-            r#"fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-            __protocol: &'a mut T,
-        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>> + Send + 'a>> {{
+            r#"fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+            __protocol: &'a mut __PilotaProtocol,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>> + ::std::marker::Send + 'a>> {{
             ::std::boxed::Box::pin(async move {{
                 {decode_async}
             }})
@@ -221,17 +221,17 @@ impl ThriftBackend {
         );
         format! {r#"
             impl ::pilota::thrift::Message for {name} {{
-                fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                     &self,
-                    __protocol: &mut T,
+                    __protocol: &mut __PilotaProtocol,
                 ) -> ::std::result::Result<(),::pilota::thrift::ThriftException> {{
                     #[allow(unused_imports)]
                     use ::pilota::thrift::TOutputProtocolExt;
                     {encode}
                 }}
 
-                fn decode<T: ::pilota::thrift::TInputProtocol>(
-                    __protocol: &mut T,
+                fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                    __protocol: &mut __PilotaProtocol,
                 ) -> ::std::result::Result<Self,::pilota::thrift::ThriftException>  {{
                     #[allow(unused_imports)]
                     use ::pilota::{{thrift::TLengthProtocolExt, Buf}};
@@ -240,7 +240,7 @@ impl ThriftBackend {
 
                 {decode_async_fn}
 
-                fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {{
+                fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut __PilotaProtocol) -> usize {{
                     #[allow(unused_imports)]
                     use ::pilota::thrift::TLengthProtocolExt;
                     {size}

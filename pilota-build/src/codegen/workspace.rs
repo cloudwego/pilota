@@ -119,14 +119,8 @@ where
     {fieldmask_dep}
     anyhow = "1"
     volo = "*"
-    volo-{} = "*""#,
-                if B::PROTOCOL == "thrift" {
-                    "thrift"
-                } else if B::PROTOCOL == "protobuf" {
-                    "grpc"
-                } else {
-                    panic!("unknown protocol")
-                }
+    {}"#,
+                self.cg.backend.codegen_workspace_dependencies()
             ))
             .unwrap(),
         );

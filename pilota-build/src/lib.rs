@@ -49,6 +49,16 @@ use crate::{codegen::pb::ProtobufBackend, middle::root_selector::SelectionKind};
 
 pub trait MakeBackend: Sized {
     type Target: CodegenBackend;
+    /// Validate backend-specific constraints before writing any generated
+    /// files.
+    ///
+    /// The default keeps existing backends unchanged. Implementations should
+    /// report unsupported IDL constructs here rather than panic during
+    /// emission.
+    fn validate(&self, _context: &Context) -> anyhow::Result<()> {
+        Ok(())
+    }
+
     fn make_backend(self, context: Context) -> Self::Target;
 }
 
@@ -568,6 +578,8 @@ where
             self.plugins.into_iter().for_each(|p| cx.exec_plugin(p));
         });
 
+        self.mk_backend.validate(&cx)?;
+
         std::thread::scope(|scope| {
             let pool = rayon::ThreadPoolBuilder::new();
             let pool = pool
@@ -619,6 +631,8 @@ where
             self.with_field_mask,
             self.with_comments,
         )?;
+
+        self.mk_backend.validate(&cx)?;
 
         if matches!(cx.source.selection_kind, SelectionKind::Explicit) {
             Ok(Default::default())

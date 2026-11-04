@@ -48,9 +48,9 @@ pub mod complex_enum_key_map {
         }
 
         impl ::pilota::thrift::Message for Priority {
-            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+            fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                 &self,
-                __protocol: &mut T,
+                __protocol: &mut __PilotaProtocol,
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
@@ -58,8 +58,8 @@ pub mod complex_enum_key_map {
                 ::std::result::Result::Ok(())
             }
 
-            fn decode<T: ::pilota::thrift::TInputProtocol>(
-                __protocol: &mut T,
+            fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                __protocol: &mut __PilotaProtocol,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
@@ -74,13 +74,13 @@ pub mod complex_enum_key_map {
                 )?)
             }
 
-            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                __protocol: &'a mut T,
+            fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                __protocol: &'a mut __PilotaProtocol,
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
                             Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
-                        > + Send
+                        > + ::std::marker::Send
                         + 'a,
                 >,
             > {
@@ -97,7 +97,10 @@ pub mod complex_enum_key_map {
                 })
             }
 
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
+            fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
+                &self,
+                __protocol: &mut __PilotaProtocol,
+            ) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 __protocol.i32_len(self.inner())
@@ -112,9 +115,9 @@ pub mod complex_enum_key_map {
             pub _field_mask: ::std::option::Option<::pilota_thrift_fieldmask::FieldMask>,
         }
         impl ::pilota::thrift::Message for NestedItem {
-            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+            fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                 &self,
-                __protocol: &mut T,
+                __protocol: &mut __PilotaProtocol,
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
@@ -151,8 +154,8 @@ pub mod complex_enum_key_map {
                 }
             }
 
-            fn decode<T: ::pilota::thrift::TInputProtocol>(
-                __protocol: &mut T,
+            fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                __protocol: &mut __PilotaProtocol,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
@@ -219,13 +222,13 @@ pub mod complex_enum_key_map {
                 ::std::result::Result::Ok(data)
             }
 
-            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                __protocol: &'a mut T,
+            fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                __protocol: &'a mut __PilotaProtocol,
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
                             Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
-                        > + Send
+                        > + ::std::marker::Send
                         + 'a,
                 >,
             > {
@@ -298,7 +301,10 @@ pub mod complex_enum_key_map {
                 })
             }
 
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
+            fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
+                &self,
+                __protocol: &mut __PilotaProtocol,
+            ) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {
@@ -352,9 +358,9 @@ pub mod complex_enum_key_map {
             pub _field_mask: ::std::option::Option<::pilota_thrift_fieldmask::FieldMask>,
         }
         impl ::pilota::thrift::Message for ComplexEnumKeyMapTest {
-            fn encode<T: ::pilota::thrift::TOutputProtocol>(
+            fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                 &self,
-                __protocol: &mut T,
+                __protocol: &mut __PilotaProtocol,
             ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TOutputProtocolExt;
@@ -694,8 +700,8 @@ pub mod complex_enum_key_map {
                 }
             }
 
-            fn decode<T: ::pilota::thrift::TInputProtocol>(
-                __protocol: &mut T,
+            fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                __protocol: &mut __PilotaProtocol,
             ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException> {
                 #[allow(unused_imports)]
                 use ::pilota::{Buf, thrift::TLengthProtocolExt};
@@ -859,13 +865,13 @@ pub mod complex_enum_key_map {
                 ::std::result::Result::Ok(data)
             }
 
-            fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                __protocol: &'a mut T,
+            fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                __protocol: &'a mut __PilotaProtocol,
             ) -> ::std::pin::Pin<
                 ::std::boxed::Box<
                     dyn ::std::future::Future<
                             Output = ::std::result::Result<Self, ::pilota::thrift::ThriftException>,
-                        > + Send
+                        > + ::std::marker::Send
                         + 'a,
                 >,
             > {
@@ -1007,7 +1013,10 @@ pub mod complex_enum_key_map {
                 })
             }
 
-            fn size<T: ::pilota::thrift::TLengthProtocol>(&self, __protocol: &mut T) -> usize {
+            fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
+                &self,
+                __protocol: &mut __PilotaProtocol,
+            ) -> usize {
                 #[allow(unused_imports)]
                 use ::pilota::thrift::TLengthProtocolExt;
                 if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {

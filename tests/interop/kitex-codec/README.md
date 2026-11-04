@@ -19,7 +19,7 @@ cargo +nightly test -p pilota-build --test thrift_streaming --test thrift_codec_
 生成供共用工具反向验证的 Rust bytes（不会覆盖 golden）：
 
 ```bash
-PILOTA_CODEC_VERIFY_OUTPUT=/tmp/rust-golden.json cargo +nightly test -p pilota-build --test thrift_codec_golden
+PILOTA_CODEC_VERIFY_OUTPUT="$PWD/target/rust-golden.json" cargo +nightly test -p pilota-build --test thrift_codec_golden
 ```
 
 显式更新只使用 Volo 工具，按计划的 `idl-matrix` / `codec-golden --regenerate` 命令生成，review 差异后更新此目录。不能在 cargo test 中自动更新期望或启动 Go。
@@ -31,3 +31,15 @@ The executed maintenance runner source is pinned separately in
 reverse checks through that shared entry point. `common-codec-regenerate.json`
 records explicit proposal generation, with no mutation of committed golden bytes.
 Broader runner suites and later source revisions are not implied by these reports.
+
+## Thrift over gRPC 数据
+
+`grpc-payload-golden.json` 由固定 Kitex gRPC codec 的实际 Marshal/Unmarshal 路径生成，包含19组 raw streaming、unary Args/Result、每个声明异常、void 与空 STOP；同时记录 service/method/package/path、生成 API 形态和 malformed Result 的真实容错差异。Go 的缺 success/多个 Result 字段容忍不等同于一次 RPC 成功，Rust 严格 Result 保留区别。
+
+```sh
+cargo test -p pilota-build --test thrift_grpc_ir --test thrift_grpc_golden
+```
+
+普通 Cargo 测试仅读提交的 bytes，不启动 Go。动态校验仍由 Volo 的同一 module/runner 提供，不能自动覆盖 golden。跨文件 include/继承的 package 归属按实际 thriftgo 产物冻结；0字节负例与一个 STOP 字节的空 struct 分开处理。
+
+本轮 metainfo 的 transient/persistent 传播属于 Volo runtime；Pilota 不引入 Kitex bugfix flag、CP 或 HTTP/2 runtime。

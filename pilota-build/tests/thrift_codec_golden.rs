@@ -140,6 +140,17 @@ fn ordinary_message_and_typedef_have_no_transport_dependency() {
     assert_eq!(encoded(&alias), encoded(&alias.0));
 }
 
+#[test]
+fn missing_required_field_differs_from_an_explicit_zero_value() {
+    let mut missing = Bytes::from_static(b"\0");
+    let error = Nested::decode(&mut TBinaryProtocol::new(&mut missing, true)).unwrap_err();
+    assert!(error.to_string().contains("required"));
+    let mut explicit_zero = Bytes::from_static(b"\x08\0\x01\0\0\0\0\0");
+    let value = Nested::decode(&mut TBinaryProtocol::new(&mut explicit_zero, true)).unwrap();
+    assert_eq!(value.value, 0);
+    assert_eq!(value.label, None);
+}
+
 include!("../test_data/thrift/ttstream_typing.rs");
 
 #[test]

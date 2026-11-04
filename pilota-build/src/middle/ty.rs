@@ -103,8 +103,22 @@ impl CodegenTy {
         }
     }
 
-    /// get the global path for ty.
+    /// Get the global path for a type using one common module prefix.
     pub fn global_path(&self, adt_prefix: &str) -> faststr::FastStr {
+        self.qualified_path(&|did| {
+            with_cx(|cx| {
+                let path = cx.item_path(did).iter().map(ToString::to_string).join("::");
+                format!("{adt_prefix}::{path}").into()
+            })
+        })
+    }
+
+    /// Qualify every data type, including those nested in containers, with a
+    /// resolver that can distinguish local modules from workspace crates.
+    pub fn qualified_path(
+        &self,
+        adt_path: &impl Fn(DefId) -> faststr::FastStr,
+    ) -> faststr::FastStr {
         match self {
             CodegenTy::String => "::std::string::String".into(),
             CodegenTy::FastStr => "::pilota::FastStr".into(),
@@ -124,25 +138,25 @@ impl CodegenTy {
             CodegenTy::Uuid => "[u8; 16]".into(),
             CodegenTy::StaticRef(ty) => {
                 let ty = &**ty;
-                format!("&'static {}", ty.global_path(adt_prefix)).into()
+                format!("&'static {}", ty.qualified_path(adt_path)).into()
             }
             CodegenTy::Vec(ty) => {
                 let ty = &**ty;
-                format!("::std::vec::Vec<{}>", ty.global_path(adt_prefix)).into()
+                format!("::std::vec::Vec<{}>", ty.qualified_path(adt_path)).into()
             }
             CodegenTy::Array(ty, size) => {
                 let ty = &**ty;
-                format!("[{}; {}]", ty.global_path(adt_prefix), size).into()
+                format!("[{}; {}]", ty.qualified_path(adt_path), size).into()
             }
             CodegenTy::Set(ty) => {
                 let ty = &**ty;
-                format!("::pilota::AHashSet<{}>", ty.global_path(adt_prefix)).into()
+                format!("::pilota::AHashSet<{}>", ty.qualified_path(adt_path)).into()
             }
             CodegenTy::BTreeSet(ty) => {
                 let ty = &**ty;
                 format!(
                     "::std::collections::BTreeSet<{}>",
-                    ty.global_path(adt_prefix)
+                    ty.qualified_path(adt_path)
                 )
                 .into()
             }
@@ -151,8 +165,8 @@ impl CodegenTy {
                 let v = &**v;
                 format!(
                     "::pilota::AHashMap<{}, {}>",
-                    k.global_path(adt_prefix),
-                    v.global_path(adt_prefix)
+                    k.qualified_path(adt_path),
+                    v.qualified_path(adt_path)
                 )
                 .into()
             }
@@ -161,25 +175,17 @@ impl CodegenTy {
                 let v = &**v;
                 format!(
                     "::std::collections::BTreeMap<{}, {}>",
-                    k.global_path(adt_prefix),
-                    v.global_path(adt_prefix)
+                    k.qualified_path(adt_path),
+                    v.qualified_path(adt_path)
                 )
                 .into()
             }
-            CodegenTy::Adt(def) => with_cx(|cx| {
-                let path = cx
-                    .item_path(def.did)
-                    .iter()
-                    .map(|item| item.to_string())
-                    .join("::");
-
-                format!("{adt_prefix}::{path}").into()
-            }),
+            CodegenTy::Adt(def) => adt_path(def.did),
             CodegenTy::Arc(ty) => {
                 let ty = &**ty;
-                format!("::std::sync::Arc<{}>", ty.global_path(adt_prefix)).into()
+                format!("::std::sync::Arc<{}>", ty.qualified_path(adt_path)).into()
             }
-            CodegenTy::LazyStaticRef(ty) => ty.global_path(adt_prefix),
+            CodegenTy::LazyStaticRef(ty) => ty.qualified_path(adt_path),
             CodegenTy::Bytes => "::pilota::Bytes".into(),
         }
     }

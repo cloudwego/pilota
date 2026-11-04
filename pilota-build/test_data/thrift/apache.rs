@@ -96,9 +96,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for Numberz {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -107,8 +107,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -124,8 +124,8 @@ pub mod apache {
                         )
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -133,7 +133,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -150,9 +150,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -183,9 +183,9 @@ pub mod apache {
                     pub big_numbers: ::std::option::Option<::std::vec::Vec<i32>>,
                 }
                 impl ::pilota::thrift::Message for LargeDeltas {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -270,8 +270,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -435,8 +435,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -444,7 +444,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -556,9 +556,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -608,9 +608,9 @@ pub mod apache {
                     pub thing: i32,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestI32ArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -626,8 +626,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -688,8 +688,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -697,7 +697,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -757,9 +757,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -781,9 +781,9 @@ pub mod apache {
                     pub thing: ::pilota::AHashSet<i32>,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestSetArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -807,8 +807,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -878,8 +878,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -887,7 +887,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -953,9 +953,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -994,9 +994,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestMultiExceptionException {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -1025,8 +1025,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -1093,8 +1093,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -1102,7 +1102,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -1168,9 +1168,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -1193,9 +1193,9 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestVoidArgsSend {}
                 impl ::pilota::thrift::Message for ThriftTestTestVoidArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -1211,8 +1211,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -1256,8 +1256,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -1265,7 +1265,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -1311,9 +1311,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -1333,9 +1333,9 @@ pub mod apache {
                     pub thing: Xtruct,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestStructArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -1355,8 +1355,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -1419,8 +1419,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -1428,7 +1428,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -1488,9 +1488,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -1536,9 +1536,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestMultiResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -1560,8 +1560,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -1609,8 +1609,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -1618,7 +1618,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -1666,9 +1666,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -1701,9 +1701,9 @@ pub mod apache {
                     pub s: ::std::option::Option<::pilota::FastStr>,
                 }
                 impl ::pilota::thrift::Message for BoolTest {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -1722,8 +1722,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -1788,8 +1788,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -1797,7 +1797,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -1854,9 +1854,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -1880,9 +1880,9 @@ pub mod apache {
                     pub thing: i64,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestI64ArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -1898,8 +1898,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -1960,8 +1960,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -1969,7 +1969,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -2029,9 +2029,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -2064,9 +2064,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestEnumResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -2084,8 +2084,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -2133,8 +2133,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -2142,7 +2142,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -2190,9 +2190,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -2229,9 +2229,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestOnewayResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -2247,8 +2247,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -2278,8 +2278,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -2287,7 +2287,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -2316,9 +2316,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -2340,9 +2340,9 @@ pub mod apache {
                     pub thing: ::pilota::FastStr,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestStringArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -2358,8 +2358,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -2421,8 +2421,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -2430,7 +2430,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -2490,9 +2490,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -2528,9 +2528,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestMapResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -2561,8 +2561,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -2627,8 +2627,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -2636,7 +2636,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -2697,9 +2697,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -2730,9 +2730,9 @@ pub mod apache {
                     pub i64_thing: ::std::option::Option<i64>,
                 }
                 impl ::pilota::thrift::Message for Xtruct3 {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -2757,8 +2757,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -2841,8 +2841,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -2850,7 +2850,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -2918,9 +2918,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -2960,9 +2960,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestBinaryResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -2980,8 +2980,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -3028,8 +3028,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -3037,7 +3037,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -3085,9 +3085,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -3125,9 +3125,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for SecondServiceSecondtestStringResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -3145,8 +3145,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -3195,8 +3195,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -3204,7 +3204,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -3254,9 +3254,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -3294,9 +3294,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestByteResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -3314,8 +3314,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -3362,8 +3362,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -3371,7 +3371,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -3419,9 +3419,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -3447,9 +3447,9 @@ pub mod apache {
                     pub arg: ::pilota::FastStr,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestExceptionArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -3465,8 +3465,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -3528,8 +3528,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -3537,7 +3537,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -3597,9 +3597,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -3634,9 +3634,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestMapMapResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -3679,8 +3679,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -3763,8 +3763,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -3772,7 +3772,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -3845,9 +3845,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -3882,9 +3882,9 @@ pub mod apache {
                     pub hello: ::std::option::Option<::pilota::FastStr>,
                 }
                 impl ::pilota::thrift::Message for ListTypeVersioningV1 {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -3913,8 +3913,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -3989,8 +3989,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -3998,7 +3998,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -4064,9 +4064,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -4109,9 +4109,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestSetResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -4137,8 +4137,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -4198,8 +4198,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -4207,7 +4207,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -4266,9 +4266,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -4307,9 +4307,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestStructResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -4331,8 +4331,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -4380,8 +4380,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -4389,7 +4389,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -4437,9 +4437,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -4470,9 +4470,9 @@ pub mod apache {
                     >,
                 }
                 impl ::pilota::thrift::Message for NestedMixedx2 {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -4560,8 +4560,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -4711,8 +4711,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -4720,7 +4720,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -4833,9 +4833,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -4916,9 +4916,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestI64ResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -4936,8 +4936,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -4984,8 +4984,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -4993,7 +4993,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -5041,9 +5041,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -5072,9 +5072,9 @@ pub mod apache {
                     pub arg1: ::pilota::FastStr,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestMultiExceptionArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -5091,8 +5091,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -5173,8 +5173,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -5182,7 +5182,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -5257,9 +5257,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -5295,9 +5295,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestStringResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -5315,8 +5315,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -5363,8 +5363,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -5372,7 +5372,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -5420,9 +5420,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -5462,9 +5462,9 @@ pub mod apache {
                     pub arg5: UserId,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestMultiArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -5502,8 +5502,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -5662,8 +5662,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -5671,7 +5671,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -5806,9 +5806,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -5841,9 +5841,9 @@ pub mod apache {
                     pub im_false: ::std::option::Option<bool>,
                 }
                 impl ::pilota::thrift::Message for Bools {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -5862,8 +5862,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -5930,8 +5930,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -5939,7 +5939,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -5997,9 +5997,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -6031,9 +6031,9 @@ pub mod apache {
                     pub bin_map: ::std::option::Option<::pilota::AHashMap<::pilota::Bytes, i32>>,
                 }
                 impl ::pilota::thrift::Message for OptionalBinary {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -6064,8 +6064,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -6140,8 +6140,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -6149,7 +6149,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -6216,9 +6216,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -6247,9 +6247,9 @@ pub mod apache {
                     pub thing: Numberz,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestEnumArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -6265,8 +6265,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -6329,8 +6329,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -6338,7 +6338,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -6398,9 +6398,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -6426,9 +6426,9 @@ pub mod apache {
                     pub thing: ::pilota::AHashMap<i32, i32>,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestMapArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -6457,8 +6457,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -6531,8 +6531,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -6540,7 +6540,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -6608,9 +6608,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -6637,9 +6637,9 @@ pub mod apache {
                     pub thing: ::pilota::Bytes,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestBinaryArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -6655,8 +6655,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -6718,8 +6718,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -6727,7 +6727,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -6787,9 +6787,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -6810,9 +6810,9 @@ pub mod apache {
                     pub thing: UserId,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestTypedefArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -6832,8 +6832,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -6896,8 +6896,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -6905,7 +6905,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -6965,9 +6965,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -6993,9 +6993,9 @@ pub mod apache {
                     pub thing: i8,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestByteArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -7011,8 +7011,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -7073,8 +7073,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -7082,7 +7082,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -7142,9 +7142,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -7166,9 +7166,9 @@ pub mod apache {
                     pub thing: ::pilota::AHashMap<::pilota::FastStr, ::pilota::FastStr>,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestStringMapArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -7197,8 +7197,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -7271,8 +7271,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -7280,7 +7280,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -7348,9 +7348,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -7371,9 +7371,9 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct EmptyStruct {}
                 impl ::pilota::thrift::Message for EmptyStruct {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -7389,8 +7389,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -7437,8 +7437,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -7446,7 +7446,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -7492,9 +7492,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -7514,9 +7514,9 @@ pub mod apache {
                     pub thing: [u8; 16],
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestUuidArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -7532,8 +7532,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -7595,8 +7595,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -7604,7 +7604,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -7664,9 +7664,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -7711,9 +7711,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestInsanityResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -7756,8 +7756,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -7849,8 +7849,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -7858,7 +7858,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -7924,9 +7924,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -7960,9 +7960,9 @@ pub mod apache {
                     pub integerlist: ::std::option::Option<::std::vec::Vec<::std::vec::Vec<i32>>>,
                 }
                 impl ::pilota::thrift::Message for NestedListsI32x2 {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -7995,8 +7995,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -8073,8 +8073,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -8082,7 +8082,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -8149,9 +8149,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -8184,9 +8184,9 @@ pub mod apache {
                     pub thing: i32,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestI32ArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -8202,8 +8202,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -8264,8 +8264,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -8273,7 +8273,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -8333,9 +8333,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -8370,9 +8370,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestListResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -8398,8 +8398,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -8462,8 +8462,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -8471,7 +8471,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -8529,9 +8529,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -8554,9 +8554,9 @@ pub mod apache {
                 #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
                 pub struct ThriftTestTestVoidArgsRecv {}
                 impl ::pilota::thrift::Message for ThriftTestTestVoidArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -8572,8 +8572,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -8617,8 +8617,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -8626,7 +8626,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -8672,9 +8672,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -8706,9 +8706,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestNestResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -8730,8 +8730,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -8779,8 +8779,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -8788,7 +8788,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -8836,9 +8836,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -8873,9 +8873,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for UserId {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -8884,8 +8884,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -8893,8 +8893,8 @@ pub mod apache {
                         ::std::result::Result::Ok(UserId(__protocol.read_i64()?))
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -8902,7 +8902,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -8911,9 +8911,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -8926,9 +8926,9 @@ pub mod apache {
                     pub s: ::pilota::FastStr,
                 }
                 impl ::pilota::thrift::Message for StructA {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -8942,8 +8942,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -9008,8 +9008,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -9017,7 +9017,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -9077,9 +9077,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -9112,9 +9112,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestDoubleResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -9132,8 +9132,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -9180,8 +9180,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -9189,7 +9189,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -9237,9 +9237,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -9275,9 +9275,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestBoolResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -9295,8 +9295,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -9343,8 +9343,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -9352,7 +9352,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -9400,9 +9400,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -9425,9 +9425,9 @@ pub mod apache {
                     pub xtructs: ::std::option::Option<::std::vec::Vec<Xtruct>>,
                 }
                 impl ::pilota::thrift::Message for Insanity {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -9467,8 +9467,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -9556,8 +9556,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -9565,7 +9565,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -9639,9 +9639,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -9689,9 +9689,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestTypedefResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -9713,8 +9713,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -9762,8 +9762,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -9771,7 +9771,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -9819,9 +9819,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -9859,9 +9859,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestStringMapResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -9892,8 +9892,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -9958,8 +9958,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -9967,7 +9967,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -10028,9 +10028,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -10062,9 +10062,9 @@ pub mod apache {
                     pub arg: ::pilota::FastStr,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestExceptionArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -10080,8 +10080,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -10143,8 +10143,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -10152,7 +10152,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -10212,9 +10212,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -10247,9 +10247,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestUuidResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -10267,8 +10267,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -10315,8 +10315,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -10324,7 +10324,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -10372,9 +10372,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -10396,9 +10396,9 @@ pub mod apache {
                     pub hello: ::std::option::Option<::pilota::FastStr>,
                 }
                 impl ::pilota::thrift::Message for ListTypeVersioningV2 {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -10427,8 +10427,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -10503,8 +10503,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -10512,7 +10512,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -10578,9 +10578,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -10621,9 +10621,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestI32ResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -10641,8 +10641,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -10689,8 +10689,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -10698,7 +10698,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -10746,9 +10746,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -10780,9 +10780,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestVoidResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -10798,8 +10798,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -10829,8 +10829,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -10838,7 +10838,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -10867,9 +10867,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -10897,9 +10897,9 @@ pub mod apache {
                     pub argument: Insanity,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestInsanityArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -10919,8 +10919,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -10983,8 +10983,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -10992,7 +10992,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -11052,9 +11052,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -11072,9 +11072,9 @@ pub mod apache {
                     pub bonk: ::std::option::Option<::std::vec::Vec<Bonk>>,
                 }
                 impl ::pilota::thrift::Message for ListBonks {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -11099,8 +11099,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -11167,8 +11167,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -11176,7 +11176,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -11235,9 +11235,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -11265,9 +11265,9 @@ pub mod apache {
                     pub thing: ::std::vec::Vec<i32>,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestListArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -11291,8 +11291,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -11365,8 +11365,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -11374,7 +11374,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -11442,9 +11442,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -11483,9 +11483,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestOnewayResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -11501,8 +11501,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -11532,8 +11532,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -11541,7 +11541,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -11570,9 +11570,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -11594,9 +11594,9 @@ pub mod apache {
                     pub thing: Xtruct2,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestNestArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -11616,8 +11616,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -11680,8 +11680,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -11689,7 +11689,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -11749,9 +11749,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -11789,9 +11789,9 @@ pub mod apache {
                     pub arg5: UserId,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestMultiArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -11829,8 +11829,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -11989,8 +11989,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -11998,7 +11998,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -12133,9 +12133,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -12172,9 +12172,9 @@ pub mod apache {
                     pub i64_thing: ::std::option::Option<i64>,
                 }
                 impl ::pilota::thrift::Message for Xtruct {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -12199,8 +12199,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -12283,8 +12283,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -12292,7 +12292,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -12360,9 +12360,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -12390,9 +12390,9 @@ pub mod apache {
                     pub thing: f64,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestDoubleArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -12408,8 +12408,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -12471,8 +12471,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -12480,7 +12480,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -12540,9 +12540,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -12564,9 +12564,9 @@ pub mod apache {
                     pub thing: Numberz,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestEnumArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -12582,8 +12582,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -12646,8 +12646,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -12655,7 +12655,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -12715,9 +12715,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -12753,9 +12753,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for SecondServiceSecondtestStringResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -12773,8 +12773,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -12823,8 +12823,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -12832,7 +12832,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -12882,9 +12882,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -12908,9 +12908,9 @@ pub mod apache {
                     pub thing: bool,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestBoolArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -12926,8 +12926,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -12989,8 +12989,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -12998,7 +12998,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -13058,9 +13058,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -13082,9 +13082,9 @@ pub mod apache {
                     pub thing: ::pilota::AHashMap<i32, i32>,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestMapArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -13113,8 +13113,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -13187,8 +13187,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -13196,7 +13196,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -13264,9 +13264,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -13302,9 +13302,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestExceptionException {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -13326,8 +13326,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -13375,8 +13375,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -13384,7 +13384,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -13432,9 +13432,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -13458,9 +13458,9 @@ pub mod apache {
                     pub thing: ::pilota::Bytes,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestBinaryArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -13476,8 +13476,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -13539,8 +13539,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -13548,7 +13548,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -13608,9 +13608,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -13645,9 +13645,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestMapMapResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -13690,8 +13690,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -13774,8 +13774,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -13783,7 +13783,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -13856,9 +13856,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -13895,9 +13895,9 @@ pub mod apache {
                     pub end_in_both: ::std::option::Option<i32>,
                 }
                 impl ::pilota::thrift::Message for VersioningTestV1 {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -13921,8 +13921,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -13994,8 +13994,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -14003,7 +14003,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -14066,9 +14066,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -14095,9 +14095,9 @@ pub mod apache {
                     pub thing: i8,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestByteArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -14113,8 +14113,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -14175,8 +14175,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -14184,7 +14184,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -14244,9 +14244,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -14281,9 +14281,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestSetResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -14309,8 +14309,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -14370,8 +14370,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -14379,7 +14379,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -14438,9 +14438,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -14463,9 +14463,9 @@ pub mod apache {
                     pub field: ::std::option::Option<EmptyStruct>,
                 }
                 impl ::pilota::thrift::Message for OneField {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -14485,8 +14485,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -14543,8 +14543,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -14552,7 +14552,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -14603,9 +14603,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -14639,9 +14639,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestStructResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -14663,8 +14663,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -14712,8 +14712,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -14721,7 +14721,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -14769,9 +14769,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -14793,9 +14793,9 @@ pub mod apache {
                     >,
                 }
                 impl ::pilota::thrift::Message for NestedListsI32x3 {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -14835,8 +14835,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -14933,8 +14933,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -14942,7 +14942,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -15017,9 +15017,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -15070,9 +15070,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestI64ResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -15090,8 +15090,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -15138,8 +15138,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -15147,7 +15147,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -15195,9 +15195,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -15233,9 +15233,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestStringResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -15253,8 +15253,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -15301,8 +15301,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -15310,7 +15310,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -15358,9 +15358,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -15408,9 +15408,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestMultiResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -15432,8 +15432,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -15481,8 +15481,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -15490,7 +15490,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -15538,9 +15538,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -15562,9 +15562,9 @@ pub mod apache {
                     pub r#type: ::std::option::Option<i32>,
                 }
                 impl ::pilota::thrift::Message for Bonk {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -15583,8 +15583,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -15650,8 +15650,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -15659,7 +15659,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -15717,9 +15717,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -15743,9 +15743,9 @@ pub mod apache {
                     pub ab: StructA,
                 }
                 impl ::pilota::thrift::Message for StructB {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -15770,8 +15770,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -15849,8 +15849,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -15858,7 +15858,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -15925,9 +15925,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -15962,9 +15962,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestEnumResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -15982,8 +15982,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -16031,8 +16031,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -16040,7 +16040,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -16088,9 +16088,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -16114,9 +16114,9 @@ pub mod apache {
                     pub seconds_to_sleep: i32,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestOnewayArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -16132,8 +16132,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -16196,8 +16196,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -16205,7 +16205,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -16267,9 +16267,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -16305,9 +16305,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestMapResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -16338,8 +16338,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -16404,8 +16404,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -16413,7 +16413,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -16474,9 +16474,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -16523,9 +16523,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestExceptionResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -16548,8 +16548,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -16594,8 +16594,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -16603,7 +16603,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -16648,9 +16648,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -16692,9 +16692,9 @@ pub mod apache {
                     pub uuid_field: ::std::option::Option<[u8; 16]>,
                 }
                 impl ::pilota::thrift::Message for CrazyNesting {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -16760,8 +16760,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -16942,8 +16942,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -16951,7 +16951,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -17091,9 +17091,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -17189,9 +17189,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestBinaryResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -17209,8 +17209,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -17257,8 +17257,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -17266,7 +17266,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -17314,9 +17314,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -17340,9 +17340,9 @@ pub mod apache {
                     pub thing: ::pilota::FastStr,
                 }
                 impl ::pilota::thrift::Message for SecondServiceSecondtestStringArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -17358,8 +17358,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -17421,8 +17421,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -17430,7 +17430,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -17490,9 +17490,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -17528,9 +17528,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestByteResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -17548,8 +17548,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -17596,8 +17596,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -17605,7 +17605,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -17653,9 +17653,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -17703,9 +17703,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestMultiExceptionResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -17741,8 +17741,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -17824,8 +17824,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -17833,7 +17833,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -17915,9 +17915,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -17944,9 +17944,9 @@ pub mod apache {
                     pub message: ::std::option::Option<::pilota::FastStr>,
                 }
                 impl ::pilota::thrift::Message for Xception {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -17965,8 +17965,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -18032,8 +18032,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -18041,7 +18041,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -18099,9 +18099,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -18126,9 +18126,9 @@ pub mod apache {
                     pub hello: i32,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestMapMapArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -18144,8 +18144,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -18206,8 +18206,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -18215,7 +18215,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -18275,9 +18275,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -18296,9 +18296,9 @@ pub mod apache {
                     >,
                 }
                 impl ::pilota::thrift::Message for GuessProtocolStruct {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -18329,8 +18329,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -18394,8 +18394,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -18403,7 +18403,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -18462,9 +18462,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -18494,9 +18494,9 @@ pub mod apache {
                     pub thing: ::pilota::AHashSet<i32>,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestSetArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -18520,8 +18520,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -18591,8 +18591,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -18600,7 +18600,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -18666,9 +18666,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -18693,9 +18693,9 @@ pub mod apache {
                     pub thing: Xtruct,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestStructArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -18715,8 +18715,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -18779,8 +18779,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -18788,7 +18788,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -18848,9 +18848,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -18878,9 +18878,9 @@ pub mod apache {
                     pub argument: Insanity,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestInsanityArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -18900,8 +18900,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -18964,8 +18964,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -18973,7 +18973,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -19033,9 +19033,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -19055,9 +19055,9 @@ pub mod apache {
                     >,
                 }
                 impl ::pilota::thrift::Message for NestedListsBonk {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -19097,8 +19097,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -19179,8 +19179,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -19188,7 +19188,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -19263,9 +19263,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -19304,9 +19304,9 @@ pub mod apache {
                     pub thing: i64,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestI64ArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -19322,8 +19322,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -19384,8 +19384,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -19393,7 +19393,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -19453,9 +19453,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -19477,9 +19477,9 @@ pub mod apache {
                     pub thing: ::std::vec::Vec<i32>,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestListArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -19503,8 +19503,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -19577,8 +19577,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -19586,7 +19586,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -19654,9 +19654,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -19681,9 +19681,9 @@ pub mod apache {
                     pub thing: ::pilota::FastStr,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestStringArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -19699,8 +19699,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -19762,8 +19762,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -19771,7 +19771,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -19831,9 +19831,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -19855,9 +19855,9 @@ pub mod apache {
                     pub thing: Xtruct2,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestNestArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -19877,8 +19877,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -19941,8 +19941,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -19950,7 +19950,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -20010,9 +20010,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -20052,9 +20052,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestExceptionResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -20077,8 +20077,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -20123,8 +20123,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -20132,7 +20132,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -20177,9 +20177,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -20204,9 +20204,9 @@ pub mod apache {
                     pub i32_thing: ::std::option::Option<i32>,
                 }
                 impl ::pilota::thrift::Message for Xtruct2 {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -20232,8 +20232,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -20308,8 +20308,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -20317,7 +20317,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -20380,9 +20380,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -20408,9 +20408,9 @@ pub mod apache {
                     pub thing: f64,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestDoubleArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -20426,8 +20426,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -20489,8 +20489,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -20498,7 +20498,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -20558,9 +20558,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -20594,9 +20594,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestTypedefResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -20618,8 +20618,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -20667,8 +20667,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -20676,7 +20676,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -20724,9 +20724,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -20750,9 +20750,9 @@ pub mod apache {
                     pub thing: bool,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestBoolArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -20768,8 +20768,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -20831,8 +20831,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -20840,7 +20840,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -20900,9 +20900,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -20937,9 +20937,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestStringMapResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -20970,8 +20970,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -21036,8 +21036,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -21045,7 +21045,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -21106,9 +21106,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -21150,9 +21150,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestUuidResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -21170,8 +21170,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -21218,8 +21218,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -21227,7 +21227,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -21275,9 +21275,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -21319,9 +21319,9 @@ pub mod apache {
                     pub end_in_both: ::std::option::Option<i32>,
                 }
                 impl ::pilota::thrift::Message for VersioningTestV2 {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -21405,8 +21405,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -21586,8 +21586,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -21595,7 +21595,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -21725,9 +21725,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -21800,9 +21800,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestI32ResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -21820,8 +21820,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -21868,8 +21868,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -21877,7 +21877,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -21925,9 +21925,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -21975,9 +21975,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestMultiExceptionResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -22013,8 +22013,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -22096,8 +22096,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -22105,7 +22105,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -22187,9 +22187,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -22227,9 +22227,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestVoidResultRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -22245,8 +22245,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -22276,8 +22276,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -22285,7 +22285,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -22314,9 +22314,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -22362,9 +22362,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestInsanityResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -22407,8 +22407,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -22500,8 +22500,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -22509,7 +22509,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -22575,9 +22575,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -22611,9 +22611,9 @@ pub mod apache {
                     pub doublelist: ::std::option::Option<::std::vec::Vec<::std::vec::Vec<f64>>>,
                 }
                 impl ::pilota::thrift::Message for NestedListsDoublex2 {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -22646,8 +22646,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -22724,8 +22724,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -22733,7 +22733,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -22800,9 +22800,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -22849,9 +22849,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestListResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -22877,8 +22877,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -22941,8 +22941,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -22950,7 +22950,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -23008,9 +23008,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -23042,9 +23042,9 @@ pub mod apache {
                     pub arg1: ::pilota::FastStr,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestMultiExceptionArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -23061,8 +23061,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -23143,8 +23143,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -23152,7 +23152,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -23227,9 +23227,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -23265,9 +23265,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestNestResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -23289,8 +23289,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -23338,8 +23338,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -23347,7 +23347,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -23395,9 +23395,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -23429,9 +23429,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for MapType {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -23452,8 +23452,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -23472,8 +23472,8 @@ pub mod apache {
                         }))
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -23481,7 +23481,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -23504,9 +23504,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -23534,9 +23534,9 @@ pub mod apache {
                     pub with_default: ::std::option::Option<::pilota::AHashSet<::pilota::FastStr>>,
                 }
                 impl ::pilota::thrift::Message for OptionalSetDefaultTest {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -23562,8 +23562,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -23632,8 +23632,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -23641,7 +23641,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -23706,9 +23706,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -23747,9 +23747,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestDoubleResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -23767,8 +23767,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -23815,8 +23815,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -23824,7 +23824,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -23872,9 +23872,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -23899,9 +23899,9 @@ pub mod apache {
                     pub seconds_to_sleep: i32,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestOnewayArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -23917,8 +23917,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -23981,8 +23981,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -23990,7 +23990,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -24052,9 +24052,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -24088,9 +24088,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for ThriftTestTestBoolResultSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -24108,8 +24108,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -24156,8 +24156,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -24165,7 +24165,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -24213,9 +24213,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -24248,9 +24248,9 @@ pub mod apache {
                 }
 
                 impl ::pilota::thrift::Message for SomeUnion {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -24301,8 +24301,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -24425,8 +24425,8 @@ pub mod apache {
                         }
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -24434,7 +24434,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -24548,9 +24548,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -24591,9 +24591,9 @@ pub mod apache {
                     pub thing: UserId,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestTypedefArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -24613,8 +24613,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -24677,8 +24677,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -24686,7 +24686,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -24746,9 +24746,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -24770,9 +24770,9 @@ pub mod apache {
                     pub thing: ::pilota::FastStr,
                 }
                 impl ::pilota::thrift::Message for SecondServiceSecondtestStringArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -24788,8 +24788,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -24851,8 +24851,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -24860,7 +24860,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -24920,9 +24920,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -24945,9 +24945,9 @@ pub mod apache {
                     pub thing: ::pilota::AHashMap<::pilota::FastStr, ::pilota::FastStr>,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestStringMapArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -24976,8 +24976,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -25050,8 +25050,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -25059,7 +25059,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -25127,9 +25127,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -25153,9 +25153,9 @@ pub mod apache {
                     pub struct_thing: ::std::option::Option<Xtruct>,
                 }
                 impl ::pilota::thrift::Message for Xception2 {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -25179,8 +25179,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -25247,8 +25247,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -25256,7 +25256,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -25314,9 +25314,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -25340,9 +25340,9 @@ pub mod apache {
                     pub thing: [u8; 16],
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestUuidArgsSend {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -25358,8 +25358,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -25421,8 +25421,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -25430,7 +25430,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -25490,9 +25490,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
@@ -25514,9 +25514,9 @@ pub mod apache {
                     pub hello: i32,
                 }
                 impl ::pilota::thrift::Message for ThriftTestTestMapMapArgsRecv {
-                    fn encode<T: ::pilota::thrift::TOutputProtocol>(
+                    fn encode<__PilotaProtocol: ::pilota::thrift::TOutputProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<(), ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -25532,8 +25532,8 @@ pub mod apache {
                         ::std::result::Result::Ok(())
                     }
 
-                    fn decode<T: ::pilota::thrift::TInputProtocol>(
-                        __protocol: &mut T,
+                    fn decode<__PilotaProtocol: ::pilota::thrift::TInputProtocol>(
+                        __protocol: &mut __PilotaProtocol,
                     ) -> ::std::result::Result<Self, ::pilota::thrift::ThriftException>
                     {
                         #[allow(unused_imports)]
@@ -25594,8 +25594,8 @@ pub mod apache {
                         ::std::result::Result::Ok(data)
                     }
 
-                    fn decode_async<'a, T: ::pilota::thrift::TAsyncInputProtocol>(
-                        __protocol: &'a mut T,
+                    fn decode_async<'a, __PilotaProtocol: ::pilota::thrift::TAsyncInputProtocol>(
+                        __protocol: &'a mut __PilotaProtocol,
                     ) -> ::std::pin::Pin<
                         ::std::boxed::Box<
                             dyn ::std::future::Future<
@@ -25603,7 +25603,7 @@ pub mod apache {
                                         Self,
                                         ::pilota::thrift::ThriftException,
                                     >,
-                                > + Send
+                                > + ::std::marker::Send
                                 + 'a,
                         >,
                     > {
@@ -25663,9 +25663,9 @@ pub mod apache {
                         })
                     }
 
-                    fn size<T: ::pilota::thrift::TLengthProtocol>(
+                    fn size<__PilotaProtocol: ::pilota::thrift::TLengthProtocol>(
                         &self,
-                        __protocol: &mut T,
+                        __protocol: &mut __PilotaProtocol,
                     ) -> usize {
                         #[allow(unused_imports)]
                         use ::pilota::thrift::TLengthProtocolExt;
