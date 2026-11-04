@@ -1,0 +1,1417 @@
+{
+  "schemaVersion": 1,
+  "kitex_module_version": "v0.16.4",
+  "tool_sha256": "10f6d74f5ad2c2cd05378929fb5a94128eb2d1a6f6d218958d5a58d34f5a27e0",
+  "cases": [
+    {
+      "name": "mode_none",
+      "input": "idl-matrix/mode_none/input.thrift",
+      "expected_rust": "accepted",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "fca16774e386fed010ddc0f8ceff30ba94ff08a439f3279302edfe28c4336a9d",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_none/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "242207fc38a38d11dfbce79c3849aaf0ca74f833a6dcf350145572248349c600",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "b0ad6ac99db6585cf8f6415e7421c8e36e9f38872b9f3580815c59bda867a337",
+            "kitex_gen/matrix/test/client.go": "dc078e41888ac7d907d6e41e3cd05735bca0c56334d439adec5eb38568bddd38",
+            "kitex_gen/matrix/test/server.go": "479e239b09ec140e3794ce9e685bbe7c763a0379974d5a59daa0276881046ef0",
+            "kitex_gen/matrix/test/test.go": "145d77487ccd2363d15978255ebdb351517404e9a5e392291917e64492879aed"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/mode_none/streamx.log",
+          "signatures": "idl-matrix/mode_none/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "accepted",
+          "idl_sha256": "fca16774e386fed010ddc0f8ceff30ba94ff08a439f3279302edfe28c4336a9d",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_none/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "242207fc38a38d11dfbce79c3849aaf0ca74f833a6dcf350145572248349c600",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "b0ad6ac99db6585cf8f6415e7421c8e36e9f38872b9f3580815c59bda867a337",
+            "kitex_gen/matrix/test/client.go": "e89b1f1a7abd2fdc9ad301b037502d92cc48a33a325dcb8aa3d1b5d9b375d14e",
+            "kitex_gen/matrix/test/server.go": "cae31f4124173c3e3eab313c50a4c6e3eab51bbbc52ea2ee1ecdd29943f933c4",
+            "kitex_gen/matrix/test/test.go": "ff0544126220dcd481a20ea504b35d5ffc3229273d7d2b513a3212188975be3a"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/mode_none/legacy.log",
+          "signatures": "idl-matrix/mode_none/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "mode_unary",
+      "input": "idl-matrix/mode_unary/input.thrift",
+      "expected_rust": "accepted",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "8a8fa5f0cf31b1f2cd1fb1805274f8397902a855781bf7ea6c3dc8ddb771516a",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_unary/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "242207fc38a38d11dfbce79c3849aaf0ca74f833a6dcf350145572248349c600",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "b0ad6ac99db6585cf8f6415e7421c8e36e9f38872b9f3580815c59bda867a337",
+            "kitex_gen/matrix/test/client.go": "1699db53fb1569262282235bda8eac33442a13a54715d3f7a35ff9763e3a32ca",
+            "kitex_gen/matrix/test/server.go": "e335a56af8798ebd5273825f4c609141c0584c9d5033efae55e6b44e999a750c",
+            "kitex_gen/matrix/test/test.go": "7af0cd97a4d7a21e50eba4c2b6c2654cb896634b00bd2884c0e3fe9302e29898"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/mode_unary/streamx.log",
+          "signatures": "idl-matrix/mode_unary/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "compile_failure",
+          "idl_sha256": "8a8fa5f0cf31b1f2cd1fb1805274f8397902a855781bf7ea6c3dc8ddb771516a",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_unary/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "242207fc38a38d11dfbce79c3849aaf0ca74f833a6dcf350145572248349c600",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "b0ad6ac99db6585cf8f6415e7421c8e36e9f38872b9f3580815c59bda867a337",
+            "kitex_gen/matrix/test/client.go": "0477a0e349abc4d79d9bf7bd07e8fa23f16c796502809f07324a3dd2653f843f",
+            "kitex_gen/matrix/test/server.go": "ce2bac6ded6f328a2709f6b25ca6998fd28732118e2cac81d61fb056f693275f",
+            "kitex_gen/matrix/test/test.go": "d7ecedf9e743993fe189b7a66dc8a47783b0af4b956b636fb96ff28a1322eef2"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 1,
+          "log": "idl-matrix/mode_unary/legacy.log",
+          "signatures": "idl-matrix/mode_unary/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "mode_client",
+      "input": "idl-matrix/mode_client/input.thrift",
+      "expected_rust": "accepted",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "128d53166f36060c540b20ab6eb835c76b1750d8b137c90c3ece1500b0cf8b3e",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_client/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "e32e6770dc5aa09a2bfc15f0437c30ee260beb2b681d1b81313ae31d7590fefc",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "b0ad6ac99db6585cf8f6415e7421c8e36e9f38872b9f3580815c59bda867a337",
+            "kitex_gen/matrix/test/client.go": "4f726bf22ffe0b853506e85e9fddf90bf2241049113396bf9d73daa2530d1906",
+            "kitex_gen/matrix/test/server.go": "8d10bbcc59138b71b6e630a14cc910cf1af5dff1a9026bc9788cc7abb20bed55",
+            "kitex_gen/matrix/test/test.go": "cb308c4323b80e434314e33f594598c9fbc4db08a82052f4315ffd33d112d4eb"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/mode_client/streamx.log",
+          "signatures": "idl-matrix/mode_client/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "accepted",
+          "idl_sha256": "128d53166f36060c540b20ab6eb835c76b1750d8b137c90c3ece1500b0cf8b3e",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_client/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "e581769df1404baeccea0311228256d0694e3a6b00b8a4430e3fc454434a8b1d",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "b0ad6ac99db6585cf8f6415e7421c8e36e9f38872b9f3580815c59bda867a337",
+            "kitex_gen/matrix/test/client.go": "5fcee1bba11808c46277f846a813d8022f30b61654528d3c6d3907edf83eb173",
+            "kitex_gen/matrix/test/server.go": "8ac5f979244b405d559bb31ed99db95c88b8039eef8e57a10f1c3ccb16f51fc8",
+            "kitex_gen/matrix/test/test.go": "10283bf4b7f2dc678fbad6a3804f01c7f42b1502f1098e387fe40b9c1b4d6813"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/mode_client/legacy.log",
+          "signatures": "idl-matrix/mode_client/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "mode_server",
+      "input": "idl-matrix/mode_server/input.thrift",
+      "expected_rust": "accepted",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "89545dac68a8a0768d853c61eaa96385d0a63e11085dc379facfc5bfc07f323c",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_server/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "a2ca937548afc160aa1e69384cf5ae2a554ac42e2d29260a81d3a1cae35d60e6",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "b0ad6ac99db6585cf8f6415e7421c8e36e9f38872b9f3580815c59bda867a337",
+            "kitex_gen/matrix/test/client.go": "56dfabe85b00e99b638b0659c91ed8f836fb73fd48611ae28b649c1fe311c366",
+            "kitex_gen/matrix/test/server.go": "ac484e94bdacf58da0b199a897d084de0b1a6dedd61abec2a707d7c1788511ed",
+            "kitex_gen/matrix/test/test.go": "64f6a04e24b80644240a4abb764461f6a6f68cc4d67387eac6ad8b327115951b"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/mode_server/streamx.log",
+          "signatures": "idl-matrix/mode_server/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "accepted",
+          "idl_sha256": "89545dac68a8a0768d853c61eaa96385d0a63e11085dc379facfc5bfc07f323c",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_server/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "11ee7b803c5ba3230ba37512416a55e330efce5495cd5b7947a318eb9890f551",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "b0ad6ac99db6585cf8f6415e7421c8e36e9f38872b9f3580815c59bda867a337",
+            "kitex_gen/matrix/test/client.go": "cab652fbec2c3ca486bb5eec770a1493a5226751900fe299e3030d46c8a4d536",
+            "kitex_gen/matrix/test/server.go": "18fe696b936bd905870f597065d0a9dda96a480ae7d68bf000b446d2a771e4d9",
+            "kitex_gen/matrix/test/test.go": "0ad62be0910c96e14df9693fb718d27240a4c89f9f2fff5eba513d0ff09feccf"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/mode_server/legacy.log",
+          "signatures": "idl-matrix/mode_server/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "mode_bidirectional",
+      "input": "idl-matrix/mode_bidirectional/input.thrift",
+      "expected_rust": "accepted",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "161d36e57c0030d9076ad44a365273091b484aa44ac8d215a21a9b065a01425e",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_bidirectional/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "429d1a4baed04af784c24e77002374b932a2fe550bd12427b5858d0f7bd57829",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "b0ad6ac99db6585cf8f6415e7421c8e36e9f38872b9f3580815c59bda867a337",
+            "kitex_gen/matrix/test/client.go": "af7dc51656a94b9461f78c9a3753db1c5d5ee9c1842de18cd20840361f61dacb",
+            "kitex_gen/matrix/test/server.go": "01baf44fbe6094c14e58838a739221559fc0f2b437609014d8da9066025521ed",
+            "kitex_gen/matrix/test/test.go": "694fd9ff85a48dcffb4e1f0b8220d516f0ace0f68dce9bfd9b385cc50697dc4b"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/mode_bidirectional/streamx.log",
+          "signatures": "idl-matrix/mode_bidirectional/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "accepted",
+          "idl_sha256": "161d36e57c0030d9076ad44a365273091b484aa44ac8d215a21a9b065a01425e",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_bidirectional/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "8309438973f9c366082c7eb823ba6c1adc1f02e2274ed1fffa93be19231d4a9b",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "b0ad6ac99db6585cf8f6415e7421c8e36e9f38872b9f3580815c59bda867a337",
+            "kitex_gen/matrix/test/client.go": "54b5c82b3dc594b7183e4e41d5b12184396649c53e3c081e151462bd5f04dbf2",
+            "kitex_gen/matrix/test/server.go": "f1cb91938cf39ca61236bbea38002ac0c1a718f851bfad9ef288156acd6da022",
+            "kitex_gen/matrix/test/test.go": "77f93ada515b259c136d152ebe2d8aa2aeac972d3fb19ce9146a1526f36b616d"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/mode_bidirectional/legacy.log",
+          "signatures": "idl-matrix/mode_bidirectional/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "mode_invalid",
+      "input": "idl-matrix/mode_invalid/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "rejected",
+          "idl_sha256": "51bec6a0d4a5c992670dbb1c1adbcfe826845a87c0f2d2a818a60c504e57f879",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_invalid/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/mode_invalid/streamx.log",
+          "signatures": "idl-matrix/mode_invalid/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "rejected",
+          "idl_sha256": "51bec6a0d4a5c992670dbb1c1adbcfe826845a87c0f2d2a818a60c504e57f879",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_invalid/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/mode_invalid/legacy.log",
+          "signatures": "idl-matrix/mode_invalid/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "mode_empty",
+      "input": "idl-matrix/mode_empty/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "rejected",
+          "idl_sha256": "7236df3b9062c5956f7c5b539f9f1a69fade1945b248e6b9356332449674798d",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_empty/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/mode_empty/streamx.log",
+          "signatures": "idl-matrix/mode_empty/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "rejected",
+          "idl_sha256": "7236df3b9062c5956f7c5b539f9f1a69fade1945b248e6b9356332449674798d",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mode_empty/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/mode_empty/legacy.log",
+          "signatures": "idl-matrix/mode_empty/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "empty_args",
+      "input": "idl-matrix/empty_args/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "rejected",
+          "idl_sha256": "93a277e6ece55edb6ea2c01ca7a58d99f5e03858327b8291c12dd87c16e40037",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/empty_args/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/empty_args/streamx.log",
+          "signatures": "idl-matrix/empty_args/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "rejected",
+          "idl_sha256": "93a277e6ece55edb6ea2c01ca7a58d99f5e03858327b8291c12dd87c16e40037",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/empty_args/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/empty_args/legacy.log",
+          "signatures": "idl-matrix/empty_args/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "multiple_args",
+      "input": "idl-matrix/multiple_args/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "rejected",
+          "idl_sha256": "532c8e0a4be5a853a176052a556cd9bcde5611ef207d5af9d2c2f8146d31abf6",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/multiple_args/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/multiple_args/streamx.log",
+          "signatures": "idl-matrix/multiple_args/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "rejected",
+          "idl_sha256": "532c8e0a4be5a853a176052a556cd9bcde5611ef207d5af9d2c2f8146d31abf6",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/multiple_args/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/multiple_args/legacy.log",
+          "signatures": "idl-matrix/multiple_args/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "void",
+      "input": "idl-matrix/void/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "rejected",
+          "idl_sha256": "ded3209a1dbe4305d7650e15cdb69445445590f633d409ee913f4f36cc7320ec",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/void/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/void/streamx.log",
+          "signatures": "idl-matrix/void/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "rejected",
+          "idl_sha256": "ded3209a1dbe4305d7650e15cdb69445445590f633d409ee913f4f36cc7320ec",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/void/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/void/legacy.log",
+          "signatures": "idl-matrix/void/legacy-signatures.txt"
+        }
+      },
+      "difference": "Go generator rejects via template nil .Resp error; Rust emits an intentional source diagnostic."
+    },
+    {
+      "name": "oneway",
+      "input": "idl-matrix/oneway/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "rejected",
+          "idl_sha256": "1ac73db3e688a7122352b161afe4b31f24a46802a1c4af6fe3af807687c3914d",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/oneway/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/oneway/streamx.log",
+          "signatures": "idl-matrix/oneway/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "rejected",
+          "idl_sha256": "1ac73db3e688a7122352b161afe4b31f24a46802a1c4af6fe3af807687c3914d",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/oneway/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/oneway/legacy.log",
+          "signatures": "idl-matrix/oneway/legacy-signatures.txt"
+        }
+      },
+      "difference": "Go generator rejects via template nil .Resp error; Rust emits an intentional source diagnostic."
+    },
+    {
+      "name": "throws",
+      "input": "idl-matrix/throws/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "cadff6a58aae6597781f0c39af897154792ff5d2d60029cd8a6fc4ba01a14cda",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/throws/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "21274a128dda7a3b795fb2397d5f6177395405bb8916055948468a1ff724cf54",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "9eba306beed3b65666e85126113a27bef68824ecee918ac3bae0cd5ca7d090f6",
+            "kitex_gen/matrix/test/client.go": "9e64c2595aaf54effc3ffdca655f1d7c3492ebd58e4515f63a9a177bfa87ae10",
+            "kitex_gen/matrix/test/server.go": "940e537b4eaafdbe003f0e940357d317b9d67a7f33e06c59df7f39cfa0c189ef",
+            "kitex_gen/matrix/test/test.go": "2a2fc67985590d20dc9ea6fefe2704bb545ed79dcff522f04255745c98a022d2"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/throws/streamx.log",
+          "signatures": "idl-matrix/throws/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "accepted",
+          "idl_sha256": "cadff6a58aae6597781f0c39af897154792ff5d2d60029cd8a6fc4ba01a14cda",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/throws/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "d07e4d91995393a5a6c3238a1968a168cb6d9000f81ac4ac2cfe7e8abe3feca8",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "9eba306beed3b65666e85126113a27bef68824ecee918ac3bae0cd5ca7d090f6",
+            "kitex_gen/matrix/test/client.go": "31d396b299cd8fe8d75b53836f5869d1903c8c3c361f4ddb3c7d78851d97b4a7",
+            "kitex_gen/matrix/test/server.go": "2b214d5db3f284a1706bbc1b9e907917aec11bc5ead2227e24be10e3c9f15215",
+            "kitex_gen/matrix/test/test.go": "6f3429b2aea4a9e73502ec4916cf6f290d814357d3cf75debef3e54a7d1bf18d"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/throws/legacy.log",
+          "signatures": "idl-matrix/throws/legacy-signatures.txt"
+        }
+      },
+      "difference": "Go accepts the IDL; Rust rejects streaming throws in every service before emission. Typed streaming throws are not a wire capability."
+    },
+    {
+      "name": "scalar_arg",
+      "input": "idl-matrix/scalar_arg/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "f19fd2c7adc8daf78c465aa02a49e2f748f6bd0d3f51ecf62e5cfe44ad911d71",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/scalar_arg/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "1d56544ebc63daf8eb568c83d2ed2832c343a70738c6e54a7c289376e8fcbd35",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "125f10b6c649f8517246a80bbf81b73726fb475f901d4efed2d7aaf1a02e2371",
+            "kitex_gen/matrix/test/client.go": "d184e9aee7b740da23946c014265ead3f57203553c24478c3ba04a6ad6192d26",
+            "kitex_gen/matrix/test/server.go": "46abd14667e9ce8defb0d438fc6ba59c16250f07afcc93b16fbac40fbf2cfa17",
+            "kitex_gen/matrix/test/test.go": "3a9664187868977e44630de6c4470418288f94340bc922b59162c96ffa0f6cb8"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/scalar_arg/streamx.log",
+          "signatures": "idl-matrix/scalar_arg/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "compile_failure",
+          "idl_sha256": "f19fd2c7adc8daf78c465aa02a49e2f748f6bd0d3f51ecf62e5cfe44ad911d71",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/scalar_arg/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "2769f2b598b695a7ff7102faa3ae9c057b3b1e38cf72c2ae10e7936cafb392a7",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "125f10b6c649f8517246a80bbf81b73726fb475f901d4efed2d7aaf1a02e2371",
+            "kitex_gen/matrix/test/client.go": "cd7b18e842e8ed2adc7833cb9ac83bbb0bc2fc11d29be251657191fad6fc9963",
+            "kitex_gen/matrix/test/server.go": "5fe22ecb8d39c67365caba033052ece29b7136e47421875c6b444315a34570f9",
+            "kitex_gen/matrix/test/test.go": "b646dd55448393a3ff77b68d8ac640bc56e65c093a00403265a63d67b5db127b"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 1,
+          "log": "idl-matrix/scalar_arg/legacy.log",
+          "signatures": "idl-matrix/scalar_arg/legacy-signatures.txt"
+        }
+      },
+      "difference": "Go generation/compilation succeeds, but ttstream.EncodePayload rejects non-struct messages; Rust diagnoses the unsupported message kind before emission."
+    },
+    {
+      "name": "scalar_return",
+      "input": "idl-matrix/scalar_return/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "c9238cd33f379a641c90fc467592a7248c57f528b1c3c95f20c52bec7b26a067",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/scalar_return/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "460f0244e1852d0e51d9a8802f1b95a83f2882be0d8c3fde92adaec7d0136cb9",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "0c16ebfda00fe5679f8807eff9399fea4f455d37baf18d0e2b089e4009b874a3",
+            "kitex_gen/matrix/test/client.go": "a83edb2af0be7d50738d96a29a38e182b3934ae2bd9fd0ff63a0b0a5098024c5",
+            "kitex_gen/matrix/test/server.go": "199a056ff4cf7e2ce4faa17be88dfd4ec9f9662326bf5d77cbdfcc136f035d67",
+            "kitex_gen/matrix/test/test.go": "36f72d679179ae97c6d06339d9f26ca0cac66e52332753adb41e3fb55edba8d5"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/scalar_return/streamx.log",
+          "signatures": "idl-matrix/scalar_return/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "compile_failure",
+          "idl_sha256": "c9238cd33f379a641c90fc467592a7248c57f528b1c3c95f20c52bec7b26a067",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/scalar_return/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "f5e3e74bff590ffd1d9e0a88b8696022f98095e56a8fe7bcdc9a2bca171a3db6",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "0c16ebfda00fe5679f8807eff9399fea4f455d37baf18d0e2b089e4009b874a3",
+            "kitex_gen/matrix/test/client.go": "175c636e34b87c552231d124a244f42a71779330beb642d900c8636c92ae4ae6",
+            "kitex_gen/matrix/test/server.go": "a6646d251b7f5f0e6cf8caa87b5cab856782849a8e20a01140496f2478d1adc2",
+            "kitex_gen/matrix/test/test.go": "0c40b3325abc233f33416b524bfa6af08ae036fb4275378a438ce577ba57ed12"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 1,
+          "log": "idl-matrix/scalar_return/legacy.log",
+          "signatures": "idl-matrix/scalar_return/legacy-signatures.txt"
+        }
+      },
+      "difference": "Go generation/compilation succeeds, but ttstream.EncodePayload rejects non-struct messages; Rust diagnoses the unsupported message kind before emission."
+    },
+    {
+      "name": "list_arg",
+      "input": "idl-matrix/list_arg/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "8cac7d821eece9fea206eabc8b06981a64dccb7a8a8849a258d6b8a3626a912d",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/list_arg/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "e62a689b247efea59b8d18c1e28c3383f7a41510b21d5f7407e677be4b19f735",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "1c923e4f79c7abf55a2b501054cd969af47f1a03b8fac700cf9cc5098fc36399",
+            "kitex_gen/matrix/test/client.go": "a9eef8740c6b8e24d1fcda6ba23d5ca57b28e6cf8f2bf4f498fbb84d17096434",
+            "kitex_gen/matrix/test/server.go": "eef7550033e36edf759ee2813b267395c1519400bb82ede4dd745e54e1d9859b",
+            "kitex_gen/matrix/test/test.go": "6f570d7755b626dab6e20fea6ed6b01bdc6eec5b42b17fd5c676c729050a9fc2"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/list_arg/streamx.log",
+          "signatures": "idl-matrix/list_arg/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "compile_failure",
+          "idl_sha256": "8cac7d821eece9fea206eabc8b06981a64dccb7a8a8849a258d6b8a3626a912d",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/list_arg/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "149aff33058886efe6fc79ef413c177c4f5e22d5d336f6c65b4c141ab4039d42",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "1c923e4f79c7abf55a2b501054cd969af47f1a03b8fac700cf9cc5098fc36399",
+            "kitex_gen/matrix/test/client.go": "f3cffd7ac1c835258c35146e94798d49aaee49e89ef82cfbfb6055e9bbff1043",
+            "kitex_gen/matrix/test/server.go": "641715af407c330fa2c5f14f3c740ab9ffb5be7afa784f655cfb01aa855f1fac",
+            "kitex_gen/matrix/test/test.go": "e7c735abfa4f5416699c73b330353b8de24f30937fe23b372ddfa4054b42c6e6"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 1,
+          "log": "idl-matrix/list_arg/legacy.log",
+          "signatures": "idl-matrix/list_arg/legacy-signatures.txt"
+        }
+      },
+      "difference": "Go generation/compilation succeeds, but ttstream.EncodePayload rejects non-struct messages; Rust diagnoses the unsupported message kind before emission."
+    },
+    {
+      "name": "list_return",
+      "input": "idl-matrix/list_return/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "bb9428e2b01eba70125586aa4a753c668b9849f4b00563fca6eb2b166d573110",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/list_return/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "a796b68188e920a9b2d7eaa5e8b63c8ec078e99af09dc7aaf843bfc060070131",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "81f306e1eb6ab5a60be355ae820356e007f545a6ee575335ccc201eaaa4a00a7",
+            "kitex_gen/matrix/test/client.go": "7454e9a97558324b86a361adad11132ec08f4a6cb390872925a3888034cac45d",
+            "kitex_gen/matrix/test/server.go": "5dbb2dc3f3ee6d9ca9d777593accdfc63096866b9bbe721ad939fed95daa47a4",
+            "kitex_gen/matrix/test/test.go": "5242ec80251282483dd2f0aa189108a4fd3d7153b61787635cf373ee7e6bbd0c"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/list_return/streamx.log",
+          "signatures": "idl-matrix/list_return/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "compile_failure",
+          "idl_sha256": "bb9428e2b01eba70125586aa4a753c668b9849f4b00563fca6eb2b166d573110",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/list_return/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "bde68f1abc0a857d2cd0b667f8b02f77aced60d52931c03ce04e924e06d2f786",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "81f306e1eb6ab5a60be355ae820356e007f545a6ee575335ccc201eaaa4a00a7",
+            "kitex_gen/matrix/test/client.go": "4b33ccb0e01ee74e559a034918dff14460c6aebe540ef29b831317e7df3558c1",
+            "kitex_gen/matrix/test/server.go": "2722cfc526394ec1a9ab6aeb7b2f7d1f381bb9cd9a8e403a8e963f4e4e923f82",
+            "kitex_gen/matrix/test/test.go": "a3f3996e5c509a6b19207a79cc48ea8c52d739bc0592b8173010c2e5fe178faf"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 1,
+          "log": "idl-matrix/list_return/legacy.log",
+          "signatures": "idl-matrix/list_return/legacy-signatures.txt"
+        }
+      },
+      "difference": "Go generation/compilation succeeds, but ttstream.EncodePayload rejects non-struct messages; Rust diagnoses the unsupported message kind before emission."
+    },
+    {
+      "name": "map_arg",
+      "input": "idl-matrix/map_arg/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "f09e6c112c4625a7628cb3576e47aaf3d908c2cb360f94611264d1259ee38ff7",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/map_arg/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "26fce58411e647ffe516c9426c1e13739dc2287275c2d69a921d5d86a2b427c8",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "91de4126c3ecff3568093a45e7f5861d132f354410a88196e8d9fcd1d25efedf",
+            "kitex_gen/matrix/test/client.go": "e9bfb746b5c460eb4a5cbd5d7cb037de57a1c98b5e585e5892173fac13a1e241",
+            "kitex_gen/matrix/test/server.go": "13976cba999338f8c74c0ca06fb6738c1270a1904a7d5cfe2aa64030772f7e8f",
+            "kitex_gen/matrix/test/test.go": "50647b737e98a4278a96c13af195a2ba22c7ed4d4f7043194c92986ba3a932cc"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/map_arg/streamx.log",
+          "signatures": "idl-matrix/map_arg/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "compile_failure",
+          "idl_sha256": "f09e6c112c4625a7628cb3576e47aaf3d908c2cb360f94611264d1259ee38ff7",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/map_arg/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "60dc44d4ff3865cab6b57c99b22c3673ece0f29aba37c5a072f56bc76b928166",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "91de4126c3ecff3568093a45e7f5861d132f354410a88196e8d9fcd1d25efedf",
+            "kitex_gen/matrix/test/client.go": "a3d2a361438a7e41725175a36923a20412b0e813b2fbfcf764937b04a8c1a43a",
+            "kitex_gen/matrix/test/server.go": "5bae0c157eadc4721fc9d75e81d9ed2c2c49f2265df5ecfc38a0e00982e3fe6b",
+            "kitex_gen/matrix/test/test.go": "2217a0714bc494b4ae58fb4337708d137c4b8dd96bf67a7a8ff051682c0fa71c"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 1,
+          "log": "idl-matrix/map_arg/legacy.log",
+          "signatures": "idl-matrix/map_arg/legacy-signatures.txt"
+        }
+      },
+      "difference": "Go generation/compilation succeeds, but ttstream.EncodePayload rejects non-struct messages; Rust diagnoses the unsupported message kind before emission."
+    },
+    {
+      "name": "map_return",
+      "input": "idl-matrix/map_return/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "9b91f302b6ef1adb9829ee118f7eef2584d6ec8f015240de2d259e8a8aea0624",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/map_return/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "8e589f18ae7e7f47d3fbbe12ad44e44a0931636ef2f6f0de214c14f9b324133d",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "e3a5294a54321cefe9c017723bb54734f0e1b36e96b7dd0423e3e8caeafc82c9",
+            "kitex_gen/matrix/test/client.go": "1bc66b745cce4ba8f91a368fd4b1b54d9ac8915278a5c9fbe05933eed5488f69",
+            "kitex_gen/matrix/test/server.go": "0ee44af0f2a00564a8c8ea598fbd0f4543c14760ef52e5dc624a5df2603bf8c1",
+            "kitex_gen/matrix/test/test.go": "6c5a55a9edb147d1b948a5616b5ec81d5dc163324e3ed1f06f5e67221d523585"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/map_return/streamx.log",
+          "signatures": "idl-matrix/map_return/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "compile_failure",
+          "idl_sha256": "9b91f302b6ef1adb9829ee118f7eef2584d6ec8f015240de2d259e8a8aea0624",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/map_return/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "45307ecd0f761ca07215efd907a4b93c02cca9c5584103f7f874c57d80cdcfb5",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "e3a5294a54321cefe9c017723bb54734f0e1b36e96b7dd0423e3e8caeafc82c9",
+            "kitex_gen/matrix/test/client.go": "b0c49b1909d7b6e6fbf98da8a81c6fae40ace0bdafc3fd31a82357e9d5989c9c",
+            "kitex_gen/matrix/test/server.go": "4ddf9cab45ce35447cb1ff6f123a5d2787c82adda2b039c2d100f675214800fc",
+            "kitex_gen/matrix/test/test.go": "923328f63133d88deb5180ac950b2000a94fe084a4242e87d08493485c8aa515"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 1,
+          "log": "idl-matrix/map_return/legacy.log",
+          "signatures": "idl-matrix/map_return/legacy-signatures.txt"
+        }
+      },
+      "difference": "Go generation/compilation succeeds, but ttstream.EncodePayload rejects non-struct messages; Rust diagnoses the unsupported message kind before emission."
+    },
+    {
+      "name": "set_arg",
+      "input": "idl-matrix/set_arg/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "bd1bacfa599114830d58346ee3429510c00e5919d5ffba2b93c6cd0eebda3994",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/set_arg/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "23ecd28cac74a71985970a9791a5df0227885cf9691115c5585b6477cc8c2929",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "55b1712da90f556975f678908d41594ff7800cd8e259b3287bd70b057a67c3a5",
+            "kitex_gen/matrix/test/client.go": "6395ded69450766c81a0f983673da76fca9ded34b78bd474c58b036a5331f415",
+            "kitex_gen/matrix/test/server.go": "a6e017bf2a11526fb7cada9f95ea8e196b58c076c58e59b452a4afc657cbf683",
+            "kitex_gen/matrix/test/test.go": "d654e83ec4bc2c0965558f96b5b36afb8486a9a7e4ab8870c05e5093b172cd6f"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/set_arg/streamx.log",
+          "signatures": "idl-matrix/set_arg/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "compile_failure",
+          "idl_sha256": "bd1bacfa599114830d58346ee3429510c00e5919d5ffba2b93c6cd0eebda3994",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/set_arg/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "0744a0ede09c19567c1cd4929fa90696ac27cea443ed5c7b9cc4700170fa55a7",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "55b1712da90f556975f678908d41594ff7800cd8e259b3287bd70b057a67c3a5",
+            "kitex_gen/matrix/test/client.go": "70740be3e2862a07c64fe4cade6b6689d8668e4598c076e6f1cc78ef9a6a5ad8",
+            "kitex_gen/matrix/test/server.go": "39e1128e06d4ed33255ce7bb8138fe91caa5f314cb7c470db26bd36508589448",
+            "kitex_gen/matrix/test/test.go": "8c2e05cc98b68d06dd9088422e17aae81588c61b018798a43754682d2065ea07"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 1,
+          "log": "idl-matrix/set_arg/legacy.log",
+          "signatures": "idl-matrix/set_arg/legacy-signatures.txt"
+        }
+      },
+      "difference": "Go generation/compilation succeeds, but ttstream.EncodePayload rejects non-struct messages; Rust diagnoses the unsupported message kind before emission."
+    },
+    {
+      "name": "set_return",
+      "input": "idl-matrix/set_return/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "2d91cb3a03daa8c57268daf235f3f72880abe0cecd1e06e10ad0c23c49ee90c0",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/set_return/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "c6d3eda80e0db1d604fc85a51f331088c014d6ce6c4311fca17ddfd80dc2c8c8",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "8f81f1ccfd50f1a066f26e88fe72a3ab3ac07e3783d3d1e4f8dde0bccf3af03e",
+            "kitex_gen/matrix/test/client.go": "fa84a916b50cd6cc1965749e9d52f7d156da45bddcfa53d4f177a3c2fd566525",
+            "kitex_gen/matrix/test/server.go": "90fe3d8dcc89b13ef81a560070e3430ca5a27a396a625ca3df8cd8a8bad27cc6",
+            "kitex_gen/matrix/test/test.go": "5f270a974f72dd8a673c4b8814cb21d0865c16ceaeb106bb88c7ebc40fa64a0b"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/set_return/streamx.log",
+          "signatures": "idl-matrix/set_return/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "compile_failure",
+          "idl_sha256": "2d91cb3a03daa8c57268daf235f3f72880abe0cecd1e06e10ad0c23c49ee90c0",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/set_return/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "8fd2777acc5545fcf17af74b9ee6e0ed45498d2e286b9a6264824f37c0170838",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "8f81f1ccfd50f1a066f26e88fe72a3ab3ac07e3783d3d1e4f8dde0bccf3af03e",
+            "kitex_gen/matrix/test/client.go": "05aa344b6efe10da4a621dbe5fc968eb65a27b68f6ceea864b36b41470b3d432",
+            "kitex_gen/matrix/test/server.go": "695c4aadc492c156029f2c653864b9f50284d3f2eb26599b0d6a7e76bf33eebc",
+            "kitex_gen/matrix/test/test.go": "d2f32cb5162861f114f2934a68dfc42e3e0fe0140a76acb8287d11dd5e2a5c60"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 1,
+          "log": "idl-matrix/set_return/legacy.log",
+          "signatures": "idl-matrix/set_return/legacy-signatures.txt"
+        }
+      },
+      "difference": "Go generation/compilation succeeds, but ttstream.EncodePayload rejects non-struct messages; Rust diagnoses the unsupported message kind before emission."
+    },
+    {
+      "name": "typedef",
+      "input": "idl-matrix/typedef/input.thrift",
+      "expected_rust": "accepted",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "6e84551a0a058d07c66f94992666e3f9829c5344ac1f77c6b1018d2490f7cd9f",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/typedef/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "83241e2d73768b3971befeb3c14f01e688b471ff82a29c80c26a33a21e675cd5",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "e77c0771825c17468929fa241e9976798a3b9f9b8677c7867392287cabea9c1d",
+            "kitex_gen/matrix/test/client.go": "5cebb17ce11112bd5824da5d2b8bc22e7016ae366132b2efc77f36ad896439b9",
+            "kitex_gen/matrix/test/server.go": "2a132786514c99064c2d932dbadf28e75fed7a3bcadc9e37e61e37d8cf2eb95d",
+            "kitex_gen/matrix/test/test.go": "da2de850765a683609651071b3ae339e5f86ce1d4dab05380a04f04c7c7240bf"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/typedef/streamx.log",
+          "signatures": "idl-matrix/typedef/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "accepted",
+          "idl_sha256": "6e84551a0a058d07c66f94992666e3f9829c5344ac1f77c6b1018d2490f7cd9f",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/typedef/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "610aca82a2ad09dc69c400fc8e98ce23ef3be0aefd61d66c367af12c990cf8f0",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "e77c0771825c17468929fa241e9976798a3b9f9b8677c7867392287cabea9c1d",
+            "kitex_gen/matrix/test/client.go": "c8a8bedf2ba65667875ffc0f6ad1ed3f8046af099f3e5a58a205e45fae21a78e",
+            "kitex_gen/matrix/test/server.go": "9948c1d1a28c301f56cbdeec542c0bd8806c5f00050e24837f35fcbb0fc2826e",
+            "kitex_gen/matrix/test/test.go": "6bf9f0771b67d058ccf648552175ae9b6999ebb33a249b9692bed44e85127acf"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/typedef/legacy.log",
+          "signatures": "idl-matrix/typedef/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "duplicate_same",
+      "input": "idl-matrix/duplicate_same/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "rejected",
+          "idl_sha256": "aa5a0637e3690b0705fef0734221025ab5d98f65fd48a36fc0c57cfcafc15260",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/duplicate_same/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/duplicate_same/streamx.log",
+          "signatures": "idl-matrix/duplicate_same/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "rejected",
+          "idl_sha256": "aa5a0637e3690b0705fef0734221025ab5d98f65fd48a36fc0c57cfcafc15260",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/duplicate_same/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/duplicate_same/legacy.log",
+          "signatures": "idl-matrix/duplicate_same/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "duplicate_different",
+      "input": "idl-matrix/duplicate_different/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "rejected",
+          "idl_sha256": "1d895470739089528ed76798da5f54a4fac16e56accf2c33a9f6aaff044058c9",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/duplicate_different/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/duplicate_different/streamx.log",
+          "signatures": "idl-matrix/duplicate_different/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "rejected",
+          "idl_sha256": "1d895470739089528ed76798da5f54a4fac16e56accf2c33a9f6aaff044058c9",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/duplicate_different/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/duplicate_different/legacy.log",
+          "signatures": "idl-matrix/duplicate_different/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "duplicate_keys",
+      "input": "idl-matrix/duplicate_keys/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "rejected",
+          "idl_sha256": "1d895470739089528ed76798da5f54a4fac16e56accf2c33a9f6aaff044058c9",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/duplicate_keys/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/duplicate_keys/streamx.log",
+          "signatures": "idl-matrix/duplicate_keys/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "rejected",
+          "idl_sha256": "1d895470739089528ed76798da5f54a4fac16e56accf2c33a9f6aaff044058c9",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/duplicate_keys/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/duplicate_keys/legacy.log",
+          "signatures": "idl-matrix/duplicate_keys/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "unary_empty_args",
+      "input": "idl-matrix/unary_empty_args/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "rejected",
+          "idl_sha256": "f267053ec32d9aff27e1cc4d0d5f10818c4181de67e520cd2b7ef6910ba37c42",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/unary_empty_args/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/unary_empty_args/streamx.log",
+          "signatures": "idl-matrix/unary_empty_args/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "rejected",
+          "idl_sha256": "f267053ec32d9aff27e1cc4d0d5f10818c4181de67e520cd2b7ef6910ba37c42",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/unary_empty_args/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/unary_empty_args/legacy.log",
+          "signatures": "idl-matrix/unary_empty_args/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "unary_multiple_args",
+      "input": "idl-matrix/unary_multiple_args/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "rejected",
+          "idl_sha256": "d8aa6123263c02cb8ecb42be6843ce863b54320819a8958a2ba6592180c878e8",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/unary_multiple_args/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/unary_multiple_args/streamx.log",
+          "signatures": "idl-matrix/unary_multiple_args/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "rejected",
+          "idl_sha256": "d8aa6123263c02cb8ecb42be6843ce863b54320819a8958a2ba6592180c878e8",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/unary_multiple_args/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {},
+          "generation_returncode": 1,
+          "log": "idl-matrix/unary_multiple_args/legacy.log",
+          "signatures": "idl-matrix/unary_multiple_args/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "unary_throws",
+      "input": "idl-matrix/unary_throws/input.thrift",
+      "expected_rust": "accepted",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "45cbdc92a39aea1454d4a2f9fdb42df26969fa90a62978a66b46e30a29c1fb67",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/unary_throws/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "b953cdb9bf15eb2a9913619906b8cf46d57dc096589d91771700d4e27f819415",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "e46de9a38845d1cba48703e835b37a0154ec0343f81e0a76fb77eb5c120554e7",
+            "kitex_gen/matrix/test/client.go": "acf0d46ac9b0c83e728e04fec097f732a191ebcb49d42e7544e5c8fe174df008",
+            "kitex_gen/matrix/test/server.go": "b1831d759b56483bfee9e13ef2ba79a8f1c157c338aa987e2106b5c7916d725c",
+            "kitex_gen/matrix/test/test.go": "e7e44f24bc37c704744c0301e5039c1ada5729d3b180733fe64330027c001376"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/unary_throws/streamx.log",
+          "signatures": "idl-matrix/unary_throws/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "compile_failure",
+          "idl_sha256": "45cbdc92a39aea1454d4a2f9fdb42df26969fa90a62978a66b46e30a29c1fb67",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/unary_throws/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/input.go": "b953cdb9bf15eb2a9913619906b8cf46d57dc096589d91771700d4e27f819415",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "e46de9a38845d1cba48703e835b37a0154ec0343f81e0a76fb77eb5c120554e7",
+            "kitex_gen/matrix/test/client.go": "4922e230c18afe1b967deaf8499d729459a6c6bf46d4f7d7adb0d9233b440f30",
+            "kitex_gen/matrix/test/server.go": "a1f7075df7bc7cc49a17cc6d9fea9f9dc687e86432303137d346dff21eb42567",
+            "kitex_gen/matrix/test/test.go": "c8489681ad17cc8dc6cb4af88fd76fc158342d65781640e1918ad198f24e2cc2"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 1,
+          "log": "idl-matrix/unary_throws/legacy.log",
+          "signatures": "idl-matrix/unary_throws/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "mixed",
+      "input": "idl-matrix/mixed/input.thrift",
+      "expected_rust": "accepted",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "44e05d1707bb2975538623a335b2ad7c8dc3c84f5489c6cd1c91d453f2591f4d",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mixed/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/child/child.go": "23d0365fd7f3fc39b887c16ca97507c349ef561b1f80b648f7eee018de271a89",
+            "kitex_gen/matrix/child/client.go": "c8df8eff3043a05d5250a38926b1566efb666576a32478f58fd1c923dfc7e8cd",
+            "kitex_gen/matrix/child/server.go": "7a908dd51c75d1faebef565e11b13ed08c58ed171f191021133f7aa423526fcc",
+            "kitex_gen/matrix/input.go": "cfa0255c4f36316b0326545e46713b09b8b1c3a8e4ca369867c8e26f5353fd8e",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "bb894e1d275be4d04279ff421680165527c9f1472777481ff622ca9d047d4439",
+            "kitex_gen/matrix/test/client.go": "62958f7e838cdc892a96d85dffbecee63a7d56ebad06e725d3d6f1d82a5e540a",
+            "kitex_gen/matrix/test/server.go": "be87f59ffe55e56488c035d5b4846ef24d124196deb7d7108193bb451985dd9b",
+            "kitex_gen/matrix/test/test.go": "518a11c03cddf3d893ec688ab89d8168253c33df4d03989de4b48704cc9e230c"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/mixed/streamx.log",
+          "signatures": "idl-matrix/mixed/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "accepted",
+          "idl_sha256": "44e05d1707bb2975538623a335b2ad7c8dc3c84f5489c6cd1c91d453f2591f4d",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/mixed/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/child/child.go": "e72f98c3168be814fe3666fe324d6b9bc7aa2dbb7e1d93bac248734da4fda943",
+            "kitex_gen/matrix/child/client.go": "0c114f6e4272cde97183f2fa0d62962224b5c0e143b817dbcc326b16871eb4f5",
+            "kitex_gen/matrix/child/server.go": "0d1b08e3c84c01c3b38becf4daca1d795f0cf87732bd5432e98e9fc646b4a436",
+            "kitex_gen/matrix/input.go": "51c479b3b6b5e73c447b1db8544eedccceab10061f54e66b9a367f6045e02bcd",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "bb894e1d275be4d04279ff421680165527c9f1472777481ff622ca9d047d4439",
+            "kitex_gen/matrix/test/client.go": "e7937397b35974bde727acf748cd30d9c7ee469848325cd8be6d42c60de70ef7",
+            "kitex_gen/matrix/test/server.go": "9aa39718912fbe5ceda661e129377e4ef7aba18a2131b0772e4bf6ef25092aa3",
+            "kitex_gen/matrix/test/test.go": "6d205351dcb4be2f25f9ae443ee720d20244c4b36267cdcf142c4be0265ef49d"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/mixed/legacy.log",
+          "signatures": "idl-matrix/mixed/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "all_services_throws",
+      "input": "idl-matrix/all_services_throws/input.thrift",
+      "expected_rust": "rejected",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "3cb6929538bd5186a78977889d18b259cdc9b5c941d0761be17c6d054cc8c8cf",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/all_services_throws/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/good/client.go": "c02568a8e1e73017777d0c2437111bedc7cf5f355e3b9a65f7737ca680188918",
+            "kitex_gen/matrix/good/good.go": "b1e05fa0e2e391acbfda23b65dddc71db5f98e5351ce1be576db43ad231d554d",
+            "kitex_gen/matrix/good/server.go": "d5d7cc428fd9764983d34e3dd8eaa07fecdfa50ba5c4ca7ffbd4c1fe906ab643",
+            "kitex_gen/matrix/input.go": "ffbba79c1a8b0474ce2c0f2acc0ab3277de4e5137fe236ed8899a207d7dbad4a",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "91da06ebfe021bc8b664e2892043c4e502da4c562ef13c4791ef1cf58b268589",
+            "kitex_gen/matrix/throwsservice/client.go": "a54e4172f0fdef2d577a4f74646f1b17e2556422412b5b9721f06cd8c9f1c95c",
+            "kitex_gen/matrix/throwsservice/server.go": "aba535156d32a0e765fae27fafe8e7caf1789d81ad9d539639bc0aa60c37b4f9",
+            "kitex_gen/matrix/throwsservice/throwsservice.go": "4018adf6ac0ff1b248f40500ac673e29b5807dac92dd975ffaca66a65f1eabba"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/all_services_throws/streamx.log",
+          "signatures": "idl-matrix/all_services_throws/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "accepted",
+          "idl_sha256": "3cb6929538bd5186a78977889d18b259cdc9b5c941d0761be17c6d054cc8c8cf",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/all_services_throws/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/matrix/good/client.go": "860e8ca461845c3450b3ac7839c6df57500280310d69fc2463c8bcbe15e561a7",
+            "kitex_gen/matrix/good/good.go": "beb779dfab543c44dae3abb09eafd78a201b21921e83bd7f57d6a02aff58195a",
+            "kitex_gen/matrix/good/server.go": "57296401817852cc20919f6fb359e37eee344560c0326ebd26bc54090c08309d",
+            "kitex_gen/matrix/input.go": "f90c87657fe598d6c8f7b18c79dc2c3d4f96808e74c80d3e8a8efa40bb96abbb",
+            "kitex_gen/matrix/k-consts.go": "11b9808ac5202849f2f151fe4187e25f93de6bc6f1ca57f20b00e11236c17060",
+            "kitex_gen/matrix/k-input.go": "91da06ebfe021bc8b664e2892043c4e502da4c562ef13c4791ef1cf58b268589",
+            "kitex_gen/matrix/throwsservice/client.go": "5f9c11f0ba7ef5d8b53e5f6efcd2255dedb47cb3c6bf45f142ca5ef25e400177",
+            "kitex_gen/matrix/throwsservice/server.go": "cfb669d680b184dc440a41c7e5c57dff8eed99f325ef638e2850af9c09e7f6c7",
+            "kitex_gen/matrix/throwsservice/throwsservice.go": "8ca1ef6c5bef8d7b7c83fdccc3bfddd8fd1f28b199ce20ecbebaf96a6d7402b9"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/all_services_throws/legacy.log",
+          "signatures": "idl-matrix/all_services_throws/legacy-signatures.txt"
+        }
+      },
+      "difference": "Go accepts the IDL; Rust rejects streaming throws in every service before emission. Typed streaming throws are not a wire capability."
+    },
+    {
+      "name": "external_codec",
+      "input": "idl-matrix/external_codec/input.thrift",
+      "expected_rust": "accepted",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "97f0a82127c8a0c8a479faca944e2fc8720f524995f2ea62bce3daf4c91f9d8e",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/external_codec/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/codec/codecservice/client.go": "1c5c219c6d57f1e14fc5b10219c8ade1c80d579024de4cedebae6b1ef5c8f615",
+            "kitex_gen/codec/codecservice/codecservice.go": "45e8e486e0bded2cdd95b763d9b8934830abe73fd3db0e5faf8cc440e7398eaf",
+            "kitex_gen/codec/codecservice/server.go": "b2414044745583a48a81d163c546cbe369b8d3e5487365cf90c2ebeb962a0ebd",
+            "kitex_gen/codec/input.go": "cb793ddea147722785dec001b500bea5a5f7f854940320966b562362be6abfc8",
+            "kitex_gen/codec/k-consts.go": "030e69713e68a441fd07ba97de8fff5831188056ec80db46057778b0425e6b06",
+            "kitex_gen/codec/k-input.go": "d490dd8f868a00e7c7aa7262183713f25eac7e907cf55746b8e8bf8e810b45c9"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/external_codec/streamx.log",
+          "signatures": "idl-matrix/external_codec/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "accepted",
+          "idl_sha256": "97f0a82127c8a0c8a479faca944e2fc8720f524995f2ea62bce3daf4c91f9d8e",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/external_codec/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/codec/codecservice/client.go": "d66d6f1b2ab91db92089101c824d947f69433800f2872776382cdf18d4c2fd5e",
+            "kitex_gen/codec/codecservice/codecservice.go": "be76dd39d9e6da4d0446f4a65567e34c759f2ecf4d24e842fb542261ff5ddf08",
+            "kitex_gen/codec/codecservice/server.go": "424616a163f4bc02ce279d8e41c712b38218e6c929ceffd6b5bfd9064ba27470",
+            "kitex_gen/codec/input.go": "6c638e589f3bc03c57214791865941b8b81b35ee52c941d0c5ed3a1310a5be41",
+            "kitex_gen/codec/k-consts.go": "030e69713e68a441fd07ba97de8fff5831188056ec80db46057778b0425e6b06",
+            "kitex_gen/codec/k-input.go": "d490dd8f868a00e7c7aa7262183713f25eac7e907cf55746b8e8bf8e810b45c9"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/external_codec/legacy.log",
+          "signatures": "idl-matrix/external_codec/legacy-signatures.txt"
+        }
+      }
+    },
+    {
+      "name": "external_extended",
+      "input": "idl-matrix/external_extended/input.thrift",
+      "expected_rust": "accepted",
+      "go": {
+        "streamx": {
+          "outcome": "accepted",
+          "idl_sha256": "049504e6ac00df1c02655acfff66ecf0f720e838ca3d0ad41ae103c45f0d98f3",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/external_extended/streamx",
+            "-streamx",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/codec/codec.go": "cb793ddea147722785dec001b500bea5a5f7f854940320966b562362be6abfc8",
+            "kitex_gen/codec/codecservice/client.go": "8e98cd8d853677cec9e0630c3109a194420a2b5173318aeaaa9de52d93e19499",
+            "kitex_gen/codec/codecservice/codecservice.go": "29b53e0741ec3949b50568398e7c98ae15b5c5fd2f6a3bc7bb2628cccdba37df",
+            "kitex_gen/codec/codecservice/server.go": "a8258199ffc91b07f7639600ed59295ec207636424788d55ff51fe473c648309",
+            "kitex_gen/codec/k-codec.go": "d490dd8f868a00e7c7aa7262183713f25eac7e907cf55746b8e8bf8e810b45c9",
+            "kitex_gen/codec/k-consts.go": "030e69713e68a441fd07ba97de8fff5831188056ec80db46057778b0425e6b06",
+            "kitex_gen/extended/extended/client.go": "97a9ed9639c96d20060b6f30a318bf9b66b020c141df9df527c5873e919fdd91",
+            "kitex_gen/extended/extended/extended.go": "f5cd20a2a24d59bc125f9f2081a372deb94131e03e71c0252b42954c88264414",
+            "kitex_gen/extended/extended/server.go": "34fa5887f1788adf64842ecb141d8e9c4ec4871ba983eb6ebe3a3e47a7ba617a",
+            "kitex_gen/extended/input.go": "354adfdbf309d1eb963f1aa68b139866e7ace692fd5bb10fbb7c7a4d09e733ab",
+            "kitex_gen/extended/k-consts.go": "b6746b172a81a36cd07071759c587e4755981f9caa08a5ec8c3f95d85b3baa2a",
+            "kitex_gen/extended/k-input.go": "2223a8a3ba99c171fb75af066e771ada642cd744b7e600fdf56b4619d5bf44b2"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/external_extended/streamx.log",
+          "signatures": "idl-matrix/external_extended/streamx-signatures.txt"
+        },
+        "legacy": {
+          "outcome": "accepted",
+          "idl_sha256": "049504e6ac00df1c02655acfff66ecf0f720e838ca3d0ad41ae103c45f0d98f3",
+          "generation_argv": [
+            "-module",
+            "github.com/cloudwego/volo/interop/matrix/external_extended/legacy",
+            "input.thrift"
+          ],
+          "generated_files_sha256": {
+            "kitex_gen/codec/codec.go": "6c638e589f3bc03c57214791865941b8b81b35ee52c941d0c5ed3a1310a5be41",
+            "kitex_gen/codec/codecservice/client.go": "d236e538526e1f3709a8111452e7299a280ecb3572288e11ddc705a59a5153cc",
+            "kitex_gen/codec/codecservice/codecservice.go": "ae997c92ee935b76964a66d335a4932615f190fea9962f16765a4c9e98bf99b0",
+            "kitex_gen/codec/codecservice/server.go": "bbfde773a457b6e6eb4edbdbcad5081d04b2be325a7e58fadb269ee776fc8686",
+            "kitex_gen/codec/k-codec.go": "d490dd8f868a00e7c7aa7262183713f25eac7e907cf55746b8e8bf8e810b45c9",
+            "kitex_gen/codec/k-consts.go": "030e69713e68a441fd07ba97de8fff5831188056ec80db46057778b0425e6b06",
+            "kitex_gen/extended/extended/client.go": "312d4748e53f0ed334fe66c1afaabdd0c45367791134f1b56cb6ecd9feefea82",
+            "kitex_gen/extended/extended/extended.go": "08345132ec47c510e5f2d42246fdd8aefc0c7da3949d77a5f32a472f1be0687c",
+            "kitex_gen/extended/extended/server.go": "5c1915b933ea288fefb364a49565f417e9225d19327067165ffd5cde61ee4dc2",
+            "kitex_gen/extended/input.go": "cdf46990aa5f74a30a901b5b4d75664a777a8c65210d1f555de641a14de82cd6",
+            "kitex_gen/extended/k-consts.go": "b6746b172a81a36cd07071759c587e4755981f9caa08a5ec8c3f95d85b3baa2a",
+            "kitex_gen/extended/k-input.go": "993f9948c2af0cc0ec8e8dfd8a1595395d7bdd89453c946166c3d0e4cfa3c37c"
+          },
+          "generation_returncode": 0,
+          "compile_returncode": 0,
+          "log": "idl-matrix/external_extended/legacy.log",
+          "signatures": "idl-matrix/external_extended/legacy-signatures.txt"
+        }
+      }
+    }
+  ]
+}

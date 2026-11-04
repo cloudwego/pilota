@@ -1,0 +1,46 @@
+{
+  "cases": [
+    {
+      "accepted": true,
+      "encoded_length": 22,
+      "expected_accepted": true,
+      "name": "struct",
+      "type": "*interop.Message"
+    },
+    {
+      "accepted": false,
+      "encoded_length": 0,
+      "error": "ttheaderstreaming invalid message",
+      "expected_accepted": false,
+      "name": "scalar",
+      "type": "*int64"
+    },
+    {
+      "accepted": false,
+      "encoded_length": 0,
+      "error": "ttheaderstreaming invalid message",
+      "expected_accepted": false,
+      "name": "list",
+      "type": "*[]*interop.Message"
+    },
+    {
+      "accepted": false,
+      "encoded_length": 0,
+      "error": "ttheaderstreaming invalid message",
+      "expected_accepted": false,
+      "name": "map",
+      "type": "*map[string]*interop.Message"
+    },
+    {
+      "accepted": false,
+      "encoded_length": 0,
+      "error": "ttheaderstreaming invalid message",
+      "expected_accepted": false,
+      "name": "set",
+      "type": "*[]int32"
+    }
+  ],
+  "event": "result",
+  "schemaVersion": 1,
+  "status": "PASS"
+}

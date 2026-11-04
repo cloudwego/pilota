@@ -331,6 +331,23 @@ where
         self.compile_with_config(services, out)
     }
 
+    /// Compile while returning syntax and streaming semantic diagnostics to the
+    /// caller.
+    pub fn try_compile(
+        self,
+        services: impl IntoIterator<Item = impl AsRef<std::path::Path>>,
+        out: Output,
+    ) -> anyhow::Result<()> {
+        let services = services
+            .into_iter()
+            .map(|path| IdlService {
+                config: serde_yaml::Value::default(),
+                path: path.as_ref().to_owned(),
+            })
+            .collect();
+        self.try_compile_with_config(services, out)
+    }
+
     #[allow(clippy::too_many_arguments)]
     #[deprecated(
         since = "0.13.8",
@@ -373,6 +390,7 @@ where
             with_field_mask,
             with_comments,
         )
+        .unwrap_or_else(|error| crate::util::error_abort(error.to_string()))
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -393,7 +411,7 @@ where
         with_descriptor: bool,
         with_field_mask: bool,
         with_comments: bool,
-    ) -> Context {
+    ) -> anyhow::Result<Context> {
         parser.inputs(services.iter().map(|s| &s.path));
         let ParseResult {
             files,
@@ -401,7 +419,7 @@ where
             file_ids_map,
             file_paths,
             file_names,
-        } = parser.parse();
+        } = parser.try_parse()?;
 
         let ResolveResult {
             files,
@@ -434,6 +452,8 @@ where
             .with_pb_ext_indexes(pb_ext_indexes)
             .with_pb_exts_used(pb_ext_indexes_used);
 
+        parser::thrift::validate_streaming_messages(&db)?;
+
         let root_selection = middle::root_selector::RootSelector::new(
             &db,
             touches,
@@ -464,7 +484,7 @@ where
 
         cx.keep(keep_unknown_fields);
 
-        cx.build(
+        Ok(cx.build(
             Arc::from(services),
             source_type,
             selection_kind,
@@ -477,10 +497,20 @@ where
             with_field_mask,
             !ignore_unused,
             with_comments,
-        )
+        ))
     }
 
     pub fn compile_with_config(self, services: Vec<IdlService>, out: Output) {
+        self.try_compile_with_config(services, out)
+            .unwrap_or_else(|error| crate::util::error_abort(error.to_string()));
+    }
+
+    /// Fallible counterpart to `compile_with_config` for compiler integrations.
+    pub fn try_compile_with_config(
+        self,
+        services: Vec<IdlService>,
+        out: Output,
+    ) -> anyhow::Result<()> {
         let _ = tracing_subscriber::fmt::try_init();
 
         let cx = Self::build_cx_impl(
@@ -500,7 +530,7 @@ where
             self.with_descriptor,
             self.with_field_mask,
             self.with_comments,
-        );
+        )?;
 
         cx.exec_plugin(BoxedPlugin);
 
@@ -560,12 +590,11 @@ where
 
             pool.install(move || {
                 let cg = Codegen::new(self.mk_backend.make_backend(cx));
-                cg.r#gen().unwrap();
-            });
+                cg.r#gen()
+            })?;
 
-            Ok::<_, rayon::ThreadPoolBuildError>(())
+            Ok(())
         })
-        .unwrap();
     }
 
     // gen service_global_name and methods for certain service in IdlService
@@ -589,7 +618,7 @@ where
             self.with_descriptor,
             self.with_field_mask,
             self.with_comments,
-        );
+        )?;
 
         if matches!(cx.source.selection_kind, SelectionKind::Explicit) {
             Ok(Default::default())

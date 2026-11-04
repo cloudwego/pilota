@@ -1,0 +1,2 @@
+generation (exit 1)
+[ERROR] process '$WORKDIR/input.thrift' failed: service Test: streaming function Call should have exactly 1 argument

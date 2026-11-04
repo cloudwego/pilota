@@ -6,12 +6,24 @@ use crate::{Annotation, Function, Ident};
 
 impl Service {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Service, extra::Err<Rich<'a, char>>> {
+        Self::get_parser_with_locations().map(|(service, _)| service)
+    }
+
+    pub(crate) fn get_parser_with_locations<'a>() -> impl Parser<
+        'a,
+        &'a str,
+        (Service, Vec<crate::parser::thrift::FunctionLocation>),
+        extra::Err<Rich<'a, char>>,
+    > {
         let extends = Components::keyword("extends")
             .padded_by(Components::blank())
             .ignore_then(Path::parse());
         let functions = Components::blank()
             .or_not()
-            .ignore_then(Function::get_parser())
+            .ignore_then(
+                Function::get_parser()
+                    .map_with(|function, extra| (function, extra.span().into_range())),
+            )
             .repeated()
             .collect::<Vec<_>>();
 
@@ -42,19 +54,32 @@ impl Service {
                     ),
                     trailing,
                 )| {
-                    Service {
-                        leading_comments: FastStr::from(format!(
-                            "{}\n\n{}\n\n{}",
-                            leading.join("\n\n"),
-                            name_comments.join("\n\n"),
-                            comments.join("\n\n")
-                        )),
-                        name: Ident(name.into()),
-                        extends,
-                        functions,
-                        annotations: annotations.unwrap_or_default(),
-                        trailing_comments: trailing.unwrap_or_default(),
-                    }
+                    let (functions, spans): (Vec<_>, Vec<_>) = functions.into_iter().unzip();
+                    let locations = functions
+                        .iter()
+                        .zip(spans)
+                        .map(|(function, span)| crate::parser::thrift::FunctionLocation {
+                            service: name.clone().into(),
+                            function: function.name.0.clone().into(),
+                            span,
+                        })
+                        .collect();
+                    (
+                        Service {
+                            leading_comments: FastStr::from(format!(
+                                "{}\n\n{}\n\n{}",
+                                leading.join("\n\n"),
+                                name_comments.join("\n\n"),
+                                comments.join("\n\n")
+                            )),
+                            name: Ident(name.into()),
+                            extends,
+                            functions,
+                            annotations: annotations.unwrap_or_default(),
+                            trailing_comments: trailing.unwrap_or_default(),
+                        },
+                        locations,
+                    )
                 },
             )
     }

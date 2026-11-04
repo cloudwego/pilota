@@ -1,0 +1,6 @@
+{
+  "event": "result",
+  "input": "/tmp/pilota-ttstream-impl-jk8zqd_6/rust-golden.json",
+  "schemaVersion": 1,
+  "status": "PASS"
+}

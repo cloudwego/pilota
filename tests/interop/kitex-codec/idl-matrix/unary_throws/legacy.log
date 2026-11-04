@@ -1,0 +1,10 @@
+generation (exit 0)
+[INFO] Code Generation is Done!
+
+compile (exit 1)
+# github.com/cloudwego/volo/interop/matrix/unary_throws/legacy/kitex_gen/matrix/test
+kitex_gen/matrix/test/test.go:90:5: undefined: streaming
+kitex_gen/matrix/test/client.go:10:2: "github.com/cloudwego/kitex/pkg/streaming" imported and not used
+?   	github.com/cloudwego/volo/interop/matrix/unary_throws/legacy/kitex_gen/matrix	[no test files]
+FAIL	github.com/cloudwego/volo/interop/matrix/unary_throws/legacy/kitex_gen/matrix/test [build failed]
+FAIL

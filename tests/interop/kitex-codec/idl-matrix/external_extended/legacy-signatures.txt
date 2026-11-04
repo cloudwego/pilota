@@ -1,0 +1,426 @@
+kitex_gen/codec/codec.go: func NewMessageAlias() *MessageAlias {
+kitex_gen/codec/codec.go: func NewNested() *Nested {
+kitex_gen/codec/codec.go: func (p *Nested) InitDefault() {
+kitex_gen/codec/codec.go: func (p *Nested) GetValue() (v int32) {
+kitex_gen/codec/codec.go: func (p *Nested) GetLabel() (v string) {
+kitex_gen/codec/codec.go: func (p *Nested) SetValue(val int32) {
+kitex_gen/codec/codec.go: func (p *Nested) SetLabel(val *string) {
+kitex_gen/codec/codec.go: func (p *Nested) IsSetLabel() bool {
+kitex_gen/codec/codec.go: func (p *Nested) String() string {
+kitex_gen/codec/codec.go: func NewCodecMessage() *CodecMessage {
+kitex_gen/codec/codec.go: func (p *CodecMessage) InitDefault() {
+kitex_gen/codec/codec.go: func (p *CodecMessage) GetInteger() (v int64) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) GetFlag() (v bool) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) GetReal() (v float64) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) GetText() (v string) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) GetBlob() (v []byte) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) GetNumbers() (v []int32) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) GetNested() (v map[string][]int64) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) GetNote() (v string) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) GetIds() (v []int16) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) GetChild() (v *Nested) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) GetChildren() (v []*Nested) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) GetDefaultText() (v string) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) SetInteger(val int64) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) SetFlag(val bool) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) SetReal(val float64) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) SetText(val string) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) SetBlob(val []byte) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) SetNumbers(val []int32) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) SetNested(val map[string][]int64) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) SetNote(val *string) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) SetIds(val []int16) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) SetChild(val *Nested) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) SetChildren(val []*Nested) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) SetDefaultText(val string) {
+kitex_gen/codec/codec.go: func (p *CodecMessage) IsSetNote() bool {
+kitex_gen/codec/codec.go: func (p *CodecMessage) IsSetChild() bool {
+kitex_gen/codec/codec.go: func (p *CodecMessage) IsSetChildren() bool {
+kitex_gen/codec/codec.go: func (p *CodecMessage) String() string {
+kitex_gen/codec/codec.go: type CodecService interface {
+kitex_gen/codec/codec.go: 	Plain(ctx context.Context, request *CodecMessage) (r *CodecMessage, err error)
+kitex_gen/codec/codec.go: 	Unary(ctx context.Context, request *CodecMessage) (r *CodecMessage, err error)
+kitex_gen/codec/codec.go: func NewCodecServicePlainArgs() *CodecServicePlainArgs {
+kitex_gen/codec/codec.go: func (p *CodecServicePlainArgs) InitDefault() {
+kitex_gen/codec/codec.go: func (p *CodecServicePlainArgs) GetRequest() (v *CodecMessage) {
+kitex_gen/codec/codec.go: func (p *CodecServicePlainArgs) SetRequest(val *CodecMessage) {
+kitex_gen/codec/codec.go: func (p *CodecServicePlainArgs) IsSetRequest() bool {
+kitex_gen/codec/codec.go: func (p *CodecServicePlainArgs) String() string {
+kitex_gen/codec/codec.go: func NewCodecServicePlainResult() *CodecServicePlainResult {
+kitex_gen/codec/codec.go: func (p *CodecServicePlainResult) InitDefault() {
+kitex_gen/codec/codec.go: func (p *CodecServicePlainResult) GetSuccess() (v *CodecMessage) {
+kitex_gen/codec/codec.go: func (p *CodecServicePlainResult) SetSuccess(x interface{}) {
+kitex_gen/codec/codec.go: func (p *CodecServicePlainResult) IsSetSuccess() bool {
+kitex_gen/codec/codec.go: func (p *CodecServicePlainResult) String() string {
+kitex_gen/codec/codec.go: func NewCodecServiceUnaryArgs() *CodecServiceUnaryArgs {
+kitex_gen/codec/codec.go: func (p *CodecServiceUnaryArgs) InitDefault() {
+kitex_gen/codec/codec.go: func (p *CodecServiceUnaryArgs) GetRequest() (v *CodecMessage) {
+kitex_gen/codec/codec.go: func (p *CodecServiceUnaryArgs) SetRequest(val *CodecMessage) {
+kitex_gen/codec/codec.go: func (p *CodecServiceUnaryArgs) IsSetRequest() bool {
+kitex_gen/codec/codec.go: func (p *CodecServiceUnaryArgs) String() string {
+kitex_gen/codec/codec.go: func NewCodecServiceUnaryResult() *CodecServiceUnaryResult {
+kitex_gen/codec/codec.go: func (p *CodecServiceUnaryResult) InitDefault() {
+kitex_gen/codec/codec.go: func (p *CodecServiceUnaryResult) GetSuccess() (v *CodecMessage) {
+kitex_gen/codec/codec.go: func (p *CodecServiceUnaryResult) SetSuccess(x interface{}) {
+kitex_gen/codec/codec.go: func (p *CodecServiceUnaryResult) IsSetSuccess() bool {
+kitex_gen/codec/codec.go: func (p *CodecServiceUnaryResult) String() string {
+kitex_gen/codec/codec.go: func NewCodecServiceClientArgs() *CodecServiceClientArgs {
+kitex_gen/codec/codec.go: func (p *CodecServiceClientArgs) InitDefault() {
+kitex_gen/codec/codec.go: func (p *CodecServiceClientArgs) GetRequest() (v *CodecMessage) {
+kitex_gen/codec/codec.go: func (p *CodecServiceClientArgs) SetRequest(val *CodecMessage) {
+kitex_gen/codec/codec.go: func (p *CodecServiceClientArgs) IsSetRequest() bool {
+kitex_gen/codec/codec.go: func (p *CodecServiceClientArgs) String() string {
+kitex_gen/codec/codec.go: func NewCodecServiceClientResult() *CodecServiceClientResult {
+kitex_gen/codec/codec.go: func (p *CodecServiceClientResult) InitDefault() {
+kitex_gen/codec/codec.go: func (p *CodecServiceClientResult) GetSuccess() (v *CodecMessage) {
+kitex_gen/codec/codec.go: func (p *CodecServiceClientResult) SetSuccess(x interface{}) {
+kitex_gen/codec/codec.go: func (p *CodecServiceClientResult) IsSetSuccess() bool {
+kitex_gen/codec/codec.go: func (p *CodecServiceClientResult) String() string {
+kitex_gen/codec/codec.go: type CodecService_ClientServer interface {
+kitex_gen/codec/codec.go: func NewCodecServiceServerArgs() *CodecServiceServerArgs {
+kitex_gen/codec/codec.go: func (p *CodecServiceServerArgs) InitDefault() {
+kitex_gen/codec/codec.go: func (p *CodecServiceServerArgs) GetRequest() (v *CodecMessage) {
+kitex_gen/codec/codec.go: func (p *CodecServiceServerArgs) SetRequest(val *CodecMessage) {
+kitex_gen/codec/codec.go: func (p *CodecServiceServerArgs) IsSetRequest() bool {
+kitex_gen/codec/codec.go: func (p *CodecServiceServerArgs) String() string {
+kitex_gen/codec/codec.go: func NewCodecServiceServerResult() *CodecServiceServerResult {
+kitex_gen/codec/codec.go: func (p *CodecServiceServerResult) InitDefault() {
+kitex_gen/codec/codec.go: func (p *CodecServiceServerResult) GetSuccess() (v *CodecMessage) {
+kitex_gen/codec/codec.go: func (p *CodecServiceServerResult) SetSuccess(x interface{}) {
+kitex_gen/codec/codec.go: func (p *CodecServiceServerResult) IsSetSuccess() bool {
+kitex_gen/codec/codec.go: func (p *CodecServiceServerResult) String() string {
+kitex_gen/codec/codec.go: type CodecService_ServerServer interface {
+kitex_gen/codec/codec.go: func NewCodecServiceBidiArgs() *CodecServiceBidiArgs {
+kitex_gen/codec/codec.go: func (p *CodecServiceBidiArgs) InitDefault() {
+kitex_gen/codec/codec.go: func (p *CodecServiceBidiArgs) GetRequest() (v *MessageAlias) {
+kitex_gen/codec/codec.go: func (p *CodecServiceBidiArgs) SetRequest(val *MessageAlias) {
+kitex_gen/codec/codec.go: func (p *CodecServiceBidiArgs) IsSetRequest() bool {
+kitex_gen/codec/codec.go: func (p *CodecServiceBidiArgs) String() string {
+kitex_gen/codec/codec.go: func NewCodecServiceBidiResult() *CodecServiceBidiResult {
+kitex_gen/codec/codec.go: func (p *CodecServiceBidiResult) InitDefault() {
+kitex_gen/codec/codec.go: func (p *CodecServiceBidiResult) GetSuccess() (v *MessageAlias) {
+kitex_gen/codec/codec.go: func (p *CodecServiceBidiResult) SetSuccess(x interface{}) {
+kitex_gen/codec/codec.go: func (p *CodecServiceBidiResult) IsSetSuccess() bool {
+kitex_gen/codec/codec.go: func (p *CodecServiceBidiResult) String() string {
+kitex_gen/codec/codec.go: type CodecService_BidiServer interface {
+kitex_gen/codec/codecservice/client.go: type Client interface {
+kitex_gen/codec/codecservice/client.go: 	Plain(ctx context.Context, request *codec.CodecMessage, callOptions ...callopt.Option) (r *codec.CodecMessage, err error)
+kitex_gen/codec/codecservice/client.go: type StreamClient interface {
+kitex_gen/codec/codecservice/client.go: 	Unary(ctx context.Context, request *codec.CodecMessage, callOptions ...streamcall.Option) (r *codec.CodecMessage, err error)
+kitex_gen/codec/codecservice/client.go: 	Client(ctx context.Context, callOptions ...streamcall.Option) (stream CodecService_ClientClient, err error)
+kitex_gen/codec/codecservice/client.go: 	Server(ctx context.Context, request *codec.CodecMessage, callOptions ...streamcall.Option) (stream CodecService_ServerClient, err error)
+kitex_gen/codec/codecservice/client.go: 	Bidi(ctx context.Context, callOptions ...streamcall.Option) (stream CodecService_BidiClient, err error)
+kitex_gen/codec/codecservice/client.go: type CodecService_ClientClient interface {
+kitex_gen/codec/codecservice/client.go: type CodecService_ServerClient interface {
+kitex_gen/codec/codecservice/client.go: type CodecService_BidiClient interface {
+kitex_gen/codec/codecservice/client.go: func NewClient(destService string, opts ...client.Option) (Client, error) {
+kitex_gen/codec/codecservice/client.go: func MustNewClient(destService string, opts ...client.Option) Client {
+kitex_gen/codec/codecservice/client.go: type kCodecServiceClient struct {
+kitex_gen/codec/codecservice/client.go: func (p *kCodecServiceClient) Plain(ctx context.Context, request *codec.CodecMessage, callOptions ...callopt.Option) (r *codec.CodecMessage, err error) {
+kitex_gen/codec/codecservice/client.go: func NewStreamClient(destService string, opts ...streamclient.Option) (StreamClient, error) {
+kitex_gen/codec/codecservice/client.go: func MustNewStreamClient(destService string, opts ...streamclient.Option) StreamClient {
+kitex_gen/codec/codecservice/client.go: type kCodecServiceStreamClient struct {
+kitex_gen/codec/codecservice/client.go: func (p *kCodecServiceStreamClient) Unary(ctx context.Context, request *codec.CodecMessage, callOptions ...streamcall.Option) (r *codec.CodecMessage, err error) {
+kitex_gen/codec/codecservice/client.go: func (p *kCodecServiceStreamClient) Client(ctx context.Context, callOptions ...streamcall.Option) (stream CodecService_ClientClient, err error) {
+kitex_gen/codec/codecservice/client.go: func (p *kCodecServiceStreamClient) Server(ctx context.Context, request *codec.CodecMessage, callOptions ...streamcall.Option) (stream CodecService_ServerClient, err error) {
+kitex_gen/codec/codecservice/client.go: func (p *kCodecServiceStreamClient) Bidi(ctx context.Context, callOptions ...streamcall.Option) (stream CodecService_BidiClient, err error) {
+kitex_gen/codec/codecservice/codecservice.go: func serviceInfo() *kitex.ServiceInfo {
+kitex_gen/codec/codecservice/codecservice.go: func serviceInfoForStreamClient() *kitex.ServiceInfo {
+kitex_gen/codec/codecservice/codecservice.go: func serviceInfoForClient() *kitex.ServiceInfo {
+kitex_gen/codec/codecservice/codecservice.go: func NewServiceInfo() *kitex.ServiceInfo {
+kitex_gen/codec/codecservice/codecservice.go: func NewServiceInfoForClient() *kitex.ServiceInfo {
+kitex_gen/codec/codecservice/codecservice.go: func NewServiceInfoForStreamClient() *kitex.ServiceInfo {
+kitex_gen/codec/codecservice/codecservice.go: func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreamingMethods bool) *kitex.ServiceInfo {
+kitex_gen/codec/codecservice/codecservice.go: func plainHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/codec/codecservice/codecservice.go: func newCodecServicePlainArgs() interface{} {
+kitex_gen/codec/codecservice/codecservice.go: func newCodecServicePlainResult() interface{} {
+kitex_gen/codec/codecservice/codecservice.go: func unaryHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/codec/codecservice/codecservice.go: func newCodecServiceUnaryArgs() interface{} {
+kitex_gen/codec/codecservice/codecservice.go: func newCodecServiceUnaryResult() interface{} {
+kitex_gen/codec/codecservice/codecservice.go: func clientHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/codec/codecservice/codecservice.go: type codecServiceClientClient struct {
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceClientClient) DoFinish(err error) {
+kitex_gen/codec/codecservice/codecservice.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceClientClient) Send(m *codec.CodecMessage) error {
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceClientClient) CloseAndRecv() (*codec.CodecMessage, error) {
+kitex_gen/codec/codecservice/codecservice.go: type codecServiceClientServer struct {
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceClientServer) SendAndClose(m *codec.CodecMessage) error {
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceClientServer) Recv() (*codec.CodecMessage, error) {
+kitex_gen/codec/codecservice/codecservice.go: func newCodecServiceClientArgs() interface{} {
+kitex_gen/codec/codecservice/codecservice.go: func newCodecServiceClientResult() interface{} {
+kitex_gen/codec/codecservice/codecservice.go: func serverHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/codec/codecservice/codecservice.go: type codecServiceServerClient struct {
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceServerClient) DoFinish(err error) {
+kitex_gen/codec/codecservice/codecservice.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceServerClient) Recv() (*codec.CodecMessage, error) {
+kitex_gen/codec/codecservice/codecservice.go: type codecServiceServerServer struct {
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceServerServer) Send(m *codec.CodecMessage) error {
+kitex_gen/codec/codecservice/codecservice.go: func newCodecServiceServerArgs() interface{} {
+kitex_gen/codec/codecservice/codecservice.go: func newCodecServiceServerResult() interface{} {
+kitex_gen/codec/codecservice/codecservice.go: func bidiHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/codec/codecservice/codecservice.go: type codecServiceBidiClient struct {
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceBidiClient) DoFinish(err error) {
+kitex_gen/codec/codecservice/codecservice.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceBidiClient) Send(m *codec.MessageAlias) error {
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceBidiClient) Recv() (*codec.MessageAlias, error) {
+kitex_gen/codec/codecservice/codecservice.go: type codecServiceBidiServer struct {
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceBidiServer) Send(m *codec.MessageAlias) error {
+kitex_gen/codec/codecservice/codecservice.go: func (x *codecServiceBidiServer) Recv() (*codec.MessageAlias, error) {
+kitex_gen/codec/codecservice/codecservice.go: func newCodecServiceBidiArgs() interface{} {
+kitex_gen/codec/codecservice/codecservice.go: func newCodecServiceBidiResult() interface{} {
+kitex_gen/codec/codecservice/codecservice.go: type kClient struct {
+kitex_gen/codec/codecservice/codecservice.go: func newServiceClient(c client.Client) *kClient {
+kitex_gen/codec/codecservice/codecservice.go: func (p *kClient) Plain(ctx context.Context, request *codec.CodecMessage) (r *codec.CodecMessage, err error) {
+kitex_gen/codec/codecservice/codecservice.go: func (p *kClient) Unary(ctx context.Context, request *codec.CodecMessage) (r *codec.CodecMessage, err error) {
+kitex_gen/codec/codecservice/codecservice.go: func (p *kClient) Client(ctx context.Context) (CodecService_ClientClient, error) {
+kitex_gen/codec/codecservice/codecservice.go: func (p *kClient) Server(ctx context.Context, request *codec.CodecMessage) (CodecService_ServerClient, error) {
+kitex_gen/codec/codecservice/codecservice.go: func (p *kClient) Bidi(ctx context.Context) (CodecService_BidiClient, error) {
+kitex_gen/codec/codecservice/server.go: func NewServer(handler codec.CodecService, opts ...server.Option) server.Server {
+kitex_gen/codec/codecservice/server.go: func RegisterService(svr server.Server, handler codec.CodecService, opts ...server.RegisterOption) error {
+kitex_gen/codec/k-codec.go: func (p *Nested) FastRead(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *Nested) FastReadField1(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *Nested) FastReadField2(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *Nested) FastWrite(buf []byte) int {
+kitex_gen/codec/k-codec.go: func (p *Nested) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *Nested) BLength() int {
+kitex_gen/codec/k-codec.go: func (p *Nested) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *Nested) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *Nested) field1Length() int {
+kitex_gen/codec/k-codec.go: func (p *Nested) field2Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastRead(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastReadField1(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastReadField2(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastReadField3(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastReadField4(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastReadField5(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastReadField6(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastReadField7(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastReadField8(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastReadField9(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastReadField10(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastReadField11(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastReadField12(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastWrite(buf []byte) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) BLength() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) fastWriteField4(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) fastWriteField5(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) fastWriteField6(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) fastWriteField7(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) fastWriteField8(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) fastWriteField9(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) fastWriteField10(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) fastWriteField11(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) fastWriteField12(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) field1Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) field2Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) field3Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) field4Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) field5Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) field6Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) field7Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) field8Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) field9Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) field10Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) field11Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecMessage) field12Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainArgs) FastRead(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainArgs) FastReadField1(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainArgs) FastWrite(buf []byte) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainArgs) BLength() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainArgs) field1Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainResult) FastRead(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainResult) FastReadField0(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainResult) FastWrite(buf []byte) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainResult) BLength() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainResult) field0Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryArgs) FastRead(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryArgs) FastReadField1(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryArgs) FastWrite(buf []byte) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryArgs) BLength() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryArgs) field1Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryResult) FastRead(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryResult) FastReadField0(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryResult) FastWrite(buf []byte) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryResult) BLength() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryResult) field0Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientArgs) FastRead(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientArgs) FastReadField1(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientArgs) FastWrite(buf []byte) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientArgs) BLength() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientArgs) field1Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientResult) FastRead(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientResult) FastReadField0(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientResult) FastWrite(buf []byte) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientResult) BLength() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientResult) field0Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerArgs) FastRead(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerArgs) FastReadField1(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerArgs) FastWrite(buf []byte) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerArgs) BLength() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerArgs) field1Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerResult) FastRead(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerResult) FastReadField0(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerResult) FastWrite(buf []byte) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerResult) BLength() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerResult) field0Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiArgs) FastRead(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiArgs) FastReadField1(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiArgs) FastWrite(buf []byte) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiArgs) BLength() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiArgs) field1Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiResult) FastRead(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiResult) FastReadField0(buf []byte) (int, error) {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiResult) FastWrite(buf []byte) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiResult) BLength() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiResult) field0Length() int {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainArgs) GetFirstArgument() interface{} {
+kitex_gen/codec/k-codec.go: func (p *CodecServicePlainResult) GetResult() interface{} {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryArgs) GetFirstArgument() interface{} {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceUnaryResult) GetResult() interface{} {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientArgs) GetFirstArgument() interface{} {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceClientResult) GetResult() interface{} {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerArgs) GetFirstArgument() interface{} {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceServerResult) GetResult() interface{} {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiArgs) GetFirstArgument() interface{} {
+kitex_gen/codec/k-codec.go: func (p *CodecServiceBidiResult) GetResult() interface{} {
+kitex_gen/extended/extended/client.go: type Client interface {
+kitex_gen/extended/extended/client.go: 	Plain(ctx context.Context, request *codec.CodecMessage, callOptions ...callopt.Option) (r *codec.CodecMessage, err error)
+kitex_gen/extended/extended/client.go: type StreamClient interface {
+kitex_gen/extended/extended/client.go: 	Unary(ctx context.Context, request *codec.CodecMessage, callOptions ...streamcall.Option) (r *codec.CodecMessage, err error)
+kitex_gen/extended/extended/client.go: 	Client(ctx context.Context, callOptions ...streamcall.Option) (stream CodecService_ClientClient, err error)
+kitex_gen/extended/extended/client.go: 	Server(ctx context.Context, request *codec.CodecMessage, callOptions ...streamcall.Option) (stream CodecService_ServerClient, err error)
+kitex_gen/extended/extended/client.go: 	Bidi(ctx context.Context, callOptions ...streamcall.Option) (stream CodecService_BidiClient, err error)
+kitex_gen/extended/extended/client.go: 	Extra(ctx context.Context, request *codec.CodecMessage, callOptions ...streamcall.Option) (stream Extended_ExtraClient, err error)
+kitex_gen/extended/extended/client.go: type CodecService_ClientClient interface {
+kitex_gen/extended/extended/client.go: type CodecService_ServerClient interface {
+kitex_gen/extended/extended/client.go: type CodecService_BidiClient interface {
+kitex_gen/extended/extended/client.go: type Extended_ExtraClient interface {
+kitex_gen/extended/extended/client.go: func NewClient(destService string, opts ...client.Option) (Client, error) {
+kitex_gen/extended/extended/client.go: func MustNewClient(destService string, opts ...client.Option) Client {
+kitex_gen/extended/extended/client.go: type kExtendedClient struct {
+kitex_gen/extended/extended/client.go: func (p *kExtendedClient) Plain(ctx context.Context, request *codec.CodecMessage, callOptions ...callopt.Option) (r *codec.CodecMessage, err error) {
+kitex_gen/extended/extended/client.go: func NewStreamClient(destService string, opts ...streamclient.Option) (StreamClient, error) {
+kitex_gen/extended/extended/client.go: func MustNewStreamClient(destService string, opts ...streamclient.Option) StreamClient {
+kitex_gen/extended/extended/client.go: type kExtendedStreamClient struct {
+kitex_gen/extended/extended/client.go: func (p *kExtendedStreamClient) Unary(ctx context.Context, request *codec.CodecMessage, callOptions ...streamcall.Option) (r *codec.CodecMessage, err error) {
+kitex_gen/extended/extended/client.go: func (p *kExtendedStreamClient) Client(ctx context.Context, callOptions ...streamcall.Option) (stream CodecService_ClientClient, err error) {
+kitex_gen/extended/extended/client.go: func (p *kExtendedStreamClient) Server(ctx context.Context, request *codec.CodecMessage, callOptions ...streamcall.Option) (stream CodecService_ServerClient, err error) {
+kitex_gen/extended/extended/client.go: func (p *kExtendedStreamClient) Bidi(ctx context.Context, callOptions ...streamcall.Option) (stream CodecService_BidiClient, err error) {
+kitex_gen/extended/extended/client.go: func (p *kExtendedStreamClient) Extra(ctx context.Context, request *codec.CodecMessage, callOptions ...streamcall.Option) (stream Extended_ExtraClient, err error) {
+kitex_gen/extended/extended/extended.go: func serviceInfo() *kitex.ServiceInfo {
+kitex_gen/extended/extended/extended.go: func serviceInfoForStreamClient() *kitex.ServiceInfo {
+kitex_gen/extended/extended/extended.go: func serviceInfoForClient() *kitex.ServiceInfo {
+kitex_gen/extended/extended/extended.go: func NewServiceInfo() *kitex.ServiceInfo {
+kitex_gen/extended/extended/extended.go: func NewServiceInfoForClient() *kitex.ServiceInfo {
+kitex_gen/extended/extended/extended.go: func NewServiceInfoForStreamClient() *kitex.ServiceInfo {
+kitex_gen/extended/extended/extended.go: func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreamingMethods bool) *kitex.ServiceInfo {
+kitex_gen/extended/extended/extended.go: func plainHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/extended/extended/extended.go: func newCodecServicePlainArgs() interface{} {
+kitex_gen/extended/extended/extended.go: func newCodecServicePlainResult() interface{} {
+kitex_gen/extended/extended/extended.go: func unaryHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/extended/extended/extended.go: func newCodecServiceUnaryArgs() interface{} {
+kitex_gen/extended/extended/extended.go: func newCodecServiceUnaryResult() interface{} {
+kitex_gen/extended/extended/extended.go: func clientHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/extended/extended/extended.go: type codecServiceClientClient struct {
+kitex_gen/extended/extended/extended.go: func (x *codecServiceClientClient) DoFinish(err error) {
+kitex_gen/extended/extended/extended.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/extended/extended/extended.go: func (x *codecServiceClientClient) Send(m *codec.CodecMessage) error {
+kitex_gen/extended/extended/extended.go: func (x *codecServiceClientClient) CloseAndRecv() (*codec.CodecMessage, error) {
+kitex_gen/extended/extended/extended.go: type codecServiceClientServer struct {
+kitex_gen/extended/extended/extended.go: func (x *codecServiceClientServer) SendAndClose(m *codec.CodecMessage) error {
+kitex_gen/extended/extended/extended.go: func (x *codecServiceClientServer) Recv() (*codec.CodecMessage, error) {
+kitex_gen/extended/extended/extended.go: func newCodecServiceClientArgs() interface{} {
+kitex_gen/extended/extended/extended.go: func newCodecServiceClientResult() interface{} {
+kitex_gen/extended/extended/extended.go: func serverHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/extended/extended/extended.go: type codecServiceServerClient struct {
+kitex_gen/extended/extended/extended.go: func (x *codecServiceServerClient) DoFinish(err error) {
+kitex_gen/extended/extended/extended.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/extended/extended/extended.go: func (x *codecServiceServerClient) Recv() (*codec.CodecMessage, error) {
+kitex_gen/extended/extended/extended.go: type codecServiceServerServer struct {
+kitex_gen/extended/extended/extended.go: func (x *codecServiceServerServer) Send(m *codec.CodecMessage) error {
+kitex_gen/extended/extended/extended.go: func newCodecServiceServerArgs() interface{} {
+kitex_gen/extended/extended/extended.go: func newCodecServiceServerResult() interface{} {
+kitex_gen/extended/extended/extended.go: func bidiHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/extended/extended/extended.go: type codecServiceBidiClient struct {
+kitex_gen/extended/extended/extended.go: func (x *codecServiceBidiClient) DoFinish(err error) {
+kitex_gen/extended/extended/extended.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/extended/extended/extended.go: func (x *codecServiceBidiClient) Send(m *codec.MessageAlias) error {
+kitex_gen/extended/extended/extended.go: func (x *codecServiceBidiClient) Recv() (*codec.MessageAlias, error) {
+kitex_gen/extended/extended/extended.go: type codecServiceBidiServer struct {
+kitex_gen/extended/extended/extended.go: func (x *codecServiceBidiServer) Send(m *codec.MessageAlias) error {
+kitex_gen/extended/extended/extended.go: func (x *codecServiceBidiServer) Recv() (*codec.MessageAlias, error) {
+kitex_gen/extended/extended/extended.go: func newCodecServiceBidiArgs() interface{} {
+kitex_gen/extended/extended/extended.go: func newCodecServiceBidiResult() interface{} {
+kitex_gen/extended/extended/extended.go: func extraHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/extended/extended/extended.go: type extendedExtraClient struct {
+kitex_gen/extended/extended/extended.go: func (x *extendedExtraClient) DoFinish(err error) {
+kitex_gen/extended/extended/extended.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/extended/extended/extended.go: func (x *extendedExtraClient) Recv() (*codec.CodecMessage, error) {
+kitex_gen/extended/extended/extended.go: type extendedExtraServer struct {
+kitex_gen/extended/extended/extended.go: func (x *extendedExtraServer) Send(m *codec.CodecMessage) error {
+kitex_gen/extended/extended/extended.go: func newExtendedExtraArgs() interface{} {
+kitex_gen/extended/extended/extended.go: func newExtendedExtraResult() interface{} {
+kitex_gen/extended/extended/extended.go: type kClient struct {
+kitex_gen/extended/extended/extended.go: func newServiceClient(c client.Client) *kClient {
+kitex_gen/extended/extended/extended.go: func (p *kClient) Plain(ctx context.Context, request *codec.CodecMessage) (r *codec.CodecMessage, err error) {
+kitex_gen/extended/extended/extended.go: func (p *kClient) Unary(ctx context.Context, request *codec.CodecMessage) (r *codec.CodecMessage, err error) {
+kitex_gen/extended/extended/extended.go: func (p *kClient) Client(ctx context.Context) (CodecService_ClientClient, error) {
+kitex_gen/extended/extended/extended.go: func (p *kClient) Server(ctx context.Context, request *codec.CodecMessage) (CodecService_ServerClient, error) {
+kitex_gen/extended/extended/extended.go: func (p *kClient) Bidi(ctx context.Context) (CodecService_BidiClient, error) {
+kitex_gen/extended/extended/extended.go: func (p *kClient) Extra(ctx context.Context, request *codec.CodecMessage) (Extended_ExtraClient, error) {
+kitex_gen/extended/extended/server.go: func NewServer(handler extended.Extended, opts ...server.Option) server.Server {
+kitex_gen/extended/extended/server.go: func RegisterService(svr server.Server, handler extended.Extended, opts ...server.RegisterOption) error {
+kitex_gen/extended/input.go: type Extended interface {
+kitex_gen/extended/input.go: func NewExtendedExtraArgs() *ExtendedExtraArgs {
+kitex_gen/extended/input.go: func (p *ExtendedExtraArgs) InitDefault() {
+kitex_gen/extended/input.go: func (p *ExtendedExtraArgs) GetRequest() (v *codec.CodecMessage) {
+kitex_gen/extended/input.go: func (p *ExtendedExtraArgs) SetRequest(val *codec.CodecMessage) {
+kitex_gen/extended/input.go: func (p *ExtendedExtraArgs) IsSetRequest() bool {
+kitex_gen/extended/input.go: func (p *ExtendedExtraArgs) String() string {
+kitex_gen/extended/input.go: func NewExtendedExtraResult() *ExtendedExtraResult {
+kitex_gen/extended/input.go: func (p *ExtendedExtraResult) InitDefault() {
+kitex_gen/extended/input.go: func (p *ExtendedExtraResult) GetSuccess() (v *codec.CodecMessage) {
+kitex_gen/extended/input.go: func (p *ExtendedExtraResult) SetSuccess(x interface{}) {
+kitex_gen/extended/input.go: func (p *ExtendedExtraResult) IsSetSuccess() bool {
+kitex_gen/extended/input.go: func (p *ExtendedExtraResult) String() string {
+kitex_gen/extended/input.go: type Extended_ExtraServer interface {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraArgs) FastRead(buf []byte) (int, error) {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraArgs) FastReadField1(buf []byte) (int, error) {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraArgs) FastWrite(buf []byte) int {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraArgs) BLength() int {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraArgs) field1Length() int {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraResult) FastRead(buf []byte) (int, error) {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraResult) FastReadField0(buf []byte) (int, error) {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraResult) FastWrite(buf []byte) int {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraResult) BLength() int {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraResult) field0Length() int {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraArgs) GetFirstArgument() interface{} {
+kitex_gen/extended/k-input.go: func (p *ExtendedExtraResult) GetResult() interface{} {

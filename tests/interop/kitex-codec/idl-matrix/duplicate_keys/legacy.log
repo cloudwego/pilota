@@ -1,0 +1,2 @@
+generation (exit 1)
+[ERROR] process '$WORKDIR/input.thrift' failed: service Test: Call has multiple values for annotation streaming.mode (at most 1 allowed)

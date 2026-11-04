@@ -132,3 +132,47 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+mod streaming_tests {
+    use chumsky::Parser;
+
+    use crate::{FileParser, FileSource, Function};
+
+    #[test]
+    fn duplicate_annotations_remain_available_for_semantic_diagnostics() {
+        let function = Function::get_parser()
+            .parse(
+                r#"Resp call(1: Req request) (streaming.mode="client", streaming.mode="server")"#,
+            )
+            .unwrap();
+        let values: Vec<_> = function
+            .annotations
+            .iter()
+            .filter(|annotation| annotation.key == "streaming.mode")
+            .map(|annotation| annotation.value.to_string())
+            .collect();
+        assert_eq!(values, ["client", "server"]);
+    }
+
+    #[test]
+    fn locations_distinguish_methods_with_the_same_name_in_different_services() {
+        let source = r#"// Unicode 注释 and a fake name: service B { void call() }
+struct Req { 1: optional string text = "call( streaming.mode" }
+service A { Req call(1:Req req) (streaming.mode="client") }
+service B { Req call(1:Req req) (streaming.mode="server") }
+"#;
+        let parser = FileParser::new(FileSource::new(source));
+        parser.parse().unwrap();
+        let locations = parser.function_locations();
+        assert_eq!(locations.len(), 2);
+        for (location, service, mode) in [
+            (&locations[0], "A", "client"),
+            (&locations[1], "B", "server"),
+        ] {
+            assert_eq!(location.service, service);
+            assert_eq!(location.function, "call");
+            assert!(source[location.span.clone()].contains(&format!("streaming.mode=\"{mode}\"")));
+        }
+    }
+}

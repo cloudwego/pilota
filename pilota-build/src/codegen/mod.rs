@@ -272,7 +272,20 @@ where
         }
         let dup = dup.entry(name.0).or_default();
         for id in dup.iter() {
-            if def_id_equal(self.nodes(), *id, def_id) {
+            // Service deduplication must preserve the method protocol contract.
+            // The structural comparator intentionally has no access to tags.
+            let modes = |service| {
+                self.service_methods(service)
+                    .iter()
+                    .map(|method| {
+                        (
+                            method.name.clone(),
+                            self.thrift_streaming_mode(method.def_id),
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            };
+            if modes(*id) == modes(def_id) && def_id_equal(self.nodes(), *id, def_id) {
                 return true;
             }
         }
@@ -622,13 +635,12 @@ where
                         .unwrap()
                         .iter()
                         .filter_map(|file_id| {
-                            if *file_has_direct.get(file_id).unwrap()
-                                && let Some(file_path) = self.file_paths().get(file_id)
-                            {
-                                Some((mod_path.clone(), file_path.clone()))
-                            } else {
-                                None
+                            if !*file_has_direct.get(file_id).unwrap() {
+                                return None;
                             }
+                            self.file_paths()
+                                .get(file_id)
+                                .map(|file_path| (mod_path.clone(), file_path.clone()))
                         })
                         .collect::<Vec<_>>()
                 })

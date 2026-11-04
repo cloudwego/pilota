@@ -1,0 +1,611 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "name": "empty-default",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": 0,
+        "nested": {},
+        "numbers": [],
+        "real_bits": "0000000000000000",
+        "text": ""
+      },
+      "hex": "0a000100000000000000000200020004000300000000000000000b0004000000000b0005000000000f000608000000000d00070b0f000000000e000906000000000b000c0000000764656661756c7400",
+      "expected_consumed": 80,
+      "canonical_bytes": true
+    },
+    {
+      "name": "i64-min",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": -9223372036854775808,
+        "nested": {},
+        "numbers": [],
+        "real_bits": "0000000000000000",
+        "text": ""
+      },
+      "hex": "0a000180000000000000000200020004000300000000000000000b0004000000000b0005000000000f000608000000000d00070b0f000000000e000906000000000b000c0000000764656661756c7400",
+      "expected_consumed": 80,
+      "canonical_bytes": true
+    },
+    {
+      "name": "i64-max",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": 9223372036854775807,
+        "nested": {},
+        "numbers": [],
+        "real_bits": "0000000000000000",
+        "text": ""
+      },
+      "hex": "0a00017fffffffffffffff0200020004000300000000000000000b0004000000000b0005000000000f000608000000000d00070b0f000000000e000906000000000b000c0000000764656661756c7400",
+      "expected_consumed": 80,
+      "canonical_bytes": true
+    },
+    {
+      "name": "i64-negative",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": -1,
+        "nested": {},
+        "numbers": [],
+        "real_bits": "0000000000000000",
+        "text": ""
+      },
+      "hex": "0a0001ffffffffffffffff0200020004000300000000000000000b0004000000000b0005000000000f000608000000000d00070b0f000000000e000906000000000b000c0000000764656661756c7400",
+      "expected_consumed": 80,
+      "canonical_bytes": true
+    },
+    {
+      "name": "positive-zero",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": 0,
+        "nested": {},
+        "numbers": [],
+        "real_bits": "0000000000000000",
+        "text": ""
+      },
+      "hex": "0a000100000000000000000200020004000300000000000000000b0004000000000b0005000000000f000608000000000d00070b0f000000000e000906000000000b000c0000000764656661756c7400",
+      "expected_consumed": 80,
+      "canonical_bytes": true
+    },
+    {
+      "name": "negative-zero",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": 0,
+        "nested": {},
+        "numbers": [],
+        "real_bits": "8000000000000000",
+        "text": ""
+      },
+      "hex": "0a000100000000000000000200020004000380000000000000000b0004000000000b0005000000000f000608000000000d00070b0f000000000e000906000000000b000c0000000764656661756c7400",
+      "expected_consumed": 80,
+      "canonical_bytes": true
+    },
+    {
+      "name": "positive-infinity",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": 0,
+        "nested": {},
+        "numbers": [],
+        "real_bits": "7ff0000000000000",
+        "text": ""
+      },
+      "hex": "0a00010000000000000000020002000400037ff00000000000000b0004000000000b0005000000000f000608000000000d00070b0f000000000e000906000000000b000c0000000764656661756c7400",
+      "expected_consumed": 80,
+      "canonical_bytes": true
+    },
+    {
+      "name": "negative-infinity",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": 0,
+        "nested": {},
+        "numbers": [],
+        "real_bits": "fff0000000000000",
+        "text": ""
+      },
+      "hex": "0a0001000000000000000002000200040003fff00000000000000b0004000000000b0005000000000f000608000000000d00070b0f000000000e000906000000000b000c0000000764656661756c7400",
+      "expected_consumed": 80,
+      "canonical_bytes": true
+    },
+    {
+      "name": "nan-payload",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": 0,
+        "nested": {},
+        "numbers": [],
+        "real_bits": "7ff8000000000042",
+        "text": ""
+      },
+      "hex": "0a00010000000000000000020002000400037ff80000000000420b0004000000000b0005000000000f000608000000000d00070b0f000000000e000906000000000b000c0000000764656661756c7400",
+      "expected_consumed": 80,
+      "canonical_bytes": true
+    },
+    {
+      "name": "finite-double",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": 0,
+        "nested": {},
+        "numbers": [],
+        "real_bits": "3ff3c0ca428c59fb",
+        "text": ""
+      },
+      "hex": "0a00010000000000000000020002000400033ff3c0ca428c59fb0b0004000000000b0005000000000f000608000000000d00070b0f000000000e000906000000000b000c0000000764656661756c7400",
+      "expected_consumed": 80,
+      "canonical_bytes": true
+    },
+    {
+      "name": "full-nested",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "00017f80ff",
+        "child": {
+          "label": "nested",
+          "value": -2147483648
+        },
+        "children": [
+          {
+            "value": 0
+          },
+          {
+            "label": "",
+            "value": 2147483647
+          }
+        ],
+        "default_text": "changed",
+        "flag": true,
+        "ids": [
+          -32768,
+          -1,
+          0,
+          32767
+        ],
+        "integer": -9223372036854775808,
+        "nested": {
+          "one": [
+            -9223372036854775808,
+            0,
+            9223372036854775807
+          ]
+        },
+        "note": "",
+        "numbers": [
+          -2147483648,
+          -1,
+          0,
+          2147483647
+        ],
+        "real_bits": "c045400000000000",
+        "text": "hello\u0000中文🦀"
+      },
+      "hex": "0a0001800000000000000002000201040003c0454000000000000b00040000001068656c6c6f00e4b8ade69687f09fa6800b00050000000500017f80ff0f0006080000000480000000ffffffff000000007fffffff0d00070b0f00000001000000036f6e650a00000003800000000000000000000000000000007fffffffffffffff0b0008000000000e000906000000048000ffff00007fff0c000a080001800000000b0002000000066e6573746564000f000b0c0000000208000100000000000800017fffffff0b000200000000000b000c000000076368616e67656400",
+      "expected_consumed": 223,
+      "canonical_bytes": false
+    },
+    {
+      "name": "multi-map-set",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "00017f80ff",
+        "child": {
+          "label": "nested",
+          "value": -2147483648
+        },
+        "children": [
+          {
+            "value": 0
+          },
+          {
+            "label": "",
+            "value": 2147483647
+          }
+        ],
+        "default_text": "changed",
+        "flag": true,
+        "ids": [
+          -32768,
+          -1,
+          0,
+          32767
+        ],
+        "integer": -9223372036854775808,
+        "nested": {
+          "": [
+            -1
+          ],
+          "one": [
+            -9223372036854775808,
+            0,
+            9223372036854775807
+          ],
+          "two": []
+        },
+        "note": "",
+        "numbers": [
+          -2147483648,
+          -1,
+          0,
+          2147483647
+        ],
+        "real_bits": "c045400000000000",
+        "text": "hello\u0000中文🦀"
+      },
+      "hex": "0a0001800000000000000002000201040003c0454000000000000b00040000001068656c6c6f00e4b8ade69687f09fa6800b00050000000500017f80ff0f0006080000000480000000ffffffff000000007fffffff0d00070b0f00000003000000000a00000001ffffffffffffffff000000036f6e650a00000003800000000000000000000000000000007fffffffffffffff0000000374776f0a000000000b0008000000000e000906000000048000ffff00007fff0c000a080001800000000b0002000000066e6573746564000f000b0c0000000208000100000000000800017fffffff0b000200000000000b000c000000076368616e67656400",
+      "expected_consumed": 252,
+      "canonical_bytes": false
+    },
+    {
+      "name": "empty-present-optional",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": 0,
+        "nested": {},
+        "note": "present",
+        "numbers": [],
+        "real_bits": "0000000000000000",
+        "text": ""
+      },
+      "hex": "0a000100000000000000000200020004000300000000000000000b0004000000000b0005000000000f000608000000000d00070b0f000000000b00080000000770726573656e740e000906000000000f000b0c000000000b000c0000000764656661756c7400",
+      "expected_consumed": 102,
+      "canonical_bytes": true
+    },
+    {
+      "name": "reordered-fields",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": 0,
+        "nested": {},
+        "numbers": [],
+        "real_bits": "0000000000000000",
+        "text": ""
+      },
+      "hex": "0b000c0000000764656661756c740e000906000000000d00070b0f000000000f000608000000000b0005000000000b0004000000000400030000000000000000020002000a0001000000000000000000",
+      "expected_consumed": 80,
+      "canonical_bytes": false
+    },
+    {
+      "name": "unknown-field",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": [],
+        "integer": 0,
+        "nested": {},
+        "numbers": [],
+        "real_bits": "0000000000000000",
+        "text": ""
+      },
+      "hex": "0b00630000000769676e6f7265640a000100000000000000000200020004000300000000000000000b0004000000000b0005000000000f000608000000000d00070b0f000000000e000906000000000b000c0000000764656661756c7400",
+      "expected_consumed": 94,
+      "canonical_bytes": false
+    },
+    {
+      "name": "absent-default-fields",
+      "type": "CodecMessage",
+      "input": {
+        "blob": "",
+        "default_text": "default",
+        "flag": false,
+        "ids": null,
+        "integer": 0,
+        "nested": null,
+        "numbers": null,
+        "real_bits": "0000000000000000",
+        "text": ""
+      },
+      "hex": "00",
+      "expected_consumed": 1,
+      "canonical_bytes": false
+    },
+    {
+      "name": "application-1",
+      "type": "ApplicationException",
+      "input": {
+        "code": 1,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade696870800020000000100",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-6",
+      "type": "ApplicationException",
+      "input": {
+        "code": 6,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade696870800020000000600",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-7",
+      "type": "ApplicationException",
+      "input": {
+        "code": 7,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade696870800020000000700",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-9",
+      "type": "ApplicationException",
+      "input": {
+        "code": 9,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade696870800020000000900",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application--1",
+      "type": "ApplicationException",
+      "input": {
+        "code": -1,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade69687080002ffffffff00",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application--2147483648",
+      "type": "ApplicationException",
+      "input": {
+        "code": -2147483648,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade696870800028000000000",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-2147483647",
+      "type": "ApplicationException",
+      "input": {
+        "code": 2147483647,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade696870800027fffffff00",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-456789",
+      "type": "ApplicationException",
+      "input": {
+        "code": 456789,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade696870800020006f85500",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12001",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12001,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002ee100",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12002",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12002,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002ee200",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12003",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12003,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002ee300",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12004",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12004,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002ee400",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12005",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12005,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002ee500",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12006",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12006,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002ee600",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12007",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12007,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002ee700",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12008",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12008,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002ee800",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12009",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12009,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002ee900",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12010",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12010,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002eea00",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12011",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12011,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002eeb00",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12012",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12012,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002eec00",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12013",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12013,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002eed00",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12014",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12014,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002eee00",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    },
+    {
+      "name": "application-12015",
+      "type": "ApplicationException",
+      "input": {
+        "code": 12015,
+        "message": "application 中文"
+      },
+      "hex": "0b0001000000126170706c69636174696f6e20e4b8ade6968708000200002eef00",
+      "expected_consumed": 33,
+      "canonical_bytes": true
+    }
+  ]
+}

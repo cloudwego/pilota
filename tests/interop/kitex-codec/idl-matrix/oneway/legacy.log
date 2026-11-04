@@ -1,0 +1,2 @@
+generation (exit 1)
+[ERROR] render client.go failed: template: client.go:49:16: executing "client.go" at <.Resp.Type>: nil pointer evaluating *generator.Parameter.Type

@@ -1,0 +1,8 @@
+generation (exit 0)
+[INFO] Code Generation is Done!
+
+compile (exit 0)
+?   	github.com/cloudwego/volo/interop/matrix/external_extended/legacy/kitex_gen/codec	[no test files]
+?   	github.com/cloudwego/volo/interop/matrix/external_extended/legacy/kitex_gen/codec/codecservice	[no test files]
+?   	github.com/cloudwego/volo/interop/matrix/external_extended/legacy/kitex_gen/extended	[no test files]
+?   	github.com/cloudwego/volo/interop/matrix/external_extended/legacy/kitex_gen/extended/extended	[no test files]

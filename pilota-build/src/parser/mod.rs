@@ -32,4 +32,13 @@ pub trait Parser {
     fn include_dirs(&mut self, dirs: Vec<PathBuf>);
 
     fn parse(self) -> ParseResult;
+
+    /// Fallible parsing for build tools that must report diagnostics without
+    /// terminating their host process. Existing custom parsers remain valid.
+    fn try_parse(self) -> anyhow::Result<ParseResult>
+    where
+        Self: Sized,
+    {
+        Ok(self.parse())
+    }
 }

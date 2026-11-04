@@ -621,6 +621,25 @@ impl Context {
             .is_some()
     }
 
+    /// Returns the original Thrift streaming annotation for a method.
+    /// Protobuf methods and unannotated Thrift methods return `None`.
+    pub fn thrift_streaming_mode(&self, method: DefId) -> crate::tags::thrift::ThriftStreamingMode {
+        self.node_tags(method)
+            .and_then(|tags| {
+                tags.get::<crate::tags::thrift::ThriftStreamingMode>()
+                    .copied()
+            })
+            .unwrap_or_default()
+    }
+
+    /// Includes inherited methods, but excludes explicit
+    /// `streaming.mode="unary"`.
+    pub fn has_thrift_streaming_methods(&self, service: DefId) -> bool {
+        self.service_methods(service)
+            .iter()
+            .any(|method| self.thrift_streaming_mode(method.def_id).is_streaming())
+    }
+
     pub fn node_contains_tag<T: 'static>(&self, def_id: DefId) -> bool {
         self.node_tags(def_id)
             .and_then(|tags| tags.contains::<T>().then_some(true))

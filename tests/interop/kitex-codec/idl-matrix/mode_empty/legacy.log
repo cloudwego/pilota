@@ -1,0 +1,2 @@
+generation (exit 1)
+[ERROR] process '$WORKDIR/input.thrift' failed: service Test: invalid value () for annotation streaming.mode

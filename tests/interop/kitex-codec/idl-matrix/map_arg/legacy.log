@@ -1,0 +1,9 @@
+generation (exit 0)
+[INFO] Code Generation is Done!
+
+compile (exit 1)
+# github.com/cloudwego/volo/interop/matrix/map_arg/legacy/kitex_gen/matrix/test
+kitex_gen/matrix/test/test.go:129:9: cannot use m (variable of type *map[string]matrix.Message) as map[string]*matrix.Message value in return statement
+?   	github.com/cloudwego/volo/interop/matrix/map_arg/legacy/kitex_gen/matrix	[no test files]
+FAIL	github.com/cloudwego/volo/interop/matrix/map_arg/legacy/kitex_gen/matrix/test [build failed]
+FAIL

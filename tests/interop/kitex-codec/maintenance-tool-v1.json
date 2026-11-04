@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "version": "0.1.0",
+  "status": "candidate-incomplete-suites",
+  "target": "tests/interop/kitex-streaming",
+  "files": {
+    "README.md": "1fb56e3460f0927d235302c512140cb51a975b05e5e70c3e5030742df4760bfa",
+    "fixtures/codec.thrift": "97f0a82127c8a0c8a479faca944e2fc8720f524995f2ea62bce3daf4c91f9d8e",
+    "fixtures/interop.thrift": "5fa72aaa80ba1a4472ab644f4c98bc00d23a6e30b43b6336c937e9f7f170d5f1",
+    "go/cmd/oracle/main.go": "27f06a16e0a4742798b8e77c9add183fa9d252bf89a9e2bca1c92b8ea6d0f59b",
+    "go/go.mod": "2d334d830c03a7e43df1271631561ef4d3f65bc95a20ca23bbff3c9b656d95ce",
+    "go/go.sum": "26ac398606fc7f8932eefca1db578b7dfb66c9c485a6826b4307538e8b82e811",
+    "go/kitex_gen/codec/codec.go": "cb793ddea147722785dec001b500bea5a5f7f854940320966b562362be6abfc8",
+    "go/kitex_gen/codec/codecservice/client.go": "2823676714aad0ec72ca6976fccd6f11fad5d656d91bf9b36a560748c075262f",
+    "go/kitex_gen/codec/codecservice/codecservice.go": "3652487d009b442ffb7df6fea42f789ac45364f60be6cc839a14a1efe5f1298d",
+    "go/kitex_gen/codec/codecservice/server.go": "2e75ba338842b9655f3606bd65d0823726738f58ee2578ae7cb21bb1d7196cfb",
+    "go/kitex_gen/codec/k-codec.go": "d490dd8f868a00e7c7aa7262183713f25eac7e907cf55746b8e8bf8e810b45c9",
+    "go/kitex_gen/codec/k-consts.go": "030e69713e68a441fd07ba97de8fff5831188056ec80db46057778b0425e6b06",
+    "go/kitex_gen/interop/interop/client.go": "d465a337ea2dd3ee45d95f9600261bff8aed96cbf1cb495ef881b47e3c688e2a",
+    "go/kitex_gen/interop/interop/interop.go": "44c799bfc6a696687822b7459f560c03c96c347f8beb22d9551b57fb1c9c5775",
+    "go/kitex_gen/interop/interop/server.go": "d0bf33d64e96f8d3754e3a8e469898d23cb59a3dd096887e5a4f395bb06d7e6c",
+    "go/kitex_gen/interop/interop.go": "0d16fb024281367379132ce80fbee32a5ea707752c44742e1f1c7c8f5b7a1688",
+    "go/kitex_gen/interop/k-consts.go": "17073964037e8a11faa0ef7777d012c58e491f95a88979d8b49fe0a20362d76b",
+    "go/kitex_gen/interop/k-interop.go": "9f1c18217b2c39c4259ca33f1a78a79875156f5b28df6ddbf9d5d3bdb1fba707",
+    "go/oracle/frame.go": "e06bd5059aec33f62bc98cddc6f71ec05ffb32ad47371880a7769a9ac59dc0a2",
+    "go/oracle/golden.go": "6abe9487940d0402dd32af0958ef6ad2f77f68a2192325d5c08e3bd95e6fafa2",
+    "go/oracle/main.go": "a0ff81ba7ca5ea5af9e874414eab79902374f029a64891cb03e952fab35dde78",
+    "go/oracle/network.go": "00d4bfa4d63614ba4c71433bd4a179054dc034d8599b36c302c45f65d5fbce7a",
+    "go/oracle/payload.go": "8d7696432432f6d3e4390df38dcb056f9d757effbcc9757bf6ecfdf39ba86711",
+    "go/oracle/profile.go": "51ee123f950b37728d4e77c6fa59f011e852229459219f883b393967bac6dba8",
+    "pyproject.toml": "d4b5f8713612de695d445dbece7541cdcb711f82984bee639ed4d6fd3bac0d52",
+    "python/kitex_streaming_interop/__init__.py": "d4eb3a3602fe331f20ce089543c3279c018aa89a6395f947cef08276f2baa4bd",
+    "python/kitex_streaming_interop/__main__.py": "c672386ab04579f8a77dc710fde8008c2be2a44d0b3e395ab5a5feeec811e7d2",
+    "python/kitex_streaming_interop/codec.py": "61e3c6df6d074b9c4d1927b85ad55e97f7d61f25d8f2a6bd15dc214c9dc45906",
+    "python/kitex_streaming_interop/data/idl-expected.json": "ae7fe22ea642da8ce1230d1723c63ec5670019fe7c983d25e6e6bbec148100ce",
+    "python/kitex_streaming_interop/idl.py": "97fd65b9edc59e54ef2f7d51c573b8ee69e4d293591b8e4395187673ad75b693",
+    "python/kitex_streaming_interop/network.py": "52cce44db6bcd581da9212d1c76be02a3d000b73affc556ffbabdb5ebcc98594",
+    "python/kitex_streaming_interop/process.py": "42d53fc487d53c5792ae8b20c3c710d23787217a932b3967b7b012d50a9daeea",
+    "tests/test_runner.py": "26392462a3027766249230935f0fc8e068792e18d21a21b36309176c22ca9044"
+  },
+  "evidence": {
+    "python_unit_tests": {
+      "tests": 6,
+      "result": "PASS"
+    },
+    "go_module_build": "PASS",
+    "codec_go_rust_go_cases": 39,
+    "raw_go_rust_tcp_uds_cases": 36,
+    "typed_initial": {
+      "pass": 162,
+      "fail": 18
+    },
+    "typed_short_fix_retest": {
+      "pass": 18,
+      "fail": 0
+    }
+  }
+}

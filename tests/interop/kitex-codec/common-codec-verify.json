@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "suite": "codec-golden",
+  "status": "PASS",
+  "fixture": "/tmp/pilota-ttstream-impl-jk8zqd_6/repo/tests/interop/kitex-codec/golden.json",
+  "fixture_sha256": "889f8e4ade781face65ef9b6cec6a4808c3a022f3dd73326d401f52ec80394d9",
+  "oracle_sha256": "ea58ad79f8d46cea539389164051b8805cc44e43aecaef5a73eb18c8d69591c1",
+  "commands": [
+    {
+      "command": [
+        "/tmp/ttstream-integration-lpn9t2xb/bin/oracle",
+        "--role",
+        "codec-verify",
+        "--input",
+        "/tmp/pilota-ttstream-impl-jk8zqd_6/repo/tests/interop/kitex-codec/golden.json",
+        "--report",
+        "/tmp/pilota-ttstream-impl-jk8zqd_6/common-codec-verify/codec-golden/go-verify.json"
+      ],
+      "cwd": "/tmp/pilota-ttstream-impl-jk8zqd_6/common-codec-verify/codec-golden",
+      "returncode": 0,
+      "timed_out": false,
+      "duration_seconds": 0.03347247280180454,
+      "log": "/tmp/pilota-ttstream-impl-jk8zqd_6/common-codec-verify/codec-golden/verify.log"
+    },
+    {
+      "command": [
+        "/tmp/ttstream-integration-lpn9t2xb/bin/oracle",
+        "--role",
+        "codec-verify",
+        "--input",
+        "/tmp/pilota-ttstream-impl-jk8zqd_6/rust-golden.json",
+        "--report",
+        "/tmp/pilota-ttstream-impl-jk8zqd_6/common-codec-verify/codec-golden/rust-to-go.json"
+      ],
+      "cwd": "/tmp/pilota-ttstream-impl-jk8zqd_6/common-codec-verify/codec-golden",
+      "returncode": 0,
+      "timed_out": false,
+      "duration_seconds": 0.03361872397363186,
+      "log": "/tmp/pilota-ttstream-impl-jk8zqd_6/common-codec-verify/codec-golden/rust-to-go.log"
+    }
+  ],
+  "reverse_verified": true,
+  "rust_bytes_sha256": "9f5ff464f97ffe5e0ae63d97fe3419be9c871c6d0086ff5bb2d6d12fdd50d453",
+  "scope": "Go fixture verification; reverse Go decoding only verified when --rust-bytes is supplied; offline Rust tests are separate"
+}

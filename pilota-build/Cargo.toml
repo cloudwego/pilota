@@ -1,6 +1,6 @@
 [package]
 name = "pilota-build"
-version = "0.13.12"
+version = "0.14.0-alpha.1"
 edition.workspace = true
 homepage.workspace = true
 repository.workspace = true
@@ -19,7 +19,7 @@ maintenance = { status = "actively-developed" }
 
 [dependencies]
 pilota = { path = "../pilota", version = "0.13" }
-pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.13" }
+pilota-thrift-parser = { path = "../pilota-thrift-parser", version = "0.13.8" }
 pilota-thrift-reflect = { path = "../pilota-thrift-reflect", version = "0.2" }
 
 ahash.workspace = true
@@ -54,6 +54,7 @@ chumsky.workspace = true
 ariadne.workspace = true
 
 [dev-dependencies]
+serde_json.workspace = true
 pilota-thrift-fieldmask = { path = "../pilota-thrift-fieldmask" }
 
 tokio.workspace = true

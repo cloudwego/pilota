@@ -52,6 +52,15 @@ impl<'a> FileSource<'a> {
     }
 }
 
+/// Source locations are separate from the AST so existing AST constructors stay
+/// compatible.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct FunctionLocation {
+    pub service: FastStr,
+    pub function: FastStr,
+    pub span: std::ops::Range<usize>,
+}
+
 pub struct FileParser<'a> {
     pub source: FileSource<'a>,
 }
@@ -59,6 +68,25 @@ pub struct FileParser<'a> {
 impl<'a> FileParser<'a> {
     pub fn new(source: FileSource<'a>) -> Self {
         Self { source }
+    }
+
+    /// Returns declaration spans for an already valid source file.
+    /// This optional diagnostic pass does not change the public AST.
+    pub fn function_locations(&self) -> Vec<FunctionLocation> {
+        let services = Service::get_parser_with_locations().map(|(_, locations)| locations);
+        services
+            .or(Item::parse().map(|_| Vec::new()))
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(Components::comment().repeated())
+            .then_ignore(Components::blank().or_not())
+            .then_ignore(end())
+            .parse(self.source.content)
+            .into_result()
+            .unwrap_or_default()
+            .into_iter()
+            .flatten()
+            .collect()
     }
 
     pub fn parse(&self) -> Result<File, error::Error> {

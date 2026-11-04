@@ -1,0 +1,356 @@
+kitex_gen/matrix/child/child.go: func serviceInfo() *kitex.ServiceInfo {
+kitex_gen/matrix/child/child.go: func serviceInfoForStreamClient() *kitex.ServiceInfo {
+kitex_gen/matrix/child/child.go: func serviceInfoForClient() *kitex.ServiceInfo {
+kitex_gen/matrix/child/child.go: func NewServiceInfo() *kitex.ServiceInfo {
+kitex_gen/matrix/child/child.go: func NewServiceInfoForClient() *kitex.ServiceInfo {
+kitex_gen/matrix/child/child.go: func NewServiceInfoForStreamClient() *kitex.ServiceInfo {
+kitex_gen/matrix/child/child.go: func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreamingMethods bool) *kitex.ServiceInfo {
+kitex_gen/matrix/child/child.go: func plainHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/matrix/child/child.go: func newTestPlainArgs() interface{} {
+kitex_gen/matrix/child/child.go: func newTestPlainResult() interface{} {
+kitex_gen/matrix/child/child.go: func unaryHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/matrix/child/child.go: func newTestUnaryArgs() interface{} {
+kitex_gen/matrix/child/child.go: func newTestUnaryResult() interface{} {
+kitex_gen/matrix/child/child.go: func clientHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/matrix/child/child.go: type testClientClient struct {
+kitex_gen/matrix/child/child.go: func (x *testClientClient) DoFinish(err error) {
+kitex_gen/matrix/child/child.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/matrix/child/child.go: func (x *testClientClient) Send(m *matrix.Message) error {
+kitex_gen/matrix/child/child.go: func (x *testClientClient) CloseAndRecv() (*matrix.Message, error) {
+kitex_gen/matrix/child/child.go: type testClientServer struct {
+kitex_gen/matrix/child/child.go: func (x *testClientServer) SendAndClose(m *matrix.Message) error {
+kitex_gen/matrix/child/child.go: func (x *testClientServer) Recv() (*matrix.Message, error) {
+kitex_gen/matrix/child/child.go: func newTestClientArgs() interface{} {
+kitex_gen/matrix/child/child.go: func newTestClientResult() interface{} {
+kitex_gen/matrix/child/child.go: func serverHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/matrix/child/child.go: type testServerClient struct {
+kitex_gen/matrix/child/child.go: func (x *testServerClient) DoFinish(err error) {
+kitex_gen/matrix/child/child.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/matrix/child/child.go: func (x *testServerClient) Recv() (*matrix.Message, error) {
+kitex_gen/matrix/child/child.go: type testServerServer struct {
+kitex_gen/matrix/child/child.go: func (x *testServerServer) Send(m *matrix.Message) error {
+kitex_gen/matrix/child/child.go: func newTestServerArgs() interface{} {
+kitex_gen/matrix/child/child.go: func newTestServerResult() interface{} {
+kitex_gen/matrix/child/child.go: func bidiHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/matrix/child/child.go: type testBidiClient struct {
+kitex_gen/matrix/child/child.go: func (x *testBidiClient) DoFinish(err error) {
+kitex_gen/matrix/child/child.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/matrix/child/child.go: func (x *testBidiClient) Send(m *matrix.Message) error {
+kitex_gen/matrix/child/child.go: func (x *testBidiClient) Recv() (*matrix.Message, error) {
+kitex_gen/matrix/child/child.go: type testBidiServer struct {
+kitex_gen/matrix/child/child.go: func (x *testBidiServer) Send(m *matrix.Message) error {
+kitex_gen/matrix/child/child.go: func (x *testBidiServer) Recv() (*matrix.Message, error) {
+kitex_gen/matrix/child/child.go: func newTestBidiArgs() interface{} {
+kitex_gen/matrix/child/child.go: func newTestBidiResult() interface{} {
+kitex_gen/matrix/child/child.go: func extraHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/matrix/child/child.go: func newChildExtraArgs() interface{} {
+kitex_gen/matrix/child/child.go: func newChildExtraResult() interface{} {
+kitex_gen/matrix/child/child.go: type kClient struct {
+kitex_gen/matrix/child/child.go: func newServiceClient(c client.Client) *kClient {
+kitex_gen/matrix/child/child.go: func (p *kClient) Plain(ctx context.Context, a *matrix.Message) (r *matrix.Message, err error) {
+kitex_gen/matrix/child/child.go: func (p *kClient) Unary(ctx context.Context, a *matrix.Message) (r *matrix.Message, err error) {
+kitex_gen/matrix/child/child.go: func (p *kClient) Client(ctx context.Context) (Test_ClientClient, error) {
+kitex_gen/matrix/child/child.go: func (p *kClient) Server(ctx context.Context, a *matrix.Message) (Test_ServerClient, error) {
+kitex_gen/matrix/child/child.go: func (p *kClient) Bidi(ctx context.Context) (Test_BidiClient, error) {
+kitex_gen/matrix/child/child.go: func (p *kClient) Extra(ctx context.Context, a *matrix.Message) (r *matrix.Message, err error) {
+kitex_gen/matrix/child/client.go: type Client interface {
+kitex_gen/matrix/child/client.go: 	Plain(ctx context.Context, a *matrix.Message, callOptions ...callopt.Option) (r *matrix.Message, err error)
+kitex_gen/matrix/child/client.go: 	Extra(ctx context.Context, a *matrix.Message, callOptions ...callopt.Option) (r *matrix.Message, err error)
+kitex_gen/matrix/child/client.go: type StreamClient interface {
+kitex_gen/matrix/child/client.go: 	Unary(ctx context.Context, a *matrix.Message, callOptions ...streamcall.Option) (r *matrix.Message, err error)
+kitex_gen/matrix/child/client.go: 	Client(ctx context.Context, callOptions ...streamcall.Option) (stream Test_ClientClient, err error)
+kitex_gen/matrix/child/client.go: 	Server(ctx context.Context, a *matrix.Message, callOptions ...streamcall.Option) (stream Test_ServerClient, err error)
+kitex_gen/matrix/child/client.go: 	Bidi(ctx context.Context, callOptions ...streamcall.Option) (stream Test_BidiClient, err error)
+kitex_gen/matrix/child/client.go: type Test_ClientClient interface {
+kitex_gen/matrix/child/client.go: type Test_ServerClient interface {
+kitex_gen/matrix/child/client.go: type Test_BidiClient interface {
+kitex_gen/matrix/child/client.go: func NewClient(destService string, opts ...client.Option) (Client, error) {
+kitex_gen/matrix/child/client.go: func MustNewClient(destService string, opts ...client.Option) Client {
+kitex_gen/matrix/child/client.go: type kChildClient struct {
+kitex_gen/matrix/child/client.go: func (p *kChildClient) Plain(ctx context.Context, a *matrix.Message, callOptions ...callopt.Option) (r *matrix.Message, err error) {
+kitex_gen/matrix/child/client.go: func (p *kChildClient) Extra(ctx context.Context, a *matrix.Message, callOptions ...callopt.Option) (r *matrix.Message, err error) {
+kitex_gen/matrix/child/client.go: func NewStreamClient(destService string, opts ...streamclient.Option) (StreamClient, error) {
+kitex_gen/matrix/child/client.go: func MustNewStreamClient(destService string, opts ...streamclient.Option) StreamClient {
+kitex_gen/matrix/child/client.go: type kChildStreamClient struct {
+kitex_gen/matrix/child/client.go: func (p *kChildStreamClient) Unary(ctx context.Context, a *matrix.Message, callOptions ...streamcall.Option) (r *matrix.Message, err error) {
+kitex_gen/matrix/child/client.go: func (p *kChildStreamClient) Client(ctx context.Context, callOptions ...streamcall.Option) (stream Test_ClientClient, err error) {
+kitex_gen/matrix/child/client.go: func (p *kChildStreamClient) Server(ctx context.Context, a *matrix.Message, callOptions ...streamcall.Option) (stream Test_ServerClient, err error) {
+kitex_gen/matrix/child/client.go: func (p *kChildStreamClient) Bidi(ctx context.Context, callOptions ...streamcall.Option) (stream Test_BidiClient, err error) {
+kitex_gen/matrix/child/server.go: func NewServer(handler matrix.Child, opts ...server.Option) server.Server {
+kitex_gen/matrix/child/server.go: func RegisterService(svr server.Server, handler matrix.Child, opts ...server.RegisterOption) error {
+kitex_gen/matrix/input.go: func NewAlias() *Alias {
+kitex_gen/matrix/input.go: func NewMessage() *Message {
+kitex_gen/matrix/input.go: func (p *Message) InitDefault() {
+kitex_gen/matrix/input.go: func (p *Message) GetValue() (v string) {
+kitex_gen/matrix/input.go: func (p *Message) SetValue(val string) {
+kitex_gen/matrix/input.go: func (p *Message) String() string {
+kitex_gen/matrix/input.go: func NewFailure() *Failure {
+kitex_gen/matrix/input.go: func (p *Failure) InitDefault() {
+kitex_gen/matrix/input.go: func (p *Failure) GetMessage() (v string) {
+kitex_gen/matrix/input.go: func (p *Failure) SetMessage(val string) {
+kitex_gen/matrix/input.go: func (p *Failure) String() string {
+kitex_gen/matrix/input.go: func (p *Failure) Error() string {
+kitex_gen/matrix/input.go: type Test interface {
+kitex_gen/matrix/input.go: 	Plain(ctx context.Context, a *Message) (r *Message, err error)
+kitex_gen/matrix/input.go: 	Unary(ctx context.Context, a *Message) (r *Message, err error)
+kitex_gen/matrix/input.go: func NewTestPlainArgs() *TestPlainArgs {
+kitex_gen/matrix/input.go: func (p *TestPlainArgs) InitDefault() {
+kitex_gen/matrix/input.go: func (p *TestPlainArgs) GetA() (v *Message) {
+kitex_gen/matrix/input.go: func (p *TestPlainArgs) SetA(val *Message) {
+kitex_gen/matrix/input.go: func (p *TestPlainArgs) IsSetA() bool {
+kitex_gen/matrix/input.go: func (p *TestPlainArgs) String() string {
+kitex_gen/matrix/input.go: func NewTestPlainResult() *TestPlainResult {
+kitex_gen/matrix/input.go: func (p *TestPlainResult) InitDefault() {
+kitex_gen/matrix/input.go: func (p *TestPlainResult) GetSuccess() (v *Message) {
+kitex_gen/matrix/input.go: func (p *TestPlainResult) SetSuccess(x interface{}) {
+kitex_gen/matrix/input.go: func (p *TestPlainResult) IsSetSuccess() bool {
+kitex_gen/matrix/input.go: func (p *TestPlainResult) String() string {
+kitex_gen/matrix/input.go: func NewTestUnaryArgs() *TestUnaryArgs {
+kitex_gen/matrix/input.go: func (p *TestUnaryArgs) InitDefault() {
+kitex_gen/matrix/input.go: func (p *TestUnaryArgs) GetA() (v *Message) {
+kitex_gen/matrix/input.go: func (p *TestUnaryArgs) SetA(val *Message) {
+kitex_gen/matrix/input.go: func (p *TestUnaryArgs) IsSetA() bool {
+kitex_gen/matrix/input.go: func (p *TestUnaryArgs) String() string {
+kitex_gen/matrix/input.go: func NewTestUnaryResult() *TestUnaryResult {
+kitex_gen/matrix/input.go: func (p *TestUnaryResult) InitDefault() {
+kitex_gen/matrix/input.go: func (p *TestUnaryResult) GetSuccess() (v *Message) {
+kitex_gen/matrix/input.go: func (p *TestUnaryResult) SetSuccess(x interface{}) {
+kitex_gen/matrix/input.go: func (p *TestUnaryResult) IsSetSuccess() bool {
+kitex_gen/matrix/input.go: func (p *TestUnaryResult) String() string {
+kitex_gen/matrix/input.go: func NewTestClientArgs() *TestClientArgs {
+kitex_gen/matrix/input.go: func (p *TestClientArgs) InitDefault() {
+kitex_gen/matrix/input.go: func (p *TestClientArgs) GetA() (v *Message) {
+kitex_gen/matrix/input.go: func (p *TestClientArgs) SetA(val *Message) {
+kitex_gen/matrix/input.go: func (p *TestClientArgs) IsSetA() bool {
+kitex_gen/matrix/input.go: func (p *TestClientArgs) String() string {
+kitex_gen/matrix/input.go: func NewTestClientResult() *TestClientResult {
+kitex_gen/matrix/input.go: func (p *TestClientResult) InitDefault() {
+kitex_gen/matrix/input.go: func (p *TestClientResult) GetSuccess() (v *Message) {
+kitex_gen/matrix/input.go: func (p *TestClientResult) SetSuccess(x interface{}) {
+kitex_gen/matrix/input.go: func (p *TestClientResult) IsSetSuccess() bool {
+kitex_gen/matrix/input.go: func (p *TestClientResult) String() string {
+kitex_gen/matrix/input.go: type Test_ClientServer interface {
+kitex_gen/matrix/input.go: func NewTestServerArgs() *TestServerArgs {
+kitex_gen/matrix/input.go: func (p *TestServerArgs) InitDefault() {
+kitex_gen/matrix/input.go: func (p *TestServerArgs) GetA() (v *Message) {
+kitex_gen/matrix/input.go: func (p *TestServerArgs) SetA(val *Message) {
+kitex_gen/matrix/input.go: func (p *TestServerArgs) IsSetA() bool {
+kitex_gen/matrix/input.go: func (p *TestServerArgs) String() string {
+kitex_gen/matrix/input.go: func NewTestServerResult() *TestServerResult {
+kitex_gen/matrix/input.go: func (p *TestServerResult) InitDefault() {
+kitex_gen/matrix/input.go: func (p *TestServerResult) GetSuccess() (v *Message) {
+kitex_gen/matrix/input.go: func (p *TestServerResult) SetSuccess(x interface{}) {
+kitex_gen/matrix/input.go: func (p *TestServerResult) IsSetSuccess() bool {
+kitex_gen/matrix/input.go: func (p *TestServerResult) String() string {
+kitex_gen/matrix/input.go: type Test_ServerServer interface {
+kitex_gen/matrix/input.go: func NewTestBidiArgs() *TestBidiArgs {
+kitex_gen/matrix/input.go: func (p *TestBidiArgs) InitDefault() {
+kitex_gen/matrix/input.go: func (p *TestBidiArgs) GetA() (v *Message) {
+kitex_gen/matrix/input.go: func (p *TestBidiArgs) SetA(val *Message) {
+kitex_gen/matrix/input.go: func (p *TestBidiArgs) IsSetA() bool {
+kitex_gen/matrix/input.go: func (p *TestBidiArgs) String() string {
+kitex_gen/matrix/input.go: func NewTestBidiResult() *TestBidiResult {
+kitex_gen/matrix/input.go: func (p *TestBidiResult) InitDefault() {
+kitex_gen/matrix/input.go: func (p *TestBidiResult) GetSuccess() (v *Message) {
+kitex_gen/matrix/input.go: func (p *TestBidiResult) SetSuccess(x interface{}) {
+kitex_gen/matrix/input.go: func (p *TestBidiResult) IsSetSuccess() bool {
+kitex_gen/matrix/input.go: func (p *TestBidiResult) String() string {
+kitex_gen/matrix/input.go: type Test_BidiServer interface {
+kitex_gen/matrix/input.go: type Child interface {
+kitex_gen/matrix/input.go: 	Extra(ctx context.Context, a *Message) (r *Message, err error)
+kitex_gen/matrix/input.go: func NewChildExtraArgs() *ChildExtraArgs {
+kitex_gen/matrix/input.go: func (p *ChildExtraArgs) InitDefault() {
+kitex_gen/matrix/input.go: func (p *ChildExtraArgs) GetA() (v *Message) {
+kitex_gen/matrix/input.go: func (p *ChildExtraArgs) SetA(val *Message) {
+kitex_gen/matrix/input.go: func (p *ChildExtraArgs) IsSetA() bool {
+kitex_gen/matrix/input.go: func (p *ChildExtraArgs) String() string {
+kitex_gen/matrix/input.go: func NewChildExtraResult() *ChildExtraResult {
+kitex_gen/matrix/input.go: func (p *ChildExtraResult) InitDefault() {
+kitex_gen/matrix/input.go: func (p *ChildExtraResult) GetSuccess() (v *Message) {
+kitex_gen/matrix/input.go: func (p *ChildExtraResult) SetSuccess(x interface{}) {
+kitex_gen/matrix/input.go: func (p *ChildExtraResult) IsSetSuccess() bool {
+kitex_gen/matrix/input.go: func (p *ChildExtraResult) String() string {
+kitex_gen/matrix/k-input.go: func (p *Message) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *Message) FastReadField1(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *Message) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *Message) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *Message) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *Message) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *Message) field1Length() int {
+kitex_gen/matrix/k-input.go: func (p *Failure) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *Failure) FastReadField1(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *Failure) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *Failure) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *Failure) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *Failure) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *Failure) field1Length() int {
+kitex_gen/matrix/k-input.go: func (p *TestPlainArgs) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestPlainArgs) FastReadField1(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestPlainArgs) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *TestPlainArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestPlainArgs) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *TestPlainArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestPlainArgs) field1Length() int {
+kitex_gen/matrix/k-input.go: func (p *TestPlainResult) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestPlainResult) FastReadField0(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestPlainResult) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *TestPlainResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestPlainResult) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *TestPlainResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestPlainResult) field0Length() int {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryArgs) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryArgs) FastReadField1(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryArgs) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryArgs) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryArgs) field1Length() int {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryResult) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryResult) FastReadField0(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryResult) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryResult) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryResult) field0Length() int {
+kitex_gen/matrix/k-input.go: func (p *TestClientArgs) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestClientArgs) FastReadField1(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestClientArgs) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *TestClientArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestClientArgs) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *TestClientArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestClientArgs) field1Length() int {
+kitex_gen/matrix/k-input.go: func (p *TestClientResult) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestClientResult) FastReadField0(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestClientResult) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *TestClientResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestClientResult) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *TestClientResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestClientResult) field0Length() int {
+kitex_gen/matrix/k-input.go: func (p *TestServerArgs) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestServerArgs) FastReadField1(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestServerArgs) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *TestServerArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestServerArgs) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *TestServerArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestServerArgs) field1Length() int {
+kitex_gen/matrix/k-input.go: func (p *TestServerResult) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestServerResult) FastReadField0(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestServerResult) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *TestServerResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestServerResult) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *TestServerResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestServerResult) field0Length() int {
+kitex_gen/matrix/k-input.go: func (p *TestBidiArgs) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestBidiArgs) FastReadField1(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestBidiArgs) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *TestBidiArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestBidiArgs) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *TestBidiArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestBidiArgs) field1Length() int {
+kitex_gen/matrix/k-input.go: func (p *TestBidiResult) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestBidiResult) FastReadField0(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *TestBidiResult) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *TestBidiResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestBidiResult) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *TestBidiResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *TestBidiResult) field0Length() int {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraArgs) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraArgs) FastReadField1(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraArgs) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraArgs) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraArgs) field1Length() int {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraResult) FastRead(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraResult) FastReadField0(buf []byte) (int, error) {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraResult) FastWrite(buf []byte) int {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraResult) BLength() int {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraResult) field0Length() int {
+kitex_gen/matrix/k-input.go: func (p *TestPlainArgs) GetFirstArgument() interface{} {
+kitex_gen/matrix/k-input.go: func (p *TestPlainResult) GetResult() interface{} {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryArgs) GetFirstArgument() interface{} {
+kitex_gen/matrix/k-input.go: func (p *TestUnaryResult) GetResult() interface{} {
+kitex_gen/matrix/k-input.go: func (p *TestClientArgs) GetFirstArgument() interface{} {
+kitex_gen/matrix/k-input.go: func (p *TestClientResult) GetResult() interface{} {
+kitex_gen/matrix/k-input.go: func (p *TestServerArgs) GetFirstArgument() interface{} {
+kitex_gen/matrix/k-input.go: func (p *TestServerResult) GetResult() interface{} {
+kitex_gen/matrix/k-input.go: func (p *TestBidiArgs) GetFirstArgument() interface{} {
+kitex_gen/matrix/k-input.go: func (p *TestBidiResult) GetResult() interface{} {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraArgs) GetFirstArgument() interface{} {
+kitex_gen/matrix/k-input.go: func (p *ChildExtraResult) GetResult() interface{} {
+kitex_gen/matrix/test/client.go: type Client interface {
+kitex_gen/matrix/test/client.go: 	Plain(ctx context.Context, a *matrix.Message, callOptions ...callopt.Option) (r *matrix.Message, err error)
+kitex_gen/matrix/test/client.go: type StreamClient interface {
+kitex_gen/matrix/test/client.go: 	Unary(ctx context.Context, a *matrix.Message, callOptions ...streamcall.Option) (r *matrix.Message, err error)
+kitex_gen/matrix/test/client.go: 	Client(ctx context.Context, callOptions ...streamcall.Option) (stream Test_ClientClient, err error)
+kitex_gen/matrix/test/client.go: 	Server(ctx context.Context, a *matrix.Message, callOptions ...streamcall.Option) (stream Test_ServerClient, err error)
+kitex_gen/matrix/test/client.go: 	Bidi(ctx context.Context, callOptions ...streamcall.Option) (stream Test_BidiClient, err error)
+kitex_gen/matrix/test/client.go: type Test_ClientClient interface {
+kitex_gen/matrix/test/client.go: type Test_ServerClient interface {
+kitex_gen/matrix/test/client.go: type Test_BidiClient interface {
+kitex_gen/matrix/test/client.go: func NewClient(destService string, opts ...client.Option) (Client, error) {
+kitex_gen/matrix/test/client.go: func MustNewClient(destService string, opts ...client.Option) Client {
+kitex_gen/matrix/test/client.go: type kTestClient struct {
+kitex_gen/matrix/test/client.go: func (p *kTestClient) Plain(ctx context.Context, a *matrix.Message, callOptions ...callopt.Option) (r *matrix.Message, err error) {
+kitex_gen/matrix/test/client.go: func NewStreamClient(destService string, opts ...streamclient.Option) (StreamClient, error) {
+kitex_gen/matrix/test/client.go: func MustNewStreamClient(destService string, opts ...streamclient.Option) StreamClient {
+kitex_gen/matrix/test/client.go: type kTestStreamClient struct {
+kitex_gen/matrix/test/client.go: func (p *kTestStreamClient) Unary(ctx context.Context, a *matrix.Message, callOptions ...streamcall.Option) (r *matrix.Message, err error) {
+kitex_gen/matrix/test/client.go: func (p *kTestStreamClient) Client(ctx context.Context, callOptions ...streamcall.Option) (stream Test_ClientClient, err error) {
+kitex_gen/matrix/test/client.go: func (p *kTestStreamClient) Server(ctx context.Context, a *matrix.Message, callOptions ...streamcall.Option) (stream Test_ServerClient, err error) {
+kitex_gen/matrix/test/client.go: func (p *kTestStreamClient) Bidi(ctx context.Context, callOptions ...streamcall.Option) (stream Test_BidiClient, err error) {
+kitex_gen/matrix/test/server.go: func NewServer(handler matrix.Test, opts ...server.Option) server.Server {
+kitex_gen/matrix/test/server.go: func RegisterService(svr server.Server, handler matrix.Test, opts ...server.RegisterOption) error {
+kitex_gen/matrix/test/test.go: func serviceInfo() *kitex.ServiceInfo {
+kitex_gen/matrix/test/test.go: func serviceInfoForStreamClient() *kitex.ServiceInfo {
+kitex_gen/matrix/test/test.go: func serviceInfoForClient() *kitex.ServiceInfo {
+kitex_gen/matrix/test/test.go: func NewServiceInfo() *kitex.ServiceInfo {
+kitex_gen/matrix/test/test.go: func NewServiceInfoForClient() *kitex.ServiceInfo {
+kitex_gen/matrix/test/test.go: func NewServiceInfoForStreamClient() *kitex.ServiceInfo {
+kitex_gen/matrix/test/test.go: func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreamingMethods bool) *kitex.ServiceInfo {
+kitex_gen/matrix/test/test.go: func plainHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/matrix/test/test.go: func newTestPlainArgs() interface{} {
+kitex_gen/matrix/test/test.go: func newTestPlainResult() interface{} {
+kitex_gen/matrix/test/test.go: func unaryHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/matrix/test/test.go: func newTestUnaryArgs() interface{} {
+kitex_gen/matrix/test/test.go: func newTestUnaryResult() interface{} {
+kitex_gen/matrix/test/test.go: func clientHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/matrix/test/test.go: type testClientClient struct {
+kitex_gen/matrix/test/test.go: func (x *testClientClient) DoFinish(err error) {
+kitex_gen/matrix/test/test.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/matrix/test/test.go: func (x *testClientClient) Send(m *matrix.Message) error {
+kitex_gen/matrix/test/test.go: func (x *testClientClient) CloseAndRecv() (*matrix.Message, error) {
+kitex_gen/matrix/test/test.go: type testClientServer struct {
+kitex_gen/matrix/test/test.go: func (x *testClientServer) SendAndClose(m *matrix.Message) error {
+kitex_gen/matrix/test/test.go: func (x *testClientServer) Recv() (*matrix.Message, error) {
+kitex_gen/matrix/test/test.go: func newTestClientArgs() interface{} {
+kitex_gen/matrix/test/test.go: func newTestClientResult() interface{} {
+kitex_gen/matrix/test/test.go: func serverHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/matrix/test/test.go: type testServerClient struct {
+kitex_gen/matrix/test/test.go: func (x *testServerClient) DoFinish(err error) {
+kitex_gen/matrix/test/test.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/matrix/test/test.go: func (x *testServerClient) Recv() (*matrix.Message, error) {
+kitex_gen/matrix/test/test.go: type testServerServer struct {
+kitex_gen/matrix/test/test.go: func (x *testServerServer) Send(m *matrix.Message) error {
+kitex_gen/matrix/test/test.go: func newTestServerArgs() interface{} {
+kitex_gen/matrix/test/test.go: func newTestServerResult() interface{} {
+kitex_gen/matrix/test/test.go: func bidiHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+kitex_gen/matrix/test/test.go: type testBidiClient struct {
+kitex_gen/matrix/test/test.go: func (x *testBidiClient) DoFinish(err error) {
+kitex_gen/matrix/test/test.go: 		panic(fmt.Sprintf("streaming.WithDoFinish is not implemented by %T", x.Stream))
+kitex_gen/matrix/test/test.go: func (x *testBidiClient) Send(m *matrix.Message) error {
+kitex_gen/matrix/test/test.go: func (x *testBidiClient) Recv() (*matrix.Message, error) {
+kitex_gen/matrix/test/test.go: type testBidiServer struct {
+kitex_gen/matrix/test/test.go: func (x *testBidiServer) Send(m *matrix.Message) error {
+kitex_gen/matrix/test/test.go: func (x *testBidiServer) Recv() (*matrix.Message, error) {
+kitex_gen/matrix/test/test.go: func newTestBidiArgs() interface{} {
+kitex_gen/matrix/test/test.go: func newTestBidiResult() interface{} {
+kitex_gen/matrix/test/test.go: type kClient struct {
+kitex_gen/matrix/test/test.go: func newServiceClient(c client.Client) *kClient {
+kitex_gen/matrix/test/test.go: func (p *kClient) Plain(ctx context.Context, a *matrix.Message) (r *matrix.Message, err error) {
+kitex_gen/matrix/test/test.go: func (p *kClient) Unary(ctx context.Context, a *matrix.Message) (r *matrix.Message, err error) {
+kitex_gen/matrix/test/test.go: func (p *kClient) Client(ctx context.Context) (Test_ClientClient, error) {
+kitex_gen/matrix/test/test.go: func (p *kClient) Server(ctx context.Context, a *matrix.Message) (Test_ServerClient, error) {
+kitex_gen/matrix/test/test.go: func (p *kClient) Bidi(ctx context.Context) (Test_BidiClient, error) {

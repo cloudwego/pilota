@@ -18,9 +18,27 @@ pub trait DatabaseStorage: salsa::Database {
     fn args(&self) -> &Arc<FxHashSet<DefId>>;
 }
 
+/// Object-safe database projection without trait upcasting (Rust 1.85
+/// compatible).
+///
+/// The blanket implementation keeps concrete database implementations
+/// unchanged.
+pub trait AsRirDatabase {
+    fn as_rir_database(&self) -> &dyn crate::db::RirDatabase;
+}
+
+impl<T: crate::db::RirDatabase> AsRirDatabase for T {
+    fn as_rir_database(&self) -> &dyn crate::db::RirDatabase {
+        self
+    }
+}
+
 // We create a separate trait that includes the tracked functions
 #[salsa::db]
-pub trait CachedQueries: DatabaseStorage + crate::db::RirDatabase + salsa::Database {}
+pub trait CachedQueries:
+    DatabaseStorage + crate::db::RirDatabase + AsRirDatabase + salsa::Database
+{
+}
 
 // Implement DatabaseStorage for RootDatabase
 impl DatabaseStorage for RootDatabase {
@@ -112,7 +130,7 @@ pub fn codegen_item_ty_cached<'db>(
     ty_kind: SalsaTyKind<'db>,
 ) -> CodegenTy {
     let ty = ty_kind.ty(db);
-    ty.to_codegen_item_ty(db)
+    ty.to_codegen_item_ty(db.as_rir_database())
 }
 
 /// Get codegen type for const - cached version
@@ -121,7 +139,7 @@ pub fn codegen_const_ty_cached<'db>(
     ty_kind: SalsaTyKind<'db>,
 ) -> CodegenTy {
     let ty = ty_kind.ty(db);
-    ty.to_codegen_const_ty(db)
+    ty.to_codegen_const_ty(db.as_rir_database())
 }
 
 /// Get codegen type for DefId - cached version

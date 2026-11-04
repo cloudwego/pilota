@@ -110,6 +110,40 @@ macro_rules! new_type {
 
 pub mod thrift {
     pub struct EntryMessage;
+
+    /// The IDL annotation, independent of the selected streaming transport.
+    ///
+    /// `None` and explicit `Unary` both use ordinary Thrift RPC. Keeping them
+    /// distinct lets backends and migration tools preserve the original IDL.
+    #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
+    pub enum ThriftStreamingMode {
+        #[default]
+        None,
+        Unary,
+        Client,
+        Server,
+        Bidirectional,
+    }
+
+    impl ThriftStreamingMode {
+        pub const fn is_streaming(self) -> bool {
+            matches!(self, Self::Client | Self::Server | Self::Bidirectional)
+        }
+    }
+
+    impl std::str::FromStr for ThriftStreamingMode {
+        type Err = &'static str;
+
+        fn from_str(value: &str) -> Result<Self, Self::Err> {
+            match value {
+                "unary" => Ok(Self::Unary),
+                "client" => Ok(Self::Client),
+                "server" => Ok(Self::Server),
+                "bidirectional" => Ok(Self::Bidirectional),
+                _ => Err("expected unary, client, server, or bidirectional"),
+            }
+        }
+    }
 }
 
 #[derive(Clone)]

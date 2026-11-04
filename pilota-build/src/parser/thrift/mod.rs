@@ -1,5 +1,6 @@
+mod streaming;
 use core::panic;
-use std::{path::PathBuf, str::FromStr, sync::Arc};
+use std::{cell::RefCell, path::PathBuf, str::FromStr, sync::Arc};
 
 use faststr::FastStr;
 use heck::ToUpperCamelCase;
@@ -8,6 +9,7 @@ use normpath::PathExt;
 use pilota_thrift_parser::{self as thrift_parser};
 use pilota_thrift_reflect::thrift_reflection;
 use rustc_hash::{FxHashMap, FxHashSet};
+pub(crate) use streaming::validate_resolved as validate_streaming_messages;
 use thrift_parser::Annotations;
 
 use crate::{
@@ -37,28 +39,22 @@ struct ThriftSourceDatabase {
 impl salsa::Database for ThriftSourceDatabase {}
 
 impl ThriftSourceDatabase {
-    fn file_text(&self, path: PathBuf) -> Arc<str> {
-        Arc::from(unsafe { String::from_utf8_unchecked(std::fs::read(path).unwrap()) })
+    fn file_text(&self, path: PathBuf) -> anyhow::Result<Arc<str>> {
+        Ok(Arc::from(std::fs::read_to_string(path)?))
     }
 
-    fn parse(&self, path: PathBuf) -> Arc<thrift_parser::File> {
-        let text = self.file_text(path.clone());
-        let res = thrift_parser::FileParser::new(
-            thrift_parser::FileSource::new_with_path(path.clone(), text.as_ref()).unwrap(),
-        )
-        .parse();
-
-        if res.is_err() {
-            eprintln!("{}", res.err().unwrap());
-            std::process::exit(1);
-        }
-
-        let mut ast = res.unwrap();
+    fn parse(&self, path: PathBuf) -> anyhow::Result<Arc<thrift_parser::File>> {
+        let text = self.file_text(path.clone())?;
+        let mut ast = thrift_parser::FileParser::new(thrift_parser::FileSource::new_with_path(
+            path.clone(),
+            text.as_ref(),
+        )?)
+        .parse()?;
         ast.path = Arc::from(path);
         ast.uuid = generate_short_uuid();
         let descriptor = thrift_reflection::FileDescriptor::from(&ast);
         ast.descriptor = descriptor.serialize();
-        Arc::from(ast)
+        Ok(Arc::from(ast))
     }
 }
 
@@ -87,6 +83,7 @@ pub struct ThriftLower {
     include_dirs: Vec<PathBuf>,
     packages: FxHashMap<Path, Vec<Arc<PathBuf>>>,
     service_name_duplicates: FxHashSet<String>,
+    diagnostics: RefCell<Vec<String>>,
 }
 
 impl ThriftLower {
@@ -102,6 +99,7 @@ impl ThriftLower {
             include_dirs,
             packages: Default::default(),
             service_name_duplicates: Default::default(),
+            diagnostics: RefCell::default(),
         }
     }
 
@@ -133,6 +131,15 @@ impl ThriftLower {
     }
 
     fn lower_service(&self, service: &thrift_parser::Service) -> Vec<ir::Item> {
+        for function in &service.functions {
+            if let Err(message) = streaming::validate(function) {
+                self.diagnostics
+                    .borrow_mut()
+                    .push(self.streaming_diagnostic(service, function, &message));
+                return Vec::new();
+            }
+        }
+
         let service_name = if self
             .service_name_duplicates
             .contains(&service.name.to_upper_camel_case())
@@ -188,6 +195,9 @@ impl ThriftLower {
         let mut related_items = Vec::default();
 
         service.functions.iter().for_each(|f| {
+            if streaming::mode(f).unwrap_or_default().is_streaming() {
+                return;
+            }
             let exception = f
                 .throws
                 .iter()
@@ -338,6 +348,43 @@ impl ThriftLower {
         result
     }
 
+    fn streaming_diagnostic(
+        &self,
+        service: &thrift_parser::Service,
+        function: &thrift_parser::Function,
+        message: &str,
+    ) -> String {
+        let file = self.cur_file.as_ref().expect("lowering has a current file");
+        let source = self.db.file_text((*file.path).clone()).unwrap_or_default();
+        let location = thrift_parser::FileParser::new(thrift_parser::FileSource::new(&source))
+            .function_locations()
+            .into_iter()
+            .find(|location| {
+                location.service.as_str() == service.name.as_str()
+                    && location.function.as_str() == function.name.as_str()
+            });
+        let position = location.map_or_else(String::new, |location| {
+            let prefix = &source[..location.span.start];
+            let line = prefix.bytes().filter(|byte| *byte == b'\n').count() + 1;
+            let column = prefix
+                .rsplit('\n')
+                .next()
+                .unwrap_or_default()
+                .chars()
+                .count()
+                + 1;
+            format!(":{line}:{column}")
+        });
+        format!(
+            "{}{}: service `{}`, method `{}`: {}",
+            file.path.display(),
+            position,
+            service.name.0,
+            function.name.0,
+            message
+        )
+    }
+
     fn lower_method(
         &self,
         service_name: &String,
@@ -345,7 +392,9 @@ impl ThriftLower {
         function_name_duplicates: &FxHashSet<&str>,
         arc_wrapper: bool,
     ) -> ir::Method {
-        let tags = self.extract_tags(&method.annotations);
+        let mut tags = self.extract_tags(&method.annotations);
+        // Validated for every service before generating any related items.
+        tags.insert(streaming::mode(method).unwrap_or_default());
         let name = tags
             .get::<PilotaName>()
             .map(|name| name.0.clone())
@@ -682,13 +731,28 @@ impl ThriftLower {
         let target_path = match target_dir {
             Some(dir) => dir.join(&s.path.0),
             None => {
-                error_abort(format!("{}: include file not found", s.path.0));
+                self.diagnostics
+                    .borrow_mut()
+                    .push(format!("{}: include file not found", s.path.0));
+                return ir::Use {
+                    file: FileId::from_u32(0),
+                };
             }
         };
 
-        let ast = self
-            .db
-            .parse(target_path.normalize().unwrap().into_path_buf());
+        let ast = match target_path
+            .normalize()
+            .map_err(anyhow::Error::from)
+            .and_then(|path| self.db.parse(path.into_path_buf()))
+        {
+            Ok(ast) => ast,
+            Err(error) => {
+                self.diagnostics.borrow_mut().push(error.to_string());
+                return ir::Use {
+                    file: FileId::from_u32(0),
+                };
+            }
+        };
 
         let file_id = self.lower(ast);
 
@@ -856,31 +920,27 @@ impl super::Parser for ThriftParser {
     }
 
     fn parse(self) -> super::ParseResult {
+        self.try_parse()
+            .unwrap_or_else(|error| error_abort(error.to_string()))
+    }
+
+    fn try_parse(self) -> anyhow::Result<super::ParseResult> {
         let db = self.db.clone();
         let mut lower = ThriftLower::new(self.db, self.include_dirs.clone());
-        let mut input_files = Vec::default();
-
-        self.files.iter().for_each(|f| {
-            input_files.push(
-                lower.lower(
-                    db.parse(
-                        f.to_path_buf()
-                            .normalize()
-                            .unwrap_or_else(|_| panic!("normalize path failed: {}", f.display()))
-                            .into_path_buf(),
-                    ),
-                ),
-            );
-        });
-
+        let mut input_files = Vec::new();
+        for file in &self.files {
+            input_files.push(lower.lower(db.parse(file.normalize()?.into_path_buf())?));
+        }
+        if !lower.diagnostics.borrow().is_empty() {
+            anyhow::bail!(lower.diagnostics.borrow().join("\n"));
+        }
         let result = lower.finish();
-
-        super::ParseResult {
+        Ok(super::ParseResult {
             files: result.files,
             input_files,
             file_ids_map: result.file_ids_map,
             file_paths: result.file_paths,
             file_names: result.file_names,
-        }
+        })
     }
 }
