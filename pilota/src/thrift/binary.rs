@@ -1,6 +1,6 @@
 use std::{convert::TryInto, str};
 
-use bytes::{Bytes, BytesMut};
+use bytes::{Buf, Bytes, BytesMut};
 use faststr::FastStr;
 use linkedbytes::LinkedBytes;
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -712,7 +712,12 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
     fn read_list_begin(&mut self) -> Result<TListIdentifier, ThriftException> {
         let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32()?;
-        Ok(TListIdentifier::new(element_type, size as usize))
+        let size = super::check_container_size(
+            size,
+            element_type.min_serialized_size(),
+            Some(self.trans.remaining()),
+        )?;
+        Ok(TListIdentifier::new(element_type, size))
     }
 
     #[inline]
@@ -724,7 +729,12 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
     fn read_set_begin(&mut self) -> Result<TSetIdentifier, ThriftException> {
         let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32()?;
-        Ok(TSetIdentifier::new(element_type, size as usize))
+        let size = super::check_container_size(
+            size,
+            element_type.min_serialized_size(),
+            Some(self.trans.remaining()),
+        )?;
+        Ok(TSetIdentifier::new(element_type, size))
     }
 
     #[inline]
@@ -737,7 +747,12 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
         let key_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let value_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32()?;
-        Ok(TMapIdentifier::new(key_type, value_type, size as usize))
+        let size = super::check_container_size(
+            size,
+            key_type.min_serialized_size() + value_type.min_serialized_size(),
+            Some(self.trans.remaining()),
+        )?;
+        Ok(TMapIdentifier::new(key_type, value_type, size))
     }
 
     #[inline]
@@ -931,7 +946,8 @@ where
             .await
             .and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32().await?;
-        Ok(TListIdentifier::new(element_type, size as usize))
+        let size = super::check_container_size(size, element_type.min_serialized_size(), None)?;
+        Ok(TListIdentifier::new(element_type, size))
     }
 
     #[inline]
@@ -946,7 +962,8 @@ where
             .await
             .and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32().await?;
-        Ok(TSetIdentifier::new(element_type, size as usize))
+        let size = super::check_container_size(size, element_type.min_serialized_size(), None)?;
+        Ok(TSetIdentifier::new(element_type, size))
     }
 
     #[inline]
@@ -965,7 +982,12 @@ where
             .await
             .and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32().await?;
-        Ok(TMapIdentifier::new(key_type, value_type, size as usize))
+        let size = super::check_container_size(
+            size,
+            key_type.min_serialized_size() + value_type.min_serialized_size(),
+            None,
+        )?;
+        Ok(TMapIdentifier::new(key_type, value_type, size))
     }
 
     #[inline]

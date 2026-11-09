@@ -48,7 +48,10 @@ impl Field {
             .then_ignore(Components::blank().or_not())
             .map(
                 |(
-                    (((((((comments, id), attribute), r#type), reference), name), value), annotations),
+                    (
+                        ((((((comments, id), attribute), r#type), reference), name), value),
+                        annotations,
+                    ),
                     trailing_comments,
                 )| Field {
                     leading_comments: FastStr::from(comments.join("\n\n")),
@@ -141,7 +144,9 @@ mod tests {
         assert_eq!(f.attribute, crate::Attribute::Optional);
         assert!(matches!(&f.ty.0, crate::Ty::Path(p) if p.segments[0].as_str() == "Inner"));
 
-        let f = Field::get_parser().parse("2: required Inner & inner").unwrap();
+        let f = Field::get_parser()
+            .parse("2: required Inner & inner")
+            .unwrap();
         assert_eq!(f.attribute, crate::Attribute::Optional);
     }
 }
