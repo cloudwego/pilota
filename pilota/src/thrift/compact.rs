@@ -1182,11 +1182,8 @@ where
             let key_type = tcompact_get_ttype(((type_header & 0xF0) >> 4).try_into()?)?;
             let val_type = tcompact_get_ttype((type_header & 0x0F).try_into()?)?;
 
-            Ok(TMapIdentifier::new(
-                key_type,
-                val_type,
-                element_count as usize,
-            ))
+            let element_count = super::check_container_size(element_count, 0, None)?;
+            Ok(TMapIdentifier::new(key_type, val_type, element_count))
         }
     }
 
@@ -1220,7 +1217,8 @@ where
         } else {
             self.read_varint_async::<u32>().await? as i32
         };
-        Ok((element_type, element_count as usize))
+        let element_count = super::check_container_size(element_count, 0, None)?;
+        Ok((element_type, element_count))
     }
 
     #[inline]
@@ -1292,7 +1290,8 @@ impl TCompactInputProtocol<&mut Bytes> {
         } else {
             self.read_varint::<u32>()? as i32
         };
-        Ok((element_type, element_count as usize))
+        let element_count = super::check_container_size(element_count, 0, None)?;
+        Ok((element_type, element_count))
     }
 }
 
@@ -1729,11 +1728,8 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
             let key_type = tcompact_get_ttype(((type_header & 0xF0) >> 4).try_into()?)?;
             let val_type = tcompact_get_ttype((type_header & 0x0F).try_into()?)?;
 
-            Ok(TMapIdentifier::new(
-                key_type,
-                val_type,
-                element_count as usize,
-            ))
+            let element_count = super::check_container_size(element_count, 0, None)?;
+            Ok(TMapIdentifier::new(key_type, val_type, element_count))
         }
     }
 
