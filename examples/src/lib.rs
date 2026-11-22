@@ -215,6 +215,29 @@ fn test_pb_encode_zero_value() {
 }
 
 #[test]
+fn test_pb_merge_repeated_message_field() {
+    use pilota::pb::Message as _;
+
+    // `b` (rust_wrapper_arc_field) and `c` (plain) each appear twice; repeated
+    // occurrences of an embedded message must be merged, not replaced.
+    let bytes = pilota::Bytes::from_static(&[
+        0x1A, 0x03, 0x0A, 0x01, b'x', // b = { s3: "x" }
+        0x1A, 0x03, 0x12, 0x01, 0x07, // b = { int_vec: [7] }
+        0x22, 0x03, 0x0A, 0x01, b'y', // c = { s4: "y" }
+        0x22, 0x05, 0x12, 0x03, 0x0A, 0x01, b'z', // c = { bb: [{ s3: "z" }] }
+    ]);
+    let a = zero_value::zero_value::A::decode(bytes).unwrap();
+
+    let c = a.c.unwrap();
+    assert_eq!(c.s4.as_deref(), Some("y"));
+    assert_eq!(c.bb.unwrap()[0].s3, "z");
+
+    let b = a.b.unwrap();
+    assert_eq!(b.s3, "x");
+    assert_eq!(b.int_vec, Some(vec![7]));
+}
+
+#[test]
 fn test_thrift_fieldmask() {
     use pilota::thrift::Message as _;
     let desc = fieldmask::fieldmask::fieldmask::Request::get_descriptor()
