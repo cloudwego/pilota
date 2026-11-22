@@ -1616,6 +1616,12 @@ pub mod arc_message {
     where
         M: Message + Default,
     {
+        // A message field may appear more than once on the wire; later
+        // occurrences are merged into the earlier one. The Arc is uniquely
+        // owned while decoding, so merge in place.
+        if let Some(msg) = Arc::get_mut(value) {
+            return message::merge(wire_type, msg, buf, ctx);
+        }
         let mut msg = M::default();
         message::merge(wire_type, &mut msg, buf, ctx)?;
         *value = Arc::new(msg);
