@@ -183,7 +183,7 @@ impl<T> TCompactOutputProtocol<T> {
 
 macro_rules! write_field_header_len {
     ($self:expr_2021, $ax:expr_2021, $field_type:expr_2021, $id:expr_2021) => {
-        let field_delta = $id - $self.last_write_field_id;
+        let field_delta = i32::from($id) - i32::from($self.last_write_field_id);
         if field_delta > 0 && field_delta < 15 {
             $ax += $self.byte_len(0);
         } else {
@@ -414,7 +414,7 @@ impl TCompactOutputProtocol<&mut BytesMut> {
         field_type: TCompactType,
         id: i16,
     ) -> Result<(), ThriftException> {
-        let field_delta = id - self.last_write_field_id;
+        let field_delta = i32::from(id) - i32::from(self.last_write_field_id);
         if field_delta > 0 && field_delta < 15 {
             self.write_byte(((field_delta as u8) << 4) | (field_type as u8))?;
         } else {
@@ -688,7 +688,7 @@ impl TCompactOutputProtocol<&mut LinkedBytes> {
         field_type: TCompactType,
         id: i16,
     ) -> Result<(), ThriftException> {
-        let field_delta = id - self.last_write_field_id;
+        let field_delta = i32::from(id) - i32::from(self.last_write_field_id);
         if field_delta > 0 && field_delta < 15 {
             self.write_byte(((field_delta as u8) << 4) | (field_type as u8))?;
         } else {
@@ -1027,17 +1027,11 @@ where
         // - the field id delta and the type
         let field_type = self.read_byte().await?;
         let field_delta = (field_type & 0xF0) >> 4;
-        let field_type = match field_type & 0x0F {
-            COMPACT_BOOLEAN_TRUE => {
-                self.pending_read_bool_value = Some(true);
-                Ok(TType::Bool)
-            }
-            COMPACT_BOOLEAN_FALSE => {
-                self.pending_read_bool_value = Some(false);
-                Ok(TType::Bool)
-            }
-            ttu8 => TType::try_from(TCompactType::try_from(ttu8)?),
-        }?;
+        let (field_type, pending_bool) = match field_type & 0x0F {
+            COMPACT_BOOLEAN_TRUE => (TType::Bool, Some(true)),
+            COMPACT_BOOLEAN_FALSE => (TType::Bool, Some(false)),
+            ttu8 => (TType::try_from(TCompactType::try_from(ttu8)?)?, None),
+        };
         match field_type {
             TType::Stop => Ok(TFieldIdentifier::new::<Option<&'static str>, Option<i16>>(
                 None,
@@ -1045,15 +1039,24 @@ where
                 None,
             )),
             _ => {
-                if field_delta != 0 {
-                    self.last_read_field_id += field_delta as i16;
+                let new_field_id = if field_delta != 0 {
+                    self.last_read_field_id
+                        .checked_add(field_delta as i16)
+                        .ok_or_else(|| {
+                            new_protocol_exception(
+                                ProtocolExceptionKind::InvalidData,
+                                "field id overflow",
+                            )
+                        })?
                 } else {
-                    self.last_read_field_id = self.read_i16().await?;
-                }
+                    self.read_i16().await?
+                };
+                self.last_read_field_id = new_field_id;
+                self.pending_read_bool_value = pending_bool;
                 Ok(TFieldIdentifier::new::<Option<&'static str>, i16>(
                     None,
                     field_type,
-                    self.last_read_field_id,
+                    new_field_id,
                 ))
             }
         }
@@ -1298,7 +1301,7 @@ impl TCompactInputProtocol<&mut Bytes> {
 
 macro_rules! read_field_header_len {
     ($self:expr_2021, $ax:expr_2021, $field_type:expr_2021, $id:expr_2021) => {
-        let field_delta = $id - $self.last_read_field_id;
+        let field_delta = i32::from($id) - i32::from($self.last_read_field_id);
         if field_delta > 0 && field_delta < 15 {
             $ax += $self.byte_len(0);
         } else {
@@ -1573,17 +1576,11 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
         // - the field id delta and the type
         let field_type = self.read_byte()?;
         let field_delta = (field_type & 0xF0) >> 4;
-        let field_type = match field_type & 0x0F {
-            COMPACT_BOOLEAN_TRUE => {
-                self.pending_read_bool_value = Some(true);
-                Ok(TType::Bool)
-            }
-            COMPACT_BOOLEAN_FALSE => {
-                self.pending_read_bool_value = Some(false);
-                Ok(TType::Bool)
-            }
-            ttu8 => TType::try_from(TCompactType::try_from(ttu8)?),
-        }?;
+        let (field_type, pending_bool) = match field_type & 0x0F {
+            COMPACT_BOOLEAN_TRUE => (TType::Bool, Some(true)),
+            COMPACT_BOOLEAN_FALSE => (TType::Bool, Some(false)),
+            ttu8 => (TType::try_from(TCompactType::try_from(ttu8)?)?, None),
+        };
         match field_type {
             TType::Stop => Ok(TFieldIdentifier::new::<Option<&'static str>, Option<i16>>(
                 None,
@@ -1591,15 +1588,24 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
                 None,
             )),
             _ => {
-                if field_delta != 0 {
-                    self.last_read_field_id += field_delta as i16;
+                let new_field_id = if field_delta != 0 {
+                    self.last_read_field_id
+                        .checked_add(field_delta as i16)
+                        .ok_or_else(|| {
+                            new_protocol_exception(
+                                ProtocolExceptionKind::InvalidData,
+                                "field id overflow",
+                            )
+                        })?
                 } else {
-                    self.last_read_field_id = self.read_i16()?;
-                }
+                    self.read_i16()?
+                };
+                self.last_read_field_id = new_field_id;
+                self.pending_read_bool_value = pending_bool;
                 Ok(TFieldIdentifier::new::<Option<&'static str>, i16>(
                     None,
                     field_type,
-                    self.last_read_field_id,
+                    new_field_id,
                 ))
             }
         }
