@@ -36,6 +36,7 @@ thiserror.workspace = true
 tokio.workspace = true
 
 [dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt"] }
 criterion.workspace = true
 proptest.workspace = true
 rand.workspace = true
