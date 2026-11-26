@@ -75,12 +75,48 @@ pub enum ExtendeeKind {
     Oneof,
 }
 
+/// A custom option's raw protobuf wire value.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub enum UsedOptionValue {
+    Fixed32(u32),
+    Fixed64(u64),
+    Varint(u64),
+    LengthDelimited(Vec<u8>),
+}
+
+impl<'a> From<protobuf::UnknownValueRef<'a>> for UsedOptionValue {
+    fn from(value: protobuf::UnknownValueRef<'a>) -> Self {
+        match value {
+            protobuf::UnknownValueRef::Fixed32(value) => Self::Fixed32(value),
+            protobuf::UnknownValueRef::Fixed64(value) => Self::Fixed64(value),
+            protobuf::UnknownValueRef::Varint(value) => Self::Varint(value),
+            protobuf::UnknownValueRef::LengthDelimited(value) => {
+                Self::LengthDelimited(value.to_vec())
+            }
+        }
+    }
+}
+
+/// One use of a protobuf custom option, including its raw wire value.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct UsedOption {
+    pub index: ExtendeeIndex,
+    pub value: UsedOptionValue,
+}
+
 #[derive(Clone, Debug)]
-pub struct UsedOptions(pub Vec<ExtendeeIndex>);
+pub struct UsedOptions(pub Vec<UsedOption>);
 
 impl UsedOptions {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
+    }
+
+    /// Returns every value associated with this extension index.
+    pub fn values_for(&self, index: &ExtendeeIndex) -> impl Iterator<Item = &UsedOptionValue> {
+        self.0
+            .iter()
+            .filter_map(move |option| (option.index == *index).then_some(&option.value))
     }
 
     pub fn from_pb_unknown_fields(
@@ -90,11 +126,14 @@ impl UsedOptions {
         Self(
             unknown_fields
                 .iter()
-                .map(|(k, _)| ExtendeeIndex {
-                    extendee_kind,
-                    tag_id: k,
+                .map(|(tag_id, value)| UsedOption {
+                    index: ExtendeeIndex {
+                        extendee_kind,
+                        tag_id,
+                    },
+                    value: value.into(),
                 })
-                .collect::<Vec<_>>(),
+                .collect(),
         )
     }
 }
@@ -153,5 +192,56 @@ pub struct ItemExts {
 impl ItemExts {
     pub fn has_used_options(&self) -> bool {
         !self.used_options.is_empty()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn preserves_custom_option_wire_values_and_repetitions() {
+        let mut unknown_fields = protobuf::UnknownFields::new();
+        unknown_fields.add_varint(10_001, 0x10016f);
+        unknown_fields.add_varint(10_001, 1);
+        unknown_fields.add_fixed32(10_002, 0x3f80_0000);
+        unknown_fields.add_fixed64(10_003, 0x3ff0_0000_0000_0000);
+        unknown_fields.add_length_delimited(10_004, vec![0x61, 0x62]);
+
+        let used = UsedOptions::from_pb_unknown_fields(ExtendeeKind::Service, &unknown_fields);
+
+        let repeated_index = ExtendeeIndex {
+            extendee_kind: ExtendeeKind::Service,
+            tag_id: 10_001,
+        };
+        let mut values = used.values_for(&repeated_index);
+        assert_eq!(values.next(), Some(&UsedOptionValue::Varint(0x10016f)));
+        assert_eq!(values.next(), Some(&UsedOptionValue::Varint(1)));
+        assert_eq!(values.next(), None);
+
+        assert_eq!(
+            used.values_for(&ExtendeeIndex {
+                extendee_kind: ExtendeeKind::Service,
+                tag_id: 10_002,
+            })
+            .next(),
+            Some(&UsedOptionValue::Fixed32(0x3f80_0000))
+        );
+        assert_eq!(
+            used.values_for(&ExtendeeIndex {
+                extendee_kind: ExtendeeKind::Service,
+                tag_id: 10_003,
+            })
+            .next(),
+            Some(&UsedOptionValue::Fixed64(0x3ff0_0000_0000_0000))
+        );
+        assert_eq!(
+            used.values_for(&ExtendeeIndex {
+                extendee_kind: ExtendeeKind::Service,
+                tag_id: 10_004,
+            })
+            .next(),
+            Some(&UsedOptionValue::LengthDelimited(vec![0x61, 0x62]))
+        );
     }
 }
