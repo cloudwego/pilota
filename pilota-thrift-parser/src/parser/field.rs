@@ -30,6 +30,11 @@ impl Field {
             .then_ignore(just(":").padded_by(Components::blank_with_comments().or_not()))
             .then(Attribute::get_parser().or_not())
             .then(Type::get_parser().padded_by(Components::blank_with_comments().or_not()))
+            .then(
+                just("&")
+                    .padded_by(Components::blank_with_comments().or_not())
+                    .or_not(),
+            )
             .then(Ident::get_parser().padded_by(Components::blank_with_comments().or_not()))
             .then(
                 just("=")
@@ -43,12 +48,23 @@ impl Field {
             .then_ignore(Components::blank().or_not())
             .map(
                 |(
-                    ((((((comments, id), attribute), r#type), name), value), annotations),
+                    (
+                        ((((((comments, id), attribute), r#type), reference), name), value),
+                        annotations,
+                    ),
                     trailing_comments,
                 )| Field {
                     leading_comments: FastStr::from(comments.join("\n\n")),
                     id,
-                    attribute: attribute.unwrap_or_default(),
+                    // Apache Thrift's `&` marks a reference (boxed) field:
+                    // `FieldIdentifier FieldRequiredness FieldType FieldReference FieldName`.
+                    // Map it onto the existing optional kind so it generates
+                    // `Option<Box<T>>`; a plain field keeps its own requiredness.
+                    attribute: if reference.is_some() {
+                        Attribute::Optional
+                    } else {
+                        attribute.unwrap_or_default()
+                    },
                     ty: r#type,
                     name: Ident(name.into()),
                     default: value,
@@ -117,5 +133,20 @@ mod tests {
 
         let f = Field::get_parser().parse("1: optionalThing a").unwrap();
         assert_eq!(f.attribute, crate::Attribute::Default);
+    }
+
+    /// Apache Thrift's `&` field reference
+    /// (`FieldIdentifier FieldRequiredness FieldType FieldReference FieldName`)
+    /// parses and behaves like an optional/boxed field.
+    #[test]
+    fn test_reference_field_marker() {
+        let f = Field::get_parser().parse("1: Inner & inner").unwrap();
+        assert_eq!(f.attribute, crate::Attribute::Optional);
+        assert!(matches!(&f.ty.0, crate::Ty::Path(p) if p.segments[0].as_str() == "Inner"));
+
+        let f = Field::get_parser()
+            .parse("2: required Inner & inner")
+            .unwrap();
+        assert_eq!(f.attribute, crate::Attribute::Optional);
     }
 }

@@ -11,7 +11,10 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     future::Future,
     ops::Deref,
-    sync::Arc,
+    sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    },
 };
 
 use bytes::{Buf, BufMut, Bytes};
@@ -907,6 +910,95 @@ impl From<TType> for u8 {
     }
 }
 
+impl TType {
+    /// Smallest number of wire bytes one value of this type can occupy in
+    /// the binary protocols. Mirrors Apache Thrift's `getMinSerializedSize`.
+    pub fn min_serialized_size(self) -> usize {
+        match self {
+            TType::Stop | TType::Void => 0,
+            TType::Bool | TType::I8 | TType::Struct => 1,
+            TType::I16 => 2,
+            TType::I32 | TType::Binary => 4,
+            TType::I64 | TType::Double => 8,
+            TType::List | TType::Set => 5, // element type + i32 size
+            TType::Map => 6,               // key type + value type + i32 size
+            TType::Uuid => 16,
+        }
+    }
+}
+
+/// Default element cap for decoded lists, sets and maps; 0 disables it.
+///
+/// Apache Thrift exposes the same knob (`setContainerSizeLimit`) and its C++
+/// default is 0, which lets a four-byte header reserve gigabytes. 1M admits
+/// every request the SDKs send while stopping that reservation.
+pub const DEFAULT_MAX_CONTAINER_SIZE: usize = 1_000_000;
+
+static MAX_CONTAINER_SIZE: AtomicUsize = AtomicUsize::new(DEFAULT_MAX_CONTAINER_SIZE);
+
+/// Element cap applied by the `read_{list,set,map}_begin` implementations.
+#[inline]
+pub fn max_container_size() -> usize {
+    MAX_CONTAINER_SIZE.load(Ordering::Relaxed)
+}
+
+/// Replaces the cap; 0 disables it.
+#[inline]
+pub fn set_max_container_size(limit: usize) {
+    MAX_CONTAINER_SIZE.store(limit, Ordering::Relaxed);
+}
+
+/// Validates a container header before the caller reserves `size` slots.
+///
+/// `element_min` is the smallest number of bytes one element occupies and
+/// `remaining` the bytes left in the message when the transport can know them
+/// (the buffered protocols pass `Some`; the async streaming one passes `None`,
+/// because an unframed message carries no length). Mirrors Apache Thrift:
+/// `NEGATIVE_SIZE` for a negative header, `SIZE_LIMIT` for a cap or
+/// remaining-bytes violation.
+pub(crate) fn check_container_size(
+    size: i32,
+    element_min: usize,
+    remaining: Option<usize>,
+) -> Result<usize, ThriftException> {
+    check_container_size_with_limit(size, element_min, remaining, max_container_size())
+}
+
+fn check_container_size_with_limit(
+    size: i32,
+    element_min: usize,
+    remaining: Option<usize>,
+    limit: usize,
+) -> Result<usize, ThriftException> {
+    if size < 0 {
+        return Err(new_protocol_exception(
+            ProtocolExceptionKind::NegativeSize,
+            format!("negative container size: {size}"),
+        ));
+    }
+    let size = size as usize;
+    if limit != 0 && size > limit {
+        return Err(new_protocol_exception(
+            ProtocolExceptionKind::SizeLimit,
+            format!("container size {size} exceeds the limit {limit}"),
+        ));
+    }
+    if element_min != 0 {
+        if let Some(max_by_bytes) = remaining.and_then(|left| left.checked_div(element_min)) {
+            if size > max_by_bytes {
+                return Err(new_protocol_exception(
+                    ProtocolExceptionKind::SizeLimit,
+                    format!(
+                        "container size {size} needs at least {} bytes, more than the message has left",
+                        size.saturating_mul(element_min)
+                    ),
+                ));
+            }
+        }
+    }
+    Ok(size)
+}
+
 static TTYPE_LOOKUP: [Option<TType>; 17] = [
     Some(TType::Stop),
     Some(TType::Void),
@@ -1118,5 +1210,116 @@ impl TMapIdentifier {
             value_type: value_type.into(),
             size,
         }
+    }
+}
+
+#[cfg(test)]
+mod container_limit_tests {
+    use super::*;
+
+    #[test]
+    fn rejects_negative_sizes() {
+        let err =
+            check_container_size_with_limit(-1, 4, None, DEFAULT_MAX_CONTAINER_SIZE).unwrap_err();
+        assert!(format!("{err}").contains("negative container size"));
+    }
+
+    #[test]
+    fn rejects_sizes_over_the_limit() {
+        let size = DEFAULT_MAX_CONTAINER_SIZE as i32 + 1;
+        let err =
+            check_container_size_with_limit(size, 1, None, DEFAULT_MAX_CONTAINER_SIZE).unwrap_err();
+        assert!(format!("{err}").contains("exceeds the limit"));
+    }
+
+    #[test]
+    fn rejects_more_elements_than_the_message_can_hold() {
+        let limit = DEFAULT_MAX_CONTAINER_SIZE;
+        assert!(check_container_size_with_limit(3, 4, Some(11), limit).is_err());
+        assert_eq!(
+            check_container_size_with_limit(3, 4, Some(12), limit).unwrap(),
+            3
+        );
+        // A struct costs at least one byte (its STOP), so three fit in three bytes.
+        assert_eq!(
+            check_container_size_with_limit(3, 1, Some(3), limit).unwrap(),
+            3
+        );
+    }
+
+    #[test]
+    fn zero_disables_the_cap() {
+        set_max_container_size(0);
+        assert_eq!(max_container_size(), 0);
+        assert!(check_container_size(10_000_000, 0, None).is_ok());
+        set_max_container_size(DEFAULT_MAX_CONTAINER_SIZE);
+        assert_eq!(max_container_size(), DEFAULT_MAX_CONTAINER_SIZE);
+    }
+
+    #[test]
+    fn min_sizes_match_apache_thrift() {
+        assert_eq!(TType::Bool.min_serialized_size(), 1);
+        assert_eq!(TType::I16.min_serialized_size(), 2);
+        assert_eq!(TType::I32.min_serialized_size(), 4);
+        assert_eq!(TType::I64.min_serialized_size(), 8);
+        assert_eq!(TType::Double.min_serialized_size(), 8);
+        assert_eq!(TType::Binary.min_serialized_size(), 4);
+        assert_eq!(TType::Struct.min_serialized_size(), 1);
+        assert_eq!(TType::List.min_serialized_size(), 5);
+        assert_eq!(TType::Map.min_serialized_size(), 6);
+        assert_eq!(TType::Uuid.min_serialized_size(), 16);
+    }
+
+    #[test]
+    fn binary_protocol_applies_the_checks() {
+        use crate::thrift::TInputProtocol;
+        use crate::thrift::binary::TBinaryProtocol;
+
+        // list header: element type I32, size -1
+        let mut b = Bytes::from_static(&[TType::I32 as u8, 0xff, 0xff, 0xff, 0xff]);
+        let mut p = TBinaryProtocol::new(&mut b, false);
+        assert!(p.read_list_begin().is_err());
+
+        // list header: element type I32, size 3, only eight payload bytes
+        let mut b = Bytes::from_static(&[
+            TType::I32 as u8,
+            0x00,
+            0x00,
+            0x00,
+            0x03,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+        ]);
+        let mut p = TBinaryProtocol::new(&mut b, false);
+        assert!(p.read_list_begin().is_err());
+
+        // the same header with twelve payload bytes is accepted
+        let mut b = Bytes::from_static(&[
+            TType::I32 as u8,
+            0x00,
+            0x00,
+            0x00,
+            0x03,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+        ]);
+        let mut p = TBinaryProtocol::new(&mut b, false);
+        assert_eq!(p.read_list_begin().unwrap().size, 3);
     }
 }

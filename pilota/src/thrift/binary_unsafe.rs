@@ -1109,7 +1109,12 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     fn read_list_begin(&mut self) -> Result<TListIdentifier, ThriftException> {
         let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32()?;
-        Ok(TListIdentifier::new(element_type, size as usize))
+        let size = super::check_container_size(
+            size,
+            element_type.min_serialized_size(),
+            Some(self.buf.len().saturating_sub(self.index)),
+        )?;
+        Ok(TListIdentifier::new(element_type, size))
     }
 
     #[inline]
@@ -1121,7 +1126,12 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
     fn read_set_begin(&mut self) -> Result<TSetIdentifier, ThriftException> {
         let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32()?;
-        Ok(TSetIdentifier::new(element_type, size as usize))
+        let size = super::check_container_size(
+            size,
+            element_type.min_serialized_size(),
+            Some(self.buf.len().saturating_sub(self.index)),
+        )?;
+        Ok(TSetIdentifier::new(element_type, size))
     }
 
     #[inline]
@@ -1134,7 +1144,12 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
         let key_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let value_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let size = self.read_i32()?;
-        Ok(TMapIdentifier::new(key_type, value_type, size as usize))
+        let size = super::check_container_size(
+            size,
+            key_type.min_serialized_size() + value_type.min_serialized_size(),
+            Some(self.buf.len().saturating_sub(self.index)),
+        )?;
+        Ok(TMapIdentifier::new(key_type, value_type, size))
     }
 
     #[inline]
