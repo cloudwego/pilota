@@ -517,7 +517,7 @@ mod tests {
         let mut ctx = EncodeLengthContext::default();
 
         // Test non-zero value
-        let val = 3.14f32;
+        let val = 1.25f32;
         val.encode_raw(&mut buf);
         assert!(val.encoded_len(&mut ctx) > 0);
 
@@ -534,10 +534,10 @@ mod tests {
         let mut ctx = DecodeContext::new(Bytes::new());
 
         let mut val = 0.0f32;
-        let mut buf = create_test_bytes(&[0xC3, 0xF5, 0x48, 0x40]); // value=3.14 (IEEE 754, without tag, just the value)
+        let mut buf = create_test_bytes(&[0x00, 0x00, 0xA0, 0x3F]); // value=1.25 (IEEE 754, without tag, just the value)
         val.merge_field(1, WireType::ThirtyTwoBit, &mut buf, &mut ctx, true)
             .unwrap();
-        assert!((val - 3.14).abs() < 0.001);
+        assert_eq!(val, 1.25);
     }
 
     #[test]
@@ -546,7 +546,7 @@ mod tests {
         let mut ctx = EncodeLengthContext::default();
 
         // Test non-zero value
-        let val = 3.14159265359f64;
+        let val = 1.25f64;
         val.encode_raw(&mut buf);
         assert!(val.encoded_len(&mut ctx) > 0);
 
@@ -563,10 +563,10 @@ mod tests {
         let mut ctx = DecodeContext::new(Bytes::new());
 
         let mut val = 0.0f64;
-        let mut buf = create_test_bytes(&[0xea, 0x2e, 0x44, 0x54, 0xfb, 0x21, 0x09, 0x40]); // value=3.14159265359 (IEEE 754, without tag, just the value)
+        let mut buf = create_test_bytes(&[0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF4, 0x3F]); // value=1.25 (IEEE 754, without tag, just the value)
         val.merge_field(1, WireType::SixtyFourBit, &mut buf, &mut ctx, true)
             .unwrap();
-        assert!((val - 3.14159265359).abs() < 0.00000000001);
+        assert_eq!(val, 1.25);
     }
 
     #[test]

@@ -9,6 +9,12 @@ use crate::{Annotation, Field, Type};
 
 impl Function {
     pub fn get_parser<'a>() -> impl Parser<'a, &'a str, Function, extra::Err<Rich<'a, char>>> {
+        Self::get_parser_with_location().map(|(function, _)| function)
+    }
+
+    pub(crate) fn get_parser_with_location<'a>()
+    -> impl Parser<'a, &'a str, (Function, std::ops::Range<usize>), extra::Err<Rich<'a, char>>>
+    {
         let fields = Field::get_parser()
             .padded_by(Components::blank().or_not())
             .repeated()
@@ -25,15 +31,9 @@ impl Function {
             .then_ignore(Components::blank().or_not())
             .then_ignore(just(")"));
 
-        Components::comment()
-            .repeated()
-            .collect::<Vec<_>>()
-            .then_ignore(Components::blank().or_not())
-            .then(
-                Components::keyword("oneway")
-                    .then_ignore(Components::blank())
-                    .or_not(),
-            )
+        let declaration = Components::keyword("oneway")
+            .then_ignore(Components::blank())
+            .or_not()
             .then(Type::get_parser())
             .then_ignore(Components::blank())
             .then(Ident::get_parser())
@@ -46,30 +46,38 @@ impl Function {
             .then_ignore(Components::list_separator().or_not())
             .then(Components::trailing_comment().or_not())
             .then_ignore(Components::blank().or_not())
-            .map(
-                |(
-                    ((((((comments, oneway), r#type), name), arguments), throws), annotations),
+            .map_with(|declaration, extra| (declaration, extra.span().into_range()));
+
+        Components::comment()
+            .repeated()
+            .collect::<Vec<_>>()
+            .then_ignore(Components::blank().or_not())
+            .then(declaration)
+            .map(|(comments, (declaration, span))| {
+                let (
+                    (((((oneway, result_type), name), arguments), throws), annotations),
                     trailing_comments,
-                )| {
-                    let ow = oneway.is_some();
-                    let mut args = arguments.unwrap_or_default();
-                    args.iter_mut().for_each(|f| {
-                        if f.attribute == Attribute::Default {
-                            f.attribute = Attribute::Required
-                        }
-                    });
+                ) = declaration;
+                let mut arguments = arguments.unwrap_or_default();
+                for field in &mut arguments {
+                    if field.attribute == Attribute::Default {
+                        field.attribute = Attribute::Required;
+                    }
+                }
+                (
                     Function {
                         leading_comments: FastStr::from(comments.join("\n\n")),
                         name: Ident(name.into()),
-                        oneway: ow,
-                        result_type: r#type,
-                        arguments: args,
+                        oneway: oneway.is_some(),
+                        result_type,
+                        arguments,
                         throws: throws.unwrap_or_default(),
                         annotations: annotations.unwrap_or_default(),
                         trailing_comments: trailing_comments.unwrap_or_default(),
-                    }
-                },
-            )
+                    },
+                    span,
+                )
+            })
     }
 }
 
@@ -130,5 +138,49 @@ mod tests {
         assert!(
             matches!(&f.result_type.0, crate::Ty::Path(p) if p.segments[0].as_str() == "onewayvoid")
         );
+    }
+}
+
+#[cfg(test)]
+mod streaming_tests {
+    use chumsky::Parser;
+
+    use crate::{FileParser, FileSource, Function};
+
+    #[test]
+    fn duplicate_annotations_remain_available_for_semantic_diagnostics() {
+        let function = Function::get_parser()
+            .parse(
+                r#"Resp call(1: Req request) (streaming.mode="client", streaming.mode="server")"#,
+            )
+            .unwrap();
+        let values: Vec<_> = function
+            .annotations
+            .iter()
+            .filter(|annotation| annotation.key == "streaming.mode")
+            .map(|annotation| annotation.value.to_string())
+            .collect();
+        assert_eq!(values, ["client", "server"]);
+    }
+
+    #[test]
+    fn locations_distinguish_methods_with_the_same_name_in_different_services() {
+        let source = r#"// Unicode 注释 and a fake name: service B { void call() }
+struct Req { 1: optional string text = "call( streaming.mode" }
+service A { Req call(1:Req req) (streaming.mode="client") }
+service B { Req call(1:Req req) (streaming.mode="server") }
+"#;
+        let parser = FileParser::new(FileSource::new(source));
+        parser.parse().unwrap();
+        let locations = parser.function_locations();
+        assert_eq!(locations.len(), 2);
+        for (location, service, mode) in [
+            (&locations[0], "A", "client"),
+            (&locations[1], "B", "server"),
+        ] {
+            assert_eq!(location.service, service);
+            assert_eq!(location.function, "call");
+            assert!(source[location.span.clone()].contains(&format!("streaming.mode=\"{mode}\"")));
+        }
     }
 }

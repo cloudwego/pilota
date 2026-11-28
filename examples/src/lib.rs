@@ -22,9 +22,10 @@ fn test_pb_size_diff_codegen() {
         LinkedBytes,
     };
 
-    let mut b = zero_value::zero_value::B::default();
-    b.s3 = "".into();
-    b.int_vec = Some((1..=1000).collect());
+    let b = zero_value::zero_value::B {
+        int_vec: Some((1..=1000).collect()),
+        ..Default::default()
+    };
 
     let mut before = LinkedBytes::new();
     encoding::string::encode(1, &b.s3, &mut before);
@@ -83,6 +84,7 @@ fn test_pb_size_diff_manual() {
 }
 
 #[test]
+#[allow(deprecated)] // Verify that deprecated fields still round-trip.
 fn test_pb_encode_zero_value() {
     use std::sync::Arc;
 
@@ -192,11 +194,8 @@ fn test_pb_encode_zero_value() {
     println!("decode unknown_c to c: {:?}", decoded_c);
     assert_eq!(decoded_c, a.c.unwrap());
 
-    // test deprecated
-    use zero_value::zero_value::TestService;
-
     // test f32 and f64
-    let _ = zero_value::zero_value::file_descriptor_zero_value()
+    zero_value::zero_value::file_descriptor_zero_value()
         .messages()
         .for_each(|m| {
             // the name is same with the idl definition
@@ -379,10 +378,7 @@ fn test_thrift_fieldmask() {
 
 #[test]
 fn test_pb_options() {
-    use pilota::pb::{
-        descriptor_getter::{FieldDescriptorGetter, ItemDescriptorGetter},
-        Message as _,
-    };
+    use pilota::pb::descriptor_getter::FieldDescriptorGetter;
 
     // file options
     let fd_proto =
@@ -403,7 +399,7 @@ fn test_pb_options() {
         }
         if let Ok(v) = exts_custom_options::internal_api.get(file_opts) {
             println!("file_option internal_api: {}", v);
-            assert_eq!(v, false);
+            assert!(!v);
         }
         if let Ok(v) = exts_custom_options::file_kv.get(file_opts) {
             println!("file_option file_kv: {:?}", v);
@@ -475,7 +471,7 @@ fn test_pb_options() {
             let all = v.all_fields_required.unwrap_or(false);
             let depth = v.max_nesting_depth.unwrap_or_default();
             let msg = v.validation_message.clone().unwrap_or_default();
-            assert_eq!(all, true);
+            assert!(all);
             assert_eq!(depth, 3);
             assert_eq!(msg, "User validation failed");
             println!(
@@ -565,7 +561,7 @@ fn test_pb_options() {
                 println!("enum_option enum_description: {}", v);
             }
             if let Ok(v) = exts_custom_options::is_internal.get(enum_opts) {
-                assert_eq!(v, false);
+                assert!(!v);
                 println!("enum_option is_internal: {}", v);
             }
             if let Some(aa) = enum_opts.allow_alias {

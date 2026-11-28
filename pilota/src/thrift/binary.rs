@@ -11,6 +11,7 @@ use super::{
     TSetIdentifier, TStructIdentifier, TType, ThriftException, ZERO_COPY_THRESHOLD,
     error::ProtocolExceptionKind,
     new_protocol_exception,
+    read_limit::{ReadLimit, check_remaining},
     rw_ext::{ReadExt, WriteExt},
 };
 
@@ -563,6 +564,18 @@ impl TOutputProtocol for TBinaryProtocol<&mut LinkedBytes> {
     }
 }
 
+impl TBinaryProtocol<&mut Bytes> {
+    fn read_length(&mut self) -> Result<usize, ThriftException> {
+        let size = self.trans.read_i32()?;
+        usize::try_from(size).map_err(|_| {
+            new_protocol_exception(
+                ProtocolExceptionKind::NegativeSize,
+                "negative binary field or container length",
+            )
+        })
+    }
+}
+
 impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
     type Buf = Bytes;
 
@@ -647,9 +660,10 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
 
     #[inline]
     fn read_bytes(&mut self) -> Result<Bytes, ThriftException> {
-        let len = self.trans.read_i32()?;
+        let len = self.read_length()?;
+        check_remaining(self.trans.len(), len)?;
         // split and freeze it
-        Ok(self.trans.split_to(len as usize))
+        Ok(self.trans.split_to(len))
     }
 
     #[inline]
@@ -697,22 +711,22 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
 
     #[inline]
     fn read_string(&mut self) -> Result<String, ThriftException> {
-        let len = self.trans.read_i32()?;
-        Ok(self.trans.read_to_string(len as usize)?)
+        Ok(String::from_utf8(self.read_bytes_vec()?)?)
     }
 
     #[inline]
     fn read_faststr(&mut self) -> Result<FastStr, ThriftException> {
-        let len = self.trans.read_i32()? as usize;
-        let bytes = self.trans.split_to(len);
-        unsafe { Ok(FastStr::from_bytes_unchecked(bytes)) }
+        FastStr::from_bytes(self.read_bytes()?).map_err(|error| {
+            new_protocol_exception(ProtocolExceptionKind::InvalidData, error.to_string())
+        })
     }
 
     #[inline]
     fn read_list_begin(&mut self) -> Result<TListIdentifier, ThriftException> {
         let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
-        let size = self.read_i32()?;
-        Ok(TListIdentifier::new(element_type, size as usize))
+        let size = self.read_length()?;
+        check_remaining(self.trans.len(), size)?;
+        Ok(TListIdentifier::new(element_type, size))
     }
 
     #[inline]
@@ -723,8 +737,9 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
     #[inline]
     fn read_set_begin(&mut self) -> Result<TSetIdentifier, ThriftException> {
         let element_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
-        let size = self.read_i32()?;
-        Ok(TSetIdentifier::new(element_type, size as usize))
+        let size = self.read_length()?;
+        check_remaining(self.trans.len(), size)?;
+        Ok(TSetIdentifier::new(element_type, size))
     }
 
     #[inline]
@@ -736,8 +751,9 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
     fn read_map_begin(&mut self) -> Result<TMapIdentifier, ThriftException> {
         let key_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
         let value_type: TType = self.read_byte().and_then(|n| Ok(field_type_from_u8(n)?))?;
-        let size = self.read_i32()?;
-        Ok(TMapIdentifier::new(key_type, value_type, size as usize))
+        let size = self.read_length()?;
+        check_remaining(self.trans.len() / 2, size)?;
+        Ok(TMapIdentifier::new(key_type, value_type, size))
     }
 
     #[inline]
@@ -752,8 +768,7 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
 
     #[inline]
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, ThriftException> {
-        let len = self.trans.read_i32()? as usize;
-        Ok(self.trans.split_to(len).into())
+        Ok(self.read_bytes()?.into())
     }
 
     #[inline]
@@ -763,7 +778,13 @@ impl TInputProtocol for TBinaryProtocol<&mut Bytes> {
 }
 
 pub struct TAsyncBinaryProtocol<R> {
-    reader: R,
+    reader: ReadLimit<R>,
+}
+
+impl<R> TAsyncBinaryProtocol<R> {
+    pub fn remaining_read_limit(&self) -> Option<usize> {
+        self.reader.remaining()
+    }
 }
 
 impl<R> TAsyncBinaryProtocol<R>
@@ -771,7 +792,27 @@ where
     R: AsyncRead + Unpin + Send,
 {
     pub fn new(reader: R) -> Self {
-        Self { reader }
+        Self {
+            reader: ReadLimit::new(reader, None),
+        }
+    }
+
+    /// Limit logical consumption, including the message identifier, without
+    /// limiting prefetch.
+    pub fn with_read_limit(reader: R, limit: usize) -> Self {
+        Self {
+            reader: ReadLimit::new(reader, Some(limit)),
+        }
+    }
+
+    async fn read_length(&mut self) -> Result<usize, ThriftException> {
+        let length = self.reader.read_i32().await?;
+        usize::try_from(length).map_err(|_| {
+            new_protocol_exception(
+                ProtocolExceptionKind::NegativeSize,
+                "negative binary field or container length",
+            )
+        })
     }
 }
 
@@ -866,11 +907,13 @@ where
 
     #[inline]
     async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, ThriftException> {
-        let len = self.reader.read_i32().await? as usize;
-        // FIXME: use maybe_uninit?
-        let mut v = vec![0; len];
-        self.reader.read_exact(&mut v).await?;
-        Ok(v)
+        let len = self.read_length().await?;
+        self.reader.read_bytes(len).await
+    }
+
+    async fn skip_binary(&mut self) -> Result<(), ThriftException> {
+        let len = self.read_length().await?;
+        self.reader.discard(len).await
     }
 
     #[inline]
@@ -882,11 +925,7 @@ where
 
     #[inline]
     async fn read_string(&mut self) -> Result<String, ThriftException> {
-        let len = self.reader.read_i32().await? as usize;
-        // FIXME: use maybe_uninit?
-        let mut v = vec![0; len];
-        self.reader.read_exact(&mut v).await?;
-        Ok(unsafe { String::from_utf8_unchecked(v) })
+        Ok(String::from_utf8(self.read_bytes_vec().await?)?)
     }
 
     #[inline]
@@ -930,8 +969,9 @@ where
             .read_byte()
             .await
             .and_then(|n| Ok(field_type_from_u8(n)?))?;
-        let size = self.read_i32().await?;
-        Ok(TListIdentifier::new(element_type, size as usize))
+        let size = self.read_length().await?;
+        self.reader.check_container(size, 1)?;
+        Ok(TListIdentifier::new(element_type, size))
     }
 
     #[inline]
@@ -945,8 +985,9 @@ where
             .read_byte()
             .await
             .and_then(|n| Ok(field_type_from_u8(n)?))?;
-        let size = self.read_i32().await?;
-        Ok(TSetIdentifier::new(element_type, size as usize))
+        let size = self.read_length().await?;
+        self.reader.check_container(size, 1)?;
+        Ok(TSetIdentifier::new(element_type, size))
     }
 
     #[inline]
@@ -964,8 +1005,9 @@ where
             .read_byte()
             .await
             .and_then(|n| Ok(field_type_from_u8(n)?))?;
-        let size = self.read_i32().await?;
-        Ok(TMapIdentifier::new(key_type, value_type, size as usize))
+        let size = self.read_length().await?;
+        self.reader.check_container(size, 2)?;
+        Ok(TMapIdentifier::new(key_type, value_type, size))
     }
 
     #[inline]

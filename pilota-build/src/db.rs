@@ -478,7 +478,7 @@ mod tests {
     fn make_item_path(parts: &[&str]) -> rir::ItemPath {
         let symbols: Vec<Symbol> = parts
             .iter()
-            .map(|p| Symbol::from(FastStr::new((*p).to_string())))
+            .map(|p| Symbol::from(FastStr::new(*p)))
             .collect();
         let boxed: Box<[Symbol]> = symbols.into_boxed_slice();
         rir::ItemPath::from(boxed)
@@ -486,7 +486,7 @@ mod tests {
 
     fn make_message_item(name: &str, fields: Vec<Arc<rir::Field>>) -> Arc<rir::Item> {
         Arc::new(rir::Item::Message(rir::Message {
-            name: Ident::from(FastStr::new(name.to_string())),
+            name: Ident::from(FastStr::new(name)),
             fields,
             is_wrapper: false,
             item_exts: ItemExts::Thrift,
@@ -580,7 +580,7 @@ mod tests {
         };
         let dep_field = Arc::new(rir::Field {
             did: DefId::from_u32(400),
-            name: Ident::from(FastStr::new("dep".to_string())),
+            name: Ident::from(FastStr::new("dep")),
             id: 1,
             ty: dep_ty,
             kind: FieldKind::Required,

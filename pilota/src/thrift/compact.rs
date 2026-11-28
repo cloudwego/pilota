@@ -16,6 +16,7 @@ use super::{
     TSetIdentifier, TStructIdentifier, TType, ThriftException, ZERO_COPY_THRESHOLD,
     error::ProtocolExceptionKind,
     new_protocol_exception,
+    read_limit::{ReadLimit, check_remaining},
     rw_ext::{ReadExt, WriteExt},
     varint_ext::VarIntProcessor,
 };
@@ -958,7 +959,7 @@ impl TOutputProtocol for TCompactOutputProtocol<&mut LinkedBytes> {
 }
 
 pub struct TAsyncCompactProtocol<R> {
-    reader: R,
+    reader: ReadLimit<R>,
 
     last_read_field_id: i16,
     read_field_id_stack: Vec<i16>,
@@ -1017,6 +1018,9 @@ where
 
     #[inline]
     async fn read_struct_end(&mut self) -> Result<(), ThriftException> {
+        self.last_read_field_id = self.read_field_id_stack.pop().ok_or_else(|| {
+            new_protocol_exception(ProtocolExceptionKind::InvalidData, "unmatched struct end")
+        })?;
         Ok(())
     }
 
@@ -1093,10 +1097,12 @@ where
     #[inline]
     async fn read_bytes_vec(&mut self) -> Result<Vec<u8>, ThriftException> {
         let size = self.read_varint_async::<u32>().await? as usize;
-        // FIXME: use maybe_uninit?
-        let mut v = vec![0; size];
-        self.reader.read_exact(&mut v).await?;
-        Ok(v)
+        self.reader.read_bytes(size).await
+    }
+
+    async fn skip_binary(&mut self) -> Result<(), ThriftException> {
+        let size = self.read_varint_async::<u32>().await? as usize;
+        self.reader.discard(size).await
     }
 
     #[inline]
@@ -1109,7 +1115,7 @@ where
     #[inline]
     async fn read_string(&mut self) -> Result<String, ThriftException> {
         let v = self.read_bytes_vec().await?;
-        Ok(unsafe { String::from_utf8_unchecked(v) })
+        Ok(String::from_utf8(v)?)
     }
 
     #[inline]
@@ -1177,7 +1183,7 @@ where
 
     #[inline]
     async fn read_map_begin(&mut self) -> Result<TMapIdentifier, ThriftException> {
-        let element_count = self.read_varint_async::<u32>().await? as i32;
+        let element_count = self.read_varint_async::<u32>().await? as usize;
         if element_count == 0 {
             Ok(TMapIdentifier::new(TType::Stop, TType::Stop, 0))
         } else {
@@ -1185,11 +1191,9 @@ where
             let key_type = tcompact_get_ttype(((type_header & 0xF0) >> 4).try_into()?)?;
             let val_type = tcompact_get_ttype((type_header & 0x0F).try_into()?)?;
 
-            Ok(TMapIdentifier::new(
-                key_type,
-                val_type,
-                element_count as usize,
-            ))
+            self.reader.check_container(element_count, 2)?;
+
+            Ok(TMapIdentifier::new(key_type, val_type, element_count))
         }
     }
 
@@ -1199,13 +1203,30 @@ where
     }
 }
 
+impl<R> TAsyncCompactProtocol<R> {
+    pub fn remaining_read_limit(&self) -> Option<usize> {
+        self.reader.remaining()
+    }
+}
+
 impl<R> TAsyncCompactProtocol<R>
 where
     R: AsyncRead + Unpin + Send,
 {
     pub fn new(reader: R) -> TAsyncCompactProtocol<R> {
         Self {
-            reader,
+            reader: ReadLimit::new(reader, None),
+            last_read_field_id: 0,
+            read_field_id_stack: Vec::new(),
+            pending_read_bool_value: None,
+        }
+    }
+
+    /// Limit logical consumption, including the message identifier, without
+    /// limiting prefetch.
+    pub fn with_read_limit(reader: R, limit: usize) -> Self {
+        Self {
+            reader: ReadLimit::new(reader, Some(limit)),
             last_read_field_id: 0,
             read_field_id_stack: Vec::new(),
             pending_read_bool_value: None,
@@ -1219,11 +1240,12 @@ where
 
         let possible_element_count = (header & 0xF0) >> 4;
         let element_count = if possible_element_count != 15 {
-            possible_element_count as i32
+            possible_element_count as usize
         } else {
-            self.read_varint_async::<u32>().await? as i32
+            self.read_varint_async::<u32>().await? as usize
         };
-        Ok((element_type, element_count as usize))
+        self.reader.check_container(element_count, 1)?;
+        Ok((element_type, element_count))
     }
 
     #[inline]
@@ -1291,11 +1313,12 @@ impl TCompactInputProtocol<&mut Bytes> {
 
         let possible_element_count = (header & 0xF0) >> 4;
         let element_count = if possible_element_count != 15 {
-            possible_element_count as i32
+            possible_element_count as usize
         } else {
-            self.read_varint::<u32>()? as i32
+            self.read_varint::<u32>()? as usize
         };
-        Ok((element_type, element_count as usize))
+        check_remaining(self.trans.len(), element_count)?;
+        Ok((element_type, element_count))
     }
 }
 
@@ -1566,6 +1589,9 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
 
     #[inline]
     fn read_struct_end(&mut self) -> Result<(), ThriftException> {
+        self.last_read_field_id = self.read_field_id_stack.pop().ok_or_else(|| {
+            new_protocol_exception(ProtocolExceptionKind::InvalidData, "unmatched struct end")
+        })?;
         Ok(())
     }
 
@@ -1636,8 +1662,9 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
 
     #[inline]
     fn read_bytes(&mut self) -> Result<Bytes, ThriftException> {
-        let size = self.read_varint::<u32>()?;
-        Ok(self.trans.split_to(size as usize))
+        let size = self.read_varint::<u32>()? as usize;
+        check_remaining(self.trans.len(), size)?;
+        Ok(self.trans.split_to(size))
     }
 
     #[inline]
@@ -1660,15 +1687,14 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
 
     #[inline]
     fn read_string(&mut self) -> Result<String, ThriftException> {
-        let size = self.read_varint::<u32>()? as usize;
-        Ok(self.trans.read_to_string(size)?)
+        Ok(String::from_utf8(self.read_bytes_vec()?)?)
     }
 
     #[inline]
     fn read_faststr(&mut self) -> Result<FastStr, ThriftException> {
-        let size = self.read_varint::<u32>()? as usize;
-        let bytes = self.trans.split_to(size);
-        unsafe { Ok(FastStr::from_bytes_unchecked(bytes)) }
+        FastStr::from_bytes(self.read_bytes()?).map_err(|error| {
+            new_protocol_exception(ProtocolExceptionKind::InvalidData, error.to_string())
+        })
     }
 
     #[inline]
@@ -1727,7 +1753,7 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
 
     // #[inline]
     fn read_map_begin(&mut self) -> Result<TMapIdentifier, ThriftException> {
-        let element_count = self.read_varint::<u32>()? as i32;
+        let element_count = self.read_varint::<u32>()? as usize;
         if element_count == 0 {
             Ok(TMapIdentifier::new(TType::Stop, TType::Stop, 0))
         } else {
@@ -1735,11 +1761,9 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
             let key_type = tcompact_get_ttype(((type_header & 0xF0) >> 4).try_into()?)?;
             let val_type = tcompact_get_ttype((type_header & 0x0F).try_into()?)?;
 
-            Ok(TMapIdentifier::new(
-                key_type,
-                val_type,
-                element_count as usize,
-            ))
+            check_remaining(self.trans.len() / 2, element_count)?;
+
+            Ok(TMapIdentifier::new(key_type, val_type, element_count))
         }
     }
 
@@ -1750,9 +1774,84 @@ impl TInputProtocol for TCompactInputProtocol<&mut Bytes> {
 
     #[inline]
     fn read_bytes_vec(&mut self) -> Result<Vec<u8>, ThriftException> {
-        let size = self.read_varint::<u32>()? as usize;
+        Ok(self.read_bytes()?.into())
+    }
 
-        Ok(self.trans.split_to(size).into())
+    fn skip_till_depth(&mut self, field_type: TType, depth: i8) -> Result<usize, ThriftException> {
+        if depth <= 0 {
+            return Err(new_protocol_exception(
+                ProtocolExceptionKind::DepthLimit,
+                "maximum skip depth reached",
+            ));
+        }
+        let before = self.trans.len();
+        match field_type {
+            TType::Bool => {
+                self.read_bool()?;
+            }
+            TType::I8 => {
+                self.read_i8()?;
+            }
+            TType::I16 => {
+                self.read_i16()?;
+            }
+            TType::I32 => {
+                self.read_i32()?;
+            }
+            TType::I64 => {
+                self.read_i64()?;
+            }
+            TType::Double => {
+                self.read_double()?;
+            }
+            TType::Uuid => {
+                self.read_uuid()?;
+            }
+            TType::Binary => {
+                self.read_bytes()?;
+            }
+            TType::Struct => {
+                self.read_struct_begin()?;
+                loop {
+                    let field = self.read_field_begin()?;
+                    if field.field_type == TType::Stop {
+                        break;
+                    }
+                    self.skip_till_depth(field.field_type, depth - 1)?;
+                    self.read_field_end()?;
+                }
+                self.read_struct_end()?;
+            }
+            TType::List => {
+                let list = self.read_list_begin()?;
+                for _ in 0..list.size {
+                    self.skip_till_depth(list.element_type, depth - 1)?;
+                }
+                self.read_list_end()?;
+            }
+            TType::Set => {
+                let set = self.read_set_begin()?;
+                for _ in 0..set.size {
+                    self.skip_till_depth(set.element_type, depth - 1)?;
+                }
+                self.read_set_end()?;
+            }
+            TType::Map => {
+                let map = self.read_map_begin()?;
+                for _ in 0..map.size {
+                    self.skip_till_depth(map.key_type, depth - 1)?;
+                    self.skip_till_depth(map.value_type, depth - 1)?;
+                }
+                self.read_map_end()?;
+            }
+            _ => {
+                return Err(new_protocol_exception(
+                    ProtocolExceptionKind::InvalidData,
+                    "invalid compact field type",
+                ));
+            }
+        }
+        Ok(before - self.trans.len())
     }
 
     #[inline]

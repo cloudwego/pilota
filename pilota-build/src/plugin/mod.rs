@@ -36,6 +36,12 @@ pub trait Plugin: Sync + Send {
     }
 
     fn on_emit(&mut self, _cx: &Context) {}
+
+    /// Reports controlled generation errors before any output is written.
+    /// Existing plugins keep their infallible callbacks and default validation.
+    fn validate(&self, _cx: &Context) -> anyhow::Result<()> {
+        Ok(())
+    }
 }
 
 pub trait ClonePlugin: Plugin {
@@ -57,6 +63,10 @@ impl Clone for BoxClonePlugin {
 }
 
 impl Plugin for BoxClonePlugin {
+    fn on_codegen_uint(&mut self, cx: &Context, items: &[DefId]) {
+        self.0.on_codegen_uint(cx, items)
+    }
+
     fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         self.0.on_item(cx, def_id, item)
     }
@@ -71,6 +81,10 @@ impl Plugin for BoxClonePlugin {
 
     fn on_emit(&mut self, cx: &Context) {
         self.0.on_emit(cx)
+    }
+
+    fn validate(&self, cx: &Context) -> anyhow::Result<()> {
+        self.0.validate(cx)
     }
 }
 
@@ -87,6 +101,10 @@ impl<T> Plugin for &mut T
 where
     T: Plugin,
 {
+    fn on_codegen_uint(&mut self, cx: &Context, items: &[DefId]) {
+        (**self).on_codegen_uint(cx, items)
+    }
+
     fn on_item(&mut self, cx: &Context, def_id: DefId, item: Arc<Item>) {
         (*self).on_item(cx, def_id, item)
     }
@@ -101,6 +119,10 @@ where
 
     fn on_emit(&mut self, cx: &Context) {
         (*self).on_emit(cx)
+    }
+
+    fn validate(&self, cx: &Context) -> anyhow::Result<()> {
+        (**self).validate(cx)
     }
 }
 
@@ -313,8 +335,16 @@ where
         self.deref_mut().on_field(cx, def_id, f)
     }
 
+    fn on_variant(&mut self, cx: &Context, def_id: DefId, variant: Arc<EnumVariant>) {
+        self.deref_mut().on_variant(cx, def_id, variant)
+    }
+
     fn on_emit(&mut self, cx: &Context) {
         self.deref_mut().on_emit(cx)
+    }
+
+    fn validate(&self, cx: &Context) -> anyhow::Result<()> {
+        (**self).validate(cx)
     }
 }
 

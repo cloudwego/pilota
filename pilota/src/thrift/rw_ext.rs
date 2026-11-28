@@ -8,6 +8,8 @@ use super::{ThriftException, new_protocol_exception};
 pub enum IOError {
     #[error("no remaining {0}")]
     NoRemaining(String),
+    #[error("invalid UTF-8: {0}")]
+    InvalidUtf8(#[from] std::string::FromUtf8Error),
 }
 
 impl From<IOError> for ThriftException {
@@ -64,7 +66,7 @@ macro_rules! assert_remaining {
     ($cond: expr_2021, $($arg:tt)+) => {
         #[cfg(not(feature = "unstable"))]
         if !$cond {
-            return Err(IOError::NoRemaining(format!($($arg)+)))?;
+            Err(IOError::NoRemaining(format!($($arg)+)))?;
         }
         #[cfg(feature = "unstable")]
         if !std::intrinsics::unlikely($cond) {
@@ -74,7 +76,7 @@ macro_rules! assert_remaining {
     ($cond: expr_2021) => {
         #[cfg(not(feature = "unstable"))]
         if !$cond {
-            return Err(IOError::NoRemaining(String::new()))?;
+            Err(IOError::NoRemaining(String::new()))?;
         }
         #[cfg(feature = "unstable")]
         if !std::intrinsics::unlikely($cond) {
@@ -345,7 +347,7 @@ where
         // FIXME: use maybe_uninit?
         let mut vec = vec![0; len];
         self.read_to_slice(vec.as_mut_slice())?;
-        unsafe { Ok(String::from_utf8_unchecked(vec)) }
+        Ok(String::from_utf8(vec)?)
     }
 
     #[inline]

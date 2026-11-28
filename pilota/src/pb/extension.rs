@@ -268,7 +268,7 @@ mod tests {
         let mut m = protobuf::descriptor::FileOptions::new();
         m.mut_unknown_fields().add_varint(1, 1);
         let v = field.get(&m).unwrap();
-        assert_eq!(v, true);
+        assert!(v);
     }
 
     #[test]
@@ -355,7 +355,6 @@ mod tests {
 
     #[test]
     fn test_custom_ext_message_field() {
-        use crate::{Buf as _, BufMut as _};
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq)]
         pub struct A {
             pub a: ::std::option::Option<bytes::Bytes>,
@@ -363,7 +362,7 @@ mod tests {
         impl crate::pb::Message for A {
             #[inline]
             fn encoded_len(&self, ctx: &mut crate::pb::EncodeLengthContext) -> usize {
-                0 + self.a.as_ref().map_or(0, |value| {
+                self.a.as_ref().map_or(0, |value| {
                     crate::pb::encoding::bytes::encoded_len(ctx, 1, value)
                 })
             }
@@ -384,7 +383,7 @@ mod tests {
                 ctx: &mut crate::pb::encoding::DecodeContext,
                 _is_root: bool,
             ) -> ::core::result::Result<(), crate::pb::DecodeError> {
-                const STRUCT_NAME: &'static str = stringify!(A);
+                const STRUCT_NAME: &str = stringify!(A);
 
                 match tag {
                     1 => {
@@ -421,8 +420,6 @@ mod tests {
 
     #[test]
     fn test_custom_ext_enum_field() {
-        use crate::{Buf as _, BufMut as _};
-
         #[derive(PartialOrd, Hash, Eq, Ord, Debug, Default, Clone, PartialEq, Copy)]
         #[repr(transparent)]
         pub struct PaymentType(i32);
@@ -437,18 +434,6 @@ mod tests {
 
             pub fn inner(&self) -> i32 {
                 self.0
-            }
-
-            pub fn to_string(&self) -> ::std::string::String {
-                match self {
-                    Self(0) => ::std::string::String::from("PAYMENT_UNKNOWN"),
-                    Self(1) => ::std::string::String::from("PAYMENT_CREDIT"),
-                    Self(2) => ::std::string::String::from("PAYMENT_DEBIT"),
-                    Self(3) => ::std::string::String::from("PAYMENT_BANK_TRANSFER"),
-                    Self(4) => ::std::string::String::from("PAYMENT_CRYPTO"),
-                    Self(5) => ::std::string::String::from("PAYMENT_CHECK"),
-                    Self(val) => val.to_string(),
-                }
             }
 
             pub fn try_from_i32(value: i32) -> ::std::option::Option<Self> {
@@ -470,7 +455,15 @@ mod tests {
             }
 
             fn to_string(&self) -> ::std::string::String {
-                self.to_string()
+                match self {
+                    Self(0) => ::std::string::String::from("PAYMENT_UNKNOWN"),
+                    Self(1) => ::std::string::String::from("PAYMENT_CREDIT"),
+                    Self(2) => ::std::string::String::from("PAYMENT_DEBIT"),
+                    Self(3) => ::std::string::String::from("PAYMENT_BANK_TRANSFER"),
+                    Self(4) => ::std::string::String::from("PAYMENT_CRYPTO"),
+                    Self(5) => ::std::string::String::from("PAYMENT_CHECK"),
+                    Self(val) => val.to_string(),
+                }
             }
 
             fn try_from_i32(value: i32) -> ::std::option::Option<Self> {

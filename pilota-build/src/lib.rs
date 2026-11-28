@@ -49,6 +49,24 @@ use crate::{codegen::pb::ProtobufBackend, middle::root_selector::SelectionKind};
 
 pub trait MakeBackend: Sized {
     type Target: CodegenBackend;
+    /// Expose stable backend settings to user plugins before they run.
+    /// Existing backends require no preparation.
+    /// Runs with the compilation's context TLS set. Item-relative formatting
+    /// additionally requires the backend to select an item with `CUR_ITEM`.
+    fn configure_context(&self, _context: &Context) -> anyhow::Result<()> {
+        Ok(())
+    }
+    /// Validate backend-specific constraints before writing any generated
+    /// files.
+    /// Runs with the same context TLS as `configure_context` and user plugins.
+    ///
+    /// The default keeps existing backends unchanged. Implementations should
+    /// report unsupported IDL constructs here rather than panic during
+    /// emission.
+    fn validate(&self, _context: &Context) -> anyhow::Result<()> {
+        Ok(())
+    }
+
     fn make_backend(self, context: Context) -> Self::Target;
 }
 
@@ -331,6 +349,23 @@ where
         self.compile_with_config(services, out)
     }
 
+    /// Compile while returning syntax and streaming semantic diagnostics to the
+    /// caller.
+    pub fn try_compile(
+        self,
+        services: impl IntoIterator<Item = impl AsRef<std::path::Path>>,
+        out: Output,
+    ) -> anyhow::Result<()> {
+        let services = services
+            .into_iter()
+            .map(|path| IdlService {
+                config: serde_yaml::Value::default(),
+                path: path.as_ref().to_owned(),
+            })
+            .collect();
+        self.try_compile_with_config(services, out)
+    }
+
     #[allow(clippy::too_many_arguments)]
     #[deprecated(
         since = "0.13.8",
@@ -373,6 +408,7 @@ where
             with_field_mask,
             with_comments,
         )
+        .unwrap_or_else(|error| crate::util::error_abort(error.to_string()))
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -393,7 +429,7 @@ where
         with_descriptor: bool,
         with_field_mask: bool,
         with_comments: bool,
-    ) -> Context {
+    ) -> anyhow::Result<Context> {
         parser.inputs(services.iter().map(|s| &s.path));
         let ParseResult {
             files,
@@ -401,7 +437,7 @@ where
             file_ids_map,
             file_paths,
             file_names,
-        } = parser.parse();
+        } = parser.try_parse()?;
 
         let ResolveResult {
             files,
@@ -434,6 +470,8 @@ where
             .with_pb_ext_indexes(pb_ext_indexes)
             .with_pb_exts_used(pb_ext_indexes_used);
 
+        parser::thrift::validate_streaming_messages(&db)?;
+
         let root_selection = middle::root_selector::RootSelector::new(
             &db,
             touches,
@@ -464,7 +502,7 @@ where
 
         cx.keep(keep_unknown_fields);
 
-        cx.build(
+        Ok(cx.build(
             Arc::from(services),
             source_type,
             selection_kind,
@@ -477,10 +515,20 @@ where
             with_field_mask,
             !ignore_unused,
             with_comments,
-        )
+        ))
     }
 
     pub fn compile_with_config(self, services: Vec<IdlService>, out: Output) {
+        self.try_compile_with_config(services, out)
+            .unwrap_or_else(|error| crate::util::error_abort(error.to_string()));
+    }
+
+    /// Fallible counterpart to `compile_with_config` for compiler integrations.
+    pub fn try_compile_with_config(
+        self,
+        services: Vec<IdlService>,
+        out: Output,
+    ) -> anyhow::Result<()> {
         let _ = tracing_subscriber::fmt::try_init();
 
         let cx = Self::build_cx_impl(
@@ -500,7 +548,7 @@ where
             self.with_descriptor,
             self.with_field_mask,
             self.with_comments,
-        );
+        )?;
 
         cx.exec_plugin(BoxedPlugin);
 
@@ -535,8 +583,12 @@ where
         ));
 
         CONTEXT.set(&cx, || {
-            self.plugins.into_iter().for_each(|p| cx.exec_plugin(p));
-        });
+            self.mk_backend.configure_context(&cx)?;
+            self.plugins
+                .into_iter()
+                .try_for_each(|plugin| cx.try_exec_plugin(plugin))?;
+            self.mk_backend.validate(&cx)
+        })?;
 
         std::thread::scope(|scope| {
             let pool = rayon::ThreadPoolBuilder::new();
@@ -560,12 +612,11 @@ where
 
             pool.install(move || {
                 let cg = Codegen::new(self.mk_backend.make_backend(cx));
-                cg.r#gen().unwrap();
-            });
+                cg.r#gen()
+            })?;
 
-            Ok::<_, rayon::ThreadPoolBuildError>(())
+            Ok(())
         })
-        .unwrap();
     }
 
     // gen service_global_name and methods for certain service in IdlService
@@ -589,7 +640,12 @@ where
             self.with_descriptor,
             self.with_field_mask,
             self.with_comments,
-        );
+        )?;
+
+        CONTEXT.set(&cx, || {
+            self.mk_backend.configure_context(&cx)?;
+            self.mk_backend.validate(&cx)
+        })?;
 
         if matches!(cx.source.selection_kind, SelectionKind::Explicit) {
             Ok(Default::default())

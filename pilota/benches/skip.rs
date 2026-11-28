@@ -59,7 +59,6 @@ fn generate_list_i32() -> Bytes {
         Ok(())
     })
     .unwrap();
-    drop(p);
     buf.freeze()
 }
 
@@ -123,7 +122,6 @@ fn generate_struct() -> Bytes {
 
     p.write_field_stop().unwrap();
     p.write_struct_end().unwrap();
-    drop(p);
     buf.freeze()
 }
 

@@ -54,6 +54,12 @@ impl From<TransportException> for ThriftException {
 
 impl From<std::io::Error> for ThriftException {
     fn from(e: std::io::Error) -> Self {
+        if let Some(protocol) = e
+            .get_ref()
+            .and_then(|error| error.downcast_ref::<ProtocolException>())
+        {
+            return ThriftException::Protocol(protocol.clone());
+        }
         ThriftException::Transport(TransportException::from(e))
     }
 }

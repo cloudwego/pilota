@@ -1,0 +1,9 @@
+syntax = "proto3";
+package contract_api;
+import "common.proto";
+import "left.proto";
+import "right.proto";
+service Child {
+    rpc Call(contract_left.Value) returns (contract_right.Value);
+    rpc Shared(contract_common.Value) returns (contract_common.Value);
+}

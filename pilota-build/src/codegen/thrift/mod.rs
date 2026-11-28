@@ -75,7 +75,7 @@ impl ThriftBackend {
             let write_field = if is_optional {
                 let write_field_size_with_field_mask =
                     self.codegen_field_size_with_field_mask(&f.ty, field_id, "value".into());
-                format! {
+                format!(
                     r#"{{
                         let (field_fm, exist) = struct_fm.field({field_id});
                         if exist {{
@@ -84,7 +84,7 @@ impl ThriftBackend {
                             0
                         }}
                     }}"#
-                }
+                )
                 .into()
             } else {
                 let write_field_size_with_field_mask = self.codegen_field_size_with_field_mask(
@@ -92,12 +92,12 @@ impl ThriftBackend {
                     field_id,
                     format!("&self.{field_name}").into(),
                 );
-                format! {
+                format!(
                     r#"{{
                         let (field_fm, _) = struct_fm.field({field_id});
                         {write_field_size_with_field_mask}
                     }}"#
-                }
+                )
                 .into()
             };
 
@@ -124,11 +124,11 @@ impl ThriftBackend {
             };
 
             if is_optional {
-                format! {
+                format!(
                     r#"if let ::std::option::Option::Some(value) = self.{field_name}.as_ref() {{
                         {write_field}
                     }}"#
-                }
+                )
                 .into()
             } else {
                 write_field
@@ -147,12 +147,12 @@ impl ThriftBackend {
             let write_field = if is_optional {
                 let write_field_with_field_mask =
                     self.codegen_encode_field_with_field_mask(field_id, &f.ty, "value".into());
-                format! {
+                format!(
                     r#"let (field_fm, exist) = struct_fm.field({field_id});
                     if exist {{
                         {write_field_with_field_mask}
                     }}"#
-                }
+                )
                 .into()
             } else {
                 let write_field_with_field_mask = self.codegen_encode_field_with_field_mask(
@@ -160,19 +160,19 @@ impl ThriftBackend {
                     &f.ty,
                     format!("&self.{field_name}").into(),
                 );
-                format! {
-                r#"let (field_fm, _) = struct_fm.field({field_id});
+                format!(
+                    r#"let (field_fm, _) = struct_fm.field({field_id});
                 {write_field_with_field_mask}"#
-                }
+                )
                 .into()
             };
 
             if is_optional {
-                format! {
+                format!(
                     r#"if let ::std::option::Option::Some(value) = self.{field_name}.as_ref() {{
                         {write_field}
                     }}"#
-                }
+                )
                 .into()
             } else {
                 write_field
@@ -219,7 +219,8 @@ impl ThriftBackend {
             }})
         }}"#
         );
-        format! {r#"
+        format!(
+            r#"
             impl ::pilota::thrift::Message for {name} {{
                 fn encode<T: ::pilota::thrift::TOutputProtocol>(
                     &self,
@@ -245,7 +246,8 @@ impl ThriftBackend {
                     use ::pilota::thrift::TLengthProtocolExt;
                     {size}
                 }}
-            }}"#}
+            }}"#
+        )
     }
 
     fn codegen_impl_message_with_helper<F: Fn(&DecodeHelper) -> String>(
@@ -316,25 +318,22 @@ impl ThriftBackend {
             .iter()
             .filter_map(|f| {
                 let field_name = f.local_var_name();
-                match self.cx.default_val(f) { Some((default, is_const)) => {
-                    if !is_const {
+                match self.cx.default_val(f) {
+                    Some((default, is_const)) if !is_const => {
                         if f.is_optional() {
-                            Some(format! {
+                            Some(format!(
                                 r#"if {field_name}.is_none() {{
                                 {field_name} = ::std::option::Option::Some({default});
                             }}"#
-                            })
+                            ))
                         } else {
                             Some(format!(
                                 r#"let {field_name} = {field_name}.unwrap_or_else(|| {default});"#
                             ))
                         }
-                    } else {
-                        None
                     }
-                } _ => {
-                    None
-                }}
+                    _ => None,
+                }
             })
             .join("\n");
 
@@ -366,19 +365,19 @@ impl ThriftBackend {
             .join("\n");
 
         let read_fields = if helper.is_async {
-            format! {
+            format!(
                 r#"async {{
                     {read_fields}
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 }}.await"#
-            }
+            )
         } else {
-            format! {
+            format!(
                 r#"(|| {{
                     {read_fields}
                     ::std::result::Result::Ok::<_, ::pilota::thrift::ThriftException>(())
                 }})()"#
-            }
+            )
         };
 
         let format_msg = format!("decode struct `{name}` field(#{{}}) failed");
@@ -407,7 +406,7 @@ impl ThriftBackend {
             fields.push_str("_field_mask: ::std::option::Option::None");
         }
 
-        format! {
+        format!(
             r#"
             {def_fields_num}
             {def_fields}
@@ -432,7 +431,7 @@ impl ThriftBackend {
             }};
             ::std::result::Result::Ok(data)
             "#
-        }
+        )
     }
 
     #[inline]
@@ -521,7 +520,7 @@ impl ThriftBackend {
             ""
         };
 
-        format! {
+        format!(
             r#"loop {{
                 {skip_all}
                 {record_ptr}
@@ -545,7 +544,7 @@ impl ThriftBackend {
                 {field_end_len}
 
             }};"#
-        }
+        )
     }
 }
 
@@ -595,7 +594,7 @@ impl CodegenBackend for ThriftBackend {
             stream.push_str(&self.codegen_impl_message_with_helper(
                 def_id,
                 name.clone(),
-                format! {
+                format! (
                     r#"let struct_ident =::pilota::thrift::TStructIdentifier {{
                         name: "{name}",
                     }};
@@ -606,25 +605,25 @@ impl CodegenBackend for ThriftBackend {
                     __protocol.write_struct_end()?;
                     ::std::result::Result::Ok(())
                     "#
-                },
-                format! {
+                ),
+                format! (
                     r#"__protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
                         name: "{name}",
                     }}) + {encode_fields_size} __protocol.field_stop_len() + __protocol.struct_end_len()"#
-                },
+                ),
                 |helper| self.codegen_decode(helper, s, name.clone(), keep, self.is_arg(def_id)),
             ));
 
             if !s.is_wrapper && self.config.with_descriptor {
                 let idl_name = s.name.raw_str();
-                stream.push_str(&format! {
+                stream.push_str(&format! (
                     r#"impl {name} {{
                         pub fn get_descriptor() -> ::std::option::Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
                             let file_descriptor = get_file_descriptor_{filename_lower}();
                             file_descriptor.find_struct_by_name("{idl_name}")
                         }}
                     }}"#
-                });
+                ));
             }
             return;
         }
@@ -633,7 +632,7 @@ impl CodegenBackend for ThriftBackend {
             stream.push_str(&self.codegen_impl_message_with_helper(
                 def_id,
                 name.clone(),
-                format! {
+                format! (
                     r#"if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {{
                         if !struct_fm.exist() {{
                             ::std::result::Result::Ok(())
@@ -658,8 +657,8 @@ impl CodegenBackend for ThriftBackend {
                         __protocol.write_struct_end()?;
                         ::std::result::Result::Ok(())
                     }}"#
-                },
-                format! {
+                ),
+                format! (
                     r#"if let ::std::option::Option::Some(struct_fm) = self._field_mask.as_ref() {{
                         if !struct_fm.exist() {{
                             0
@@ -673,7 +672,7 @@ impl CodegenBackend for ThriftBackend {
                             name: "{name}",
                         }}) + {encode_fields_size} __protocol.field_stop_len() + __protocol.struct_end_len()
                     }}"#
-                },
+                ),
                 |helper| self.codegen_decode(helper, s, name.clone(), keep, self.is_arg(def_id)),
             ));
         }
@@ -703,11 +702,11 @@ impl CodegenBackend for ThriftBackend {
                 };
 
                 if is_optional {
-                    format! {
+                    format!(
                         r#"if let ::std::option::Option::Some(value) = &mut self.{field_name} {{
                         {field_mask}
                     }}"#
-                    }
+                    )
                 } else {
                     field_mask.to_string()
                 }
@@ -716,24 +715,24 @@ impl CodegenBackend for ThriftBackend {
 
         let idl_name = s.name.raw_str();
         if self.config.with_descriptor {
-            stream.push_str(&format! {
+            stream.push_str(&format! (
                 r#"impl {name} {{
                     pub fn get_descriptor() -> ::std::option::Option<&'static ::pilota_thrift_reflect::thrift_reflection::StructDescriptor> {{
                         let file_descriptor = get_file_descriptor_{filename_lower}();
                         file_descriptor.find_struct_by_name("{idl_name}")
                     }}
                 }}"#
-            });
+            ));
         }
 
-        stream.push_str(&format! {
+        stream.push_str(&format! (
             r#"impl {name} {{
                 pub fn set_field_mask(&mut self, field_mask: ::pilota_thrift_fieldmask::FieldMask) {{
                     self._field_mask = ::std::option::Option::Some(field_mask.clone());
                     {set_inner_field_mask}
                 }}
             }}"#
-        });
+        ));
     }
 
     fn codegen_service_impl(&self, _def_id: DefId, _stream: &mut String, _s: &Service) {}
@@ -751,23 +750,23 @@ impl CodegenBackend for ThriftBackend {
             Some(EnumRepr::I32) => stream.push_str(&self.codegen_impl_message_with_helper(
                 def_id,
                 name.clone(),
-                format! {
+                format! (
                     r#"__protocol.write_i32({v})?;
                     ::std::result::Result::Ok(())
                     "#
-                },
+                ),
                 format!("__protocol.i32_len({v})"),
                 |helper| {
                     let read_i32 = helper.codegen_read_i32();
                     let err_msg_tmpl = format!("invalid enum value for {name}, value: {{}}");
-                    format! {
+                    format! (
                         r#"let value = {read_i32};
                         ::std::result::Result::Ok(::std::convert::TryFrom::try_from(value).map_err(|err|
                             ::pilota::thrift::new_protocol_exception(
                                 ::pilota::thrift::ProtocolExceptionKind::InvalidData,
                                 format!("{err_msg_tmpl}", value)
                             ))?)"#
-                    }
+                    )
                 },
             )),
             None if is_entry_message => self.codegen_entry_enum(def_id, stream, e),
@@ -782,21 +781,21 @@ impl CodegenBackend for ThriftBackend {
                         let variant_id = v.id.unwrap() as i16;
                         let encode =
                             self.codegen_encode_field(variant_id, &v.fields[0], "value".into());
-                        format! {
+                        format! (
                             r#"{name}::{variant_name}(value) => {{
                             {encode}
                         }},"#
-                        }
+                        )
                     })
                     .join("");
                 if keep {
-                    encode_variants.push_str(&format! {
+                    encode_variants.push_str(&format! (
                         "{name}::_UnknownFields(value) => {{
                                         for bytes in value.list.iter() {{
                                             __protocol.write_bytes_without_len(bytes.clone());
                                         }}
                                     }}",
-                    });
+                    ));
                 }
 
                 if e.variants.is_empty() {
@@ -812,19 +811,19 @@ impl CodegenBackend for ThriftBackend {
                         let size =
                             self.codegen_field_size(&v.fields[0], variant_id, "value".into());
 
-                        format! {
+                        format! (
                             r#"{name}::{variant_name}(value) => {{
                             {size}
                         }},"#
-                        }
+                        )
                     })
                     .join("");
                 if keep {
-                    variants_size.push_str(&format! {
+                    variants_size.push_str(&format! (
                         "{name}::_UnknownFields(value) => {{
                                 value.size()
                             }}",
-                    })
+                    ))
                 }
 
                 if e.variants.is_empty() {
@@ -837,7 +836,7 @@ impl CodegenBackend for ThriftBackend {
 
                 stream.push_str(&self.codegen_impl_message_with_helper(def_id,
                     name.clone(),
-                    format! {
+                    format! (
                         r#"__protocol.write_struct_begin(&::pilota::thrift::TStructIdentifier {{
                             name: "{name}",
                         }})?;
@@ -847,14 +846,14 @@ impl CodegenBackend for ThriftBackend {
                         __protocol.write_field_stop()?;
                         __protocol.write_struct_end()?;
                         ::std::result::Result::Ok(())"#
-                    },
-                        format! {
+                    ),
+                        format! (
                             r#"__protocol.struct_begin_len(&::pilota::thrift::TStructIdentifier {{
                                 name: "{name}",
                             }}) + match self {{
                                 {variants_size}
                             }} +  __protocol.field_stop_len() + __protocol.struct_end_len()"#
-                        },
+                        ),
                     |helper| {
                         let record_ptr = if keep && !helper.is_async {
                             r#"let mut __pilota_offset = 0;
@@ -900,7 +899,7 @@ impl CodegenBackend for ThriftBackend {
                                             )
                                         }
                                     };
-                                    Some(format! {
+                                    Some(format! (
                                         r#"::std::option::Option::Some({variant_id}) => {{
                                     if ret.is_none() {{
                                         let field_ident = {decode};
@@ -913,7 +912,7 @@ impl CodegenBackend for ThriftBackend {
                                         ));
                                     }}
                                 }},"#
-                                    })
+                                    ))
                                 }
                             })
                             .join("");
@@ -946,7 +945,7 @@ impl CodegenBackend for ThriftBackend {
                                 )"#.into()
                             };
 
-                        format! {
+                        format! (
                             r#"let mut ret = ::std::option::Option::None;
                             {read_struct_begin};
                             loop {{
@@ -973,7 +972,7 @@ impl CodegenBackend for ThriftBackend {
                             }} else {{
                                 {handle_none_ret}
                             }}"#
-                        }
+                        )
                     },
                 ))
             }
@@ -991,10 +990,10 @@ impl CodegenBackend for ThriftBackend {
             stream.push_str(&self.codegen_impl_message_with_helper(
                 def_id,
                 name.clone(),
-                format! {
+                format!(
                     r#"{encode}
                     ::std::result::Result::Ok(())"#
-                },
+                ),
                 format!("{encode_size}"),
                 |helper| {
                     let decode = self.codegen_decode_ty(helper, &t.ty);
@@ -1015,10 +1014,10 @@ impl CodegenBackend for ThriftBackend {
                 stream.push_str(&self.codegen_impl_message_with_helper(
                     def_id,
                     name.clone(),
-                    format! {
+                    format!(
                         r#"{encode_with_field_mask}
                         ::std::result::Result::Ok(())"#
-                    },
+                    ),
                     encode_size_with_field_mask.into(),
                     |helper| {
                         let decode = self.codegen_decode_ty(helper, &t.ty);
@@ -1041,10 +1040,10 @@ impl CodegenBackend for ThriftBackend {
                 stream.push_str(&self.codegen_impl_message_with_helper(
                     def_id,
                     name.clone(),
-                    format! {
+                    format!(
                         r#"{encode}
                         ::std::result::Result::Ok(())"#
-                    },
+                    ),
                     format!("{encode_size}"),
                     |helper| {
                         let decode = self.codegen_decode_ty(helper, &t.ty);

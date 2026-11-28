@@ -1531,13 +1531,17 @@ mod tests {
         let mut fm = FieldMask::default();
 
         let mut children = AHashMap::new();
-        let mut child1 = FieldMask::default();
-        child1.data = FieldMaskData::Scalar;
-        let mut child2 = FieldMask::default();
-        child2.data = FieldMaskData::List {
-            children: AHashMap::new(),
-            wildcard: None,
-            is_all: false,
+        let child1 = FieldMask {
+            data: FieldMaskData::Scalar,
+            ..Default::default()
+        };
+        let child2 = FieldMask {
+            data: FieldMaskData::List {
+                children: AHashMap::new(),
+                wildcard: None,
+                is_all: false,
+            },
+            ..Default::default()
         };
         children.insert(1, Box::new(child1));
         children.insert(2, Box::new(child2));
@@ -1557,7 +1561,7 @@ mod tests {
                     assert!(mask.exist());
                 }
                 _ => {
-                    assert!(false);
+                    panic!("unexpected child id: {id}");
                 }
             }
             count += 1;

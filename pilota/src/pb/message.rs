@@ -332,7 +332,7 @@ mod tests {
     impl Message for TestMessage {
         fn encode_raw(&self, buf: &mut LinkedBytes) {
             // tag=1, wire_type=0 (varint), value
-            encode_varint((1 << 3) | 0, buf); // tag=1, wire_type=0
+            encode_varint(1 << 3, buf); // tag=1, wire_type=0
             encode_varint(self.value as u64, buf);
         }
 

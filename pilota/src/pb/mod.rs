@@ -74,6 +74,15 @@ pub fn decode_length_delimiter(mut buf: Bytes) -> Result<usize, DecodeError> {
     Ok(length as usize)
 }
 
+#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+// According to the benchmark, 1KB is the suitable threshold for zero-copy on
+// Apple Silicon.
+const ZERO_COPY_THRESHOLD: usize = 1024;
+
+#[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+// While 4KB is better for other platforms (mainly amd64 linux).
+const ZERO_COPY_THRESHOLD: usize = 4 * 1024;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -92,12 +101,3 @@ mod tests {
         assert_eq!(buf.bytes().len(), 1);
     }
 }
-
-#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
-// According to the benchmark, 1KB is the suitable threshold for zero-copy on
-// Apple Silicon.
-const ZERO_COPY_THRESHOLD: usize = 1024;
-
-#[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
-// While 4KB is better for other platforms (mainly amd64 linux).
-const ZERO_COPY_THRESHOLD: usize = 4 * 1024;

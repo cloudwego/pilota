@@ -71,7 +71,7 @@ fn main() {
     new_nodes.insert(
         def_id,
         Node {
-            file_id: unsafe { std::mem::transmute(0u32) }, // Workaround for demo
+            file_id: 0u32.into(),
             kind: NodeKind::Item(Arc::new(service)),
             parent: None,
             tags: TagId::from_u32(0),
