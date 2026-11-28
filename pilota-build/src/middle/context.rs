@@ -621,6 +621,25 @@ impl Context {
             .is_some()
     }
 
+    /// Returns the original Thrift streaming annotation for a method.
+    /// Protobuf methods and unannotated Thrift methods return `None`.
+    pub fn thrift_streaming_mode(&self, method: DefId) -> crate::tags::thrift::ThriftStreamingMode {
+        self.node_tags(method)
+            .and_then(|tags| {
+                tags.get::<crate::tags::thrift::ThriftStreamingMode>()
+                    .copied()
+            })
+            .unwrap_or_default()
+    }
+
+    /// Includes inherited methods, but excludes explicit
+    /// `streaming.mode="unary"`.
+    pub fn has_thrift_streaming_methods(&self, service: DefId) -> bool {
+        self.service_methods(service)
+            .iter()
+            .any(|method| self.thrift_streaming_mode(method.def_id).is_streaming())
+    }
+
     pub fn node_contains_tag<T: 'static>(&self, def_id: DefId) -> bool {
         self.node_tags(def_id)
             .and_then(|tags| tags.contains::<T>().then_some(true))
@@ -788,11 +807,13 @@ impl Context {
         } else {
             format!("::pilota::AHashMap::with_capacity({len})")
         };
-        Ok(format! {r#"{{
+        Ok(format!(
+            r#"{{
                 let mut map = {new};
                 {kvs}
                 map
-            }}"#}
+            }}"#
+        )
         .into())
     }
 
@@ -1253,10 +1274,10 @@ impl Context {
                     true,
                 )
             }
-            (Literal::Int(i), CodegenTy::I8) => (format! { "{i}i8" }.into(), true),
-            (Literal::Int(i), CodegenTy::I16) => (format! { "{i}i16" }.into(), true),
-            (Literal::Int(i), CodegenTy::I32) => (format! { "{i}i32" }.into(), true),
-            (Literal::Int(i), CodegenTy::I64) => (format! { "{i}i64" }.into(), true),
+            (Literal::Int(i), CodegenTy::I8) => (format!("{i}i8").into(), true),
+            (Literal::Int(i), CodegenTy::I16) => (format!("{i}i16").into(), true),
+            (Literal::Int(i), CodegenTy::I32) => (format!("{i}i32").into(), true),
+            (Literal::Int(i), CodegenTy::I64) => (format!("{i}i64").into(), true),
             (Literal::Int(i), CodegenTy::F32) => {
                 let f = (*i) as f32;
                 (format!("{f}f32").into(), true)
@@ -1288,15 +1309,15 @@ impl Context {
             }
             (Literal::Float(f), CodegenTy::F32) => {
                 let f = f.parse::<f32>().unwrap();
-                (format! { "{f}f32" }.into(), true)
+                (format!("{f}f32").into(), true)
             }
             (Literal::Float(f), CodegenTy::F64) => {
                 let f = f.parse::<f64>().unwrap();
-                (format! { "{f}f64" }.into(), true)
+                (format!("{f}f64").into(), true)
             }
             (Literal::Float(f), CodegenTy::OrderedF64) => {
                 let f = f.parse::<f64>().unwrap();
-                (format! { "::pilota::OrderedFloat({f}f64)" }.into(), true)
+                (format!("::pilota::OrderedFloat({f}f64)").into(), true)
             }
             (
                 l,
@@ -1307,18 +1328,18 @@ impl Context {
             ) => {
                 let ident = self.cur_related_item_path(*did);
                 let (stream, is_const) = self.lit_into_ty(l, inner_ty)?;
-                (format! { "{ident}({stream})" }.into(), is_const)
+                (format!("{ident}({stream})").into(), is_const)
             }
             (Literal::Map(_), CodegenTy::StaticRef(map)) => match &**map {
                 CodegenTy::Map(_, _) | CodegenTy::BTreeMap(_, _) => {
                     let lazy_map =
                         self.def_lit("INNER_MAP", lit, &mut CodegenTy::LazyStaticRef(map.clone()))?;
-                    let stream = format! {
+                    let stream = format!(
                         r#"{{
                             {lazy_map}
                             &*INNER_MAP
                         }}"#
-                    }
+                    )
                     .into();
                     (stream, false)
                 }
@@ -1332,30 +1353,30 @@ impl Context {
                 let is_const = stream.iter().all(|(_, is_const)| *is_const);
                 let stream = stream.into_iter().map(|(s, _)| s).join(",");
 
-                (format! {"[{stream}]" }.into(), is_const)
+                (format!("[{stream}]").into(), is_const)
             }
             (Literal::List(els), CodegenTy::Vec(inner)) => {
                 let stream = self.list_stream(els, inner)?;
-                (format! { "::std::vec![{stream}]" }.into(), false)
+                (format!("::std::vec![{stream}]").into(), false)
             }
             (Literal::List(els), CodegenTy::Set(inner)) => {
                 let stream = self.list_stream(els, inner)?;
                 (
-                    format! { "::pilota::AHashSet::from([{stream}])" }.into(),
+                    format!("::pilota::AHashSet::from([{stream}])").into(),
                     false,
                 )
             }
             (Literal::List(els), CodegenTy::BTreeSet(inner)) => {
                 let stream = self.list_stream(els, inner)?;
                 (
-                    format! { "::std::collections::BTreeSet::from([{stream}])" }.into(),
+                    format!("::std::collections::BTreeSet::from([{stream}])").into(),
                     false,
                 )
             }
-            (Literal::Bool(b), CodegenTy::Bool) => (format! { "{b}" }.into(), true),
+            (Literal::Bool(b), CodegenTy::Bool) => (format!("{b}").into(), true),
             (Literal::Int(i), CodegenTy::Bool) => {
                 let b = *i != 0;
-                (format! { "{b}" }.into(), true)
+                (format!("{b}").into(), true)
             }
             (Literal::String(s), CodegenTy::Bytes) => {
                 let escaped = s.escape_debug().to_string();
@@ -1419,11 +1440,11 @@ impl Context {
                 let name = self.cur_related_item_path(*did);
 
                 (
-                    format! {
+                    format!(
                         r#"{name} {{
                             {fields}
                         }}"#
-                    }
+                    )
                     .into(),
                     is_const,
                 )
@@ -1495,26 +1516,63 @@ impl Context {
         }
         Ok(if should_lazy_static {
             let lit = self.lit_as_rvalue(lit, ty)?.0;
-            format! {r#"
+            format!(
+                r#"
                 pub static {name}: ::std::sync::LazyLock<{ty}> = ::std::sync::LazyLock::new(|| {{
                     {lit}
                 }});
-            "#}
+            "#
+            )
         } else {
             let (lit, is_const) = self.lit_into_ty(lit, ty)?;
             if is_const {
                 format!(r#"pub const {name}: {ty} = {lit};"#)
             } else {
-                format! {r#"
+                format!(
+                    r#"
                 pub static {name}: ::std::sync::LazyLock<{ty}> = ::std::sync::LazyLock::new(|| {{
                     {lit}
                 }});
-            "#}
+            "#
+                )
             }
         })
     }
 
     pub fn rust_name(&self, def_id: DefId) -> Symbol {
+        let name = self.rust_name_unescaped(def_id);
+        // These type names shadow the Send bound and protocol type parameter in
+        // generated implementations. Escape after all naming overrides, leaving
+        // fields, methods, constants and enum variants unchanged.
+        if matches!(&*name, "Send" | "T")
+            && matches!(
+                self.node(def_id).unwrap().kind,
+                NodeKind::Item(item)
+                    if matches!(&*item, Item::Message(_) | Item::Enum(_) | Item::Service(_) | Item::NewType(_))
+            )
+        {
+            let mut escaped = format!("{name}_");
+            if self.cache.names.contains_key(&def_id) {
+                // Duplicate names fall back to their original IDL spelling, so
+                // an existing Send_ or T_ may already occupy the escaped name.
+                let module = self.mod_path(def_id);
+                while self.nodes().iter().any(|(other_id, node)| {
+                    *other_id != def_id
+                        && matches!(node.kind, NodeKind::Item(_))
+                        && (!matches!(&*self.source.mode, Mode::Workspace(_))
+                            || self.cache.location_map.contains_key(other_id))
+                        && self.rust_name_unescaped(*other_id).0.as_str() == escaped
+                        && self.mod_path(*other_id) == module
+                }) {
+                    escaped.push('_');
+                }
+            }
+            return escaped.into();
+        }
+        name
+    }
+
+    fn rust_name_unescaped(&self, def_id: DefId) -> Symbol {
         let node = self.node(def_id).unwrap();
 
         if let Some(name) = self
@@ -1607,6 +1665,12 @@ impl Context {
         p.on_codegen_uint(self, &self.cache.codegen_items);
 
         p.on_emit(self)
+    }
+
+    /// Runs a plugin and checks its diagnostics before code generation starts.
+    pub fn try_exec_plugin<P: Plugin>(&self, mut plugin: P) -> anyhow::Result<()> {
+        self.exec_plugin(&mut plugin);
+        plugin.validate(self)
     }
 
     pub(crate) fn workspace_info(&self) -> &WorkspaceInfo {

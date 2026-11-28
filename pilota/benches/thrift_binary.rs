@@ -1,11 +1,73 @@
 #![allow(clippy::redundant_clone)]
 
-use std::{hint::black_box, ptr};
+use std::hint::black_box;
 
 use bytes::{Bytes, BytesMut};
-use criterion::{criterion_group, criterion_main};
+use criterion::{BenchmarkId, criterion_group, criterion_main};
 use pilota::thrift::{TInputProtocol, TOutputProtocol};
 use rand::{self, Rng};
+
+fn string_validation_bench(c: &mut criterion::Criterion) {
+    let mut group = c.benchmark_group("Thrift FastStr UTF8");
+    for size in [32, 1024, 32 * 1024] {
+        let value = "abcd".repeat(size / 4);
+        for compact in [false, true] {
+            let mut output = BytesMut::new();
+            if compact {
+                pilota::thrift::compact::TCompactOutputProtocol::new(&mut output, true)
+                    .write_string(&value)
+                    .unwrap();
+            } else {
+                pilota::thrift::binary::TBinaryProtocol::new(&mut output, true)
+                    .write_string(&value)
+                    .unwrap();
+            }
+            let wire = output.freeze();
+            for checked in [false, true] {
+                let name = format!(
+                    "{}_{}",
+                    if compact { "compact" } else { "binary" },
+                    if checked {
+                        "validated"
+                    } else {
+                        "unchecked_baseline"
+                    }
+                );
+                group.bench_with_input(BenchmarkId::new(name, size), &wire, |b, wire| {
+                    b.iter(|| {
+                        let mut bytes = black_box(wire.clone());
+                        let value = if compact {
+                            let mut p =
+                                pilota::thrift::compact::TCompactInputProtocol::new(&mut bytes);
+                            if checked {
+                                p.read_faststr().unwrap()
+                            } else {
+                                // The baseline only receives the valid UTF-8 fixture above.
+                                unsafe {
+                                    faststr::FastStr::from_bytes_unchecked(p.read_bytes().unwrap())
+                                }
+                            }
+                        } else {
+                            let mut p =
+                                pilota::thrift::binary::TBinaryProtocol::new(&mut bytes, true);
+                            if checked {
+                                p.read_faststr().unwrap()
+                            } else {
+                                // Isolate validation cost with the same length checks and Bytes
+                                // split.
+                                unsafe {
+                                    faststr::FastStr::from_bytes_unchecked(p.read_bytes().unwrap())
+                                }
+                            }
+                        };
+                        black_box(value);
+                    });
+                });
+            }
+        }
+    }
+    group.finish();
+}
 
 fn binary_bench(c: &mut criterion::Criterion) {
     let size = std::env::var("SIZE")
@@ -23,7 +85,6 @@ fn binary_bench(c: &mut criterion::Criterion) {
     for i in &v {
         p.write_i64(*i).unwrap();
     }
-    drop(p);
     let buf = buf.freeze();
     assert_eq!(buf.len(), 8 * size);
 
@@ -33,7 +94,6 @@ fn binary_bench(c: &mut criterion::Criterion) {
     for i in &v {
         p.write_i64(*i).unwrap();
     }
-    drop(p);
     let buf_le = buf_le.freeze();
     assert_eq!(buf_le.len(), 8 * size);
 
@@ -43,82 +103,77 @@ fn binary_bench(c: &mut criterion::Criterion) {
 
     group.bench_function("big endian decode vec i64", |b| {
         b.iter(|| {
-            black_box({
-                let b = buf.clone();
-                black_box(read_be(b, size));
-            });
+            let b = buf.clone();
+            black_box(read_be(b, size));
         })
     });
 
     group.bench_function("big endian decode vec i64 unsafe", |b| {
         b.iter(|| {
-            black_box({
-                let b = buf.clone();
-                black_box(read_be_unsafe(b, size));
-            });
+            let b = buf.clone();
+            black_box(read_be_unsafe(b, size));
         })
     });
 
     group.bench_function("big endian decode vec i64 unsafe vec", |b| {
         b.iter(|| {
-            black_box({
-                let b = buf.clone();
-                black_box(read_be_unsafe_vec(b, size));
-            });
+            let b = buf.clone();
+            black_box(read_be_unsafe_vec(b, size));
         })
     });
 
     group.bench_function("big endian decode vec i64 unsafe optimized", |b| {
         b.iter(|| {
-            black_box({
-                let b = buf.clone();
-                black_box(read_be_unsafe_optimized(b, size));
-            });
+            let b = buf.clone();
+            black_box(read_be_unsafe_optimized(b, size));
         })
     });
 
     group.bench_function("big endian encode vec i64", |b| {
         b.iter(|| {
-            black_box({
-                let mut b = BytesMut::with_capacity(8 * size);
-                write_be(&mut b, &v, size);
-                black_box(());
-            });
+            let mut b = BytesMut::with_capacity(8 * size);
+            write_be(&mut b, &v, size);
+            black_box(b);
         })
     });
 
     group.bench_function("big endian encode vec i64 unsafe", |b| {
         b.iter(|| {
-            black_box({
-                let mut b = BytesMut::with_capacity(8 * size);
-                write_be_unsafe(&mut b, &v, size);
-                black_box(());
-            });
+            let mut b = BytesMut::with_capacity(8 * size);
+            write_be_unsafe(&mut b, &v, size);
+            black_box(b);
+        })
+    });
+
+    group.bench_function("big endian encode vec i64 buffered", |b| {
+        b.iter(|| {
+            let mut output = BytesMut::with_capacity(8 * size);
+            {
+                let mut p = pilota::thrift::binary_output::TBinaryOutputProtocol::new(&mut output);
+                for value in &v {
+                    p.write_i64(*value).unwrap();
+                }
+            }
+            black_box(output);
         })
     });
 
     group.bench_function("little endian decode vec i64", |b| {
         b.iter(|| {
-            black_box({
-                let b = buf_le.clone();
-                black_box(read_le(b, size));
-            });
+            let b = buf_le.clone();
+            black_box(read_le(b, size));
         })
     });
     group.bench_function("little endian decode vec i64 unsafe optimized", |b| {
         b.iter(|| {
-            black_box({
-                let b = buf_le.clone();
-                black_box(read_le_unsafe_optimized(b, size));
-            });
+            let b = buf_le.clone();
+            black_box(read_le_unsafe_optimized(b, size));
         })
     });
     group.bench_function("little endian decode vec i64 optimized", |b| {
         b.iter(|| {
-            black_box({
-                let b = buf_le.clone();
-                black_box(read_le_optimized(b, size));
-            });
+            let b = buf_le.clone();
+            black_box(read_le_optimized(b, size));
         })
     });
 
@@ -264,5 +319,5 @@ fn read_le_optimized(mut b: Bytes, size: usize) -> Vec<i64> {
     v
 }
 
-criterion_group!(benches, binary_bench);
+criterion_group!(benches, binary_bench, string_validation_bench);
 criterion_main!(benches);

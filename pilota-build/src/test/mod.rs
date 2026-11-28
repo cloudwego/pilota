@@ -663,7 +663,7 @@ fn test_duplicate_field_id() {
     out_path.set_extension("rs");
 
     crate::Builder::thrift()
-        .touch([(file_path.clone().into(), vec!["User"])])
+        .touch([(file_path.clone(), vec!["User"])])
         .compile_with_config(
             vec![IdlService::from_path(file_path)],
             crate::Output::File(out_path),

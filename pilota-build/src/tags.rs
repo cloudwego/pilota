@@ -110,6 +110,47 @@ macro_rules! new_type {
 
 pub mod thrift {
     pub struct EntryMessage;
+
+    /// Pilota's `streaming.mode` method annotation, independent of transport.
+    ///
+    /// Accepted values are `unary`, `client`, `server`, and `bidirectional`.
+    /// Every annotated method has exactly one argument. Streaming request and
+    /// response types must resolve to structs or unions; message typedefs and
+    /// Arc wrappers preserve that requirement. Streaming methods cannot be
+    /// `oneway`, return `void`, or declare `throws`.
+    ///
+    /// An unannotated method keeps ordinary Thrift argument and exception
+    /// rules. `None` and explicit `Unary` both use ordinary Thrift RPC.
+    /// Keeping them distinct lets backends preserve the original IDL.
+    #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
+    pub enum ThriftStreamingMode {
+        #[default]
+        None,
+        Unary,
+        Client,
+        Server,
+        Bidirectional,
+    }
+
+    impl ThriftStreamingMode {
+        pub const fn is_streaming(self) -> bool {
+            matches!(self, Self::Client | Self::Server | Self::Bidirectional)
+        }
+    }
+
+    impl std::str::FromStr for ThriftStreamingMode {
+        type Err = &'static str;
+
+        fn from_str(value: &str) -> Result<Self, Self::Err> {
+            match value {
+                "unary" => Ok(Self::Unary),
+                "client" => Ok(Self::Client),
+                "server" => Ok(Self::Server),
+                "bidirectional" => Ok(Self::Bidirectional),
+                _ => Err("expected unary, client, server, or bidirectional"),
+            }
+        }
+    }
 }
 
 #[derive(Clone)]

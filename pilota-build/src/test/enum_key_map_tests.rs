@@ -137,7 +137,7 @@ fn test_enum_key_hashable_and_comparable() {
     assert_ne!(Status::ACTIVE, Status::INACTIVE);
 
     // 测试排序（enum 应该支持 Ord）
-    let mut statuses = vec![Status::PENDING, Status::ACTIVE, Status::INACTIVE];
+    let mut statuses = [Status::PENDING, Status::ACTIVE, Status::INACTIVE];
     statuses.sort();
     assert_eq!(statuses[0], Status::ACTIVE); // value=1
     assert_eq!(statuses[1], Status::INACTIVE); // value=2

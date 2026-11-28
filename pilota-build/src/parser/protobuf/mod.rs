@@ -1231,9 +1231,11 @@ mod tests {
 
     #[test]
     fn lower_message_converts_map_entry_to_ir_map() {
-        let mut lower = Lower::default();
-        lower.cur_package = Some("pkg".into());
-        lower.cur_syntax = Syntax::Proto3;
+        let mut lower = Lower {
+            cur_package: Some("pkg".into()),
+            cur_syntax: Syntax::Proto3,
+            ..Default::default()
+        };
 
         let mut map_entry = DescriptorProto::new();
         map_entry.set_name("EntriesEntry".into());
@@ -1292,9 +1294,11 @@ mod tests {
 
     #[test]
     fn lower_message_marks_proto3_optional_scalar_as_optional() {
-        let mut lower = Lower::default();
-        lower.cur_package = Some("pkg".into());
-        lower.cur_syntax = Syntax::Proto3;
+        let mut lower = Lower {
+            cur_package: Some("pkg".into()),
+            cur_syntax: Syntax::Proto3,
+            ..Default::default()
+        };
 
         let mut message = DescriptorProto::new();
         message.set_name("Foo".into());

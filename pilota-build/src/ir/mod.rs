@@ -77,12 +77,6 @@ pub struct Arg {
 }
 
 #[derive(Clone, Debug)]
-pub struct ExceptionVariant {
-    pub id: i32,
-    pub ty: Ty,
-}
-
-#[derive(Clone, Debug)]
 pub struct Method {
     pub name: Ident,
     pub args: Vec<Arg>,

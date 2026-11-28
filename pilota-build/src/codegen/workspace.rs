@@ -86,10 +86,9 @@ where
             .sorted()
             .join(",\n");
 
-        let mut cargo_toml = toml::from_str::<toml::Value>(&unsafe {
-            String::from_utf8_unchecked(std::fs::read(self.base_dir.join("Cargo.toml")).unwrap())
-        })
-        .unwrap();
+        let mut cargo_toml = toml::from_str::<toml::Value>(&std::fs::read_to_string(
+            self.base_dir.join("Cargo.toml"),
+        )?)?;
 
         let reflect_dep = if self.cg.config.with_descriptor {
             r#"pilota-thrift-reflect = "*""#
@@ -103,10 +102,8 @@ where
             r#""#
         };
 
-        crate::codegen::toml::merge_tomls(
-            &mut cargo_toml,
-            toml::from_str::<toml::Value>(&format!(
-                r#"[workspace]
+        let mut defaults = toml::from_str::<toml::Value>(&format!(
+            r#"[workspace]
     members = [
     {members}
     ]
@@ -119,17 +116,14 @@ where
     {fieldmask_dep}
     anyhow = "1"
     volo = "*"
-    volo-{} = "*""#,
-                if B::PROTOCOL == "thrift" {
-                    "thrift"
-                } else if B::PROTOCOL == "protobuf" {
-                    "grpc"
-                } else {
-                    panic!("unknown protocol")
-                }
-            ))
-            .unwrap(),
-        );
+    "#,
+        ))?;
+        let backend_dependencies = toml::from_str(&format!(
+            "[workspace.dependencies]\n{}",
+            self.cg.backend.codegen_workspace_dependencies()
+        ))?;
+        crate::codegen::toml::merge_tomls(&mut defaults, backend_dependencies);
+        crate::codegen::toml::merge_tomls(&mut cargo_toml, defaults);
 
         let workspace_deps = cargo_toml
             .get("workspace")
@@ -302,10 +296,12 @@ where
                 main_mod_path.iter().map(|item| item.to_string()).join("::")
             ));
         }
-        gen_rs_stream = format! {r#"pub mod r#gen {{
+        gen_rs_stream = format!(
+            r#"pub mod r#gen {{
             #![allow(warnings, clippy::all)]
             {gen_rs_stream}
-        }}"#};
+        }}"#
+        );
 
         let lib_rs_stream = lib_rs_stream.lines().map(|s| s.trim_end()).join("\n");
         let gen_rs_stream = gen_rs_stream.lines().map(|s| s.trim_end()).join("\n");

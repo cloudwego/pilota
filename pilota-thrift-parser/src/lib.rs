@@ -9,5 +9,5 @@ pub mod parser;
 pub use descriptor::*;
 pub use parser::{
     error::Error,
-    thrift::{FileParser, FileSource},
+    thrift::{FileParser, FileSource, FunctionLocation},
 };

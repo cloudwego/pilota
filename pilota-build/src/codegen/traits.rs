@@ -13,6 +13,40 @@ pub trait CodegenBackend: Clone {
     const PROTOCOL: &'static str;
 
     fn cx(&self) -> &Context;
+
+    /// Framework dependencies to merge into a generated workspace's manifest.
+    /// Payload syntax does not necessarily select its transport runtime.
+    /// Existing backends keep their original Thrift/Protobuf defaults.
+    /// Return dependency entries without a table header. They are parsed and
+    /// merged with the defaults and user manifest, including required features.
+    fn codegen_workspace_dependencies(&self) -> &'static str {
+        match Self::PROTOCOL {
+            "thrift" => "volo-thrift = \"*\"",
+            "protobuf" => "volo-grpc = \"*\"",
+            _ => panic!("unknown protocol"),
+        }
+    }
+
+    /// Replace emission of a complete item, including plugin-generated impls.
+    ///
+    /// Return `true` only when the backend has emitted the item. This allows
+    /// transport backends to re-export shared message types without creating a
+    /// second Rust type identity. The default uses the normal data generator.
+    ///
+    /// The item has already passed deduplication and is registered as emitted.
+    /// Returning `true` also takes ownership of its comments, attributes and
+    /// all nested items attached by plugins; none are emitted automatically.
+    /// Backends that only share data types should return `false` for services
+    /// and modules so other plugins can still emit their attached code.
+    fn codegen_item_override(
+        &self,
+        _def_id: DefId,
+        _stream: &mut String,
+        _item: &rir::Item,
+    ) -> bool {
+        false
+    }
+
     fn codegen_struct_impl(&self, _def_id: DefId, _stream: &mut String, _s: &rir::Message) {}
     fn codegen_service_impl(&self, _def_id: DefId, _stream: &mut String, _s: &rir::Service) {}
     fn codegen_service_method(&self, _service_def_id: DefId, _method: &Method) -> String {

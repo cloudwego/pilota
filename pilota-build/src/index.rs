@@ -7,7 +7,7 @@ pub trait Idx: Sized + Copy + 'static {
 
     fn inc_one(&mut self) -> Self {
         let old = *self;
-        *self = self.plus(1);
+        self.increment_by(1);
         old
     }
 

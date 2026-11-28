@@ -126,18 +126,18 @@ where
                         let leading_comment = f.leading_comments.to_string();
                         let trailing_comment = f.trailing_comments.to_string();
 
-                        format! {
+                        format!(
                             r#"
                         {leading_comment}
                         {attrs}
                         {deprecated_attr}pub {name}: {ty},{trailing_comment}"#
-                        }
+                        )
                     } else {
-                        format! {
+                        format!(
                             r#"
                         {attrs}
                         {deprecated_attr}pub {name}: {ty},"#
-                        }
+                        )
                     }
                 })
             })
@@ -165,12 +165,12 @@ where
             ""
         };
 
-        stream.push_str(&format! {
+        stream.push_str(&format!(
             r#"#[derive(Clone, PartialEq)]
                 {deprecated_attr}pub struct {name} {{
                     {fields}
                 }}{trailing_comment}"#
-        });
+        ));
 
         self.backend.codegen_struct_impl(def_id, stream, s);
     }
@@ -186,6 +186,9 @@ where
                 if !self.duplicate(dup, item.def_id) {
                     let def_id = item.def_id;
                     let item = self.item(def_id).unwrap();
+                    if self.backend.codegen_item_override(def_id, stream, &item) {
+                        return;
+                    }
                     tracing::trace!("write item {}", item.symbol_name());
 
                     // write leading comments
@@ -245,11 +248,11 @@ where
                             }
 
                             let name = self.rust_name(def_id);
-                            stream.push_str(&format! {
+                            stream.push_str(&format!(
                                 r#"pub mod {name} {{
                                     {inner}
                                 }}"#
-                            });
+                            ));
                         }
                     }
                 };
@@ -272,9 +275,36 @@ where
         }
         let dup = dup.entry(name.0).or_default();
         for id in dup.iter() {
-            if def_id_equal(self.nodes(), *id, def_id) {
-                return true;
+            if !def_id_equal(self.nodes(), *id, def_id) {
+                continue;
             }
+            // Service deduplication must preserve the method protocol contract.
+            // The structural comparator intentionally has no access to tags.
+            if matches!(self.item(def_id).as_deref(), Some(Item::Service(_))) {
+                let contract = |method: &rir::Method| {
+                    let tags = self.node_tags(method.def_id);
+                    (
+                        self.thrift_streaming_mode(method.def_id),
+                        tags.as_ref().is_some_and(|tags| {
+                            tags.contains::<crate::tags::protobuf::ClientStreaming>()
+                        }),
+                        tags.as_ref().is_some_and(|tags| {
+                            tags.contains::<crate::tags::protobuf::ServerStreaming>()
+                        }),
+                    )
+                };
+                let existing = self.service_methods(*id);
+                let incoming = self.service_methods(def_id);
+                if existing.len() != incoming.len()
+                    || !existing
+                        .iter()
+                        .zip(incoming.iter())
+                        .all(|(a, b)| a.name == b.name && contract(a) == contract(b))
+                {
+                    continue;
+                }
+            }
+            return true;
         }
         dup.push(def_id);
         false
@@ -345,7 +375,7 @@ where
             Default::default()
         };
 
-        stream.push_str(&format! {
+        stream.push_str(&format!(
             r#"#[derive(Clone, PartialEq, Copy)]
             #[repr(transparent)]
             {deprecated_attr}pub struct {name}({repr});
@@ -387,7 +417,7 @@ where
             }}
 
             "#
-        });
+        ));
 
         self.backend.codegen_enum_impl(def_id, stream, e);
     }
@@ -444,14 +474,14 @@ where
         } else {
             ""
         };
-        stream.push_str(&format! {
+        stream.push_str(&format!(
             r#"
             #[derive(Clone, PartialEq)]
             pub enum {name} {{
                 {variants}
             }}{trailing_comment}
             "#
-        });
+        ));
 
         self.backend.codegen_enum_impl(def_id, stream, e);
     }
@@ -471,13 +501,13 @@ where
             ""
         };
 
-        stream.push_str(&format! {
+        stream.push_str(&format!(
             r#"
             {deprecated_attr}pub trait {name} {{
                 {methods}
             }}
             "#
-        });
+        ));
         self.backend.codegen_service_impl(def_id, stream, s);
     }
 
@@ -546,7 +576,7 @@ where
     pub fn write_new_type(&self, def_id: DefId, stream: &mut String, t: &middle::rir::NewType) {
         let name = self.rust_name(def_id);
         let ty = self.codegen_item_ty(t.ty.kind.clone());
-        stream.push_str(&format! {
+        stream.push_str(&format!(
             r#"
             #[derive(Clone, PartialEq)]
             pub struct {name}(pub {ty});
@@ -566,7 +596,7 @@ where
             }}
 
             "#
-        });
+        ));
         self.backend.codegen_newtype_impl(def_id, stream, t);
     }
 
@@ -753,14 +783,14 @@ where
             let name = Symbol::from(name.unwrap());
             let mut pilota_buf_trait = Default::default();
             self.backend.codegen_pilota_trait(&mut pilota_buf_trait);
-            stream.push_str(&format! {
+            stream.push_str(&format!(
                 r#"
                 pub mod {name} {{
                     {pilota_buf_trait}
                     {inner_stream}
                 }}
                 "#
-            });
+            ));
         }
     }
 
@@ -866,10 +896,12 @@ where
 
         self.write_items(&mut stream, mod_items, base_dir);
 
-        stream = format! {r#"pub mod {ns_name} {{
+        stream = format!(
+            r#"pub mod {ns_name} {{
                 #![allow(warnings, clippy::all)]
                 {stream}
-            }}"#};
+            }}"#
+        );
         let stream = stream.lines().map(|s| s.trim_end()).join("\n");
         let mut file = std::io::BufWriter::new(std::fs::File::create(&file_name).unwrap());
         file.write_all(stream.as_bytes()).unwrap();

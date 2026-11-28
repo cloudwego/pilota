@@ -177,7 +177,7 @@ mod tests {
 
     #[test]
     fn test_blank() {
-        let _ = Components::blank().parse(" \t\r\n").unwrap();
+        Components::blank().parse(" \t\r\n").unwrap();
     }
 
     #[test]
@@ -211,16 +211,16 @@ mod tests {
 
     #[test]
     fn test_blank_with_comments() {
-        let _ = Components::blank_with_comments().parse(" // foo").unwrap();
-        let _ = Components::blank_with_comments().parse(" # foo").unwrap();
-        let _ = Components::blank_with_comments()
+        Components::blank_with_comments().parse(" // foo").unwrap();
+        Components::blank_with_comments().parse(" # foo").unwrap();
+        Components::blank_with_comments()
             .parse(" /* foo */")
             .unwrap();
     }
 
     #[test]
     fn test_blank_without_newline() {
-        let _ = Components::blank_without_newline().parse(" \t\r").unwrap();
+        Components::blank_without_newline().parse(" \t\r").unwrap();
     }
 
     #[test]

@@ -1,8 +1,10 @@
 pub mod binary;
 pub mod binary_le;
+pub mod binary_output;
 pub mod binary_unsafe;
 pub mod compact;
 pub mod error;
+mod read_limit;
 pub mod rw_ext;
 pub mod unknown;
 pub mod varint_ext;
@@ -247,7 +249,7 @@ pub trait TInputProtocol: TLengthProtocol {
             u => {
                 return Err(new_protocol_exception(
                     ProtocolExceptionKind::DepthLimit,
-                    format!("cannot skip field type {:?}", &u),
+                    format!("cannot skip field type {:?}", u),
                 ));
             }
         };
@@ -737,6 +739,11 @@ pub trait TAsyncInputProtocol: Send {
     /// Read a binary, return `Vec<u8>`
     fn read_bytes_vec(&mut self) -> impl Future<Output = Result<Vec<u8>, ThriftException>> + Send;
 
+    /// Skip a binary field without requiring it to contain UTF-8.
+    fn skip_binary(&mut self) -> impl Future<Output = Result<(), ThriftException>> + Send {
+        async { self.read_bytes_vec().await.map(|_| ()) }
+    }
+
     /// Read a uuid.
     fn read_uuid(&mut self) -> impl Future<Output = Result<[u8; 16], ThriftException>> + Send;
 
@@ -820,7 +827,8 @@ pub trait TAsyncInputProtocol: Send {
             TType::I32 => self.read_i32().await.map(|_| ()),
             TType::I64 => self.read_i64().await.map(|_| ()),
             TType::Double => self.read_double().await.map(|_| ()),
-            TType::Binary => self.read_string().await.map(|_| ()),
+            TType::Binary => self.skip_binary().await,
+            TType::Uuid => self.read_uuid().await.map(|_| ()),
             TType::Struct => {
                 self.read_struct_begin().await?;
                 loop {
@@ -861,7 +869,7 @@ pub trait TAsyncInputProtocol: Send {
             }
             u => Err(new_protocol_exception(
                 ProtocolExceptionKind::DepthLimit,
-                format!("cannot skip field type {:?}", &u),
+                format!("cannot skip field type {:?}", u),
             )),
         }
     }

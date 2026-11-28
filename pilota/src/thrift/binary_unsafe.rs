@@ -323,7 +323,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     fn write_i16(&mut self, i: i16) -> Result<(), ThriftException> {
         unsafe {
             let buf: &mut [u8; 2] = self
-                .trans
+                .buf
                 .get_unchecked_mut(self.index..self.index + 2)
                 .try_into()
                 .unwrap_unchecked();
@@ -337,7 +337,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     fn write_i32(&mut self, i: i32) -> Result<(), ThriftException> {
         unsafe {
             let buf: &mut [u8; 4] = self
-                .trans
+                .buf
                 .get_unchecked_mut(self.index..self.index + 4)
                 .try_into()
                 .unwrap_unchecked();
@@ -351,7 +351,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     fn write_i64(&mut self, i: i64) -> Result<(), ThriftException> {
         unsafe {
             let buf: &mut [u8; 8] = self
-                .trans
+                .buf
                 .get_unchecked_mut(self.index..self.index + 8)
                 .try_into()
                 .unwrap_unchecked();
@@ -365,7 +365,7 @@ impl TOutputProtocol for TBinaryUnsafeOutputProtocol<&mut BytesMut> {
     fn write_double(&mut self, d: f64) -> Result<(), ThriftException> {
         unsafe {
             let buf: &mut [u8; 8] = self
-                .trans
+                .buf
                 .get_unchecked_mut(self.index..self.index + 8)
                 .try_into()
                 .unwrap_unchecked();
@@ -1308,7 +1308,7 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
                 u => {
                     return Err(new_protocol_exception(
                         ProtocolExceptionKind::DepthLimit,
-                        format!("cannot skip field type {:?}", &u),
+                        format!("cannot skip field type {:?}", u),
                     ));
                 }
             };
@@ -1323,5 +1323,47 @@ impl<'a> TInputProtocol for TBinaryUnsafeInputProtocol<'a> {
                 skip_stack_pop!(stack);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod output_buffer_tests {
+    use bytes::BufMut;
+
+    use super::*;
+
+    #[test]
+    fn contiguous_integers_write_to_reserved_tail() {
+        for prefix_len in [0, 32] {
+            check_reserved_tail(prefix_len);
+        }
+    }
+
+    fn check_reserved_tail(prefix_len: usize) {
+        let mut output = BytesMut::with_capacity(prefix_len + 32);
+        output.extend_from_slice(&vec![0xab; prefix_len]);
+        let spare = output.spare_capacity_mut();
+        // Initialize for Miri as well as the normal test runner.
+        for byte in spare.iter_mut() {
+            byte.write(0);
+        }
+        let buffer =
+            unsafe { std::slice::from_raw_parts_mut(spare.as_mut_ptr().cast::<u8>(), spare.len()) };
+        let mut protocol = unsafe { TBinaryUnsafeOutputProtocol::new(&mut output, buffer, false) };
+        protocol.write_i16(0x1234).unwrap();
+        protocol.write_i32(0x12345678).unwrap();
+        protocol.write_i64(0x123456789abcdef0).unwrap();
+        protocol.write_double(1.5).unwrap();
+        let written = protocol.index();
+        unsafe {
+            protocol.buf_mut().advance_mut(written);
+        }
+        assert_eq!(&output[..prefix_len], vec![0xab; prefix_len]);
+        let mut expected = Vec::new();
+        expected.extend_from_slice(&0x1234i16.to_be_bytes());
+        expected.extend_from_slice(&0x12345678i32.to_be_bytes());
+        expected.extend_from_slice(&0x123456789abcdef0i64.to_be_bytes());
+        expected.extend_from_slice(&1.5f64.to_be_bytes());
+        assert_eq!(&output[prefix_len..], expected);
     }
 }

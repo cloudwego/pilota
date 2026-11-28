@@ -1987,7 +1987,7 @@ pub struct EncodeLengthContext {
 #[cfg(test)]
 mod test {
     use alloc::string::ToString;
-    use core::{fmt::Debug, u64};
+    use core::fmt::Debug;
 
     use ::bytes::Bytes;
     use proptest::{prelude::*, test_runner::TestCaseResult};
@@ -2256,14 +2256,17 @@ mod test {
     /// This big bowl o' macro soup generates an encoding property test for each
     /// combination of map type, scalar map key, and value type.
     /// TODO: these tests take a long time to compile, can this be improved?
-    #[cfg(feature = "std")]
     macro_rules! map_tests {
         (keys: $keys:tt,
          vals: $vals:tt) => {
             mod hash_map {
+                use crate::AHashMap as HashMap;
+
                 map_tests!(@private HashMap, hash_map, $keys, $vals);
             }
             mod btree_map {
+                use std::collections::BTreeMap;
+
                 map_tests!(@private BTreeMap, btree_map, $keys, $vals);
             }
         };
@@ -2274,12 +2277,10 @@ mod test {
                   $vals:tt) => {
             $(
                 mod $key_proto {
-                    use std::collections::$map_type;
-
                     use proptest::prelude::*;
 
-                    use crate::encoding::*;
-                    use crate::encoding::test::check_collection_type;
+                    use super::$map_type;
+                    use crate::pb::encoding::*;
 
                     map_tests!(@private $map_type, $mod_name, ($key_ty, $key_proto), $vals);
                 }
@@ -2293,38 +2294,49 @@ mod test {
             $(
                 proptest! {
                     #[test]
-                    fn $val_proto(values: $map_type<$key_ty, $val_ty>, tag in MIN_TAG..=MAX_TAG) {
-                        check_collection_type(values, tag, WireType::LengthDelimited,
-                                              |tag, values, buf| {
-                                                  $mod_name::encode($key_proto::encode,
-                                                                    $key_proto::encoded_len,
-                                                                    $val_proto::encode,
-                                                                    $val_proto::encoded_len,
-                                                                    tag,
-                                                                    values,
-                                                                    buf)
-                                              },
-                                              |wire_type, values, buf, ctx| {
-                                                  check_wire_type(WireType::LengthDelimited, wire_type)?;
-                                                  $mod_name::merge($key_proto::merge,
-                                                                   $val_proto::merge,
-                                                                   values,
-                                                                   buf,
-                                                                   ctx)
-                                              },
-                                              |tag, values| {
-                                                  $mod_name::encoded_len($key_proto::encoded_len,
-                                                                         $val_proto::encoded_len,
-                                                                         tag,
-                                                                         values)
-                                              })?;
+                    fn $val_proto(values: Vec<($key_ty, $val_ty)>, tag in MIN_TAG..=MAX_TAG) {
+                        let values: $map_type<$key_ty, $val_ty> = values.into_iter().collect();
+                        let expected_len = $mod_name::encoded_len(
+                            &mut EncodeLengthContext::default(),
+                            $key_proto::encoded_len,
+                            $val_proto::encoded_len,
+                            tag,
+                            &values,
+                        );
+                        let mut buf = LinkedBytes::with_capacity(expected_len);
+                        $mod_name::encode(
+                            $key_proto::encode,
+                            $key_proto::encoded_len,
+                            $val_proto::encode,
+                            $val_proto::encoded_len,
+                            tag,
+                            &values,
+                            &mut buf,
+                        );
+                        let mut buf = buf.concat().freeze();
+                        prop_assert_eq!(buf.remaining(), expected_len);
+
+                        let mut decoded = $map_type::default();
+                        let mut ctx = DecodeContext::new(buf.clone());
+                        while buf.has_remaining() {
+                            let (decoded_tag, wire_type) = decode_key(&mut buf)?;
+                            prop_assert_eq!(decoded_tag, tag);
+                            prop_assert_eq!(wire_type, WireType::LengthDelimited);
+                            $mod_name::merge(
+                                $key_proto::merge,
+                                $val_proto::merge,
+                                &mut decoded,
+                                &mut buf,
+                                &mut ctx,
+                            )?;
+                        }
+                        prop_assert_eq!(values, decoded);
                     }
                 }
              )*
         };
     }
 
-    #[cfg(feature = "std")]
     map_tests!(keys: [
         (i32, int32),
         (i64, int64),
@@ -2406,14 +2418,14 @@ mod test {
         let e = ::faststr::FastStr::from("");
         faststr::encode(1, &e, &mut buf);
         if cfg!(feature = "pb-encode-default-value") {
-            assert!(buf.len() > 0);
+            assert!(!buf.is_empty());
         } else {
             assert_eq!(buf.len(), 0);
         }
         let mut buf2 = LinkedBytes::new();
         let n = ::faststr::FastStr::from("x");
         faststr::encode(1, &n, &mut buf2);
-        assert!(buf2.len() > 0);
+        assert!(!buf2.is_empty());
     }
 
     #[test]
@@ -2437,14 +2449,14 @@ mod test {
         let e = Bytes::new();
         bytes::encode(1, &e, &mut buf);
         if cfg!(feature = "pb-encode-default-value") {
-            assert!(buf.len() > 0);
+            assert!(!buf.is_empty());
         } else {
             assert_eq!(buf.len(), 0);
         }
         let mut buf2 = LinkedBytes::new();
         let n = Bytes::from_static(b"x");
         bytes::encode(1, &n, &mut buf2);
-        assert!(buf2.len() > 0);
+        assert!(!buf2.is_empty());
     }
 
     #[test]
@@ -2452,13 +2464,13 @@ mod test {
         let mut buf = LinkedBytes::new();
         int32::encode(1, &0i32, &mut buf);
         if cfg!(feature = "pb-encode-default-value") {
-            assert!(buf.len() > 0);
+            assert!(!buf.is_empty());
         } else {
             assert_eq!(buf.len(), 0);
         }
         let mut buf2 = LinkedBytes::new();
         int32::encode(1, &1i32, &mut buf2);
-        assert!(buf2.len() > 0);
+        assert!(!buf2.is_empty());
     }
 
     macro_rules! gen_skip_default_numeric_tests {

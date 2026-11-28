@@ -373,11 +373,11 @@ impl ProtobufBackend {
 
                 match kind {
                     FieldKind::Required => format!("{encode_fn}({tag}, &{ident}, buf);").into(),
-                    FieldKind::Optional => format! {
+                    FieldKind::Optional => format! (
                         r#"if let ::std::option::Option::Some(_pilota_inner_value) = {ident}.as_ref() {{
                                 {encode_fn}({tag}, _pilota_inner_value, buf);
                             }};"#
-                    }
+                    )
                     .into(),
                 }
             }
@@ -591,7 +591,7 @@ impl CodegenBackend for ProtobufBackend {
                     self.codegen_merge_field("_inner_pilota_value".into(), &field.ty, field.kind);
                 let tags = self.field_tags(field).join("|");
 
-                format! {
+                format!(
                     r#"{tags} => {{
                     {inc_decoded_fields_num}
                     let mut _inner_pilota_value = &mut self.{field_ident};
@@ -600,7 +600,7 @@ impl CodegenBackend for ProtobufBackend {
                         error
                     }})
                 }},"#
-                }
+                )
             })
             .join("");
 
@@ -849,7 +849,7 @@ impl CodegenBackend for ProtobufBackend {
                 );
 
                 if is_cycled {
-                    format! {
+                    format! (
                         r#"{tag} => {{
                     match field.as_mut() {{
                         ::core::option::Option::Some(boxed) => {{
@@ -873,9 +873,9 @@ impl CodegenBackend for ProtobufBackend {
                         }},
                     }}
                 }},"#
-                    }
+                    )
                 } else {
-                    format! {
+                    format! (
                         r#"{tag} => {{
                     match field {{
                         ::core::option::Option::Some({name}::{variant_name}(value)) => {{
@@ -889,7 +889,7 @@ impl CodegenBackend for ProtobufBackend {
                         }},
                     }}
                 }},"#
-                    }
+                    )
                 }
             })
             .join("");
@@ -922,7 +922,7 @@ impl CodegenBackend for ProtobufBackend {
             "::core::option::Option<Self>"
         };
 
-        stream.push_str(&format! {
+        stream.push_str(&format! (
             r#"
 
             {getter_impl}
@@ -956,7 +956,7 @@ impl CodegenBackend for ProtobufBackend {
                     ::core::result::Result::Ok(())
                 }}
             }}"#
-        });
+        ));
     }
 
     fn cx(&self) -> &Context {

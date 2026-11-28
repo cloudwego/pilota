@@ -1,0 +1,3 @@
+syntax = "proto3";
+package contract_common;
+message Value { int32 number = 1; }

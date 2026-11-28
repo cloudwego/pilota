@@ -65,12 +65,12 @@ impl ThriftBackend {
                 let el_ttype = self.ttype(ty);
                 let write_el = self.codegen_encode_ty(ty, "val".into());
 
-                format! {
+                format! (
                     r#"__protocol.write_list({el_ttype}, &{ident}, |__protocol, val| {{
                         {write_el}
                         ::std::result::Result::Ok(())
                     }})?;"#
-                }
+                )
                 .into()
             }
             ty::Set(k) => {
@@ -111,7 +111,7 @@ impl ThriftBackend {
                 let el_ttype = self.ttype(el);
                 let write_el_with_field_mask = self.codegen_encode_ty_with_field_mask(el, "val".into());
                 let write_el = self.codegen_encode_ty(el, "val".into());
-                format! {
+                format! (
                     r#"if let ::std::option::Option::Some(list_fm) = item_fm {{
                         __protocol.write_list_begin(::pilota::thrift::TListIdentifier {{
                             element_type: {el_ttype},
@@ -132,7 +132,7 @@ impl ThriftBackend {
                             ::std::result::Result::Ok(())
                         }})?;
                     }}"#
-                }
+                )
                 .into()
             }
             ty::Set(k) => {
@@ -203,12 +203,12 @@ impl ThriftBackend {
     fn encode_set(&self, ty: &Ty, ident: FastStr, name: &str) -> FastStr {
         let write_el = self.codegen_encode_ty(ty, "val".into());
         let el_ttype = self.ttype(ty);
-        format! {
+        format!(
             r#"__protocol.write_{name}({el_ttype}, &{ident}, |__protocol, val| {{
                 {write_el}
                 ::std::result::Result::Ok(())
             }})?;"#
-        }
+        )
         .into()
     }
 
@@ -219,7 +219,7 @@ impl ThriftBackend {
         let write_key = self.codegen_encode_ty(k, "key".into());
         let write_val = self.codegen_encode_ty(v, "val".into());
 
-        format! {
+        format!(
             r#"__protocol.write_{name}({key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
                 {write_key}
                 ::std::result::Result::Ok(())
@@ -227,7 +227,7 @@ impl ThriftBackend {
                 {write_val}
                 ::std::result::Result::Ok(())
             }})?;"#
-        }
+        )
         .into()
     }
 
@@ -244,7 +244,7 @@ impl ThriftBackend {
         let write_val = self.codegen_encode_ty(v, "val".into());
         let write_val_with_field_mask = self.codegen_encode_ty_with_field_mask(v, "val".into());
 
-        format! {
+        format!(
             r#"if let ::std::option::Option::Some(map_fm) = item_fm {{
                 __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
                     key_type: {key_ttype},
@@ -268,7 +268,7 @@ impl ThriftBackend {
                     ::std::result::Result::Ok(())
                 }})?;
             }}"#
-        }
+        )
         .into()
     }
 
@@ -285,7 +285,7 @@ impl ThriftBackend {
         let write_val = self.codegen_encode_ty(v, "val".into());
         let write_val_with_field_mask = self.codegen_encode_ty_with_field_mask(v, "val".into());
 
-        format! {
+        format!(
             r#"if let ::std::option::Option::Some(map_fm) = item_fm {{
                 __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
                     key_type: {key_ttype},
@@ -309,7 +309,7 @@ impl ThriftBackend {
                     ::std::result::Result::Ok(())
                 }})?;
             }}"#
-        }
+        )
         .into()
     }
 
@@ -326,7 +326,7 @@ impl ThriftBackend {
         let write_val = self.codegen_encode_ty(v, "val".into());
         let write_val_with_field_mask = self.codegen_encode_ty_with_field_mask(v, "val".into());
 
-        format! {
+        format!(
             r#"if let ::std::option::Option::Some(map_fm) = item_fm {{
                 __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
                     key_type: {key_ttype},
@@ -350,7 +350,7 @@ impl ThriftBackend {
                     ::std::result::Result::Ok(())
                 }})?;
             }}"#
-        }
+        )
         .into()
     }
 
@@ -395,12 +395,12 @@ impl ThriftBackend {
                 let el_ttype = self.ttype(ty);
                 let write_el = self.codegen_encode_ty(ty, "val".into());
 
-                format! {
+                format! (
                     r#"__protocol.write_list_field({id}, {el_ttype}, &{ident}, |__protocol, val| {{
                         {write_el}
                         ::std::result::Result::Ok(())
                     }})?;"#
-                }
+                )
                 .into()
             }
             ty::Set(k) => {
@@ -461,7 +461,7 @@ impl ThriftBackend {
                 let write_el = self.codegen_encode_ty(ty, "val".into());
                 let write_el_with_field_mask = self.codegen_encode_ty_with_field_mask(ty, "val".into());
 
-                format! {
+                format! (
                     r#"if let ::std::option::Option::Some(list_fm) = field_fm {{
                         __protocol.write_field_begin(::pilota::thrift::TType::List, {id})?;
                         __protocol.write_list_begin(::pilota::thrift::TListIdentifier {{
@@ -484,7 +484,7 @@ impl ThriftBackend {
                         ::std::result::Result::Ok(())
                         }})?;
                     }}"#
-                }
+                )
                 .into()
             }
             ty::Set(k) => {
@@ -552,12 +552,12 @@ impl ThriftBackend {
     fn encode_set_field(&self, ty: &Ty, id: i16, ident: FastStr, name: &str) -> FastStr {
         let write_el = self.codegen_encode_ty(ty, "val".into());
         let el_ttype = self.ttype(ty);
-        format! {
+        format!(
             r#"__protocol.write_{name}_field({id}, {el_ttype}, &{ident}, |__protocol, val| {{
                 {write_el}
                 ::std::result::Result::Ok(())
             }})?;"#
-        }
+        )
         .into()
     }
 
@@ -568,7 +568,7 @@ impl ThriftBackend {
         let write_key = self.codegen_encode_ty(k, "key".into());
         let write_val = self.codegen_encode_ty(v, "val".into());
 
-        format! {
+        format! (
             r#"__protocol.write_{name}_field({id}, {key_ttype}, {val_ttype}, &{ident}, |__protocol, key| {{
                 {write_key}
                 ::std::result::Result::Ok(())
@@ -576,7 +576,7 @@ impl ThriftBackend {
                 {write_val}
                 ::std::result::Result::Ok(())
             }})?;"#
-        }
+        )
         .into()
     }
 
@@ -594,7 +594,7 @@ impl ThriftBackend {
         let write_val = self.codegen_encode_ty(v, "val".into());
         let write_val_with_field_mask = self.codegen_encode_ty_with_field_mask(v, "val".into());
 
-        format! {
+        format! (
             r#"if let ::std::option::Option::Some(map_fm) = field_fm {{
                 __protocol.write_field_begin(::pilota::thrift::TType::Map, {id})?;
                 __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
@@ -620,7 +620,7 @@ impl ThriftBackend {
                         ::std::result::Result::Ok(())
                     }})?;
             }}"#
-            }
+            )
             .into()
     }
 
@@ -638,7 +638,7 @@ impl ThriftBackend {
         let write_val = self.codegen_encode_ty(v, "val".into());
         let write_val_with_field_mask = self.codegen_encode_ty_with_field_mask(v, "val".into());
 
-        format! {
+        format! (
             r#"if let ::std::option::Option::Some(map_fm) = field_fm {{
                 __protocol.write_field_begin(::pilota::thrift::TType::Map, {id})?;
                 __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
@@ -664,7 +664,7 @@ impl ThriftBackend {
                         ::std::result::Result::Ok(())
                     }})?;
             }}"#
-            }
+            )
             .into()
     }
 
@@ -682,7 +682,7 @@ impl ThriftBackend {
         let write_val = self.codegen_encode_ty(v, "val".into());
         let write_val_with_field_mask = self.codegen_encode_ty_with_field_mask(v, "val".into());
 
-        format! {
+        format! (
             r#"if let ::std::option::Option::Some(map_fm) = field_fm {{
                 __protocol.write_field_begin(::pilota::thrift::TType::Map, {id})?;
                 __protocol.write_{name}_begin(::pilota::thrift::TMapIdentifier {{
@@ -708,7 +708,7 @@ impl ThriftBackend {
                         ::std::result::Result::Ok(())
                     }})?;
         }}"#
-        }
+        )
         .into()
     }
 
@@ -731,11 +731,11 @@ impl ThriftBackend {
             ty::Vec(el) => {
                 let add_el = self.codegen_ty_size(el, "el".into());
                 let el_ttype = self.ttype(el);
-                format! {
+                format!(
                     r#"__protocol.list_len({el_ttype}, {ident}, |__protocol, el| {{
                         {add_el}
                     }})"#
-                }
+                )
                 .into()
             }
             ty::Set(k) => self.set_size(k, ident, "set"),
@@ -768,7 +768,7 @@ impl ThriftBackend {
                 let add_el = self.codegen_ty_size(el, "el".into());
                 let add_el_with_field_mask = self.codegen_ty_size_with_field_mask(el, "el".into());
                 let el_ttype = self.ttype(el);
-                format! {
+                format! (
                     r#"if let ::std::option::Option::Some(list_fm) = item_fm {{
                         let mut idx = 0;
                         let mut size = __protocol.list_begin_len(::pilota::thrift::TListIdentifier {{
@@ -786,7 +786,7 @@ impl ThriftBackend {
                             {add_el}
                         }})
                     }}"#
-                }
+                )
                 .into()
             }
             ty::Set(k) => self.set_size(k, ident, "set"),
@@ -839,11 +839,11 @@ impl ThriftBackend {
     fn set_size(&self, ty: &Ty, ident: FastStr, name: &str) -> FastStr {
         let add_el = self.codegen_ty_size(ty, "el".into());
         let el_ttype = self.ttype(ty);
-        format! {
+        format!(
             r#"__protocol.{name}_len({el_ttype}, {ident}, |__protocol, el| {{
                 {add_el}
             }})"#
-        }
+        )
         .into()
     }
 
@@ -854,13 +854,13 @@ impl ThriftBackend {
         let k_ttype = self.ttype(k);
         let v_ttype = self.ttype(v);
 
-        format! {
+        format!(
             r#"__protocol.{name}_len({k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{
                 {add_key}
             }}, |__protocol, val| {{
                 {add_val}
             }})"#
-        }
+        )
         .into()
     }
 
@@ -872,7 +872,7 @@ impl ThriftBackend {
         let k_ttype = self.ttype(k);
         let v_ttype = self.ttype(v);
 
-        format! {
+        format!(
             r#"if let ::std::option::Option::Some(map_fm) = item_fm {{
                 let mut size = __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
                     key_type: {k_ttype},
@@ -894,7 +894,7 @@ impl ThriftBackend {
                     {add_val}
                 }})
             }}"#
-        }
+        )
         .into()
     }
 
@@ -905,7 +905,7 @@ impl ThriftBackend {
         let k_ttype = self.ttype(k);
         let v_ttype = self.ttype(v);
 
-        format! {
+        format!(
             r#"if let ::std::option::Option::Some(map_fm) = item_fm {{
                 let mut size = __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
                     key_type: {k_ttype},
@@ -928,7 +928,7 @@ impl ThriftBackend {
                     {add_val}
                 }})
             }}"#
-        }
+        )
         .into()
     }
 
@@ -939,7 +939,7 @@ impl ThriftBackend {
         let k_ttype = self.ttype(k);
         let v_ttype = self.ttype(v);
 
-        format! {
+        format!(
             r#"if let ::std::option::Option::Some(map_fm) = item_fm {{
                 let mut size = __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
                     key_type: {k_ttype},
@@ -962,7 +962,7 @@ impl ThriftBackend {
                     {add_val}
                 }})
             }}"#
-        }
+        )
         .into()
     }
 
@@ -1024,11 +1024,11 @@ impl ThriftBackend {
             ty::Vec(el) => {
                 let add_el = self.codegen_ty_size(el, "el".into());
                 let el_ttype = self.ttype(el);
-                format! {
+                format! (
                     r#"__protocol.list_field_len(::std::option::Option::Some({id}), {el_ttype}, {ident}, |__protocol, el| {{
                         {add_el}
                     }})"#
-                }
+                )
                 .into()
             }
             ty::Set(k) => self.set_field_size(k, id, ident, "set"),
@@ -1112,7 +1112,7 @@ impl ThriftBackend {
                 let add_el = self.codegen_ty_size(el, "el".into());
                 let add_el_with_field_mask = self.codegen_ty_size_with_field_mask(el, "el".into());
                 let el_ttype = self.ttype(el);
-                format! {
+                format! (
                     r#"if let ::std::option::Option::Some(list_fm) = field_fm {{
                         let mut idx = 0;
                         let mut size = __protocol.field_begin_len(::pilota::thrift::TType::List, ::std::option::Option::None) + __protocol.field_end_len() + __protocol.list_begin_len(::pilota::thrift::TListIdentifier {{
@@ -1132,7 +1132,7 @@ impl ThriftBackend {
                             {add_el}
                         }})
                     }}"#
-                }
+                )
                 .into()
             }
             ty::Set(k) => self.set_field_size(k, id, ident, "set"),
@@ -1192,11 +1192,11 @@ impl ThriftBackend {
     fn set_field_size(&self, ty: &Ty, id: i16, ident: FastStr, name: &str) -> FastStr {
         let add_el = self.codegen_ty_size(ty, "el".into());
         let el_ttype = self.ttype(ty);
-        format! {
+        format! (
             r#"__protocol.{name}_field_len(::std::option::Option::Some({id}), {el_ttype}, {ident}, |__protocol, el| {{
                 {add_el}
             }})"#
-        }
+        )
         .into()
     }
 
@@ -1207,13 +1207,13 @@ impl ThriftBackend {
         let k_ttype = self.ttype(k);
         let v_ttype = self.ttype(v);
 
-        format! {
+        format! (
             r#"__protocol.{name}_field_len(::std::option::Option::Some({id}), {k_ttype}, {v_ttype}, {ident}, |__protocol, key| {{
                 {add_key}
             }}, |__protocol, val| {{
                 {add_val}
             }})"#
-        }
+        )
         .into()
     }
 
@@ -1232,7 +1232,7 @@ impl ThriftBackend {
         let k_ttype = self.ttype(k);
         let v_ttype = self.ttype(v);
 
-        format! {
+        format! (
             r#"if let ::std::option::Option::Some(map_fm) = field_fm {{
                 let mut size = __protocol.field_begin_len(::pilota::thrift::TType::Map, ::std::option::Option::None) + __protocol.field_end_len() + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
                     key_type: {k_ttype},
@@ -1254,7 +1254,7 @@ impl ThriftBackend {
                     {add_val}
                 }})
             }}"#
-        }
+        )
         .into()
     }
 
@@ -1272,7 +1272,7 @@ impl ThriftBackend {
         let k_ttype = self.ttype(k);
         let v_ttype = self.ttype(v);
 
-        format! {
+        format! (
             r#"if let ::std::option::Option::Some(map_fm) = field_fm {{
                 let mut size = __protocol.field_begin_len(::pilota::thrift::TType::Map, ::std::option::Option::None) + __protocol.field_end_len() + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
                     key_type: {k_ttype},
@@ -1294,7 +1294,7 @@ impl ThriftBackend {
                     {add_val}
                 }})
             }}"#
-        }
+        )
         .into()
     }
 
@@ -1312,7 +1312,7 @@ impl ThriftBackend {
         let k_ttype = self.ttype(k);
         let v_ttype = self.ttype(v);
 
-        format! {
+        format! (
             r#"if let ::std::option::Option::Some(map_fm) = field_fm {{
                 let mut size = __protocol.field_begin_len(::pilota::thrift::TType::Map, ::std::option::Option::None) + __protocol.field_end_len() + __protocol.map_begin_len(::pilota::thrift::TMapIdentifier {{
                     key_type: {k_ttype},
@@ -1334,7 +1334,7 @@ impl ThriftBackend {
                     {add_val}
                 }})
             }}"#
-        }
+        )
         .into()
     }
 
@@ -1345,13 +1345,13 @@ impl ThriftBackend {
             ty::Void => {
                 let read_struct_begin = helper.codegen_read_struct_begin();
                 let read_struct_end = helper.codegen_read_struct_end();
-                format! {
+                format!(
                     r#"{{
                     {read_struct_begin}
                     {read_struct_end}
                     ()
                 }}"#
-                }
+                )
                 .into()
             }
             ty::U8 => helper.codegen_read_byte(),
@@ -1374,7 +1374,7 @@ impl ThriftBackend {
                 let read_el = self.codegen_decode_ty(helper, ty);
                 let ty_rust_name = self.cx.db.codegen_item_ty(ty.kind.clone());
                 if !helper.is_async {
-                    format! {
+                    format! (
                         r#"unsafe {{
                             let list_ident = {read_list_begin};
                             let mut val: ::std::vec::Vec<{ty_rust_name}> = ::std::vec::Vec::with_capacity(list_ident.size);
@@ -1385,10 +1385,10 @@ impl ThriftBackend {
                             {read_list_end};
                             val
                         }}"#
-                    }
+                    )
                     .into()
                 } else {
-                    format! {
+                    format!(
                         r#"{{
                             let list_ident = {read_list_begin};
                             let mut val = ::std::vec::Vec::with_capacity(list_ident.size);
@@ -1398,7 +1398,7 @@ impl ThriftBackend {
                             {read_list_end};
                             val
                         }}"#
-                    }
+                    )
                     .into()
                 }
             }
@@ -1436,13 +1436,15 @@ impl ThriftBackend {
         let read_set_begin = helper.codegen_read_set_begin();
         let read_set_end = helper.codegen_read_set_end();
         let read_el = self.codegen_decode_ty(helper, ty);
-        format! {r#"{{let list_ident = {read_set_begin};
+        format!(
+            r#"{{let list_ident = {read_set_begin};
                     let mut val = {new};
                     for _ in 0..list_ident.size {{
                         val.insert({read_el});
                     }};
                     {read_set_end};
-                    val}}"#}
+                    val}}"#
+        )
         .into()
     }
 
@@ -1452,8 +1454,8 @@ impl ThriftBackend {
         let read_el_val = self.codegen_decode_ty(helper, val_ty);
         let read_map_begin = helper.codegen_read_map_begin();
         let read_map_end = helper.codegen_read_map_end();
-        format! {
-                    r#"{{
+        format!(
+            r#"{{
                         let map_ident = {read_map_begin};
                         let mut val = {new};
                         for _ in 0..map_ident.size {{
@@ -1462,7 +1464,7 @@ impl ThriftBackend {
                         {read_map_end};
                         val
                     }}"#
-        }
+        )
         .into()
     }
 
